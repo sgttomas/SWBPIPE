@@ -1,0 +1,157 @@
+{
+  "node_count": 73,
+  "package_count": 13,
+  "scope_rows": 63,
+  "deliverable_register_rows": 73,
+  "context_budget_rows": 73,
+  "active_edge_count": 615,
+  "candidate_edge_count": 9,
+  "endpoint_issue_count": 0,
+  "self_dependency_count": 0,
+  "duplicate_active_edge_count": 0,
+  "active_scc_count": 0,
+  "combined_scc_count": 4,
+  "orphan_count": 0,
+  "hub_count_degree_ge_20": 11,
+  "bidirectional_active_pair_count": 0,
+  "topological_wave_count": 12,
+  "topological_unemitted_count": 0,
+  "status_distribution": {
+    "SEMANTIC_READY": 13,
+    "OPEN": 60
+  },
+  "node_feature_counts": {
+    "contexts": 73,
+    "dependencies_md": 73,
+    "four_doc_kits": 13,
+    "semantic_matrix": 73,
+    "semantic_lensing": 13,
+    "review": 5
+  },
+  "origin_counts": {
+    "CONTEXT": 388,
+    "DECOMPOSITION": 227,
+    "AGENT_INFERENCE": 9
+  },
+  "dependency_type_counts_active": {
+    "ARCHITECTURE_BASIS": 388,
+    "GOVERNANCE_PREDECESSOR": 37,
+    "UNIT_CONTRACT": 23,
+    "DOMAIN_MODEL": 42,
+    "PERSISTENCE_CONTRACT": 7,
+    "SCHEMA_CONTRACT": 5,
+    "SERVICE_API": 4,
+    "SOLVER_PREDECESSOR": 13,
+    "DIAGNOSTICS_CONTRACT": 7,
+    "LOAD_STRESS_PREDECESSOR": 9,
+    "RULE_PACK_PREDECESSOR": 10,
+    "SECURITY_PREDECESSOR": 22,
+    "GUI_PREDECESSOR": 6,
+    "REPORTING_PREDECESSOR": 5,
+    "VALIDATION_PREDECESSOR": 18,
+    "INTEROP_PREDECESSOR": 3,
+    "DOCS_PREDECESSOR": 16
+  },
+  "candidate_dependency_type_counts": {
+    "LOAD_STRESS_PREDECESSOR": 1,
+    "GUI_PREDECESSOR": 2,
+    "INTEROP_PREDECESSOR": 1,
+    "SECURITY_PREDECESSOR": 2,
+    "VALIDATION_PREDECESSOR": 1,
+    "GOVERNANCE_PREDECESSOR": 1,
+    "DIAGNOSTICS_CONTRACT": 1
+  },
+  "endpoint_issues": [],
+  "self_dependencies": [],
+  "duplicate_active_edges": {},
+  "active_sccs": [],
+  "combined_sccs": [
+    [
+      "DEL-04-04",
+      "DEL-04-06"
+    ],
+    [
+      "DEL-10-02",
+      "DEL-12-01",
+      "DEL-12-05"
+    ],
+    [
+      "DEL-08-05",
+      "DEL-11-04"
+    ],
+    [
+      "DEL-09-05",
+      "DEL-10-04"
+    ]
+  ],
+  "orphans": [],
+  "hubs": [
+    {
+      "DeliverableID": "DEL-00-01",
+      "InDegree": 65,
+      "OutDegree": 0,
+      "TotalDegree": 65
+    },
+    {
+      "DeliverableID": "DEL-00-02",
+      "InDegree": 65,
+      "OutDegree": 0,
+      "TotalDegree": 65
+    },
+    {
+      "DeliverableID": "DEL-00-06",
+      "InDegree": 65,
+      "OutDegree": 0,
+      "TotalDegree": 65
+    },
+    {
+      "DeliverableID": "DEL-00-08",
+      "InDegree": 65,
+      "OutDegree": 0,
+      "TotalDegree": 65
+    },
+    {
+      "DeliverableID": "DEL-00-07",
+      "InDegree": 45,
+      "OutDegree": 0,
+      "TotalDegree": 45
+    },
+    {
+      "DeliverableID": "DEL-00-03",
+      "InDegree": 43,
+      "OutDegree": 0,
+      "TotalDegree": 43
+    },
+    {
+      "DeliverableID": "DEL-00-04",
+      "InDegree": 33,
+      "OutDegree": 0,
+      "TotalDegree": 33
+    },
+    {
+      "DeliverableID": "DEL-02-02",
+      "InDegree": 23,
+      "OutDegree": 8,
+      "TotalDegree": 31
+    },
+    {
+      "DeliverableID": "DEL-01-02",
+      "InDegree": 20,
+      "OutDegree": 5,
+      "TotalDegree": 25
+    },
+    {
+      "DeliverableID": "DEL-02-01",
+      "InDegree": 15,
+      "OutDegree": 7,
+      "TotalDegree": 22
+    },
+    {
+      "DeliverableID": "DEL-04-01",
+      "InDegree": 13,
+      "OutDegree": 8,
+      "TotalDegree": 21
+    }
+  ],
+  "bidirectional_active_pairs": []
+}

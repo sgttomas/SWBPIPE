@@ -1,0 +1,2 @@
+AmendmentID,EntityType,EntityID,PreviousStatus,NewStatus,Notes
+SCA-001,,,,,"No lifecycle/status supersession. `PKG-00` remains `SEMANTIC_READY`; downstream deliverables remain `OPEN`."

@@ -1,0 +1,49 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.design_knowledge",
+  "knowledge_set_id": "knowledge:invented-loop-01",
+  "model_ref": "project:invented-loop-01",
+  "records": [
+    {
+      "id": "dk:endpoint:pump",
+      "kind": "endpoint",
+      "title": "Pump nozzle endpoint",
+      "summary": "Invented endpoint record used to show how user-supplied design context appears in the preview.",
+      "affected_refs": ["node:N-100"],
+      "provenance": "invented_example",
+      "status": "review_required"
+    },
+    {
+      "id": "dk:corridor:rack",
+      "kind": "routing_corridor",
+      "title": "Rack corridor placeholder",
+      "summary": "Invented corridor note; no owner standard or protected spacing criterion is bundled.",
+      "affected_refs": ["pipe:P-120", "support:S-130"],
+      "provenance": "invented_example",
+      "status": "review_required"
+    },
+    {
+      "id": "dk:assumption:support",
+      "kind": "assumption",
+      "title": "Support stiffness dimensions unresolved",
+      "summary": "Linear and rotational support behavior is represented as a preview diagnostic until user-supplied stiffness values and canonical dimensions are provided.",
+      "affected_refs": ["support:S-120", "support:S-130"],
+      "provenance": "invented_example",
+      "status": "unresolved"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "SUPPORT_STIFFNESS_UNRESOLVED",
+      "severity": "warning",
+      "message": "Support linear_stiffness and rotational_stiffness values are not supplied; preview mechanics uses bounded placeholder diagnostics.",
+      "affected_refs": ["support:S-120", "support:S-130"]
+    },
+    {
+      "code": "RULE_CHECK_NOT_PERFORMED",
+      "severity": "info",
+      "message": "No code or owner rule pack is loaded in the technical preview.",
+      "affected_refs": ["project:invented-loop-01"]
+    }
+  ]
+}

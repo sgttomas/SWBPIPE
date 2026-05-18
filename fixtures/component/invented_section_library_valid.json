@@ -1,0 +1,165 @@
+{
+  "schema_version": "0.1.0",
+  "section_library": {
+    "library_id": "seclib.invented.public_fixture",
+    "name": "Invented non-engineering section fixture",
+    "library_scope": "public_schema_fixture",
+    "privacy_class": "public_schema_only",
+    "provenance": {
+      "source_name": "OpenPipeStress invented fixture",
+      "source_location": "fixtures/component/invented_section_library_valid.json",
+      "source_license": "TBD",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering fixture; not for project use",
+      "redistribution_status": "TBD",
+      "review_status": "pending"
+    },
+    "review_status": "pending"
+  },
+  "section_records": [
+    {
+      "section_id": "sec.invented.pipe.alpha",
+      "name": "Invented Pipe Section Alpha",
+      "section_type": "pipe",
+      "privacy_class": "public_schema_only",
+      "redistribution_status": "TBD",
+      "dimensions": [
+        {
+          "dimension_id": "sec.invented.pipe.alpha.od",
+          "dimension_kind": "outside_diameter",
+          "value_status": "missing",
+          "required_for": "section_property_calculation",
+          "provenance": {
+            "source_name": "OpenPipeStress invented fixture",
+            "source_location": "fixtures/component/invented_section_library_valid.json",
+            "source_license": "TBD",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "invented non-engineering fixture; value intentionally omitted",
+            "redistribution_status": "TBD",
+            "review_status": "pending"
+          },
+          "review_status": "pending"
+        }
+      ],
+      "properties": [
+        {
+          "property_id": "sec.invented.pipe.alpha.area",
+          "property_kind": "cross_section_area",
+          "value_status": "missing",
+          "calculation_status": "not_calculated",
+          "required_for": "mechanics_solve",
+          "provenance": {
+            "source_name": "OpenPipeStress schema slot",
+            "source_location": "schemas/section.schema.yaml",
+            "source_license": "TBD",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "schema slot only; no section property value supplied",
+            "redistribution_status": "TBD",
+            "review_status": "pending"
+          },
+          "review_status": "pending"
+        }
+      ],
+      "completeness": [
+        {
+          "finding_id": "sec.invented.pipe.alpha.incomplete",
+          "required_for": "section_property_calculation",
+          "status": "incomplete",
+          "missing_dimension_kinds": [
+            "outside_diameter",
+            "wall_thickness"
+          ],
+          "missing_property_kinds": [
+            "cross_section_area",
+            "moment_of_inertia"
+          ],
+          "diagnostic_code": "SECTION_DIMENSION_MISSING"
+        }
+      ],
+      "provenance": {
+        "source_name": "OpenPipeStress invented fixture",
+        "source_location": "fixtures/component/invented_section_library_valid.json",
+        "source_license": "TBD",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering fixture; not for project use",
+        "redistribution_status": "TBD",
+        "review_status": "pending"
+      },
+      "review_status": "pending"
+    }
+  ],
+  "dimension_definitions": [
+    {
+      "dimension_kind": "outside_diameter",
+      "dimension_id": "length",
+      "quantity_kind": "unit_bearing",
+      "unit_required": true,
+      "required_for": "section_property_calculation",
+      "public_fixture_policy": "schema_shape_only",
+      "review_status": "pending"
+    }
+  ],
+  "property_definitions": [
+    {
+      "property_kind": "cross_section_area",
+      "dimension_id": "area",
+      "quantity_kind": "unit_bearing",
+      "unit_required": true,
+      "required_for": "mechanics_solve",
+      "public_fixture_policy": "schema_shape_only",
+      "review_status": "pending"
+    }
+  ],
+  "completeness_rules": [
+    {
+      "rule_id": "rule.section.pipe.minimum",
+      "applies_to": "section_property_calculation",
+      "required_dimension_kinds": [
+        "outside_diameter",
+        "wall_thickness"
+      ],
+      "required_property_kinds": [
+        "cross_section_area",
+        "moment_of_inertia"
+      ],
+      "required_for": "section_property_calculation",
+      "missing_behavior": "diagnostic_blocking",
+      "diagnostic_code": "SECTION_DIMENSION_MISSING",
+      "review_status": "pending"
+    }
+  ],
+  "diagnostics": [
+    {
+      "diagnostic_id": "diag.section.fixture.incomplete",
+      "code": "SECTION_DIMENSION_MISSING",
+      "severity": "blocking",
+      "affected_ref": {
+        "ref_type": "section",
+        "ref_id": "sec.invented.pipe.alpha"
+      },
+      "message": "Invented fixture intentionally omits section dimensions and derived properties.",
+      "remediation": "Supply reviewed user or public-permissive section dimensions with units and provenance before use.",
+      "provenance": {
+        "source_name": "OpenPipeStress invented fixture",
+        "source_location": "fixtures/component/invented_section_library_valid.json",
+        "source_license": "TBD",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented diagnostic fixture",
+        "redistribution_status": "TBD",
+        "review_status": "pending"
+      },
+      "class": "SOLVE_BLOCKING",
+      "source": "fixtures/component/invented_section_library_valid.json"
+    }
+  ],
+  "open_decisions": [
+    {
+      "decision_id": "sec.dec.public-fixture-policy",
+      "topic": "public_section_fixture_policy",
+      "status": "open",
+      "blocking_scope": "public_fixture_values",
+      "owner": "human project authority",
+      "notes": "Public section fixture values remain omitted until source and redistribution policy is accepted."
+    }
+  ]
+}

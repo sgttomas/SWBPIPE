@@ -1,0 +1,13 @@
+[package]
+name = "open_pipe_stress_primitive_loads"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral primitive load case mechanics for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../solver/frame_kernel" }
+open_pipe_stress_linear_supports = { path = "../../solver/linear_supports" }

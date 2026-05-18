@@ -1,0 +1,662 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/plugin_manifest.schema.yaml",
+  "title": "OpenPipeStress Plugin Manifest Schema",
+  "description": "Strict JSON syntax schema for plugin and extension domain manifests. Plugins are denied by default and may not bypass unit, provenance, privacy, protected-content, checksum, rule-sandbox, diagnostic, API boundary, or application-service persistence controls. Direct SQL, raw SQLite handles, table names, and direct project-store mutation are outside the manifest contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_kind",
+    "metadata",
+    "api_boundary_compatibility",
+    "entrypoints",
+    "permissions",
+    "provenance",
+    "privacy",
+    "checksums",
+    "sandbox",
+    "no_bypass_constraints",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "manifest_kind": {
+      "type": "string",
+      "const": "open_pipe_stress_plugin_manifest"
+    },
+    "metadata": {
+      "$ref": "#/$defs/PluginMetadata"
+    },
+    "api_boundary_compatibility": {
+      "$ref": "#/$defs/ApiBoundaryCompatibility"
+    },
+    "entrypoints": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/Entrypoint"
+      }
+    },
+    "permissions": {
+      "$ref": "#/$defs/PermissionModel"
+    },
+    "provenance": {
+      "$ref": "#/$defs/ProvenanceRecord"
+    },
+    "privacy": {
+      "$ref": "#/$defs/PrivacyDeclaration"
+    },
+    "checksums": {
+      "$ref": "#/$defs/ChecksumSet"
+    },
+    "sandbox": {
+      "$ref": "#/$defs/SandboxDeclaration"
+    },
+    "no_bypass_constraints": {
+      "$ref": "#/$defs/NoBypassConstraints"
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    }
+  },
+  "$defs": {
+    "ApiBoundaryCompatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain_contract_ref",
+        "api_boundary_contract_ref",
+        "boundary_api_version",
+        "schema_version_contract",
+        "host_api_status",
+        "compatible_operation_categories",
+        "result_envelope_required",
+        "transport"
+      ],
+      "properties": {
+        "domain_contract_ref": {
+          "type": "string",
+          "const": "docs/architecture/extension_domain_contracts.md"
+        },
+        "api_boundary_contract_ref": {
+          "type": "string",
+          "const": "api/api_boundary_contract.yaml"
+        },
+        "boundary_api_version": {
+          "type": "string"
+        },
+        "schema_version_contract": {
+          "type": "string",
+          "enum": [
+            "JSON Schema 2020-12",
+            "TBD"
+          ]
+        },
+        "host_api_status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "stable",
+            "deprecated",
+            "TBD"
+          ]
+        },
+        "compatible_operation_categories": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "plugin_manifest",
+              "permission",
+              "privacy",
+              "provenance",
+              "checksum",
+              "no_bypass",
+              "diagnostic",
+              "command",
+              "query",
+              "job",
+              "result_envelope"
+            ]
+          }
+        },
+        "result_envelope_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "transport": {
+          "type": "string",
+          "enum": [
+            "TBD"
+          ]
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ChecksumSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_checksum",
+        "payload_checksums",
+        "hash_basis"
+      ],
+      "properties": {
+        "manifest_checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "payload_checksums": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "hash_basis": {
+          "type": "string",
+          "enum": [
+            "Canonical JSON/JCS-compatible",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "Entrypoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entrypoint_id",
+        "extension_point",
+        "domain_surface",
+        "operation_mode",
+        "handler_ref",
+        "governed_boundary_required"
+      ],
+      "properties": {
+        "entrypoint_id": {
+          "type": "string",
+          "pattern": "^ops\\.plugin\\.[a-z0-9_]+\\.[a-z0-9_]+$"
+        },
+        "extension_point": {
+          "type": "string",
+          "enum": [
+            "model_import_adapter",
+            "model_export_adapter",
+            "result_export_adapter",
+            "diagnostic_provider",
+            "validation_hook",
+            "rule_pack_provider",
+            "report_output_extension",
+            "TBD"
+          ]
+        },
+        "domain_surface": {
+          "type": "string",
+          "enum": [
+            "canonical_model",
+            "project_persistence",
+            "units",
+            "analysis_boundary",
+            "rule_pack_metadata",
+            "results",
+            "reports",
+            "diagnostics",
+            "TBD"
+          ]
+        },
+        "operation_mode": {
+          "type": "string",
+          "enum": [
+            "command",
+            "query",
+            "job",
+            "metadata_only"
+          ]
+        },
+        "handler_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "governed_boundary_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "persistence_access": {
+          "$ref": "#/$defs/PersistenceAccess"
+        }
+      }
+    },
+    "NoBypassConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_controls",
+        "provenance_controls",
+        "privacy_controls",
+        "rule_sandbox_controls",
+        "analysis_boundary_controls",
+        "persistence_controls",
+        "schema_validation",
+        "diagnostic_envelope",
+        "checksum_controls",
+        "protected_content_controls",
+        "report_boundary_controls",
+        "solver_boundary_controls",
+        "human_acceptance_controls"
+      ],
+      "properties": {
+        "unit_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "provenance_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "privacy_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "rule_sandbox_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "analysis_boundary_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "persistence_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "schema_validation": {
+          "type": "boolean",
+          "const": true
+        },
+        "diagnostic_envelope": {
+          "type": "boolean",
+          "const": true
+        },
+        "checksum_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "protected_content_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "report_boundary_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "solver_boundary_controls": {
+          "type": "boolean",
+          "const": true
+        },
+        "human_acceptance_controls": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "PersistenceAccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "access_mode",
+        "direct_sql_allowed",
+        "raw_sqlite_handle_allowed",
+        "table_name_coupling_allowed",
+        "direct_store_mutation_allowed"
+      ],
+      "properties": {
+        "access_mode": {
+          "type": "string",
+          "const": "application_service_command_query_job_only"
+        },
+        "direct_sql_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "raw_sqlite_handle_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "table_name_coupling_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "direct_store_mutation_allowed": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "PermissionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denied_by_default",
+        "requested",
+        "grant_state",
+        "user_consent_required",
+        "revocation_supported"
+      ],
+      "properties": {
+        "denied_by_default": {
+          "type": "boolean",
+          "const": true
+        },
+        "requested": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "read_model",
+              "write_model",
+              "read_results",
+              "run_solver",
+              "read_rule_pack_metadata",
+              "read_rule_pack_private_values",
+              "write_rule_pack",
+              "read_private_library",
+              "write_private_library",
+              "export_payload",
+              "network_access",
+              "filesystem_project_read",
+              "filesystem_project_write",
+              "diagnostics_emit"
+            ]
+          }
+        },
+        "grant_state": {
+          "type": "string",
+          "enum": [
+            "not_granted",
+            "requested",
+            "granted",
+            "denied",
+            "TBD"
+          ]
+        },
+        "user_consent_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "revocation_supported": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "PluginMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plugin_id",
+        "name",
+        "version",
+        "author",
+        "description",
+        "status"
+      ],
+      "properties": {
+        "plugin_id": {
+          "type": "string",
+          "pattern": "^ops-plugin-[a-z0-9][a-z0-9_-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "review_pending",
+            "accepted",
+            "rejected",
+            "quarantined",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "PrivacyDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_first",
+        "private_data_transmission_default",
+        "telemetry_enabled_by_default",
+        "private_data_access",
+        "export_requires_permission",
+        "redaction_supported"
+      ],
+      "properties": {
+        "local_first": {
+          "type": "boolean",
+          "const": true
+        },
+        "private_data_transmission_default": {
+          "type": "boolean",
+          "const": false
+        },
+        "telemetry_enabled_by_default": {
+          "type": "boolean",
+          "const": false
+        },
+        "private_data_access": {
+          "type": "string",
+          "enum": [
+            "none",
+            "explicit_permission_required",
+            "TBD"
+          ]
+        },
+        "export_requires_permission": {
+          "type": "boolean",
+          "const": true
+        },
+        "redaction_supported": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "human_review_required",
+        "human_acceptance_record_software_generated"
+      ],
+      "properties": {
+        "software_makes_compliance_claim": {
+          "type": "boolean",
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "type": "boolean",
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "type": "boolean",
+          "const": false
+        },
+        "human_review_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "human_acceptance_record_software_generated": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "ProvenanceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined"
+          ]
+        }
+      }
+    },
+    "SandboxDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sandbox_required",
+        "arbitrary_code_execution_allowed",
+        "filesystem_access_default",
+        "network_access_default",
+        "process_spawn_default",
+        "rule_pack_execution_mode",
+        "capability_declaration_required"
+      ],
+      "properties": {
+        "sandbox_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "arbitrary_code_execution_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "filesystem_access_default": {
+          "type": "string",
+          "enum": [
+            "denied",
+            "explicit_permission_required"
+          ]
+        },
+        "network_access_default": {
+          "type": "string",
+          "enum": [
+            "denied",
+            "explicit_permission_required"
+          ]
+        },
+        "process_spawn_default": {
+          "type": "string",
+          "enum": [
+            "denied"
+          ]
+        },
+        "rule_pack_execution_mode": {
+          "type": "string",
+          "enum": [
+            "sandboxed_declarative",
+            "not_applicable",
+            "TBD"
+          ]
+        },
+        "capability_declaration_required": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+SourcePath,Kind,SHA256_After
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/_STATUS.md,status,c406221c10634e251d9465b7ba3b30d66bbcada11915b94f4b5b6189999bcca9
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/_STATUS.md,status,c2c9df3b0a1a31de94ecc4ff9e047d963ba6bea51a830b949b00c9c7195c6c2b
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/_STATUS.md,status,6e1e8b899701a181be21b4b94da686d2cf60c1cf93ddda9d62f2175ff88ba2f1
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-04_Persistence and schema versioning architecture/_STATUS.md,status,2bc516091bf94a262fa39acf6ed1429d4cf0a27365f0dc6ecdc86e4afcf203dc
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/_STATUS.md,status,026ab8c926abb29d73fd416058e2670c5a393cd7af219a38cf174ef4ac50dd9c
+"execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/_STATUS.md",status,a0c4c60898a3067c8498b379d57f28292d6429e9203cc3620f8b50dae6332c3b
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/_STATUS.md,status,94edd2360f2e835371dde52bacc061d4f6fab028b09513b643ffccd19d8e625d
+execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_STATUS.md,status,7207786d970977fc63d33907cbbfd1094cb04fa998c058b5eeb37a3d5e416b7f
+"execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/_STATUS.md",status,bfe21b613375ade31ba1acd97bc25a6fda544b2323855424aa911dbaaf955c46
+"execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/_STATUS.md",status,759d2b2337827a33a4bfef8a1dcbaac4d1d6753ae0344880b0531d8d9a81d26b
+"execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/_STATUS.md",status,7c63b03181fc1be13f644e14e55a80d4236af530360fd02288892e86b86553d1
+"execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/_STATUS.md",status,0f1c31ced18a08c03c527812bb7e004a4ce1b3dcb2e3cdbd3b83043ef70913be
+"execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_STATUS.md",status,76df13841c07007b8eba3026ec70adc88881f6c77ba9fdf0ff0ee8e3e7eae555
+"execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_STATUS.md",status,85e436ead06ddac724e2766dbc92e7163e36edecb2a452d78258b101bc3420cc
+"execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_STATUS.md",status,a6dfdc2dab78c7075b5544fa172343beb71c3989932c74754f956c7ca434079e
+"execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_STATUS.md",status,27272afd97676ee58b81faafd3312e8a3d017c5e9a6eb6ae655c03a3f269d5cb
+"execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_STATUS.md",status,518f3baac6d656869ea85aae1cde6206770328e70af8ac0b68b34a1027f92228
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_STATUS.md",status,7e3a7d3ad3416c4c07a182f20cddc55324e8aa4a72860d1cfc2888a730d4dbf5
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_STATUS.md",status,fb59f18ae87bebcbf61f5ad94b95c8616c34b6cc3b4bbed351b8861bfb4a5af0
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/_STATUS.md",status,7f98d22325813d8f4f155407e7773a3beed7598148608ade32be1486cde75018
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/_STATUS.md",status,8b9322905d6b8fdee4238dc52f10e2c272aecead1c09c8ccbcce571d371d7ee7
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/_STATUS.md",status,f64d741d3c61514a6a42f185d59905e67f6dc34f9b442c5eb16a13ac71143744
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_STATUS.md",status,0f6db0ff9ae6c00fc346f67f748b28654daedc806289a49cddc1cd7d27a1c127
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_STATUS.md",status,06562dd2a2536586fb7e9930f0ad18b68fb7aefa15ff5480752075fa20b6a2a6
+"execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_STATUS.md",status,1b6f505ef8e40c0846c5019919565e3bfc5c1d3eca6beb750049fcf0750c949f
+execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md,status,33e349ea7f4ed954046b2f95f5beb740707478d2af5aeff7c2b799feb5d3b0d6
+execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md,status,4debfeb5dfbd3bead163fe3c35e45ddfc160a80ecd679381e1dd4d6c9efb3dd1
+execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md,status,69c1b99a20a9a5d40d8753e892f3be8814bec46a6208c26a99d6863e9472a02f
+execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md,status,4ca72e1e3d2481780c2ffe620ba948cb09e0621cea12fb61ada8358be3bf1a8c
+execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_STATUS.md,status,1c02d252f96ac6a1581e86f506a9c104892f6dc404e325bbe8267357367b8b76
+execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md,status,567520193033010a824fe326606c41a78fbe13aec1b2907a5bc137d6f9bfdcb7
+"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",status,77f6857e596506aca504fbed940e921b16405c2940f4905085622a096f85c67f
+"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_STATUS.md",status,2f56204b22bbcdfa6f6c532e557622c6e6364c2b7f2899d26e8285f39ad8da8d
+"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md",status,9c61111eed974770353c84ec078a19827619d8c12f07beabb19540f30ab09437
+"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_STATUS.md",status,95af46fd226537eeec4f1afaa6c72c22c596965dc78f409917c9519dbd6c5cb0
+"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_STATUS.md",status,bdafd08026ab3c5d411396bdbc48cf30895b5a446bec608fe0f293889b19777e
+execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/_STATUS.md,status,0256ed9d56cc37308f79238ec8a1cc42438956cdbe85c549fc1004915a038562
+execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/_STATUS.md,status,7f08f83b49d6862578c56d596ee05b45d18d26dc0e0a6b74e8c57f51b410e89d
+execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/_STATUS.md,status,2f0779e620f9513704a463b79931af22f28fe607ee201c788d15513840f1f7ba
+execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/_STATUS.md,status,9b3e15870382f26c65b82db07e4ad08d0c9636e379f5247191ca78bb91258653
+execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/_STATUS.md,status,b712fa8afb5f91d5de9c3d9d42f47d33f2aa4112175b1a93fcdbb192efe201fe
+execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md,status,933a2e60b00a6c8fa9c67c1b3cc97a2502d5af4462d359741050a8ad6ae68a82
+execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md,status,8325e3627fcb2ea3499e5f2aa47982028e291b360d2c7c1aac4533e09173e2aa
+"execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",status,6bd80df14ce398ecd63b4efbcb62aec759c873a08910658686b3fb5f8356dc08
+execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md,status,ab5c1f871cde1477e1aa93b98cacb8ca89b8f5e473ab6536c88772bc27a6cf16
+execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md,status,9ff6f5ba5ce0ea9b59b216ebe8accb777e0ab83896603a01166dbaef8189d30e
+execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md,status,b7686fc7908229417700d12f00630fc33314fddd40740ea709da8b9cf67af732
+"execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",status,ef065c2ca8204a18f5c531372f4a9e2d598f94bf53060f8863af0e49bf34294b
+execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md,status,09df3e02401bc168b5b86eb180458f9c058b4c64fe808bfa25b11b47067bc34a
+"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_STATUS.md",status,d554fd9b5ee0ea7c1eae1ccbba5b256ea41a6d76a71570b16a03195c26b6b36b
+"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_STATUS.md",status,40c4953d015db53dd9724e167f832e75df5b2f090951bf8ee88ee11e0879c85a
+"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/_STATUS.md",status,978b1b2a43a85e9679c2b2ea5a6d29358cc604bee8b13b94f97dfb7a3f833990
+"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",status,b8da78323bfe7595c801b2578b0ecf201f0c0a3a35cae443c34dc6fb06fe01c0
+"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/_STATUS.md",status,2bc9510c8b2a872fda49b5c0b17bc0e86c5d2100c1d31ff7666d9046742cf240
+"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections/_STATUS.md",status,ddcea460490ef9bbc44ce9a077b57d2433d72f1e359ba7509aee4388d7597827
+"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md",status,29e156f78e631ff3feb2fd75a30a4a36f9fec3ef09feb402b4913c1c0bf6c1e1
+"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/_STATUS.md",status,cded0629f4c3a41fc80eb253a485729f77bc5bbbe288bf803783adfe81e306d3
+"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md",status,4a9da07a6b5828f870c06809d012f22c7265eb669c12b848e7e779505814f83c
+"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",status,e2f4c9cd6084fb9c3fb89cd746caca26ee0bc5cfa31e9a986a324ac3c4fc0f78
+"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/_STATUS.md",status,83cfa672e43d6764f10b9f5985ec08f70ffbf1d5b45c57203c117e3f5843b812
+"execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/_STATUS.md",status,79662a0661b8ce9519d515404486a3f1c0f515d9c9e23a8760679587398bdc1e
+"execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework/_STATUS.md",status,69821aa5b9f3978f2031f387c63a8c320dc23640d6a2295c808d060a97568e1a
+"execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/_STATUS.md",status,b7a9299f38f2bc55d2e30910c840df139c37f658954b1b9b95588f332de56b32
+"execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/_STATUS.md",status,df2daa5e6593be19eaed51752a320293e504e08ad88de2269a47c0b675716dae
+"execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_STATUS.md",status,7d8e5026f75ff11dde6459442513a5de4590906aa5cee26b47a78e581050eec3
+"execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/_STATUS.md",status,4ffc556a0759e6a43674217cf28ff697f91f277e97b3e99fc70318c3f27a7d0c
+"execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/_STATUS.md",status,7f9d55f26011642c456c6acccf34a7d537a030e5793009d2ee1a3676d4da01d9
+"execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/_STATUS.md",status,47fb5bb618df7ddccdd2bc569b1d1b2538d95acfc616bf75b33fce70668e2053
+"execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/_STATUS.md",status,890987b207c8517b6b23e0d04aaf123b39c23c9bdaed327a4acfa2645dadc974
+"execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/_STATUS.md",status,2eac226030a7e7a5513deecbe7bcde38a27e21464535902d02af279140683848
+"execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/_STATUS.md",status,20afeebeb1083b3e334b0204d26af04090045cc9d542f0985cae7d4ee739186a
+"execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_STATUS.md",status,88aa56ce0efebd4c43eb972889341ff759cbc8b5b046bac6d018ac936fcfc923
+"execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/_STATUS.md",status,d8eb3686f963c1c47ac724efea4e787485b65976f31975233f880894e45b53ff
+"execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling/_STATUS.md",status,fe3d9ca75a4a81bc52345c9488c3d47a6b7ba68ac4a69dff69b20a7c48403ec1
+"execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/_STATUS.md",status,7c141888e3b7c91cb5a5614c90503380ed97dfd94ba41d9c383ce66c76f36a6f
+execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/_STATUS.md,status,6fedc6800b5fc1911822c546a20e98f16d1e6c0d6369c27bb54b26174ab63096
+execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/_STATUS.md,status,c875f16142b1f5cc65cf3b32cac2ef661e51fdec99545125e00667aed3ec51d0
+execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_STATUS.md,status,e3fc7ba874cd23690eb54f7a1fb93278f6bb0fc366dcd6a731fa804a5c694928
+execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_STATUS.md,status,44849f6dc80fa466824bd0a8f4a44ae7969b8ea841163a19048e3664cebff7fa
+"execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/_STATUS.md",status,56c0824993643f2351e8b9dcb80c236458458e0ba942675b52f36e17548e22a5
+"execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",status,f7a5592aa4b99d9005cc8222aa4d6426ea22b0964e4df5557e22dbc28a0f3611
+"execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/_STATUS.md",status,5574924d95dc2e3b885e63cc183a51e304da658f4e636b60ba457d438bd83ec4
+"execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_STATUS.md",status,4b40b28a6dbd3072332d8b642fd8c063d349a4f0e5762c2fef722c627a624390
+"execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_STATUS.md",status,b3c6db45022329f32fe9fc7dc3d798f1b6c0b5654f735d805c453de070c4e0ba
+execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/_STATUS.md,status,504af9e687b50131b2465d16b19d60b3485e85387026d1424bf25d0de9373aff
+execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/_STATUS.md,status,8a7f08b1fa2a5263fa723f3aadbbcb120f2411ad68abd0c4e0d841620d928686
+execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/_STATUS.md,status,cf19b6f038700986910807f4f36036ddde5ce84291485eadfe654d012e5ecc51
+execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/_STATUS.md,status,1bff41d296ae0fba37f3597b363b90590412d678f9afb934f55fdf91bef3be70
+execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_STATUS.md,status,ecdc03d41233aed646ad7ac5414bf86a7d05aec65740e65ef74ce2ed8998a8ff
+execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md,status,b365d1bbc92891bde02bcbecc69b57d315476c72a739f6e0dbd736144d537d21
+execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md,status,fc59e79b801e43f2a3388f78a8173be9b200b37d654a76b4fdd97c6b04683fe8
+execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_STATUS.md,status,1682276ef3937302f66b776ffd251f823b553e9650056a4bdd84032f40b1dc23

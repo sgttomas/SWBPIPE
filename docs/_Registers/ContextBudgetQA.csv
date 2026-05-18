@@ -1,0 +1,102 @@
+DeliverableID,PackageID,ContextEnvelope,Risk,RecommendedAction,Notes
+DEL-00-01,PKG-00,M,OK,Proceed with bounded Type 2 brief,SCA-001 accepted runtime/UI baseline; exact dependency versions and solver numerical library remain TBD.
+DEL-00-02,PKG-00,M,OK,Proceed with bounded Type 2 brief,SCA-001 architecture basis AB-00-02; concrete folder names may refine without changing layer responsibilities.
+DEL-00-03,PKG-00,L,WATCH,Confirm scope and split if it expands,SCA-001 architecture basis AB-00-03; command/query/job/result-envelope constraints are dispatchable.
+DEL-00-04,PKG-00,L,WATCH,Confirm scope and split if it expands,"SCA-001 accepted JSON Schema 2020-12, canonical JSON, and JCS-compatible hash basis; SCA-003 selects the MVP local SQLite storage profile."
+DEL-00-05,PKG-00,L,WATCH,Confirm scope and split if it expands,"SCA-001 accepted durable/transient GUI state split, service-command mutation route, and scoped undo/redo; exact state library remains TBD."
+DEL-00-06,PKG-00,M,OK,Proceed with bounded Type 2 brief,SCA-001 accepted diagnostics/result-envelope warning classes and no certification/compliance claims.
+DEL-00-07,PKG-00,M,OK,Proceed with bounded Type 2 brief,SCA-001 accepted no-bypass API/adapter boundary; public transport and concrete import/export formats remain TBD.
+DEL-00-08,PKG-00,M,OK,Proceed with bounded Type 2 brief,"SCA-001 accepted Cargo, Vitest, Playwright, validation, and protected-content/provenance test gate baseline; CI details remain TBD."
+DEL-01-01,PKG-01,M,OK,Proceed with bounded Type 2 brief,Single governance surface; policy language only.
+DEL-01-02,PKG-01,M,OK,Proceed with bounded Type 2 brief,Requires careful wording and legal-review flags.
+DEL-01-03,PKG-01,S,OK,Proceed with bounded Type 2 brief,Bounded policy artifact.
+DEL-01-04,PKG-01,S,OK,Proceed with bounded Type 2 brief,Policy wording and product-claims boundaries; no code.
+DEL-02-01,PKG-02,M,OK,Proceed with bounded Type 2 brief,Schema deliverable must use JSON Schema 2020-12 baseline from SCA-001 and preserve the physical-model source-of-truth contract.
+DEL-02-02,PKG-02,M,OK,Proceed with bounded Type 2 brief,Foundation for solver and rule engine.
+DEL-02-03,PKG-02,S,OK,Proceed with bounded Type 2 brief,Important semantic boundary; limited implementation surface.
+DEL-02-04,PKG-02,M,OK,Proceed with bounded Type 2 brief,Plugin/extension contracts must enforce SCA-001 no-bypass units/provenance/diagnostics/data-boundary constraints.
+DEL-02-05,PKG-02,M,OK,Proceed with bounded Type 2 brief,Persistence deliverable must use SCA-001 schema-governed canonical JSON/JCS hash basis over the SCA-003 local SQLite storage profile.
+DEL-03-01,PKG-03,M,OK,Proceed with bounded Type 2 brief,Schema plus tests; no proprietary data.
+DEL-03-02,PKG-03,M,OK,Proceed with bounded Type 2 brief,Library schema only; no protected tables.
+DEL-03-03,PKG-03,S,OK,Proceed with bounded Type 2 brief,Single component family.
+DEL-03-04,PKG-03,M,OK,Proceed with bounded Type 2 brief,Component model has more local fields but remains bounded.
+DEL-03-05,PKG-03,M,OK,Proceed with bounded Type 2 brief,Multiple related rigid components; no data tables.
+DEL-03-06,PKG-03,M,OK,Proceed with bounded Type 2 brief,Specialized but bounded component type.
+DEL-03-07,PKG-03,M,OK,Proceed with bounded Type 2 brief,Connects schema with governance; no external import formats yet.
+DEL-03-08,PKG-03,M,OK,Proceed with bounded Type 2 brief,Bounded calculation module using user-entered dimensions only.
+DEL-04-01,PKG-04,L,WATCH,Confirm scope and split if it expands,Central solver kernel; large but single domain and foundational.
+DEL-04-02,PKG-04,M,OK,Proceed with bounded Type 2 brief,Single element type.
+DEL-04-03,PKG-04,M,OK,Proceed with bounded Type 2 brief,Support families are related and can share validation.
+DEL-04-04,PKG-04,L,WATCH,Confirm scope and split if it expands,Complex; remains one numerical domain.
+DEL-04-05,PKG-04,M,OK,Proceed with bounded Type 2 brief,Performance harness separate from solver logic.
+DEL-04-06,PKG-04,M,OK,Proceed with bounded Type 2 brief,Focused diagnostic layer separate from the stiffness kernel.
+DEL-05-01,PKG-05,M,OK,Proceed with bounded Type 2 brief,Primitive categories; code combinations remain external.
+DEL-05-02,PKG-05,M,OK,Proceed with bounded Type 2 brief,Bounded algebra surface.
+DEL-05-03,PKG-05,M,OK,Proceed with bounded Type 2 brief,Does not encode code stress equations.
+DEL-05-04,PKG-05,S,OK,Proceed with bounded Type 2 brief,Small state model with high governance value.
+DEL-05-05,PKG-05,M,OK,Proceed with bounded Type 2 brief,Keeps general user loads separate from code-specific combinations.
+DEL-06-01,PKG-06,M,OK,Proceed with bounded Type 2 brief,Rule-pack schema must align with JSON Schema 2020-12 and checksum/provenance basis.
+DEL-06-02,PKG-06,L,WATCH,Confirm scope and split if it expands,"Evaluator must remain sandboxed, unit-aware, and declarative; exact expression grammar/library remains TBD."
+DEL-06-03,PKG-06,M,OK,Proceed with bounded Type 2 brief,Connects user data to rule-pack gating.
+DEL-06-04,PKG-06,M,OK,Proceed with bounded Type 2 brief,Checksum handling must align with SCA-001 canonical JSON/JCS hash basis where payloads are JSON.
+DEL-06-05,PKG-06,S,OK,Proceed with bounded Type 2 brief,Example only; no proprietary content.
+DEL-07-01,PKG-07,L,WATCH,Confirm scope and split if it expands,Viewport baseline is Tauri/React/Vite with Three.js; component/state details remain TBD.
+DEL-07-02,PKG-07,M,OK,Proceed with bounded Type 2 brief,Single UI work surface.
+DEL-07-03,PKG-07,L,WATCH,Confirm scope and split if it expands,Multiple editors but same GUI domain; may split later.
+DEL-07-04,PKG-07,M,OK,Proceed with bounded Type 2 brief,High-value UX slice.
+DEL-07-05,PKG-07,L,WATCH,Confirm scope and split if it expands,Results surface is substantial but one domain.
+DEL-07-06,PKG-07,M,OK,Proceed with bounded Type 2 brief,May refine once GUI framework chosen.
+DEL-07-07,PKG-07,M,OK,Proceed with bounded Type 2 brief,Solve UX must use command/job cancellation/progress and diagnostics/result-envelope contracts.
+DEL-08-01,PKG-08,L,WATCH,Confirm scope and split if it expands,Report is broad but single artifact family.
+DEL-08-02,PKG-08,M,OK,Proceed with bounded Type 2 brief,Audit manifest/model hash uses canonical JSON/JCS hash basis for JSON payloads; binary assets use manifest hashes.
+DEL-08-03,PKG-08,M,OK,Proceed with bounded Type 2 brief,Leverages warning data from GUI/core.
+DEL-08-04,PKG-08,M,OK,Proceed with bounded Type 2 brief,Result export baseline is schema-first JSON result envelopes; additional export formats remain TBD.
+DEL-08-05,PKG-08,M,OK,Proceed with bounded Type 2 brief,Heuristic plus review; cannot be sole legal control.
+DEL-09-01,PKG-09,M,OK,Proceed with bounded Type 2 brief,Uses original/public mechanics cases.
+DEL-09-02,PKG-09,M,OK,Proceed with bounded Type 2 brief,No code formulas.
+DEL-09-03,PKG-09,M,OK,Proceed with bounded Type 2 brief,Depends on nonlinear solver maturity.
+DEL-09-04,PKG-09,M,OK,Proceed with bounded Type 2 brief,Documentation-oriented.
+DEL-09-05,PKG-09,M,OK,Proceed with bounded Type 2 brief,Process + CI; bounded.
+DEL-10-01,PKG-10,M,OK,Proceed with bounded Type 2 brief,Public API/plugin boundary uses schema-first envelopes and no-bypass adapter constraints; transport remains TBD.
+DEL-10-02,PKG-10,L,WATCH,Confirm scope and split if it expands,Adapter framework must validate units/provenance/redistribution/diagnostics/private-boundary constraints; formats remain later deliverables.
+DEL-10-03,PKG-10,M,OK,Proceed with bounded Type 2 brief,"Guidance only, no external FEA implementation."
+DEL-10-04,PKG-10,L,WATCH,Confirm scope and split if it expands,Packaging baseline follows Tauri-supported desktop targets with Cargo/Vitest/Playwright gates; CI provider/release matrix TBD.
+DEL-10-05,PKG-10,M,OK,Proceed with bounded Type 2 brief,Headless runner must align with schema-first command/query/job envelopes and result exports.
+DEL-11-01,PKG-11,M,OK,Proceed with bounded Type 2 brief,Documentation only.
+DEL-11-02,PKG-11,M,OK,Proceed with bounded Type 2 brief,Documentation only.
+DEL-11-03,PKG-11,M,OK,Proceed with bounded Type 2 brief,Should cite public/permissive sources; no formula copying from standards.
+DEL-11-04,PKG-11,M,OK,Proceed with bounded Type 2 brief,Examples must be clearly non-code.
+DEL-11-05,PKG-11,S,OK,Proceed with bounded Type 2 brief,Documentation only.
+DEL-12-01,PKG-12,M,OK,Proceed with bounded Type 2 brief,Private storage must align with local-first persistence baseline and SCA-003 local SQLite storage profile; no hosted DB/cloud/network dependency is authorized for MVP.
+DEL-12-02,PKG-12,M,OK,Proceed with bounded Type 2 brief,Security-sensitive but bounded.
+DEL-12-03,PKG-12,S,OK,Proceed with bounded Type 2 brief,May be no-op in MVP.
+DEL-12-04,PKG-12,M,OK,Proceed with bounded Type 2 brief,Avoids cloud assumptions.
+DEL-12-05,PKG-12,M,OK,Proceed with bounded Type 2 brief,Document now; update as architecture matures.
+DEL-07-08,PKG-07,L,WATCH,Confirm scope and split if it expands,Adds design-authoring and comparison workspace to the GUI workflow.
+DEL-08-06,PKG-08,M,OK,Proceed with bounded Type 2 brief,Reports draw from state/run/comparison/handoff records and preserve professional-boundary wording.
+DEL-13-01,PKG-13,M,OK,Proceed with bounded Type 2 brief,No protected owner standards or project data in public examples.
+DEL-13-02,PKG-13,M,OK,Proceed with bounded Type 2 brief,Constraint records must identify user/project/import/agent/source provenance where known.
+DEL-13-03,PKG-13,M,OK,Proceed with bounded Type 2 brief,Does not infer hidden owner standards or protected code requirements.
+DEL-13-04,PKG-13,L,WATCH,Confirm scope and split if it expands,First-class bridge from design authoring to solver execution.
+DEL-14-01,PKG-14,M,OK,Proceed with bounded Type 2 brief,Flexible metadata only; no formal prover approval statuses.
+DEL-14-02,PKG-14,M,OK,Proceed with bounded Type 2 brief,Results attach to immutable run records.
+DEL-14-03,PKG-14,L,WATCH,Confirm scope and split if it expands,Reports added/removed/changed/unchanged model entities.
+DEL-14-04,PKG-14,L,WATCH,Confirm scope and split if it expands,Comparison is diagnostic/audit functionality only.
+DEL-14-05,PKG-14,M,OK,Proceed with bounded Type 2 brief,Future external result states may be represented without changing core compare logic.
+DEL-15-01,PKG-15,M,OK,Proceed with bounded Type 2 brief,Package is for downstream modeling and professional validation workflows.
+DEL-15-02,PKG-15,M,OK,Proceed with bounded Type 2 brief,Avoids silent loss of critical assumptions or unsupported target behavior.
+DEL-15-03,PKG-15,L,WATCH,Confirm scope and split if it expands,Target-specific commercial stress output parsers remain deferred.
+DEL-15-04,PKG-15,M,OK,Proceed with bounded Type 2 brief,Preserves non-authoritative professional reliance boundary.
+DEL-16-01,PKG-16,M,OK,Proceed with bounded Type 2 brief,Operations are the only model mutation route for GUI and agent proposals.
+DEL-16-02,PKG-16,M,OK,Proceed with bounded Type 2 brief,Blocks invalid operations before application.
+DEL-16-03,PKG-16,M,OK,Proceed with bounded Type 2 brief,Default workflow requires user acceptance unless later explicitly changed.
+DEL-16-04,PKG-16,S,OK,Proceed with bounded Type 2 brief,Agent output cannot become accepted engineering work by itself.
+DEL-17-01,PKG-17,M,OK,Proceed with bounded Type 2 brief,Source-gathering and claim-boundary deliverable; unanswered vendor questions remain TBD and gate target-specific claims.
+DEL-17-02,PKG-17,L,WATCH,Confirm scope and split if it expands,Foundation contract for all target exporters; confirm scope and split if concrete implementation expands.
+DEL-17-03,PKG-17,L,WATCH,Confirm scope and split if it expands,Native export package is a first-wave implementation target and canonical adapter input.
+DEL-17-04,PKG-17,L,WATCH,Confirm scope and split if it expands,First solver-specific target; code/pass-through options must not become local code-checking logic.
+DEL-17-05,PKG-17,L,WATCH,Confirm scope and split if it expands,"Harness remains optional and user-owned; no solver binary, license bypass, or professional acceptance claim."
+DEL-17-06,PKG-17,M,OK,Proceed with bounded Type 2 brief,Result/export assurance target sequenced after export package contracts and run/result records.
+DEL-17-07,PKG-17,L,WATCH,Confirm scope and split if it expands,PCF is useful for interoperability but not the first validation backbone; translator behavior remains explicitly bounded.
+DEL-17-08,PKG-17,M,OK,Proceed with bounded Type 2 brief,"Review geometry is visual handoff support only, not solver geometry or professional validation."
+DEL-17-09,PKG-17,L,WATCH,Confirm scope and split if it expands,Adapter extensibility target sequenced after common profile and package contracts.

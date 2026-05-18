@@ -1,0 +1,145 @@
+{
+  "schema_version": "0.1.0",
+  "project": {
+    "id": "project:invented-domain-foundation",
+    "name": "Invented domain foundation project",
+    "description": "Invented public fixture for PKG-02 canonical domain model evidence.",
+    "unit_system": {
+      "id": "unit-system:invented-si-preview",
+      "description": "Invented SI-like unit metadata for schema-shape evidence only.",
+      "base_units": {
+        "length": "m",
+        "mass": "kg",
+        "force": "N",
+        "temperature": "degC",
+        "angle": "rad"
+      }
+    },
+    "privacy_class": "public",
+    "storage_policy": "public_example",
+    "models": [
+      {
+        "id": "model:invented-analytical-foundation",
+        "name": "Invented analytical foundation model",
+        "description": "Schema-shape analytical model with unit-bearing load evidence.",
+        "model_role": "analytical_solver_model",
+        "coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        },
+        "nodes": [],
+        "elements": [],
+        "components": [],
+        "materials": [],
+        "sections": [],
+        "supports": [],
+        "load_cases": [
+          {
+            "id": "loadcase:invented-force",
+            "name": "Invented force load",
+            "load_type": "other",
+            "loads": [
+              {
+                "target_ref": {
+                  "object_type": "Node",
+                  "id": "node:invented-anchor"
+                },
+                "direction": "Z",
+                "quantity": {
+                  "value": 1.0,
+                  "unit": "N",
+                  "dimension": "force",
+                  "provenance": {
+                    "source_name": "PKG-02 invented domain fixture",
+                    "source_location": "fixtures/domain/invented_minimal_project_model.json",
+                    "source_license": "project invented public example",
+                    "contributor": "OpenPipeStress Type 2 worker",
+                    "contributor_certification": "invented non-engineering example",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                },
+                "provenance": {
+                  "source_name": "PKG-02 invented domain fixture",
+                  "source_location": "fixtures/domain/invented_minimal_project_model.json",
+                  "source_license": "project invented public example",
+                  "contributor": "OpenPipeStress Type 2 worker",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "provenance": {
+              "source_name": "PKG-02 invented domain fixture",
+              "source_location": "fixtures/domain/invented_minimal_project_model.json",
+              "source_license": "project invented public example",
+              "contributor": "OpenPipeStress Type 2 worker",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "combinations": [],
+        "results": [],
+        "diagnostics": [],
+        "unresolved_assumptions": [],
+        "traceability_links": [],
+        "design_knowledge_refs": [],
+        "constraint_refs": [],
+        "equipment_interface_refs": [],
+        "operation_refs": [],
+        "model_state_refs": [],
+        "analysis_run_refs": [],
+        "comparison_refs": [],
+        "handoff_package_refs": [],
+        "external_reference_refs": [],
+        "provenance": {
+          "source_name": "PKG-02 invented domain fixture",
+          "source_location": "fixtures/domain/invented_minimal_project_model.json",
+          "source_license": "project invented public example",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        }
+      }
+    ],
+    "rule_pack_refs": [],
+    "report_settings": {
+      "id": "report-settings:invented-domain-foundation",
+      "include_input_manifest": true,
+      "include_provenance_summary": true,
+      "include_professional_boundary_notice": true,
+      "result_refs": [],
+      "rule_pack_refs": [],
+      "provenance": {
+        "source_name": "PKG-02 invented domain fixture",
+        "source_location": "fixtures/domain/invented_minimal_project_model.json",
+        "source_license": "project invented public example",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "invented non-engineering example",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    },
+    "reports": [],
+    "diagnostics": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "Project",
+          "id": "project:invented-domain-foundation"
+        },
+        "value": "invented-placeholder-hash"
+      }
+    ]
+  }
+}

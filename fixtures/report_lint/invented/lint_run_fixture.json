@@ -1,0 +1,152 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-08-05",
+  "package_id": "PKG-08",
+  "scope_item": "SOW-043",
+  "objectives": [
+    "OBJ-002",
+    "OBJ-007"
+  ],
+  "linter_status": {
+    "baseline_linter": "deterministic_public_surface_heuristic_linter",
+    "fixture_policy": "invented_synthetic_markers_only",
+    "heuristic_only": true,
+    "legal_clearance": false,
+    "security_sufficiency": false,
+    "professional_approval": false,
+    "ci_release_policy": "TBD",
+    "redaction_export_controls": "TBD",
+    "educational_example_dependency": "DAG-001-E0621_RETAINED_CANDIDATE_NON_GATING"
+  },
+  "lint_run": {
+    "run_id": "invented-report-lint-run-001",
+    "configuration": {
+      "configuration_id": "invented-public-report-surfaces",
+      "scan_scope": "explicit_public_surfaces",
+      "public_surface_roots": [
+        "fixtures/report_lint/invented"
+      ],
+      "private_surface_default": "skip_unless_explicitly_authorized",
+      "finding_order": "path_line_column_code",
+      "synthetic_marker_policy": "fixtures_must_use_invented_markers_not_protected_examples",
+      "clean_scan_disclaimer": "heuristic_review_evidence_not_legal_or_professional_clearance",
+      "candidate_edge_policy": "DAG-001-E0621_non_gating_no_DEL-11-04_dependency"
+    },
+    "targets": [
+      {
+        "target_id": "synthetic-risk-template",
+        "path": "fixtures/report_lint/invented/synthetic_risk_template.txt",
+        "surface": "public_report_template",
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress invented report linter fixture",
+          "source_location": "fixtures/report_lint/invented/synthetic_risk_template.txt",
+          "source_license": "TBD",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented synthetic marker fixture; no protected source copied.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "target_id": "safe-metadata-template",
+        "path": "fixtures/report_lint/invented/safe_metadata_template.txt",
+        "surface": "public_report_example",
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress invented report linter fixture",
+          "source_location": "fixtures/report_lint/invented/safe_metadata_template.txt",
+          "source_license": "TBD",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented safe metadata fixture; no protected source copied.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "findings": [
+      {
+        "finding_id": "RPLC-F0001",
+        "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+        "class": "IP_BOUNDARY_WARNING",
+        "severity": "BLOCKING",
+        "target_ref": {
+          "ref_type": "lint_target",
+          "ref_id": "synthetic-risk-template"
+        },
+        "source_location": {
+          "path": "fixtures/report_lint/invented/synthetic_risk_template.txt",
+          "line": 3,
+          "column": 1
+        },
+        "matched_policy": "OPS-K-IP-1",
+        "excerpt": "OPS_SYNTHETIC_PROTECTED_TABLE",
+        "message": "Synthetic marker represents protected table risk.",
+        "remediation": "Remove table-like protected content and route suspected source to review.",
+        "review_route": "HUMAN_IP_REVIEW",
+        "disposition": "pending",
+        "provenance": {
+          "source_name": "OpenPipeStress invented synthetic linter fixture",
+          "source_location": "fixtures/report_lint/invented",
+          "source_license": "TBD",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering synthetic marker; no protected source copied.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "finding_id": "RPLC-F0002",
+        "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+        "class": "PROFESSIONAL_BOUNDARY_WARNING",
+        "severity": "BLOCKING",
+        "target_ref": {
+          "ref_type": "lint_target",
+          "ref_id": "synthetic-risk-template"
+        },
+        "source_location": {
+          "path": "fixtures/report_lint/invented/synthetic_risk_template.txt",
+          "line": 4,
+          "column": 24
+        },
+        "matched_policy": "OPS-K-AUTH-1",
+        "excerpt": "code compliant",
+        "message": "Public report language appears to claim software professional authority.",
+        "remediation": "Replace with decision-support and human-review-required wording.",
+        "review_route": "HUMAN_PROFESSIONAL_BOUNDARY_REVIEW",
+        "disposition": "pending",
+        "provenance": {
+          "source_name": "OpenPipeStress invented synthetic linter fixture",
+          "source_location": "fixtures/report_lint/invented",
+          "source_license": "TBD",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering synthetic marker; no protected source copied.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "summary": {
+      "target_count": 2,
+      "scanned_target_count": 2,
+      "skipped_private_target_count": 0,
+      "finding_count": 2,
+      "blocking_finding_count": 2,
+      "clean_scan_is_clearance": false
+    },
+    "provenance": {
+      "source_name": "OpenPipeStress invented report linter fixture",
+      "source_location": "fixtures/report_lint/invented/lint_run_fixture.json",
+      "source_license": "TBD",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "Invented linter run fixture; no protected source copied.",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "privacy_classification": "invented_public_example"
+    }
+  }
+}

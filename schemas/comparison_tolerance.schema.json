@@ -1,0 +1,605 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/comparison_tolerance.schema.json",
+  "title": "OpenPipeStress Comparison Tolerance Profile Schema",
+  "description": "Strict JSON Schema 2020-12 contract for unit-aware comparison tolerance profiles. This schema records governed profile metadata, dimensional applicability, and review provenance without defining default numerical tolerances, code allowables, result-delta algorithms, external validation decisions, certification, sealing, authentication, or engineering approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "tolerance_contract_status",
+    "tolerance_profile"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-14-05"
+    },
+    "package_id": {
+      "const": "PKG-14"
+    },
+    "scope_item": {
+      "const": "SOW-073"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-016"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-016"
+        ]
+      }
+    },
+    "tolerance_contract_status": {
+      "$ref": "#/$defs/ToleranceContractStatus"
+    },
+    "tolerance_profile": {
+      "$ref": "#/$defs/ToleranceProfile"
+    }
+  },
+  "$defs": {
+    "AssumptionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumption_id",
+        "statement",
+        "affected_refs",
+        "provenance"
+      ],
+      "properties": {
+        "assumption_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "tolerance_profile",
+            "tolerance_rule",
+            "unit_system_record",
+            "comparison_review_record",
+            "external_reference",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_refs",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "UNIT_CONTRACT_ERROR",
+            "DIMENSION_MISMATCH",
+            "TOLERANCE_VALUE_MISSING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "PROFILE_REVIEW_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "DimensionId": {
+      "type": "string",
+      "enum": [
+        "dimensionless",
+        "length",
+        "mass",
+        "time",
+        "temperature",
+        "temperature_interval",
+        "angle",
+        "rotation",
+        "force",
+        "moment",
+        "pressure",
+        "stress",
+        "area",
+        "volume",
+        "density",
+        "linear_stiffness",
+        "rotational_stiffness",
+        "displacement",
+        "velocity",
+        "acceleration",
+        "ratio",
+        "TBD"
+      ]
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "protected_suspected",
+        "redacted",
+        "TBD"
+      ]
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
+        "notice"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        },
+        "notice": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": [
+            "ToleranceProfile",
+            "ToleranceRule",
+            "UnitSystem",
+            "Dimension",
+            "Unit",
+            "Quantity",
+            "ModelState",
+            "AnalysisRun",
+            "ResultEnvelope",
+            "ComparisonMapping",
+            "Diagnostic",
+            "ExternalReference",
+            "TBD"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "ReviewMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_status",
+        "reviewer_ref",
+        "reviewed_at",
+        "review_note"
+      ],
+      "properties": {
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "reviewer_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "ToleranceContractStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_contract",
+        "unit_system_binding",
+        "comparison_mapping_binding",
+        "default_numeric_tolerances",
+        "result_delta_engine",
+        "external_validation_boundary"
+      ],
+      "properties": {
+        "record_contract": {
+          "const": "schema_first_unit_aware_tolerance_profiles"
+        },
+        "unit_system_binding": {
+          "const": "schemas/units.schema.yaml"
+        },
+        "comparison_mapping_binding": {
+          "const": "schemas/comparison_mapping.schema.json"
+        },
+        "default_numeric_tolerances": {
+          "const": "not_defined_by_this_contract"
+        },
+        "result_delta_engine": {
+          "const": "not_implemented_by_this_contract"
+        },
+        "external_validation_boundary": {
+          "const": "reference_only_not_determined_by_software"
+        }
+      }
+    },
+    "ToleranceProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_name",
+        "profile_status",
+        "unit_system_ref",
+        "applicable_dimensions",
+        "rules",
+        "diagnostics",
+        "assumptions",
+        "hashes",
+        "review",
+        "professional_boundary",
+        "provenance"
+      ],
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "profile_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "reviewed",
+            "rejected",
+            "quarantined",
+            "TBD"
+          ]
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "applicable_dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/DimensionId"
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ToleranceRule"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssumptionRecord"
+          }
+        },
+        "hashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "review": {
+          "$ref": "#/$defs/ReviewMetadata"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ToleranceRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "result_family",
+        "dimension_id",
+        "unit_ref",
+        "quantity_kind",
+        "tolerance_value",
+        "tolerance_value_status",
+        "normalization_basis",
+        "review",
+        "provenance"
+      ],
+      "properties": {
+        "rule_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result_family": {
+          "type": "string",
+          "enum": [
+            "displacement",
+            "rotation",
+            "force",
+            "moment",
+            "reaction",
+            "stress",
+            "ratio",
+            "rule_check",
+            "diagnostic",
+            "setting",
+            "TBD"
+          ]
+        },
+        "dimension_id": {
+          "$ref": "#/$defs/DimensionId"
+        },
+        "unit_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "quantity_kind": {
+          "type": "string",
+          "enum": [
+            "absolute",
+            "interval",
+            "relative",
+            "ratio",
+            "percentage",
+            "coefficient",
+            "dimensionless",
+            "unit_bearing",
+            "TBD"
+          ]
+        },
+        "tolerance_value": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "enum": [
+                "TBD",
+                "externally_governed_reference_required"
+              ]
+            }
+          ]
+        },
+        "tolerance_value_status": {
+          "type": "string",
+          "enum": [
+            "externally_governed",
+            "project_specific_review_required",
+            "not_defined",
+            "TBD"
+          ]
+        },
+        "normalization_basis": {
+          "type": "string",
+          "enum": [
+            "same_unit_required",
+            "unit_conversion_required",
+            "dimensionless_direct",
+            "not_applicable",
+            "TBD"
+          ]
+        },
+        "review": {
+          "$ref": "#/$defs/ReviewMetadata"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

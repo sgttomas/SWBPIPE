@@ -1,0 +1,12 @@
+[package]
+name = "open_pipe_stress_load_case_algebra"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral load case algebra for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_primitive_loads = { path = "../primitive_loads" }

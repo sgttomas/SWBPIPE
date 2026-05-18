@@ -1,0 +1,115 @@
+{
+  "accepted_revision": "0.5",
+  "register_counts": {
+    "deliverables": 92,
+    "scope_rows": 76,
+    "context_budget_rows": 92,
+    "packages": 17,
+    "context_envelopes": {
+      "M": 66,
+      "L": 17,
+      "S": 9
+    },
+    "risk": {
+      "OK": 75,
+      "WATCH": 17
+    }
+  },
+  "historical_dag001": {
+    "nodes": 73,
+    "missing_revision05_nodes": [
+      "DEL-07-08",
+      "DEL-08-06",
+      "DEL-13-01",
+      "DEL-13-02",
+      "DEL-13-03",
+      "DEL-13-04",
+      "DEL-14-01",
+      "DEL-14-02",
+      "DEL-14-03",
+      "DEL-14-04",
+      "DEL-14-05",
+      "DEL-15-01",
+      "DEL-15-02",
+      "DEL-15-03",
+      "DEL-15-04",
+      "DEL-16-01",
+      "DEL-16-02",
+      "DEL-16-03",
+      "DEL-16-04"
+    ],
+    "removed_nodes": [],
+    "active_edges": 615,
+    "candidate_edges": 9
+  },
+  "filesystem": {
+    "package_folders": 13,
+    "missing_package_folders": [
+      "PKG-13",
+      "PKG-14",
+      "PKG-15",
+      "PKG-16"
+    ],
+    "contexts_existing": 73,
+    "contexts_missing": [
+      "DEL-07-08",
+      "DEL-08-06",
+      "DEL-13-01",
+      "DEL-13-02",
+      "DEL-13-03",
+      "DEL-13-04",
+      "DEL-14-01",
+      "DEL-14-02",
+      "DEL-14-03",
+      "DEL-14-04",
+      "DEL-14-05",
+      "DEL-15-01",
+      "DEL-15-02",
+      "DEL-15-03",
+      "DEL-15-04",
+      "DEL-16-01",
+      "DEL-16-02",
+      "DEL-16-03",
+      "DEL-16-04"
+    ],
+    "contexts_with_retired_decomposition_path": 73,
+    "contexts_with_revision04_reference": 65
+  },
+  "dispatch_briefs": {
+    "historical_count": 47,
+    "reuse_disposition": "DO_NOT_REUSE_FOR_REVISION_0_5_IMPLEMENTATION"
+  },
+  "implementation_evidence": {
+    "rows": 47,
+    "rows_mapping_to_revision05_ids": 47,
+    "targeted_review_flags": [
+      "DEL-01-04",
+      "DEL-02-01"
+    ],
+    "revision05_deliverables_without_committed_evidence": 45
+  },
+  "local_dependency_audit": {
+    "total_files": 65,
+    "total_rows": 624,
+    "anchor_rows": 0,
+    "execution_rows": 624,
+    "schema_valid": 65,
+    "schema_invalid": 0,
+    "implements_node_present": 0,
+    "implements_node_missing": 65,
+    "evidence_populated": 624,
+    "evidence_total": 624,
+    "graph_nodes": 73,
+    "graph_edges": 615,
+    "orphan_count": 0,
+    "scc_count": 0,
+    "scc_sizes": [],
+    "hub_count": 11,
+    "bidirectional_pair_count": 0,
+    "normalization_count": 0
+  },
+  "chirality_corpus": {
+    "path": "docs/_ScopeChange/chirality-app-docs/",
+    "classification": "QUARANTINED_REFERENCE_ONLY_NOT_SCOPE_OR_DISPATCH_AUTHORITY"
+  }
+}

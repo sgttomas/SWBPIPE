@@ -1,0 +1,835 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/component.schema.yaml",
+  "title": "OpenPipeStress Component Library Schema",
+  "description": "Strict JSON syntax schema for component library records. It defines user-entered dimensions, weights, centers of gravity, stiffness/modifier slots, provenance, redistribution status, review status, and completeness findings without bundling protected SIF/flexibility tables, proprietary catalog values, or private project data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "component_library",
+    "component_family_contracts",
+    "component_records",
+    "field_definitions",
+    "completeness_rules",
+    "diagnostics",
+    "open_decisions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "component_library": {
+      "$ref": "#/$defs/LibraryMetadata"
+    },
+    "component_family_contracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ComponentFamilyContract"
+      }
+    },
+    "component_records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ComponentRecord"
+      }
+    },
+    "field_definitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ComponentFieldDefinition"
+      }
+    },
+    "completeness_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/CompletenessRule"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ComponentDiagnostic"
+      }
+    },
+    "open_decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/OpenDecision"
+      }
+    }
+  },
+  "$defs": {
+    "CompletenessFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "required_for",
+        "status",
+        "missing_field_kinds",
+        "diagnostic_code"
+      ],
+      "properties": {
+        "finding_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "incomplete",
+            "not_reviewed",
+            "TBD"
+          ]
+        },
+        "missing_field_kinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComponentFieldKind"
+          }
+        },
+        "diagnostic_code": {
+          "$ref": "#/$defs/ComponentDiagnosticCode"
+        }
+      }
+    },
+    "CompletenessRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "applies_to",
+        "component_types",
+        "required_field_kinds",
+        "required_for",
+        "missing_behavior",
+        "diagnostic_code",
+        "review_status"
+      ],
+      "properties": {
+        "rule_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "applies_to": {
+          "type": "string",
+          "enum": [
+            "mechanics_solve",
+            "component_library_import",
+            "rule_check",
+            "public_contribution_review",
+            "reporting",
+            "TBD"
+          ]
+        },
+        "component_types": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ComponentType"
+          }
+        },
+        "required_field_kinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComponentFieldKind"
+          }
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "missing_behavior": {
+          "type": "string",
+          "enum": [
+            "diagnostic_blocking",
+            "diagnostic_warning",
+            "not_required_for_context",
+            "TBD"
+          ]
+        },
+        "diagnostic_code": {
+          "$ref": "#/$defs/ComponentDiagnosticCode"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "ComponentDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_id",
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_ref",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "diagnostic_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "code": {
+          "$ref": "#/$defs/ComponentDiagnosticCode"
+        },
+        "class": {
+          "$ref": "#/$defs/DiagnosticClass"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking",
+            "TBD"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affected_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ComponentDiagnosticCode": {
+      "type": "string",
+      "enum": [
+        "COMPONENT_FIELD_MISSING",
+        "COMPONENT_UNIT_MISSING",
+        "COMPONENT_PROVENANCE_MISSING",
+        "COMPONENT_PROTECTED_CONTENT_SUSPECTED",
+        "COMPONENT_MODIFIER_NOT_PUBLIC",
+        "COMPONENT_CATALOG_VALUE_NOT_PUBLIC",
+        "BEND_GEOMETRY_INCOMPLETE",
+        "BEND_RULE_INPUT_MISSING",
+        "BRANCH_GEOMETRY_INCOMPLETE",
+        "BRANCH_REINFORCEMENT_DATA_MISSING",
+        "BRANCH_RULE_INPUT_MISSING",
+        "RIGID_COMPONENT_GEOMETRY_INCOMPLETE",
+        "RIGID_COMPONENT_MASS_DATA_MISSING",
+        "RIGID_COMPONENT_STIFFNESS_DATA_MISSING",
+        "RIGID_COMPONENT_CATALOG_VALUE_NOT_PUBLIC",
+        "EXPANSION_JOINT_STIFFNESS_DATA_MISSING",
+        "EXPANSION_JOINT_EFFECTIVE_AREA_MISSING",
+        "EXPANSION_JOINT_MOVEMENT_LIMIT_MISSING",
+        "EXPANSION_JOINT_HARDWARE_DATA_MISSING",
+        "EXPANSION_JOINT_MANUFACTURER_VALUE_NOT_PUBLIC",
+        "TBD"
+      ]
+    },
+    "ComponentFamilyContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_id",
+        "component_types",
+        "geometry_field_kinds",
+        "rule_modifier_field_kinds",
+        "source_metadata_field_kinds",
+        "mechanics_interface",
+        "protected_value_policy",
+        "review_status"
+      ],
+      "properties": {
+        "contract_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "component_types": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ComponentType"
+          }
+        },
+        "geometry_field_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ComponentFieldKind"
+          }
+        },
+        "rule_modifier_field_kinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComponentFieldKind"
+          }
+        },
+        "source_metadata_field_kinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComponentFieldKind"
+          }
+        },
+        "mechanics_interface": {
+          "$ref": "#/$defs/ComponentMechanicsInterface"
+        },
+        "protected_value_policy": {
+          "type": "string",
+          "enum": [
+            "schema_slots_only",
+            "user_supplied_with_provenance",
+            "public_permissive_reviewed_only",
+            "private_library_only",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "ComponentFieldDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field_kind",
+        "dimension_id",
+        "quantity_kind",
+        "unit_required",
+        "required_for",
+        "public_fixture_policy",
+        "review_status"
+      ],
+      "properties": {
+        "field_kind": {
+          "$ref": "#/$defs/ComponentFieldKind"
+        },
+        "dimension_id": {
+          "$ref": "#/$defs/ComponentQuantityDimension"
+        },
+        "quantity_kind": {
+          "type": "string",
+          "enum": [
+            "unit_bearing",
+            "dimensionless",
+            "reference",
+            "TBD"
+          ]
+        },
+        "unit_required": {
+          "type": "boolean"
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "public_fixture_policy": {
+          "$ref": "#/$defs/PublicFixturePolicy"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "ComponentFieldKind": {
+      "type": "string",
+      "enum": [
+        "outside_diameter",
+        "wall_thickness",
+        "bend_radius",
+        "bend_angle",
+        "bend_centerline_radius",
+        "bend_included_angle",
+        "bend_tangent_length",
+        "bend_plane_orientation",
+        "bend_end_a_orientation",
+        "bend_end_b_orientation",
+        "branch_size",
+        "branch_run_size",
+        "branch_header_size",
+        "branch_connection_angle",
+        "branch_connection_type",
+        "branch_reinforcement_area",
+        "branch_reinforcement_reference",
+        "branch_geometry_source_reference",
+        "rigid_body_length",
+        "connection_end_a_reference",
+        "connection_end_b_reference",
+        "stiffness_behavior_reference",
+        "rigid_component_source_reference",
+        "end_a_size",
+        "end_b_size",
+        "weight",
+        "center_of_gravity",
+        "linear_stiffness",
+        "rotational_stiffness",
+        "effective_area",
+        "movement_limit",
+        "hardware_flag",
+        "hardware_reference",
+        "sif_user_value",
+        "flexibility_factor_user_value",
+        "bend_geometry_source_reference",
+        "manufacturer_reference",
+        "user_defined",
+        "TBD"
+      ]
+    },
+    "ComponentFieldSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field_id",
+        "field_kind",
+        "value_status",
+        "public_repository_value_policy",
+        "required_for",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "field_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "field_kind": {
+          "$ref": "#/$defs/ComponentFieldKind"
+        },
+        "value": {
+          "$ref": "#/$defs/QuantityValue"
+        },
+        "reference_value": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value_status": {
+          "$ref": "#/$defs/ValueStatus"
+        },
+        "public_repository_value_policy": {
+          "type": "string",
+          "enum": [
+            "schema_shape_only",
+            "no_public_code_specific_values",
+            "no_public_proprietary_catalog_values",
+            "invented_example_only",
+            "public_permissive_reviewed_only",
+            "private_user_supplied_only",
+            "TBD"
+          ]
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "ComponentQuantityDimension": {
+      "type": "string",
+      "enum": [
+        "length",
+        "angle",
+        "force",
+        "mass",
+        "linear_stiffness",
+        "rotational_stiffness",
+        "area",
+        "dimensionless",
+        "TBD"
+      ]
+    },
+    "DiagnosticClass": {
+      "type": "string",
+      "enum": [
+        "SOLVE_BLOCKING",
+        "RULE_CHECK_BLOCKING",
+        "PROVENANCE_WARNING",
+        "ASSUMPTION_WARNING",
+        "NONLINEAR_WARNING",
+        "IP_BOUNDARY_WARNING",
+        "UNIT_CONTRACT_ERROR",
+        "TBD"
+      ]
+    },
+    "ComponentMechanicsInterface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_role",
+        "geometry_basis",
+        "solver_consumption",
+        "rule_check_consumption"
+      ],
+      "properties": {
+        "model_role": {
+          "type": "string",
+          "enum": [
+            "centerline_component",
+            "local_detail_reference",
+            "rigid_placeholder",
+            "TBD"
+          ]
+        },
+        "geometry_basis": {
+          "type": "string",
+          "enum": [
+            "user_entered_centerline_geometry",
+            "private_library_record",
+            "public_permissive_reviewed_record",
+            "TBD"
+          ]
+        },
+        "solver_consumption": {
+          "type": "string",
+          "enum": [
+            "mechanics_geometry_only",
+            "mechanics_geometry_and_user_flexibility",
+            "not_solver_consumed",
+            "TBD"
+          ]
+        },
+        "rule_check_consumption": {
+          "type": "string",
+          "enum": [
+            "user_rule_pack_inputs_only",
+            "not_rule_checked",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "ComponentRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_id",
+        "name",
+        "component_type",
+        "privacy_class",
+        "redistribution_status",
+        "fields",
+        "completeness",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "component_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component_type": {
+          "$ref": "#/$defs/ComponentType"
+        },
+        "privacy_class": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComponentFieldSlot"
+          }
+        },
+        "completeness": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CompletenessFinding"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "ComponentType": {
+      "type": "string",
+      "enum": [
+        "bend",
+        "elbow",
+        "branch",
+        "reducer",
+        "valve",
+        "flange",
+        "expansion_joint",
+        "rigid",
+        "specialty",
+        "other",
+        "TBD"
+      ]
+    },
+    "Id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "LibraryMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_id",
+        "name",
+        "library_scope",
+        "privacy_class",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "library_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "library_scope": {
+          "type": "string",
+          "enum": [
+            "public_schema_fixture",
+            "public_permissive_reviewed",
+            "private_user_library",
+            "project_private",
+            "TBD"
+          ]
+        },
+        "privacy_class": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "OpenDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "topic",
+        "status",
+        "blocking_scope",
+        "owner",
+        "notes"
+      ],
+      "properties": {
+        "decision_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "topic": {
+          "type": "string",
+          "enum": [
+            "public_component_fixture_policy",
+            "accepted_component_source_catalog",
+            "catalog_import_format_policy",
+            "sif_flexibility_value_policy",
+            "TBD"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "accepted",
+            "rejected",
+            "TBD"
+          ]
+        },
+        "blocking_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "PrivacyClass": {
+      "type": "string",
+      "enum": [
+        "public_schema_only",
+        "public_permissive_reviewed",
+        "private_user_supplied",
+        "project_private",
+        "TBD"
+      ]
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "PublicFixturePolicy": {
+      "type": "string",
+      "enum": [
+        "schema_shape_only",
+        "invented_non_engineering_only",
+        "public_permissive_reviewed_only",
+        "private_values_only",
+        "TBD"
+      ]
+    },
+    "QuantityValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "magnitude",
+        "unit",
+        "dimension",
+        "value_status",
+        "provenance"
+      ],
+      "properties": {
+        "magnitude": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "#/$defs/ComponentQuantityDimension"
+        },
+        "value_status": {
+          "$ref": "#/$defs/ValueStatus"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "rejected",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "enum": [
+            "section",
+            "component",
+            "material",
+            "library",
+            "diagnostic",
+            "TBD"
+          ]
+        },
+        "ref_id": {
+          "$ref": "#/$defs/Id"
+        }
+      }
+    },
+    "RequiredFor": {
+      "type": "string",
+      "enum": [
+        "mechanics_solve",
+        "section_property_calculation",
+        "component_library_import",
+        "rule_check",
+        "reporting",
+        "library_import",
+        "TBD"
+      ]
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "ValueStatus": {
+      "type": "string",
+      "enum": [
+        "missing",
+        "user_supplied",
+        "private_user_supplied",
+        "public_permissive_reviewed",
+        "invented_non_engineering_example",
+        "protected_suspected",
+        "TBD"
+      ]
+    }
+  }
+}

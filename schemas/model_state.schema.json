@@ -1,0 +1,687 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/model_state.schema.json",
+  "title": "OpenPipeStress Immutable Model State Schema",
+  "description": "Strict JSON Schema 2020-12 contract for named immutable model state records, metadata, assumptions, warnings, external references, and deterministic hashes. Model states are review and reproducibility records; they are not formal prover approval, certification, sealing, authentication, or code-compliance states.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "state_contract_status",
+    "model_state"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-14-01"
+    },
+    "package_id": {
+      "const": "PKG-14"
+    },
+    "scope_item": {
+      "const": "SOW-071"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-016"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-016"
+        ]
+      }
+    },
+    "state_contract_status": {
+      "$ref": "#/$defs/StateContractStatus"
+    },
+    "model_state": {
+      "$ref": "#/$defs/ModelStateRecord"
+    }
+  },
+  "$defs": {
+    "AnalysisStatus": {
+      "type": "string",
+      "description": "Software-emitted analysis statuses that may be referenced by a model state. Human project acceptance remains an external hash-bound record, not a state status.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED",
+        "TBD"
+      ]
+    },
+    "AssumptionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumption_id",
+        "statement",
+        "status",
+        "affected_refs",
+        "provenance"
+      ],
+      "properties": {
+        "assumption_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unresolved",
+            "resolved",
+            "rejected",
+            "TBD"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "resolution_note": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "model_state_record",
+            "model_payload",
+            "state_payload_partition",
+            "external_reference",
+            "audit_manifest",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "STATE_HASH_WARNING",
+            "STATE_IMMUTABILITY_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ExternalReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_id",
+        "reference_type",
+        "label",
+        "target",
+        "binding_hashes",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "reference_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "reference_type": {
+          "type": "string",
+          "enum": [
+            "document",
+            "drawing",
+            "model_file",
+            "audit_manifest",
+            "review_record",
+            "external_file",
+            "TBD"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "binding_hashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "ImmutabilityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_is_read_only",
+        "mutation_policy",
+        "new_state_required_for_change",
+        "hash_invalidates_external_acceptance"
+      ],
+      "properties": {
+        "snapshot_is_read_only": {
+          "const": true
+        },
+        "mutation_policy": {
+          "const": "changes_create_new_model_state"
+        },
+        "new_state_required_for_change": {
+          "const": true
+        },
+        "hash_invalidates_external_acceptance": {
+          "const": true
+        }
+      }
+    },
+    "ModelStateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state_id",
+        "state_name",
+        "state_kind",
+        "created_at",
+        "model_ref",
+        "parent_state_refs",
+        "tags",
+        "notes",
+        "external_references",
+        "unresolved_assumptions",
+        "warnings",
+        "analysis_status",
+        "hashes",
+        "immutability_policy",
+        "professional_boundary",
+        "provenance"
+      ],
+      "properties": {
+        "state_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "state_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_kind": {
+          "type": "string",
+          "enum": [
+            "design_snapshot",
+            "pre_solve_snapshot",
+            "post_solve_snapshot",
+            "comparison_basis",
+            "handoff_basis",
+            "TBD"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "parent_state_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StateTag"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StateNote"
+          }
+        },
+        "external_references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          }
+        },
+        "unresolved_assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssumptionRecord"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "analysis_status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AnalysisStatus"
+          }
+        },
+        "hashes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "immutability_policy": {
+          "$ref": "#/$defs/ImmutabilityPolicy"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "protected_suspected",
+        "redacted",
+        "TBD"
+      ]
+    },
+    "PhysicalProjectContainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "decision_ref",
+        "storage_role",
+        "canonical_truth",
+        "sql_public_contract",
+        "direct_sql_access_allowed",
+        "hosted_db_allowed",
+        "network_required",
+        "sidecars_rebuildable"
+      ],
+      "properties": {
+        "profile": {
+          "const": "sqlite_local_project_store"
+        },
+        "decision_ref": {
+          "const": "SCA-003"
+        },
+        "storage_role": {
+          "const": "local_store_index_projection"
+        },
+        "canonical_truth": {
+          "const": "canonical_json_jcs_payload"
+        },
+        "sql_public_contract": {
+          "const": false
+        },
+        "direct_sql_access_allowed": {
+          "const": false
+        },
+        "hosted_db_allowed": {
+          "const": false
+        },
+        "network_required": {
+          "const": false
+        },
+        "sidecars_rebuildable": {
+          "const": true
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": [
+            "Project",
+            "Model",
+            "ModelState",
+            "AnalysisRun",
+            "Comparison",
+            "HandoffPackage",
+            "AuditManifest",
+            "ExternalReviewRecord",
+            "Assumption",
+            "Diagnostic",
+            "ExternalReference",
+            "TBD"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "StateContractStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_contract",
+        "persistence_binding",
+        "canonicalization",
+        "physical_project_container",
+        "external_human_acceptance"
+      ],
+      "properties": {
+        "record_contract": {
+          "const": "schema_first_model_state_records"
+        },
+        "persistence_binding": {
+          "const": "schemas/project_persistence.schema.yaml"
+        },
+        "canonicalization": {
+          "const": "JCS_compatible_json_payload_hashes"
+        },
+        "physical_project_container": {
+          "$ref": "#/$defs/PhysicalProjectContainer"
+        },
+        "external_human_acceptance": {
+          "const": "hash_bound_external_record_only"
+        }
+      }
+    },
+    "StateNote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "note_id",
+        "note_type",
+        "statement",
+        "visibility",
+        "provenance"
+      ],
+      "properties": {
+        "note_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "note_type": {
+          "type": "string",
+          "enum": [
+            "design_note",
+            "source_note",
+            "assumption_note",
+            "warning_note",
+            "review_note",
+            "TBD"
+          ]
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "public",
+            "private",
+            "redacted",
+            "TBD"
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "StateTag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tag",
+        "tag_kind",
+        "provenance"
+      ],
+      "properties": {
+        "tag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag_kind": {
+          "type": "string",
+          "enum": [
+            "user_label",
+            "workflow_label",
+            "comparison_label",
+            "handoff_label",
+            "TBD"
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

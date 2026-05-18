@@ -1,0 +1,7 @@
+AmendmentID,ActionSeq,ActionType,EntityType,EntityID,Description,AffectedFiles,DownstreamReruns,SupersessionBindingPresent
+SCA-001,1,MODIFY,OTHER,SOFTWARE_DECOMP,"Promote PKG-00 architecture basis into revision 0.4 brief-injection rules",docs/_Decomposition/SOFTWARE_DECOMP.md,AUDIT_DECOMP,NO
+SCA-001,2,MODIFY,OTHER,ScopeLedger,"Update architecture decision refs and stale TBD notes",docs/_Registers/ScopeLedger.csv,AUDIT_DECOMP,NO
+SCA-001,3,MODIFY,OTHER,Deliverables,"Update architecture-affected deliverable notes",docs/_Registers/Deliverables.csv,AUDIT_DECOMP,NO
+SCA-001,4,MODIFY,OTHER,ContextBudgetQA,"Update architecture-affected context budget notes",docs/_Registers/ContextBudgetQA.csv,AUDIT_DECOMP,NO
+SCA-001,5,MODIFY,DELIVERABLE,PKG-01..PKG-12_CONTEXTS,"Inject architecture basis into 65 downstream contexts",execution/PKG-01..PKG-12/**/_CONTEXT.md,TASK brief regeneration advisory,NO
+SCA-001,6,MODIFY,OTHER,COORDINATION_STATE,"Update handoff state to revision 0.4",execution/_Coordination/NEXT_INSTANCE_STATE.md,CHANGE handoff,NO

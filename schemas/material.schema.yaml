@@ -1,0 +1,758 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/material.schema.yaml",
+  "title": "OpenPipeStress Material Library Schema",
+  "description": "Strict JSON syntax schema for material library records, temperature-dependent material property slots, provenance, redistribution status, completeness findings, and protected-content review controls. It defines structure only and does not bundle protected standards data, proprietary engineering values, or code-specific material allowables.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "material_library",
+    "material_records",
+    "property_definitions",
+    "completeness_rules",
+    "diagnostics",
+    "open_decisions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "material_library": {
+      "$ref": "#/$defs/MaterialLibrary"
+    },
+    "material_records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MaterialRecord"
+      }
+    },
+    "property_definitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/MaterialPropertyDefinition"
+      }
+    },
+    "completeness_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/CompletenessRule"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MaterialDiagnostic"
+      }
+    },
+    "open_decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/OpenDecision"
+      }
+    }
+  },
+  "$defs": {
+    "CompletenessRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "applies_to",
+        "required_property_kinds",
+        "required_for",
+        "missing_behavior",
+        "diagnostic_code",
+        "review_status"
+      ],
+      "properties": {
+        "rule_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "applies_to": {
+          "type": "string",
+          "enum": [
+            "mechanics_solve",
+            "rule_check",
+            "reporting",
+            "private_library_import",
+            "public_contribution_review",
+            "TBD"
+          ]
+        },
+        "required_property_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/MaterialPropertyKind"
+          }
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "missing_behavior": {
+          "type": "string",
+          "enum": [
+            "diagnostic_blocking",
+            "diagnostic_warning",
+            "not_required_for_context",
+            "TBD"
+          ]
+        },
+        "diagnostic_code": {
+          "$ref": "#/$defs/MaterialDiagnosticCode"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "MaterialAllowableSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowable_id",
+        "allowable_kind",
+        "value_status",
+        "public_repository_value_policy",
+        "required_for",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "allowable_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "allowable_kind": {
+          "type": "string",
+          "enum": [
+            "user_rule_allowable",
+            "owner_design_basis",
+            "temperature_dependent_allowable",
+            "invented_example_allowable",
+            "private_reference",
+            "TBD"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/QuantityValue"
+        },
+        "value_status": {
+          "type": "string",
+          "enum": [
+            "not_provided",
+            "private_user_supplied",
+            "public_permissive_reviewed",
+            "invented_non_engineering_example",
+            "protected_suspected",
+            "TBD"
+          ]
+        },
+        "public_repository_value_policy": {
+          "type": "string",
+          "enum": [
+            "no_public_code_specific_values",
+            "invented_example_only",
+            "public_permissive_reviewed_only",
+            "private_user_supplied_only",
+            "TBD"
+          ]
+        },
+        "rule_pack_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "MaterialDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_id",
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_ref",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "diagnostic_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "code": {
+          "$ref": "#/$defs/MaterialDiagnosticCode"
+        },
+        "class": {
+          "$ref": "#/$defs/DiagnosticClass"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking",
+            "TBD"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affected_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "MaterialDiagnosticCode": {
+      "type": "string",
+      "enum": [
+        "MATERIAL_PROPERTY_MISSING",
+        "MATERIAL_UNIT_MISSING",
+        "MATERIAL_PROVENANCE_MISSING",
+        "MATERIAL_REVIEW_REQUIRED",
+        "MATERIAL_PRIVATE_ONLY",
+        "MATERIAL_PROTECTED_CONTENT_SUSPECTED",
+        "MATERIAL_ALLOWABLE_NOT_PUBLIC",
+        "MATERIAL_COMPLETENESS_TBD",
+        "TBD"
+      ]
+    },
+    "DiagnosticClass": {
+      "type": "string",
+      "enum": [
+        "SOLVE_BLOCKING",
+        "RULE_CHECK_BLOCKING",
+        "PROVENANCE_WARNING",
+        "ASSUMPTION_WARNING",
+        "NONLINEAR_WARNING",
+        "IP_BOUNDARY_WARNING",
+        "UNIT_CONTRACT_ERROR",
+        "TBD"
+      ]
+    },
+    "MaterialFamily": {
+      "type": "string",
+      "enum": [
+        "metal",
+        "polymer",
+        "composite",
+        "insulation",
+        "contents",
+        "generic_user_defined",
+        "invented_example",
+        "TBD"
+      ]
+    },
+    "MaterialLibrary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_id",
+        "name",
+        "library_scope",
+        "privacy_class",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "library_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "library_scope": {
+          "type": "string",
+          "enum": [
+            "public_schema_fixture",
+            "public_permissive_library",
+            "private_user_library",
+            "quarantine_metadata_only",
+            "TBD"
+          ]
+        },
+        "privacy_class": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "MaterialPropertyDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "property_kind",
+        "dimension_id",
+        "quantity_kind",
+        "unit_required",
+        "required_for",
+        "public_fixture_policy",
+        "review_status"
+      ],
+      "properties": {
+        "property_kind": {
+          "$ref": "#/$defs/MaterialPropertyKind"
+        },
+        "dimension_id": {
+          "$ref": "#/$defs/MaterialPropertyDimension"
+        },
+        "quantity_kind": {
+          "$ref": "#/$defs/QuantityKind"
+        },
+        "unit_required": {
+          "type": "boolean",
+          "description": "False is allowed only for explicitly dimensionless ratios or coefficients."
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "public_fixture_policy": {
+          "type": "string",
+          "enum": [
+            "schema_shape_only",
+            "invented_non_engineering_values_only",
+            "public_permissive_reviewed_values_only",
+            "private_values_only",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "MaterialPropertyDimension": {
+      "type": "string",
+      "enum": [
+        "density",
+        "stress",
+        "temperature",
+        "temperature_interval",
+        "thermal_expansion_coefficient",
+        "specific_heat",
+        "thermal_conductivity",
+        "dimensionless",
+        "TBD"
+      ]
+    },
+    "MaterialPropertyKind": {
+      "type": "string",
+      "enum": [
+        "density",
+        "elastic_modulus",
+        "poisson_ratio",
+        "thermal_expansion_coefficient",
+        "yield_strength",
+        "tensile_strength",
+        "allowable_stress",
+        "specific_heat",
+        "thermal_conductivity",
+        "user_defined",
+        "TBD"
+      ]
+    },
+    "MaterialPropertyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "property_id",
+        "property_kind",
+        "value_status",
+        "required_for",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "property_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "property_kind": {
+          "$ref": "#/$defs/MaterialPropertyKind"
+        },
+        "temperature_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "$ref": "#/$defs/QuantityValue"
+        },
+        "value_status": {
+          "type": "string",
+          "enum": [
+            "provided",
+            "missing",
+            "not_applicable",
+            "private_user_supplied",
+            "protected_suspected",
+            "TBD"
+          ]
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "MaterialRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_id",
+        "name",
+        "material_family",
+        "privacy_class",
+        "redistribution_status",
+        "properties",
+        "allowables",
+        "completeness",
+        "provenance",
+        "review_status"
+      ],
+      "properties": {
+        "material_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_family": {
+          "$ref": "#/$defs/MaterialFamily"
+        },
+        "grade_or_designation": {
+          "type": "string",
+          "description": "User/private or reviewed public designation. Public fixtures must not copy protected standards designations unless redistribution is documented."
+        },
+        "privacy_class": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MaterialPropertyValue"
+          }
+        },
+        "allowables": {
+          "type": "array",
+          "description": "Slots for private or reviewed allowable values. The public project must not bundle protected or code-specific allowable tables.",
+          "items": {
+            "$ref": "#/$defs/MaterialAllowableSlot"
+          }
+        },
+        "completeness": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MaterialCompletenessFinding"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "MaterialCompletenessFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "required_for",
+        "status",
+        "missing_property_kinds",
+        "diagnostic_code"
+      ],
+      "properties": {
+        "finding_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "required_for": {
+          "$ref": "#/$defs/RequiredFor"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "incomplete",
+            "not_reviewed",
+            "blocked",
+            "TBD"
+          ]
+        },
+        "missing_property_kinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MaterialPropertyKind"
+          }
+        },
+        "diagnostic_code": {
+          "$ref": "#/$defs/MaterialDiagnosticCode"
+        }
+      }
+    },
+    "OpenDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "topic",
+        "status",
+        "blocking_scope",
+        "owner",
+        "notes"
+      ],
+      "properties": {
+        "decision_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "topic": {
+          "type": "string",
+          "enum": [
+            "public_material_fixture_policy",
+            "accepted_material_source_catalog",
+            "material_property_required_set",
+            "allowable_value_storage_policy",
+            "temperature_interpolation_policy",
+            "editor_fixture_content",
+            "TBD"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "accepted",
+            "deferred",
+            "blocked",
+            "TBD"
+          ]
+        },
+        "blocking_scope": {
+          "type": "string",
+          "enum": [
+            "schema_shape",
+            "public_fixture_values",
+            "solver_use",
+            "rule_check_use",
+            "editor_fixture_use",
+            "TBD"
+          ]
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "PrivacyClass": {
+      "type": "string",
+      "enum": [
+        "public_schema_only",
+        "public_permissive",
+        "private_user_data",
+        "quarantine_metadata_only",
+        "TBD"
+      ]
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "QuantityKind": {
+      "type": "string",
+      "enum": [
+        "absolute",
+        "interval",
+        "ratio",
+        "coefficient",
+        "unit_bearing",
+        "dimensionless",
+        "TBD"
+      ]
+    },
+    "QuantityValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "magnitude",
+        "unit_ref",
+        "dimension_id",
+        "quantity_kind",
+        "unit_required",
+        "missing_unit_behavior",
+        "provenance"
+      ],
+      "properties": {
+        "magnitude": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "unit_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "dimension_id": {
+          "$ref": "#/$defs/MaterialPropertyDimension"
+        },
+        "quantity_kind": {
+          "$ref": "#/$defs/QuantityKind"
+        },
+        "unit_required": {
+          "type": "boolean",
+          "description": "False is allowed only for explicitly dimensionless ratios or coefficients."
+        },
+        "missing_unit_behavior": {
+          "type": "string",
+          "enum": [
+            "diagnostic_blocking",
+            "diagnostic_warning",
+            "not_applicable_explicit_dimensionless",
+            "TBD"
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "rejected",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "$ref": "#/$defs/Id"
+        }
+      }
+    },
+    "RequiredFor": {
+      "type": "string",
+      "enum": [
+        "mechanics_solve",
+        "rule_check",
+        "reporting",
+        "private_library",
+        "public_contribution_review",
+        "not_required",
+        "TBD"
+      ]
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    }
+  }
+}

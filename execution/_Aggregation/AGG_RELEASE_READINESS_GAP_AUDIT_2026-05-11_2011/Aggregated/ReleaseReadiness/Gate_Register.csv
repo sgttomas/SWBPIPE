@@ -1,0 +1,8 @@
+GateID,Gate,CurrentState,Gap,Severity,SourcePath
+G-01,Evidence archive completeness,bounded evidence present,select artifact list and archive method,WARNING,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+G-02,Candidate graph posture,candidate rows non-gating under DAG-003,decide later graph cleanup if desired,INFO,execution/_DAG/DAG-003/APPROVAL_RECORD.md
+G-03,Evaluator security,bounded evaluator/threat-model evidence present,release-security disposition unresolved,BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+G-04,CI and release gates,provider-neutral skeleton/gates present,"CI provider, matrix, thresholds, signing, publishing unresolved",BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+G-05,Validation sufficiency,benchmark deliverables present,release thresholds and evidence bundle unresolved,BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_PLANNING.md
+G-06,Private/protected data scan,policy and bounded controls present,release artifact scan not recorded,BLOCKER_TO_RELEASE_CLAIM,docs/IP_AND_DATA_BOUNDARY.md
+G-07,Professional boundary,non-claim controls present,professional route required for any reliance language,BLOCKER_TO_PROFESSIONAL_USE,docs/CONTRACT.md

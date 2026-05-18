@@ -1,0 +1,8 @@
+GateID,Gate,CurrentState,Gap,Severity,SourcePath
+G-01,Lifecycle maturity,84 IN_PROGRESS; 8 SEMANTIC_READY architecture-basis,package-by-package maturity work remains,BLOCKER_TO_DELIVERABLE_COMPLETE_CLAIM,execution/_Reconciliation/LifecycleCorrection/
+G-02,Evidence archive completeness,bounded evidence present,select artifact list and archive method,WARNING,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+G-03,CI and release gates,provider-neutral skeleton/gates present,"CI provider, matrix, thresholds, signing, publishing unresolved",BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+G-04,Validation sufficiency,benchmark deliverables IN_PROGRESS,release thresholds and evidence bundle unresolved,BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_PLANNING.md
+G-05,Private/protected data scan,policy and bounded controls present,release artifact scan not recorded,BLOCKER_TO_RELEASE_CLAIM,docs/IP_AND_DATA_BOUNDARY.md
+G-06,Runtime/product surface,runtime deliverables IN_PROGRESS,runnable product target and runtime assembly unresolved,BLOCKER_TO_PRODUCT_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RUNTIME_PRODUCT_GAP_LEDGER.md
+G-07,Professional boundary,non-claim controls present,professional route required for any reliance language,BLOCKER_TO_PROFESSIONAL_USE,docs/CONTRACT.md

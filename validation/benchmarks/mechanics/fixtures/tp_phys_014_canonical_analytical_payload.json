@@ -1,0 +1,514 @@
+{
+  "model": {
+    "id": "ANALYTICAL-TP-PHYS-014",
+    "name": "TP-PHYS-014 canonical analytical payload",
+    "description": "Invented analytical solver model fixture for straight-pipe solver consumption.",
+    "model_role": "analytical_solver_model",
+    "source_model_ref": {
+      "object_type": "Model",
+      "id": "PHYS-1"
+    },
+    "coordinate_system": {
+      "type": "cartesian",
+      "axes": [
+        "X",
+        "Y",
+        "Z"
+      ]
+    },
+    "nodes": [
+      {
+        "id": "N-1",
+        "coordinates": {
+          "x": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "y": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "z": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "degrees_of_freedom": {
+          "UX": "free",
+          "UY": "free",
+          "UZ": "free",
+          "RX": "free",
+          "RY": "free",
+          "RZ": "free"
+        }
+      },
+      {
+        "id": "N-2",
+        "coordinates": {
+          "x": {
+            "value": 4.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "y": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "z": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "degrees_of_freedom": {
+          "UX": "free",
+          "UY": "free",
+          "UZ": "free",
+          "RX": "free",
+          "RY": "free",
+          "RZ": "free"
+        }
+      }
+    ],
+    "elements": [
+      {
+        "id": "E-1",
+        "element_type": "straight_pipe",
+        "start_node_ref": {
+          "object_type": "Node",
+          "id": "N-1"
+        },
+        "end_node_ref": {
+          "object_type": "Node",
+          "id": "N-2"
+        },
+        "material_ref": {
+          "object_type": "Material",
+          "id": "MAT-1"
+        },
+        "section_ref": {
+          "object_type": "Section",
+          "id": "SEC-1"
+        },
+        "local_coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ],
+          "y_reference": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "provenance": {
+            "source_name": "TP-PHYS-014 governed orientation source",
+            "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+            "source_license": "project-original-public-content",
+            "contributor": "OpenPipeStress agentic development workflow",
+            "contributor_certification": "invented non-engineering benchmark fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "result_stations": [
+          {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 station source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "value": 2.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 station source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "value": 4.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "TP-PHYS-014 station source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        ]
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "MAT-1",
+        "name": "TP-PHYS-014 invented material",
+        "properties": {
+          "elastic_modulus": {
+            "value": 1000.0,
+            "unit": "Pa",
+            "dimension": "stress",
+            "provenance": {
+              "source_name": "TP-PHYS-014 material quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "shear_modulus": {
+            "value": 400.0,
+            "unit": "Pa",
+            "dimension": "stress",
+            "provenance": {
+              "source_name": "TP-PHYS-014 material quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "provenance": {
+          "source_name": "TP-PHYS-014 material source",
+          "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+          "source_license": "project-original-public-content",
+          "contributor": "OpenPipeStress agentic development workflow",
+          "contributor_certification": "invented non-engineering benchmark fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "SEC-1",
+        "section_type": "pipe",
+        "properties": {
+          "area": {
+            "value": 3.0,
+            "unit": "m2",
+            "dimension": "area",
+            "provenance": {
+              "source_name": "TP-PHYS-014 section quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "second_moment_y": {
+            "value": 1.5,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "TP-PHYS-014 section quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "second_moment_z": {
+            "value": 2.0,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "TP-PHYS-014 section quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "torsion_constant": {
+            "value": 1.0,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "TP-PHYS-014 section quantity source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "provenance": {
+          "source_name": "TP-PHYS-014 section source",
+          "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+          "source_license": "project-original-public-content",
+          "contributor": "OpenPipeStress agentic development workflow",
+          "contributor_certification": "invented non-engineering benchmark fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "supports": [
+      {
+        "id": "SUP-1",
+        "support_type": "anchor",
+        "target_ref": {
+          "object_type": "Node",
+          "id": "N-1"
+        },
+        "directions": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "properties": {},
+        "provenance": {
+          "source_name": "TP-PHYS-014 support source",
+          "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+          "source_license": "project-original-public-content",
+          "contributor": "OpenPipeStress agentic development workflow",
+          "contributor_certification": "invented non-engineering benchmark fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "LC-TP-PHYS-014",
+        "name": "TP-PHYS-014 invented analytical load case",
+        "load_type": "occasional",
+        "loads": [
+          {
+            "load_record_type": "element_uniform_distributed_force",
+            "target_ref": {
+              "object_type": "Element",
+              "id": "E-1"
+            },
+            "span": {
+              "start_fraction": {
+                "value": 0.0,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "TP-PHYS-014 load quantity source",
+                  "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+                  "source_license": "project-original-public-content",
+                  "contributor": "OpenPipeStress agentic development workflow",
+                  "contributor_certification": "invented non-engineering benchmark fixture",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "pending"
+                }
+              },
+              "end_fraction": {
+                "value": 1.0,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "TP-PHYS-014 load quantity source",
+                  "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+                  "source_license": "project-original-public-content",
+                  "contributor": "OpenPipeStress agentic development workflow",
+                  "contributor_certification": "invented non-engineering benchmark fixture",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "direction": "Y",
+            "quantity": {
+              "value": -2.0,
+              "unit": "N/m",
+              "dimension": "force_per_length",
+              "provenance": {
+                "source_name": "TP-PHYS-014 load quantity source",
+                "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+                "source_license": "project-original-public-content",
+                "contributor": "OpenPipeStress agentic development workflow",
+                "contributor_certification": "invented non-engineering benchmark fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "provenance": {
+              "source_name": "TP-PHYS-014 distributed load source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "load_record_type": "element_point_force",
+            "target_ref": {
+              "object_type": "Element",
+              "id": "E-1"
+            },
+            "station_fraction": {
+              "value": 0.5,
+              "unit": "1",
+              "dimension": "dimensionless",
+              "provenance": {
+                "source_name": "TP-PHYS-014 load quantity source",
+                "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+                "source_license": "project-original-public-content",
+                "contributor": "OpenPipeStress agentic development workflow",
+                "contributor_certification": "invented non-engineering benchmark fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "direction": "Y",
+            "quantity": {
+              "value": -4.0,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "TP-PHYS-014 load quantity source",
+                "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+                "source_license": "project-original-public-content",
+                "contributor": "OpenPipeStress agentic development workflow",
+                "contributor_certification": "invented non-engineering benchmark fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "provenance": {
+              "source_name": "TP-PHYS-014 point-force source",
+              "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+              "source_license": "project-original-public-content",
+              "contributor": "OpenPipeStress agentic development workflow",
+              "contributor_certification": "invented non-engineering benchmark fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        ],
+        "provenance": {
+          "source_name": "TP-PHYS-014 load case source",
+          "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+          "source_license": "project-original-public-content",
+          "contributor": "OpenPipeStress agentic development workflow",
+          "contributor_certification": "invented non-engineering benchmark fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "combinations": [],
+    "results": [],
+    "diagnostics": [],
+    "unresolved_assumptions": [],
+    "traceability_links": [],
+    "design_knowledge_refs": [],
+    "constraint_refs": [],
+    "equipment_interface_refs": [],
+    "operation_refs": [],
+    "model_state_refs": [],
+    "analysis_run_refs": [],
+    "comparison_refs": [],
+    "handoff_package_refs": [],
+    "external_reference_refs": [],
+    "provenance": {
+      "source_name": "TP-PHYS-014 analytical model source",
+      "source_location": "validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+      "source_license": "project-original-public-content",
+      "contributor": "OpenPipeStress agentic development workflow",
+      "contributor_certification": "invented non-engineering benchmark fixture",
+      "redistribution_status": "public_permissive",
+      "review_status": "pending"
+    }
+  }
+}

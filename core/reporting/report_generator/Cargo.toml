@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_report_generator"
+version = "0.1.0"
+edition = "2021"
+description = "Calculation report assembly support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

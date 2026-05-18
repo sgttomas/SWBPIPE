@@ -1,0 +1,197 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "public_examples_policy": "invented_or_cleared_data_only",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review"
+  },
+  "project": {
+    "id": "project:invented-loop-01",
+    "name": "Invented Utility Loop Preview",
+    "description": "Small invented centerline model for desktop integration review.",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "temperature": "degC",
+      "stress": "MPa"
+    }
+  },
+  "materials": [
+    {
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "elastic_modulus": { "value": 200000000000, "unit": "Pa" },
+      "shear_modulus": { "value": 77000000000, "unit": "Pa" },
+      "thermal_expansion_coefficient": { "value": 0.000012, "unit": "1/degC" },
+      "provenance": "invented_example_no_material_standard"
+    }
+  ],
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    { "id": "node:N-100", "label": "Pump nozzle", "position": { "x": 0, "y": 0, "z": 0 }, "provenance": "invented_example" },
+    { "id": "node:N-110", "label": "Low point elbow", "position": { "x": 3.2, "y": 0, "z": 0 }, "provenance": "invented_example" },
+    { "id": "node:N-120", "label": "Riser elbow", "position": { "x": 3.2, "y": 2.4, "z": 0 }, "provenance": "invented_example" },
+    { "id": "node:N-130", "label": "Rack turn", "position": { "x": 7.6, "y": 2.4, "z": 0 }, "provenance": "invented_example" },
+    { "id": "node:N-140", "label": "Terminal tie-in", "position": { "x": 7.6, "y": 2.4, "z": 2.2 }, "provenance": "invented_example" }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:P-100",
+      "label": "Pump discharge run",
+      "from": "node:N-100",
+      "to": "node:N-110",
+      "section": { "outside_diameter": { "value": 0.168, "unit": "m" }, "wall_thickness": { "value": 0.007, "unit": "m" } },
+      "material": "material:invented-carbon-steel",
+      "y_reference": { "x": 0, "y": 0, "z": 1 },
+      "provenance": "invented_example_no_standard_catalog"
+    },
+    {
+      "id": "pipe:P-110",
+      "label": "Vertical riser",
+      "from": "node:N-110",
+      "to": "node:N-120",
+      "section": { "outside_diameter": { "value": 0.168, "unit": "m" }, "wall_thickness": { "value": 0.007, "unit": "m" } },
+      "material": "material:invented-carbon-steel",
+      "y_reference": { "x": 0, "y": 0, "z": 1 },
+      "provenance": "invented_example_no_standard_catalog"
+    },
+    {
+      "id": "pipe:P-120",
+      "label": "Rack span",
+      "from": "node:N-120",
+      "to": "node:N-130",
+      "section": { "outside_diameter": { "value": 0.168, "unit": "m" }, "wall_thickness": { "value": 0.007, "unit": "m" } },
+      "material": "material:invented-carbon-steel",
+      "y_reference": { "x": 0, "y": 0, "z": 1 },
+      "provenance": "invented_example_no_standard_catalog"
+    },
+    {
+      "id": "pipe:P-130",
+      "label": "Tie-in rise",
+      "from": "node:N-130",
+      "to": "node:N-140",
+      "section": { "outside_diameter": { "value": 0.168, "unit": "m" }, "wall_thickness": { "value": 0.007, "unit": "m" } },
+      "material": "material:invented-carbon-steel",
+      "y_reference": { "x": 0, "y": 1, "z": 0 },
+      "provenance": "invented_example_no_standard_catalog"
+    }
+  ],
+  "supports": [
+    { "id": "support:S-100", "label": "Anchor at pump nozzle", "node": "node:N-100", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": "invented_example" },
+    { "id": "support:S-120", "label": "Guide on riser", "node": "node:N-120", "family": "guide", "restraints": ["UX", "UZ"], "provenance": "invented_example" },
+    { "id": "support:S-130", "label": "Rack shoe", "node": "node:N-130", "family": "guide", "restraints": ["UY"], "provenance": "invented_example" }
+  ],
+  "components": [
+    { "id": "component:C-110", "label": "Invented elbow marker", "kind": "bend", "node": "node:N-110", "provenance": "invented_example_no_flexibility_factor" },
+    { "id": "component:C-140", "label": "Invented tie-in marker", "kind": "terminal", "node": "node:N-140", "provenance": "invented_example" }
+  ],
+  "load_cases": [
+    {
+      "id": "load:L-100",
+      "label": "Invented operating gravity and pressure preview",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:L-100-Z",
+          "category": "weight",
+          "target": { "type": "element", "pipe": "pipe:P-120" },
+          "direction": "global_z",
+          "magnitude": { "value": -190, "unit": "N/m" },
+          "dimension": "force_per_length",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-100-Y",
+          "category": "occasional",
+          "target": { "type": "node", "node": "node:N-140" },
+          "direction": "global_y",
+          "magnitude": { "value": 350, "unit": "N" },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-100-P",
+          "category": "pressure",
+          "target": { "type": "element", "pipe": "pipe:P-120" },
+          "direction": "global_x",
+          "magnitude": { "value": 1200000, "unit": "Pa" },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-100-T",
+          "category": "thermal",
+          "target": { "type": "element", "pipe": "pipe:P-120" },
+          "direction": "global_z",
+          "magnitude": { "value": 12.5, "unit": "degC" },
+          "dimension": "temperature_interval",
+          "provenance": "invented_example_user_input"
+        }
+      ],
+      "provenance": "invented_example_no_code_combination"
+    },
+    {
+      "id": "load:L-200",
+      "label": "Invented alternate gravity and pressure preview",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:L-200-Z",
+          "category": "weight",
+          "target": { "type": "element", "pipe": "pipe:P-120" },
+          "direction": "global_z",
+          "magnitude": { "value": -95, "unit": "N/m" },
+          "dimension": "force_per_length",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-200-Y",
+          "category": "occasional",
+          "target": { "type": "node", "node": "node:N-140" },
+          "direction": "global_y",
+          "magnitude": { "value": 125, "unit": "N" },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-200-P",
+          "category": "pressure",
+          "target": { "type": "element", "pipe": "pipe:P-120" },
+          "direction": "global_x",
+          "magnitude": { "value": 600000, "unit": "Pa" },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input"
+        }
+      ],
+      "provenance": "invented_example_no_code_combination"
+    }
+  ],
+  "combinations": [
+    {
+      "id": "combination:C-OPER-ALT",
+      "label": "Invented explicit operating plus alternate preview",
+      "basis": "mechanics",
+      "terms": [
+        { "load_case": "load:L-100", "factor": 1.0 },
+        { "load_case": "load:L-200", "factor": 0.5 }
+      ],
+      "provenance": "invented_example_user_defined_mechanics_combination_no_code_default"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "RULE_INPUTS_MISSING",
+      "severity": "warning",
+      "message": "Rule-check inputs are intentionally absent from this invented preview.",
+      "source": "fixtures/product_preview/invented_preview_model.json"
+    }
+  ]
+}

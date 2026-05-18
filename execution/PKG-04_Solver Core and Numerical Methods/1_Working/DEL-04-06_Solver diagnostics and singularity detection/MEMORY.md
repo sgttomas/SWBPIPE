@@ -1,0 +1,144 @@
+# MEMORY - DEL-04-06 Solver Diagnostics And Singularity Detection
+
+## Decisions And Rulings
+
+- 2026-05-01 - Human project authority authorized proceeding with
+  `DEL-04-06` as the recommended continuity item after `DEL-04-01`.
+- 2026-05-01 - Candidate edge `DAG-001-E0622` remains non-gating; nonlinear
+  support warning classes requiring `DEL-04-04` are not finalized in this
+  slice.
+
+## Implementation Summary
+
+- Added `core/solver/diagnostics`, a Rust mechanics-diagnostics crate with a
+  path dependency on `core/solver/frame_kernel`.
+- The crate maps `FrameKernelError` variants into deterministic diagnostic
+  records with code, severity, source, message, and optional affected
+  reference.
+- Added conditioning-ratio classification, nonconvergence diagnostics, and
+  explicit sparse-solver/tolerance-policy `TBD` warning diagnostics.
+
+## Evidence
+
+- `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check`
+  passed.
+- `cargo test --manifest-path core/solver/diagnostics/Cargo.toml` passed:
+  10 tests, 0 failures.
+
+## Open TBDs
+
+- Accepted sparse numerical library remains `TBD`.
+- Release-quality solver tolerance thresholds remain `TBD`.
+- Nonlinear-support warning classes remain future work pending `DEL-04-04`.
+- Final result-envelope and application-service integration remains future
+  work.
+
+## Boundaries Preserved
+
+- No protected standards text, protected tables, code-specific allowables,
+  SIF/flexibility factors, proprietary catalog values, private project data, or
+  professional/code-compliance claims were introduced.
+- No lifecycle state transition, dependency-register edit, candidate-edge
+  promotion, or blocker-queue refresh was performed.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+- TP-RECON-01 reconciled DEL-04-06 from archived DEV-001 evidence only. The
+  dispatch matrix row maps this deliverable to commit `fdb0252` (`core: add
+  solver diagnostics module`) and allows writes only to this `MEMORY.md` and
+  `_STATUS.md`.
+- Archived evidence records identify DEL-04-06 as `COMMITTED` on 2026-04-30
+  for a bounded solver-diagnostics item; the REV05 evidence-status row notes
+  that completeness still depends on refreshed graph/context review.
+- The archived DEL-04-06 dispatch authorized deterministic solver diagnostics
+  for singularity, invalid restraints/topology/numeric input, conditioning, and
+  nonconvergence reporting, while leaving sparse solver selection, tolerance
+  policy, nonlinear-support warning classes, and final result-envelope
+  integration as `TBD` or future scope.
+- `git show --name-status fdb0252` confirms the committed slice added
+  `core/solver/diagnostics` files, updated `docs/SPEC.md` and `docs/TYPES.md`,
+  added this deliverable `MEMORY.md`, and wrote coordination state for the
+  original DEV-001 dispatch.
+- Existing deliverable memory records verification at implementation time:
+  `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check` and
+  `cargo test --manifest-path core/solver/diagnostics/Cargo.toml` passed, with
+  10 tests and 0 failures.
+- TP-MAC-01 archive briefs later referenced DEL-04-06 as a source for
+  mechanics/solver diagnostic classes, warning semantics, deterministic
+  diagnostics, and failure states in preview workflows. Those references are
+  treated as preview/workflow usage evidence, not a lifecycle release or
+  engineering reliance status.
+- Current state is preserved as `CHECKING` because committed implementation
+  evidence exists and the source bundle does not authorize a stronger lifecycle
+  state.
+
+## 2026-05-15 TP-PHYS-002 Worker D
+
+- Worker D fanned in current TP-PHYS-002 upstream frame/support/load failure
+  shapes into `core/solver/diagnostics` only. The frame/support/load crates were
+  already modified by other workers and were used as read-only API evidence.
+- `diagnostic_from_frame_error` and `report_frame_error` signatures were
+  preserved. New `FrameKernelError::RepeatedPrescribedDof` and
+  `FrameKernelError::PrescribedDofOutOfRange` map to
+  `InvalidRestraint` / `Blocking` / `ModelValidation` diagnostics with
+  `dof:*` affected references.
+- Added direct diagnostics helpers for linear support errors/findings,
+  support-application errors, primitive load errors, and primitive load
+  findings. Support/load finding affected references use the public
+  `support_id` or `load_id`; application DOF errors use `dof:*`.
+- Sparse solver selection and tolerance policy remain explicit warning-level
+  `TBD` diagnostics. No sparse solver library, release tolerance threshold, or
+  nonlinear-support diagnostic policy was selected in this slice.
+- Validation passed:
+  `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/diagnostics/Cargo.toml` (14 tests);
+  `cargo test --manifest-path core/solver/frame_kernel/Cargo.toml` (23 tests);
+  `cargo test --manifest-path core/solver/linear_supports/Cargo.toml`
+  (12 tests); and
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml`
+  (20 tests).
+- Boundary preserved: no protected standards text, protected tables,
+  code-specific allowables, private project data, professional/code-compliance
+  claims, lifecycle edits, dependency-register edits, coordination edits, DAG
+  edits, benchmark edits, or GUI/app harness edits were introduced.
+
+## 2026-05-16 - DEV-001 downstream PKG-02 audit memory addendum
+
+Durable context preserved after reconciliation review:
+- DEV-001 package-worker audit reviewed this deliverable for downstream compatibility with the accepted PKG-02 foundation contracts.
+- Local audit artifacts are `execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_REVIEW.md` and `execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/Review_Findings.csv`.
+- Package audit summary is `execution/PKG-04_Solver Core and Numerical Methods/1_Working/_audit/PKG02_DOWNSTREAM_REVIEW_2026-05-16.md`; package run record is `execution/PKG-04_Solver Core and Numerical Methods/1_Working/_run_records/TASK_RUN_2026-05-16_PKG04_PKG02_DOWNSTREAM_AUDIT.md`.
+- This was audit evidence only. It did not change lifecycle state, authorize release, or make a professional, certification, sealing, approval, or code-compliance claim.
+- The May 16 package-worker TASK run record did not fully preserve canonical per-deliverable TASK documentation context; this addendum preserves the durable deliverable-local pointer without modifying the completed run record.
+
+## 2026-05-16 - DEV-001 PKG-02 grounded finding-resolution memory addendum
+
+Durable context preserved after PKG-02 grounded finding resolution:
+- Stage 2 technical resolution used the accepted PKG-02 contract as the governing source for this deliverable's downstream compatibility evidence.
+- Original audit finding count for this deliverable: 2 (WARNING=2). Current technical status count in the resolution matrix: TECHNICALLY_ADDRESSED_PENDING_HUMAN=2.
+- Resolution evidence is indexed in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/RESOLUTION_MATRIX.csv`; validation evidence is summarized in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/VALIDATION_SUMMARY.md`.
+- Local `Review_Findings.csv` entries remain subject to the human disposition gate. `HumanDisposition` stays `TBD` until review, and `Status` must not be changed to `RESOLVED` automatically.
+- No lifecycle promotion, release claim, or professional/code-compliance claim is implied by the technical closeout.
+
+## 2026-05-17 TP-PHYS-008-E Axial-Effect Finding Diagnostics
+
+- Executed approved follow-up `TP-PHYS-008-E` TASK slice for `DEL-04-06` /
+  `PKG-04` with write scope limited to `core/solver/diagnostics/**`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Added deterministic diagnostic mapping for explicit axial-effect
+  primitive-load finding codes from `DEL-05-01`.
+- Missing axial-effect property findings map to `InvalidModelTopology`;
+  invalid/non-finite axial-effect property or computed-force findings map to
+  `InvalidNumericInput`. All remain blocking model-validation diagnostics with
+  the primitive load ID as affected reference.
+- Verification passed:
+  `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/diagnostics/Cargo.toml axial_effect`
+  with 2 focused tests passed.
+- Remaining TBDs: sparse solver selection, tolerance policy,
+  nonlinear-support diagnostics, final result-envelope integration, release
+  thresholds, and professional reliance.
+- No `_STATUS.md`, dependency register, DAG, blocker queue, candidate row,
+  DEV-001 finding disposition, protected standards content, private data,
+  code-compliance claim, release claim, or professional reliance claim was
+  changed or introduced by this follow-up slice.

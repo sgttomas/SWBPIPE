@@ -1,0 +1,215 @@
+{
+  "edges_path": "execution/_DAG/DAG-002/DependencyEdges.csv",
+  "nodes_path": "execution/_DAG/DAG-002/DeliverableNodes.csv",
+  "source_label": "APPROVED_DAG002",
+  "filtered_deliverable_ids": [
+    "DEL-07-08",
+    "DEL-08-06",
+    "DEL-13-01",
+    "DEL-13-02",
+    "DEL-13-03",
+    "DEL-13-04",
+    "DEL-14-01",
+    "DEL-14-02",
+    "DEL-14-03",
+    "DEL-14-04",
+    "DEL-14-05",
+    "DEL-15-01",
+    "DEL-15-02",
+    "DEL-15-03",
+    "DEL-15-04",
+    "DEL-16-01",
+    "DEL-16-02",
+    "DEL-16-03",
+    "DEL-16-04"
+  ],
+  "execution_root": "execution",
+  "dry_run": false,
+  "refresh_pointers": true,
+  "edge_row_width_issue_count": 0,
+  "node_row_width_issue_count": 0,
+  "written_count": 19,
+  "total_rows": 244,
+  "total_active_rows": 244,
+  "total_candidate_rows": 0,
+  "written": [
+    {
+      "DeliverableID": "DEL-07-08",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "Rows": 21,
+      "ActiveRows": 21,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-08-06",
+      "PackageID": "PKG-08",
+      "DependenciesCsv": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections/_DEPENDENCIES.md",
+      "Rows": 22,
+      "ActiveRows": 22,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-13-01",
+      "PackageID": "PKG-13",
+      "DependenciesCsv": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-13-02",
+      "PackageID": "PKG-13",
+      "DependenciesCsv": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-13-03",
+      "PackageID": "PKG-13",
+      "DependenciesCsv": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-13-04",
+      "PackageID": "PKG-13",
+      "DependenciesCsv": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_DEPENDENCIES.md",
+      "Rows": 14,
+      "ActiveRows": 14,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-14-01",
+      "PackageID": "PKG-14",
+      "DependenciesCsv": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-14-02",
+      "PackageID": "PKG-14",
+      "DependenciesCsv": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-14-03",
+      "PackageID": "PKG-14",
+      "DependenciesCsv": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-14-04",
+      "PackageID": "PKG-14",
+      "DependenciesCsv": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-14-05",
+      "PackageID": "PKG-14",
+      "DependenciesCsv": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-15-01",
+      "PackageID": "PKG-15",
+      "DependenciesCsv": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/_DEPENDENCIES.md",
+      "Rows": 13,
+      "ActiveRows": 13,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-15-02",
+      "PackageID": "PKG-15",
+      "DependenciesCsv": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/_DEPENDENCIES.md",
+      "Rows": 13,
+      "ActiveRows": 13,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-15-03",
+      "PackageID": "PKG-15",
+      "DependenciesCsv": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/_DEPENDENCIES.md",
+      "Rows": 14,
+      "ActiveRows": 14,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-15-04",
+      "PackageID": "PKG-15",
+      "DependenciesCsv": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-16-01",
+      "PackageID": "PKG-16",
+      "DependenciesCsv": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-16-02",
+      "PackageID": "PKG-16",
+      "DependenciesCsv": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-16-03",
+      "PackageID": "PKG-16",
+      "DependenciesCsv": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-16-04",
+      "PackageID": "PKG-16",
+      "DependenciesCsv": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    }
+  ],
+  "skipped_pkg00_count": 0,
+  "skipped_pkg00": [],
+  "missing_execution_path_count": 0,
+  "missing_execution_paths": [],
+  "skipped_status_counts": {
+    "RETIRED": 1
+  }
+}

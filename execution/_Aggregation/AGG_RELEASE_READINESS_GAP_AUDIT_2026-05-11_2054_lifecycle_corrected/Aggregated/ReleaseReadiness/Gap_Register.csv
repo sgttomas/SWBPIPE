@@ -1,0 +1,8 @@
+GapID,Gap,Route,Severity,SourcePath
+GAP-01,package-by-package maturity work remains,future human-approved tranche,BLOCKER_TO_DELIVERABLE_COMPLETE_CLAIM,execution/_Reconciliation/LifecycleCorrection/
+GAP-02,select artifact list and archive method,future human-approved tranche,WARNING,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+GAP-03,"CI provider, matrix, thresholds, signing, publishing unresolved",future human-approved tranche,BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+GAP-04,release thresholds and evidence bundle unresolved,future human-approved tranche,BLOCKER_TO_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_PLANNING.md
+GAP-05,release artifact scan not recorded,future human-approved tranche,BLOCKER_TO_RELEASE_CLAIM,docs/IP_AND_DATA_BOUNDARY.md
+GAP-06,runnable product target and runtime assembly unresolved,future human-approved tranche,BLOCKER_TO_PRODUCT_RELEASE_CLAIM,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RUNTIME_PRODUCT_GAP_LEDGER.md
+GAP-07,professional route required for any reliance language,future human-approved tranche,BLOCKER_TO_PROFESSIONAL_USE,docs/CONTRACT.md

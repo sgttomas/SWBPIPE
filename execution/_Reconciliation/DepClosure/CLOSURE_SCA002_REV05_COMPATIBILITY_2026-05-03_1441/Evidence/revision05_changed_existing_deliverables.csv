@@ -1,0 +1,3 @@
+DeliverableID,PackageID,Name,Revision05ScopeItems,DAG001ScopeItems,Revision05Objectives,DAG001Objectives,ReviewFlag
+DEL-01-04,PKG-01,Professional responsibility and product-claims policy,"SOW-034,SOW-064",SOW-034,"OBJ-011,OBJ-018",OBJ-011,TARGETED_SCOPE_REVIEW_REQUIRED
+DEL-02-01,PKG-02,Canonical domain model schema,"SOW-041,SOW-065",SOW-041,"OBJ-001,OBJ-012,OBJ-014",OBJ-001,TARGETED_SCOPE_REVIEW_REQUIRED

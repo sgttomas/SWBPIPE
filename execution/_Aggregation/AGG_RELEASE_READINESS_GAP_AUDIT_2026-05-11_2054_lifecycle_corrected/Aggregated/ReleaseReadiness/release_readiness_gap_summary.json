@@ -1,0 +1,70 @@
+{
+  "run_status": "WARNINGS",
+  "date": "2026-05-11",
+  "lifecycle_distribution": {
+    "SEMANTIC_READY": 8,
+    "IN_PROGRESS": 84
+  },
+  "deliverables_discovered": 92,
+  "digests_generated": 92,
+  "dimension_reports": 7,
+  "scores": [
+    {
+      "Dimension": "DIM-01_Graph_and_coordination_authority",
+      "Score": "CONFORMANT",
+      "FailCount": 0,
+      "ObservationCount": 0,
+      "SourcePath": "execution/_Evaluation/reports/DIM-01_Graph_and_coordination_authority.md"
+    },
+    {
+      "Dimension": "DIM-02_Evidence_archive_completeness",
+      "Score": "OBSERVATION",
+      "FailCount": 0,
+      "ObservationCount": 2,
+      "SourcePath": "execution/_Evaluation/reports/DIM-02_Evidence_archive_completeness.md"
+    },
+    {
+      "Dimension": "DIM-03_Release_gates_and_CI_build_posture",
+      "Score": "PARTIAL",
+      "FailCount": 1,
+      "ObservationCount": 1,
+      "SourcePath": "execution/_Evaluation/reports/DIM-03_Release_gates_and_CI_build_posture.md"
+    },
+    {
+      "Dimension": "DIM-04_Verification_and_validation_sufficiency",
+      "Score": "PARTIAL",
+      "FailCount": 1,
+      "ObservationCount": 1,
+      "SourcePath": "execution/_Evaluation/reports/DIM-04_Verification_and_validation_sufficiency.md"
+    },
+    {
+      "Dimension": "DIM-05_Report_audit_and_protected_content_controls",
+      "Score": "OBSERVATION",
+      "FailCount": 0,
+      "ObservationCount": 2,
+      "SourcePath": "execution/_Evaluation/reports/DIM-05_Report_audit_and_protected_content_controls.md"
+    },
+    {
+      "Dimension": "DIM-06_Runtime_and_release_target_surface",
+      "Score": "PARTIAL",
+      "FailCount": 1,
+      "ObservationCount": 1,
+      "SourcePath": "execution/_Evaluation/reports/DIM-06_Runtime_and_release_target_surface.md"
+    },
+    {
+      "Dimension": "DIM-07_Security_privacy_and_professional_boundary",
+      "Score": "PARTIAL",
+      "FailCount": 1,
+      "ObservationCount": 1,
+      "SourcePath": "execution/_Evaluation/reports/DIM-07_Security_privacy_and_professional_boundary.md"
+    }
+  ],
+  "gap_count": 7,
+  "non_claims": [
+    "No deliverable-complete claim is made by this audit.",
+    "No release-readiness claim is made by this audit.",
+    "No production-readiness claim is made by this audit.",
+    "No professional acceptance, certification, sealing, approval, or code-compliance claim is made by this audit."
+  ],
+  "snapshot_path": "execution/_Aggregation/AGG_RELEASE_READINESS_GAP_AUDIT_2026-05-11_2054_lifecycle_corrected"
+}

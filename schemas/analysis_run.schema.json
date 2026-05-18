@@ -1,0 +1,723 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/analysis_run.schema.json",
+  "title": "OpenPipeStress Analysis Run Record Schema",
+  "description": "Strict JSON Schema 2020-12 contract for immutable analysis run records bound to model states, solver identity, settings, units, load bases, diagnostics, result references, and hashes. Run records support reproducibility without declaring external validation or human engineering acceptance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "run_contract_status",
+    "analysis_run"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-14-02"
+    },
+    "package_id": {
+      "const": "PKG-14"
+    },
+    "scope_item": {
+      "const": "SOW-072"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-016"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-016"
+        ]
+      }
+    },
+    "run_contract_status": {
+      "$ref": "#/$defs/RunContractStatus"
+    },
+    "analysis_run": {
+      "$ref": "#/$defs/AnalysisRunRecord"
+    }
+  },
+  "$defs": {
+    "AnalysisRunRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "run_name",
+        "run_kind",
+        "created_at",
+        "model_state_ref",
+        "solver_version",
+        "settings_ref",
+        "unit_system_ref",
+        "load_basis_refs",
+        "diagnostics",
+        "result_refs",
+        "rule_pack_refs",
+        "library_refs",
+        "hashes",
+        "analysis_status",
+        "reproducibility",
+        "immutability_policy",
+        "professional_boundary",
+        "provenance"
+      ],
+      "properties": {
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "run_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_kind": {
+          "type": "string",
+          "enum": [
+            "mechanics_solve",
+            "rule_check",
+            "combined_analysis",
+            "export_generation",
+            "comparison_input",
+            "TBD"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_state_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "solver_version": {
+          "$ref": "#/$defs/SolverVersion"
+        },
+        "settings_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "load_basis_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "result_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResultRef"
+          }
+        },
+        "rule_pack_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RulePackRef"
+          }
+        },
+        "library_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LibraryRef"
+          }
+        },
+        "hashes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "analysis_status": {
+          "type": "array",
+          "contains": {
+            "const": "HUMAN_REVIEW_REQUIRED"
+          },
+          "items": {
+            "$ref": "#/$defs/AnalysisStatus"
+          }
+        },
+        "reproducibility": {
+          "$ref": "#/$defs/Reproducibility"
+        },
+        "immutability_policy": {
+          "$ref": "#/$defs/ImmutabilityPolicy"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "AnalysisStatus": {
+      "type": "string",
+      "description": "Software-emitted analysis status labels. Human project acceptance remains an external hash-bound record.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED",
+        "TBD"
+      ]
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "analysis_run_record",
+            "model_state_record",
+            "solver_settings",
+            "load_basis",
+            "result_envelope",
+            "result_value",
+            "audit_manifest",
+            "external_reference",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "RUN_REPRODUCIBILITY_WARNING",
+            "RESULT_HASH_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "ImmutabilityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_record_is_read_only",
+        "mutation_policy",
+        "new_run_required_for_change",
+        "hash_invalidates_external_acceptance"
+      ],
+      "properties": {
+        "run_record_is_read_only": {
+          "const": true
+        },
+        "mutation_policy": {
+          "const": "changes_create_new_analysis_run"
+        },
+        "new_run_required_for_change": {
+          "const": true
+        },
+        "hash_invalidates_external_acceptance": {
+          "const": true
+        }
+      }
+    },
+    "LibraryRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_ref",
+        "library_kind",
+        "checksum",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "library_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "library_kind": {
+          "type": "string",
+          "enum": [
+            "material",
+            "section",
+            "component",
+            "rule_pack",
+            "project_private",
+            "TBD"
+          ]
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "protected_suspected",
+        "redacted",
+        "TBD"
+      ]
+    },
+    "PhysicalProjectContainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "decision_ref",
+        "storage_role",
+        "canonical_truth",
+        "sql_public_contract",
+        "direct_sql_access_allowed",
+        "hosted_db_allowed",
+        "network_required",
+        "sidecars_rebuildable"
+      ],
+      "properties": {
+        "profile": {
+          "const": "sqlite_local_project_store"
+        },
+        "decision_ref": {
+          "const": "SCA-003"
+        },
+        "storage_role": {
+          "const": "local_store_index_projection"
+        },
+        "canonical_truth": {
+          "const": "canonical_json_jcs_payload"
+        },
+        "sql_public_contract": {
+          "const": false
+        },
+        "direct_sql_access_allowed": {
+          "const": false
+        },
+        "hosted_db_allowed": {
+          "const": false
+        },
+        "network_required": {
+          "const": false
+        },
+        "sidecars_rebuildable": {
+          "const": true
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": [
+            "Project",
+            "Model",
+            "ModelState",
+            "AnalysisRun",
+            "SolverSettings",
+            "UnitSystem",
+            "LoadCase",
+            "LoadCombination",
+            "Result",
+            "ResultEnvelope",
+            "RulePack",
+            "Library",
+            "AuditManifest",
+            "Diagnostic",
+            "ExternalReference",
+            "TBD"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "Reproducibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_manifest_refs",
+        "environment_refs",
+        "determinism_notes",
+        "unresolved_tbd"
+      ],
+      "properties": {
+        "input_manifest_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "environment_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "determinism_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolved_tbd": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ResultRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_ref",
+        "result_family",
+        "hash_refs",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "result_family": {
+          "type": "string",
+          "enum": [
+            "displacement",
+            "rotation",
+            "force",
+            "moment",
+            "reaction",
+            "stress",
+            "ratio",
+            "rule_check",
+            "diagnostic",
+            "TBD"
+          ]
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "RulePackRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_pack_id",
+        "version",
+        "checksum",
+        "source_notice",
+        "redistribution_status",
+        "private_payload_redacted",
+        "provenance"
+      ],
+      "properties": {
+        "rule_pack_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "source_notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "private_payload_redacted": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "RunContractStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_contract",
+        "model_state_binding",
+        "result_binding",
+        "physical_project_container",
+        "external_validation_boundary"
+      ],
+      "properties": {
+        "record_contract": {
+          "const": "schema_first_analysis_run_records"
+        },
+        "model_state_binding": {
+          "const": "schemas/model_state.schema.json"
+        },
+        "result_binding": {
+          "const": "schemas/results.schema.yaml"
+        },
+        "physical_project_container": {
+          "$ref": "#/$defs/PhysicalProjectContainer"
+        },
+        "external_validation_boundary": {
+          "const": "reference_only_not_determined_by_software"
+        }
+      }
+    },
+    "SolverVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solver_name",
+        "solver_version",
+        "build_ref",
+        "provenance"
+      ],
+      "properties": {
+        "solver_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "solver_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "build_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

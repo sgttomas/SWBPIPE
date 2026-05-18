@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.agent_proposal",
+  "proposal_id": "proposal:guide-riser",
+  "model_ref": "project:invented-loop-01",
+  "prompt": "Review the invented riser support context and suggest a non-mutating model operation.",
+  "operation": {
+    "operation_id": "op:add-riser-guide-note",
+    "operation_kind": "support",
+    "operation_status": "draft_user_review_required",
+    "affected_entity_ids": ["support:S-120", "pipe:P-110"],
+    "changes": [
+      {
+        "change_id": "change:add-note",
+        "change_kind": "attach_design_knowledge",
+        "target_ref": "support:S-120",
+        "before": "No support linear_stiffness or rotational_stiffness note attached.",
+        "after": "Attach invented review note requesting user-supplied guide linear_stiffness and rotational_stiffness."
+      }
+    ]
+  },
+  "rationale": "The preview fixture marks guide linear_stiffness and rotational_stiffness as unresolved, so the proposal asks for user review instead of applying a value.",
+  "assumptions": [
+    "The model is invented and not a project basis.",
+    "No protected criteria or owner standard values are available."
+  ],
+  "validation": {
+    "schema_validation": "passed",
+    "constraint_validation": "warning_unresolved_support_canonical_stiffness_dimensions",
+    "diff_preview_status": "generated",
+    "application_status": "not_applied"
+  },
+  "audit_boundary": {
+    "requires_user_acceptance": true,
+    "mutates_accepted_model_state": false,
+    "acceptance_recorded_as_review_only": true
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false
+  }
+}

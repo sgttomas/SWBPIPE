@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_expression_evaluator"
+version = "0.1.0"
+edition = "2021"
+description = "Sandboxed declarative rule-pack expression evaluator for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

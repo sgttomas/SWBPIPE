@@ -1,0 +1,99 @@
+{
+  "dag_id": "DAG-002",
+  "status": "APPROVED_REVISION_0_5_ACTIVE_EDGE_SET",
+  "created": "2026-05-03",
+  "decomposition_revision": "0.5",
+  "node_count": 92,
+  "package_count": 17,
+  "historical_dag001_node_count": 73,
+  "revision05_added_node_count": 19,
+  "active_edge_count": 859,
+  "candidate_edge_count": 8,
+  "retired_edge_count": 1,
+  "edge_row_count": 868,
+  "status_counts": {
+    "ACTIVE": 859,
+    "CANDIDATE": 8,
+    "RETIRED": 1
+  },
+  "endpoint_issue_count": 0,
+  "endpoint_issues": [],
+  "self_dependency_count": 0,
+  "self_dependency_ids": [],
+  "duplicate_active_directed_edge_count": 0,
+  "duplicate_active_directed_edges": {},
+  "bidirectional_active_pair_count": 0,
+  "bidirectional_active_pairs": [],
+  "active_scc_count": 0,
+  "active_sccs": [],
+  "active_plus_candidate_scc_count": 3,
+  "active_plus_candidate_sccs": [
+    [
+      "DEL-04-04",
+      "DEL-04-06"
+    ],
+    [
+      "DEL-09-05",
+      "DEL-10-04"
+    ],
+    [
+      "DEL-10-02",
+      "DEL-12-01",
+      "DEL-12-05"
+    ]
+  ],
+  "topological_wave_count": 15,
+  "topological_cycle_remainder": [],
+  "lifecycle_counts": {
+    "CHECKING": 47,
+    "MISSING_CONTROL_SURFACE": 19,
+    "SEMANTIC_READY": 26
+  },
+  "implementation_evidence_counts": {
+    "ARCHITECTURE_BASELINE": 8,
+    "COMMITTED": 45,
+    "COMMITTED_REQUIRES_REV05_TARGETED_REVIEW": 2,
+    "MISSING_EVIDENCE": 37
+  },
+  "revision05_added_nodes": [
+    "DEL-07-08",
+    "DEL-08-06",
+    "DEL-13-01",
+    "DEL-13-02",
+    "DEL-13-03",
+    "DEL-13-04",
+    "DEL-14-01",
+    "DEL-14-02",
+    "DEL-14-03",
+    "DEL-14-04",
+    "DEL-14-05",
+    "DEL-15-01",
+    "DEL-15-02",
+    "DEL-15-03",
+    "DEL-15-04",
+    "DEL-16-01",
+    "DEL-16-02",
+    "DEL-16-03",
+    "DEL-16-04"
+  ],
+  "revision05_added_nodes_without_active_incident_edges": [],
+  "targeted_review_deliverables": [
+    "DEL-01-04",
+    "DEL-02-01"
+  ],
+  "targeted_review_dispositions": {
+    "DEL-01-04": "ACCEPTED_FOR_REV05_GRAPH_AUTHORING",
+    "DEL-02-01": "SUPPLEMENT_COMPLETED_WORKING_TREE_VALIDATED_BEFORE_GRAPH_APPROVAL"
+  },
+  "edge_disposition_review": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md",
+  "edge_disposition_worklist": "execution/_DAG/DAG-002/DAG-002_EdgeDispositionWorklist.csv",
+  "approval_readiness": "APPROVED",
+  "approval_record": "execution/_DAG/DAG-002/APPROVAL_RECORD.md",
+  "approval_review_packet": "execution/_DAG/DAG-002/DAG-002_APPROVAL_REVIEW_PACKET.md",
+  "post_approval_guardrails": [
+    "Candidate rows remain non-gating",
+    "Blocker readiness recomputation requires its own guarded workflow step and has not been run",
+    "Deliverable-local dependency mirror refresh requires its own guarded workflow step and has not been run",
+    "Approval does not dispatch Type 2 work, change lifecycle states, run PREPARATION, or promote Chirality corpus material"
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-10-02",
+  "package_id": "PKG-10",
+  "scope_item": "SOW-030",
+  "objective": "OBJ-009",
+  "framework_status": {
+    "interface_kind": "schema_first_format_neutral_adapter_framework",
+    "external_format_list": "TBD",
+    "public_transport_protocol": "TBD",
+    "endpoint_syntax": "TBD",
+    "adapter_execution_model": "TBD",
+    "plugin_runtime": "TBD",
+    "permission_grant_persistence": "TBD",
+    "physical_project_container": "TBD",
+    "local_fea_package_format": "TBD",
+    "redaction_workflow": "TBD",
+    "ci_provider": "TBD",
+    "release_matrix": "TBD"
+  },
+  "tbd_decisions": {
+    "external_format_list": "TBD",
+    "public_transport_protocol": "TBD",
+    "endpoint_syntax": "TBD",
+    "adapter_execution_model": "TBD",
+    "plugin_runtime": "TBD",
+    "permission_grant_persistence": "TBD",
+    "package_scripts": "TBD",
+    "ci_provider": "TBD",
+    "release_matrix": "TBD",
+    "physical_project_container": "TBD",
+    "local_fea_package_format": "TBD",
+    "redaction_workflow": "TBD"
+  },
+  "adapter_declaration": {
+    "adapter_id": "ops.adapter.invented_fixture",
+    "adapter_name": "Invented Format-Neutral Adapter Fixture",
+    "adapter_kind": "invented_fixture",
+    "format_status": "TBD",
+    "capabilities": [
+      "import_model",
+      "export_model",
+      "validate_payload",
+      "contribution_review"
+    ],
+    "operation_boundary": {
+      "api_operation_id": "ops.model.import",
+      "operation_category": "command",
+      "mutability": "mutating",
+      "transport": "TBD"
+    },
+    "provenance": {
+      "source_name": "Invented adapter framework fixture",
+      "source_location": "fixtures/adapters/invented/invented_adapter_framework.json",
+      "source_license": "project-invented-test-data",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering fixture",
+      "redistribution_status": "public_permissive",
+      "review_status": "accepted"
+    },
+    "privacy": {
+      "classification": "public_permissive_reviewed",
+      "local_first": true,
+      "telemetry_allowed": false,
+      "export_review_required": true,
+      "private_payload_redacted": true
+    },
+    "no_bypass_controls": {
+      "must_use_public_api_boundary": true,
+      "must_use_unit_validation": true,
+      "must_preserve_provenance": true,
+      "must_preserve_redistribution_review": true,
+      "must_preserve_privacy_classification": true,
+      "must_screen_protected_content": true,
+      "must_preserve_diagnostics": true,
+      "must_preserve_rule_pack_sandbox": true,
+      "must_preserve_persistence_hash_controls": true,
+      "must_preserve_report_controls": true,
+      "must_preserve_human_acceptance_boundary": true,
+      "must_not_execute_arbitrary_code": true,
+      "must_not_access_network": true,
+      "must_not_choose_filesystem_roots": true,
+      "must_not_claim_code_compliance": true,
+      "must_not_transmit_private_data_by_default": true
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "mechanics_solve_distinct": true,
+      "user_rule_check_distinct": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_security_certification_claim": false
+    }
+  },
+  "validation_plan": {
+    "syntactic_parse": "not_performed_by_framework",
+    "schema_validation": "required",
+    "unit_validation": "required",
+    "dimension_validation": "required",
+    "provenance_validation": "required",
+    "redistribution_review": "required",
+    "privacy_classification": "required",
+    "protected_content_screening": "required",
+    "mechanics_readiness": "required_for_solve",
+    "rule_check_readiness": "required_for_rule_check",
+    "export_review": "required_before_shared_payload",
+    "human_review_required": true
+  },
+  "operation_result": {
+    "operation_id": "ops.adapter.invented_fixture.validation",
+    "operation_class": "validate",
+    "parse_status": "not_parsed_by_framework",
+    "validation_plan_ref": {
+      "ref_type": "schema",
+      "ref_id": "schemas/adapter_framework.schema.yaml#/$defs/ValidationPlan"
+    },
+    "diagnostics": [],
+    "privacy": {
+      "classification": "public_permissive_reviewed",
+      "local_first": true,
+      "telemetry_allowed": false,
+      "export_review_required": true,
+      "private_payload_redacted": true
+    },
+    "provenance": {
+      "source_name": "Invented adapter framework fixture",
+      "source_location": "fixtures/adapters/invented/invented_adapter_framework.json",
+      "source_license": "project-invented-test-data",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering fixture",
+      "redistribution_status": "public_permissive",
+      "review_status": "accepted"
+    },
+    "checksums": [],
+    "audit_manifest_refs": [],
+    "result_envelope_ref": {
+      "schema_ref": "schemas/results.schema.yaml",
+      "compatibility": "schema_first_json_result_envelope",
+      "ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "TBD"
+      }
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "mechanics_solve_distinct": true,
+      "user_rule_check_distinct": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_security_certification_claim": false
+    }
+  }
+}

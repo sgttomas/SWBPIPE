@@ -1,0 +1,246 @@
+DecisionID,FromDeliverableID,TargetDeliverableID,DependencyType,Disposition,Rationale,ProposalDependencyID
+AB-REV05,DEL-07-08,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0625
+AB-REV05,DEL-07-08,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0626
+AB-REV05,DEL-07-08,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0627
+AB-REV05,DEL-07-08,DEL-00-05,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0628
+AB-REV05,DEL-07-08,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0629
+AB-REV05,DEL-07-08,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0630
+AB-REV05,DEL-07-08,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0631
+AB-REV05,DEL-08-06,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0632
+AB-REV05,DEL-08-06,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0633
+AB-REV05,DEL-08-06,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0634
+AB-REV05,DEL-08-06,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0635
+AB-REV05,DEL-08-06,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0636
+AB-REV05,DEL-08-06,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0637
+AB-REV05,DEL-08-06,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0638
+AB-REV05,DEL-13-01,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0639
+AB-REV05,DEL-13-01,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0640
+AB-REV05,DEL-13-01,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0641
+AB-REV05,DEL-13-01,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0642
+AB-REV05,DEL-13-01,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0643
+AB-REV05,DEL-13-01,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0644
+AB-REV05,DEL-13-01,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0645
+AB-REV05,DEL-13-02,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0646
+AB-REV05,DEL-13-02,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0647
+AB-REV05,DEL-13-02,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0648
+AB-REV05,DEL-13-02,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0649
+AB-REV05,DEL-13-02,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0650
+AB-REV05,DEL-13-02,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0651
+AB-REV05,DEL-13-02,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0652
+AB-REV05,DEL-13-03,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0653
+AB-REV05,DEL-13-03,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0654
+AB-REV05,DEL-13-03,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0655
+AB-REV05,DEL-13-03,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0656
+AB-REV05,DEL-13-03,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0657
+AB-REV05,DEL-13-03,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0658
+AB-REV05,DEL-13-03,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0659
+AB-REV05,DEL-13-04,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0660
+AB-REV05,DEL-13-04,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0661
+AB-REV05,DEL-13-04,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0662
+AB-REV05,DEL-13-04,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0663
+AB-REV05,DEL-13-04,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0664
+AB-REV05,DEL-13-04,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0665
+AB-REV05,DEL-13-04,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0666
+AB-REV05,DEL-14-01,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0667
+AB-REV05,DEL-14-01,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0668
+AB-REV05,DEL-14-01,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0669
+AB-REV05,DEL-14-01,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0670
+AB-REV05,DEL-14-01,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0671
+AB-REV05,DEL-14-01,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0672
+AB-REV05,DEL-14-01,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0673
+AB-REV05,DEL-14-02,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0674
+AB-REV05,DEL-14-02,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0675
+AB-REV05,DEL-14-02,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0676
+AB-REV05,DEL-14-02,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0677
+AB-REV05,DEL-14-02,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0678
+AB-REV05,DEL-14-02,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0679
+AB-REV05,DEL-14-02,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0680
+AB-REV05,DEL-14-03,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0681
+AB-REV05,DEL-14-03,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0682
+AB-REV05,DEL-14-03,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0683
+AB-REV05,DEL-14-03,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0684
+AB-REV05,DEL-14-03,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0685
+AB-REV05,DEL-14-03,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0686
+AB-REV05,DEL-14-03,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0687
+AB-REV05,DEL-14-04,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0688
+AB-REV05,DEL-14-04,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0689
+AB-REV05,DEL-14-04,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0690
+AB-REV05,DEL-14-04,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0691
+AB-REV05,DEL-14-04,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0692
+AB-REV05,DEL-14-04,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0693
+AB-REV05,DEL-14-04,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0694
+AB-REV05,DEL-14-05,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0695
+AB-REV05,DEL-14-05,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0696
+AB-REV05,DEL-14-05,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0697
+AB-REV05,DEL-14-05,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0698
+AB-REV05,DEL-14-05,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0699
+AB-REV05,DEL-14-05,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0700
+AB-REV05,DEL-14-05,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0701
+AB-REV05,DEL-15-01,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0702
+AB-REV05,DEL-15-01,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0703
+AB-REV05,DEL-15-01,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0704
+AB-REV05,DEL-15-01,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0705
+AB-REV05,DEL-15-01,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0706
+AB-REV05,DEL-15-01,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0707
+AB-REV05,DEL-15-01,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0708
+AB-REV05,DEL-15-02,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0709
+AB-REV05,DEL-15-02,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0710
+AB-REV05,DEL-15-02,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0711
+AB-REV05,DEL-15-02,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0712
+AB-REV05,DEL-15-02,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0713
+AB-REV05,DEL-15-02,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0714
+AB-REV05,DEL-15-02,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0715
+AB-REV05,DEL-15-03,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0716
+AB-REV05,DEL-15-03,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0717
+AB-REV05,DEL-15-03,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0718
+AB-REV05,DEL-15-03,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0719
+AB-REV05,DEL-15-03,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0720
+AB-REV05,DEL-15-03,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0721
+AB-REV05,DEL-15-03,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0722
+AB-REV05,DEL-15-04,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0723
+AB-REV05,DEL-15-04,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0724
+AB-REV05,DEL-15-04,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0725
+AB-REV05,DEL-15-04,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0726
+AB-REV05,DEL-15-04,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0727
+AB-REV05,DEL-15-04,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0728
+AB-REV05,DEL-15-04,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0729
+AB-REV05,DEL-16-01,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0730
+AB-REV05,DEL-16-01,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0731
+AB-REV05,DEL-16-01,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0732
+AB-REV05,DEL-16-01,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0733
+AB-REV05,DEL-16-01,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0734
+AB-REV05,DEL-16-01,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0735
+AB-REV05,DEL-16-01,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0736
+AB-REV05,DEL-16-02,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0737
+AB-REV05,DEL-16-02,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0738
+AB-REV05,DEL-16-02,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0739
+AB-REV05,DEL-16-02,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0740
+AB-REV05,DEL-16-02,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0741
+AB-REV05,DEL-16-02,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0742
+AB-REV05,DEL-16-02,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0743
+AB-REV05,DEL-16-03,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0744
+AB-REV05,DEL-16-03,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0745
+AB-REV05,DEL-16-03,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0746
+AB-REV05,DEL-16-03,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0747
+AB-REV05,DEL-16-03,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0748
+AB-REV05,DEL-16-03,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0749
+AB-REV05,DEL-16-03,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0750
+AB-REV05,DEL-16-04,DEL-00-01,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0751
+AB-REV05,DEL-16-04,DEL-00-02,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0752
+AB-REV05,DEL-16-04,DEL-00-03,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0753
+AB-REV05,DEL-16-04,DEL-00-04,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0754
+AB-REV05,DEL-16-04,DEL-00-06,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0755
+AB-REV05,DEL-16-04,DEL-00-07,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0756
+AB-REV05,DEL-16-04,DEL-00-08,ARCHITECTURE_BASIS,ACTIVE_EDGE_PROPOSAL,Architecture basis remains prerequisite context for sealed downstream work.,DAG-002-E0757
+DAG2-RD-001,DEL-13-01,DEL-02-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Design knowledge schema extends the canonical physical/domain model.,DAG-002-E0758
+DAG2-RD-001,DEL-13-01,DEL-02-02,UNIT_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design knowledge needs canonical unit and dimensional contracts.,DAG-002-E0759
+DAG2-RD-001,DEL-13-01,DEL-01-02,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design knowledge provenance must preserve protected-data boundaries.,DAG-002-E0760
+DAG2-RD-001,DEL-13-01,DEL-01-04,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design knowledge must preserve professional-boundary framing.,DAG-002-E0761
+DAG2-RD-002,DEL-13-02,DEL-13-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Constraint entities need the design-knowledge vocabulary.,DAG-002-E0762
+DAG2-RD-002,DEL-13-02,DEL-02-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Constraint entities bind to the canonical physical/domain model.,DAG-002-E0763
+DAG2-RD-002,DEL-13-02,DEL-02-02,UNIT_CONTRACT,ACTIVE_EDGE_PROPOSAL,Constraint entities need unit-aware values.,DAG-002-E0764
+DAG2-RD-002,DEL-13-02,DEL-02-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Constraint entities need persistence/round-trip semantics.,DAG-002-E0765
+DAG2-RD-002,DEL-13-02,DEL-01-04,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Constraint entities must not encode professional approval claims.,DAG-002-E0766
+DAG2-RD-003,DEL-13-03,DEL-13-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Constraint validation consumes design-knowledge schema.,DAG-002-E0767
+DAG2-RD-003,DEL-13-03,DEL-13-02,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Constraint validation consumes constraint entity model.,DAG-002-E0768
+DAG2-RD-003,DEL-13-03,DEL-02-02,UNIT_CONTRACT,ACTIVE_EDGE_PROPOSAL,Constraint validation needs unit-aware checks.,DAG-002-E0769
+DAG2-RD-003,DEL-13-03,DEL-04-06,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Constraint validation needs diagnostic/warning semantics.,DAG-002-E0770
+DAG2-RD-003,DEL-13-03,DEL-02-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Constraint validation needs persisted provenance.,DAG-002-E0771
+DAG2-RD-004,DEL-13-04,DEL-02-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform starts from the canonical physical/domain model.,DAG-002-E0772
+DAG2-RD-004,DEL-13-04,DEL-13-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform consumes design-knowledge schema.,DAG-002-E0773
+DAG2-RD-004,DEL-13-04,DEL-13-02,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform consumes constraint entities.,DAG-002-E0774
+DAG2-RD-004,DEL-13-04,DEL-13-03,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform consumes constraint validation.,DAG-002-E0775
+DAG2-RD-004,DEL-13-04,DEL-04-01,SOLVER_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform targets the frame kernel model.,DAG-002-E0776
+DAG2-RD-004,DEL-13-04,DEL-04-03,SOLVER_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform needs support/boundary-condition modeling.,DAG-002-E0777
+DAG2-RD-004,DEL-13-04,DEL-05-01,LOAD_STRESS_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Physical-to-analytical transform needs primitive load semantics.,DAG-002-E0778
+DAG2-RD-005,DEL-14-01,DEL-02-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Immutable state records snapshot the canonical model.,DAG-002-E0779
+DAG2-RD-005,DEL-14-01,DEL-02-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Immutable state records need persistence and serialization.,DAG-002-E0780
+DAG2-RD-005,DEL-14-01,DEL-08-02,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Immutable state records need audit manifest/hash conventions.,DAG-002-E0781
+DAG2-RD-005,DEL-14-01,DEL-05-04,LOAD_STRESS_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Immutable state records need analysis-state/status vocabulary.,DAG-002-E0782
+DAG2-RD-006,DEL-14-02,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Analysis run records bind to immutable model states.,DAG-002-E0783
+DAG2-RD-006,DEL-14-02,DEL-05-04,LOAD_STRESS_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Analysis run records need solve status semantics.,DAG-002-E0784
+DAG2-RD-006,DEL-14-02,DEL-08-02,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Analysis run records need audit manifest/hash conventions.,DAG-002-E0785
+DAG2-RD-006,DEL-14-02,DEL-08-04,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Analysis run records need structured result export contract.,DAG-002-E0786
+DAG2-RD-006,DEL-14-02,DEL-02-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Analysis run records need persistence and round-trip support.,DAG-002-E0787
+DAG2-RD-007,DEL-14-05,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Comparison mapping/tolerance/export contracts consume immutable states.,DAG-002-E0788
+DAG2-RD-007,DEL-14-05,DEL-14-02,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Comparison mapping/tolerance/export contracts consume analysis runs.,DAG-002-E0789
+DAG2-RD-007,DEL-14-05,DEL-08-04,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Comparison export needs structured result export envelopes.,DAG-002-E0790
+DAG2-RD-007,DEL-14-05,DEL-02-02,UNIT_CONTRACT,ACTIVE_EDGE_PROPOSAL,Comparison tolerances need unit-aware semantics.,DAG-002-E0791
+DAG2-RD-007,DEL-14-03,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State comparison consumes immutable model states.,DAG-002-E0792
+DAG2-RD-007,DEL-14-03,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State comparison consumes mapping/tolerance contracts.,DAG-002-E0793
+DAG2-RD-007,DEL-14-03,DEL-02-02,UNIT_CONTRACT,ACTIVE_EDGE_PROPOSAL,State comparison needs unit-aware tolerances.,DAG-002-E0794
+DAG2-RD-007,DEL-14-04,DEL-14-02,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Run comparison consumes analysis run records.,DAG-002-E0795
+DAG2-RD-007,DEL-14-04,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Run comparison consumes mapping/tolerance contracts.,DAG-002-E0796
+DAG2-RD-007,DEL-14-04,DEL-08-04,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Run comparison consumes structured result export envelopes.,DAG-002-E0797
+DAG2-RD-007,DEL-14-04,DEL-02-02,UNIT_CONTRACT,ACTIVE_EDGE_PROPOSAL,Run comparison needs unit-aware tolerances.,DAG-002-E0798
+DAG2-RD-008,DEL-15-01,DEL-10-03,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Canonical handoff packages align with local FEA handoff contracts.,DAG-002-E0799
+DAG2-RD-008,DEL-15-01,DEL-08-04,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Canonical handoff packages consume result export envelopes.,DAG-002-E0800
+DAG2-RD-008,DEL-15-01,DEL-08-02,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Canonical handoff packages need audit manifest/hash conventions.,DAG-002-E0801
+DAG2-RD-008,DEL-15-01,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Canonical handoff packages reference immutable model states.,DAG-002-E0802
+DAG2-RD-008,DEL-15-01,DEL-14-02,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Canonical handoff packages reference analysis runs.,DAG-002-E0803
+DAG2-RD-008,DEL-15-01,DEL-02-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Canonical handoff packages reference the canonical model.,DAG-002-E0804
+DAG2-RD-009,DEL-15-02,DEL-15-01,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Target mapping consumes canonical handoff package schema.,DAG-002-E0805
+DAG2-RD-009,DEL-15-02,DEL-10-02,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Target mapping consumes adapter framework contracts.,DAG-002-E0806
+DAG2-RD-009,DEL-15-02,DEL-10-03,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Target mapping aligns with local FEA handoff contracts.,DAG-002-E0807
+DAG2-RD-009,DEL-15-02,DEL-12-02,SECURITY_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Target mapping must preserve redaction/export controls.,DAG-002-E0808
+DAG2-RD-009,DEL-15-02,DEL-13-04,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Target mapping consumes physical-to-analytical transform output.,DAG-002-E0809
+DAG2-RD-009,DEL-15-02,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Target mapping consumes comparison export contracts.,DAG-002-E0810
+DAG2-RD-009,DEL-15-03,DEL-15-01,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Export workflow consumes canonical handoff package schema.,DAG-002-E0811
+DAG2-RD-009,DEL-15-03,DEL-15-02,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Export workflow consumes target mapping records.,DAG-002-E0812
+DAG2-RD-009,DEL-15-03,DEL-10-02,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Export workflow consumes adapter framework contracts.,DAG-002-E0813
+DAG2-RD-009,DEL-15-03,DEL-10-03,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Export workflow aligns with local FEA handoff contracts.,DAG-002-E0814
+DAG2-RD-009,DEL-15-03,DEL-12-02,SECURITY_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Export workflow must preserve redaction/export controls.,DAG-002-E0815
+DAG2-RD-009,DEL-15-03,DEL-13-04,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Export workflow consumes physical-to-analytical transform output.,DAG-002-E0816
+DAG2-RD-009,DEL-15-03,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Export workflow consumes comparison export contracts.,DAG-002-E0817
+DAG2-RD-010,DEL-15-04,DEL-01-04,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,External-prover metadata must preserve professional-boundary claims.,DAG-002-E0818
+DAG2-RD-010,DEL-15-04,DEL-15-01,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,External-prover metadata binds to handoff package schema.,DAG-002-E0819
+DAG2-RD-010,DEL-15-04,DEL-15-02,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,External-prover metadata binds to target mapping.,DAG-002-E0820
+DAG2-RD-010,DEL-15-04,DEL-15-03,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,External-prover metadata binds to export workflow records.,DAG-002-E0821
+DAG2-RD-010,DEL-15-04,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,External-prover metadata references immutable states.,DAG-002-E0822
+DAG2-RD-011,DEL-16-01,DEL-02-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Structured model operations act against the canonical model.,DAG-002-E0823
+DAG2-RD-011,DEL-16-01,DEL-13-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Structured model operations reference design knowledge.,DAG-002-E0824
+DAG2-RD-011,DEL-16-01,DEL-02-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Structured model operations need persistence/round-trip semantics.,DAG-002-E0825
+DAG2-RD-011,DEL-16-01,DEL-01-04,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Structured model operations need professional-boundary framing.,DAG-002-E0826
+DAG2-RD-012,DEL-16-02,DEL-16-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Operation validation consumes operation schema.,DAG-002-E0827
+DAG2-RD-012,DEL-16-02,DEL-13-03,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Operation validation consumes constraint validation.,DAG-002-E0828
+DAG2-RD-012,DEL-16-02,DEL-14-03,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Operation diff preview consumes state comparison.,DAG-002-E0829
+DAG2-RD-012,DEL-16-02,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Operation diff preview consumes mapping/tolerance contracts.,DAG-002-E0830
+DAG2-RD-012,DEL-16-02,DEL-04-06,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Operation validation consumes diagnostics/warning contracts.,DAG-002-E0831
+DAG2-RD-013,DEL-16-03,DEL-16-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Acceptance/audit trail references operation schema.,DAG-002-E0832
+DAG2-RD-013,DEL-16-03,DEL-16-02,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Acceptance/audit trail records validation and diff outcomes.,DAG-002-E0833
+DAG2-RD-013,DEL-16-03,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Acceptance/audit trail references immutable states.,DAG-002-E0834
+DAG2-RD-013,DEL-16-03,DEL-08-02,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Acceptance/audit trail consumes audit manifest/hash conventions.,DAG-002-E0835
+DAG2-RD-013,DEL-16-03,DEL-02-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Acceptance/audit trail needs persistence/round-trip semantics.,DAG-002-E0836
+DAG2-RD-014,DEL-16-04,DEL-01-04,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Agent rationale must preserve professional-boundary controls.,DAG-002-E0837
+DAG2-RD-014,DEL-16-04,DEL-16-03,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Agent rationale binds to accepted-operation audit trail.,DAG-002-E0838
+DAG2-RD-014,DEL-16-04,DEL-12-05,SECURITY_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Agent rationale needs threat-model review.,DAG-002-E0839
+DAG2-RD-015,DEL-07-08,DEL-07-01,GUI_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace builds on GUI shell/navigation.,DAG-002-E0840
+DAG2-RD-015,DEL-07-08,DEL-07-02,GUI_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace builds on model-tree/editor foundations.,DAG-002-E0841
+DAG2-RD-015,DEL-07-08,DEL-07-04,GUI_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes validation/warnings presentation.,DAG-002-E0842
+DAG2-RD-015,DEL-07-08,DEL-07-05,GUI_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes result/comparison presentation foundations.,DAG-002-E0843
+DAG2-RD-015,DEL-07-08,DEL-13-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes design knowledge schema.,DAG-002-E0844
+DAG2-RD-015,DEL-07-08,DEL-13-03,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes constraint validation output.,DAG-002-E0845
+DAG2-RD-015,DEL-07-08,DEL-13-04,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes physical-to-analytical transform output.,DAG-002-E0846
+DAG2-RD-015,DEL-07-08,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes immutable model states.,DAG-002-E0847
+DAG2-RD-015,DEL-07-08,DEL-14-03,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes state comparison.,DAG-002-E0848
+DAG2-RD-015,DEL-07-08,DEL-14-04,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes run comparison.,DAG-002-E0849
+DAG2-RD-015,DEL-07-08,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes comparison mapping/tolerance contracts.,DAG-002-E0850
+DAG2-RD-015,DEL-07-08,DEL-16-01,DOMAIN_MODEL,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes operation schema.,DAG-002-E0851
+DAG2-RD-015,DEL-07-08,DEL-16-02,DIAGNOSTICS_CONTRACT,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes operation validation/diff preview.,DAG-002-E0852
+DAG2-RD-015,DEL-07-08,DEL-16-03,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Design-authoring workspace consumes user acceptance/audit trail.,DAG-002-E0853
+DAG2-RD-016,DEL-08-06,DEL-01-04,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,Report sections must preserve professional-boundary notices and limits.,DAG-002-E0854
+DAG2-RD-016,DEL-08-06,DEL-08-01,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections integrate with report generator.,DAG-002-E0855
+DAG2-RD-016,DEL-08-06,DEL-08-02,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume audit manifest conventions.,DAG-002-E0856
+DAG2-RD-016,DEL-08-06,DEL-08-03,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections extend assumptions/provenance sections.,DAG-002-E0857
+DAG2-RD-016,DEL-08-06,DEL-08-04,REPORTING_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume result export envelopes.,DAG-002-E0858
+DAG2-RD-016,DEL-08-06,DEL-08-05,GOVERNANCE_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections need protected-content linter controls.,DAG-002-E0859
+DAG2-RD-016,DEL-08-06,DEL-12-02,SECURITY_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections need redaction/export controls.,DAG-002-E0860
+DAG2-RD-016,DEL-08-06,DEL-14-01,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume immutable model states.,DAG-002-E0861
+DAG2-RD-016,DEL-08-06,DEL-14-02,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume analysis runs.,DAG-002-E0862
+DAG2-RD-016,DEL-08-06,DEL-14-03,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume state comparison.,DAG-002-E0863
+DAG2-RD-016,DEL-08-06,DEL-14-04,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume run comparison.,DAG-002-E0864
+DAG2-RD-016,DEL-08-06,DEL-14-05,PERSISTENCE_CONTRACT,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume comparison export contracts.,DAG-002-E0865
+DAG2-RD-016,DEL-08-06,DEL-15-01,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume handoff package manifest.,DAG-002-E0866
+DAG2-RD-016,DEL-08-06,DEL-15-03,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume export workflow records.,DAG-002-E0867
+DAG2-RD-016,DEL-08-06,DEL-15-04,INTEROP_PREDECESSOR,ACTIVE_EDGE_PROPOSAL,State/comparison/handoff sections consume external-prover metadata boundaries.,DAG-002-E0868
+DAG-001-E0621,DEL-08-05,DEL-11-04,GOVERNANCE_PREDECESSOR,RETIRE_NO_EDGE,DEL-08-05 implemented linter evidence uses invented synthetic fixtures and does not depend on DEL-11-04 educational examples.,DAG-002-E0621

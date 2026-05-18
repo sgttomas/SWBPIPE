@@ -1,0 +1,697 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/headless_runner.schema.yaml",
+  "title": "OpenPipeStress Headless Runner Contract",
+  "description": "Strict JSON syntax schema for the DEL-10-05 schema-first headless runner request/result envelope. The contract supports non-GUI solve execution, benchmark automation, regression execution, audit-manifest capture, and result-export handoff without choosing final CLI command syntax, package scripts, public transport, CI provider, release matrix, or external adapter formats.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "runner_status",
+    "tbd_decisions",
+    "request",
+    "result"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-10-05"
+    },
+    "package_id": {
+      "const": "PKG-10"
+    },
+    "scope_items": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "enum": [
+          "SOW-054",
+          "SOW-032"
+        ]
+      },
+      "contains": {
+        "const": "SOW-054"
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-008",
+          "OBJ-009",
+          "OBJ-012"
+        ]
+      },
+      "contains": {
+        "const": "OBJ-012"
+      }
+    },
+    "runner_status": {
+      "$ref": "#/$defs/RunnerStatus"
+    },
+    "tbd_decisions": {
+      "$ref": "#/$defs/TbdDecisions"
+    },
+    "request": {
+      "$ref": "#/$defs/HeadlessRunnerRequest"
+    },
+    "result": {
+      "$ref": "#/$defs/HeadlessRunnerResult"
+    }
+  },
+  "$defs": {
+    "AnalysisStatus": {
+      "type": "string",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED"
+      ]
+    },
+    "ChecksumRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "RUNNER_BLOCKING",
+            "EXPORT_BLOCKING",
+            "PRIVACY_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "HeadlessRunnerRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "operation",
+        "operation_ref",
+        "project_ref",
+        "model_ref",
+        "unit_system_ref",
+        "load_basis_refs",
+        "input_manifest_ref",
+        "requested_outputs",
+        "privacy",
+        "provenance",
+        "professional_boundary"
+      ],
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operation": {
+          "$ref": "#/$defs/RunnerOperation"
+        },
+        "operation_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "project_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "load_basis_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "input_manifest_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "requested_outputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/RequestedOutput"
+          }
+        },
+        "privacy": {
+          "$ref": "#/$defs/PrivacyContext"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        }
+      }
+    },
+    "HeadlessRunnerResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "job",
+        "analysis_status",
+        "result_envelope_ref",
+        "result_refs",
+        "audit_manifest_ref",
+        "checksums",
+        "diagnostics",
+        "privacy",
+        "provenance",
+        "professional_boundary"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "job": {
+          "$ref": "#/$defs/JobState"
+        },
+        "analysis_status": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/AnalysisStatus"
+          },
+          "contains": {
+            "const": "HUMAN_REVIEW_REQUIRED"
+          }
+        },
+        "result_envelope_ref": {
+          "$ref": "#/$defs/ResultEnvelopeRef"
+        },
+        "result_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "audit_manifest_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "checksums": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChecksumRef"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "privacy": {
+          "$ref": "#/$defs/PrivacyContext"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        }
+      }
+    },
+    "JobState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "job_id",
+        "state",
+        "progress",
+        "cancellation"
+      ],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "QUEUED",
+            "RUNNING",
+            "CANCELLATION_REQUESTED",
+            "COMPLETED",
+            "FAILED",
+            "TBD"
+          ]
+        },
+        "progress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "current_step",
+            "total_steps",
+            "message"
+          ],
+          "properties": {
+            "current_step": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "total_steps": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "cancellation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "supported",
+            "requested",
+            "reason"
+          ],
+          "properties": {
+            "supported": {
+              "const": true
+            },
+            "requested": {
+              "type": "boolean"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "PrivacyContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_redacted",
+        "classification"
+      ],
+      "properties": {
+        "local_only": {
+          "const": true
+        },
+        "telemetry_allowed": {
+          "const": false
+        },
+        "private_payload_redacted": {
+          "type": "boolean"
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public_metadata",
+            "private_project_data",
+            "private_rule_pack_data",
+            "redacted",
+            "protected_suspected",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "PhysicalProjectContainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "decision_ref",
+        "storage_role",
+        "canonical_truth",
+        "sql_public_contract",
+        "direct_sql_access_allowed",
+        "hosted_db_allowed",
+        "network_required",
+        "sidecars_rebuildable"
+      ],
+      "properties": {
+        "profile": {
+          "const": "sqlite_local_project_store"
+        },
+        "decision_ref": {
+          "const": "SCA-003"
+        },
+        "storage_role": {
+          "const": "local_store_index_projection"
+        },
+        "canonical_truth": {
+          "const": "canonical_json_jcs_payload"
+        },
+        "sql_public_contract": {
+          "const": false
+        },
+        "direct_sql_access_allowed": {
+          "const": false
+        },
+        "hosted_db_allowed": {
+          "const": false
+        },
+        "network_required": {
+          "const": false
+        },
+        "sidecars_rebuildable": {
+          "const": true
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "RequestedOutput": {
+      "type": "string",
+      "enum": [
+        "result_envelope",
+        "audit_manifest",
+        "diagnostics",
+        "regression_record",
+        "validation_record",
+        "TBD"
+      ]
+    },
+    "ResultEnvelopeRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_ref",
+        "envelope_ref",
+        "compatibility"
+      ],
+      "properties": {
+        "schema_ref": {
+          "const": "schemas/results.schema.yaml"
+        },
+        "envelope_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "compatibility": {
+          "const": "schema_first_json_result_envelope"
+        }
+      }
+    },
+    "RunnerOperation": {
+      "type": "string",
+      "enum": [
+        "solve",
+        "validate_input",
+        "export_results",
+        "run_benchmark",
+        "run_regression",
+        "TBD"
+      ]
+    },
+    "RunnerStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interface_kind",
+        "physical_project_container",
+        "final_cli_command_syntax",
+        "package_scripts",
+        "public_transport_protocol",
+        "ci_provider",
+        "release_matrix",
+        "external_adapter_formats",
+        "local_fea_package_format"
+      ],
+      "properties": {
+        "interface_kind": {
+          "const": "schema_first_headless_runner_contract"
+        },
+        "physical_project_container": {
+          "$ref": "#/$defs/PhysicalProjectContainer"
+        },
+        "final_cli_command_syntax": {
+          "const": "TBD"
+        },
+        "package_scripts": {
+          "const": "TBD"
+        },
+        "public_transport_protocol": {
+          "const": "TBD"
+        },
+        "ci_provider": {
+          "const": "TBD"
+        },
+        "release_matrix": {
+          "const": "TBD"
+        },
+        "external_adapter_formats": {
+          "const": "TBD"
+        },
+        "local_fea_package_format": {
+          "const": "TBD"
+        }
+      }
+    },
+    "TbdDecisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "final_cli_command_syntax",
+        "package_scripts",
+        "process_invocation",
+        "network_access",
+        "filesystem_mutation_policy",
+        "ci_provider",
+        "release_matrix",
+        "public_transport_protocol",
+        "external_adapter_formats"
+      ],
+      "properties": {
+        "final_cli_command_syntax": {
+          "const": "TBD"
+        },
+        "package_scripts": {
+          "const": "TBD"
+        },
+        "process_invocation": {
+          "const": "TBD"
+        },
+        "network_access": {
+          "const": "TBD"
+        },
+        "filesystem_mutation_policy": {
+          "const": "TBD"
+        },
+        "ci_provider": {
+          "const": "TBD"
+        },
+        "release_matrix": {
+          "const": "TBD"
+        },
+        "public_transport_protocol": {
+          "const": "TBD"
+        },
+        "external_adapter_formats": {
+          "const": "TBD"
+        }
+      }
+    }
+  }
+}

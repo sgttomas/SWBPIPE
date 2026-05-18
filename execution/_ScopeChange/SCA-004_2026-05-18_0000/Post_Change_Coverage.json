@@ -1,0 +1,20 @@
+{
+  "ScopeItemCount": 76,
+  "PackageCount": 18,
+  "DeliverableCount": 101,
+  "ObjectiveCount": 18,
+  "Revision": "0.7",
+  "Basis": "SCA-004",
+  "AddedPackage": "PKG-17",
+  "AddedDeliverables": [
+    "DEL-17-01",
+    "DEL-17-02",
+    "DEL-17-03",
+    "DEL-17-04",
+    "DEL-17-05",
+    "DEL-17-06",
+    "DEL-17-07",
+    "DEL-17-08",
+    "DEL-17-09"
+  ]
+}

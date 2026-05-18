@@ -1,0 +1,13 @@
+[package]
+name = "open_pipe_stress_nonlinear_supports"
+version = "0.1.0"
+edition = "2021"
+description = "Nonlinear support active-set mechanics for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_linear_supports = { path = "../linear_supports" }
+open_pipe_stress_solver_diagnostics = { path = "../diagnostics" }

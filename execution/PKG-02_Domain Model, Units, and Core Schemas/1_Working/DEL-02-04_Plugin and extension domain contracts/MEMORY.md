@@ -1,0 +1,120 @@
+# MEMORY - DEL-02-04 Plugin and extension domain contracts
+
+## Session 2026-05-01
+
+Human project authority authorized one bounded DAG item of ORCHESTRATOR's
+choosing. ORCHESTRATOR selected `DEL-02-04` to complete the remaining PKG-02
+extension/API boundary foundation after `DEL-02-01`, `DEL-02-02`,
+`DEL-02-03`, and `DEL-02-05`.
+
+### Scope Used
+
+- Sealed dispatch brief:
+  `execution/_Coordination/DEV-001_DISPATCH_DEL-02-04.md`.
+- Active upstream dependencies from approved `DAG-001` only.
+- Candidate edges excluded.
+- No lifecycle transition, dependency-register edit, or blocker queue refresh.
+
+### Decisions And Constraints
+
+- Plugin manifests are denied by default; requests are not runtime grants.
+- Entrypoints must declare both extension point and domain surface.
+- Domain/API compatibility must carry the DEL-02-04 domain contract,
+  `api/api_boundary_contract.yaml`, JSON Schema 2020-12 basis, and host API
+  status.
+- No-bypass controls now explicitly cover analysis-boundary state,
+  persistence, and external human-acceptance boundaries.
+- Privacy posture must preserve local-first behavior, telemetry off by default,
+  export permission checks, and redaction support.
+- Sandbox posture must declare capabilities and deny arbitrary code execution,
+  filesystem access, network access, and process spawning by default.
+
+### Remaining TBDs
+
+- Runtime plugin loader and isolation technology.
+- Permission grant storage, consent UX, revocation, signing, and update
+  mechanism.
+- Public API transport and concrete external import/export formats.
+- Rule expression grammar and sandbox implementation details.
+- Canonicalization edge cases for non-JSON payloads.
+- CI gates for plugin submission, protected-content screening, and
+  security/privacy review.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+TP-RECON-01 reconciled the DEL-02-04 history from the assigned source bundle:
+the dispatch-matrix row, archived DEV-001 implementation evidence rows,
+REV05 lifecycle snapshot, archived DEV-001 DEL-02-04 dispatch brief, SCA-002
+inventory/reconciliation request, commit metadata for `ef44f4c`, and the
+current deliverable-local memory, status, and run records.
+
+### Reconciled Evidence
+
+- Historical DEV-001 evidence maps DEL-02-04 to committed bounded item commit
+  `ef44f4c` (`schema: tighten plugin extension contract`) on 2026-04-30, with
+  handoff commit `a37a0a1`. The REV05 evidence-status row preserves DEL-02-04
+  as `API_CONTRACT`, `SOW-038`, and `OBJ-009`, while noting that completeness
+  still depends on refreshed graph/context review.
+- Commit metadata for `ef44f4c` shows changes to `docs/SPEC.md`,
+  `docs/TYPES.md`, `docs/architecture/extension_domain_contracts.md`,
+  `schemas/plugin_manifest.schema.yaml`, `tests/test_plugin_manifest_schema.py`,
+  this deliverable memory file, the DEL-02-04 dispatch brief, and coordination
+  state.
+- The archived dispatch brief bounded the implementation to plugin manifest
+  contract tightening, extension-domain documentation, public contract docs,
+  focused manifest-schema tests, and evidence records. It explicitly excluded
+  lifecycle transitions, candidate-edge changes, dependency-register edits, and
+  blocker-queue refresh.
+- The implemented contract evidence centers on JSON Schema 2020-12 manifest
+  strictness, entrypoint declarations for extension point and domain surface,
+  denied-by-default permissions, sandbox posture, provenance/privacy controls,
+  no-bypass constraints, diagnostics, checksums, persistence and
+  analysis-boundary state preservation, report controls, solver boundaries, and
+  external human-gate boundaries.
+- Deliverable-local run records show successful document, semantic-matrix,
+  lens-register, and dependency-extract passes, with remaining human-ruling
+  items kept as `TBD`. No tests were rerun during this reconciliation; the
+  historical commit evidence includes the focused plugin manifest schema test
+  file as a changed artifact.
+
+### Deferred Scope And Boundaries
+
+- Current lifecycle is preserved as `CHECKING`, consistent with the current
+  status file and REV05 lifecycle snapshot.
+- Remaining implementation decisions stay deferred: runtime plugin loader and
+  isolation, permission grants and revocation, signing/update flow, public API
+  transport, concrete import/export formats, rule expression grammar and
+  sandbox details, canonicalization for non-JSON payloads, and CI/security
+  gates.
+- This entry records historical implementation evidence only. It does not
+  create a release gate decision, engineering reliance decision, or standards
+  compliance conclusion.
+
+## 2026-05-16 PKG-02 Foundation-Slice Hardening
+
+Scope executed:
+
+- Converted `tests/test_plugin_manifest_schema.py` from script-only assertions
+  into pytest-collected contract and fixture tests while preserving direct
+  `python3` execution.
+- Added `fixtures/plugin_manifest/invented_manifest_no_bypass.json` as invented
+  public evidence for denied-by-default permissions, sandbox declaration,
+  telemetry-off privacy posture, no-bypass controls, provenance, checksums, and
+  declared domain surfaces.
+
+Evidence:
+
+- Pytest now collects and passes `tests/test_plugin_manifest_schema.py`.
+- Direct execution with `python3 tests/test_plugin_manifest_schema.py` passes.
+- Fixture checks verify that plugin manifests grant nothing by themselves and
+  cannot bypass units, provenance, privacy, rule sandboxing, analysis-boundary,
+  persistence, schema validation, diagnostics, checksums, protected-content,
+  report, solver, or human-acceptance controls.
+
+Boundaries preserved:
+
+- No plugin loader, signing flow, permission store, public transport, import/
+  export format, network capability, process capability, or runtime sandbox was
+  implemented.
+- Lifecycle remains `IN_PROGRESS`; no lifecycle transition was made.
+- No dependency register, DAG, blocker queue, or candidate-edge edits.

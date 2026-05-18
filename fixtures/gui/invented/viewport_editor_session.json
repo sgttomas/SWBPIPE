@@ -1,0 +1,237 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-07-01",
+  "package_id": "PKG-07",
+  "scope_item": "SOW-020",
+  "objectives": [
+    "OBJ-006"
+  ],
+  "viewport_status": {
+    "baseline_runtime": "Tauri_2_TypeScript_React_Vite_Three_js_when_GUI_scaffold_exists",
+    "frontend_app_shell": "TBD",
+    "viewport_renderer": "Three_js_runtime_integration_TBD",
+    "durable_state_mutation": "application_service_command_intents_only",
+    "transient_state_policy": "camera_hover_selection_drag_snap_are_not_persisted_project_payload",
+    "command_transport": "TBD",
+    "dependency_versions": "TBD",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    }
+  },
+  "viewport_session": {
+    "session_id": "invented-view-session-001",
+    "model_ref": {
+      "ref_type": "model",
+      "ref_id": "invented-model-001"
+    },
+    "camera": {
+      "projection": "perspective",
+      "target": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "unit": "m",
+        "dimension": "length"
+      },
+      "position": {
+        "x": 6.0,
+        "y": 5.0,
+        "z": 4.0,
+        "unit": "m",
+        "dimension": "length"
+      },
+      "up": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "zoom": 1.0
+    },
+    "interaction_state": {
+      "active_tool": "connect_pipe_run",
+      "hover_ref": {
+        "ref_type": "node",
+        "ref_id": "N-002"
+      },
+      "drag_state": "previewing",
+      "snap_state": "node",
+      "undo_redo_policy": "command_intents_are_undo_redo_candidates_when_reversible"
+    },
+    "view_primitives": [
+      {
+        "primitive_id": "VP-N-001",
+        "primitive_type": "node",
+        "source_ref": {
+          "ref_type": "node",
+          "ref_id": "N-001"
+        },
+        "geometry": {
+          "points": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "unit": "m",
+              "dimension": "length"
+            }
+          ],
+          "symbol": "none",
+          "radius": null,
+          "radius_unit": "TBD"
+        },
+        "style": {
+          "visibility": "visible",
+          "selection_state": "none",
+          "status_color": "neutral",
+          "label": "N-001"
+        },
+        "diagnostic_refs": [],
+        "provenance": {
+          "source_name": "OpenPipeStress invented GUI fixture",
+          "source_location": "fixtures/gui/invented/viewport_editor_session.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress DEV-001",
+          "contributor_certification": "Invented non-engineering interaction fixture; not copied from protected standards, vendor catalogs, or private projects.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "primitive_id": "VP-P-001",
+        "primitive_type": "pipe_run",
+        "source_ref": {
+          "ref_type": "element",
+          "ref_id": "P-001"
+        },
+        "geometry": {
+          "points": [
+            {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "unit": "m",
+              "dimension": "length"
+            },
+            {
+              "x": 2.0,
+              "y": 0.0,
+              "z": 0.0,
+              "unit": "m",
+              "dimension": "length"
+            }
+          ],
+          "symbol": "none",
+          "radius": null,
+          "radius_unit": "TBD"
+        },
+        "style": {
+          "visibility": "visible",
+          "selection_state": "editing",
+          "status_color": "warning",
+          "label": "P-001"
+        },
+        "diagnostic_refs": [
+          {
+            "ref_type": "diagnostic",
+            "ref_id": "VD-001"
+          }
+        ],
+        "provenance": {
+          "source_name": "OpenPipeStress invented GUI fixture",
+          "source_location": "fixtures/gui/invented/viewport_editor_session.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress DEV-001",
+          "contributor_certification": "Invented non-engineering interaction fixture; not copied from protected standards, vendor catalogs, or private projects.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "selected_refs": [
+      {
+        "ref_type": "element",
+        "ref_id": "P-001"
+      }
+    ],
+    "command_intents": [
+      {
+        "intent_id": "VCI-001",
+        "command_type": "connect_pipe_run",
+        "target_ref": {
+          "ref_type": "model",
+          "ref_id": "invented-model-001"
+        },
+        "payload_refs": [
+          {
+            "ref_type": "node",
+            "ref_id": "N-001"
+          },
+          {
+            "ref_type": "node",
+            "ref_id": "N-002"
+          }
+        ],
+        "unit_policy": "unit_aware_domain_validation_required",
+        "reversible": true,
+        "validation_state": "pending_service_validation",
+        "diagnostic_refs": [
+          {
+            "ref_type": "diagnostic",
+            "ref_id": "VD-001"
+          }
+        ],
+        "provenance": {
+          "source_name": "OpenPipeStress invented GUI fixture",
+          "source_location": "fixtures/gui/invented/viewport_editor_session.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress DEV-001",
+          "contributor_certification": "Invented non-engineering interaction fixture; not copied from protected standards, vendor catalogs, or private projects.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "diagnostics": [
+      {
+        "diagnostic_id": "VD-001",
+        "code": "VIEWPORT_COMMAND_REQUIRES_SERVICE_VALIDATION",
+        "class": "GUI_STATE_WARNING",
+        "severity": "warning",
+        "affected_ref": {
+          "ref_type": "element",
+          "ref_id": "P-001"
+        },
+        "message": "Viewport preview is a command intent awaiting service validation before durable model mutation.",
+        "remediation": "Route the intent through the application service and preserve any resulting diagnostics.",
+        "provenance": {
+          "source_name": "OpenPipeStress invented GUI fixture",
+          "source_location": "fixtures/gui/invented/viewport_editor_session.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress DEV-001",
+          "contributor_certification": "Invented non-engineering interaction fixture; not copied from protected standards, vendor catalogs, or private projects.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "provenance": {
+      "source_name": "OpenPipeStress invented GUI fixture",
+      "source_location": "fixtures/gui/invented/viewport_editor_session.json",
+      "source_license": "project_fixture",
+      "contributor": "OpenPipeStress DEV-001",
+      "contributor_certification": "Invented non-engineering interaction fixture; not copied from protected standards, vendor catalogs, or private projects.",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "privacy_classification": "invented_public_example"
+    }
+  }
+}

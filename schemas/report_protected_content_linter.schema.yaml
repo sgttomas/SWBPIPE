@@ -1,0 +1,487 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/report_protected_content_linter.schema.yaml",
+  "title": "OpenPipeStress Report Protected-Content Linter Schema",
+  "description": "Strict JSON syntax schema for deterministic protected-content linter configuration and findings over authorized public report/template/example surfaces. This schema records heuristic review evidence only; it does not provide legal clearance, security sufficiency, professional approval, certification, sealing, endorsement, authentication, code-compliance proof, CI/release policy, redaction/export controls, or educational example publication.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "linter_status",
+    "lint_run"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-08-05"
+    },
+    "package_id": {
+      "const": "PKG-08"
+    },
+    "scope_item": {
+      "const": "SOW-043"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 2,
+      "contains": {
+        "const": "OBJ-007"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-002",
+          "OBJ-007"
+        ]
+      }
+    },
+    "linter_status": {
+      "$ref": "#/$defs/LinterStatus"
+    },
+    "lint_run": {
+      "$ref": "#/$defs/LintRun"
+    }
+  },
+  "$defs": {
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "LinterStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_linter",
+        "fixture_policy",
+        "heuristic_only",
+        "legal_clearance",
+        "security_sufficiency",
+        "professional_approval",
+        "ci_release_policy",
+        "redaction_export_controls",
+        "educational_example_dependency"
+      ],
+      "properties": {
+        "baseline_linter": {
+          "const": "deterministic_public_surface_heuristic_linter"
+        },
+        "fixture_policy": {
+          "const": "invented_synthetic_markers_only"
+        },
+        "heuristic_only": {
+          "const": true
+        },
+        "legal_clearance": {
+          "const": false
+        },
+        "security_sufficiency": {
+          "const": false
+        },
+        "professional_approval": {
+          "const": false
+        },
+        "ci_release_policy": {
+          "const": "TBD"
+        },
+        "redaction_export_controls": {
+          "const": "TBD"
+        },
+        "educational_example_dependency": {
+          "const": "DAG-001-E0621_RETAINED_CANDIDATE_NON_GATING"
+        }
+      }
+    },
+    "LintRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "configuration",
+        "targets",
+        "findings",
+        "summary",
+        "provenance"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "configuration": {
+          "$ref": "#/$defs/LintConfiguration"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LintTarget"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LintFinding"
+          }
+        },
+        "summary": {
+          "$ref": "#/$defs/LintSummary"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "LintConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "configuration_id",
+        "scan_scope",
+        "public_surface_roots",
+        "private_surface_default",
+        "finding_order",
+        "synthetic_marker_policy",
+        "clean_scan_disclaimer",
+        "candidate_edge_policy"
+      ],
+      "properties": {
+        "configuration_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scan_scope": {
+          "enum": [
+            "public_report_templates",
+            "public_report_examples",
+            "explicit_public_surfaces"
+          ]
+        },
+        "public_surface_roots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "private_surface_default": {
+          "const": "skip_unless_explicitly_authorized"
+        },
+        "finding_order": {
+          "const": "path_line_column_code"
+        },
+        "synthetic_marker_policy": {
+          "const": "fixtures_must_use_invented_markers_not_protected_examples"
+        },
+        "clean_scan_disclaimer": {
+          "const": "heuristic_review_evidence_not_legal_or_professional_clearance"
+        },
+        "candidate_edge_policy": {
+          "const": "DAG-001-E0621_non_gating_no_DEL-11-04_dependency"
+        }
+      }
+    },
+    "LintTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_id",
+        "path",
+        "surface",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "surface": {
+          "$ref": "#/$defs/SurfaceKind"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "LintFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "code",
+        "class",
+        "severity",
+        "target_ref",
+        "source_location",
+        "matched_policy",
+        "excerpt",
+        "message",
+        "remediation",
+        "review_route",
+        "disposition",
+        "provenance"
+      ],
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "$ref": "#/$defs/FindingCode"
+        },
+        "class": {
+          "$ref": "#/$defs/FindingClass"
+        },
+        "severity": {
+          "$ref": "#/$defs/FindingSeverity"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_location": {
+          "$ref": "#/$defs/SourceLocation"
+        },
+        "matched_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "excerpt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_route": {
+          "$ref": "#/$defs/ReviewRoute"
+        },
+        "disposition": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "SourceLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "line",
+        "column"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "LintSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_count",
+        "scanned_target_count",
+        "skipped_private_target_count",
+        "finding_count",
+        "blocking_finding_count",
+        "clean_scan_is_clearance"
+      ],
+      "properties": {
+        "target_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scanned_target_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped_private_target_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "finding_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocking_finding_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "clean_scan_is_clearance": {
+          "const": false
+        }
+      }
+    },
+    "FindingCode": {
+      "type": "string",
+      "enum": [
+        "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+        "PRIVATE_DATA_SYNTHETIC_MARKER",
+        "PROPRIETARY_SOURCE_SYNTHETIC_MARKER",
+        "UNKNOWN_PROVENANCE_REVIEW_REQUIRED",
+        "PROHIBITED_PROFESSIONAL_CLAIM",
+        "SAFE_METADATA_ALLOWED"
+      ]
+    },
+    "FindingClass": {
+      "type": "string",
+      "enum": [
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA_WARNING",
+        "PROVENANCE_WARNING",
+        "PROFESSIONAL_BOUNDARY_WARNING",
+        "SAFE_METADATA"
+      ]
+    },
+    "FindingSeverity": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARNING",
+        "BLOCKING"
+      ]
+    },
+    "ReviewRoute": {
+      "type": "string",
+      "enum": [
+        "HUMAN_IP_REVIEW",
+        "HUMAN_PRIVACY_REVIEW",
+        "HUMAN_PROFESSIONAL_BOUNDARY_REVIEW",
+        "MAINTAINER_PROVENANCE_REVIEW",
+        "NO_ACTION"
+      ]
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "not_applicable"
+      ]
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "private_library_data",
+        "protected_suspected",
+        "redacted"
+      ]
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "SurfaceKind": {
+      "type": "string",
+      "enum": [
+        "public_report_template",
+        "public_report_example",
+        "public_fixture",
+        "private_user_template",
+        "private_project_export"
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_frame_kernel"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral 3D frame stiffness kernel for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

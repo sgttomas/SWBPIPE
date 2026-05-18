@@ -1,0 +1,229 @@
+{
+  "schema_version": "0.1.0",
+  "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "metadata": {
+    "rule_pack_id": "invented_demo_rule_pack",
+    "name": "Invented Demonstration Rule Pack",
+    "schema_version": "0.1.0",
+    "rule_pack_version": "0.1.0",
+    "lifecycle_status": "accepted_public_example",
+    "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
+    "status": "active"
+  },
+  "classification": {
+    "privacy_class": "public_invented_example",
+    "redistribution_status": "invented_non_engineering_example",
+    "public_repository_policy": "invented_non_engineering_examples_only",
+    "protected_content_review_required": true,
+    "private_values_allowed": true
+  },
+  "required_inputs": [
+    {
+      "input_id": "demo_actual_quantity",
+      "name": "Invented actual demonstration quantity",
+      "source_kind": "solver_result",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    },
+    {
+      "input_id": "demo_limit_quantity",
+      "name": "Invented training limit",
+      "source_kind": "user_supplied_rule_value",
+      "quantity_intent": {
+        "dimension": "stress",
+        "unit_ref": "demo_unit",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "required_for": "rule_check",
+      "completeness_status": "complete",
+      "missing_value_diagnostic": "RULE_INPUT_MISSING",
+      "provenance_required": true,
+      "redistribution_status_required": true
+    }
+  ],
+  "formula_declarations": [
+    {
+      "formula_id": "demo_ratio_expression",
+      "formula_kind": "ratio",
+      "declaration_form": "structured_expression",
+      "expression_language": "open_pipe_stress_declared_expression",
+      "arbitrary_code_execution_allowed": false,
+      "protected_content_policy": "invented_non_engineering_example_only",
+      "input_refs": [
+        {
+          "ref_id": "demo_actual_quantity",
+          "ref_type": "required_input"
+        },
+        {
+          "ref_id": "demo_limit_quantity",
+          "ref_type": "required_input"
+        }
+      ],
+      "output_dimension": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      },
+      "review_status": "accepted"
+    }
+  ],
+  "value_slots": [
+    {
+      "slot_id": "demo_limit_slot",
+      "slot_kind": "ratio_limit",
+      "quantity_intent": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "unit_required": true,
+        "dimension_check_required": true
+      },
+      "value_status": "invented_non_engineering_example",
+      "required_for": "rule_check",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "completeness_status": "complete"
+    }
+  ],
+  "check_definitions": [
+    {
+      "check_id": "demo_training_check",
+      "name": "Invented training check",
+      "description": "Demonstrates user-rule status flow using artificial values only.",
+      "required_input_refs": [
+        {
+          "ref_id": "demo_actual_quantity",
+          "ref_type": "required_input"
+        },
+        {
+          "ref_id": "demo_limit_quantity",
+          "ref_type": "required_input"
+        }
+      ],
+      "formula_ref": {
+        "ref_id": "demo_ratio_expression",
+        "ref_type": "formula"
+      },
+      "acceptability_basis": "invented_non_engineering_example",
+      "result_statuses": [
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED"
+      ],
+      "diagnostic_policy": {
+        "missing_input": "RULE_INPUT_MISSING",
+        "unit_mismatch": "RULE_UNIT_MISMATCH",
+        "provenance_gap": "RULE_PROVENANCE_WARNING",
+        "redistribution_gap": "RULE_REDISTRIBUTION_WARNING",
+        "protected_content_suspected": "RULE_PROTECTED_CONTENT_WARNING",
+        "evaluator_error": "RULE_EVALUATOR_ERROR"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "diagnostic_id": "demo_notice",
+      "code": "RULE_INCOMPLETE_DATA",
+      "severity": "info",
+      "affected_ref": {
+        "ref_id": "invented_demo_rule_pack",
+        "ref_type": "external_record"
+      },
+      "message": "This example is invented software demonstration content only.",
+      "remediation": "Replace with project-specific, lawfully supplied, reviewed private rule-pack content before any real engineering use.",
+      "provenance": {
+        "source_name": "OpenPipeStress invented demonstration",
+        "source_location": "examples/rule_packs/invented_demo.yaml",
+        "source_license": "Project documentation license for invented example text",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering demonstration content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "checksums": {
+    "rule_pack_checksum": {
+      "algorithm": "TBD",
+      "canonicalization": "TBD",
+      "payload_ref": {
+        "ref_id": "invented_demo_rule_pack",
+        "ref_type": "checksum"
+      },
+      "value": "TBD until checksum lifecycle deliverable is implemented"
+    },
+    "payload_checksums": [],
+    "hash_basis": "TBD"
+  },
+  "provenance": {
+    "source_name": "OpenPipeStress invented demonstration",
+    "source_location": "examples/rule_packs/invented_demo.yaml",
+    "source_license": "Project documentation license for invented example text",
+    "contributor": "OpenPipeStress project",
+    "contributor_certification": "Original invented non-engineering demonstration content.",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "human_review_required": true,
+    "human_acceptance_record_software_generated": false,
+    "external_human_acceptance_ref_allowed": true
+  },
+  "open_decisions": [
+    {
+      "decision_id": "OD-DEL-06-05-001",
+      "topic": "checksum_library",
+      "status": "deferred",
+      "owner": "future DEL-06-04",
+      "notes": "Concrete checksum generation remains outside this invented example deliverable."
+    },
+    {
+      "decision_id": "OD-DEL-06-05-002",
+      "topic": "result_envelope_integration",
+      "status": "deferred",
+      "owner": "future result/report deliverables",
+      "notes": "This example demonstrates rule-pack shape only, not final result-envelope integration."
+    }
+  ]
+}

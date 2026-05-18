@@ -1,0 +1,1082 @@
+{
+  "schema_version": "0.1.0",
+  "project": {
+    "id": "INV_FAKE_RULE_TOY_PROJECT",
+    "name": "Invented Fake Rule-Pack Toy Model",
+    "description": "Invented non-code, non-project educational fixture for fake-rule-pack workflow demonstration. It uses synthetic labels and values only and is not suitable for engineering reliance.",
+    "unit_system": {
+      "id": "INV_FAKE_RULE_UNITS",
+      "description": "Synthetic units for a fictional user-rule workflow example.",
+      "base_units": {
+        "length": "m",
+        "mass": "kg",
+        "force": "N",
+        "temperature": "K",
+        "angle": "rad"
+      }
+    },
+    "privacy_class": "public",
+    "storage_policy": "public_example",
+    "models": [
+      {
+        "id": "INV_FAKE_RULE_PHYSICAL_SOURCE_A",
+        "name": "Invented physical source-of-truth fake-rule fixture",
+        "description": "Invented public-safe physical_source_of_truth fixture for traceability education only; no real project, product, protected source, or design basis is represented.",
+        "model_role": "physical_source_of_truth",
+        "coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        },
+        "nodes": [
+          {
+            "id": "INV_RULE_NODE_A",
+            "coordinates": {
+              "x": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "restrained",
+              "UY": "restrained",
+              "UZ": "restrained",
+              "RX": "restrained",
+              "RY": "restrained",
+              "RZ": "restrained"
+            }
+          },
+          {
+            "id": "INV_RULE_NODE_B",
+            "coordinates": {
+              "x": {
+                "value": 1.8,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.4,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "free",
+              "UY": "free",
+              "UZ": "free",
+              "RX": "free",
+              "RY": "free",
+              "RZ": "free"
+            }
+          }
+        ],
+        "elements": [
+          {
+            "id": "INV_RULE_ELEMENT_AB",
+            "element_type": "straight_pipe",
+            "start_node_ref": {
+              "object_type": "Node",
+              "id": "INV_RULE_NODE_A"
+            },
+            "end_node_ref": {
+              "object_type": "Node",
+              "id": "INV_RULE_NODE_B"
+            },
+            "material_ref": {
+              "object_type": "Material",
+              "id": "INV_MATERIAL_GREEN"
+            },
+            "section_ref": {
+              "object_type": "Section",
+              "id": "INV_SECTION_OVAL_TOY"
+            },
+            "local_coordinate_system": {
+              "type": "cartesian",
+              "axes": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            },
+            "result_stations": [
+              {
+                "value": 0.5,
+                "unit": "ratio",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ]
+          }
+        ],
+        "components": [],
+        "materials": [
+          {
+            "id": "INV_MATERIAL_GREEN",
+            "name": "Invented Elastic Material Green",
+            "properties": {
+              "elastic_modulus": {
+                "value": 87000000.0,
+                "unit": "Pa",
+                "dimension": "stress",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "INV_SECTION_OVAL_TOY",
+            "section_type": "custom",
+            "name": "Invented Oval Toy Section",
+            "properties": {
+              "area": {
+                "value": 0.0029,
+                "unit": "m2",
+                "dimension": "area",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "supports": [
+          {
+            "id": "INV_RULE_SUPPORT_A",
+            "support_type": "anchor",
+            "target_ref": {
+              "object_type": "Node",
+              "id": "INV_RULE_NODE_A"
+            },
+            "directions": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "properties": {},
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "load_cases": [
+          {
+            "id": "INV_RULE_LOAD_SIGNAL",
+            "name": "Invented fake-rule signal load",
+            "load_type": "other",
+            "loads": [
+              {
+                "target_ref": {
+                  "object_type": "Node",
+                  "id": "INV_RULE_NODE_B"
+                },
+                "direction": "Z",
+                "quantity": {
+                  "value": 275.0,
+                  "unit": "N",
+                  "dimension": "force",
+                  "provenance": {
+                    "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                    "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                    "source_license": "Project documentation license for original invented example text.",
+                    "contributor": "OpenPipeStress project",
+                    "contributor_certification": "Original invented non-engineering educational content.",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                },
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "combinations": [
+          {
+            "id": "INV_RULE_COMBO_TOY",
+            "name": "Invented fake-rule demonstration combination",
+            "description": "Synthetic combination used only to attach invented fake-rule inputs.",
+            "basis": "user_rule_pack",
+            "terms": [
+              {
+                "load_case_ref": {
+                  "object_type": "LoadCase",
+                  "id": "INV_RULE_LOAD_SIGNAL"
+                },
+                "factor": 1.0
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "results": [],
+        "diagnostics": [
+          {
+            "code": "INV_EXAMPLE_NOTICE",
+            "class": "IP_BOUNDARY_WARNING",
+            "severity": "info",
+            "source": "DEL-11-04 invented educational model notice",
+            "affected_object": {
+              "object_type": "Model",
+              "id": "INV_FAKE_RULE_MODEL_A"
+            },
+            "message": "This model is invented, non-code, non-project educational content only and is not suitable for engineering reliance.",
+            "remediation": "Use lawfully supplied, reviewed project data and reviewed user-rule content before any real analysis.",
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "unresolved_assumptions": [
+          {
+            "id": "INV_RULE_ASSUMPTION_TBD",
+            "statement": "TBD: future runtime examples may connect this record to an evaluator fixture; this file only demonstrates public model shape.",
+            "status": "TBD",
+            "affected_refs": [
+              {
+                "object_type": "RulePackRef",
+                "id": "INV_FAKE_RULE_PACK_REF"
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "traceability_links": [],
+        "design_knowledge_refs": [],
+        "constraint_refs": [],
+        "equipment_interface_refs": [],
+        "operation_refs": [],
+        "model_state_refs": [],
+        "analysis_run_refs": [],
+        "comparison_refs": [],
+        "handoff_package_refs": [],
+        "external_reference_refs": [],
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-11-04 invented fake-rule physical source fixture",
+          "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+          "source_license": "Project documentation license for original invented example text.",
+          "contributor": "OpenPipeStress project",
+          "contributor_certification": "Original invented non-engineering educational content.",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        }
+      },
+      {
+        "id": "INV_FAKE_RULE_MODEL_A",
+        "name": "Invented fake user-rule demonstration model",
+        "description": "Original invented demonstration data for showing user-rule status flow; it is not a real project or engineering template. Analytical solver model derived from the paired invented physical_source_of_truth fixture; sample results are educational only.",
+        "model_role": "analytical_solver_model",
+        "coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        },
+        "nodes": [
+          {
+            "id": "INV_RULE_NODE_A",
+            "coordinates": {
+              "x": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "restrained",
+              "UY": "restrained",
+              "UZ": "restrained",
+              "RX": "restrained",
+              "RY": "restrained",
+              "RZ": "restrained"
+            }
+          },
+          {
+            "id": "INV_RULE_NODE_B",
+            "coordinates": {
+              "x": {
+                "value": 1.8,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.4,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "free",
+              "UY": "free",
+              "UZ": "free",
+              "RX": "free",
+              "RY": "free",
+              "RZ": "free"
+            }
+          }
+        ],
+        "elements": [
+          {
+            "id": "INV_RULE_ELEMENT_AB",
+            "element_type": "straight_pipe",
+            "start_node_ref": {
+              "object_type": "Node",
+              "id": "INV_RULE_NODE_A"
+            },
+            "end_node_ref": {
+              "object_type": "Node",
+              "id": "INV_RULE_NODE_B"
+            },
+            "material_ref": {
+              "object_type": "Material",
+              "id": "INV_MATERIAL_GREEN"
+            },
+            "section_ref": {
+              "object_type": "Section",
+              "id": "INV_SECTION_OVAL_TOY"
+            },
+            "local_coordinate_system": {
+              "type": "cartesian",
+              "axes": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            },
+            "result_stations": [
+              {
+                "value": 0.5,
+                "unit": "ratio",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ]
+          }
+        ],
+        "components": [],
+        "materials": [
+          {
+            "id": "INV_MATERIAL_GREEN",
+            "name": "Invented Elastic Material Green",
+            "properties": {
+              "elastic_modulus": {
+                "value": 87000000.0,
+                "unit": "Pa",
+                "dimension": "stress",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "INV_SECTION_OVAL_TOY",
+            "section_type": "custom",
+            "name": "Invented Oval Toy Section",
+            "properties": {
+              "area": {
+                "value": 0.0029,
+                "unit": "m2",
+                "dimension": "area",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "supports": [
+          {
+            "id": "INV_RULE_SUPPORT_A",
+            "support_type": "anchor",
+            "target_ref": {
+              "object_type": "Node",
+              "id": "INV_RULE_NODE_A"
+            },
+            "directions": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "properties": {},
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "load_cases": [
+          {
+            "id": "INV_RULE_LOAD_SIGNAL",
+            "name": "Invented fake-rule signal load",
+            "load_type": "other",
+            "loads": [
+              {
+                "target_ref": {
+                  "object_type": "Node",
+                  "id": "INV_RULE_NODE_B"
+                },
+                "direction": "Z",
+                "quantity": {
+                  "value": 275.0,
+                  "unit": "N",
+                  "dimension": "force",
+                  "provenance": {
+                    "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                    "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                    "source_license": "Project documentation license for original invented example text.",
+                    "contributor": "OpenPipeStress project",
+                    "contributor_certification": "Original invented non-engineering educational content.",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                },
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "combinations": [
+          {
+            "id": "INV_RULE_COMBO_TOY",
+            "name": "Invented fake-rule demonstration combination",
+            "description": "Synthetic combination used only to attach invented fake-rule inputs.",
+            "basis": "user_rule_pack",
+            "terms": [
+              {
+                "load_case_ref": {
+                  "object_type": "LoadCase",
+                  "id": "INV_RULE_LOAD_SIGNAL"
+                },
+                "factor": 1.0
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "results": [
+          {
+            "id": "INV_RULE_RESULT_RATIO",
+            "result_type": "rule_check",
+            "model_ref": {
+              "object_type": "Model",
+              "id": "INV_FAKE_RULE_MODEL_A"
+            },
+            "combination_ref": {
+              "object_type": "Combination",
+              "id": "INV_RULE_COMBO_TOY"
+            },
+            "values": [
+              {
+                "target_ref": {
+                  "object_type": "Element",
+                  "id": "INV_RULE_ELEMENT_AB"
+                },
+                "quantity": {
+                  "value": 0.42,
+                  "unit": "ratio",
+                  "dimension": "dimensionless",
+                  "provenance": {
+                    "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                    "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                    "source_license": "Project documentation license for original invented example text.",
+                    "contributor": "OpenPipeStress project",
+                    "contributor_certification": "Original invented non-engineering educational content.",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                }
+              }
+            ],
+            "analysis_statuses": [
+              "USER_RULE_CHECKED",
+              "HUMAN_REVIEW_REQUIRED"
+            ],
+            "diagnostics": [
+              {
+                "code": "INV_FAKE_RULE_NOTICE",
+                "class": "RULE_CHECK_BLOCKING",
+                "severity": "info",
+                "source": "DEL-11-04 invented fake-rule model notice",
+                "affected_object": {
+                  "object_type": "Result",
+                  "id": "INV_RULE_RESULT_RATIO"
+                },
+                "message": "Fake-rule result uses fictional values and must not be treated as an engineering decision.",
+                "remediation": "Replace with reviewed project-specific user-rule inputs before any real use.",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+                  "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "diagnostics": [
+          {
+            "code": "INV_EXAMPLE_NOTICE",
+            "class": "IP_BOUNDARY_WARNING",
+            "severity": "info",
+            "source": "DEL-11-04 invented educational model notice",
+            "affected_object": {
+              "object_type": "Model",
+              "id": "INV_FAKE_RULE_MODEL_A"
+            },
+            "message": "This model is invented, non-code, non-project educational content only and is not suitable for engineering reliance.",
+            "remediation": "Use lawfully supplied, reviewed project data and reviewed user-rule content before any real analysis.",
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "unresolved_assumptions": [
+          {
+            "id": "INV_RULE_ASSUMPTION_TBD",
+            "statement": "TBD: future runtime examples may connect this record to an evaluator fixture; this file only demonstrates public model shape.",
+            "status": "TBD",
+            "affected_refs": [
+              {
+                "object_type": "RulePackRef",
+                "id": "INV_FAKE_RULE_PACK_REF"
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "traceability_links": [
+          {
+            "id": "TRACE_PTA_INV_FAKE_RULE_SOURCE_TO_SOLVER_A",
+            "trace_type": "physical_to_analytical",
+            "source_ref": {
+              "object_type": "Model",
+              "id": "INV_FAKE_RULE_PHYSICAL_SOURCE_A"
+            },
+            "target_ref": {
+              "object_type": "Model",
+              "id": "INV_FAKE_RULE_MODEL_A"
+            },
+            "assumption_refs": [],
+            "diagnostics": [],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented fake-rule physical source fixture",
+              "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "design_knowledge_refs": [],
+        "constraint_refs": [],
+        "equipment_interface_refs": [],
+        "operation_refs": [],
+        "model_state_refs": [],
+        "analysis_run_refs": [],
+        "comparison_refs": [],
+        "handoff_package_refs": [],
+        "external_reference_refs": [],
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+          "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+          "source_license": "Project documentation license for original invented example text.",
+          "contributor": "OpenPipeStress project",
+          "contributor_certification": "Original invented non-engineering educational content.",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        },
+        "source_model_ref": {
+          "object_type": "Model",
+          "id": "INV_FAKE_RULE_PHYSICAL_SOURCE_A"
+        }
+      }
+    ],
+    "rule_pack_refs": [
+      {
+        "id": "INV_FAKE_RULE_PACK_REF",
+        "name": "Invented Demonstration Rule Pack",
+        "version": "0.1.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "NONE",
+          "payload_ref": {
+            "object_type": "RulePackRef",
+            "id": "INV_FAKE_RULE_PACK_REF"
+          },
+          "value": "sha256:1869e0973713e166a268321a70e18a524838aa2cc70ea9fc2e4f25c3a43f4932"
+        },
+        "source_notice": "Invented fake-rule demonstration only; no real rule or engineering acceptance basis is included.",
+        "redistribution_status": "public_permissive",
+        "required_input_refs": [
+          {
+            "object_type": "LoadCase",
+            "id": "INV_RULE_LOAD_SIGNAL"
+          },
+          {
+            "object_type": "Result",
+            "id": "INV_RULE_RESULT_RATIO"
+          }
+        ],
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-06-05 invented demonstration rule pack",
+          "source_location": "examples/rule_packs/invented_demo.yaml",
+          "source_license": "Project documentation license for original invented example text.",
+          "contributor": "OpenPipeStress project",
+          "contributor_certification": "Original invented non-engineering educational content.",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        }
+      }
+    ],
+    "report_settings": {
+      "id": "INV_REPORT_SETTINGS_FAKE_RULE",
+      "include_input_manifest": true,
+      "include_provenance_summary": true,
+      "include_professional_boundary_notice": true,
+      "result_refs": [
+        {
+          "object_type": "Result",
+          "id": "INV_RULE_RESULT_RATIO"
+        }
+      ],
+      "rule_pack_refs": [
+        {
+          "object_type": "RulePackRef",
+          "id": "INV_FAKE_RULE_PACK_REF"
+        }
+      ],
+      "provenance": {
+        "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+        "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+        "source_license": "Project documentation license for original invented example text.",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering educational content.",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    },
+    "reports": [
+      {
+        "id": "INV_REPORT_FAKE_RULE_NOTICE",
+        "settings_ref": {
+          "object_type": "ReportSettings",
+          "id": "INV_REPORT_SETTINGS_FAKE_RULE"
+        },
+        "model_ref": {
+          "object_type": "Model",
+          "id": "INV_FAKE_RULE_MODEL_A"
+        },
+        "input_manifest": [
+          {
+            "object_type": "LoadCase",
+            "id": "INV_RULE_LOAD_SIGNAL"
+          },
+          {
+            "object_type": "RulePackRef",
+            "id": "INV_FAKE_RULE_PACK_REF"
+          }
+        ],
+        "hashes": [],
+        "analysis_statuses": [
+          "USER_RULE_CHECKED",
+          "HUMAN_REVIEW_REQUIRED"
+        ],
+        "diagnostics": [],
+        "rule_pack_refs": [
+          {
+            "id": "INV_FAKE_RULE_PACK_REF",
+            "name": "Invented Demonstration Rule Pack",
+            "version": "0.1.0",
+            "checksum": {
+              "algorithm": "TBD",
+              "canonicalization": "TBD",
+              "payload_ref": {
+                "object_type": "RulePackRef",
+                "id": "INV_FAKE_RULE_PACK_REF"
+              },
+              "value": "TBD-invented-rule-pack-checksum-not-computed"
+            },
+            "source_notice": "Invented fake-rule demonstration only; no real rule or engineering acceptance basis is included.",
+            "redistribution_status": "public_permissive",
+            "required_input_refs": [
+              {
+                "object_type": "LoadCase",
+                "id": "INV_RULE_LOAD_SIGNAL"
+              },
+              {
+                "object_type": "Result",
+                "id": "INV_RULE_RESULT_RATIO"
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-06-05 invented demonstration rule pack",
+              "source_location": "examples/rule_packs/invented_demo.yaml",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "provenance_summary": [
+          {
+            "source_name": "OpenPipeStress DEL-11-04 invented fake-rule model authoring",
+            "source_location": "examples/models/invented/fake_rule_pack_toy_model.json",
+            "source_license": "Project documentation license for original invented example text.",
+            "contributor": "OpenPipeStress project",
+            "contributor_certification": "Original invented non-engineering educational content.",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted"
+          }
+        ],
+        "professional_boundary_notice": "Invented non-code, non-project educational example only; not suitable for engineering reliance."
+      }
+    ],
+    "diagnostics": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "Project",
+          "id": "INV_FAKE_RULE_TOY_PROJECT"
+        },
+        "value": "sha256:3d578915cac2268ec2600107200a4f5423ba6c7a0e7d945f21849d3a83cf80e5"
+      }
+    ]
+  }
+}

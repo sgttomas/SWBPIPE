@@ -1,0 +1,18 @@
+{
+  "amendment_id": "SCA-002",
+  "basis": "execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.5",
+  "scope_item_count": 76,
+  "package_count": 17,
+  "deliverable_count": 92,
+  "objective_count": 18,
+  "unassigned_scope_items": 0,
+  "scope_items_without_deliverable_mapping": 0,
+  "unmapped_objectives": 0,
+  "context_envelope_counts": {
+    "S": 9,
+    "M": 66,
+    "L": 17,
+    "XL": 0
+  },
+  "open_issues": 16
+}

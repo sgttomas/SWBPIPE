@@ -1,0 +1,20 @@
+[package]
+name = "open_pipe_stress_mechanics_benchmarks"
+version = "0.1.0"
+edition = "2021"
+description = "Original mechanics verification benchmarks for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+open_pipe_stress_linear_supports = { path = "../../../core/solver/linear_supports" }
+open_pipe_stress_primitive_loads = { path = "../../../core/loads/primitive_loads" }
+open_pipe_stress_result_export = { path = "../../../core/reporting/result_export" }
+open_pipe_stress_solver_diagnostics = { path = "../../../core/solver/diagnostics" }
+open_pipe_stress_straight_pipe = { path = "../../../core/solver/straight_pipe" }
+open_pipe_stress_user_loads = { path = "../../../core/loads/user_loads" }
+serde_json = "1"
+sha2 = "0.10"

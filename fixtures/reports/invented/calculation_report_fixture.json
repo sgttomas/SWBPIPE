@@ -1,0 +1,455 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-08-01",
+  "package_id": "PKG-08",
+  "scope_item": "SOW-024",
+  "objectives": [
+    "OBJ-007"
+  ],
+  "report_generator_status": {
+    "baseline_renderer": "deterministic_in_memory_report_assembly",
+    "template_slot_contract": "schema_first_template_slots",
+    "neutral_test_output": "structured_text_sections",
+    "gui_presentation": "TBD",
+    "cli_runtime": "TBD",
+    "api_transport": "TBD",
+    "adapter_behavior": "TBD",
+    "protected_content_linter": "TBD",
+    "private_redaction_export_controls": "TBD",
+    "release_template_integration": "TBD",
+    "final_report_styling_layout_policy": "TBD"
+  },
+  "calculation_report": {
+    "report_id": "invented-report-001",
+    "model_input_summary": {
+      "project_ref": {
+        "ref_type": "project",
+        "ref_id": "invented-project"
+      },
+      "model_ref": {
+        "ref_type": "model",
+        "ref_id": "invented-model"
+      },
+      "persistence_ref": {
+        "ref_type": "project_persistence",
+        "ref_id": "invented-persistence-envelope"
+      },
+      "unit_system_ref": {
+        "ref_type": "unit_system",
+        "ref_id": "invented-si"
+      },
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "jcs_compatible",
+        "payload_ref": {
+          "ref_type": "model",
+          "ref_id": "invented-model"
+        },
+        "value": "invented-hash-not-for-engineering-use"
+      },
+      "input_manifest_ref": {
+        "ref_type": "audit_manifest",
+        "ref_id": "invented-manifest"
+      },
+      "provenance": {
+        "source_name": "Invented OpenPipeStress report fixture",
+        "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+        "source_license": "project_fixture",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering data only.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    "load_case_summary": [
+      {
+        "load_ref": {
+          "ref_type": "load_case",
+          "ref_id": "invented-weight"
+        },
+        "label": "Invented weight case",
+        "basis": "load_case",
+        "source": {
+          "ref_type": "fixture",
+          "ref_id": "invented"
+        },
+        "provenance": {
+          "source_name": "Invented OpenPipeStress report fixture",
+          "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering data only.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "result_export_refs": [
+      {
+        "ref": {
+          "ref_type": "result_export_envelope",
+          "ref_id": "invented-result-export"
+        },
+        "schema_ref": {
+          "ref_type": "schema",
+          "ref_id": "schemas/results.schema.yaml"
+        },
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "jcs_compatible",
+          "payload_ref": {
+            "ref_type": "result_export_envelope",
+            "ref_id": "invented-result-export"
+          },
+          "value": "invented-result-hash"
+        },
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "Invented OpenPipeStress report fixture",
+          "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering data only.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "audit_manifest_refs": [
+      {
+        "ref": {
+          "ref_type": "audit_manifest",
+          "ref_id": "invented-manifest"
+        },
+        "schema_ref": {
+          "ref_type": "module",
+          "ref_id": "core/reporting/audit_manifest"
+        },
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "jcs_compatible",
+          "payload_ref": {
+            "ref_type": "audit_manifest",
+            "ref_id": "invented-manifest"
+          },
+          "value": "invented-manifest-hash"
+        },
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "Invented OpenPipeStress report fixture",
+          "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering data only.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "report_section_refs": [
+      {
+        "ref": {
+          "ref_type": "report_section_envelope",
+          "ref_id": "invented-report-sections"
+        },
+        "schema_ref": {
+          "ref_type": "schema",
+          "ref_id": "schemas/report_sections.schema.yaml"
+        },
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "jcs_compatible",
+          "payload_ref": {
+            "ref_type": "report_section_envelope",
+            "ref_id": "invented-report-sections"
+          },
+          "value": "invented-report-section-hash"
+        },
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "Invented OpenPipeStress report fixture",
+          "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering data only.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "rule_pack_refs": [
+      {
+        "rule_pack_id": "invented-rule-pack",
+        "version": "0.1.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "jcs_compatible",
+          "payload_ref": {
+            "ref_type": "rule_pack",
+            "ref_id": "invented-rule-pack"
+          },
+          "value": "invented-rule-pack-hash"
+        },
+        "source_notice": "Invented non-code example only.",
+        "redistribution_status": "invented_non_engineering_example",
+        "completeness_status": "not_checked",
+        "private_payload_redacted": true
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "REPORT-HUMAN-REVIEW",
+        "class": "REPORT_BLOCKING",
+        "severity": "blocking",
+        "source": {
+          "ref_type": "report_generator",
+          "ref_id": "DEL-08-01"
+        },
+        "affected_object": {
+          "ref_type": "report",
+          "ref_id": "invented-report-001"
+        },
+        "message": "Human review is required before project reliance.",
+        "remediation": "Route the report to a competent human reviewer.",
+        "provenance": {
+          "source_name": "Invented OpenPipeStress report fixture",
+          "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+          "source_license": "project_fixture",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "Invented non-engineering data only.",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "template_slots": [
+      {
+        "slot_id": "slot-001",
+        "required": true,
+        "section_kind": "model_input_summary",
+        "source_contract": {
+          "ref_type": "schema",
+          "ref_id": "schemas/project_persistence.schema.yaml"
+        },
+        "ordering_index": 0
+      },
+      {
+        "slot_id": "slot-002",
+        "required": true,
+        "section_kind": "load_cases",
+        "source_contract": {
+          "ref_type": "schema",
+          "ref_id": "schemas/model.schema.yaml"
+        },
+        "ordering_index": 1
+      },
+      {
+        "slot_id": "slot-003",
+        "required": true,
+        "section_kind": "results",
+        "source_contract": {
+          "ref_type": "schema",
+          "ref_id": "schemas/results.schema.yaml"
+        },
+        "ordering_index": 2
+      },
+      {
+        "slot_id": "slot-004",
+        "required": true,
+        "section_kind": "warnings_assumptions_provenance",
+        "source_contract": {
+          "ref_type": "schema",
+          "ref_id": "schemas/report_sections.schema.yaml"
+        },
+        "ordering_index": 3
+      },
+      {
+        "slot_id": "slot-005",
+        "required": true,
+        "section_kind": "audit_manifest",
+        "source_contract": {
+          "ref_type": "module",
+          "ref_id": "core/reporting/audit_manifest"
+        },
+        "ordering_index": 4
+      },
+      {
+        "slot_id": "slot-006",
+        "required": true,
+        "section_kind": "rule_pack_references",
+        "source_contract": {
+          "ref_type": "schema",
+          "ref_id": "schemas/rule_pack.schema.yaml"
+        },
+        "ordering_index": 5
+      },
+      {
+        "slot_id": "slot-007",
+        "required": true,
+        "section_kind": "limitations",
+        "source_contract": {
+          "ref_type": "schema",
+          "ref_id": "schemas/report_sections.schema.yaml"
+        },
+        "ordering_index": 6
+      },
+      {
+        "slot_id": "slot-008",
+        "required": true,
+        "section_kind": "professional_boundary_notice",
+        "source_contract": {
+          "ref_type": "policy",
+          "ref_id": "docs/PROFESSIONAL_BOUNDARY.md"
+        },
+        "ordering_index": 7
+      }
+    ],
+    "rendered_sections": [
+      {
+        "section_id": "section-001",
+        "slot_id": "slot-001",
+        "section_kind": "model_input_summary",
+        "title": "Model Input Summary",
+        "source_refs": [
+          {
+            "ref_type": "project_persistence",
+            "ref_id": "invented-persistence-envelope"
+          }
+        ],
+        "content_status": "complete"
+      },
+      {
+        "section_id": "section-002",
+        "slot_id": "slot-002",
+        "section_kind": "load_cases",
+        "title": "Load Cases",
+        "source_refs": [
+          {
+            "ref_type": "load_case",
+            "ref_id": "invented-weight"
+          }
+        ],
+        "content_status": "complete"
+      },
+      {
+        "section_id": "section-003",
+        "slot_id": "slot-003",
+        "section_kind": "results",
+        "title": "Results",
+        "source_refs": [
+          {
+            "ref_type": "result_export_envelope",
+            "ref_id": "invented-result-export"
+          }
+        ],
+        "content_status": "qualified"
+      },
+      {
+        "section_id": "section-004",
+        "slot_id": "slot-004",
+        "section_kind": "warnings_assumptions_provenance",
+        "title": "Warnings, Assumptions, and Provenance",
+        "source_refs": [
+          {
+            "ref_type": "report_section_envelope",
+            "ref_id": "invented-report-sections"
+          }
+        ],
+        "content_status": "qualified"
+      },
+      {
+        "section_id": "section-005",
+        "slot_id": "slot-005",
+        "section_kind": "audit_manifest",
+        "title": "Audit Manifest",
+        "source_refs": [
+          {
+            "ref_type": "audit_manifest",
+            "ref_id": "invented-manifest"
+          }
+        ],
+        "content_status": "complete"
+      },
+      {
+        "section_id": "section-006",
+        "slot_id": "slot-006",
+        "section_kind": "rule_pack_references",
+        "title": "Rule-Pack References",
+        "source_refs": [
+          {
+            "ref_type": "rule_pack",
+            "ref_id": "invented-rule-pack"
+          }
+        ],
+        "content_status": "qualified"
+      },
+      {
+        "section_id": "section-007",
+        "slot_id": "slot-007",
+        "section_kind": "limitations",
+        "title": "Limitations",
+        "source_refs": [
+          {
+            "ref_type": "report_section_envelope",
+            "ref_id": "invented-report-sections"
+          }
+        ],
+        "content_status": "qualified"
+      },
+      {
+        "section_id": "section-008",
+        "slot_id": "slot-008",
+        "section_kind": "professional_boundary_notice",
+        "title": "Professional Boundary Notice",
+        "source_refs": [
+          {
+            "ref_type": "policy",
+            "ref_id": "docs/PROFESSIONAL_BOUNDARY.md"
+          }
+        ],
+        "content_status": "complete"
+      }
+    ],
+    "analysis_status": [
+      "MECHANICS_SOLVED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "provenance": {
+      "source_name": "Invented OpenPipeStress report fixture",
+      "source_location": "fixtures/reports/invented/calculation_report_fixture.json",
+      "source_license": "project_fixture",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "Invented non-engineering data only.",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "privacy_classification": "invented_public_example"
+    },
+    "privacy_classification": "invented_public_example",
+    "unresolved_runtime_tbds": [
+      {
+        "tbd_id": "TBD-REPORT-REDACTION-001",
+        "topic": "redaction_export_controls",
+        "affected_scope": {
+          "ref_type": "deliverable",
+          "ref_id": "DEL-12-02"
+        },
+        "description": "Private data redaction and export controls remain separate downstream work.",
+        "review_needed": true
+      }
+    ]
+  }
+}

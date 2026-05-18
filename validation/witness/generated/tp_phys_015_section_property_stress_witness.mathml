@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ops-witness-mathml witness-id="WITNESS-TP-PHYS-015-SECTION-PROPERTY-STRESS" witness-sha256="1af3d494093179bb93435be0e252ba3b84d8d6959a49a3c4aee455b8153518dd">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="inside_diameter">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>D_i</ci>
+        <apply>
+          <minus/>
+          <ci>outside_diameter</ci>
+          <apply>
+            <times/>
+            <cn>2</cn>
+            <ci>wall_thickness</ci>
+          </apply>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">inside_diameter</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="section_area">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>A</ci>
+        <apply>
+          <times/>
+          <apply>
+            <divide/>
+            <pi/>
+            <cn>4</cn>
+          </apply>
+          <apply>
+            <minus/>
+            <apply>
+              <power/>
+              <ci>outside_diameter</ci>
+              <cn>2</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>inside_diameter</ci>
+              <cn>2</cn>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">section_area</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="second_moment_area">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>I</ci>
+        <apply>
+          <times/>
+          <apply>
+            <divide/>
+            <pi/>
+            <cn>64</cn>
+          </apply>
+          <apply>
+            <minus/>
+            <apply>
+              <power/>
+              <ci>outside_diameter</ci>
+              <cn>4</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>inside_diameter</ci>
+              <cn>4</cn>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">second_moment_area</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="torsion_constant">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>J</ci>
+        <apply>
+          <times/>
+          <apply>
+            <divide/>
+            <pi/>
+            <cn>32</cn>
+          </apply>
+          <apply>
+            <minus/>
+            <apply>
+              <power/>
+              <ci>outside_diameter</ci>
+              <cn>4</cn>
+            </apply>
+            <apply>
+              <power/>
+              <ci>inside_diameter</ci>
+              <cn>4</cn>
+            </apply>
+          </apply>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">torsion_constant</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="torsion_radius">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>r</ci>
+        <apply>
+          <divide/>
+          <ci>outside_diameter</ci>
+          <cn>2</cn>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">torsion_radius</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="section_modulus_y">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>Z_y</ci>
+        <apply>
+          <divide/>
+          <ci>second_moment_area</ci>
+          <ci>torsion_radius</ci>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">section_modulus_y</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="section_modulus_z">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>Z_z</ci>
+        <apply>
+          <divide/>
+          <ci>second_moment_area</ci>
+          <ci>torsion_radius</ci>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">section_modulus_z</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="axial_normal_stress">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>sigma_axial</ci>
+        <apply>
+          <divide/>
+          <ci>axial_resultant</ci>
+          <ci>section_area</ci>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">axial_normal_stress</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="bending_normal_stress_z">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>sigma_bending_z</ci>
+        <apply>
+          <divide/>
+          <ci>bending_moment_z</ci>
+          <ci>section_modulus_z</ci>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">bending_normal_stress_z</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="bending_normal_stress_y">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>sigma_bending_y</ci>
+        <apply>
+          <divide/>
+          <ci>bending_moment_y</ci>
+          <ci>section_modulus_y</ci>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">bending_normal_stress_y</annotation>
+    </semantics>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" id="torsional_shear_stress">
+    <semantics>
+      <apply>
+        <eq/>
+        <ci>tau_torsion</ci>
+        <apply>
+          <divide/>
+          <apply>
+            <times/>
+            <ci>torsional_moment</ci>
+            <ci>torsion_radius</ci>
+          </apply>
+          <ci>torsion_constant</ci>
+        </apply>
+      </apply>
+      <annotation encoding="application/x-openmath-json">torsional_shear_stress</annotation>
+    </semantics>
+  </math>
+</ops-witness-mathml>

@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_audit_manifest"
+version = "0.1.0"
+edition = "2021"
+description = "Audit manifest and model hash support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

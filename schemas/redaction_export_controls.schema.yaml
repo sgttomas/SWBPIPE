@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/redaction_export_controls.schema.yaml",
+  "title": "OpenPipeStress Redaction And Export Controls Schema",
+  "description": "Strict JSON syntax schema for local-first redaction and export-control configuration, decisions, and findings. This schema records safeguards for report/export representations only; it does not mutate source data, transmit data to a cloud service, grant legal clearance, or provide professional approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "control_profile",
+    "field_policies",
+    "export_run"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-12-02"
+    },
+    "package_id": {
+      "const": "PKG-12"
+    },
+    "scope_item": {
+      "const": "SOW-040"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-010"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-010"
+        ]
+      }
+    },
+    "control_profile": {
+      "$ref": "#/$defs/ControlProfile"
+    },
+    "field_policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/FieldPolicy"
+      }
+    },
+    "export_run": {
+      "$ref": "#/$defs/ExportRun"
+    }
+  },
+  "$defs": {
+    "ControlProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "local_first",
+        "source_mutation_allowed",
+        "cloud_transmission_allowed",
+        "unknown_metadata_behavior",
+        "missing_provenance_behavior",
+        "private_default_behavior",
+        "local_private_requires_explicit_intent",
+        "professional_claims_allowed",
+        "classification_basis"
+      ],
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "local_first": {
+          "const": true
+        },
+        "source_mutation_allowed": {
+          "const": false
+        },
+        "cloud_transmission_allowed": {
+          "const": false
+        },
+        "unknown_metadata_behavior": {
+          "enum": [
+            "warning_only",
+            "redact_value",
+            "redact_field",
+            "block_export"
+          ]
+        },
+        "missing_provenance_behavior": {
+          "enum": [
+            "warning_only",
+            "redact_value",
+            "redact_field",
+            "block_export"
+          ]
+        },
+        "private_default_behavior": {
+          "enum": [
+            "redact_value",
+            "redact_field",
+            "omit_field",
+            "block_export"
+          ]
+        },
+        "local_private_requires_explicit_intent": {
+          "const": true
+        },
+        "professional_claims_allowed": {
+          "const": false
+        },
+        "classification_basis": {
+          "const": "explicit_metadata_only"
+        }
+      }
+    },
+    "FieldPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_id",
+        "field_class",
+        "default_action",
+        "public_actions",
+        "local_private_action",
+        "required_metadata",
+        "safe_metadata_fields"
+      ],
+      "properties": {
+        "policy_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "field_class": {
+          "$ref": "#/$defs/FieldClass"
+        },
+        "default_action": {
+          "$ref": "#/$defs/RedactionAction"
+        },
+        "public_actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/RedactionAction"
+          }
+        },
+        "local_private_action": {
+          "$ref": "#/$defs/RedactionAction"
+        },
+        "required_metadata": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "privacy_classification",
+              "redistribution_status",
+              "provenance",
+              "review_status",
+              "user_intent"
+            ]
+          }
+        },
+        "safe_metadata_fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "id",
+              "name",
+              "version",
+              "checksum",
+              "source_note",
+              "provenance_summary",
+              "warning_summary",
+              "schema_version"
+            ]
+          }
+        }
+      }
+    },
+    "ExportRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "export_context",
+        "explicit_local_private_intent",
+        "input_summary",
+        "decisions",
+        "findings",
+        "summary"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "export_context": {
+          "$ref": "#/$defs/ExportContext"
+        },
+        "explicit_local_private_intent": {
+          "type": "boolean"
+        },
+        "input_summary": {
+          "$ref": "#/$defs/InputSummary"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RedactionDecision"
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RedactionFinding"
+          }
+        },
+        "summary": {
+          "$ref": "#/$defs/RedactionSummary"
+        }
+      }
+    },
+    "InputSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "representation_only",
+        "source_payload_mutated",
+        "contains_real_private_data",
+        "contains_real_secrets",
+        "contains_protected_standards_content"
+      ],
+      "properties": {
+        "representation_only": {
+          "const": true
+        },
+        "source_payload_mutated": {
+          "const": false
+        },
+        "contains_real_private_data": {
+          "const": false
+        },
+        "contains_real_secrets": {
+          "const": false
+        },
+        "contains_protected_standards_content": {
+          "const": false
+        }
+      }
+    },
+    "RedactionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "path",
+        "field_class",
+        "privacy_classification",
+        "redistribution_status",
+        "review_status",
+        "export_context",
+        "action",
+        "reason_code",
+        "source_metadata_present"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "field_class": {
+          "$ref": "#/$defs/FieldClass"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "export_context": {
+          "$ref": "#/$defs/ExportContext"
+        },
+        "action": {
+          "$ref": "#/$defs/RedactionAction"
+        },
+        "reason_code": {
+          "$ref": "#/$defs/ReasonCode"
+        },
+        "source_metadata_present": {
+          "type": "boolean"
+        }
+      }
+    },
+    "RedactionFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "code",
+        "class",
+        "severity",
+        "path",
+        "action",
+        "message",
+        "remediation"
+      ],
+      "properties": {
+        "finding_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "$ref": "#/$defs/ReasonCode"
+        },
+        "class": {
+          "$ref": "#/$defs/FindingClass"
+        },
+        "severity": {
+          "$ref": "#/$defs/FindingSeverity"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action": {
+          "$ref": "#/$defs/RedactionAction"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "RedactionSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_count",
+        "finding_count",
+        "redacted_count",
+        "omitted_count",
+        "warning_count",
+        "blocking_count",
+        "cloud_transmission_attempted",
+        "professional_claims_made"
+      ],
+      "properties": {
+        "decision_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "finding_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "redacted_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "omitted_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warning_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocking_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cloud_transmission_attempted": {
+          "const": false
+        },
+        "professional_claims_made": {
+          "const": false
+        }
+      }
+    },
+    "ExportContext": {
+      "type": "string",
+      "enum": [
+        "public_report",
+        "public_example",
+        "shared_model",
+        "downstream_tool",
+        "local_private"
+      ]
+    },
+    "FieldClass": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "project",
+        "material",
+        "component",
+        "rule_pack",
+        "owner_standard",
+        "company_design_basis",
+        "path",
+        "secret_like",
+        "report_body",
+        "export_manifest",
+        "unknown"
+      ]
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public",
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_material_data",
+        "private_component_data",
+        "private_rule_pack_data",
+        "owner_standard_data",
+        "company_design_basis_data",
+        "path_data",
+        "secret_like_data",
+        "protected_suspected",
+        "redacted",
+        "omitted",
+        "warning_only",
+        "unknown",
+        "TBD"
+      ]
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "invented_non_engineering_example",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "TBD"
+      ]
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "pending",
+        "rejected",
+        "quarantined",
+        "not_applicable",
+        "unknown",
+        "TBD"
+      ]
+    },
+    "RedactionAction": {
+      "type": "string",
+      "enum": [
+        "include",
+        "warning_only",
+        "redact_value",
+        "redact_field",
+        "omit_field",
+        "block_export"
+      ]
+    },
+    "ReasonCode": {
+      "type": "string",
+      "enum": [
+        "SAFE_PUBLIC_METADATA",
+        "SAFE_INVENTED_PUBLIC_EXAMPLE",
+        "PRIVATE_DATA_REDACTED",
+        "PRIVATE_LOCAL_ALLOWED_WITH_WARNING",
+        "UNKNOWN_PROVENANCE_WARNING",
+        "REDISTRIBUTION_STATUS_UNKNOWN",
+        "PROTECTED_CONTENT_BLOCKED",
+        "MISSING_METADATA_REDACTED",
+        "LOCAL_PRIVATE_INTENT_REQUIRED",
+        "PROFESSIONAL_BOUNDARY_BLOCKED"
+      ]
+    },
+    "FindingClass": {
+      "type": "string",
+      "enum": [
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA_WARNING",
+        "PROVENANCE_WARNING",
+        "PROFESSIONAL_BOUNDARY_WARNING",
+        "SAFE_METADATA"
+      ]
+    },
+    "FindingSeverity": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARNING",
+        "BLOCKING"
+      ]
+    }
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-16-01",
+  "package_id": "PKG-16",
+  "scope_item": "SOW-069",
+  "objectives": [
+    "OBJ-015"
+  ],
+  "operation_contract_status": {
+    "record_contract": "schema_first_model_operation_records",
+    "mutation_route": "structured_operations_only",
+    "direct_model_mutation_allowed": false,
+    "user_acceptance_boundary": "downstream_user_acceptance_required",
+    "diff_preview_binding": "downstream_DEL-16-02",
+    "audit_trail_binding": "downstream_DEL-16-03"
+  },
+  "operation_set": {
+    "operation_set_id": "ops:invented",
+    "project_ref": {
+      "object_type": "Project",
+      "ref": "project:invented"
+    },
+    "model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-physical"
+    },
+    "model_basis": {
+      "model_ref": {
+        "object_type": "Model",
+        "ref": "model:invented-physical"
+      },
+      "canonical_model_role": "physical_source_of_truth",
+      "physical_source_of_truth_ref": {
+        "object_type": "Model",
+        "ref": "model:invented-physical"
+      },
+      "accepted_model_state_ref": {
+        "object_type": "ModelState",
+        "ref": "state:accepted"
+      },
+      "accepted_model_state_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "ModelState",
+          "ref": "state:accepted"
+        },
+        "payload_scope": "model_state_record",
+        "value": "sha256:invented-state-001"
+      }
+    },
+    "operations": [
+      {
+        "operation_id": "op:add-node",
+        "operation_kind": "add",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [
+          {
+            "object_type": "Node",
+            "ref": "node:n3"
+          }
+        ],
+        "preconditions": {
+          "base_model_state_ref": {
+            "object_type": "ModelState",
+            "ref": "state:accepted"
+          },
+          "required_current_hashes": [
+            {
+              "algorithm": "sha256",
+              "canonicalization": "JCS",
+              "payload_ref": {
+                "object_type": "ModelState",
+                "ref": "state:accepted"
+              },
+              "payload_scope": "model_state_record",
+              "value": "sha256:invented-state-001"
+            }
+          ],
+          "required_refs": [
+            {
+              "object_type": "Model",
+              "ref": "model:invented-physical"
+            }
+          ],
+          "assumptions": []
+        },
+        "changes": [
+          {
+            "change_id": "change:add-node",
+            "change_kind": "add_object",
+            "target_object_type": "Node",
+            "target_ref": {
+              "object_type": "Node",
+              "ref": "node:n3"
+            },
+            "value_payload": {
+              "value_kind": "structured_patch",
+              "scalar_values": [],
+              "quantity_values": [],
+              "reference_values": [],
+              "structured_values": [
+                {
+                  "stable_id": "node:n3",
+                  "category": "Node"
+                }
+              ],
+              "notes": [
+                "Invented add-node operation for schema coverage."
+              ]
+            },
+            "unit_requirements": {
+              "unit_metadata_required": true,
+              "dimension_check_required": true,
+              "missing_unit_behavior": "emit_diagnostic"
+            },
+            "provenance": {
+              "source_name": "PKG-16 invented operation fixture",
+              "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+              "source_license": "project invented public example",
+              "contributor": "OpenPipeStress Type 2 worker",
+              "contributor_certification": "implementation-only-no-professional-claim",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted",
+              "privacy_classification": "invented_public_example"
+            }
+          }
+        ],
+        "validation": {
+          "schema_validation": "not_run",
+          "constraint_validation": "not_run",
+          "unit_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "application_status": "not_applied"
+        },
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {
+          "source_name": "PKG-16 invented operation fixture",
+          "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+          "source_license": "project invented public example",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        },
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_compliance_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_sealing_claim": false,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false
+        }
+      },
+      {
+        "operation_id": "op:resize",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [
+          {
+            "object_type": "Component",
+            "ref": "component:pipe-1"
+          }
+        ],
+        "preconditions": {
+          "base_model_state_ref": {
+            "object_type": "ModelState",
+            "ref": "state:accepted"
+          },
+          "required_current_hashes": [
+            {
+              "algorithm": "sha256",
+              "canonicalization": "JCS",
+              "payload_ref": {
+                "object_type": "ModelState",
+                "ref": "state:accepted"
+              },
+              "payload_scope": "model_state_record",
+              "value": "sha256:invented-state-001"
+            }
+          ],
+          "required_refs": [
+            {
+              "object_type": "Component",
+              "ref": "component:pipe-1"
+            }
+          ],
+          "assumptions": []
+        },
+        "changes": [
+          {
+            "change_id": "change:diameter",
+            "change_kind": "set_field",
+            "target_object_type": "Component",
+            "target_ref": {
+              "object_type": "Component",
+              "ref": "component:pipe-1"
+            },
+            "value_payload": {
+              "value_kind": "quantity",
+              "scalar_values": [],
+              "quantity_values": [
+                {
+                  "value": 125.0,
+                  "unit": "mm",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "PKG-16 invented operation fixture",
+                    "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+                    "source_license": "project invented public example",
+                    "contributor": "OpenPipeStress Type 2 worker",
+                    "contributor_certification": "implementation-only-no-professional-claim",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted",
+                    "privacy_classification": "invented_public_example"
+                  }
+                }
+              ],
+              "reference_values": [],
+              "structured_values": [
+                {
+                  "diameter": {
+                    "value": 125.0,
+                    "unit": "mm",
+                    "dimension": "length"
+                  }
+                }
+              ],
+              "notes": [
+                "Invented quantity change with explicit PKG-02 dimension metadata."
+              ]
+            },
+            "unit_requirements": {
+              "unit_metadata_required": true,
+              "dimension_check_required": true,
+              "missing_unit_behavior": "emit_diagnostic"
+            },
+            "provenance": {
+              "source_name": "PKG-16 invented operation fixture",
+              "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+              "source_license": "project invented public example",
+              "contributor": "OpenPipeStress Type 2 worker",
+              "contributor_certification": "implementation-only-no-professional-claim",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted",
+              "privacy_classification": "invented_public_example"
+            }
+          }
+        ],
+        "validation": {
+          "schema_validation": "not_run",
+          "constraint_validation": "not_run",
+          "unit_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "application_status": "not_applied"
+        },
+        "diagnostics": [],
+        "diff_preview_refs": [
+          {
+            "preview_ref": {
+              "object_type": "DiffPreview",
+              "ref": "preview:resize"
+            },
+            "preview_status": "not_generated",
+            "checksum": {
+              "algorithm": "sha256",
+              "canonicalization": "JCS",
+              "payload_ref": {
+                "object_type": "DiffPreview",
+                "ref": "preview:resize"
+              },
+              "payload_scope": "diff_preview",
+              "value": "sha256:invented-preview-001"
+            },
+            "provenance": {
+              "source_name": "PKG-16 invented operation fixture",
+              "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+              "source_license": "project invented public example",
+              "contributor": "OpenPipeStress Type 2 worker",
+              "contributor_certification": "implementation-only-no-professional-claim",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending",
+              "privacy_classification": "invented_public_example"
+            }
+          }
+        ],
+        "assumptions": [],
+        "provenance": {
+          "source_name": "PKG-16 invented operation fixture",
+          "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+          "source_license": "project invented public example",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        },
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_compliance_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_sealing_claim": false,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false
+        }
+      },
+      {
+        "operation_id": "op:move-node",
+        "operation_kind": "move",
+        "operation_status": "proposed",
+        "author_type": "user",
+        "target_refs": [
+          {
+            "object_type": "Node",
+            "ref": "node:n2"
+          }
+        ],
+        "preconditions": {
+          "base_model_state_ref": {
+            "object_type": "ModelState",
+            "ref": "state:accepted"
+          },
+          "required_current_hashes": [
+            {
+              "algorithm": "sha256",
+              "canonicalization": "JCS",
+              "payload_ref": {
+                "object_type": "ModelState",
+                "ref": "state:accepted"
+              },
+              "payload_scope": "model_state_record",
+              "value": "sha256:invented-state-001"
+            }
+          ],
+          "required_refs": [
+            {
+              "object_type": "Node",
+              "ref": "node:n2"
+            }
+          ],
+          "assumptions": []
+        },
+        "changes": [
+          {
+            "change_id": "change:move-node",
+            "change_kind": "move_geometry",
+            "target_object_type": "Node",
+            "target_ref": {
+              "object_type": "Node",
+              "ref": "node:n2"
+            },
+            "value_payload": {
+              "value_kind": "structured_patch",
+              "scalar_values": [],
+              "quantity_values": [],
+              "reference_values": [],
+              "structured_values": [
+                {
+                  "preview_translation": "invented"
+                }
+              ],
+              "notes": []
+            },
+            "unit_requirements": {
+              "unit_metadata_required": true,
+              "dimension_check_required": true,
+              "missing_unit_behavior": "emit_diagnostic"
+            },
+            "provenance": {
+              "source_name": "PKG-16 invented operation fixture",
+              "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+              "source_license": "project invented public example",
+              "contributor": "OpenPipeStress Type 2 worker",
+              "contributor_certification": "implementation-only-no-professional-claim",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted",
+              "privacy_classification": "invented_public_example"
+            }
+          }
+        ],
+        "validation": {
+          "schema_validation": "not_run",
+          "constraint_validation": "not_run",
+          "unit_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "application_status": "not_applied"
+        },
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {
+          "source_name": "PKG-16 invented operation fixture",
+          "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+          "source_license": "project invented public example",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted",
+          "privacy_classification": "invented_public_example"
+        },
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_compliance_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_sealing_claim": false,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false
+        }
+      },
+      {
+        "operation_id": "op:delete-load",
+        "operation_kind": "delete",
+        "operation_status": "proposed",
+        "author_type": "user",
+        "target_refs": [{"object_type": "Load", "ref": "load:l1"}],
+        "preconditions": {
+          "base_model_state_ref": {"object_type": "ModelState", "ref": "state:accepted"},
+          "required_current_hashes": [{"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "payload_scope": "model_state_record", "value": "sha256:invented-state-001"}],
+          "required_refs": [{"object_type": "Load", "ref": "load:l1"}],
+          "assumptions": []
+        },
+        "changes": [{"change_id": "change:delete-load", "change_kind": "remove_object", "target_object_type": "Load", "target_ref": {"object_type": "Load", "ref": "load:l1"}, "value_payload": {"value_kind": "reference_list", "scalar_values": [], "quantity_values": [], "reference_values": [{"object_type": "Load", "ref": "load:l1"}], "structured_values": [], "notes": []}, "unit_requirements": {"unit_metadata_required": true, "dimension_check_required": true, "missing_unit_behavior": "emit_diagnostic"}, "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}],
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}
+      },
+      {
+        "operation_id": "op:reconnect-component",
+        "operation_kind": "reconnect",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [{"object_type": "Component", "ref": "component:pipe-1"}],
+        "preconditions": {
+          "base_model_state_ref": {"object_type": "ModelState", "ref": "state:accepted"},
+          "required_current_hashes": [{"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "payload_scope": "model_state_record", "value": "sha256:invented-state-001"}],
+          "required_refs": [{"object_type": "Node", "ref": "node:n1"}, {"object_type": "Node", "ref": "node:n2"}],
+          "assumptions": []
+        },
+        "changes": [{"change_id": "change:reconnect-component", "change_kind": "reconnect", "target_object_type": "Component", "target_ref": {"object_type": "Component", "ref": "component:pipe-1"}, "value_payload": {"value_kind": "reference_list", "scalar_values": [], "quantity_values": [], "reference_values": [{"object_type": "Node", "ref": "node:n1"}, {"object_type": "Node", "ref": "node:n2"}], "structured_values": [{"connectivity": ["node:n1", "node:n2"]}], "notes": []}, "unit_requirements": {"unit_metadata_required": true, "dimension_check_required": true, "missing_unit_behavior": "emit_diagnostic"}, "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}],
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}
+      },
+      {
+        "operation_id": "op:update-constraint",
+        "operation_kind": "constraint",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [{"object_type": "Constraint", "ref": "constraint:c1"}],
+        "preconditions": {"base_model_state_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "required_current_hashes": [{"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "payload_scope": "model_state_record", "value": "sha256:invented-state-001"}], "required_refs": [{"object_type": "Constraint", "ref": "constraint:c1"}], "assumptions": []},
+        "changes": [{"change_id": "change:update-constraint", "change_kind": "update_constraint", "target_object_type": "Constraint", "target_ref": {"object_type": "Constraint", "ref": "constraint:c1"}, "value_payload": {"value_kind": "structured_patch", "scalar_values": ["invented-constraint-note"], "quantity_values": [], "reference_values": [], "structured_values": [{"constraint_status": "invented_pending_review"}], "notes": []}, "unit_requirements": {"unit_metadata_required": true, "dimension_check_required": true, "missing_unit_behavior": "emit_diagnostic"}, "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}],
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}
+      },
+      {
+        "operation_id": "op:update-load",
+        "operation_kind": "load",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [{"object_type": "Load", "ref": "load:l1"}],
+        "preconditions": {"base_model_state_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "required_current_hashes": [{"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "payload_scope": "model_state_record", "value": "sha256:invented-state-001"}], "required_refs": [{"object_type": "Load", "ref": "load:l1"}], "assumptions": []},
+        "changes": [{"change_id": "change:update-load", "change_kind": "update_load", "target_object_type": "Load", "target_ref": {"object_type": "Load", "ref": "load:l1"}, "value_payload": {"value_kind": "quantity", "scalar_values": [], "quantity_values": [{"value": 10.0, "unit": "N", "dimension": "force", "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}], "reference_values": [], "structured_values": [{"load_note": "invented"}], "notes": []}, "unit_requirements": {"unit_metadata_required": true, "dimension_check_required": true, "missing_unit_behavior": "emit_diagnostic"}, "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}],
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}
+      },
+      {
+        "operation_id": "op:update-support",
+        "operation_kind": "support",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [{"object_type": "Support", "ref": "support:s1"}],
+        "preconditions": {"base_model_state_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "required_current_hashes": [{"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "payload_scope": "model_state_record", "value": "sha256:invented-state-001"}], "required_refs": [{"object_type": "Support", "ref": "support:s1"}], "assumptions": []},
+        "changes": [{"change_id": "change:update-support", "change_kind": "update_support", "target_object_type": "Support", "target_ref": {"object_type": "Support", "ref": "support:s1"}, "value_payload": {"value_kind": "quantity", "scalar_values": [], "quantity_values": [{"value": 1.0, "unit": "N/mm", "dimension": "linear_stiffness", "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}], "reference_values": [], "structured_values": [{"support_note": "invented"}], "notes": []}, "unit_requirements": {"unit_metadata_required": true, "dimension_check_required": true, "missing_unit_behavior": "emit_diagnostic"}, "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}],
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}
+      },
+      {
+        "operation_id": "op:attach-design-knowledge",
+        "operation_kind": "design_knowledge",
+        "operation_status": "proposed",
+        "author_type": "agent",
+        "target_refs": [{"object_type": "DesignKnowledgeRecord", "ref": "knowledge:k1"}],
+        "preconditions": {"base_model_state_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "required_current_hashes": [{"algorithm": "sha256", "canonicalization": "JCS", "payload_ref": {"object_type": "ModelState", "ref": "state:accepted"}, "payload_scope": "model_state_record", "value": "sha256:invented-state-001"}], "required_refs": [{"object_type": "DesignKnowledgeRecord", "ref": "knowledge:k1"}], "assumptions": [{"assumption_id": "asm:round-trip", "statement": "Invented structured patch is expected to round trip as review metadata only.", "status": "unresolved", "affected_refs": [{"object_type": "ModelOperation", "ref": "op:attach-design-knowledge"}], "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "pending", "privacy_classification": "invented_public_example"}}]},
+        "changes": [{"change_id": "change:attach-design-knowledge", "change_kind": "attach_design_knowledge", "target_object_type": "DesignKnowledgeRecord", "target_ref": {"object_type": "DesignKnowledgeRecord", "ref": "knowledge:k1"}, "value_payload": {"value_kind": "reference_list", "scalar_values": [], "quantity_values": [], "reference_values": [{"object_type": "DesignKnowledgeRecord", "ref": "knowledge:k1"}], "structured_values": [{"knowledge_note": "invented"}], "notes": []}, "unit_requirements": {"unit_metadata_required": true, "dimension_check_required": true, "missing_unit_behavior": "emit_diagnostic"}, "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"}}],
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "diagnostics": [],
+        "diff_preview_refs": [],
+        "assumptions": [],
+        "provenance": {"source_name": "PKG-16 invented operation fixture", "source_location": "fixtures/model_operations/invented_operation_set_valid.json", "source_license": "project invented public example", "contributor": "OpenPipeStress Type 2 worker", "contributor_certification": "implementation-only-no-professional-claim", "redistribution_status": "public_permissive", "review_status": "accepted", "privacy_classification": "invented_public_example"},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false}
+      }
+    ],
+    "diagnostics": [],
+    "provenance": {
+      "source_name": "PKG-16 invented operation fixture",
+      "source_location": "fixtures/model_operations/invented_operation_set_valid.json",
+      "source_license": "project invented public example",
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "redistribution_status": "public_permissive",
+      "review_status": "accepted",
+      "privacy_classification": "invented_public_example"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    }
+  }
+}

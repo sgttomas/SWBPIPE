@@ -1,0 +1,611 @@
+{
+  "edges_path": "execution/_DAG/DAG-001/DependencyEdges.csv",
+  "nodes_path": "execution/_DAG/DAG-001/DeliverableNodes.csv",
+  "execution_root": "execution",
+  "dry_run": false,
+  "refresh_pointers": true,
+  "edge_row_width_issue_count": 0,
+  "node_row_width_issue_count": 0,
+  "written_count": 65,
+  "written": [
+    {
+      "DeliverableID": "DEL-01-01",
+      "PackageID": "PKG-01",
+      "DependenciesCsv": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/_DEPENDENCIES.md",
+      "Rows": 4,
+      "ActiveRows": 4,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-01-02",
+      "PackageID": "PKG-01",
+      "DependenciesCsv": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/_DEPENDENCIES.md",
+      "Rows": 5,
+      "ActiveRows": 5,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-01-03",
+      "PackageID": "PKG-01",
+      "DependenciesCsv": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/_DEPENDENCIES.md",
+      "Rows": 6,
+      "ActiveRows": 6,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-01-04",
+      "PackageID": "PKG-01",
+      "DependenciesCsv": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/_DEPENDENCIES.md",
+      "Rows": 5,
+      "ActiveRows": 5,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-02-01",
+      "PackageID": "PKG-02",
+      "DependenciesCsv": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_DEPENDENCIES.md",
+      "Rows": 7,
+      "ActiveRows": 7,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-02-02",
+      "PackageID": "PKG-02",
+      "DependenciesCsv": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-02-03",
+      "PackageID": "PKG-02",
+      "DependenciesCsv": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-02-04",
+      "PackageID": "PKG-02",
+      "DependenciesCsv": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-02-05",
+      "PackageID": "PKG-02",
+      "DependenciesCsv": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-01",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-02",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-03",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-04",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-05",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-06",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-07",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-03-08",
+      "PackageID": "PKG-03",
+      "DependenciesCsv": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-04-01",
+      "PackageID": "PKG-04",
+      "DependenciesCsv": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-04-02",
+      "PackageID": "PKG-04",
+      "DependenciesCsv": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-04-03",
+      "PackageID": "PKG-04",
+      "DependenciesCsv": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-04-04",
+      "PackageID": "PKG-04",
+      "DependenciesCsv": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-04-05",
+      "PackageID": "PKG-04",
+      "DependenciesCsv": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_DEPENDENCIES.md",
+      "Rows": 7,
+      "ActiveRows": 7,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-04-06",
+      "PackageID": "PKG-04",
+      "DependenciesCsv": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 8,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-05-01",
+      "PackageID": "PKG-05",
+      "DependenciesCsv": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-05-02",
+      "PackageID": "PKG-05",
+      "DependenciesCsv": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 8,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-05-03",
+      "PackageID": "PKG-05",
+      "DependenciesCsv": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-05-04",
+      "PackageID": "PKG-05",
+      "DependenciesCsv": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_DEPENDENCIES.md",
+      "Rows": 6,
+      "ActiveRows": 6,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-05-05",
+      "PackageID": "PKG-05",
+      "DependenciesCsv": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-06-01",
+      "PackageID": "PKG-06",
+      "DependenciesCsv": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-06-02",
+      "PackageID": "PKG-06",
+      "DependenciesCsv": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 9,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-06-03",
+      "PackageID": "PKG-06",
+      "DependenciesCsv": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-06-04",
+      "PackageID": "PKG-06",
+      "DependenciesCsv": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-06-05",
+      "PackageID": "PKG-06",
+      "DependenciesCsv": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-07-01",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "Rows": 15,
+      "ActiveRows": 15,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-07-02",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-07-03",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "Rows": 13,
+      "ActiveRows": 13,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-07-04",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-07-05",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 10,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-07-06",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_DEPENDENCIES.md",
+      "Rows": 13,
+      "ActiveRows": 13,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-07-07",
+      "PackageID": "PKG-07",
+      "DependenciesCsv": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 11,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-08-01",
+      "PackageID": "PKG-08",
+      "DependenciesCsv": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_DEPENDENCIES.md",
+      "Rows": 14,
+      "ActiveRows": 14,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-08-02",
+      "PackageID": "PKG-08",
+      "DependenciesCsv": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-08-03",
+      "PackageID": "PKG-08",
+      "DependenciesCsv": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-08-04",
+      "PackageID": "PKG-08",
+      "DependenciesCsv": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-08-05",
+      "PackageID": "PKG-08",
+      "DependenciesCsv": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 10,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-09-01",
+      "PackageID": "PKG-09",
+      "DependenciesCsv": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-09-02",
+      "PackageID": "PKG-09",
+      "DependenciesCsv": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-09-03",
+      "PackageID": "PKG-09",
+      "DependenciesCsv": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_DEPENDENCIES.md",
+      "Rows": 6,
+      "ActiveRows": 6,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-09-04",
+      "PackageID": "PKG-09",
+      "DependenciesCsv": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-09-05",
+      "PackageID": "PKG-09",
+      "DependenciesCsv": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 9,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-10-01",
+      "PackageID": "PKG-10",
+      "DependenciesCsv": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-10-02",
+      "PackageID": "PKG-10",
+      "DependenciesCsv": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 12,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-10-03",
+      "PackageID": "PKG-10",
+      "DependenciesCsv": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/_DEPENDENCIES.md",
+      "Rows": 12,
+      "ActiveRows": 11,
+      "CandidateRows": 1
+    },
+    {
+      "DeliverableID": "DEL-10-04",
+      "PackageID": "PKG-10",
+      "DependenciesCsv": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-10-05",
+      "PackageID": "PKG-10",
+      "DependenciesCsv": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_DEPENDENCIES.md",
+      "Rows": 13,
+      "ActiveRows": 13,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-11-01",
+      "PackageID": "PKG-11",
+      "DependenciesCsv": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-11-02",
+      "PackageID": "PKG-11",
+      "DependenciesCsv": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-11-03",
+      "PackageID": "PKG-11",
+      "DependenciesCsv": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-11-04",
+      "PackageID": "PKG-11",
+      "DependenciesCsv": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-11-05",
+      "PackageID": "PKG-11",
+      "DependenciesCsv": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/_DEPENDENCIES.md",
+      "Rows": 8,
+      "ActiveRows": 8,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-12-01",
+      "PackageID": "PKG-12",
+      "DependenciesCsv": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/_DEPENDENCIES.md",
+      "Rows": 10,
+      "ActiveRows": 10,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-12-02",
+      "PackageID": "PKG-12",
+      "DependenciesCsv": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_DEPENDENCIES.md",
+      "Rows": 13,
+      "ActiveRows": 13,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-12-03",
+      "PackageID": "PKG-12",
+      "DependenciesCsv": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/_DEPENDENCIES.md",
+      "Rows": 9,
+      "ActiveRows": 9,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-12-04",
+      "PackageID": "PKG-12",
+      "DependenciesCsv": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 11,
+      "CandidateRows": 0
+    },
+    {
+      "DeliverableID": "DEL-12-05",
+      "PackageID": "PKG-12",
+      "DependenciesCsv": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/Dependencies.csv",
+      "DependenciesPointer": "execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/_DEPENDENCIES.md",
+      "Rows": 11,
+      "ActiveRows": 10,
+      "CandidateRows": 1
+    }
+  ],
+  "skipped_pkg00_count": 8,
+  "skipped_pkg00": [
+    "DEL-00-01",
+    "DEL-00-02",
+    "DEL-00-03",
+    "DEL-00-04",
+    "DEL-00-05",
+    "DEL-00-06",
+    "DEL-00-07",
+    "DEL-00-08"
+  ],
+  "missing_execution_path_count": 0,
+  "missing_execution_paths": [],
+  "skipped_status_counts": {}
+}

@@ -1,0 +1,13 @@
+SourceID,DeliverableID,PackageID,SourceType,Path,Use
+SRC-001,DEL-04-01,PKG-04,MEMORY,"execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md","TP-PHYS-002 frame-kernel memory evidence"
+SRC-002,DEL-04-01,PKG-04,RUN_RECORD,"execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_run_records/TASK_RUN_2026-05-15_2115_TP-PHYS-002.md","Worker A run evidence"
+SRC-003,DEL-04-03,PKG-04,MEMORY,"execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/MEMORY.md","TP-PHYS-002 support memory evidence"
+SRC-004,DEL-04-03,PKG-04,RUN_RECORD,"execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_run_records/TASK_RUN_2026-05-15_2122_TP-PHYS-002.md","Worker B run evidence"
+SRC-005,DEL-04-06,PKG-04,MEMORY,"execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md","TP-PHYS-002 diagnostics memory evidence"
+SRC-006,DEL-04-06,PKG-04,RUN_RECORD,"execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_run_records/TASK_RUN_2026-05-15_2128_TP-PHYS-002.md","Worker D run evidence"
+SRC-007,DEL-05-01,PKG-05,MEMORY,"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md","TP-PHYS-002 primitive-load memory evidence"
+SRC-008,DEL-05-01,PKG-05,RUN_RECORD,"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/TASK_RUN_2026-05-15_2115_TP-PHYS-002.md","Worker C run evidence"
+SRC-009,DEL-09-01,PKG-09,MEMORY,"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/MEMORY.md","TP-PHYS-002 benchmark memory evidence"
+SRC-010,DEL-09-01,PKG-09,RUN_RECORD,"execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/TASK_RUN_2026-05-15_2135_TP-PHYS-002.md","Worker E run evidence"
+SRC-011,ALL,ALL,CONTRACT,docs/CONTRACT.md,"Invariant boundary source"
+SRC-012,ALL,ALL,POLICY,docs/IP_AND_DATA_BOUNDARY.md,"Protected-content and private-data boundary source"

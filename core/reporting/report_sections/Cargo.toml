@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_report_sections"
+version = "0.1.0"
+edition = "2021"
+description = "Report section disclosure support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

@@ -1,0 +1,406 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/analysis_status.schema.yaml",
+  "title": "OpenPipeStress Analysis Status Semantics Schema",
+  "description": "Strict JSON syntax schema for analysis status result envelopes. Software-computed statuses describe mechanics and user rule-pack evaluation only. Human project acceptance is a separate external record bound to hashes and is not a solver assertion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "envelope_id",
+    "analysis_subject_ref",
+    "software_status",
+    "human_review_required",
+    "actor",
+    "source",
+    "hashes",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "envelope_id": {
+      "$ref": "#/$defs/Id"
+    },
+    "analysis_subject_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "software_status": {
+      "$ref": "#/$defs/SoftwareStatusRecord"
+    },
+    "human_review_required": {
+      "const": true
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "source": {
+      "$ref": "#/$defs/StatusSource"
+    },
+    "hashes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Checksum"
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Reference"
+      }
+    },
+    "human_acceptance_records": {
+      "type": "array",
+      "description": "Optional external records only. These records may document project-specific human acceptance, but the solver and rule-pack evaluator must not emit them as automatic statuses.",
+      "items": {
+        "$ref": "#/$defs/HumanAcceptanceRecord"
+      }
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    }
+  },
+  "$defs": {
+    "Actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actor_type",
+        "actor_id"
+      ],
+      "properties": {
+        "actor_type": {
+          "type": "string",
+          "enum": [
+            "software",
+            "agent",
+            "human",
+            "external_system",
+            "TBD"
+          ]
+        },
+        "actor_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actor_name": {
+          "type": "string"
+        }
+      }
+    },
+    "AnalysisStatusVocabulary": {
+      "type": "string",
+      "description": "Canonical analysis-status vocabulary from docs/TYPES.md.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED",
+        "HUMAN_APPROVED_FOR_PROJECT"
+      ]
+    },
+    "AutomaticAnalysisStatus": {
+      "type": "string",
+      "description": "Statuses that software may compute or emit. This enum intentionally excludes human approval, certification, sealing, and code-compliance claims.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED"
+      ]
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "HumanAcceptanceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "External human project review record. This object may document human acceptance for a bounded project scope, but it is not software-computed status and is invalidated when bound payload hashes change.",
+      "required": [
+        "record_id",
+        "acceptance_outcome",
+        "accepted_for_project",
+        "human_actor",
+        "recorded_at",
+        "bound_hashes",
+        "scope_notice"
+      ],
+      "properties": {
+        "record_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "acceptance_outcome": {
+          "type": "string",
+          "enum": [
+            "accepted_for_project",
+            "reviewed_not_accepted",
+            "withdrawn",
+            "TBD"
+          ]
+        },
+        "acceptance_status": {
+          "const": "HUMAN_APPROVED_FOR_PROJECT"
+        },
+        "accepted_for_project": {
+          "type": "boolean",
+          "description": "False means no project acceptance is recorded by this record; absence of a true human record is not a software failure status."
+        },
+        "human_actor": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Actor"
+            },
+            {
+              "properties": {
+                "actor_type": {
+                  "const": "human"
+                }
+              }
+            }
+          ]
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "bound_hashes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "accepted_result_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "scope_notice": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "accepted_for_project": {
+                "const": true
+              }
+            },
+            "required": [
+              "accepted_for_project"
+            ]
+          },
+          "then": {
+            "required": [
+              "acceptance_status"
+            ],
+            "properties": {
+              "acceptance_outcome": {
+                "const": "accepted_for_project"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "acceptance_status"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
+        "reliance_notice"
+      ],
+      "properties": {
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        },
+        "reliance_notice": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "enum": [
+            "Project",
+            "Model",
+            "LoadCase",
+            "Combination",
+            "RulePack",
+            "Result",
+            "Report",
+            "HumanAcceptanceRecord",
+            "external",
+            "TBD"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "SoftwareStatusRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_status",
+        "status_set",
+        "stage",
+        "computed_at",
+        "basis"
+      ],
+      "properties": {
+        "primary_status": {
+          "$ref": "#/$defs/AutomaticAnalysisStatus"
+        },
+        "status_set": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/AutomaticAnalysisStatus"
+          }
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "model_input_validation",
+            "mechanics_solve",
+            "stress_recovery",
+            "rule_pack_evaluation",
+            "report_generation",
+            "TBD"
+          ]
+        },
+        "computed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "software_finding",
+            "solver_result",
+            "rule_pack_finding",
+            "report_finding",
+            "TBD"
+          ]
+        },
+        "diagnostic_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      }
+    },
+    "StatusSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "source_id"
+      ],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "solver",
+            "load_case_engine",
+            "stress_recovery",
+            "rule_pack_evaluator",
+            "report_generator",
+            "human_record_system",
+            "TBD"
+          ]
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_protected_content_linter"
+version = "0.1.0"
+edition = "2021"
+description = "Report protected-content lint support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

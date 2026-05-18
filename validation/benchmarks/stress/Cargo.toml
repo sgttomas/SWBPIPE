@@ -1,0 +1,14 @@
+[package]
+name = "open_pipe_stress_stress_benchmarks"
+version = "0.1.0"
+edition = "2021"
+description = "Original stress recovery verification benchmarks for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+open_pipe_stress_stress_recovery = { path = "../../../core/loads/stress_recovery" }
+open_pipe_stress_straight_pipe = { path = "../../../core/solver/straight_pipe" }

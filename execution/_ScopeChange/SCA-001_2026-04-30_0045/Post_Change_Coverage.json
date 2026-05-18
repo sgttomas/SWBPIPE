@@ -1,0 +1,23 @@
+{
+  "amendment_id": "SCA-001",
+  "coverage_stage": "post_change_validation",
+  "recorded_from": "Gate 5 filesystem, register, lifecycle, context, and CSV parser checks",
+  "package_count": 13,
+  "deliverable_folder_count": 73,
+  "scope_ledger_rows": 63,
+  "deliverables_register_rows": 73,
+  "context_budget_rows": 73,
+  "register_parse": {
+    "ScopeLedger.csv": "63 rows, 10 columns",
+    "Deliverables.csv": "73 rows, 10 columns",
+    "ContextBudgetQA.csv": "73 rows, 6 columns"
+  },
+  "lifecycle_distribution": {
+    "OPEN": 65,
+    "SEMANTIC_READY": 8
+  },
+  "downstream_contexts_with_sca_001_injection": 65,
+  "downstream_contexts_at_revision_0_4": 65,
+  "pkg_00_contexts_remaining_at_revision_0_3": 8,
+  "decomposition_revision": "0.4"
+}

@@ -1,0 +1,1001 @@
+{
+  "schema_version": "0.1.0",
+  "project": {
+    "id": "INV_MECH_TOY_SPAN_PROJECT",
+    "name": "Invented Mechanics-Only Toy Span",
+    "description": "Invented non-code, non-project educational fixture using synthetic geometry, loads, labels, and sample results only. It is not suitable for engineering reliance and is not a design basis.",
+    "unit_system": {
+      "id": "INV_SI_TOY_UNITS",
+      "description": "Synthetic SI-style units for an invented educational model.",
+      "base_units": {
+        "length": "m",
+        "mass": "kg",
+        "force": "N",
+        "temperature": "K",
+        "angle": "rad"
+      }
+    },
+    "privacy_class": "public",
+    "storage_policy": "public_example",
+    "models": [
+      {
+        "id": "INV_MECH_PHYSICAL_SOURCE_A",
+        "name": "Invented physical source-of-truth toy span fixture",
+        "description": "Invented public-safe physical_source_of_truth fixture for traceability education only; no real project, product, protected source, or design basis is represented.",
+        "model_role": "physical_source_of_truth",
+        "coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        },
+        "nodes": [
+          {
+            "id": "INV_NODE_A",
+            "coordinates": {
+              "x": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "restrained",
+              "UY": "restrained",
+              "UZ": "restrained",
+              "RX": "restrained",
+              "RY": "restrained",
+              "RZ": "restrained"
+            }
+          },
+          {
+            "id": "INV_NODE_B",
+            "coordinates": {
+              "x": {
+                "value": 2.75,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.35,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "free",
+              "UY": "free",
+              "UZ": "free",
+              "RX": "free",
+              "RY": "free",
+              "RZ": "free"
+            }
+          }
+        ],
+        "elements": [
+          {
+            "id": "INV_ELEMENT_AB",
+            "element_type": "straight_pipe",
+            "start_node_ref": {
+              "object_type": "Node",
+              "id": "INV_NODE_A"
+            },
+            "end_node_ref": {
+              "object_type": "Node",
+              "id": "INV_NODE_B"
+            },
+            "material_ref": {
+              "object_type": "Material",
+              "id": "INV_MATERIAL_BLUE"
+            },
+            "section_ref": {
+              "object_type": "Section",
+              "id": "INV_SECTION_ROUND"
+            },
+            "local_coordinate_system": {
+              "type": "cartesian",
+              "axes": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            },
+            "result_stations": [
+              {
+                "value": 0.0,
+                "unit": "ratio",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              {
+                "value": 1.0,
+                "unit": "ratio",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ]
+          }
+        ],
+        "components": [],
+        "materials": [
+          {
+            "id": "INV_MATERIAL_BLUE",
+            "name": "Invented Elastic Material Blue",
+            "properties": {
+              "elastic_modulus": {
+                "value": 123000000.0,
+                "unit": "Pa",
+                "dimension": "stress",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "INV_SECTION_ROUND",
+            "section_type": "custom",
+            "name": "Invented Round Section",
+            "properties": {
+              "area": {
+                "value": 0.0042,
+                "unit": "m2",
+                "dimension": "area",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "second_moment_local_y": {
+                "value": 3.1e-05,
+                "unit": "m4",
+                "dimension": "second_moment_area",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "supports": [
+          {
+            "id": "INV_SUPPORT_A",
+            "support_type": "anchor",
+            "target_ref": {
+              "object_type": "Node",
+              "id": "INV_NODE_A"
+            },
+            "directions": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "properties": {},
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "load_cases": [
+          {
+            "id": "INV_LOAD_NUDGE",
+            "name": "Invented transverse nudge load",
+            "load_type": "other",
+            "loads": [
+              {
+                "target_ref": {
+                  "object_type": "Node",
+                  "id": "INV_NODE_B"
+                },
+                "direction": "Y",
+                "quantity": {
+                  "value": 410.0,
+                  "unit": "N",
+                  "dimension": "force",
+                  "provenance": {
+                    "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                    "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                    "source_license": "Project documentation license for original invented example text.",
+                    "contributor": "OpenPipeStress project",
+                    "contributor_certification": "Original invented non-engineering educational content.",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                },
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "combinations": [
+          {
+            "id": "INV_COMBO_MECH_ONLY",
+            "name": "Invented mechanics-only combination",
+            "description": "Synthetic combination for mechanics workflow education only.",
+            "basis": "mechanics",
+            "terms": [
+              {
+                "load_case_ref": {
+                  "object_type": "LoadCase",
+                  "id": "INV_LOAD_NUDGE"
+                },
+                "factor": 1.0
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "results": [],
+        "diagnostics": [
+          {
+            "code": "INV_EXAMPLE_NOTICE",
+            "class": "IP_BOUNDARY_WARNING",
+            "severity": "info",
+            "source": "DEL-11-04 invented educational model notice",
+            "affected_object": {
+              "object_type": "Model",
+              "id": "INV_MECH_MODEL_A"
+            },
+            "message": "This model is invented, non-code, non-project educational content only and is not suitable for engineering reliance.",
+            "remediation": "Use lawfully supplied, reviewed project data before any real analysis.",
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "unresolved_assumptions": [],
+        "traceability_links": [],
+        "design_knowledge_refs": [],
+        "constraint_refs": [],
+        "equipment_interface_refs": [],
+        "operation_refs": [],
+        "model_state_refs": [],
+        "analysis_run_refs": [],
+        "comparison_refs": [],
+        "handoff_package_refs": [],
+        "external_reference_refs": [],
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-11-04 invented physical source fixture",
+          "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+          "source_license": "Project documentation license for original invented example text.",
+          "contributor": "OpenPipeStress project",
+          "contributor_certification": "Original invented non-engineering educational content.",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        }
+      },
+      {
+        "id": "INV_MECH_MODEL_A",
+        "name": "Invented straight span mechanics demonstration",
+        "description": "Original invented data for mechanics workflow education only; no real project, product, or protected source is represented. Analytical solver model derived from the paired invented physical_source_of_truth fixture; sample results are educational only.",
+        "model_role": "analytical_solver_model",
+        "coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        },
+        "nodes": [
+          {
+            "id": "INV_NODE_A",
+            "coordinates": {
+              "x": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "restrained",
+              "UY": "restrained",
+              "UZ": "restrained",
+              "RX": "restrained",
+              "RY": "restrained",
+              "RZ": "restrained"
+            }
+          },
+          {
+            "id": "INV_NODE_B",
+            "coordinates": {
+              "x": {
+                "value": 2.75,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "y": {
+                "value": 0.35,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "z": {
+                "value": 0.0,
+                "unit": "m",
+                "dimension": "length",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "degrees_of_freedom": {
+              "UX": "free",
+              "UY": "free",
+              "UZ": "free",
+              "RX": "free",
+              "RY": "free",
+              "RZ": "free"
+            }
+          }
+        ],
+        "elements": [
+          {
+            "id": "INV_ELEMENT_AB",
+            "element_type": "straight_pipe",
+            "start_node_ref": {
+              "object_type": "Node",
+              "id": "INV_NODE_A"
+            },
+            "end_node_ref": {
+              "object_type": "Node",
+              "id": "INV_NODE_B"
+            },
+            "material_ref": {
+              "object_type": "Material",
+              "id": "INV_MATERIAL_BLUE"
+            },
+            "section_ref": {
+              "object_type": "Section",
+              "id": "INV_SECTION_ROUND"
+            },
+            "local_coordinate_system": {
+              "type": "cartesian",
+              "axes": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            },
+            "result_stations": [
+              {
+                "value": 0.0,
+                "unit": "ratio",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              {
+                "value": 1.0,
+                "unit": "ratio",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ]
+          }
+        ],
+        "components": [],
+        "materials": [
+          {
+            "id": "INV_MATERIAL_BLUE",
+            "name": "Invented Elastic Material Blue",
+            "properties": {
+              "elastic_modulus": {
+                "value": 123000000.0,
+                "unit": "Pa",
+                "dimension": "stress",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "sections": [
+          {
+            "id": "INV_SECTION_ROUND",
+            "section_type": "custom",
+            "name": "Invented Round Section",
+            "properties": {
+              "area": {
+                "value": 0.0042,
+                "unit": "m2",
+                "dimension": "area",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              },
+              "second_moment_local_y": {
+                "value": 3.1e-05,
+                "unit": "m4",
+                "dimension": "second_moment_area",
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            },
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "supports": [
+          {
+            "id": "INV_SUPPORT_A",
+            "support_type": "anchor",
+            "target_ref": {
+              "object_type": "Node",
+              "id": "INV_NODE_A"
+            },
+            "directions": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "properties": {},
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "load_cases": [
+          {
+            "id": "INV_LOAD_NUDGE",
+            "name": "Invented transverse nudge load",
+            "load_type": "other",
+            "loads": [
+              {
+                "target_ref": {
+                  "object_type": "Node",
+                  "id": "INV_NODE_B"
+                },
+                "direction": "Y",
+                "quantity": {
+                  "value": 410.0,
+                  "unit": "N",
+                  "dimension": "force",
+                  "provenance": {
+                    "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                    "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                    "source_license": "Project documentation license for original invented example text.",
+                    "contributor": "OpenPipeStress project",
+                    "contributor_certification": "Original invented non-engineering educational content.",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                },
+                "provenance": {
+                  "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                  "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                  "source_license": "Project documentation license for original invented example text.",
+                  "contributor": "OpenPipeStress project",
+                  "contributor_certification": "Original invented non-engineering educational content.",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "combinations": [
+          {
+            "id": "INV_COMBO_MECH_ONLY",
+            "name": "Invented mechanics-only combination",
+            "description": "Synthetic combination for mechanics workflow education only.",
+            "basis": "mechanics",
+            "terms": [
+              {
+                "load_case_ref": {
+                  "object_type": "LoadCase",
+                  "id": "INV_LOAD_NUDGE"
+                },
+                "factor": 1.0
+              }
+            ],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "results": [
+          {
+            "id": "INV_RESULT_DISP_B",
+            "result_type": "displacement",
+            "model_ref": {
+              "object_type": "Model",
+              "id": "INV_MECH_MODEL_A"
+            },
+            "combination_ref": {
+              "object_type": "Combination",
+              "id": "INV_COMBO_MECH_ONLY"
+            },
+            "values": [
+              {
+                "target_ref": {
+                  "object_type": "Node",
+                  "id": "INV_NODE_B"
+                },
+                "quantity": {
+                  "value": 0.0017,
+                  "unit": "m",
+                  "dimension": "length",
+                  "provenance": {
+                    "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+                    "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+                    "source_license": "Project documentation license for original invented example text.",
+                    "contributor": "OpenPipeStress project",
+                    "contributor_certification": "Original invented non-engineering educational content.",
+                    "redistribution_status": "public_permissive",
+                    "review_status": "accepted"
+                  }
+                }
+              }
+            ],
+            "analysis_statuses": [
+              "MECHANICS_SOLVED",
+              "HUMAN_REVIEW_REQUIRED"
+            ],
+            "diagnostics": [],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "diagnostics": [
+          {
+            "code": "INV_EXAMPLE_NOTICE",
+            "class": "IP_BOUNDARY_WARNING",
+            "severity": "info",
+            "source": "DEL-11-04 invented educational model notice",
+            "affected_object": {
+              "object_type": "Model",
+              "id": "INV_MECH_MODEL_A"
+            },
+            "message": "This model is invented, non-code, non-project educational content only and is not suitable for engineering reliance.",
+            "remediation": "Use lawfully supplied, reviewed project data before any real analysis.",
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "unresolved_assumptions": [],
+        "traceability_links": [
+          {
+            "id": "TRACE_PTA_INV_MECH_SOURCE_TO_SOLVER_A",
+            "trace_type": "physical_to_analytical",
+            "source_ref": {
+              "object_type": "Model",
+              "id": "INV_MECH_PHYSICAL_SOURCE_A"
+            },
+            "target_ref": {
+              "object_type": "Model",
+              "id": "INV_MECH_MODEL_A"
+            },
+            "assumption_refs": [],
+            "diagnostics": [],
+            "provenance": {
+              "source_name": "OpenPipeStress DEL-11-04 invented physical source fixture",
+              "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+              "source_license": "Project documentation license for original invented example text.",
+              "contributor": "OpenPipeStress project",
+              "contributor_certification": "Original invented non-engineering educational content.",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted"
+            }
+          }
+        ],
+        "design_knowledge_refs": [],
+        "constraint_refs": [],
+        "equipment_interface_refs": [],
+        "operation_refs": [],
+        "model_state_refs": [],
+        "analysis_run_refs": [],
+        "comparison_refs": [],
+        "handoff_package_refs": [],
+        "external_reference_refs": [],
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+          "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+          "source_license": "Project documentation license for original invented example text.",
+          "contributor": "OpenPipeStress project",
+          "contributor_certification": "Original invented non-engineering educational content.",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        },
+        "source_model_ref": {
+          "object_type": "Model",
+          "id": "INV_MECH_PHYSICAL_SOURCE_A"
+        }
+      }
+    ],
+    "rule_pack_refs": [],
+    "report_settings": {
+      "id": "INV_REPORT_SETTINGS_MECH",
+      "include_input_manifest": true,
+      "include_provenance_summary": true,
+      "include_professional_boundary_notice": true,
+      "result_refs": [
+        {
+          "object_type": "Result",
+          "id": "INV_RESULT_DISP_B"
+        }
+      ],
+      "rule_pack_refs": [],
+      "provenance": {
+        "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+        "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+        "source_license": "Project documentation license for original invented example text.",
+        "contributor": "OpenPipeStress project",
+        "contributor_certification": "Original invented non-engineering educational content.",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    },
+    "reports": [
+      {
+        "id": "INV_REPORT_MECH_NOTICE",
+        "settings_ref": {
+          "object_type": "ReportSettings",
+          "id": "INV_REPORT_SETTINGS_MECH"
+        },
+        "model_ref": {
+          "object_type": "Model",
+          "id": "INV_MECH_MODEL_A"
+        },
+        "input_manifest": [
+          {
+            "object_type": "LoadCase",
+            "id": "INV_LOAD_NUDGE"
+          },
+          {
+            "object_type": "Material",
+            "id": "INV_MATERIAL_BLUE"
+          },
+          {
+            "object_type": "Section",
+            "id": "INV_SECTION_ROUND"
+          }
+        ],
+        "hashes": [],
+        "analysis_statuses": [
+          "MECHANICS_SOLVED",
+          "HUMAN_REVIEW_REQUIRED"
+        ],
+        "diagnostics": [],
+        "rule_pack_refs": [],
+        "provenance_summary": [
+          {
+            "source_name": "OpenPipeStress DEL-11-04 invented model authoring",
+            "source_location": "examples/models/invented/mechanics_only_toy_span.json",
+            "source_license": "Project documentation license for original invented example text.",
+            "contributor": "OpenPipeStress project",
+            "contributor_certification": "Original invented non-engineering educational content.",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted"
+          }
+        ],
+        "professional_boundary_notice": "Invented non-code, non-project educational example only; not suitable for engineering reliance."
+      }
+    ],
+    "diagnostics": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "Project",
+          "id": "INV_MECH_TOY_SPAN_PROJECT"
+        },
+        "value": "sha256:6171366f7dec7e3985f0fffa990d190763063439cdda634453be5b75977d7838"
+      }
+    ]
+  }
+}

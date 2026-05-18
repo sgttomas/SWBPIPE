@@ -1,0 +1,13 @@
+ActionID,ActionType,EntityType,EntityID,RequestedChange,AffectedSections,Status,Notes
+SCA-004-A001,ADD,PACKAGE,PKG-17,Add Export Format Interoperability package.,Packages;Deliverables;Registers,ACCEPTED,Human decision locked in implementation request.
+SCA-004-A002,ADD,DELIVERABLE,DEL-17-01,Add CAEPIPE and export-format source basis.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A003,ADD,DELIVERABLE,DEL-17-02,"Add Export package, profile, and stable ID map contracts.",Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A004,ADD,DELIVERABLE,DEL-17-03,Add Native open JSON export package.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A005,ADD,DELIVERABLE,DEL-17-04,Add CAEPIPE MBF export profile and deterministic writer.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A006,ADD,DELIVERABLE,DEL-17-05,Add CAEPIPE external run harness and CSV parser.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A007,ADD,DELIVERABLE,DEL-17-06,Add Stress-neutral CSV/JSON package.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A008,ADD,DELIVERABLE,DEL-17-07,Add Conservative PCF subset exporter.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A009,ADD,DELIVERABLE,DEL-17-08,Add GLB/glTF review geometry export.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A010,ADD,DELIVERABLE,DEL-17-09,Add Export adapter SDK and additional targets.,Deliverables;Deliverables.csv;ContextBudgetQA.csv,ACCEPTED,Active deliverable under PKG-17.
+SCA-004-A011,MODIFY,SCOPE_ITEMS,"SOW-030,SOW-046,SOW-074,SOW-075",Update notes and deliverable mappings for export interoperability contract.,SSOW;ScopeLedger.csv,ACCEPTED,No new SOW IDs added; existing scope boundaries preserved.
+SCA-004-A012,MODIFY,OBJECTIVES,"OBJ-007,OBJ-009,OBJ-017,OBJ-018",Update mapped deliverable lists for PKG-17.,Objectives,ACCEPTED,OBJ statements preserved except OBJ-018 wording adds export workflows.

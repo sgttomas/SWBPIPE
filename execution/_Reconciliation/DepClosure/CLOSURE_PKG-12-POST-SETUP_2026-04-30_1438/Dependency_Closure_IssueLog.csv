@@ -1,0 +1,6 @@
+ID,Severity,Check,FromDeliverableID,TargetDeliverableID,DependencyID,Evidence,FixSuggestion
+PKG12-DEP-001,WARNING,Isolated deliverable,DEL-12-03,,,Evidence/orphans.csv,Confirm whether telemetry off-by-default design should remain graph-isolated or receive explicit information-flow edges.
+PKG12-DEP-002,WARNING,Isolated deliverable,DEL-12-05,,,Evidence/orphans.csv,Confirm whether security threat model should remain advisory/standalone or explicitly feed future security implementation deliverables.
+PKG12-DEP-003,WARNING,PROPOSAL dependency rows,PKG-12,,,PKG-12 Dependencies.csv Notes fields,Human should accept revise or reject proposal rows before blocker computation consumes them.
+GLOBAL-DEP-001,WARNING,Circular dependency,SCC-001,,,Evidence/scc_summary.csv,Reconcile global DEL-07/DEL-08/DEL-09/DEL-10 SCC before treating full graph as blocker truth.
+GLOBAL-DEP-002,INFO,Bidirectional pairs,,,,Evidence/bidirectional_pairs.csv,Review whether pairs represent real two-way information flow or duplicated extraction.

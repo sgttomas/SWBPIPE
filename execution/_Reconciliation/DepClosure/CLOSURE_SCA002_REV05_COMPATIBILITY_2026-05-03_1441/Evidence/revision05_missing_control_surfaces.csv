@@ -1,0 +1,62 @@
+SurfaceType,ID,Path,Status,RequiredOwner
+PACKAGE_FOLDER,PKG-13,,MISSING,PREPARATION after human-approved scaffold tranche
+PACKAGE_FOLDER,PKG-14,,MISSING,PREPARATION after human-approved scaffold tranche
+PACKAGE_FOLDER,PKG-15,,MISSING,PREPARATION after human-approved scaffold tranche
+PACKAGE_FOLDER,PKG-16,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-07-08,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-08-06,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-13-01,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-13-02,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-13-03,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-13-04,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-14-01,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-14-02,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-14-03,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-14-04,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-14-05,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-15-01,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-15-02,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-15-03,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-15-04,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-16-01,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-16-02,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-16-03,,MISSING,PREPARATION after human-approved scaffold tranche
+DELIVERABLE_CONTEXT,DEL-16-04,,MISSING,PREPARATION after human-approved scaffold tranche
+DAG_NODE,DEL-07-08,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-08-06,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-13-01,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-13-02,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-13-03,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-13-04,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-14-01,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-14-02,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-14-03,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-14-04,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-14-05,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-15-01,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-15-02,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-15-03,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-15-04,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-16-01,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-16-02,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-16-03,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+DAG_NODE,DEL-16-04,execution/_DAG/DAG-001/DeliverableNodes.csv,ABSENT_FROM_DAG001,ORCHESTRATOR DAG-002 proposal after reconciliation gate
+LOCAL_DEPENDENCY_MIRROR,DEL-07-08,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-08-06,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-13-01,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-13-02,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-13-03,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-13-04,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-14-01,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-14-02,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-14-03,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-14-04,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-14-05,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-15-01,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-15-02,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-15-03,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-15-04,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-16-01,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-16-02,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-16-03,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval
+LOCAL_DEPENDENCY_MIRROR,DEL-16-04,,MISSING_OR_NOT_APPLICABLE_UNTIL_GRAPH_REFRESH,Dependency refresh after refreshed graph approval

@@ -1,0 +1,48 @@
+{
+  "local_dependency_files": 84,
+  "total_local_rows": 1171,
+  "proposal_rows": 904,
+  "proposal_status_counts": {
+    "ACTIVE": 861,
+    "RETIRED": 32,
+    "CANDIDATE": 11
+  },
+  "proposal_dependency_type_counts": {
+    "PREREQUISITE": 370,
+    "OTHER": 32,
+    "CONSTRAINT": 196,
+    "INTERFACE": 55,
+    "ARCHITECTURE_BASIS": 130,
+    "GOVERNANCE_PREDECESSOR": 16,
+    "UNIT_CONTRACT": 10,
+    "DOMAIN_MODEL": 16,
+    "SOLVER_PREDECESSOR": 1,
+    "SCHEMA_CONTRACT": 2,
+    "ENABLES": 17,
+    "RULE_PACK_PREDECESSOR": 3,
+    "PERSISTENCE_CONTRACT": 11,
+    "DIAGNOSTICS_CONTRACT": 5,
+    "LOAD_STRESS_PREDECESSOR": 2,
+    "RESULT_RECORD_MODEL": 1,
+    "GUI_PREDECESSOR": 4,
+    "REPORT_INTEGRATION": 1,
+    "EXPORT_CONTRACT": 1,
+    "RUNNER_CONTRACT": 1,
+    "HANDOVER": 4,
+    "REPORTING_PREDECESSOR": 6,
+    "SECURITY_PREDECESSOR": 6,
+    "INTEROP_PREDECESSOR": 4,
+    "VALIDATION_PREDECESSOR": 4,
+    "SERVICE_API": 1,
+    "DOCS_PREDECESSOR": 5
+  },
+  "excluded_counts": {
+    "non_execution_anchor_or_context": 204,
+    "non_deliverable_target:DOCUMENT": 27,
+    "non_deliverable_target:EXTERNAL": 3,
+    "non_deliverable_target:UNKNOWN": 1,
+    "non_deliverable_target:PACKAGE": 2
+  },
+  "normalized_duplicate_pairs": 29,
+  "normalized_duplicate_rows_omitted": 30
+}

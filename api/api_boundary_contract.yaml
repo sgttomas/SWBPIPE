@@ -1,0 +1,893 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:open-pipe-stress:api-boundary-contract:del-10-01",
+  "title": "OpenPipeStress API Boundary Contract",
+  "description": "Schema-first public API and plugin boundary contract for DEL-10-01. This file intentionally uses strict JSON syntax in a .yaml file so it can be parsed without YAML-specific dependencies.",
+  "type": "object",
+  "x_contract_metadata": {
+    "deliverable_id": "DEL-10-01",
+    "package_id": "PKG-10",
+    "scope_item": "SOW-030",
+    "objective": "OBJ-009",
+    "status": "draft",
+    "public_transport_protocol": "TBD",
+    "endpoint_syntax": "TBD",
+    "openapi_transport_binding": "TBD",
+    "external_format_list": "TBD",
+    "plugin_runtime": "TBD",
+    "plugin_loading_signing_isolation": "TBD",
+    "permission_grant_persistence": "TBD",
+    "api_stability_level": "TBD",
+    "code_generation_tooling": "TBD",
+    "schema_basis": "JSON Schema 2020-12",
+    "hash_basis": "Canonical JSON/JCS-compatible hash basis where JSON payloads are hashed",
+    "persistence_boundary": "Persistence access must be mediated by application-service commands, queries, or jobs. Public API, plugin, and adapter surfaces must not expose SQL, raw SQLite handles, table names, or direct store mutation hooks.",
+    "protected_content_notice": "Public API artifacts must not embed protected standards text, protected tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data, or private user rule packs."
+  },
+  "required": [
+    "api_version",
+    "contract_kind",
+    "operation_category",
+    "operation",
+    "request",
+    "response"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "api_version": {
+      "type": "string",
+      "description": "Public API contract version. Initial value remains TBD until a human release/versioning rule is recorded."
+    },
+    "contract_kind": {
+      "type": "string",
+      "const": "open_pipe_stress_api_boundary"
+    },
+    "operation_category": {
+      "type": "string",
+      "enum": [
+        "command",
+        "query",
+        "job",
+        "result_envelope",
+        "plugin_manifest",
+        "diagnostic",
+        "provenance",
+        "permission",
+        "privacy",
+        "checksum",
+        "validation_test",
+        "no_bypass"
+      ]
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "boundary_area",
+        "mutability",
+        "transport",
+        "no_bypass_constraints"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ops\\.[a-z0-9_]+\\.[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "boundary_area": {
+          "type": "string",
+          "enum": [
+            "model_import",
+            "model_export",
+            "solver_invocation",
+            "results",
+            "rule_pack_hooks",
+            "plugin_manifest",
+            "permissions",
+            "diagnostics",
+            "provenance",
+            "privacy",
+            "checksums",
+            "validation_test",
+            "no_bypass"
+          ]
+        },
+        "mutability": {
+          "type": "string",
+          "enum": [
+            "read_only",
+            "mutating",
+            "long_running",
+            "metadata_only"
+          ]
+        },
+        "transport": {
+          "type": "string",
+          "const": "TBD"
+        },
+        "no_bypass_constraints": {
+          "$ref": "#/$defs/no_bypass_constraints"
+        }
+      }
+    },
+    "request": {
+      "$ref": "#/$defs/request_envelope"
+    },
+    "response": {
+      "$ref": "#/$defs/result_envelope"
+    }
+  },
+  "x_operation_registry": {
+    "commands": [
+      {
+        "id": "ops.model.import",
+        "boundary_area": "model_import",
+        "summary": "Import a model or adapter payload through unit, schema, provenance, privacy, and protected-content checks before it enters the domain core.",
+        "required_guards": [
+          "schema_validation",
+          "unit_validation",
+          "provenance_validation",
+          "privacy_classification",
+          "protected_content_screening",
+          "result_envelope"
+        ]
+      },
+      {
+        "id": "ops.model.export",
+        "boundary_area": "model_export",
+        "summary": "Export a model payload only after applying privacy filters, provenance markings, checksum generation, and diagnostics.",
+        "required_guards": [
+          "schema_validation",
+          "unit_validation",
+          "privacy_filter",
+          "provenance_summary",
+          "checksum_generation",
+          "result_envelope"
+        ]
+      },
+      {
+        "id": "ops.solve.start",
+        "boundary_area": "solver_invocation",
+        "summary": "Start a mechanics solve job for a versioned model snapshot; solver output is decision support and not a code-compliance claim.",
+        "required_guards": [
+          "solve_required_input_check",
+          "unit_validation",
+          "model_snapshot_hash",
+          "job_envelope",
+          "diagnostics"
+        ]
+      },
+      {
+        "id": "ops.rule_pack.attach",
+        "boundary_area": "rule_pack_hooks",
+        "summary": "Attach or register a user-supplied rule pack reference with source, redistribution status, checksum, and sandbox constraints.",
+        "required_guards": [
+          "sandbox_policy",
+          "unit_validation",
+          "required_input_manifest",
+          "provenance_validation",
+          "checksum_validation",
+          "private_public_marking"
+        ]
+      }
+    ],
+    "queries": [
+      {
+        "id": "ops.model.describe",
+        "boundary_area": "model_export",
+        "summary": "Read model metadata, version, unit system, object counts, provenance coverage, and warning summary without exposing private payloads by default."
+      },
+      {
+        "id": "ops.results.get",
+        "boundary_area": "results",
+        "summary": "Read solver and rule-pack result envelopes, including analysis status, diagnostics, warnings, provenance references, and hashes."
+      },
+      {
+        "id": "ops.diagnostics.list",
+        "boundary_area": "diagnostics",
+        "summary": "Read machine-readable diagnostics across model import, solve, rule-pack, export, report, storage, and adapter operations."
+      },
+      {
+        "id": "ops.plugin.permissions.describe",
+        "boundary_area": "permissions",
+        "summary": "Read requested and granted plugin permissions without granting access."
+      }
+    ],
+    "jobs": [
+      {
+        "id": "ops.solve.job",
+        "boundary_area": "solver_invocation",
+        "summary": "Long-running mechanics solve job with progress, cancellation, reproducibility metadata, diagnostics, and result envelope."
+      },
+      {
+        "id": "ops.export.job",
+        "boundary_area": "model_export",
+        "summary": "Long-running export job with privacy filtering, checksum generation, diagnostics, and result envelope."
+      },
+      {
+        "id": "ops.report.job",
+        "boundary_area": "results",
+        "summary": "Long-running report production job that references rule-pack identity and checksum without embedding protected content in public templates."
+      },
+      {
+        "id": "ops.validation.job",
+        "boundary_area": "validation_test",
+        "summary": "Long-running validation-test execution job with explicit fixture provenance, diagnostics, reproducibility metadata, and result envelope."
+      }
+    ]
+  },
+  "$defs": {
+    "request_envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "caller",
+        "payload",
+        "privacy",
+        "provenance",
+        "permissions",
+        "checksums"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/stable_id"
+        },
+        "caller": {
+          "$ref": "#/$defs/caller"
+        },
+        "payload": {
+          "type": "object",
+          "description": "Operation-specific payload. Payload schemas are owned by the applicable model, rule-pack, result, report, or adapter deliverable."
+        },
+        "privacy": {
+          "$ref": "#/$defs/privacy_context"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance_record"
+        },
+        "permissions": {
+          "$ref": "#/$defs/permission_request"
+        },
+        "checksums": {
+          "$ref": "#/$defs/checksum_set"
+        }
+      }
+    },
+    "result_envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "status",
+        "analysis_status",
+        "payload",
+        "diagnostics",
+        "provenance",
+        "privacy",
+        "checksums",
+        "limitations"
+      ],
+      "properties": {
+        "request_id": {
+          "$ref": "#/$defs/stable_id"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "running",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "blocked"
+          ]
+        },
+        "analysis_status": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "MODEL_INCOMPLETE",
+              "MECHANICS_SOLVED",
+              "RULE_INPUTS_INCOMPLETE",
+              "USER_RULE_CHECKED",
+              "USER_RULE_FAILED",
+              "HUMAN_REVIEW_REQUIRED"
+            ]
+          },
+          "description": "Software-emitted analysis statuses only. Human project acceptance, if externally recorded, must appear only as hash-bound human_acceptance_records and not as an automatic status."
+        },
+        "human_acceptance_records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/human_acceptance_record_ref"
+          },
+          "description": "Optional references to external human acceptance records. These records are not software-generated approval statuses and must be bound to evidence checksums."
+        },
+        "payload": {
+          "type": "object",
+          "description": "Operation-specific result payload. Nontrivial outputs must remain inside this envelope."
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/diagnostic"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance_summary"
+        },
+        "privacy": {
+          "$ref": "#/$defs/privacy_result"
+        },
+        "checksums": {
+          "$ref": "#/$defs/checksum_set"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Must include professional-responsibility and data-boundary limitations when relevant."
+        }
+      }
+    },
+    "job_control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "job_id",
+        "operation_id",
+        "snapshot_hash",
+        "progress",
+        "cancellation"
+      ],
+      "properties": {
+        "job_id": {
+          "$ref": "#/$defs/stable_id"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "snapshot_hash": {
+          "$ref": "#/$defs/checksum"
+        },
+        "progress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "message"
+          ],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "running",
+                "cancelling",
+                "completed",
+                "failed",
+                "cancelled"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "cancellation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "supported",
+            "token"
+          ],
+          "properties": {
+            "supported": {
+              "type": "boolean"
+            },
+            "token": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "plugin_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plugin_id",
+        "name",
+        "version",
+        "boundary_api_version",
+        "entrypoints",
+        "permissions",
+        "redistribution_status",
+        "provenance",
+        "checksums",
+        "sandbox_required"
+      ],
+      "properties": {
+        "plugin_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "boundary_api_version": {
+          "type": "string"
+        },
+        "entrypoints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "model_import",
+              "model_export",
+              "solver_pre_check",
+              "solver_post_process",
+              "rule_pack_provider",
+              "result_export",
+              "diagnostic_provider",
+              "validation_hook"
+            ]
+          }
+        },
+        "permissions": {
+          "$ref": "#/$defs/permission_request"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/redistribution_status"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance_record"
+        },
+        "checksums": {
+          "$ref": "#/$defs/checksum_set"
+        },
+        "sandbox_required": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "permission_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested",
+        "grant_state",
+        "denied_by_default"
+      ],
+      "properties": {
+        "requested": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "read_model",
+              "write_model",
+              "read_results",
+              "run_solver",
+              "read_rule_pack_metadata",
+              "read_rule_pack_private_values",
+              "write_rule_pack",
+              "read_private_library",
+              "write_private_library",
+              "export_payload",
+              "network_access",
+              "filesystem_project_read",
+              "filesystem_project_write",
+              "diagnostics_emit"
+            ]
+          }
+        },
+        "grant_state": {
+          "type": "string",
+          "enum": [
+            "TBD",
+            "not_requested",
+            "requested",
+            "granted",
+            "denied"
+          ]
+        },
+        "denied_by_default": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "message",
+        "affected_object",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "PRIVACY_WARNING",
+            "PERMISSION_DENIED",
+            "CHECKSUM_MISMATCH"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "error",
+            "blocking"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "core",
+            "solver",
+            "rule_pack",
+            "adapter",
+            "plugin",
+            "report",
+            "storage",
+            "api_boundary"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "affected_object": {
+          "type": "string"
+        },
+        "remediation": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance_record"
+        }
+      }
+    },
+    "provenance_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string"
+        },
+        "source_location": {
+          "type": "string"
+        },
+        "source_license": {
+          "type": "string"
+        },
+        "contributor": {
+          "type": "string"
+        },
+        "contributor_certification": {
+          "type": "string"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/redistribution_status"
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined"
+          ]
+        }
+      }
+    },
+    "provenance_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "records_present",
+        "unknown_source_count",
+        "protected_content_suspected",
+        "private_only_count"
+      ],
+      "properties": {
+        "records_present": {
+          "type": "boolean"
+        },
+        "unknown_source_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "protected_content_suspected": {
+          "type": "boolean"
+        },
+        "private_only_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "human_acceptance_record_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "record_uri",
+        "accepted_subject",
+        "evidence_checksums",
+        "scope_notice",
+        "software_generated"
+      ],
+      "properties": {
+        "record_id": {
+          "$ref": "#/$defs/stable_id"
+        },
+        "record_uri": {
+          "type": "string"
+        },
+        "accepted_subject": {
+          "type": "string",
+          "enum": [
+            "model_snapshot",
+            "mechanics_result",
+            "rule_pack_evaluation",
+            "report",
+            "project_record",
+            "TBD"
+          ]
+        },
+        "evidence_checksums": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/checksum"
+          }
+        },
+        "scope_notice": {
+          "type": "string"
+        },
+        "software_generated": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "privacy_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "export_intent",
+        "telemetry_allowed",
+        "redaction_policy"
+      ],
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_project",
+            "private_rule_pack",
+            "private_library",
+            "protected_suspected",
+            "unknown"
+          ]
+        },
+        "export_intent": {
+          "type": "string",
+          "enum": [
+            "none",
+            "user_requested",
+            "public_contribution_candidate",
+            "private_project_export"
+          ]
+        },
+        "telemetry_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "redaction_policy": {
+          "type": "string",
+          "enum": [
+            "TBD",
+            "none_required",
+            "redact_private_values",
+            "block_export",
+            "quarantine"
+          ]
+        }
+      }
+    },
+    "privacy_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "redactions_applied",
+        "export_blocked",
+        "telemetry_included"
+      ],
+      "properties": {
+        "classification": {
+          "type": "string"
+        },
+        "redactions_applied": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "export_blocked": {
+          "type": "boolean"
+        },
+        "telemetry_included": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "checksum_set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "items"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS-compatible-json",
+            "TBD"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/checksum"
+          }
+        }
+      }
+    },
+    "checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "model_snapshot",
+            "request_payload",
+            "result_payload",
+            "rule_pack",
+            "plugin_manifest",
+            "export_payload",
+            "report",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^(sha256:[0-9a-f]{64}|TBD)$"
+        }
+      }
+    },
+    "no_bypass_constraints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "must_use_domain_validation",
+          "must_use_unit_validation",
+          "must_preserve_provenance",
+          "must_preserve_privacy_classification",
+          "must_return_result_envelope",
+          "must_preserve_diagnostics",
+          "must_preserve_persistence_hash_controls",
+          "must_route_persistence_through_application_services",
+          "must_not_expose_sql_or_raw_sqlite",
+          "must_not_expose_table_names",
+          "must_not_mutate_project_store_directly",
+          "must_preserve_report_controls",
+          "must_preserve_human_acceptance_boundary",
+          "must_not_execute_arbitrary_rule_code",
+          "must_not_skip_rule_pack_sandbox",
+          "must_not_claim_code_compliance",
+          "must_not_bundle_protected_content",
+          "must_not_transmit_private_data_by_default",
+          "must_not_write_private_library_without_permission"
+        ]
+      }
+    },
+    "caller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caller_type",
+        "caller_id"
+      ],
+      "properties": {
+        "caller_type": {
+          "type": "string",
+          "enum": [
+            "gui",
+            "cli",
+            "plugin",
+            "adapter",
+            "test_harness",
+            "TBD"
+          ]
+        },
+        "caller_id": {
+          "type": "string"
+        }
+      }
+    },
+    "redistribution_status": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected"
+      ]
+    },
+    "stable_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

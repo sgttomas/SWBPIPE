@@ -1,0 +1,83 @@
+{
+  "model": {
+    "id": "model:invented-physical",
+    "model_role": "physical_source_of_truth"
+  },
+  "model_state": {
+    "state_id": "state:accepted",
+    "state_hash": "sha256:invented-state-001",
+    "model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-physical"
+    }
+  },
+  "entities": [
+    {
+      "stable_id": "node:n1",
+      "category": "Node",
+      "coordinates": {
+        "x": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length"
+        },
+        "y": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length"
+        },
+        "z": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length"
+        }
+      }
+    },
+    {
+      "stable_id": "node:n2",
+      "category": "Node",
+      "coordinates": {
+        "x": {
+          "value": 1.0,
+          "unit": "m",
+          "dimension": "length"
+        },
+        "y": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length"
+        },
+        "z": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length"
+        }
+      }
+    },
+    {
+      "stable_id": "component:pipe-1",
+      "category": "Component",
+      "diameter": {
+        "value": 100.0,
+        "unit": "mm",
+        "dimension": "length"
+      }
+    },
+    {
+      "stable_id": "support:s1",
+      "category": "Support"
+    },
+    {
+      "stable_id": "load:l1",
+      "category": "Load"
+    },
+    {
+      "stable_id": "constraint:c1",
+      "category": "Constraint"
+    },
+    {
+      "stable_id": "knowledge:k1",
+      "category": "DesignKnowledgeRecord"
+    }
+  ]
+}

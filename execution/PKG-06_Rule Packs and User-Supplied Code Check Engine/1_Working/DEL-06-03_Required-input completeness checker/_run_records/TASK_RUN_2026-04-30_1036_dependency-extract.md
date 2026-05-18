@@ -1,0 +1,37 @@
+---
+run-id: TASK_RUN_2026-04-30_1036
+run-status: SUCCESS
+task-skill: dependency-extract
+scope-path: execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker
+deliverable-id: DEL-06-03
+package-id: PKG-06
+---
+
+# TASK Run Record - dependency-extract
+
+## Input Echo
+
+- **Deliverable:** DEL-06-03 Required-input completeness checker
+- **Mode:** UPDATE
+- **Strictness:** CONSERVATIVE
+- **Expected outputs:** `Dependencies.csv`, `_DEPENDENCIES.md`
+
+## Resolved State
+
+- **Skill file:** `skills/dependency-extract/SKILL.md`
+- **Skill version:** 1
+- **Schema:** v3.1
+- **Source documents scanned:** `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`
+
+## Execution Results
+
+- Created `Dependencies.csv` with 7 ACTIVE rows.
+- Refreshed `_DEPENDENCIES.md` with summary, run notes, lifecycle counts, and handoff notes.
+- Schema validation passed with `tools/validation/validate_dependencies_schema.py`.
+- SOFTWARE_DECOMP short-ID consistency passed for populated package and deliverable ID fields.
+- Kept `_STATUS.md` at SEMANTIC_READY.
+
+## Warnings and Open Issues
+
+- DEP-006-03-007 is marked `PROPOSAL`; future reconciliation should confirm the downstream relation to DEL-06-02.
+- The available `validate_id_format.sh` pattern expects three-digit package/deliverable IDs and is not compatible with the current SOFTWARE_DECOMP short IDs (`PKG-06`, `DEL-06-03`), so ID-format validation is reported as a tooling mismatch rather than a deliverable failure.

@@ -1,0 +1,809 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/results.schema.yaml",
+  "title": "OpenPipeStress Result Export Schema",
+  "description": "Strict JSON syntax schema for schema-first JSON result envelopes. Result exports support review, regression comparison, reports, headless automation, and governed downstream tooling without choosing additional export formats or making professional/code-compliance claims.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "export_format_status",
+    "result_envelope"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-08-04"
+    },
+    "package_id": {
+      "const": "PKG-08"
+    },
+    "scope_item": {
+      "const": "SOW-046"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 2,
+      "contains": {
+        "enum": [
+          "OBJ-007",
+          "OBJ-009"
+        ]
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-007",
+          "OBJ-009"
+        ]
+      }
+    },
+    "export_format_status": {
+      "$ref": "#/$defs/ExportFormatStatus"
+    },
+    "result_envelope": {
+      "$ref": "#/$defs/ResultEnvelope"
+    }
+  },
+  "$defs": {
+    "AnalysisStatus": {
+      "type": "string",
+      "description": "Automatic software-emitted analysis statuses allowed in result exports. Human project acceptance is external and hash-bound.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED"
+      ]
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "EXPORT_BLOCKING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ResultTraceLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional per-value trace link for result-boundary evidence. This records references across existing governed boundaries only; it does not infer missing provenance or expand solver behavior.",
+      "required": [
+        "trace_id",
+        "trace_type",
+        "source_ref",
+        "target_ref",
+        "provenance"
+      ],
+      "properties": {
+        "trace_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "trace_type": {
+          "type": "string",
+          "enum": [
+            "physical_source_to_analytical_model",
+            "analytical_model_to_adapter_dto",
+            "adapter_dto_to_solver_input",
+            "solver_input_to_result_value",
+            "section_property_evidence_to_result_value",
+            "source_trace_link_reference",
+            "TBD"
+          ]
+        },
+        "source_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        }
+      }
+    },
+    "DimensionId": {
+      "type": "string",
+      "enum": [
+        "dimensionless",
+        "length",
+        "angle",
+        "force",
+        "moment",
+        "stress",
+        "area",
+        "section_modulus",
+        "second_moment_area",
+        "ratio",
+        "time",
+        "temperature",
+        "pressure",
+        "TBD"
+      ]
+    },
+    "DownstreamUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review",
+        "regression_comparison",
+        "report_consumption",
+        "headless_automation",
+        "governed_downstream_tooling",
+        "additional_export_formats"
+      ],
+      "properties": {
+        "review": {
+          "const": true
+        },
+        "regression_comparison": {
+          "const": true
+        },
+        "report_consumption": {
+          "const": true
+        },
+        "headless_automation": {
+          "const": true
+        },
+        "governed_downstream_tooling": {
+          "const": true
+        },
+        "additional_export_formats": {
+          "const": "TBD"
+        }
+      }
+    },
+    "ExportFormatStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_format",
+        "additional_formats",
+        "public_transport_protocol",
+        "local_fea_package_format",
+        "external_adapter_formats"
+      ],
+      "properties": {
+        "baseline_format": {
+          "const": "schema_first_json_result_envelope"
+        },
+        "additional_formats": {
+          "const": "TBD"
+        },
+        "public_transport_protocol": {
+          "const": "TBD"
+        },
+        "local_fea_package_format": {
+          "const": "TBD"
+        },
+        "external_adapter_formats": {
+          "const": "TBD"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "QuantityResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "family": {
+                "enum": [
+                  "force",
+                  "moment",
+                  "section_property"
+                ]
+              }
+            },
+            "required": [
+              "family"
+            ]
+          },
+          "then": {
+            "required": [
+              "metadata"
+            ]
+          }
+        }
+      ],
+      "required": [
+        "result_id",
+        "family",
+        "object_ref",
+        "basis_ref",
+        "magnitude",
+        "unit",
+        "dimension",
+        "provenance"
+      ],
+      "properties": {
+        "result_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "family": {
+          "$ref": "#/$defs/ResultFamily"
+        },
+        "object_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "station_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "magnitude": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "#/$defs/DimensionId"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ResultMetadata"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "trace_chain": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResultTraceLink"
+          }
+        }
+      }
+    },
+    "ResultMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Structured metadata for result values whose sign and recovery basis are not self-evident from family, object, and unit alone. Local element force and moment components require this metadata.",
+      "required": [
+        "component",
+        "coordinate_system",
+        "location",
+        "basis",
+        "sign_convention"
+      ],
+      "properties": {
+        "component": {
+          "type": "string",
+          "enum": [
+            "axial_force",
+            "shear_force_y",
+            "shear_force_z",
+            "torsional_moment",
+            "bending_moment_y",
+            "bending_moment_z",
+            "nodal_force_x",
+            "nodal_force_y",
+            "nodal_force_z",
+            "nodal_moment_x",
+            "nodal_moment_y",
+            "nodal_moment_z",
+            "axial_normal_stress",
+            "bending_normal_stress_y",
+            "bending_normal_stress_z",
+            "torsional_shear_stress",
+            "pressure_hoop_stress",
+            "pressure_longitudinal_stress",
+            "section_area",
+            "section_modulus_y",
+            "section_modulus_z",
+            "torsion_constant",
+            "torsion_radius",
+            "TBD"
+          ]
+        },
+        "coordinate_system": {
+          "type": "string",
+          "enum": [
+            "global",
+            "element_local",
+            "pipe_section",
+            "TBD"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "enum": [
+            "end_i",
+            "end_j",
+            "node",
+            "quarter_1",
+            "midspan",
+            "quarter_3",
+            "summary",
+            "TBD"
+          ]
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "recovered_from_local_element_stiffness",
+            "assembled_solver_load_vector",
+            "recovered_from_open_mechanics_stress_components",
+            "interpolated_from_endpoint_resultants",
+            "derived_from_user_entered_section_geometry",
+            "explicit_user_linear_combination",
+            "stress_recovery_summary",
+            "rule_pack_evaluation",
+            "TBD"
+          ]
+        },
+        "sign_convention": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "display_name": {
+          "type": "string"
+        }
+      }
+    },
+    "Reproducibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_hash",
+        "run_hashes",
+        "audit_manifest_ref",
+        "deterministic_ordering"
+      ],
+      "properties": {
+        "model_hash": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "run_hashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "audit_manifest_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "deterministic_ordering": {
+          "const": true
+        }
+      }
+    },
+    "ResultEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "envelope_id",
+        "model_ref",
+        "run_ref",
+        "solver_version",
+        "unit_system_ref",
+        "load_basis_refs",
+        "result_sets",
+        "diagnostics",
+        "provenance",
+        "reproducibility",
+        "analysis_status",
+        "professional_boundary",
+        "downstream_use"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "envelope_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "run_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "solver_version": {
+          "$ref": "#/$defs/SolverVersion"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "load_basis_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "result_sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ResultSet"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "reproducibility": {
+          "$ref": "#/$defs/Reproducibility"
+        },
+        "analysis_status": {
+          "type": "array",
+          "minItems": 1,
+          "contains": {
+            "const": "HUMAN_REVIEW_REQUIRED"
+          },
+          "items": {
+            "$ref": "#/$defs/AnalysisStatus"
+          }
+        },
+        "rule_pack_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RulePackRef"
+          }
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "downstream_use": {
+          "$ref": "#/$defs/DownstreamUse"
+        }
+      }
+    },
+    "ResultFamily": {
+      "type": "string",
+      "enum": [
+        "displacement",
+        "rotation",
+        "force",
+        "moment",
+        "reaction",
+        "stress",
+        "section_property",
+        "ratio",
+        "rule_check"
+      ]
+    },
+    "ResultSetType": {
+      "type": "string",
+      "description": "First-class result-set categories for governed result-boundary evidence. These categories classify exported evidence only; they do not define solver behavior, rule checks, report rendering, CLI/API behavior, or professional conclusions.",
+      "enum": [
+        "mechanics",
+        "stress_recovery",
+        "load_vector_evidence",
+        "station_resultants",
+        "section_property_evidence",
+        "user_rule_check",
+        "diagnostic_only",
+        "TBD"
+      ]
+    },
+    "ResultSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "set_id",
+        "set_type",
+        "basis_ref",
+        "values"
+      ],
+      "properties": {
+        "set_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "set_type": {
+          "$ref": "#/$defs/ResultSetType"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuantityResult"
+          }
+        }
+      }
+    },
+    "RulePackRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_pack_id",
+        "version",
+        "checksum",
+        "source_notice",
+        "redistribution_status",
+        "completeness_status",
+        "private_payload_redacted"
+      ],
+      "properties": {
+        "rule_pack_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "source_notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "completeness_status": {
+          "type": "string",
+          "enum": [
+            "complete_for_user_rule_check",
+            "missing_required_inputs",
+            "not_checked",
+            "TBD"
+          ]
+        },
+        "private_payload_redacted": {
+          "const": true
+        }
+      }
+    },
+    "SolverVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solver_name",
+        "solver_version",
+        "solver_build_ref"
+      ],
+      "properties": {
+        "solver_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "solver_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "solver_build_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,954 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/comparison_mapping.schema.json",
+  "title": "OpenPipeStress Comparison Mapping and Export Contract Schema",
+  "description": "Strict JSON Schema 2020-12 contract for provider-neutral comparison participants, manual and automatic mappings, unmatched classifications, and JSON/CSV/report-section export semantics. This schema defines review records only; it does not implement comparison engines, result-delta calculation, external validation, certification, sealing, authentication, or engineering approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "comparison_contract_status",
+    "comparison_review"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-14-05"
+    },
+    "package_id": {
+      "const": "PKG-14"
+    },
+    "scope_item": {
+      "const": "SOW-073"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-016"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-016"
+        ]
+      }
+    },
+    "comparison_contract_status": {
+      "$ref": "#/$defs/ComparisonContractStatus"
+    },
+    "comparison_review": {
+      "$ref": "#/$defs/ComparisonReview"
+    }
+  },
+  "$defs": {
+    "AffectedRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "affected_ref",
+        "affected_role"
+      ],
+      "properties": {
+        "affected_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_role": {
+          "type": "string",
+          "enum": [
+            "left_entity",
+            "right_entity",
+            "left_result",
+            "right_result",
+            "mapping_record",
+            "diagnostic",
+            "assumption",
+            "export_row",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "AssumptionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumption_id",
+        "statement",
+        "affected_refs",
+        "provenance"
+      ],
+      "properties": {
+        "assumption_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AffectedRef"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "comparison_review_record",
+            "model_state_record",
+            "analysis_run_record",
+            "result_envelope",
+            "mapping_record",
+            "export_manifest",
+            "external_reference",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ComparisonContractStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_contract",
+        "model_state_binding",
+        "analysis_run_binding",
+        "result_envelope_binding",
+        "tolerance_profile_binding",
+        "export_contract_scope",
+        "report_rendering",
+        "comparison_engine",
+        "external_validation_boundary"
+      ],
+      "properties": {
+        "record_contract": {
+          "const": "schema_first_comparison_mapping_review_records"
+        },
+        "model_state_binding": {
+          "const": "schemas/model_state.schema.json"
+        },
+        "analysis_run_binding": {
+          "const": "schemas/analysis_run.schema.json"
+        },
+        "result_envelope_binding": {
+          "const": "schemas/results.schema.yaml"
+        },
+        "tolerance_profile_binding": {
+          "const": "schemas/comparison_tolerance.schema.json"
+        },
+        "export_contract_scope": {
+          "const": "json_csv_review_contract_only"
+        },
+        "report_rendering": {
+          "const": "reserved_reference_only_not_implemented"
+        },
+        "comparison_engine": {
+          "const": "not_implemented_by_this_contract"
+        },
+        "external_validation_boundary": {
+          "const": "reference_only_not_determined_by_software"
+        }
+      }
+    },
+    "ComparisonReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparison_id",
+        "comparison_kind",
+        "created_at",
+        "participants",
+        "tolerance_profile_refs",
+        "mappings",
+        "unmatched_records",
+        "diagnostics",
+        "assumptions",
+        "export_contract",
+        "hashes",
+        "professional_boundary",
+        "provenance"
+      ],
+      "properties": {
+        "comparison_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "comparison_kind": {
+          "type": "string",
+          "enum": [
+            "model_state_to_model_state",
+            "analysis_run_to_analysis_run",
+            "model_state_and_run",
+            "result_export_to_result_export",
+            "TBD"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "participants": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/ComparisonParticipant"
+          }
+        },
+        "tolerance_profile_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MappingRecord"
+          }
+        },
+        "unmatched_records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnmatchedRecord"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssumptionRecord"
+          }
+        },
+        "export_contract": {
+          "$ref": "#/$defs/ExportContract"
+        },
+        "hashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ComparisonParticipant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participant_id",
+        "side",
+        "model_state_ref",
+        "analysis_run_ref",
+        "result_envelope_ref",
+        "unit_system_ref",
+        "hash_refs",
+        "provenance"
+      ],
+      "properties": {
+        "participant_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "model_state_ref": {
+          "$ref": "#/$defs/StableRecordReference"
+        },
+        "analysis_run_ref": {
+          "$ref": "#/$defs/StableRecordReference"
+        },
+        "result_envelope_ref": {
+          "$ref": "#/$defs/StableRecordReference"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "CsvExportContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format_id",
+        "stable_row_id_column",
+        "required_columns",
+        "ordering",
+        "delimiter",
+        "encoding",
+        "privacy_redaction_required"
+      ],
+      "properties": {
+        "format_id": {
+          "const": "comparison_review_csv_v1"
+        },
+        "stable_row_id_column": {
+          "const": "review_row_id"
+        },
+        "required_columns": {
+          "type": "array",
+          "minItems": 1,
+          "contains": {
+            "const": "mapping_id"
+          },
+          "items": {
+            "type": "string",
+            "enum": [
+              "review_row_id",
+              "comparison_id",
+              "mapping_id",
+              "mapping_status",
+              "unmatched_classification",
+              "left_ref",
+              "right_ref",
+              "result_ref",
+              "unit",
+              "dimension",
+              "tolerance_profile_ref",
+              "diagnostic_codes",
+              "provenance_ref",
+              "assumption_ids",
+              "professional_boundary_notice",
+              "TBD"
+            ]
+          }
+        },
+        "ordering": {
+          "const": "stable_by_review_row_id_then_mapping_id"
+        },
+        "delimiter": {
+          "const": "comma"
+        },
+        "encoding": {
+          "const": "utf-8"
+        },
+        "privacy_redaction_required": {
+          "const": true
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_refs",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "MAPPING_UNRESOLVED",
+            "UNMATCHED_ENTITY",
+            "UNIT_WARNING",
+            "TOLERANCE_PROFILE_WARNING",
+            "RESULT_REFERENCE_WARNING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "EXPORT_BLOCKING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AffectedRef"
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ExportContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "json_export",
+        "csv_export",
+        "report_section_exports",
+        "diagnostics_included",
+        "provenance_included",
+        "assumptions_included",
+        "professional_boundary_notice_included"
+      ],
+      "properties": {
+        "json_export": {
+          "$ref": "#/$defs/JsonExportContract"
+        },
+        "csv_export": {
+          "$ref": "#/$defs/CsvExportContract"
+        },
+        "report_section_exports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReportSectionExportRef"
+          }
+        },
+        "diagnostics_included": {
+          "const": true
+        },
+        "provenance_included": {
+          "const": true
+        },
+        "assumptions_included": {
+          "const": true
+        },
+        "professional_boundary_notice_included": {
+          "const": true
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "JsonExportContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format_id",
+        "root_schema_ref",
+        "stable_ids_required",
+        "mapping_ids_required",
+        "unit_metadata_required",
+        "tolerance_profile_refs_required",
+        "diagnostics_required",
+        "provenance_required",
+        "assumptions_required",
+        "hash_refs_required",
+        "professional_boundary_notice_required"
+      ],
+      "properties": {
+        "format_id": {
+          "const": "comparison_review_json_v1"
+        },
+        "root_schema_ref": {
+          "const": "schemas/comparison_mapping.schema.json"
+        },
+        "stable_ids_required": {
+          "const": true
+        },
+        "mapping_ids_required": {
+          "const": true
+        },
+        "unit_metadata_required": {
+          "const": true
+        },
+        "tolerance_profile_refs_required": {
+          "const": true
+        },
+        "diagnostics_required": {
+          "const": true
+        },
+        "provenance_required": {
+          "const": true
+        },
+        "assumptions_required": {
+          "const": true
+        },
+        "hash_refs_required": {
+          "const": true
+        },
+        "professional_boundary_notice_required": {
+          "const": true
+        }
+      }
+    },
+    "MappingRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapping_id",
+        "mapping_kind",
+        "mapping_status",
+        "left_ref",
+        "right_ref",
+        "affected_refs",
+        "confidence",
+        "review",
+        "provenance"
+      ],
+      "properties": {
+        "mapping_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "mapping_kind": {
+          "type": "string",
+          "enum": [
+            "entity",
+            "result",
+            "diagnostic",
+            "setting",
+            "load_basis",
+            "TBD"
+          ]
+        },
+        "mapping_status": {
+          "$ref": "#/$defs/MappingStatus"
+        },
+        "left_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "right_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AffectedRef"
+          }
+        },
+        "confidence": {
+          "$ref": "#/$defs/MappingConfidence"
+        },
+        "review": {
+          "$ref": "#/$defs/ReviewMetadata"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "MappingConfidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidence_level",
+        "basis",
+        "requires_review"
+      ],
+      "properties": {
+        "confidence_level": {
+          "type": "string",
+          "enum": [
+            "exact_stable_id",
+            "manual_reviewed",
+            "manual_unreviewed",
+            "heuristic_candidate",
+            "unresolved",
+            "not_applicable",
+            "TBD"
+          ]
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requires_review": {
+          "type": "boolean"
+        }
+      }
+    },
+    "MappingStatus": {
+      "type": "string",
+      "enum": [
+        "automatic_match",
+        "manual_match",
+        "unresolved_mapping",
+        "unmatched_left",
+        "unmatched_right",
+        "ignored",
+        "TBD"
+      ]
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "protected_suspected",
+        "redacted",
+        "TBD"
+      ]
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
+        "notice"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        },
+        "notice": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": [
+            "Project",
+            "Model",
+            "ModelState",
+            "AnalysisRun",
+            "ResultEnvelope",
+            "UnitSystem",
+            "LoadCase",
+            "LoadCombination",
+            "Entity",
+            "Result",
+            "Diagnostic",
+            "SolverSettings",
+            "ToleranceProfile",
+            "ComparisonMapping",
+            "ComparisonExport",
+            "ReportSection",
+            "ExternalReference",
+            "TBD"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "ReportSectionExportRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "section_ref",
+        "export_role",
+        "rendering_status"
+      ],
+      "properties": {
+        "section_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "export_role": {
+          "type": "string",
+          "enum": [
+            "comparison_summary",
+            "mapping_table",
+            "unmatched_items",
+            "tolerance_profile_summary",
+            "diagnostics_summary",
+            "assumptions_summary",
+            "TBD"
+          ]
+        },
+        "rendering_status": {
+          "const": "reserved_reference_only_not_implemented"
+        }
+      }
+    },
+    "ReviewMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_status",
+        "reviewer_ref",
+        "reviewed_at",
+        "review_note"
+      ],
+      "properties": {
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "reviewer_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "StableRecordReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_type",
+        "record_ref",
+        "schema_ref",
+        "immutable_hash_refs"
+      ],
+      "properties": {
+        "record_type": {
+          "type": "string",
+          "enum": [
+            "model_state_record",
+            "analysis_run_record",
+            "result_export_envelope",
+            "TBD"
+          ]
+        },
+        "record_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "schema_ref": {
+          "type": "string",
+          "enum": [
+            "schemas/model_state.schema.json",
+            "schemas/analysis_run.schema.json",
+            "schemas/results.schema.yaml",
+            "TBD"
+          ]
+        },
+        "immutable_hash_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        }
+      }
+    },
+    "UnmatchedClassification": {
+      "type": "string",
+      "enum": [
+        "left_only",
+        "right_only",
+        "missing_counterpart",
+        "intentionally_ignored",
+        "not_comparable",
+        "scope_excluded",
+        "unresolved_TBD",
+        "TBD"
+      ]
+    },
+    "UnmatchedRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unmatched_id",
+        "classification",
+        "subject_ref",
+        "affected_refs",
+        "review",
+        "provenance"
+      ],
+      "properties": {
+        "unmatched_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "classification": {
+          "$ref": "#/$defs/UnmatchedClassification"
+        },
+        "subject_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AffectedRef"
+          }
+        },
+        "review": {
+          "$ref": "#/$defs/ReviewMetadata"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

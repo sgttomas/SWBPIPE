@@ -1,0 +1,66 @@
+# MEMORY - DEL-16-04 Agent rationale and professional-boundary controls
+
+## Implementation Notes
+
+- Added `core/model_operations/agent_rationale/` as a deterministic Python
+  record builder matching the local PKG-16 model-operation patterns.
+- Rationale records preserve source/actor metadata, rationale text,
+  assumptions, validation context, affected entities, operation context, and
+  audit references.
+- Rationale output is decision-support metadata only. It does not create
+  accepted operation records, mutate accepted model state, or bypass the
+  user-acceptance posture.
+- Missing audit context, validation context, source metadata, actor metadata,
+  rationale text, and timestamp are emitted as explicit `TBD_VISIBLE`
+  diagnostics.
+- Unsupported authority language is surfaced as blocking professional-boundary
+  diagnostics while keeping the record in a non-accepting posture.
+
+## Data Boundary
+
+- Tests and examples use invented component, model, user, agent, and audit
+  references only.
+- No protected standards text, restricted project payloads, non-public
+  examples, credentials, external prover integration, or professional reliance
+  claims were introduced.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+- Reconciled archived Tranche J evidence for `DEL-16-04`: commit `68d863b`
+  (`core: implement tranche j boundary controls`) added
+  `core/model_operations/agent_rationale/__init__.py`,
+  `core/model_operations/agent_rationale/engine.py`,
+  `tests/test_agent_rationale_boundary.py`, and this deliverable memory as the
+  implementation surface.
+- Archived review and closeout records describe deterministic agent-rationale
+  records and professional-boundary diagnostics over operation/audit context,
+  source/actor metadata, validation context, assumptions, affected entities,
+  and audit references while keeping rationale as decision-support metadata.
+- Verification evidence recorded passing focused agent-rationale tests,
+  adjacent operation/model/schema/unit checks, `git diff --check`, and
+  protected/private/secret/authority scans over the Tranche J surfaces.
+- Preserved boundaries: no GUI runtime, hidden accepted-model mutation,
+  autonomous engineering decision flow, external validation authority,
+  private/protected data, or professional reliance workflow was recorded;
+  downstream or later-gated scope remains deferred.
+- Lifecycle/evidence reconciliation preserves `CHECKING` with committed
+  implementation evidence in archived status rows; no human engineering
+  signoff state is claimed.
+
+## 2026-05-16 - DEV-001 downstream PKG-02 audit memory addendum
+
+Durable context preserved after reconciliation review:
+- DEV-001 package-worker audit reviewed this deliverable for downstream compatibility with the accepted PKG-02 foundation contracts.
+- Local audit artifacts are `execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_REVIEW.md` and `execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Review_Findings.csv`.
+- Package audit summary is `execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/_audit/PKG02_DOWNSTREAM_REVIEW_2026-05-16.md`; package run record is `execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/_run_records/TASK_RUN_2026-05-16_PKG16_PKG02_DOWNSTREAM_AUDIT.md`.
+- This was audit evidence only. It did not change lifecycle state, authorize release, or make a professional, certification, sealing, approval, or code-compliance claim.
+- The May 16 package-worker TASK run record did not fully preserve canonical per-deliverable TASK documentation context; this addendum preserves the durable deliverable-local pointer without modifying the completed run record.
+
+## 2026-05-16 - DEV-001 PKG-02 grounded finding-resolution memory addendum
+
+Durable context preserved after PKG-02 grounded finding resolution:
+- Stage 2 technical resolution used the accepted PKG-02 contract as the governing source for this deliverable's downstream compatibility evidence.
+- Original audit finding count for this deliverable: 1 (WARNING=1). Current technical status count in the resolution matrix: TECHNICALLY_ADDRESSED_PENDING_HUMAN=1.
+- Resolution evidence is indexed in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/RESOLUTION_MATRIX.csv`; validation evidence is summarized in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/VALIDATION_SUMMARY.md`.
+- Local `Review_Findings.csv` entries remain subject to the human disposition gate. `HumanDisposition` stays `TBD` until review, and `Status` must not be changed to `RESOLVED` automatically.
+- No lifecycle promotion, release claim, or professional/code-compliance claim is implied by the technical closeout.

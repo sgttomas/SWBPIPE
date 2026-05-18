@@ -1,0 +1,1191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/handoff_package.schema.json",
+  "title": "OpenPipeStress Canonical Handoff Package Schema",
+  "description": "Strict JSON Schema 2020-12 contract for canonical handoff package records and manifest metadata. Handoff packages reference model, state, run, result, unit, library, rule, checksum, provenance, target mapping, warning, assumption, diagnostic, privacy, and review metadata for downstream modeling and review without embedding private payloads, finalizing a physical package, invoking external provers, or creating professional reliance records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "handoff_contract_status",
+    "handoff_package_manifest"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-15-01"
+    },
+    "package_id": {
+      "const": "PKG-15"
+    },
+    "scope_item": {
+      "const": "SOW-074"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-017"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-017"
+        ]
+      }
+    },
+    "handoff_contract_status": {
+      "$ref": "#/$defs/HandoffContractStatus"
+    },
+    "handoff_package_manifest": {
+      "$ref": "#/$defs/HandoffPackageManifest"
+    }
+  },
+  "$defs": {
+    "AnalysisRunRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analysis_run_ref",
+        "analysis_run_schema",
+        "run_kind",
+        "hash_refs",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "analysis_run_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "analysis_run_schema": {
+          "const": "schemas/analysis_run.schema.json"
+        },
+        "run_kind": {
+          "type": "string",
+          "enum": [
+            "mechanics_solve",
+            "rule_check",
+            "combined_analysis",
+            "export_generation",
+            "comparison_input",
+            "TBD"
+          ]
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "AssumptionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumption_id",
+        "statement",
+        "status",
+        "affected_refs",
+        "provenance"
+      ],
+      "properties": {
+        "assumption_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unresolved",
+            "requires_human_review",
+            "resolved_by_reference",
+            "TBD"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "JCS_compatible_json_payload_hash",
+            "external_file_native",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "handoff_package_manifest",
+            "canonical_handoff_record",
+            "model_payload",
+            "model_hash",
+            "units_manifest",
+            "entity_id_manifest",
+            "model_state_record",
+            "analysis_run_record",
+            "result_export_record",
+            "library_reference_metadata",
+            "rule_pack_reference_metadata",
+            "local_fea_handoff_record",
+            "audit_manifest",
+            "external_reference",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "LOCAL_HANDOFF_WARNING",
+            "EXPORT_BLOCKING",
+            "TARGET_MAPPING_WARNING",
+            "UNSUPPORTED_BEHAVIOR_WARNING",
+            "PRIVACY_WARNING",
+            "HASH_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "EntityIdManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_ids",
+        "node_ids",
+        "element_ids",
+        "station_ids",
+        "load_case_ids",
+        "result_ids",
+        "model_state_ids",
+        "analysis_run_ids",
+        "mapping_id_refs"
+      ],
+      "properties": {
+        "component_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "node_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "element_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "station_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "load_case_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "result_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "model_state_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "analysis_run_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "mapping_id_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      }
+    },
+    "HandoffContractStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_contract",
+        "manifest_contract",
+        "model_schema_binding",
+        "units_schema_binding",
+        "model_state_binding",
+        "analysis_run_binding",
+        "result_export_binding",
+        "local_fea_handoff_binding",
+        "audit_hash_binding",
+        "target_mapping_taxonomy",
+        "physical_package_container",
+        "external_prover_status",
+        "professional_boundary"
+      ],
+      "properties": {
+        "record_contract": {
+          "const": "schema_first_canonical_handoff_package_records"
+        },
+        "manifest_contract": {
+          "const": "schema_first_handoff_manifest_metadata"
+        },
+        "model_schema_binding": {
+          "const": "schemas/model.schema.yaml"
+        },
+        "units_schema_binding": {
+          "const": "schemas/units.schema.yaml"
+        },
+        "model_state_binding": {
+          "const": "schemas/model_state.schema.json"
+        },
+        "analysis_run_binding": {
+          "const": "schemas/analysis_run.schema.json"
+        },
+        "result_export_binding": {
+          "const": "schemas/results.schema.yaml"
+        },
+        "local_fea_handoff_binding": {
+          "const": "schemas/local_fea_handoff.schema.yaml"
+        },
+        "audit_hash_binding": {
+          "const": "hash_records_follow_audit_manifest_predecessor_semantics"
+        },
+        "target_mapping_taxonomy": {
+          "const": "reserved_for_DEL-15-02"
+        },
+        "physical_package_container": {
+          "const": "TBD"
+        },
+        "external_prover_status": {
+          "const": "not_declared_by_handoff_package"
+        },
+        "professional_boundary": {
+          "const": "downstream_modeling_and_review_support_only"
+        }
+      }
+    },
+    "HandoffPackageManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_identity",
+        "model_basis",
+        "model_hash",
+        "units_manifest",
+        "entity_ids",
+        "model_state_refs",
+        "analysis_run_refs",
+        "result_export_refs",
+        "library_refs",
+        "rule_pack_refs",
+        "checksums",
+        "target_mapping_metadata",
+        "unsupported_behavior_flags",
+        "unresolved_assumptions",
+        "warnings",
+        "diagnostics",
+        "privacy",
+        "redistribution_classification",
+        "review_classification",
+        "provenance",
+        "professional_boundary"
+      ],
+      "properties": {
+        "package_identity": {
+          "$ref": "#/$defs/PackageIdentity"
+        },
+        "model_basis": {
+          "$ref": "#/$defs/ModelBasis"
+        },
+        "model_hash": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "units_manifest": {
+          "$ref": "#/$defs/UnitsManifestRef"
+        },
+        "entity_ids": {
+          "$ref": "#/$defs/EntityIdManifest"
+        },
+        "model_state_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ModelStateRef"
+          }
+        },
+        "analysis_run_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AnalysisRunRef"
+          }
+        },
+        "result_export_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResultExportRef"
+          }
+        },
+        "library_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LibraryRef"
+          }
+        },
+        "rule_pack_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RulePackRef"
+          }
+        },
+        "checksums": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "target_mapping_metadata": {
+          "$ref": "#/$defs/TargetMappingMetadata"
+        },
+        "unsupported_behavior_flags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnsupportedBehaviorFlag"
+          }
+        },
+        "unresolved_assumptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AssumptionRecord"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "privacy": {
+          "$ref": "#/$defs/PrivacyContext"
+        },
+        "redistribution_classification": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_classification": {
+          "$ref": "#/$defs/ReviewClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "LibraryRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_ref",
+        "library_kind",
+        "version",
+        "checksum",
+        "source_notice",
+        "redistribution_status",
+        "review_classification",
+        "privacy_classification",
+        "private_payload_redacted",
+        "provenance"
+      ],
+      "properties": {
+        "library_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "library_kind": {
+          "type": "string",
+          "enum": [
+            "material",
+            "section",
+            "component",
+            "rule_pack",
+            "project_private",
+            "commercial_tool_reference",
+            "TBD"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "source_notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_classification": {
+          "$ref": "#/$defs/ReviewClassification"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "private_payload_redacted": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ModelBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_ref",
+        "model_schema",
+        "model_kind",
+        "basis_state_ref",
+        "source_refs",
+        "hash_refs",
+        "provenance"
+      ],
+      "properties": {
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "model_schema": {
+          "const": "schemas/model.schema.yaml"
+        },
+        "model_kind": {
+          "type": "string",
+          "enum": [
+            "canonical_domain_model",
+            "centerline_frame_global_analysis",
+            "handoff_basis",
+            "TBD"
+          ]
+        },
+        "basis_state_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ModelStateRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_state_ref",
+        "model_state_schema",
+        "state_kind",
+        "hash_refs",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "model_state_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "model_state_schema": {
+          "const": "schemas/model_state.schema.json"
+        },
+        "state_kind": {
+          "type": "string",
+          "enum": [
+            "design_snapshot",
+            "pre_solve_snapshot",
+            "post_solve_snapshot",
+            "comparison_basis",
+            "handoff_basis",
+            "TBD"
+          ]
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "PackageIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handoff_package_id",
+        "manifest_id",
+        "package_schema_version",
+        "created_at",
+        "created_by",
+        "package_label",
+        "package_kind"
+      ],
+      "properties": {
+        "handoff_package_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "manifest_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "package_schema_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "created_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "package_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "package_kind": {
+          "type": "string",
+          "enum": [
+            "canonical_handoff_manifest",
+            "local_fea_handoff_manifest",
+            "external_prover_handoff_manifest",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_library_data",
+        "private_rule_pack_data",
+        "commercial_tool_metadata",
+        "protected_suspected",
+        "redacted",
+        "TBD"
+      ]
+    },
+    "PrivacyContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "local_only": {
+          "const": true
+        },
+        "telemetry_allowed": {
+          "const": false
+        },
+        "private_payload_embedded": {
+          "const": false
+        },
+        "protected_payload_embedded": {
+          "const": false
+        },
+        "commercial_tool_payload_embedded": {
+          "const": false
+        },
+        "redaction_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_downstream_modeling",
+        "supports_downstream_review",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "supports_downstream_modeling": {
+          "const": true
+        },
+        "supports_downstream_review": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        },
+        "software_creates_professional_reliance_record": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_attestation",
+        "redistribution_status",
+        "review_classification",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_attestation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_classification": {
+          "$ref": "#/$defs/ReviewClassification"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "commercial_tool_reference_only",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "enum": [
+            "Project",
+            "Model",
+            "ModelState",
+            "AnalysisRun",
+            "ResultEnvelope",
+            "UnitSystem",
+            "EntityIdManifest",
+            "Library",
+            "RulePack",
+            "AuditManifest",
+            "LocalFeaHandoff",
+            "HandoffPackage",
+            "TargetMapping",
+            "UnsupportedBehaviorFlag",
+            "Assumption",
+            "Diagnostic",
+            "ExternalReference",
+            "TBD"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "ResultExportRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_export_ref",
+        "result_schema",
+        "result_family",
+        "hash_refs",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "result_export_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "result_schema": {
+          "const": "schemas/results.schema.yaml"
+        },
+        "result_family": {
+          "type": "string",
+          "enum": [
+            "displacement",
+            "rotation",
+            "force",
+            "moment",
+            "reaction",
+            "stress",
+            "ratio",
+            "rule_check",
+            "diagnostic",
+            "TBD"
+          ]
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ReviewClassification": {
+      "type": "string",
+      "enum": [
+        "unreviewed",
+        "machine_checked",
+        "human_review_required",
+        "human_reviewed_reference_only",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "RulePackRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_pack_id",
+        "version",
+        "checksum",
+        "source_notice",
+        "redistribution_status",
+        "review_classification",
+        "privacy_classification",
+        "private_payload_redacted",
+        "provenance"
+      ],
+      "properties": {
+        "rule_pack_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "source_notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_classification": {
+          "$ref": "#/$defs/ReviewClassification"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "private_payload_redacted": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "TargetMappingMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapping_schema_status",
+        "target_system_kind",
+        "target_mapping_refs",
+        "field_mapping_summary",
+        "unsupported_behavior_refs",
+        "approximate_behavior_refs",
+        "detailed_taxonomy_owner",
+        "provenance"
+      ],
+      "properties": {
+        "mapping_schema_status": {
+          "const": "reserved_metadata_only"
+        },
+        "target_system_kind": {
+          "type": "string",
+          "enum": [
+            "local_fea",
+            "external_prover",
+            "commercial_tool_reference",
+            "generic_downstream_modeling",
+            "TBD"
+          ]
+        },
+        "target_mapping_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "field_mapping_summary": {
+          "type": "string"
+        },
+        "unsupported_behavior_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "approximate_behavior_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "detailed_taxonomy_owner": {
+          "const": "DEL-15-02"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "UnitsManifestRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_system_ref",
+        "units_schema",
+        "dimension_basis",
+        "coordinate_unit",
+        "force_unit",
+        "moment_unit",
+        "displacement_unit",
+        "rotation_unit",
+        "stress_unit",
+        "temperature_unit",
+        "hash_refs",
+        "provenance"
+      ],
+      "properties": {
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "units_schema": {
+          "const": "schemas/units.schema.yaml"
+        },
+        "dimension_basis": {
+          "const": "schemas/units.schema.yaml"
+        },
+        "coordinate_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "force_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "moment_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displacement_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rotation_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stress_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "temperature_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "UnsupportedBehaviorFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "flag_id",
+        "behavior_label",
+        "status",
+        "target_ref",
+        "affected_refs",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "flag_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "behavior_label": {
+          "type": "string",
+          "enum": [
+            "target_format_not_selected",
+            "target_mapping_taxonomy_pending",
+            "mesh_generation_not_performed",
+            "external_solver_not_invoked",
+            "external_prover_not_invoked",
+            "commercial_tool_parser_not_implemented",
+            "physical_package_not_finalized",
+            "boundary_transfer_requires_review",
+            "approximate_behavior_requires_review",
+            "unsupported_target_behavior",
+            "TBD"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unsupported",
+            "approximate",
+            "requires_human_review",
+            "not_implemented",
+            "TBD"
+          ]
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

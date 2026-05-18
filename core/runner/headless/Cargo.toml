@@ -1,0 +1,15 @@
+[package]
+name = "open_pipe_stress_headless_runner"
+version = "0.1.0"
+edition = "2021"
+description = "Headless runner contract support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../product_physics" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"

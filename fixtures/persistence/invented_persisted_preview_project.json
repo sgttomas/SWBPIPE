@@ -1,0 +1,963 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.project_persistence",
+  "physical_container": {
+    "status": "accepted",
+    "profile": "sqlite_local_project_store",
+    "decision_ref": "SCA-003",
+    "storage_role": "local_store_index_projection",
+    "canonical_truth": "canonical_json_jcs_payload",
+    "sql_public_contract": false,
+    "direct_sql_access_allowed": false,
+    "hosted_db_allowed": false,
+    "network_required": false,
+    "sidecars_rebuildable": true,
+    "notes": "SQLite stores canonical JSON bytes and indexed projections; SQL is not a public contract."
+  },
+  "project": {
+    "project_id": "project:invented_loop_01",
+    "project_name": "Invented persisted preview project",
+    "unit_system_ref": {
+      "ref_kind": "schema",
+      "ref": "unit-system:SI-preview"
+    },
+    "model_payload": {
+      "project": {
+        "description": "Canonical invented project payload for TP-PER-01 persistence service tests.",
+        "diagnostics": [],
+        "hashes": [],
+        "id": "project:invented_loop_01",
+        "models": [
+          {
+            "analysis_run_refs": [
+              {
+                "id": "run:preview-linear-static-001",
+                "object_type": "AnalysisRun"
+              }
+            ],
+            "combinations": [
+              {
+                "basis": "mechanics",
+                "id": "combination:C-OPER-ALT",
+                "name": "Invented explicit operating plus alternate preview",
+                "provenance": {
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted",
+                  "source_license": "project invented",
+                  "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                  "source_name": "invented canonical persistence fixture"
+                },
+                "terms": [
+                  {
+                    "factor": 1.0,
+                    "load_case_ref": {
+                      "id": "loadcase:L100",
+                      "object_type": "LoadCase"
+                    }
+                  },
+                  {
+                    "factor": 0.5,
+                    "load_case_ref": {
+                      "id": "loadcase:L200",
+                      "object_type": "LoadCase"
+                    }
+                  }
+                ]
+              }
+            ],
+            "comparison_refs": [],
+            "components": [],
+            "constraint_refs": [],
+            "coordinate_system": {
+              "axes": [
+                "X",
+                "Y",
+                "Z"
+              ],
+              "type": "cartesian"
+            },
+            "design_knowledge_refs": [],
+            "diagnostics": [],
+            "elements": [
+              {
+                "element_type": "straight_pipe",
+                "end_node_ref": {
+                  "id": "node:N140",
+                  "object_type": "Node"
+                },
+                "id": "element:P120",
+                "local_coordinate_system": {
+                  "axes": [
+                    "X",
+                    "Y",
+                    "Z"
+                  ],
+                  "type": "cartesian"
+                },
+                "material_ref": {
+                  "id": "material:invented_carbon_steel",
+                  "object_type": "Material"
+                },
+                "result_stations": [
+                  {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 0
+                  },
+                  {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 1
+                  }
+                ],
+                "section_ref": {
+                  "id": "section:invented_pipe",
+                  "object_type": "Section"
+                },
+                "start_node_ref": {
+                  "id": "node:N100",
+                  "object_type": "Node"
+                }
+              }
+            ],
+            "equipment_interface_refs": [],
+            "external_reference_refs": [],
+            "handoff_package_refs": [],
+            "id": "model:invented_loop_analytical",
+            "load_cases": [
+              {
+                "id": "loadcase:L100",
+                "load_type": "other",
+                "loads": [
+                  {
+                    "direction": "UZ",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "quantity": {
+                      "dimension": "force",
+                      "provenance": {
+                        "contributor": "OpenPipeStress",
+                        "contributor_certification": "invented non-engineering example",
+                        "redistribution_status": "public_permissive",
+                        "review_status": "accepted",
+                        "source_license": "project invented",
+                        "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                        "source_name": "invented canonical persistence fixture"
+                      },
+                      "unit": "N/m",
+                      "value": -190
+                    },
+                    "target_ref": {
+                      "id": "element:P120",
+                      "object_type": "Element"
+                    }
+                  },
+                  {
+                    "direction": "legacy_ignored_for_uniform_axial_thermal_preview",
+                    "id": "load:L100-T",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "quantity": {
+                      "dimension": "temperature_change",
+                      "provenance": {
+                        "contributor": "OpenPipeStress",
+                        "contributor_certification": "invented non-engineering example",
+                        "redistribution_status": "public_permissive",
+                        "review_status": "accepted",
+                        "source_license": "project invented",
+                        "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                        "source_name": "invented canonical persistence fixture"
+                      },
+                      "unit": "degC",
+                      "value": 12.5
+                    },
+                    "target_ref": {
+                      "id": "element:P120",
+                      "object_type": "Element"
+                    }
+                  }
+                ],
+                "name": "Invented gravity, pressure, and thermal preview",
+                "provenance": {
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted",
+                  "source_license": "project invented",
+                  "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                  "source_name": "invented canonical persistence fixture"
+                }
+              },
+              {
+                "id": "loadcase:L200",
+                "load_type": "other",
+                "loads": [
+                  {
+                    "direction": "UZ",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "quantity": {
+                      "dimension": "force",
+                      "provenance": {
+                        "contributor": "OpenPipeStress",
+                        "contributor_certification": "invented non-engineering example",
+                        "redistribution_status": "public_permissive",
+                        "review_status": "accepted",
+                        "source_license": "project invented",
+                        "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                        "source_name": "invented canonical persistence fixture"
+                      },
+                      "unit": "N/m",
+                      "value": -95
+                    },
+                    "target_ref": {
+                      "id": "element:P120",
+                      "object_type": "Element"
+                    }
+                  },
+                  {
+                    "direction": "UY",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "quantity": {
+                      "dimension": "force",
+                      "provenance": {
+                        "contributor": "OpenPipeStress",
+                        "contributor_certification": "invented non-engineering example",
+                        "redistribution_status": "public_permissive",
+                        "review_status": "accepted",
+                        "source_license": "project invented",
+                        "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                        "source_name": "invented canonical persistence fixture"
+                      },
+                      "unit": "N",
+                      "value": 125
+                    },
+                    "target_ref": {
+                      "id": "node:N140",
+                      "object_type": "Node"
+                    }
+                  }
+                ],
+                "name": "Invented alternate gravity and pressure preview",
+                "provenance": {
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted",
+                  "source_license": "project invented",
+                  "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                  "source_name": "invented canonical persistence fixture"
+                }
+              }
+            ],
+            "materials": [
+              {
+                "id": "material:invented_carbon_steel",
+                "name": "Invented carbon-steel-like material",
+                "properties": {
+                  "elastic_modulus": {
+                    "dimension": "stress",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "Pa",
+                    "value": 200000000000
+                  },
+                  "shear_modulus": {
+                    "dimension": "stress",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "Pa",
+                    "value": 77000000000
+                  },
+                  "thermal_expansion_coefficient": {
+                    "dimension": "inverse_temperature",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "1/degC",
+                    "value": 1.2e-05
+                  }
+                },
+                "provenance": {
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted",
+                  "source_license": "project invented",
+                  "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                  "source_name": "invented canonical persistence fixture"
+                }
+              }
+            ],
+            "model_role": "analytical_solver_model",
+            "model_state_refs": [
+              {
+                "id": "state:preview_tp_per_01",
+                "object_type": "ModelState"
+              }
+            ],
+            "name": "Invented loop analytical model",
+            "nodes": [
+              {
+                "coordinates": {
+                  "x": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 0
+                  },
+                  "y": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 0
+                  },
+                  "z": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 0
+                  }
+                },
+                "degrees_of_freedom": {
+                  "RX": "free",
+                  "RY": "free",
+                  "RZ": "free",
+                  "UX": "free",
+                  "UY": "free",
+                  "UZ": "free"
+                },
+                "id": "node:N100"
+              },
+              {
+                "coordinates": {
+                  "x": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 7.6
+                  },
+                  "y": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 2.4
+                  },
+                  "z": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 2.2
+                  }
+                },
+                "degrees_of_freedom": {
+                  "RX": "free",
+                  "RY": "free",
+                  "RZ": "free",
+                  "UX": "free",
+                  "UY": "free",
+                  "UZ": "free"
+                },
+                "id": "node:N140"
+              }
+            ],
+            "operation_refs": [],
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "public_permissive",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+              "source_name": "invented canonical persistence fixture"
+            },
+            "results": [],
+            "sections": [
+              {
+                "id": "section:invented_pipe",
+                "name": "Invented pipe section",
+                "properties": {
+                  "outside_diameter": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 0.168
+                  },
+                  "wall_thickness": {
+                    "dimension": "length",
+                    "provenance": {
+                      "contributor": "OpenPipeStress",
+                      "contributor_certification": "invented non-engineering example",
+                      "redistribution_status": "public_permissive",
+                      "review_status": "accepted",
+                      "source_license": "project invented",
+                      "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                      "source_name": "invented canonical persistence fixture"
+                    },
+                    "unit": "m",
+                    "value": 0.007
+                  }
+                },
+                "provenance": {
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted",
+                  "source_license": "project invented",
+                  "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                  "source_name": "invented canonical persistence fixture"
+                },
+                "section_type": "pipe"
+              }
+            ],
+            "supports": [
+              {
+                "directions": [
+                  "UX",
+                  "UY",
+                  "UZ",
+                  "RX",
+                  "RY",
+                  "RZ"
+                ],
+                "id": "support:S100",
+                "properties": {},
+                "provenance": {
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "accepted",
+                  "source_license": "project invented",
+                  "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+                  "source_name": "invented canonical persistence fixture"
+                },
+                "support_type": "anchor",
+                "target_ref": {
+                  "id": "node:N100",
+                  "object_type": "Node"
+                }
+              }
+            ],
+            "traceability_links": [],
+            "unresolved_assumptions": []
+          }
+        ],
+        "name": "Invented persisted preview project",
+        "privacy_class": "public",
+        "report_settings": {
+          "id": "report_settings:preview",
+          "include_input_manifest": true,
+          "include_professional_boundary_notice": true,
+          "include_provenance_summary": true,
+          "provenance": {
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "invented non-engineering example",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "source_license": "project invented",
+            "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+            "source_name": "invented canonical persistence fixture"
+          },
+          "result_refs": [],
+          "rule_pack_refs": []
+        },
+        "reports": [],
+        "rule_pack_refs": [],
+        "storage_policy": "public_example",
+        "unit_system": {
+          "base_units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "mass": "kg",
+            "temperature": "degC"
+          },
+          "id": "unit:si_preview"
+        }
+      },
+      "schema_version": "0.1.0"
+    },
+    "rule_pack_refs": [],
+    "provenance_manifest": [
+      {
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering example",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted",
+        "source_license": "project invented",
+        "source_location": "fixtures/persistence/invented_persisted_preview_project.json",
+        "source_name": "invented canonical persistence fixture"
+      }
+    ],
+    "private_data": {
+      "classification": "public_permissive",
+      "redistribution_status": "public_permissive",
+      "default_transmission_allowed": false,
+      "quarantine_required": false,
+      "review_status": "accepted"
+    },
+    "human_acceptance_refs": [],
+    "run_history": {
+      "model_state_refs": [
+        {
+          "ref": "state:preview_tp_per_01",
+          "ref_kind": "model_state"
+        }
+      ],
+      "model_state_records": [],
+      "analysis_run_refs": [
+        {
+          "ref": "run:preview-linear-static-001",
+          "ref_kind": "analysis_run"
+        }
+      ],
+      "analysis_run_records": [],
+      "result_envelope_refs": [
+        {
+          "ref": "result-envelope:run:preview-linear-static-001",
+          "ref_kind": "result_envelope"
+        }
+      ],
+      "result_refs": [
+        {
+          "ref": "result:disp:node-N-140",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:stress:pipe-P-120",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:force:pipe-P-120:axial",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:force:pipe-P-120:axial:end-j",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:force:pipe-P-120:midspan:axial",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:force:pipe-P-120:quarter-1:shear-y",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:force:pipe-P-120:shear-y",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:combination:combination-C-OPER-ALT:force:pipe-P-120:quarter-1:shear-y",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:stress:pipe-P-120:end-j:torsional-shear",
+          "ref_kind": "result"
+        },
+        {
+          "ref": "result:stress:pipe-P-120:quarter-1:torsional-shear",
+          "ref_kind": "result"
+        }
+      ],
+      "hash_manifest": []
+    }
+  },
+  "migration": {
+    "status": "current",
+    "source_schema_version": "0.1.0",
+    "target_schema_version": "0.1.0",
+    "db_migration_status": "current",
+    "product_schema_migration_status": "current",
+    "migration_framework": "application_service_separate_db_and_product_schema",
+    "diagnostics": []
+  },
+  "external_artifacts": [],
+  "retrieval_sidecars": [
+    {
+      "sidecar_kind": "sqlite_fts5_bm25",
+      "authoritative": false,
+      "rebuildable": true,
+      "affects_project_hash": false,
+      "local_only": true,
+      "artifact_ref": {
+        "ref_kind": "retrieval_sidecar",
+        "ref": "sidecar:sqlite-fts5-bm25"
+      },
+      "notes": "Local FTS5/BM25 index; may be deleted and rebuilt from canonical payloads."
+    }
+  ],
+  "round_trip_manifest": {
+    "serialization": "canonical_json_jcs",
+    "semantic_equality": [
+      "model_content",
+      "unit_metadata",
+      "loads",
+      "rule_pack_refs",
+      "provenance_metadata",
+      "reproducibility_metadata"
+    ],
+    "volatile_fields": [],
+    "normalization_rules": [
+      "schema_approved_only",
+      "no_silent_engineering_defaults",
+      "documented_volatile_field_exclusion"
+    ]
+  },
+  "validation_profile": {
+    "schema_validation": true,
+    "model_schema_delegation": "schemas/model.schema.yaml",
+    "unit_metadata_check": true,
+    "provenance_check": true,
+    "rule_pack_reference_check": true,
+    "protected_content_check": true,
+    "private_data_check": true,
+    "professional_boundary_check": true,
+    "telemetry_default": "off"
+  },
+  "service_operations": [
+    {
+      "operation": "create_project",
+      "boundary": "application_service",
+      "minimum_inputs": [
+        "project_envelope"
+      ],
+      "minimum_outputs": [
+        "project_envelope",
+        "diagnostics",
+        "hash_manifest"
+      ],
+      "diagnostic_classes": [
+        "SCHEMA_VALIDATION",
+        "MIGRATION",
+        "DB_MIGRATION",
+        "PRODUCT_SCHEMA_MIGRATION",
+        "UNIT_METADATA",
+        "PROVENANCE_WARNING",
+        "RULE_CHECK_BLOCKING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA",
+        "EXTERNAL_ARTIFACT",
+        "PROFESSIONAL_BOUNDARY"
+      ],
+      "bypass_prohibited": true
+    },
+    {
+      "operation": "open_project",
+      "boundary": "application_service",
+      "minimum_inputs": [
+        "project_envelope"
+      ],
+      "minimum_outputs": [
+        "project_envelope",
+        "diagnostics",
+        "hash_manifest"
+      ],
+      "diagnostic_classes": [
+        "SCHEMA_VALIDATION",
+        "MIGRATION",
+        "DB_MIGRATION",
+        "PRODUCT_SCHEMA_MIGRATION",
+        "UNIT_METADATA",
+        "PROVENANCE_WARNING",
+        "RULE_CHECK_BLOCKING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA",
+        "EXTERNAL_ARTIFACT",
+        "PROFESSIONAL_BOUNDARY"
+      ],
+      "bypass_prohibited": true
+    },
+    {
+      "operation": "save_project",
+      "boundary": "application_service",
+      "minimum_inputs": [
+        "project_envelope"
+      ],
+      "minimum_outputs": [
+        "project_envelope",
+        "diagnostics",
+        "hash_manifest"
+      ],
+      "diagnostic_classes": [
+        "SCHEMA_VALIDATION",
+        "MIGRATION",
+        "DB_MIGRATION",
+        "PRODUCT_SCHEMA_MIGRATION",
+        "UNIT_METADATA",
+        "PROVENANCE_WARNING",
+        "RULE_CHECK_BLOCKING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA",
+        "EXTERNAL_ARTIFACT",
+        "PROFESSIONAL_BOUNDARY"
+      ],
+      "bypass_prohibited": true
+    },
+    {
+      "operation": "validate_project",
+      "boundary": "application_service",
+      "minimum_inputs": [
+        "project_envelope"
+      ],
+      "minimum_outputs": [
+        "project_envelope",
+        "diagnostics",
+        "hash_manifest"
+      ],
+      "diagnostic_classes": [
+        "SCHEMA_VALIDATION",
+        "MIGRATION",
+        "DB_MIGRATION",
+        "PRODUCT_SCHEMA_MIGRATION",
+        "UNIT_METADATA",
+        "PROVENANCE_WARNING",
+        "RULE_CHECK_BLOCKING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA",
+        "EXTERNAL_ARTIFACT",
+        "PROFESSIONAL_BOUNDARY"
+      ],
+      "bypass_prohibited": true
+    },
+    {
+      "operation": "version_check",
+      "boundary": "application_service",
+      "minimum_inputs": [
+        "project_envelope"
+      ],
+      "minimum_outputs": [
+        "project_envelope",
+        "diagnostics",
+        "hash_manifest"
+      ],
+      "diagnostic_classes": [
+        "SCHEMA_VALIDATION",
+        "MIGRATION",
+        "DB_MIGRATION",
+        "PRODUCT_SCHEMA_MIGRATION",
+        "UNIT_METADATA",
+        "PROVENANCE_WARNING",
+        "RULE_CHECK_BLOCKING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA",
+        "EXTERNAL_ARTIFACT",
+        "PROFESSIONAL_BOUNDARY"
+      ],
+      "bypass_prohibited": true
+    },
+    {
+      "operation": "migrate_project",
+      "boundary": "application_service",
+      "minimum_inputs": [
+        "project_envelope"
+      ],
+      "minimum_outputs": [
+        "project_envelope",
+        "diagnostics",
+        "hash_manifest"
+      ],
+      "diagnostic_classes": [
+        "SCHEMA_VALIDATION",
+        "MIGRATION",
+        "DB_MIGRATION",
+        "PRODUCT_SCHEMA_MIGRATION",
+        "UNIT_METADATA",
+        "PROVENANCE_WARNING",
+        "RULE_CHECK_BLOCKING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVATE_DATA",
+        "EXTERNAL_ARTIFACT",
+        "PROFESSIONAL_BOUNDARY"
+      ],
+      "bypass_prohibited": true
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "diagnostics": [],
+  "hash": {
+    "canonicalization": "JCS",
+    "project_payload_hash": {
+      "algorithm": "sha256",
+      "canonicalization": "JCS",
+      "payload_ref": {
+        "ref_kind": "project_persistence",
+        "ref": "project-payload"
+      },
+      "payload_scope": "project_payload",
+      "value": "419a8e59283546cdfbf865e0ed34aa3bb1f327bca28410299315b8b8090525e3"
+    },
+    "hash_manifest": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_kind": "project_persistence",
+          "ref": "project-payload"
+        },
+        "payload_scope": "project_payload",
+        "value": "419a8e59283546cdfbf865e0ed34aa3bb1f327bca28410299315b8b8090525e3"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_kind": "model_payload",
+          "ref": "model-payload"
+        },
+        "payload_scope": "model_payload",
+        "value": "4e0359bf65b2cde55e15ea01751f5967c9412f17ac5373e50cf7f360181aebbc"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_kind": "project_persistence",
+          "ref": "project-envelope-without-hash"
+        },
+        "payload_scope": "project_envelope",
+        "value": "958a223d427a8ebf6f32ff06b1abf6048650d4da21c0a15aeb33a422e40ff85a"
+      }
+    ],
+    "payload_partition_status": "json_payloads_defined",
+    "excluded_fields": [
+      "retrieval_sidecars"
+    ]
+  }
+}

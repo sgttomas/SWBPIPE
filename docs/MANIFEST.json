@@ -1,0 +1,32 @@
+{
+  "created": "2026-04-30",
+  "root": "docs/",
+  "files": [
+    "AGENTIC_DEVELOPMENT_WORKFLOW.md",
+    "CONTRACT.md",
+    "DIRECTIVE.md",
+    "INTENT.md",
+    "IP_AND_DATA_BOUNDARY.md",
+    "MANIFEST.json",
+    "PRD.md",
+    "README.md",
+    "SPEC.md",
+    "TYPES.md",
+    "VALIDATION_STRATEGY.md",
+    "_Decomposition/SOFTWARE_DECOMP.md",
+    "_Examples/README.md",
+    "_Registers/ContextBudgetQA.csv",
+    "_Registers/Deliverables.csv",
+    "_Registers/ScopeLedger.csv"
+  ],
+  "scope_item_count": 63,
+  "package_count": 13,
+  "deliverable_count": 73,
+  "objective_count": 13,
+  "context_envelope_counts": {
+    "S": 8,
+    "M": 53,
+    "L": 12,
+    "XL": 0
+  }
+}

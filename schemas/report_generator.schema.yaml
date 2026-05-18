@@ -1,0 +1,732 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/report_generator.schema.yaml",
+  "title": "OpenPipeStress Calculation Report Generator Schema",
+  "description": "Strict JSON syntax schema for deterministic calculation-report assembly from governed model, result, audit, report-section, and rule-pack references. This schema does not implement GUI/CLI/API runtime behavior, protected-content linting, redaction/export controls, or professional/code-compliance claims.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "report_generator_status",
+    "calculation_report"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-08-01"
+    },
+    "package_id": {
+      "const": "PKG-08"
+    },
+    "scope_item": {
+      "const": "SOW-024"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-007"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-007"
+        ]
+      }
+    },
+    "report_generator_status": {
+      "$ref": "#/$defs/ReportGeneratorStatus"
+    },
+    "calculation_report": {
+      "$ref": "#/$defs/CalculationReport"
+    }
+  },
+  "$defs": {
+    "AnalysisStatus": {
+      "type": "string",
+      "description": "Automatic software-emitted statuses allowed in calculation reports. Human acceptance is external and reference-only.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED"
+      ]
+    },
+    "CalculationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_id",
+        "model_input_summary",
+        "load_case_summary",
+        "result_export_refs",
+        "audit_manifest_refs",
+        "report_section_refs",
+        "rule_pack_refs",
+        "diagnostics",
+        "template_slots",
+        "rendered_sections",
+        "analysis_status",
+        "professional_boundary",
+        "provenance",
+        "privacy_classification",
+        "unresolved_runtime_tbds"
+      ],
+      "properties": {
+        "report_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_input_summary": {
+          "$ref": "#/$defs/ModelInputSummary"
+        },
+        "load_case_summary": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/LoadCaseSummary"
+          }
+        },
+        "result_export_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ReferencedEnvelope"
+          }
+        },
+        "audit_manifest_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ReferencedEnvelope"
+          }
+        },
+        "report_section_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ReferencedEnvelope"
+          }
+        },
+        "rule_pack_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RulePackRef"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "template_slots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/TemplateSlot"
+          }
+        },
+        "rendered_sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/RenderedSection"
+          }
+        },
+        "analysis_status": {
+          "type": "array",
+          "contains": {
+            "const": "HUMAN_REVIEW_REQUIRED"
+          },
+          "items": {
+            "$ref": "#/$defs/AnalysisStatus"
+          }
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "unresolved_runtime_tbds": {
+          "type": "array",
+          "contains": {
+            "$ref": "#/$defs/UnresolvedTbd"
+          },
+          "items": {
+            "$ref": "#/$defs/UnresolvedTbd"
+          }
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "enum": [
+            "sha256"
+          ]
+        },
+        "canonicalization": {
+          "enum": [
+            "jcs_compatible",
+            "none",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "REPORT_BLOCKING",
+            "TEMPLATE_BLOCKING"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "DimensionId": {
+      "type": "string",
+      "enum": [
+        "dimensionless",
+        "length",
+        "angle",
+        "force",
+        "moment",
+        "stress",
+        "ratio",
+        "time",
+        "temperature",
+        "pressure",
+        "TBD"
+      ]
+    },
+    "LoadCaseSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_ref",
+        "label",
+        "basis",
+        "source",
+        "provenance"
+      ],
+      "properties": {
+        "load_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "enum": [
+            "load_case",
+            "combination",
+            "result_state",
+            "TBD"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ModelInputSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_ref",
+        "model_ref",
+        "persistence_ref",
+        "unit_system_ref",
+        "model_hash",
+        "input_manifest_ref",
+        "provenance"
+      ],
+      "properties": {
+        "project_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "persistence_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "model_hash": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "input_manifest_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "private_library_data",
+        "protected_suspected",
+        "redacted"
+      ]
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined",
+            "TBD"
+          ]
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ReferencedEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "schema_ref",
+        "checksum",
+        "privacy_classification",
+        "provenance"
+      ],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "schema_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "RenderedSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "section_id",
+        "slot_id",
+        "section_kind",
+        "title",
+        "source_refs",
+        "content_status"
+      ],
+      "properties": {
+        "section_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "section_kind": {
+          "enum": [
+            "model_input_summary",
+            "load_cases",
+            "results",
+            "warnings_assumptions_provenance",
+            "audit_manifest",
+            "rule_pack_references",
+            "limitations",
+            "professional_boundary_notice"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "content_status": {
+          "enum": [
+            "complete",
+            "qualified",
+            "blocked_by_missing_data",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "ReportGeneratorStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_renderer",
+        "template_slot_contract",
+        "neutral_test_output",
+        "gui_presentation",
+        "cli_runtime",
+        "api_transport",
+        "adapter_behavior",
+        "protected_content_linter",
+        "private_redaction_export_controls",
+        "release_template_integration",
+        "final_report_styling_layout_policy"
+      ],
+      "properties": {
+        "baseline_renderer": {
+          "const": "deterministic_in_memory_report_assembly"
+        },
+        "template_slot_contract": {
+          "const": "schema_first_template_slots"
+        },
+        "neutral_test_output": {
+          "const": "structured_text_sections"
+        },
+        "gui_presentation": {
+          "const": "TBD"
+        },
+        "cli_runtime": {
+          "const": "TBD"
+        },
+        "api_transport": {
+          "const": "TBD"
+        },
+        "adapter_behavior": {
+          "const": "TBD"
+        },
+        "protected_content_linter": {
+          "const": "TBD"
+        },
+        "private_redaction_export_controls": {
+          "const": "TBD"
+        },
+        "release_template_integration": {
+          "const": "TBD"
+        },
+        "final_report_styling_layout_policy": {
+          "const": "TBD"
+        }
+      }
+    },
+    "RulePackRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_pack_id",
+        "version",
+        "checksum",
+        "source_notice",
+        "redistribution_status",
+        "completeness_status",
+        "private_payload_redacted"
+      ],
+      "properties": {
+        "rule_pack_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "source_notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "completeness_status": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "not_checked",
+            "TBD"
+          ]
+        },
+        "private_payload_redacted": {
+          "const": true
+        }
+      }
+    },
+    "TemplateSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot_id",
+        "required",
+        "section_kind",
+        "source_contract",
+        "ordering_index"
+      ],
+      "properties": {
+        "slot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "section_kind": {
+          "enum": [
+            "model_input_summary",
+            "load_cases",
+            "results",
+            "warnings_assumptions_provenance",
+            "audit_manifest",
+            "rule_pack_references",
+            "limitations",
+            "professional_boundary_notice"
+          ]
+        },
+        "source_contract": {
+          "$ref": "#/$defs/Reference"
+        },
+        "ordering_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "UnresolvedTbd": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tbd_id",
+        "topic",
+        "affected_scope",
+        "description",
+        "review_needed"
+      ],
+      "properties": {
+        "tbd_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "topic": {
+          "enum": [
+            "gui_presentation",
+            "cli_runtime",
+            "api_transport",
+            "adapter_behavior",
+            "redaction_export_controls",
+            "protected_content_linter",
+            "release_template_integration",
+            "final_report_styling_layout_policy"
+          ]
+        },
+        "affected_scope": {
+          "$ref": "#/$defs/Reference"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_needed": {
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+NonClaimID,Statement,SourcePath
+NC-01,No deliverable-complete claim is made by this audit.,execution/_Reconciliation/LifecycleCorrection/
+NC-02,No release-readiness claim is made by this audit.,execution/_DAG/DAG-003/APPROVAL_RECORD.md
+NC-03,No production-readiness claim is made by this audit.,execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_REV05_RELEASE_READINESS_REVIEW_PACKET.md
+NC-04,"No professional acceptance, certification, sealing, approval, or code-compliance claim is made by this audit.",docs/CONTRACT.md

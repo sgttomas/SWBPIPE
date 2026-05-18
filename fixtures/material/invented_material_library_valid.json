@@ -1,0 +1,157 @@
+{
+  "schema_version": "0.1.0",
+  "material_library": {
+    "library_id": "matlib.invented.public_fixture",
+    "name": "Invented non-engineering material fixture",
+    "library_scope": "public_schema_fixture",
+    "privacy_class": "public_schema_only",
+    "provenance": {
+      "source_name": "OpenPipeStress invented fixture",
+      "source_location": "fixtures/material/invented_material_library_valid.json",
+      "source_license": "TBD",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering fixture; not for project use",
+      "redistribution_status": "TBD",
+      "review_status": "pending"
+    },
+    "review_status": "pending"
+  },
+  "material_records": [
+    {
+      "material_id": "mat.invented.alpha",
+      "name": "Invented Material Alpha",
+      "material_family": "invented_example",
+      "privacy_class": "public_schema_only",
+      "redistribution_status": "TBD",
+      "properties": [
+        {
+          "property_id": "mat.invented.alpha.density",
+          "property_kind": "density",
+          "value_status": "missing",
+          "required_for": "mechanics_solve",
+          "provenance": {
+            "source_name": "OpenPipeStress invented fixture",
+            "source_location": "fixtures/material/invented_material_library_valid.json",
+            "source_license": "TBD",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "invented non-engineering fixture; value intentionally omitted",
+            "redistribution_status": "TBD",
+            "review_status": "pending"
+          },
+          "review_status": "pending"
+        }
+      ],
+      "allowables": [
+        {
+          "allowable_id": "mat.invented.alpha.allowable.slot",
+          "allowable_kind": "user_rule_allowable",
+          "value_status": "not_provided",
+          "public_repository_value_policy": "no_public_code_specific_values",
+          "required_for": "rule_check",
+          "provenance": {
+            "source_name": "OpenPipeStress schema slot",
+            "source_location": "schemas/material.schema.yaml",
+            "source_license": "TBD",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "schema slot only; no allowable value supplied",
+            "redistribution_status": "TBD",
+            "review_status": "pending"
+          },
+          "review_status": "pending"
+        }
+      ],
+      "completeness": [
+        {
+          "finding_id": "mat.invented.alpha.solve.incomplete",
+          "required_for": "mechanics_solve",
+          "status": "incomplete",
+          "missing_property_kinds": [
+            "density",
+            "elastic_modulus",
+            "thermal_expansion_coefficient"
+          ],
+          "diagnostic_code": "MATERIAL_PROPERTY_MISSING"
+        }
+      ],
+      "provenance": {
+        "source_name": "OpenPipeStress invented fixture",
+        "source_location": "fixtures/material/invented_material_library_valid.json",
+        "source_license": "TBD",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering fixture; not for project use",
+        "redistribution_status": "TBD",
+        "review_status": "pending"
+      },
+      "review_status": "pending"
+    }
+  ],
+  "property_definitions": [
+    {
+      "property_kind": "density",
+      "dimension_id": "density",
+      "quantity_kind": "unit_bearing",
+      "unit_required": true,
+      "required_for": "mechanics_solve",
+      "public_fixture_policy": "schema_shape_only",
+      "review_status": "pending"
+    },
+    {
+      "property_kind": "allowable_stress",
+      "dimension_id": "stress",
+      "quantity_kind": "unit_bearing",
+      "unit_required": true,
+      "required_for": "rule_check",
+      "public_fixture_policy": "private_values_only",
+      "review_status": "pending"
+    }
+  ],
+  "completeness_rules": [
+    {
+      "rule_id": "rule.material.solve.minimum",
+      "applies_to": "mechanics_solve",
+      "required_property_kinds": [
+        "density",
+        "elastic_modulus",
+        "thermal_expansion_coefficient"
+      ],
+      "required_for": "mechanics_solve",
+      "missing_behavior": "diagnostic_blocking",
+      "diagnostic_code": "MATERIAL_PROPERTY_MISSING",
+      "review_status": "pending"
+    }
+  ],
+  "diagnostics": [
+    {
+      "diagnostic_id": "diag.material.fixture.incomplete",
+      "code": "MATERIAL_PROPERTY_MISSING",
+      "severity": "blocking",
+      "affected_ref": {
+        "ref_type": "material",
+        "ref_id": "mat.invented.alpha"
+      },
+      "message": "Invented fixture intentionally omits solve-required material values.",
+      "remediation": "Supply reviewed private or public-permissive material values with units and provenance before use.",
+      "provenance": {
+        "source_name": "OpenPipeStress invented fixture",
+        "source_location": "fixtures/material/invented_material_library_valid.json",
+        "source_license": "TBD",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented diagnostic fixture",
+        "redistribution_status": "TBD",
+        "review_status": "pending"
+      },
+      "class": "SOLVE_BLOCKING",
+      "source": "fixtures/material/invented_material_library_valid.json"
+    }
+  ],
+  "open_decisions": [
+    {
+      "decision_id": "mat.dec.public-fixture-policy",
+      "topic": "public_material_fixture_policy",
+      "status": "open",
+      "blocking_scope": "public_fixture_values",
+      "owner": "human project authority",
+      "notes": "Public material fixture values remain omitted until source and redistribution policy is accepted."
+    }
+  ]
+}

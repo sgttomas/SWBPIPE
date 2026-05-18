@@ -1,0 +1,198 @@
+# MEMORY - DEL-05-01 Primitive Load Case Engine
+
+## Implementation Notes
+
+- 2026-05-01: Implemented the bounded primitive load case engine under
+  `core/loads/primitive_loads`.
+- The slice defines mechanics-only primitive categories for weight, pressure,
+  thermal, imposed displacement, hydrotest, wind, seismic, and occasional
+  loads.
+- The implementation prepares deterministic nodal, element-uniform, and
+  imposed-displacement contributions for later consumers.
+- Missing targets, missing magnitudes, invalid target ranges, invalid
+  dimensions, invalid directions, and unsupported category/target combinations
+  are findings, not silent defaults.
+
+## Boundaries Preserved
+
+- No code-specific load combinations were added.
+- No protected standards data, proprietary engineering values, public catalog
+  defaults, rule-pack checks, stress recovery, GUI behavior, headless runner, or
+  professional/code-compliance claims were introduced.
+- Wind and seismic are represented only as user-supplied equivalent mechanics
+  loads. Dynamic or code-procedure generation remains `TBD`.
+
+## Remaining TBDs
+
+- Canonical calculation unit basis and conversion constants.
+- Final result-envelope integration and concrete application-service API.
+- Load-case storage representation.
+- Wind/seismic dynamic treatment and any future lawful procedure generators.
+- Production tolerance policy.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+- Primitive-load evidence: original commit `e3c9695` and the archived
+  `DEV-001_DISPATCH_DEL-05-01.md` match the current
+  `core/loads/primitive_loads` slice: explicit mechanics-only primitive
+  categories, deterministic findings, nodal/element/imposed-displacement
+  contributions, and no code-specific combinations or protected data.
+- Thermal/pressure preview evidence: TP-MAC-06 and TP-MAC-09 are downstream
+  product-preview mechanics slices. Current `core/product_physics` consumes
+  DEL-05-01 thermal and pressure primitive load shapes, then applies bounded
+  uniform axial thermal and closed-end pressure-thrust interpretation from
+  explicit invented inputs; those behaviors do not expand this deliverable's
+  primitive-load ownership.
+- Verification recorded: DEL-05-01 historical evidence remains `COMMITTED`
+  at `e3c9695` and `CHECKING`; TP-MAC-06 and TP-MAC-09 closeouts record focused
+  `core/loads/primitive_loads`, `core/product_physics`, fixture-generation,
+  product-preview, desktop, browser-smoke, and `git diff --check` verification
+  for their downstream preview slices.
+- Deferred boundaries: load-case algebra, stress recovery ownership,
+  result-envelope/API integration, wind/seismic dynamic treatment, broader
+  thermal/pressure behavior, protected rule/code checks, private data,
+  release-readiness, and professional acceptance remain outside DEL-05-01.
+
+## 2026-05-12 TP-PHYS-001 Mechanics Verification
+
+- Executed one approved `TP-PHYS-001` TASK slice for `DEL-05-01` / `PKG-05`
+  with write scope limited to `core/loads/primitive_loads/**`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Added focused primitive-load tests under `core/loads/primitive_loads` for
+  wind and seismic as explicit equivalent mechanics loads, rejection of
+  acceleration/dynamic placeholder dimensions in this slice, and pressure/
+  thermal rejection as nodal user-load stand-ins.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 14
+  tests passed; `git diff --check` passed.
+- Preserved open TBDs: canonical unit basis/conversion constants, final
+  result-envelope/API integration, load-case storage representation,
+  wind/seismic dynamic treatment, production tolerance policy, release
+  thresholds, and professional reliance.
+- No load-case algebra, user-load module, stress-recovery behavior,
+  GUI/product-preview behavior, report behavior, protected standards data,
+  code combinations, allowables, private data, compliance claims, lifecycle
+  edit, dependency edit, coordination edit, or DAG edit was introduced.
+
+## 2026-05-15 TP-PHYS-002 Primitive ForcePerLength Lumping
+
+- Executed the approved `TP-PHYS-002` Worker C slice for `DEL-05-01` /
+  `PKG-05` with write scope limited to `core/loads/primitive_loads/**`, this
+  `MEMORY.md`, and the deliverable-local `_run_records/**` entry.
+- Added `ElementLoadSpan` and `prepare_lumped_nodal_loads` to convert explicit
+  uniform translational/global `ForcePerLength` element loads into two equal
+  nodal force contributions using caller-supplied element span and
+  connectivity. Existing `prepare_loads` and `LoadApplication` behavior remain
+  backward-compatible and still preserve element-uniform contributions.
+- Added findings for missing span/connectivity, duplicate or invalid spans,
+  invalid node/element indices, repeated element nodes, pressure/thermal
+  categories in the lumping API, rotational directions, unsupported targets,
+  and non-`ForcePerLength` inputs such as acceleration.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 20
+  tests passed.
+- Preserved open TBDs: canonical unit basis/conversion constants, final
+  result-envelope/API integration, load-case storage representation,
+  wind/seismic dynamic treatment, production tolerance policy, release
+  thresholds, and professional reliance.
+- No pressure formulas, thermal generation, dynamic wind/seismic procedures,
+  load-case algebra, user-load module changes, stress-recovery behavior,
+  GUI/app harness behavior, report behavior, protected standards data, code
+  combinations, allowables, private data, compliance claims, lifecycle edit,
+  dependency edit, coordination edit, DAG edit, or validation benchmark edit
+  was introduced.
+
+## 2026-05-17 TP-PHYS-004 Deterministic Solver Load Assembly
+
+- Executed approved `TP-PHYS-004-C` TASK slice for `DEL-05-01` / `PKG-05`
+  with write scope limited to `core/loads/primitive_loads/**`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Added `SolverNodalLoadContribution` and `assemble_solver_load_vector` for
+  deterministic straight-pipe solver load-vector assembly from explicit nodal
+  contributions.
+- Assembly sorts accepted contributions by node, global DOF, and source ID,
+  sums repeated node/DOF entries, and blocks without returning a partial vector
+  when any contribution is out of range, non-finite, or inconsistent with the
+  requested node/DOF space.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 25
+  tests passed.
+- Remaining TBDs: load-case algebra beyond deterministic vector assembly,
+  load-case storage representation, final result-envelope/API integration,
+  production tolerance policy, release thresholds, and professional reliance.
+- No `_STATUS.md`, dependency register, DAG, blocker queue, candidate row,
+  DEV-001 finding disposition, protected standards data, code combinations,
+  allowables, private data, code-compliance claim, or professional reliance
+  claim was changed or introduced by this TASK slice.
+
+## 2026-05-17 TP-PHYS-008 Primitive Axial Effects
+
+- Executed approved `TP-PHYS-008-B` TASK slice for `DEL-05-01` / `PKG-05`
+  with write scope limited to `core/loads/primitive_loads/**`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Added explicit straight-pipe axial-effect property and contribution records:
+  `ElementAxialEffectProperties`, `PrimitiveAxialEffectContribution`, and
+  `PrimitiveAxialEffectApplication`.
+- Added `prepare_straight_pipe_axial_effects(...)` for mechanics-only thermal
+  axial force `E*A*alpha*DeltaT` and pressure thrust `p*A_internal` from
+  caller-supplied properties.
+- The helper returns deterministic findings for missing targets/magnitudes,
+  wrong targets, wrong dimensions, missing/invalid properties, non-finite
+  load magnitudes, non-finite computed axial effects, and out-of-range element
+  indices. Any finding blocks all returned axial-effect contributions.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 28
+  tests passed.
+- Remaining TBDs: canonical unit conversions, production tolerance policy,
+  load-case storage, final result-envelope/API integration, release
+  thresholds, and professional reliance.
+- No `_STATUS.md`, dependency register, DAG, blocker queue, candidate row,
+  DEV-001 finding disposition, protected standards data, code combinations,
+  allowables, private data, code-compliance claim, release claim, or
+  professional reliance claim was changed or introduced by this TASK slice.
+
+## 2026-05-17 TP-PHYS-008-B2 Explicit Axial-Effect Findings
+
+- Executed approved follow-up `TP-PHYS-008-B2` TASK slice for `DEL-05-01` /
+  `PKG-05` with write scope limited to `core/loads/primitive_loads/**`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Restored explicit axial-effect finding codes for missing/invalid
+  element-property records, missing/invalid physical properties, non-finite
+  load magnitudes, and non-finite computed axial effects.
+- This replaces the temporary fan-in compatibility mapping through generic
+  span/dimension finding codes. `DEL-04-06` now maps the explicit finding
+  variants directly to solver diagnostics.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml straight_pipe_axial_effects`
+  with 3 focused tests passed.
+- Remaining TBDs: canonical unit conversions, production tolerance policy,
+  load-case storage, final result-envelope/API integration, release
+  thresholds, and professional reliance.
+- No `_STATUS.md`, dependency register, DAG, blocker queue, candidate row,
+  DEV-001 finding disposition, protected standards data, code combinations,
+  allowables, private data, code-compliance claim, release claim, or
+  professional reliance claim was changed or introduced by this follow-up
+  slice.
+
+## 2026-05-17 TP-PHYS-014-C Force-Per-Length Boundary Dimension
+
+- Executed `TP-PHYS-014-C` for `DEL-05-01` / `PKG-05` with write scope limited
+  to primitive-load boundary metadata, adjacent README text, this `MEMORY.md`,
+  and deliverable-local `_run_records/**`.
+- Added governed canonical dimension support for `force_per_length` in
+  `core/loads/primitive_loads`: schema parsing accepts it, stringification
+  returns it, and `LoadDimension::ForcePerLength` maps to it instead of `TBD`.
+- Updated primitive-load and user-load README boundary text to remove the
+  prior upstream-dimension gap statement.
+- Parent fan-in validation covers the Rust formatting and test commands.
+- No solver behavior, user-load mechanics behavior, lifecycle/status file,
+  dependency register, DAG file, blocker queue, review disposition, protected
+  standards content, owner criteria, private/proprietary data, lifecycle
+  advancement, finding-resolution statement, professional reliance statement,
+  code-compliance statement, release statement, or human-acceptance statement
+  was changed or introduced.

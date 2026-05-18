@@ -1,0 +1,82 @@
+---
+doc_id: DEL-11-05-MEMORY
+doc_kind: deliverable.memory
+status: draft
+created: 2026-05-09
+deliverable_id: DEL-11-05
+package_id: PKG-11
+tranche: DEV-001_REV05_TRANCHE_M
+revision_basis: 0.5
+---
+
+# MEMORY - DEL-11-05 Contributor tutorial and onboarding
+
+## 2026-05-09 Type 2 Implementation
+
+Worker DEL-11-05 implemented the bounded contributor onboarding documentation
+requested by `execution/_Coordination/DEV-001_REV05_SEALED_BRIEF_DEL-11-05.md`.
+
+Implemented artifacts:
+
+- `docs/contributor_guide/index.md` as the contributor-facing tutorial path.
+- A narrow onboarding link in `CONTRIBUTING.md`.
+- A narrow workflow-reference link in `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`.
+
+Boundary notes:
+
+- No lifecycle `_STATUS.md`, dependency register, coordination surface,
+  blocker queue, aggregate DAG, candidate row, release authority, maintainer
+  authority, or legal-mechanism artifact was edited.
+- The local `_CONTEXT.md` still references revision 0.4, but this run used the
+  sealed brief's revision 0.5 dispatch basis and recorded the mismatch in the
+  guide as a contributor handoff concern.
+- The guide intentionally preserves existing `TBD` decisions for license,
+  contributor mechanism, release authority, CI policy, dependency versions,
+  and human-governed decisions.
+- The guide is tutorial documentation only. It does not create professional
+  engineering approval, sealing, code-compliance, legal, release, or maintainer
+  authority.
+
+Verification summary:
+
+- Documentation path/link check run with a local Python markdown-link scanner.
+- Focused scans run for protected-content, private-data,
+  proprietary-example, real-secret marker, authority drift, and
+  professional/code-compliance claim language.
+- `git diff --check` run.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+TP-RECON-01 reconciled DEL-11-05 history from the assigned dispatch-matrix row
+and archived evidence bundle into this deliverable-local memory.
+
+Evidence reconciled:
+
+- The 2026-05-09 sealed brief scoped DEL-11-05 to contributor onboarding
+  documentation for `SOW-033`, `OBJ-001`, and `OBJ-002`, with authority,
+  legal, release, protected-data, private-data, secret, and engineering-use
+  boundaries preserved.
+- Earlier Tranche C and Tranche J planning kept DEL-11-05 as
+  `SEMANTIC_READY` / `MISSING_EVIDENCE` and deferred it to avoid mixing
+  contributor-education work with other tranche scopes.
+- Tranche M implementation was committed as `bfb3931`
+  (`core: implement tranche m contracts`) on 2026-05-09. The archived
+  evidence rows record DEL-11-05 as `COMMITTED`, and the lifecycle snapshot
+  records `CHECKING` with Tranche M committed-evidence promotion.
+- The implemented slice was documentation-only contributor onboarding:
+  `docs/contributor_guide/index.md`, narrow links from `CONTRIBUTING.md` and
+  `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, deliverable memory, and the
+  deliverable-local run record.
+- Verification evidence includes link/path checks, protected/private/
+  proprietary/secret scans, prohibited-claim scans, authority-drift review,
+  trailing-whitespace scan, and `git diff --check`; Tranche M closeout and
+  promotion also recorded queue and DAG checks with no dependency mirror or
+  aggregate DAG mutation.
+
+Deferred boundaries preserved:
+
+- Final legal mechanism, release authority, maintainer quorum, CI policy,
+  dependency versions, and engineering-use authority remain downstream or
+  later-gated.
+- This reconciliation updates local history only; current state remains
+  `CHECKING`.

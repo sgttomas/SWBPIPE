@@ -1,0 +1,100 @@
+# MEMORY - DEL-06-03 Required-input Completeness Checker
+
+## Implementation Summary
+
+2026-05-02: Added bounded Rust crate
+`core/rules/completeness_checker` for required-input completeness checking.
+
+The crate checks declarative rule-pack required-input declarations against
+caller-supplied input evidence for:
+
+- value presence;
+- unit reference and dimension match;
+- provenance status;
+- redistribution status;
+- protected-content suspicion;
+- review status;
+- duplicate and unexpected input records.
+
+Blocking findings map to `RULE_INPUTS_INCOMPLETE` readiness and preserve the
+separation between mechanics solve status and user-rule-check readiness.
+
+## Boundary Decisions
+
+- The checker does not parse rule-pack files or JSON.
+- The checker does not evaluate formulas or call the expression evaluator.
+- The checker does not provide code-specific values, protected standards data,
+  proprietary engineering values, or public defaults.
+- The checker does not store private data, choose private storage paths, manage
+  encryption/access control, or handle secrets.
+- The checker does not emit certification, sealing, code-compliance,
+  professional approval, or human-acceptance statuses.
+
+## Verification
+
+- `cargo fmt --manifest-path core/rules/completeness_checker/Cargo.toml`
+  completed.
+- `cargo test --manifest-path core/rules/completeness_checker/Cargo.toml`
+  passed 11 focused tests.
+
+## Remaining TBDs
+
+- Schema-to-Rust adapter and JSON parsing remain downstream.
+- Unit conversion and canonical unit catalog remain downstream.
+- GUI/report/API/result-envelope integration remains downstream.
+- Private storage, redaction, access control, and secret handling remain PKG-12
+  downstream work.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+Sources reconciled:
+
+- `plans/TP-RECON-01_DISPATCH_MATRIX.csv` assigns DEL-06-03 to wave 2 with
+  write scope limited to this deliverable's `MEMORY.md` and `_STATUS.md`.
+- Archived evidence rows in
+  `DEV-001_IMPLEMENTATION_EVIDENCE.csv` and
+  `DEV-001_REV05_IMPLEMENTATION_EVIDENCE_STATUS.csv` map DEL-06-03 to committed
+  backend feature slice `c075522` (`core: add rule completeness checker`) dated
+  2026-05-02.
+- `REV05_LIFECYCLE_STATE_SNAPSHOT.csv` carries DEL-06-03 as `CHECKING`.
+- `DEV-001_DISPATCH_DEL-06-03.md` records the bounded checker scope and
+  exclusions; the SCA-002 inventory records historical dispatch briefs as
+  non-reusable after revision 0.5 refresh planning.
+
+Reconciled history:
+
+- Commit `c0755226c1e91992c77068f64e45fde7fbc5a353` added
+  `core/rules/completeness_checker/` with Cargo crate, README, and `src/lib.rs`;
+  updated `docs/SPEC.md`, `docs/TYPES.md`, this deliverable's
+  `Dependencies.csv`, `MEMORY.md`, and `_STATUS.md`; and recorded coordination
+  handoff files.
+- Implemented slice remains a declarative required-input/evidence checker with
+  blocking findings for missing values, unit/dimension gaps, provenance,
+  redistribution, protected-content suspicion, review gaps, duplicates, and
+  unexpected inputs; readiness maps to `RULE_INPUTS_INCOMPLETE` without changing
+  mechanics solve status.
+- Verification evidence remains the 2026-05-02
+  `cargo fmt --manifest-path core/rules/completeness_checker/Cargo.toml` and
+  `cargo test --manifest-path core/rules/completeness_checker/Cargo.toml`
+  results recorded above; no new runtime verification was performed for
+  TP-RECON-01.
+
+Deferred/guarded scope:
+
+- Schema adapter, JSON parsing, unit conversion/catalog integration,
+  GUI/report/API/result-envelope integration, and private
+  storage/redaction/access-control work remain downstream.
+- SCA-002 marks historical dispatch and lifecycle surfaces as stale revision
+  0.4/DEV-001 evidence pending refresh; TP-RECON-01 records history only and
+  leaves state at `CHECKING`.
+- No protected standards data, public code-specific defaults, private payloads,
+  lifecycle promotion, or engineering signoff is recorded here.
+
+## 2026-05-16 - DEV-001 downstream PKG-02 audit memory addendum
+
+Durable context preserved after reconciliation review:
+- DEV-001 package-worker audit reviewed this deliverable for downstream compatibility with the accepted PKG-02 foundation contracts.
+- Local audit artifacts are `execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/_REVIEW.md` and `execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/Review_Findings.csv`.
+- Package audit summary is `execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/_audit/PKG02_DOWNSTREAM_REVIEW_2026-05-16.md`; package run record is `execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/_run_records/TASK_RUN_2026-05-16_PKG02_DOWNSTREAM_AUDIT.md`.
+- This was audit evidence only. It did not change lifecycle state, authorize release, or make a professional, certification, sealing, approval, or code-compliance claim.
+- The May 16 package-worker TASK run record did not fully preserve canonical per-deliverable TASK documentation context; this addendum preserves the durable deliverable-local pointer without modifying the completed run record.

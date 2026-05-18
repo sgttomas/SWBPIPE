@@ -1,0 +1,90 @@
+# MEMORY - DEL-13-01 Design Knowledge Schema and Provenance Model
+
+## Implementation Summary
+
+2026-05-04: Added the schema-first design knowledge contract for DEV-001
+revision `0.5` Tranche D.
+
+The implementation records:
+
+- `schemas/design_knowledge.schema.json` as a strict JSON-syntax JSON Schema
+  2020-12 contract for user-supplied design knowledge;
+- `tests/test_design_knowledge_schema.py` for focused stdlib structural
+  checks;
+- focused `docs/SPEC.md` and `docs/TYPES.md` entries;
+- the sealed brief at
+  `execution/_Coordination/DEV-001_REV05_SEALED_BRIEF_DEL-13-01.md`.
+
+## Boundary Decisions
+
+- Design knowledge is user/project supplied and provenance-marked.
+- The schema covers endpoints, line data, routing corridors, zones, equipment
+  interfaces, access/slope/drain/vent requirements, owner/project metadata,
+  source notes, assumptions, diagnostics, privacy classification, and
+  redistribution/review status.
+- Unit-bearing values require explicit unit metadata.
+- Public examples must be invented or otherwise cleared; this deliverable adds
+  no public example payloads.
+- The schema does not bundle owner standards, protected code criteria,
+  proprietary project data, protected standards text, protected tables, vendor
+  catalog values, private project data, or code-specific acceptance criteria.
+- Professional-boundary controls remain explicit and negative; the schema does
+  not claim software compliance, certification, sealing, approval, or
+  authentication.
+
+## Verification
+
+Implementation verification for this working-tree state:
+
+- `python3 tests/test_design_knowledge_schema.py`
+- `python3 tests/test_model_schema.py`
+- broader Tranche D checks recorded in coordination handoff state.
+
+## Remaining TBDs
+
+- Concrete GUI authoring behavior remains downstream in `PKG-07`.
+- Constraint records and validation remain downstream in `DEL-13-02` and
+  `DEL-13-03`.
+- Physical-to-analytical transformation consumption remains downstream in
+  `DEL-13-04`.
+- Public example payload policy and fixture generation remain later governed
+  work.
+- Runtime persistence/API integration remains downstream.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+- Reconciled archived `DEV-001` revision `0.5` Tranche D evidence for
+  `DEL-13-01` into this deliverable-local history.
+- Evidence rows and closeout sources identify commit `dcdc1ac` (`schema: add
+  design knowledge and model state contracts`) as committed implementation
+  evidence for `schemas/design_knowledge.schema.json`,
+  `tests/test_design_knowledge_schema.py`, focused `docs/SPEC.md` /
+  `docs/TYPES.md` updates, this deliverable `MEMORY.md`, `_STATUS.md`, and the
+  2026-05-04 run note.
+- Archived verification recorded `python3 tests/test_design_knowledge_schema.py`,
+  `python3 tests/test_model_schema.py`, adjacent schema checks,
+  `git diff --check`, dependency validation, DAG audit, and focused
+  protected/private/authority scans.
+- Reconciliation preserves `CHECKING`; deferred scope remains GUI/runtime/API
+  and persistence integration, constraint execution,
+  physical-to-analytical consumption, fixture/example policy, and later
+  governed project-container behavior. No lifecycle promotion beyond
+  `CHECKING` or expansion of engineering authority is recorded.
+
+## 2026-05-16 - DEV-001 downstream PKG-02 audit memory addendum
+
+Durable context preserved after reconciliation review:
+- DEV-001 package-worker audit reviewed this deliverable for downstream compatibility with the accepted PKG-02 foundation contracts.
+- Local audit artifacts are `execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/_REVIEW.md` and `execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/Review_Findings.csv`.
+- Package audit summary is `execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/_audit/PKG02_DOWNSTREAM_REVIEW_2026-05-16.md`; package run record is `execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/_run_records/TASK_RUN_2026-05-16_PKG13_PKG02_DOWNSTREAM_PACKAGE_AUDIT.md`.
+- This was audit evidence only. It did not change lifecycle state, authorize release, or make a professional, certification, sealing, approval, or code-compliance claim.
+- The May 16 package-worker TASK run record did not fully preserve canonical per-deliverable TASK documentation context; this addendum preserves the durable deliverable-local pointer without modifying the completed run record.
+
+## 2026-05-16 - DEV-001 PKG-02 grounded finding-resolution memory addendum
+
+Durable context preserved after PKG-02 grounded finding resolution:
+- Stage 2 technical resolution used the accepted PKG-02 contract as the governing source for this deliverable's downstream compatibility evidence.
+- Original audit finding count for this deliverable: 2 (BLOCKER=1, WARNING=1). Current technical status count in the resolution matrix: TECHNICALLY_ADDRESSED_PENDING_HUMAN=2.
+- Resolution evidence is indexed in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/RESOLUTION_MATRIX.csv`; validation evidence is summarized in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/VALIDATION_SUMMARY.md`.
+- Local `Review_Findings.csv` entries remain subject to the human disposition gate. `HumanDisposition` stays `TBD` until review, and `Status` must not be changed to `RESOLVED` automatically.
+- No lifecycle promotion, release claim, or professional/code-compliance claim is implied by the technical closeout.

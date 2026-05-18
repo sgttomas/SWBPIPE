@@ -1,0 +1,9 @@
+ID,Severity,Check,FromDeliverableID,TargetDeliverableID,DependencyID,Evidence,FixSuggestion
+SCA002-DEP-001,WARNING,REVISION05_GRAPH_COVERAGE,,,,"Evidence/revision05_compatibility_summary.json; execution/_DAG/DAG-001/DeliverableNodes.csv","Plan a revision 0.5 graph proposal, recommended as DAG-002, before any blocker or dispatch use."
+SCA002-DEP-002,WARNING,CONTROL_SURFACE_COVERAGE,,,,"Evidence/revision05_missing_control_surfaces.csv","Authorize PREPARATION scaffold only after graph/context strategy is accepted."
+SCA002-DEP-003,WARNING,CONTEXT_STALENESS,,,,"Evidence/revision05_context_refresh_worklist.csv","Regenerate or explicitly defer all 73 existing contexts and create contexts for 19 missing deliverables before revision 0.5 dispatch."
+SCA002-DEP-004,WARNING,DISPATCH_REUSE,,,,"Evidence/revision05_dispatch_brief_reuse_blocklist.csv","Do not reuse historical dispatch briefs; generate fresh sealed briefs after refreshed graph/context approval."
+SCA002-DEP-005,WARNING,EVIDENCE_SCOPE_COMPATIBILITY,DEL-01-04,,,Evidence/revision05_implementation_evidence_mapping.csv,"Route DEL-01-04 through targeted REVIEW against added SOW-064 and OBJ-018 before treating evidence as complete for revision 0.5."
+SCA002-DEP-006,WARNING,EVIDENCE_SCOPE_COMPATIBILITY,DEL-02-01,,,Evidence/revision05_implementation_evidence_mapping.csv,"Route DEL-02-01 through targeted REVIEW against added SOW-065, OBJ-012, and OBJ-014 before treating evidence as complete for revision 0.5."
+SCA002-DEP-007,INFO,HISTORICAL_LOCAL_CLOSURE,,,,"Evidence/closure_summary.json","Historical local mirrors are schema-valid and acyclic, but remain stale evidence only."
+SCA002-DEP-008,INFO,CHIRALITY_QUARANTINE,,,,"docs/_ScopeChange/chirality-app-docs/; NEXT_INSTANCE_STATE.md","Keep corpus quarantined unless a later explicit scope change or architecture decision promotes a bounded concept."
