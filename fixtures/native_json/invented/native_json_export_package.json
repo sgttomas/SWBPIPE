@@ -1,0 +1,522 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-17-03",
+  "package_id": "PKG-17",
+  "scope_items": [
+    "SOW-030",
+    "SOW-074"
+  ],
+  "objectives": [
+    "OBJ-009",
+    "OBJ-017"
+  ],
+  "native_export_id": "native-json:invented-del-17-03",
+  "package_status": "native_open_json_export_package",
+  "export_profile": {
+    "profile_id": "ops.native_json.default",
+    "profile_version": "0.1.0",
+    "target_family": "native_open_json",
+    "unit_policy": "preserve_source_units_manifest",
+    "coordinate_policy": "preserve_source_coordinate_policy",
+    "stable_id_policy": "canonical_ids_preserved_or_mapped",
+    "loss_report_policy": "mandatory_for_every_package",
+    "source_basis_refs": [
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-01"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-02-01"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-02-02"
+      }
+    ],
+    "boundary_notes": [
+      "Native JSON is project-owned interchange and adapter input.",
+      "Package evidence does not assert external target support, solver validation, release readiness, code compliance, or professional reliance.",
+      "Protected standards values, private payloads, proprietary target examples, and owner criteria are excluded."
+    ]
+  },
+  "manifest": {
+    "manifest_id": "native-json:invented-del-17-03:manifest",
+    "source_model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-native-json"
+    },
+    "source_model_hash": {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "Model",
+        "ref": "model:invented-native-json"
+      },
+      "payload_scope": "source_model_hash",
+      "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "export_profile_ref": {
+      "object_type": "ExportProfile",
+      "ref": "ops.native_json.default"
+    },
+    "package_members": [
+      {
+        "member_name": "native-json:invented-del-17-03:manifest",
+        "member_role": "manifest",
+        "path": "manifest.json",
+        "content_kind": "json",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:manifest"
+        },
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "NativeJsonMember",
+            "ref": "native-json:invented-del-17-03:manifest"
+          },
+          "payload_scope": "native_json_manifest",
+          "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      {
+        "member_name": "native-json:invented-del-17-03:model_payload",
+        "member_role": "model_payload",
+        "path": "model_payload.json",
+        "content_kind": "json",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:model_payload"
+        },
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "NativeJsonMember",
+            "ref": "native-json:invented-del-17-03:model_payload"
+          },
+          "payload_scope": "native_json_model_payload",
+          "value": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        }
+      },
+      {
+        "member_name": "native-json:invented-del-17-03:stable_id_map",
+        "member_role": "stable_id_map",
+        "path": "stable_id_map.json",
+        "content_kind": "json",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:stable_id_map"
+        },
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "NativeJsonMember",
+            "ref": "native-json:invented-del-17-03:stable_id_map"
+          },
+          "payload_scope": "native_json_stable_id_map",
+          "value": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        }
+      },
+      {
+        "member_name": "native-json:invented-del-17-03:loss_report",
+        "member_role": "loss_report",
+        "path": "loss_report.json",
+        "content_kind": "json",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:loss_report"
+        },
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "NativeJsonMember",
+            "ref": "native-json:invented-del-17-03:loss_report"
+          },
+          "payload_scope": "native_json_loss_report",
+          "value": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        }
+      },
+      {
+        "member_name": "native-json:invented-del-17-03:validation_report",
+        "member_role": "validation_report",
+        "path": "validation_report.json",
+        "content_kind": "json",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:validation_report"
+        },
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "NativeJsonMember",
+            "ref": "native-json:invented-del-17-03:validation_report"
+          },
+          "payload_scope": "native_json_validation_report",
+          "value": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        }
+      },
+      {
+        "member_name": "native-json:invented-del-17-03:diagnostics",
+        "member_role": "diagnostics",
+        "path": "diagnostics.json",
+        "content_kind": "json",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:diagnostics"
+        },
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "NativeJsonMember",
+            "ref": "native-json:invented-del-17-03:diagnostics"
+          },
+          "payload_scope": "native_json_diagnostics",
+          "value": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+        }
+      }
+    ],
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:manifest"
+        },
+        "payload_scope": "native_json_manifest",
+        "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:model_payload"
+        },
+        "payload_scope": "native_json_model_payload",
+        "value": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:stable_id_map"
+        },
+        "payload_scope": "native_json_stable_id_map",
+        "value": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:loss_report"
+        },
+        "payload_scope": "native_json_loss_report",
+        "value": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:validation_report"
+        },
+        "payload_scope": "native_json_validation_report",
+        "value": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "NativeJsonMember",
+          "ref": "native-json:invented-del-17-03:diagnostics"
+        },
+        "payload_scope": "native_json_diagnostics",
+        "value": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "Model",
+          "ref": "model:invented-native-json"
+        },
+        "payload_scope": "source_model_hash",
+        "value": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    ],
+    "source_basis_refs": [
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-01"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      }
+    ],
+    "boundary_notes": [
+      "Native JSON is project-owned interchange and adapter input.",
+      "Package evidence does not assert external target support, solver validation, release readiness, code compliance, or professional reliance."
+    ],
+    "diagnostics": []
+  },
+  "model_payload": {
+    "payload_kind": "native_open_json_model_payload",
+    "source_model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-native-json"
+    },
+    "model_schema": "schemas/model.schema.yaml",
+    "model_role": "derived_export_view",
+    "entities": {
+      "nodes": [
+        {
+          "id": "node:1",
+          "coordinates": {
+            "x": {
+              "magnitude": 0.0,
+              "unit": "m",
+              "dimension": "length"
+            },
+            "y": {
+              "magnitude": 0.0,
+              "unit": "m",
+              "dimension": "length"
+            },
+            "z": {
+              "magnitude": 0.0,
+              "unit": "m",
+              "dimension": "length"
+            }
+          }
+        }
+      ],
+      "elements": [
+        {
+          "id": "element:1",
+          "start_node": "node:1",
+          "end_node": "node:2",
+          "kind": "straight_pipe"
+        }
+      ]
+    },
+    "units_manifest": {
+      "unit_system_ref": {
+        "object_type": "UnitSystem",
+        "ref": "units:invented-native-json"
+      },
+      "length_unit": "m",
+      "force_unit": "N",
+      "moment_unit": "N-m"
+    },
+    "provenance": {
+      "source_name": "Invented DEL-17-03 native JSON fixture",
+      "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+      "source_license": "project-invented-test-data",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering fixture",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "machine_checked",
+      "privacy_classification": "invented_public_example"
+    }
+  },
+  "stable_id_map": [
+    {
+      "canonical_ref": {
+        "object_type": "Node",
+        "ref": "node:1"
+      },
+      "package_ref": {
+        "object_type": "NativeJsonPointer",
+        "ref": "/model_payload/entities/nodes/0"
+      },
+      "mapping_status": "mapped",
+      "loss_category": "exported",
+      "provenance": {
+        "source_name": "Invented DEL-17-03 native JSON fixture",
+        "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    {
+      "canonical_ref": {
+        "object_type": "Element",
+        "ref": "element:1"
+      },
+      "package_ref": {
+        "object_type": "NativeJsonPointer",
+        "ref": "/model_payload/entities/elements/0"
+      },
+      "mapping_status": "mapped",
+      "loss_category": "exported",
+      "provenance": {
+        "source_name": "Invented DEL-17-03 native JSON fixture",
+        "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    }
+  ],
+  "loss_report": [
+    {
+      "loss_id": "loss:exported-model-payload",
+      "category": "exported",
+      "severity": "info",
+      "affected_refs": [
+        {
+          "object_type": "Model",
+          "ref": "model:invented-native-json"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "NativeJsonMember",
+        "ref": "native-json:invented-del-17-03:model_payload"
+      },
+      "reason": "Invented model payload is represented in the native JSON package.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      "downstream_implication": "Downstream adapters can consume project-owned JSON shape after their own validation.",
+      "human_review_required": true,
+      "provenance": {
+        "source_name": "Invented DEL-17-03 native JSON fixture",
+        "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    {
+      "loss_id": "loss:external-target-not-selected",
+      "category": "TBD",
+      "severity": "warning",
+      "affected_refs": [
+        {
+          "object_type": "ExportProfile",
+          "ref": "ops.native_json.default"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "ExternalTarget",
+        "ref": "target:TBD"
+      },
+      "reason": "Native JSON does not select or assert behavior for an external target.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-01"
+      },
+      "downstream_implication": "Target-specific deliverables must preserve their own source-basis TBDs.",
+      "human_review_required": true,
+      "provenance": {
+        "source_name": "Invented DEL-17-03 native JSON fixture",
+        "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    }
+  ],
+  "validation_report": {
+    "validation_status": "boundary_checked",
+    "checks": [
+      {
+        "check_id": "check:shape",
+        "check_name": "Native JSON package shape check",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "object_type": "Schema",
+            "ref": "schemas/native_json_export.schema.json"
+          }
+        ],
+        "diagnostics": []
+      },
+      {
+        "check_id": "check:boundary",
+        "check_name": "No protected/private payload or professional claim check",
+        "status": "pass",
+        "evidence_refs": [
+          {
+            "object_type": "Policy",
+            "ref": "docs/IP_AND_DATA_BOUNDARY.md"
+          }
+        ],
+        "diagnostics": []
+      }
+    ],
+    "provenance": {
+      "source_name": "Invented DEL-17-03 native JSON fixture",
+      "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+      "source_license": "project-invented-test-data",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering fixture",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "machine_checked",
+      "privacy_classification": "invented_public_example"
+    }
+  },
+  "diagnostics": [],
+  "privacy": {
+    "classification": "invented_public_example",
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_embedded": false,
+    "protected_payload_embedded": false,
+    "commercial_tool_payload_embedded": false,
+    "redaction_refs": []
+  },
+  "provenance": {
+    "source_name": "Invented DEL-17-03 native JSON fixture",
+    "source_location": "fixtures/native_json/invented/native_json_export_package.json",
+    "source_license": "project-invented-test-data",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering fixture",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "machine_checked",
+    "privacy_classification": "invented_public_example"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "supports_downstream_interchange": true,
+    "supports_adapter_input": true,
+    "software_makes_release_claim": false,
+    "software_makes_external_compatibility_claim": false,
+    "software_makes_solver_validation_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false,
+    "software_creates_professional_reliance_record": false
+  }
+}

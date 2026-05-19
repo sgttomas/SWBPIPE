@@ -1,0 +1,797 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/native_json_export.schema.json",
+  "title": "OpenPipeStress Native Open JSON Export Package",
+  "description": "Strict JSON Schema 2020-12 contract for DEL-17-03 native open JSON export packages. The package is project-owned interchange and adapter-input evidence; it records model payload, stable IDs, loss reporting, validation checks, diagnostics, provenance, privacy, and professional-boundary notices without embedding protected/private data or making release, external target, code-compliance, solver-validation, or professional-reliance claims.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "native_export_id",
+    "package_status",
+    "export_profile",
+    "manifest",
+    "model_payload",
+    "stable_id_map",
+    "loss_report",
+    "validation_report",
+    "diagnostics",
+    "privacy",
+    "provenance",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-17-03"
+    },
+    "package_id": {
+      "const": "PKG-17"
+    },
+    "scope_items": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "SOW-030",
+          "SOW-074"
+        ]
+      },
+      "contains": {
+        "enum": [
+          "SOW-030",
+          "SOW-074"
+        ]
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-009",
+          "OBJ-017"
+        ]
+      }
+    },
+    "native_export_id": {
+      "$ref": "#/$defs/Id"
+    },
+    "package_status": {
+      "const": "native_open_json_export_package"
+    },
+    "export_profile": {
+      "$ref": "#/$defs/ExportProfile"
+    },
+    "manifest": {
+      "$ref": "#/$defs/Manifest"
+    },
+    "model_payload": {
+      "$ref": "#/$defs/ModelPayload"
+    },
+    "stable_id_map": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/StableIdMapEntry"
+      }
+    },
+    "loss_report": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/LossReportEntry"
+      }
+    },
+    "validation_report": {
+      "$ref": "#/$defs/ValidationReport"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "privacy": {
+      "$ref": "#/$defs/PrivacyContext"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    }
+  },
+  "$defs": {
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "const": "JCS_compatible_json_payload_hash"
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "native_json_manifest",
+            "native_json_model_payload",
+            "native_json_stable_id_map",
+            "native_json_loss_report",
+            "native_json_validation_report",
+            "native_json_diagnostics",
+            "source_model_hash",
+            "TBD"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "EXPORT_BLOCKING",
+            "TARGET_MAPPING_WARNING",
+            "UNSUPPORTED_BEHAVIOR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "PROVENANCE_WARNING",
+            "UNIT_WARNING",
+            "HASH_WARNING",
+            "ASSUMPTION_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ExportProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_version",
+        "target_family",
+        "unit_policy",
+        "coordinate_policy",
+        "stable_id_policy",
+        "loss_report_policy",
+        "source_basis_refs",
+        "boundary_notes"
+      ],
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "profile_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "target_family": {
+          "const": "native_open_json"
+        },
+        "unit_policy": {
+          "const": "preserve_source_units_manifest"
+        },
+        "coordinate_policy": {
+          "type": "string",
+          "enum": [
+            "preserve_source_coordinate_policy",
+            "TBD"
+          ]
+        },
+        "stable_id_policy": {
+          "const": "canonical_ids_preserved_or_mapped"
+        },
+        "loss_report_policy": {
+          "const": "mandatory_for_every_package"
+        },
+        "source_basis_refs": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "boundary_notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "free_metadata": {
+          "type": "object"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:/-]+$"
+    },
+    "LossCategory": {
+      "type": "string",
+      "enum": [
+        "exported",
+        "omitted",
+        "approximated",
+        "delegated",
+        "unsupported",
+        "TBD"
+      ]
+    },
+    "LossReportEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "category",
+        "severity",
+        "affected_refs",
+        "target_artifact_ref",
+        "reason",
+        "source_basis_ref",
+        "downstream_implication",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "loss_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "category": {
+          "$ref": "#/$defs/LossCategory"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "target_artifact_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "downstream_implication": {
+          "type": "string",
+          "minLength": 1
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "source_model_ref",
+        "source_model_hash",
+        "export_profile_ref",
+        "package_members",
+        "checksums",
+        "source_basis_refs",
+        "boundary_notes",
+        "diagnostics"
+      ],
+      "properties": {
+        "manifest_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_model_hash": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "export_profile_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "package_members": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "$ref": "#/$defs/PackageMember"
+          }
+        },
+        "checksums": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "source_basis_refs": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "boundary_notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        }
+      }
+    },
+    "ModelPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payload_kind",
+        "source_model_ref",
+        "model_schema",
+        "model_role",
+        "entities",
+        "units_manifest",
+        "provenance"
+      ],
+      "properties": {
+        "payload_kind": {
+          "const": "native_open_json_model_payload"
+        },
+        "source_model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "model_schema": {
+          "const": "schemas/model.schema.yaml"
+        },
+        "model_role": {
+          "type": "string",
+          "enum": [
+            "physical_source_of_truth",
+            "analytical_solver_model",
+            "derived_export_view",
+            "TBD"
+          ]
+        },
+        "entities": {
+          "type": "object"
+        },
+        "units_manifest": {
+          "type": "object"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "free_metadata": {
+          "type": "object"
+        }
+      }
+    },
+    "PackageMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "member_name",
+        "member_role",
+        "path",
+        "content_kind",
+        "payload_ref",
+        "hash"
+      ],
+      "properties": {
+        "member_name": {
+          "$ref": "#/$defs/Id"
+        },
+        "member_role": {
+          "type": "string",
+          "enum": [
+            "manifest",
+            "model_payload",
+            "stable_id_map",
+            "loss_report",
+            "validation_report",
+            "diagnostics"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_kind": {
+          "type": "string",
+          "enum": [
+            "json",
+            "json_sidecar"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "hash": {
+          "$ref": "#/$defs/Checksum"
+        }
+      }
+    },
+    "PrivacyContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": [
+            "invented_public_example",
+            "public_metadata",
+            "private_reference_only",
+            "TBD"
+          ]
+        },
+        "local_only": {
+          "type": "boolean"
+        },
+        "telemetry_allowed": {
+          "const": false
+        },
+        "private_payload_embedded": {
+          "const": false
+        },
+        "protected_payload_embedded": {
+          "const": false
+        },
+        "commercial_tool_payload_embedded": {
+          "const": false
+        },
+        "redaction_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_downstream_interchange",
+        "supports_adapter_input",
+        "software_makes_release_claim",
+        "software_makes_external_compatibility_claim",
+        "software_makes_solver_validation_claim",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "supports_downstream_interchange": {
+          "const": true
+        },
+        "supports_adapter_input": {
+          "const": true
+        },
+        "software_makes_release_claim": {
+          "const": false
+        },
+        "software_makes_external_compatibility_claim": {
+          "const": false
+        },
+        "software_makes_solver_validation_claim": {
+          "const": false
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        },
+        "software_creates_professional_reliance_record": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "invented_non_engineering_example",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined",
+            "machine_checked",
+            "TBD"
+          ]
+        },
+        "privacy_classification": {
+          "type": "string",
+          "enum": [
+            "invented_public_example",
+            "public_metadata",
+            "private_reference_only",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "StableIdMapEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_ref",
+        "package_ref",
+        "mapping_status",
+        "loss_category",
+        "provenance"
+      ],
+      "properties": {
+        "canonical_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "package_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "mapping_status": {
+          "type": "string",
+          "enum": [
+            "mapped",
+            "omitted",
+            "unsupported",
+            "TBD"
+          ]
+        },
+        "loss_category": {
+          "$ref": "#/$defs/LossCategory"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ValidationCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "check_name",
+        "status",
+        "evidence_refs",
+        "diagnostics"
+      ],
+      "properties": {
+        "check_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "check_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "warning",
+            "blocking",
+            "TBD"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        }
+      }
+    },
+    "ValidationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_status",
+        "checks",
+        "provenance"
+      ],
+      "properties": {
+        "validation_status": {
+          "type": "string",
+          "enum": [
+            "shape_checked",
+            "boundary_checked",
+            "has_warnings",
+            "blocked"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ValidationCheck"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}
