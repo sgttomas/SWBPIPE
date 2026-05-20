@@ -148,3 +148,27 @@ Boundaries preserved by this reconciliation:
 - No live CI workflow, release/signing/publishing surface, protected standards
   content, proprietary data, private project data, private rule-pack data,
   secrets, or professional reliance claim is added by this reconciliation.
+
+## 2026-05-19 - TP-VERIFY-014B release-readiness command path audit
+
+TP-VERIFY-014B audited the current release-readiness command/path evidence for
+parent fan-in into `DEL-09-05`.
+
+Findings:
+- `docs/BUILD_AND_RELEASE.md` and `tests/test_release_readiness_script.py`
+  still reference project-local `tools/release/check_release_readiness.py`.
+- `tools/` is currently absent inside `chirality-piping/`.
+- A matching script exists under the parent Chirality tool root at
+  `/Users/ryan/ai-env/projects/chirality/tools/release/check_release_readiness.py`.
+
+Classification: current gap until a later approved tranche either restores the
+project-local script path or records the parent tool-root convention as
+governed project execution evidence.
+
+Local run record:
+- `_run_records/TASK_RUN_2026-05-19_TP-VERIFY-014B.md`
+
+Boundary: this audit changed only this `MEMORY.md` and the local run record. It
+did not change lifecycle state, CI workflows, release records, candidate rows,
+blocker queues, implementation evidence, professional-boundary decisions, or
+code-compliance decisions.
