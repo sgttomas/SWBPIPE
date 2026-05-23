@@ -12,6 +12,7 @@ This deliverable shall not implement exporters, parsers, harnesses, schemas, tes
 |---|---|
 | DEL-17-01-REQ-001 | The deliverable shall use only public, official, project-owned, or otherwise admitted source references listed in `_REFERENCES.md` and `PKG-17/0_References/_REFERENCE_INDEX.md`. |
 | DEL-17-01-REQ-002 | CAEPIPE-specific facts shall be grounded in official/public CAEPIPE documentation or explicitly marked `TBD`. |
+| DEL-17-01-REQ-002A | Every non-trivial governed claim in the source-basis register and CAEPIPE question dossier shall include a source path plus best-effort section/heading reference, or explicit `location TBD`. |
 | DEL-17-01-REQ-003 | PCF-specific facts shall distinguish documented translator behavior from OpenPipeStress export intentions. |
 | DEL-17-01-REQ-004 | glTF/GLB facts shall be limited to review-geometry export semantics and shall not imply solver geometry equivalence. |
 | DEL-17-01-REQ-005 | Later `DEL-17-*` deliverables shall consume this deliverable before making target-format claims. |
@@ -40,7 +41,8 @@ This deliverable shall not implement exporters, parsers, harnesses, schemas, tes
 - `DEL-17-02` shall use this deliverable as the source authority for common export package/profile/ID-map/loss-report contracts.
 - `DEL-17-04` shall not define a CAEPIPE MBF writer subset until its unsupported, omitted, approximated, delegated, and sidecar-mapped behaviors are traceable to this deliverable.
 - `DEL-17-05` shall not treat CAEPIPE external runs as mandatory or bundled; the executable path and license remain user-owned.
-- `DEL-17-07` shall treat PCF translation as conservative interoperability, not as the first deterministic validation backbone.
+- `DEL-17-06` shall carry forward CSV/text parser TBDs until stable result sections and parser scope are explicitly selected.
+- `DEL-17-07` shall treat PCF translation as conservative interoperability, not as the first deterministic exchange backbone.
 - `DEL-17-08` shall treat GLB/glTF as visual review geometry only.
 
 ## Acceptance Requirements
@@ -53,4 +55,3 @@ DEL-17-01 is acceptable when:
 - the CAEPIPE developer-team question dossier exists;
 - no protected or proprietary source material is copied into the repository;
 - no compatibility, release, code-compliance, or professional-acceptance claim is made.
-

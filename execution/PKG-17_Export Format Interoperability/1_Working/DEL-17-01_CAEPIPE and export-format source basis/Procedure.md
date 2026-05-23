@@ -20,8 +20,9 @@ This procedure defines how to maintain and use the DEL-17-01 source basis before
 1. Extract only source-grounded facts that are needed by downstream export work.
 2. Paraphrase vendor/public documentation rather than copying long excerpts.
 3. Attach every finding to one or more source IDs.
-4. Mark any inference as `INFERENCE`, not as a source fact.
-5. Mark unresolved target behavior as `TBD`.
+4. Attach a best-effort source section/heading reference; if the location cannot be narrowed during the run, record `location TBD`.
+5. Mark any inference as `INFERENCE`, not as a source fact.
+6. Mark unresolved target behavior as `TBD`.
 
 ## CAEPIPE Question Dossier Maintenance
 
@@ -41,7 +42,8 @@ Before a downstream `DEL-17-*` deliverable is populated or modified:
 3. Read `CAEPIPE_Question_Dossier.md`.
 4. Confirm all relevant TBDs are either closed or explicitly carried forward.
 5. Confirm the downstream deliverable is named in the source-basis register, a dependency register, or a current package plan before treating DEL-17-01 as a gating input.
-6. Preserve the professional/IP/export boundaries from this deliverable.
+6. Confirm the downstream deliverable consumes only the relevant source-basis findings, not a blanket claim that every DEL-17 item consumes every target-format source.
+7. Preserve the professional/IP/export boundaries from this deliverable.
 
 ## Validation
 
@@ -50,8 +52,10 @@ Run:
 ```text
 tools/validation/check_four_documents.sh execution/PKG-17_Export\ Format\ Interoperability/1_Working/DEL-17-01_CAEPIPE\ and\ export-format\ source\ basis
 tools/validation/check_min_viable_fileset.sh execution/PKG-17_Export\ Format\ Interoperability/1_Working/DEL-17-01_CAEPIPE\ and\ export-format\ source\ basis
-git diff --check
+git diff --check -- "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis"
 ```
+
+If an unscoped worktree check reports findings outside this project's write scope, record the finding as external-scope noise and do not treat it as a blocker for DEL-17-01 closeout. Scoped deliverable checks remain the controlling diff-hygiene evidence for this deliverable.
 
 Manual review must check:
 
@@ -59,11 +63,11 @@ Manual review must check:
 - no copied protected standards data;
 - no CAEPIPE compatibility overclaims;
 - no code-compliance or professional-acceptance claims;
-- admitted source pointers are still reachable or are marked stale/TBD before reuse;
+- admitted source pointers are still reachable or are marked stale/location TBD before reuse;
 - unresolved target behavior remains marked `TBD`.
 
 ## Semantic Enrichment Verification
 
 Pass 3 semantic-lensing enrichment checked `_SEMANTIC_LENSING.md` items `C-001`, `D-001`, and `E-001` against `Datasheet.md` downstream consumers, `Procedure.md` downstream consumption and validation checks, `_REFERENCES.md` package references, and `Source_Basis_Register.md` finding/downstream-use rows before applying the warranted operational updates.
 
-Later target deliverables must cite admitted source IDs, carry forward unresolved questions, and report exported, omitted, approximated, delegated, unsupported, and TBD behavior without converting those records into compatibility, release, code-compliance, or professional-acceptance claims.
+Later relevant downstream deliverables must cite admitted source IDs, carry forward unresolved questions, and report exported, omitted, approximated, delegated, unsupported, and TBD behavior without converting those records into compatibility, release, code-compliance, or professional-acceptance claims.

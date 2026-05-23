@@ -17,11 +17,24 @@ For each later PKG-17 target deliverable:
 
 1. Start from this contract and the `DEL-17-01` source-basis dossier.
 2. Declare the target profile and target version basis.
-3. Declare supported, omitted, approximated, delegated, unsupported, and `TBD` behavior.
-4. Define stable ID behavior before target writing or parser work.
-5. Require an export manifest and loss report.
-6. Keep target-specific implementation inside that deliverable's approved write scope.
-7. Preserve project data-boundary and professional-boundary exclusions.
+3. Cite the consumed `DEL-17-01` source IDs or record `location TBD` for unresolved source locations.
+4. Declare exported, omitted, approximated, delegated, unsupported, and `TBD` behavior.
+5. Define stable ID behavior before target writing or parser work, distinguishing direct target-carried IDs from sidecar mappings.
+6. Require an export manifest and loss report.
+7. Keep target-specific implementation inside that deliverable's approved write scope.
+8. Preserve project data-boundary and professional-boundary exclusions.
+
+## Contract Population Checklist
+
+When refining or consuming this contract:
+
+1. Confirm `Source_Basis_Register.md#Public and Official Source Evidence` is the source for target source IDs.
+2. Confirm `CAEPIPE_Question_Dossier.md#Question Register` is the source for CAEPIPE open questions.
+3. Carry forward `TBD-17-01-001` through `TBD-17-01-006` unless a later admissible source and human scope authority closes the item.
+4. Treat `TBD-17-01-003` as blocking direct MBF stable-ID carrier claims.
+5. Use sidecar mappings whenever direct or metadata carrier evidence is absent, ambiguous, or `TBD`.
+6. Record target executor use only as optional user-owned, license-bound harness metadata.
+7. Keep target code/check options as pass-through target configuration unless separately admitted by a public rule-pack design.
 
 ## Validation Commands
 
@@ -31,11 +44,14 @@ Run from repository root:
 tools/validation/check_four_documents.sh "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 tools/validation/check_min_viable_fileset.sh "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 python3 tools/validation/validate_dependencies_schema.py "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/Dependencies.csv"
-python3 tools/coordination/build_dev001_blocker_queue.py --dag-dir execution/_DAG/DAG-005 --evidence execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv --csv-out execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv --markdown-out execution/_Coordination/DEV-001_BLOCKER_QUEUE.md --generated-date 2026-05-18
 python3 tools/validation/validate_semantic_matrix.py "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 python3 tools/validation/validate_lens_register.py "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
-git diff --check
+rg -n "certify|certified|approve|approved|issue|issued|code compliance|code-compliant|ASME table|protected table|proprietary|validation|validated|formal acceptance|compatibility|CAEPIPE requirement|reverse engineer" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
+rg -n "TBD|tbd|location TBD" "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
+git diff --check -- "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
 ```
+
+If an unscoped worktree check reports findings outside this project's write scope, record the finding as external-scope noise and do not treat it as a blocker for DEL-17-02 closeout. Scoped deliverable checks remain the controlling diff-hygiene evidence for this deliverable.
 
 ## Closeout Procedure
 
@@ -46,11 +62,13 @@ Closeout requires:
 - dependency schema validation pass;
 - semantic matrix validation pass;
 - lens-register validation pass;
-- blocker queue recomputation from DAG-005 active edges and active evidence;
+- overclaim/prohibited-term scan reviewed for negative guardrail language versus unsupported affirmative claims;
+- TBD scan reviewed and summarized in `MEMORY.md`;
+- scoped diff-hygiene validation pass, with any outside-project findings recorded as external-scope bypasses rather than blockers;
 - memory update with touched files, validation results, remaining TBDs, and boundary exclusions;
 - run record creation;
 - no edits to `DEL-17-03` through `DEL-17-09` production documents;
-- no lifecycle promotion beyond TASK-owned local status update;
+- no lifecycle promotion;
 - no code, schema, release, compatibility, professional, or code-compliance claim.
 
 ## Semantic Enrichment Verification

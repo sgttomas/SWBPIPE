@@ -18,6 +18,8 @@ An export profile should be the only place where target-specific export assumpti
 
 Profile authors should prefer narrow, source-confirmed profiles over broad profiles with unproven target behavior. If a target behavior is plausible but not yet sourced, mark it `TBD` and include the affected downstream deliverables.
 
+Use `DEL-17-01 Source_Basis_Register.md` as the upstream authority for admitted source IDs. For non-trivial target statements, cite one or more of `CAEPIPE-IMPORT-MBF`, `CAEPIPE-EXPORT-DATA`, `CAEPIPE-EXPORT-MBF`, `CAEPIPE-BATCH`, `CAEPIPE-PCF`, `GLTF-2.0`, or a project reference such as `CONTRACT`, `IP-DATA`, `SPEC`, `TYPES`, and `DAG-005`. If only `PLAN-EXPORT-INTEROP` supports the planning direction, preserve its plan-location `TBD` and do not convert strategy into target-field evidence.
+
 ### Stable ID map
 
 Stable IDs are the recovery path when a target format cannot preserve the OpenPipeStress model structure directly. The map should be useful for:
@@ -30,9 +32,22 @@ Stable IDs are the recovery path when a target format cannot preserve the OpenPi
 
 Do not use target-generated record order as the only identity mechanism unless the manifest also records why no stronger identity is available.
 
+Distinguish direct target-carried IDs from sidecar mappings. A direct target-carried ID requires a source-confirmed target field, metadata slot, name, or equivalent carrier. A sidecar mapping is the default when the carrier is absent, ambiguous, or still `TBD`. For CAEPIPE MBF, `TBD-17-01-003` remains open, so later MBF work should not claim direct in-file stable-ID carrying until that question is closed.
+
 ### Loss report
 
 A loss report should be written for normal exports, not only error cases. A successful target export can still have delegated, omitted, approximated, unsupported, or TBD behavior. This is especially important for CAEPIPE, PCF, and review-geometry targets where public source evidence does not authorize broad compatibility claims.
+
+Use the categories consistently:
+
+- `exported`: represented directly in the target artifact or package member;
+- `omitted`: intentionally not emitted, with affected canonical IDs;
+- `approximated`: emitted through a declared approximation;
+- `delegated`: passed through to target configuration or a user-owned workflow without local interpretation;
+- `unsupported`: known unsupported behavior or target limitation;
+- `tbd`: behavior not source-confirmed.
+
+Do not let `delegated` or `approximated` entries hide target limitations. If target code/check options appear, treat them as pass-through target configuration unless a separate public rule-pack design admits local logic.
 
 ## Target-Specific Carryforward
 
@@ -43,6 +58,10 @@ A loss report should be written for normal exports, not only error cases. A succ
 | PCF | Conservative subset and translator-default warning rules remain `TBD`; PCF work shall be loss-report driven. |
 | GLB/glTF | Identity metadata and sidecar policy remain `TBD`; review geometry shall not be treated as solver validation. |
 | Adapter SDK | Additional targets shall inherit this contract and declare their own source basis before target-specific claims. |
+
+## External Execution Guidance
+
+External target execution is optional and user-owned. A profile may record executable path fields, version fields, license/environment notes, invocation metadata, and output-member hashes where those are useful for a later harness. The contract shall not require bundled executables, copied target examples, license-independent operation, or local interpretation of target solver/code-check behavior.
 
 ## Boundary Guidance
 
