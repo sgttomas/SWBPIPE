@@ -188,3 +188,22 @@ dependency records, review findings, candidate rows, blocker queues, DAG files,
 production code, schemas, tests, CI workflows, release records, acceptance
 records, human dispositions, professional-boundary decisions, or
 code-compliance decisions.
+
+## 2026-05-20 - TP-VERIFY-015 release-readiness path closeout
+
+TP-VERIFY-015 created `TP_VERIFY_015_RELEASE_READINESS_PATH_CLOSEOUT.md` as a
+fan-in addendum after the `TP-VERIFY-014` command-path gap.
+
+Disposition:
+- Project-local `tools/release/check_release_readiness.py` is now present.
+- Project-local `tools/validation/validate_dependencies_schema.py` is now
+  present for the skeleton execute profile.
+- The skeleton readiness profile derives approved dependency authority from
+  `execution/_DAG/_LATEST.md`; it currently resolves to `DAG-005`.
+- Validation passed for skeleton dry-run, skeleton execute, direct dependency
+  schema validation, and focused release-readiness script tests.
+
+This resolves the TP-VERIFY-014 command-path gap for current evidence. Human
+owned release governance remains open: CI provider, release matrix, thresholds,
+signing/attestation, release authority, waiver roles, acceptance workflow, and
+professional-boundary decisions are not changed by this closeout.

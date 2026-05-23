@@ -172,3 +172,34 @@ Boundary: this audit changed only this `MEMORY.md` and the local run record. It
 did not change lifecycle state, CI workflows, release records, candidate rows,
 blocker queues, implementation evidence, professional-boundary decisions, or
 code-compliance decisions.
+
+## 2026-05-20 - TP-VERIFY-015 release-readiness command path closeout
+
+TP-VERIFY-015 closed the project-local release-readiness command path gap
+identified by TP-VERIFY-014.
+
+Changes:
+- Restored project-local `tools/release/check_release_readiness.py`.
+- Added project-local `tools/validation/validate_dependencies_schema.py`,
+  because the skeleton execute profile depends on it.
+- Updated the restored release-readiness script to derive the approved
+  dependency graph from `execution/_DAG/_LATEST.md`; it currently resolves to
+  `DAG-005`.
+
+Validation:
+- `python3 tools/release/check_release_readiness.py --profile skeleton` passed.
+- `python3 tools/release/check_release_readiness.py --profile skeleton --execute`
+  passed.
+- `python3 tools/validation/validate_dependencies_schema.py execution/_DAG/DAG-005/DependencyEdges.csv`
+  passed with 29 columns and 988 data rows.
+- `python3 -m pytest -q tests/test_release_readiness_script.py` passed with
+  4 tests.
+
+Local run record:
+- `_run_records/TASK_RUN_2026-05-20_TP-VERIFY-015.md`
+
+Boundary: this tranche changed only the project-local release readiness helper
+surface, this `MEMORY.md`, the local run record, and the `DEL-09-05` fan-in
+closeout. It did not change lifecycle state, CI workflows, release records,
+candidate rows, blocker queues, implementation evidence, professional-boundary
+decisions, or code-compliance decisions.

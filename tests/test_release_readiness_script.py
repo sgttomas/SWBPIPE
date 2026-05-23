@@ -24,6 +24,14 @@ def test_required_release_paths_exist():
     assert release.check_required_paths(ROOT) == []
 
 
+def test_latest_dag_dependency_edges_uses_approved_graph_pointer():
+    release = load_module()
+    assert (
+        release.latest_dag_dependency_edges(ROOT)
+        == Path("execution/_DAG/DAG-005/DependencyEdges.csv")
+    )
+
+
 def test_cargo_manifest_discovery_is_crate_local():
     release = load_module()
     manifests = release.discover_cargo_manifests(ROOT)
@@ -38,6 +46,10 @@ def test_skeleton_plan_uses_local_commands_only():
     steps = release.build_plan("skeleton", ROOT)
     commands = [" ".join(step.command) for step in steps]
 
-    assert any("validate_dependencies_schema.py" in command for command in commands)
+    assert any(
+        "validate_dependencies_schema.py execution/_DAG/DAG-005/DependencyEdges.csv"
+        in command
+        for command in commands
+    )
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert all(isinstance(step.command, tuple) for step in steps)
