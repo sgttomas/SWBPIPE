@@ -11,16 +11,17 @@
 7. Extract dependencies into `Dependencies.csv`.
 8. Record memory and run evidence.
 
-## Future Implementation Procedure
+## Foundation Implementation Procedure
 
-Future implementation work must:
+Bounded foundation implementation work must:
 
 1. Close or explicitly carry target version and MBF record-family TBDs.
 2. Define the deterministic writer subset from admitted evidence.
 3. Emit a loss report for unsupported, omitted, approximated, delegated, and TBD behavior.
-4. Preserve stable IDs directly or through manifest-referenced sidecars.
+4. Preserve stable IDs through manifest-referenced sidecars unless direct MBF carrying is source-confirmed.
 5. Use invented fixtures only.
 6. Avoid CAEPIPE compatibility, release, code-compliance, and professional-acceptance claims.
+7. Keep external execution, CSV parsing, target result interpretation, public API, and GUI integration out of scope unless separately authorized.
 
 ## Implementation Readiness Checks
 

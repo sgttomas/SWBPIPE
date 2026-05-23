@@ -1,0 +1,700 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/caepipe_mbf_export.schema.json",
+  "title": "OpenPipeStress CAEPIPE MBF Export Foundation Package",
+  "description": "Strict JSON Schema 2020-12 contract for DEL-17-04 bounded CAEPIPE MBF export foundation packages. The package records deterministic text output, source-basis references, sidecar stable IDs, loss reporting, diagnostics, provenance, privacy, and professional-boundary notices without asserting CAEPIPE compatibility, code compliance, solver validation, release readiness, or professional reliance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "export_id",
+    "package_status",
+    "export_profile",
+    "manifest",
+    "mbf_text",
+    "model_payload",
+    "stable_id_map",
+    "loss_report",
+    "validation_report",
+    "diagnostics",
+    "privacy",
+    "provenance",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-17-04"
+    },
+    "package_id": {
+      "const": "PKG-17"
+    },
+    "scope_items": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "SOW-030",
+          "SOW-074",
+          "SOW-075"
+        ]
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "OBJ-009",
+          "OBJ-017",
+          "OBJ-018"
+        ]
+      }
+    },
+    "export_id": {
+      "$ref": "#/$defs/Id"
+    },
+    "package_status": {
+      "const": "caepipe_mbf_export_foundation"
+    },
+    "export_profile": {
+      "$ref": "#/$defs/ExportProfile"
+    },
+    "manifest": {
+      "$ref": "#/$defs/Manifest"
+    },
+    "mbf_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_payload": {
+      "$ref": "#/$defs/ModelPayload"
+    },
+    "stable_id_map": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/StableIdMapEntry"
+      }
+    },
+    "loss_report": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/LossReportEntry"
+      }
+    },
+    "validation_report": {
+      "$ref": "#/$defs/ValidationReport"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "privacy": {
+      "$ref": "#/$defs/PrivacyContext"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    }
+  },
+  "$defs": {
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "enum": [
+            "JCS_compatible_json_payload_hash",
+            "normalized_ascii_lf_text"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "caepipe_mbf_manifest",
+            "caepipe_mbf_text",
+            "caepipe_mbf_stable_id_map",
+            "caepipe_mbf_loss_report",
+            "caepipe_mbf_validation_report",
+            "caepipe_mbf_diagnostics",
+            "source_model_hash"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "enum": [
+            "EXPORT_BLOCKING",
+            "TARGET_MAPPING_WARNING",
+            "UNSUPPORTED_BEHAVIOR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "PROVENANCE_WARNING",
+            "UNIT_WARNING",
+            "HASH_WARNING",
+            "ASSUMPTION_WARNING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ExportProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_version",
+        "target_family",
+        "target_version_basis",
+        "record_subset_basis",
+        "stable_id_policy",
+        "unit_policy",
+        "loss_report_policy",
+        "external_execution_policy",
+        "source_basis_refs",
+        "carried_tbd_refs",
+        "boundary_notes"
+      ],
+      "properties": {
+        "profile_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "profile_version": {
+          "type": "string"
+        },
+        "target_family": {
+          "const": "caepipe_mbf"
+        },
+        "target_version_basis": {
+          "type": "string"
+        },
+        "record_subset_basis": {
+          "type": "string"
+        },
+        "stable_id_policy": {
+          "const": "sidecar_mapping_until_direct_mbf_carrier_confirmed"
+        },
+        "unit_policy": {
+          "type": "string"
+        },
+        "loss_report_policy": {
+          "const": "mandatory_for_every_package"
+        },
+        "external_execution_policy": {
+          "const": "not_invoked_by_this_package"
+        },
+        "source_basis_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "carried_tbd_refs": {
+          "type": "array",
+          "contains": {
+            "const": "TBD-17-01-003"
+          },
+          "items": {
+            "type": "string"
+          }
+        },
+        "boundary_notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "free_metadata": {
+          "type": "object"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "LossReportEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "category",
+        "severity",
+        "affected_refs",
+        "target_artifact_ref",
+        "reason",
+        "source_basis_ref",
+        "governing_tbd_id",
+        "downstream_implication",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "loss_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "category": {
+          "enum": [
+            "exported",
+            "omitted",
+            "approximated",
+            "delegated",
+            "unsupported",
+            "tbd"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "target_artifact_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "governing_tbd_id": {
+          "type": "string"
+        },
+        "downstream_implication": {
+          "type": "string"
+        },
+        "human_review_required": {
+          "type": "boolean"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "source_model_ref",
+        "source_model_hash",
+        "export_profile_ref",
+        "package_members",
+        "checksums",
+        "source_basis_refs",
+        "boundary_notes",
+        "diagnostics"
+      ],
+      "properties": {
+        "manifest_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_model_hash": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "export_profile_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "package_members": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "$ref": "#/$defs/PackageMember"
+          }
+        },
+        "checksums": {
+          "type": "array",
+          "minItems": 7,
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "source_basis_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "boundary_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        }
+      }
+    },
+    "ModelPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payload_kind",
+        "units",
+        "nodes",
+        "elements",
+        "supports",
+        "load_cases",
+        "unsupported_entities",
+        "provenance"
+      ],
+      "properties": {
+        "payload_kind": {
+          "const": "caepipe_mbf_smoke_subset_payload"
+        },
+        "units": {
+          "type": "object"
+        },
+        "nodes": {
+          "type": "array"
+        },
+        "elements": {
+          "type": "array"
+        },
+        "supports": {
+          "type": "array"
+        },
+        "load_cases": {
+          "type": "array"
+        },
+        "unsupported_entities": {
+          "type": "array"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "free_metadata": {
+          "type": "object"
+        }
+      }
+    },
+    "PackageMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "member_name",
+        "member_role",
+        "path",
+        "content_kind",
+        "payload_ref",
+        "hash"
+      ],
+      "properties": {
+        "member_name": {
+          "type": "string"
+        },
+        "member_role": {
+          "enum": [
+            "manifest",
+            "mbf_text",
+            "stable_id_map",
+            "loss_report",
+            "validation_report",
+            "diagnostics"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "content_kind": {
+          "enum": [
+            "json",
+            "text/plain"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "hash": {
+          "$ref": "#/$defs/Checksum"
+        }
+      }
+    },
+    "PrivacyContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {
+          "type": "string"
+        },
+        "local_only": {
+          "type": "boolean"
+        },
+        "telemetry_allowed": {
+          "const": false
+        },
+        "private_payload_embedded": {
+          "type": "boolean"
+        },
+        "protected_payload_embedded": {
+          "type": "boolean"
+        },
+        "commercial_tool_payload_embedded": {
+          "type": "boolean"
+        },
+        "redaction_refs": {
+          "type": "array"
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_interchange_smoke_testing",
+        "software_makes_release_claim",
+        "software_makes_caepipe_compatibility_claim",
+        "software_makes_solver_validation_claim",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "supports_interchange_smoke_testing": {
+          "type": "boolean"
+        },
+        "software_makes_release_claim": {
+          "const": false
+        },
+        "software_makes_caepipe_compatibility_claim": {
+          "const": false
+        },
+        "software_makes_solver_validation_claim": {
+          "const": false
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_creates_professional_reliance_record": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "redistribution_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string"
+        },
+        "source_location": {
+          "type": "string"
+        },
+        "source_license": {
+          "type": "string"
+        },
+        "contributor": {
+          "type": "string"
+        },
+        "redistribution_status": {
+          "type": "string"
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        }
+      }
+    },
+    "StableIdMapEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_ref",
+        "target_ref",
+        "carrier_mode",
+        "mapping_status",
+        "loss_category",
+        "provenance"
+      ],
+      "properties": {
+        "canonical_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "carrier_mode": {
+          "const": "sidecar_mapping"
+        },
+        "mapping_status": {
+          "type": "string"
+        },
+        "loss_category": {
+          "enum": [
+            "exported",
+            "omitted",
+            "approximated",
+            "delegated",
+            "unsupported",
+            "tbd"
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ValidationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validation_status",
+        "checks",
+        "provenance"
+      ],
+      "properties": {
+        "validation_status": {
+          "enum": [
+            "boundary_checked",
+            "blocked"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

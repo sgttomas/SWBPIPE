@@ -2,9 +2,9 @@
 
 ## Normative Scope
 
-DEL-17-04 shall define a source-bounded CAEPIPE MBF export profile and deterministic writer contract/design for later implementation. It shall consume DEL-17-01 source authority and DEL-17-02 package/profile/stable-ID/loss-report requirements.
+DEL-17-04 shall define a source-bounded CAEPIPE MBF export profile and deterministic writer contract/design, and may include a first bounded implementation foundation. It shall consume DEL-17-01 source authority and DEL-17-02 package/profile/stable-ID/loss-report requirements.
 
-This deliverable shall not implement the MBF writer, schemas, tests, fixtures, CAEPIPE parser, external run harness, public API, GUI behavior, release claims, CAEPIPE compatibility claims, code-compliance claims, or professional-acceptance claims.
+This deliverable's implementation foundation shall remain limited to deterministic project-owned package building, invented fixtures, schema validation, sidecar stable-ID mapping, diagnostics, and loss reports. It shall not implement a CAEPIPE parser, external run harness, public API, GUI behavior, release claims, CAEPIPE compatibility claims, code-compliance claims, professional-acceptance claims, or full MBF coverage claims.
 
 ## Requirements
 
@@ -17,6 +17,8 @@ This deliverable shall not implement the MBF writer, schemas, tests, fixtures, C
 | DEL-17-04-REQ-005 | Stable canonical ID carrying inside MBF shall remain `TBD`; sidecar mapping shall be required when direct carrying is not source-confirmed. |
 | DEL-17-04-REQ-006 | Pass-through target options shall remain target configuration metadata and shall not become OpenPipeStress local code-checking logic. |
 | DEL-17-04-REQ-007 | Later implementation shall use invented fixtures only. |
+| DEL-17-04-REQ-008 | The first implementation foundation shall use sidecar stable-ID mapping while `TBD-17-01-003` remains open. |
+| DEL-17-04-REQ-009 | The first implementation foundation shall expose blocking diagnostics when the invented smoke subset, sidecar stable-ID map, or loss report is missing. |
 
 ## Verification Requirements
 
@@ -38,6 +40,7 @@ This deliverable shall not implement the MBF writer, schemas, tests, fixtures, C
 | Loss category coverage | REQ-004 is accepted only when exported, omitted, approximated, delegated, unsupported, and `TBD` behavior are all visible in the loss report. |
 | Diagnostic classification | Blocking versus non-blocking diagnostics remain `TBD` until the later profile tranche defines unsupported-entity severity. |
 | Fixture provenance | REQ-007 is accepted only with invented fixtures and no vendor, proprietary, protected, or owner/project examples. |
+| Foundation implementation | REQ-008 and REQ-009 are accepted when schema, builder, fixture, and tests demonstrate sidecar-first IDs, deterministic MBF text, and blocking diagnostics for incomplete packages. |
 
 ## Downstream Use
 
