@@ -11,3 +11,10 @@
 - Parent validation passed: four-document check, minimum fileset check, semantic matrix validator, lens register validator, P3 disposition validator, dependency schema validator, `git diff --check`, and boundary-language scan.
 - Remaining TBDs include CAEPIPE invocation profile, parser coverage, first MBF profile details, and target compatibility behavior pending source evidence.
 - Boundary exclusions preserved: no implementation code, schemas, runtime harness, bundled executable, license-bypass path, compatibility claim, release claim, code-compliance claim, or professional-acceptance claim.
+
+## 2026-05-24 - DEL-17-05 external-run evidence foundation
+- Added bounded implementation foundation for skipped and parser-only CAEPIPE external-run evidence.
+- Added deterministic module, schema, invented public CSV/JSON fixtures, and focused tests.
+- Public tests do not invoke CAEPIPE and do not require an executable, license, private payload, or commercial output.
+- Remaining TBDs preserved: live invocation profile, source-confirmed CSV section coverage, target version/profile details, and any compatibility or validation interpretation.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, bundled executable, license-bypass path, release claim, compatibility claim, code-compliance claim, solver-validation claim, or professional-acceptance claim.

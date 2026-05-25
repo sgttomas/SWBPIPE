@@ -1,0 +1,582 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/caepipe_external_run.schema.json",
+  "title": "OpenPipeStress CAEPIPE External Run Evidence Package",
+  "description": "Strict JSON Schema 2020-12 contract for DEL-17-05 optional CAEPIPE external-run evidence. Public packages may record skipped or parser-only evidence without bundling CAEPIPE, bypassing licenses, or asserting compatibility, solver validation, code compliance, release readiness, or professional reliance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "run_id",
+    "package_status",
+    "mbf_package_ref",
+    "executable_config",
+    "command_profile",
+    "run_directory",
+    "execution_result",
+    "parser_coverage",
+    "parsed_csv",
+    "boundary_notes",
+    "privacy",
+    "provenance",
+    "professional_boundary",
+    "diagnostics",
+    "checksums"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-17-05"
+    },
+    "package_id": {
+      "const": "PKG-17"
+    },
+    "scope_items": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["SOW-030", "SOW-046", "SOW-075"]
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["OBJ-007", "OBJ-009", "OBJ-017", "OBJ-018"]
+      }
+    },
+    "run_id": {
+      "$ref": "#/$defs/Id"
+    },
+    "package_status": {
+      "enum": [
+        "skipped_no_executable",
+        "parser_only_evidence",
+        "external_run_evidence_blocked",
+        "external_run_evidence_recorded"
+      ]
+    },
+    "mbf_package_ref": {
+      "$ref": "#/$defs/Reference"
+    },
+    "executable_config": {
+      "$ref": "#/$defs/ExecutableConfig"
+    },
+    "command_profile": {
+      "$ref": "#/$defs/CommandProfile"
+    },
+    "run_directory": {
+      "$ref": "#/$defs/RunDirectory"
+    },
+    "execution_result": {
+      "$ref": "#/$defs/ExecutionResult"
+    },
+    "parser_coverage": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ParserCoverage"
+      }
+    },
+    "parsed_csv": {
+      "$ref": "#/$defs/ParsedCsv"
+    },
+    "boundary_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "privacy": {
+      "$ref": "#/$defs/Privacy"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "checksums": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "#/$defs/Checksum"
+      }
+    }
+  },
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["object_type", "ref"],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ExecutableConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "configuration_surface",
+        "configured_path_state",
+        "license_responsibility_acknowledged",
+        "environment_responsibility_acknowledged",
+        "path_record"
+      ],
+      "properties": {
+        "configuration_surface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "configured_path_state": {
+          "enum": ["absent", "invalid", "present", "private_redacted"]
+        },
+        "license_responsibility_acknowledged": {
+          "type": "boolean"
+        },
+        "environment_responsibility_acknowledged": {
+          "type": "boolean"
+        },
+        "path_record": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "CommandProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "invocation_mode", "command_shape", "profile_basis"],
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "invocation_mode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command_shape": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "free_metadata": true
+      }
+    },
+    "RunDirectory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_directory_ref",
+        "working_directory",
+        "input_mbf_path",
+        "expected_csv_path",
+        "observed_csv_path",
+        "output_discovery_status"
+      ],
+      "properties": {
+        "run_directory_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "working_directory": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input_mbf_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_csv_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_csv_path": {
+          "type": ["string", "null"]
+        },
+        "output_discovery_status": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ExecutionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempted", "exit_status", "stdout_capture", "stderr_capture", "skip_reason"],
+      "properties": {
+        "attempted": {
+          "type": "boolean"
+        },
+        "exit_status": {
+          "type": ["integer", "null"]
+        },
+        "stdout_capture": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stderr_capture": {
+          "type": "string",
+          "minLength": 1
+        },
+        "skip_reason": {
+          "type": ["string", "null"]
+        },
+        "free_metadata": true
+      }
+    },
+    "ParserCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "section_name",
+        "basis",
+        "support_status",
+        "expected_columns",
+        "unmapped_row_policy",
+        "diagnostic_severity",
+        "fixture_provenance",
+        "provenance"
+      ],
+      "properties": {
+        "section_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "support_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unmapped_row_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "diagnostic_severity": {
+          "enum": ["info", "warning", "blocking"]
+        },
+        "fixture_provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ParsedCsv": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_csv_ref",
+        "parser_status",
+        "row_count",
+        "rows",
+        "diagnostics",
+        "csv_checksum",
+        "provenance"
+      ],
+      "properties": {
+        "source_csv_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "parser_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "row_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParsedCsvRow"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "csv_checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ParsedCsvRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "row_number",
+        "section",
+        "stable_id",
+        "target_id",
+        "load_case",
+        "unit",
+        "values",
+        "correlation_status",
+        "source_csv_ref",
+        "provenance"
+      ],
+      "properties": {
+        "row_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "section": {
+          "type": "string"
+        },
+        "stable_id": {
+          "type": "string"
+        },
+        "target_id": {
+          "type": "string"
+        },
+        "load_case": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["number", "string"]
+          }
+        },
+        "correlation_status": {
+          "enum": ["canonical_id_map", "weak_or_unmapped"]
+        },
+        "source_csv_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "class", "severity", "source", "affected_object", "message", "remediation", "provenance"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": ["info", "warning", "blocking"]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "payload_ref", "payload_scope", "value"],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "canonicalization": {
+          "enum": ["JCS_compatible_json_payload_hash", "normalized_ascii_lf_text"]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "Privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "local_only": {
+          "type": "boolean"
+        },
+        "telemetry_allowed": {
+          "type": "boolean"
+        },
+        "private_payload_embedded": {
+          "type": "boolean"
+        },
+        "protected_payload_embedded": {
+          "type": "boolean"
+        },
+        "commercial_tool_payload_embedded": {
+          "type": "boolean"
+        },
+        "redaction_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_regression_evidence",
+        "supports_handoff_review_evidence",
+        "software_bundles_caepipe",
+        "software_invokes_caepipe_without_user_configuration",
+        "software_makes_release_claim",
+        "software_makes_caepipe_compatibility_claim",
+        "software_makes_solver_validation_claim",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {
+          "type": "boolean"
+        },
+        "supports_regression_evidence": {
+          "type": "boolean"
+        },
+        "supports_handoff_review_evidence": {
+          "type": "boolean"
+        },
+        "software_bundles_caepipe": {
+          "const": false
+        },
+        "software_invokes_caepipe_without_user_configuration": {
+          "const": false
+        },
+        "software_makes_release_claim": {
+          "const": false
+        },
+        "software_makes_caepipe_compatibility_claim": {
+          "const": false
+        },
+        "software_makes_solver_validation_claim": {
+          "const": false
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_creates_professional_reliance_record": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["source_name", "source_location", "source_license"],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
