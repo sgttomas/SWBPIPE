@@ -1,0 +1,3 @@
+result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status
+result:invented:force:P001:axial,result:invented:force:P001:axial,result_value,force,load:invented:operating,station:invented:P001:end-i,pipe:invented:001,12.5,N,force,canonical_id_map
+result:invented:stress:P001:sustained,result:invented:stress:P001:sustained,result_value,stress,load:invented:sustained,station:invented:P001:midspan,pipe:invented:001,3450,Pa,stress,canonical_id_map

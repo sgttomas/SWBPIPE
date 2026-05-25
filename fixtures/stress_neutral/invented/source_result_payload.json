@@ -1,0 +1,136 @@
+{
+  "export_id": "stress-neutral:invented-del-17-06",
+  "loss_report": [
+    {
+      "affected_refs": [
+        {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:invented-del-17-06"
+        }
+      ],
+      "category": "exported",
+      "downstream_implication": "Does not define comparison pass/fail or professional reliance semantics.",
+      "loss_id": "loss:invented:stress-neutral-exported",
+      "reason": "Invented result rows exported to stress-neutral CSV/JSON for deterministic package testing.",
+      "severity": "info",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      "target_artifact_ref": {
+        "object_type": "StressNeutralExportPackage",
+        "ref": "stress-neutral:invented-del-17-06"
+      }
+    }
+  ],
+  "result_rows": [
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:invented:001"
+      },
+      "correlation_status": "canonical_id_map",
+      "dimension": "force",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:invented:operating"
+      },
+      "result_family": "force",
+      "result_id": "result:invented:force:P001:axial",
+      "row_kind": "result_value",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "station:invented:P001:end-i"
+      },
+      "unit": "N",
+      "value": 12.5
+    },
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:invented:001"
+      },
+      "correlation_status": "canonical_id_map",
+      "dimension": "stress",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:invented:sustained"
+      },
+      "result_family": "stress",
+      "result_id": "result:invented:stress:P001:sustained",
+      "row_kind": "result_value",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "station:invented:P001:midspan"
+      },
+      "unit": "Pa",
+      "value": 3450.0
+    }
+  ],
+  "source_hashes": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "ResultEnvelope",
+        "ref": "result-envelope:invented-del-17-06"
+      },
+      "payload_scope": "source_result_envelope",
+      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  ],
+  "source_model_ref": {
+    "object_type": "Model",
+    "ref": "model:invented-del-17-06"
+  },
+  "source_result_ref": {
+    "object_type": "ResultEnvelope",
+    "ref": "result-envelope:invented-del-17-06"
+  },
+  "source_run_ref": {
+    "object_type": "AnalysisRun",
+    "ref": "run:invented-del-17-06"
+  },
+  "stable_id_map": [
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "export_ref": {
+        "object_type": "StressNeutralRow",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped"
+    },
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "export_ref": {
+        "object_type": "StressNeutralRow",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped"
+    }
+  ]
+}

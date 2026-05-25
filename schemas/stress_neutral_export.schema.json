@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/stress_neutral_export.schema.json",
+  "title": "OpenPipeStress Stress-Neutral CSV/JSON Export Package",
+  "description": "Strict JSON Schema 2020-12 contract for DEL-17-06 stress-neutral CSV/JSON export packages. The package supports review, regression comparison input, and downstream tooling without asserting target compatibility, solver validation, code compliance, release readiness, or professional reliance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "export_id",
+    "package_status",
+    "source_result_ref",
+    "source_run_ref",
+    "source_model_ref",
+    "source_hashes",
+    "export_profile",
+    "manifest",
+    "result_rows",
+    "csv_text",
+    "stable_id_map",
+    "loss_report",
+    "validation_report",
+    "diagnostics",
+    "privacy",
+    "provenance",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "deliverable_id": {"const": "DEL-17-06"},
+    "package_id": {"const": "PKG-17"},
+    "scope_items": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {"enum": ["SOW-046", "SOW-074"]}
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {"enum": ["OBJ-007", "OBJ-017", "OBJ-018"]}
+    },
+    "export_id": {"$ref": "#/$defs/Id"},
+    "package_status": {"const": "stress_neutral_export_package"},
+    "source_result_ref": {"$ref": "#/$defs/Reference"},
+    "source_run_ref": {"$ref": "#/$defs/Reference"},
+    "source_model_ref": {"$ref": "#/$defs/Reference"},
+    "source_hashes": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
+    "export_profile": {"$ref": "#/$defs/ExportProfile"},
+    "manifest": {"$ref": "#/$defs/Manifest"},
+    "result_rows": {"type": "array", "items": {"$ref": "#/$defs/ResultRow"}},
+    "csv_text": {"type": "string", "minLength": 1},
+    "stable_id_map": {"type": "array", "items": {"$ref": "#/$defs/StableIdMapEntry"}},
+    "loss_report": {"type": "array", "items": {"$ref": "#/$defs/LossReportEntry"}},
+    "validation_report": {"$ref": "#/$defs/ValidationReport"},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}},
+    "privacy": {"$ref": "#/$defs/Privacy"},
+    "provenance": {"$ref": "#/$defs/Provenance"},
+    "professional_boundary": {"$ref": "#/$defs/ProfessionalBoundary"}
+  },
+  "$defs": {
+    "Id": {"type": "string", "minLength": 1},
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["object_type", "ref"],
+      "properties": {
+        "object_type": {"type": "string", "minLength": 1},
+        "ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "payload_ref", "payload_scope", "value"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "canonicalization": {
+          "enum": ["JCS_compatible_json_payload_hash", "normalized_ascii_lf_text"]
+        },
+        "payload_ref": {"$ref": "#/$defs/Reference"},
+        "payload_scope": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+      }
+    },
+    "ExportProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_version",
+        "target_family",
+        "csv_columns",
+        "identity_policy",
+        "unit_policy",
+        "loss_report_policy",
+        "comparison_semantics",
+        "boundary_notes",
+        "source_basis_refs"
+      ],
+      "properties": {
+        "profile_id": {"type": "string", "minLength": 1},
+        "profile_version": {"type": "string", "minLength": 1},
+        "target_family": {"const": "stress_neutral_csv_json"},
+        "csv_columns": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "identity_policy": {"const": "canonical_ref_per_row_plus_stable_id_map"},
+        "unit_policy": {"const": "unit_and_dimension_required_per_row"},
+        "loss_report_policy": {"const": "mandatory_for_every_package"},
+        "comparison_semantics": {"const": "diagnostic_export_only_no_pass_fail"},
+        "boundary_notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "source_basis_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
+        "free_metadata": true
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "source_result_ref",
+        "source_run_ref",
+        "source_model_ref",
+        "source_hashes",
+        "export_profile_ref",
+        "package_members",
+        "checksums",
+        "boundary_notes",
+        "diagnostics"
+      ],
+      "properties": {
+        "manifest_id": {"type": "string", "minLength": 1},
+        "source_result_ref": {"$ref": "#/$defs/Reference"},
+        "source_run_ref": {"$ref": "#/$defs/Reference"},
+        "source_model_ref": {"$ref": "#/$defs/Reference"},
+        "source_hashes": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
+        "export_profile_ref": {"$ref": "#/$defs/Reference"},
+        "package_members": {"type": "array", "items": {"$ref": "#/$defs/PackageMember"}},
+        "checksums": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
+        "boundary_notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}}
+      }
+    },
+    "PackageMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["member_id", "member_role", "path", "checksum"],
+      "properties": {
+        "member_id": {"type": "string", "minLength": 1},
+        "member_role": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "checksum": {"$ref": "#/$defs/Checksum"}
+      }
+    },
+    "ResultRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "canonical_ref",
+        "row_kind",
+        "result_family",
+        "load_case_ref",
+        "station_ref",
+        "component_ref",
+        "value",
+        "unit",
+        "dimension",
+        "source_result_ref",
+        "correlation_status",
+        "provenance"
+      ],
+      "properties": {
+        "result_id": {"type": "string", "minLength": 1},
+        "canonical_ref": {"$ref": "#/$defs/Reference"},
+        "row_kind": {"type": "string", "minLength": 1},
+        "result_family": {"type": "string", "minLength": 1},
+        "load_case_ref": {"$ref": "#/$defs/Reference"},
+        "station_ref": {"$ref": "#/$defs/Reference"},
+        "component_ref": {"$ref": "#/$defs/Reference"},
+        "value": {"type": ["number", "string", "null"]},
+        "unit": {"type": "string"},
+        "dimension": {"type": "string"},
+        "source_result_ref": {"$ref": "#/$defs/Reference"},
+        "correlation_status": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "StableIdMapEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_ref", "export_ref", "mapping_status", "loss_category", "provenance"],
+      "properties": {
+        "canonical_ref": {"$ref": "#/$defs/Reference"},
+        "export_ref": {"$ref": "#/$defs/Reference"},
+        "mapping_status": {"type": "string", "minLength": 1},
+        "loss_category": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "LossReportEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "category",
+        "severity",
+        "affected_refs",
+        "target_artifact_ref",
+        "reason",
+        "source_basis_ref",
+        "downstream_implication",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "loss_id": {"type": "string", "minLength": 1},
+        "category": {"enum": ["exported", "omitted", "approximated", "delegated", "unsupported", "tbd"]},
+        "severity": {"enum": ["info", "warning", "blocking"]},
+        "affected_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
+        "target_artifact_ref": {"$ref": "#/$defs/Reference"},
+        "reason": {"type": "string", "minLength": 1},
+        "source_basis_ref": {"$ref": "#/$defs/Reference"},
+        "downstream_implication": {"type": "string", "minLength": 1},
+        "human_review_required": {"type": "boolean"},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "ValidationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_status", "checks", "human_review_required", "provenance"],
+      "properties": {
+        "validation_status": {"enum": ["passed", "blocked"]},
+        "checks": {"type": "array"},
+        "human_review_required": {"type": "boolean"},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "class", "severity", "source", "affected_object", "message", "remediation", "provenance"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "class": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["info", "warning", "blocking"]},
+        "source": {"$ref": "#/$defs/Reference"},
+        "affected_object": {"$ref": "#/$defs/Reference"},
+        "message": {"type": "string", "minLength": 1},
+        "remediation": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "Privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {"type": "string", "minLength": 1},
+        "local_only": {"type": "boolean"},
+        "telemetry_allowed": {"type": "boolean"},
+        "private_payload_embedded": {"type": "boolean"},
+        "protected_payload_embedded": {"type": "boolean"},
+        "commercial_tool_payload_embedded": {"type": "boolean"},
+        "redaction_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}}
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_review",
+        "supports_regression_comparison_input",
+        "supports_downstream_tooling",
+        "software_makes_release_claim",
+        "software_makes_external_compatibility_claim",
+        "software_makes_solver_validation_claim",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {"type": "boolean"},
+        "supports_review": {"type": "boolean"},
+        "supports_regression_comparison_input": {"type": "boolean"},
+        "supports_downstream_tooling": {"type": "boolean"},
+        "software_makes_release_claim": {"const": false},
+        "software_makes_external_compatibility_claim": {"const": false},
+        "software_makes_solver_validation_claim": {"const": false},
+        "software_makes_compliance_claim": {"const": false},
+        "software_makes_certification_claim": {"const": false},
+        "software_makes_sealing_claim": {"const": false},
+        "software_makes_approval_claim": {"const": false},
+        "software_creates_professional_reliance_record": {"const": false}
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["source_name", "source_location", "source_license"],
+      "properties": {
+        "source_name": {"type": "string", "minLength": 1},
+        "source_location": {"type": "string", "minLength": 1},
+        "source_license": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

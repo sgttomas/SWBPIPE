@@ -11,3 +11,10 @@
 - Parent validation passed: four-document check, minimum fileset check, semantic matrix validator, lens register validator, P3 disposition validator, dependency schema validator, `git diff --check`, and boundary-language scan.
 - Remaining TBDs include exact stress-neutral schema paths, comparison hooks, acceptance-reference location, and downstream result-package field names pending source evidence.
 - Boundary exclusions preserved: no implementation code, schemas, exporter runtime, code-compliance result, professional approval, formal validation, engineering acceptance, or release-readiness claim.
+
+## 2026-05-24 - DEL-17-06 stress-neutral CSV/JSON foundation
+- Added bounded implementation foundation for project-owned stress-neutral CSV/JSON export packages.
+- Added deterministic module, JSON Schema 2020-12 contract, invented public fixtures, and focused tests.
+- Fixed CSV columns are result identity, canonical reference, row kind, result family, load case, station, component, value, unit, dimension, and correlation status.
+- Remaining TBDs preserved: comparison pass/fail semantics, tolerance profiles, external target interpretation, release gates, and professional acceptance remain outside this package.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, vendor format claim, solver-input-deck claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, or professional-reliance claim.
