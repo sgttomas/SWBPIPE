@@ -3,7 +3,7 @@ doc_id: DEV-001-BLOCKER-QUEUE
 doc_kind: coordination.blocker_queue
 status: computed_active_edges_only
 created: 2026-04-30
-updated: 2026-05-18
+updated: 2026-05-28
 source_graph: execution/_DAG/DAG-005/DependencyEdges.csv
 implementation_evidence_source: execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv
 implementation_threshold: COMMITTED
@@ -169,9 +169,9 @@ These deliverables have no active upstream implementation dependency below the `
 | `DEL-17-04` | `PKG-17` | `COMMITTED` `8ebf8b33` | 8 | CAEPIPE MBF export profile and deterministic writer |
 | `DEL-17-05` | `PKG-17` | `COMMITTED` `5961995f` | 8 | CAEPIPE external run harness and CSV parser |
 | `DEL-17-06` | `PKG-17` | `COMMITTED` `5961995f` | 11 | Stress-neutral CSV/JSON package |
-| `DEL-17-07` | `PKG-17` | `COMMITTED` `5961995f` | 11 | Conservative PCF subset exporter |
-| `DEL-17-08` | `PKG-17` | `COMMITTED` `5961995f` | 12 | GLB/glTF review geometry export |
-| `DEL-17-09` | `PKG-17` | `COMMITTED` `5961995f` | 11 | Export adapter SDK and additional targets |
+| `DEL-17-07` | `PKG-17` | `COMMITTED` `cd710e02` | 11 | Conservative PCF subset exporter |
+| `DEL-17-08` | `PKG-17` | `COMMITTED` `3e174ff2` | 12 | GLB/glTF review geometry export |
+| `DEL-17-09` | `PKG-17` | `COMMITTED` `3f04b6c0` | 11 | Export adapter SDK and additional targets |
 
 ## Blocked Items Grouped By Missing Upstream
 
