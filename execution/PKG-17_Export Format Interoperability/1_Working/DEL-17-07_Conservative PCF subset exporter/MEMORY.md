@@ -11,3 +11,11 @@
 - Parent validation passed: four-document check, minimum fileset check, semantic matrix validator, lens register validator, P3 disposition validator, dependency schema validator, `git diff --check`, and boundary-language scan.
 - Remaining TBDs include target PCF profile/version, hidden translator default behavior, unsupported record handling, and downstream import behavior pending source evidence.
 - Boundary exclusions preserved: no PCF completeness claim, CAEPIPE compatibility claim, writer implementation, schema change, protected standards data, release claim, code-compliance claim, or professional-acceptance claim.
+
+## 2026-05-28 - DEL-17-07 conservative PCF export foundation
+- Added bounded implementation foundation for project-owned conservative PCF export packages.
+- Added deterministic ASCII PCF text builder, JSON Schema 2020-12 package contract, invented public fixtures, and focused tests.
+- v1 emits invented straight-pipe PCF text only and preserves canonical identity through an authoritative sidecar ID map.
+- Loss reporting covers `exported`, `omitted`, `approximated`, `delegated`, `unsupported`, and `tbd` categories for the invented fixture.
+- Remaining TBDs preserved: first supported PCF target profile/version, downstream import behavior, support/restraint semantics, hidden translator defaults, direct PCF stable-ID carriage, broader entity coverage, runtime/API/GUI integration, lifecycle/acceptance decisions, and any target-specific compatibility claims.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, coordination evidence update, release claim, PCF completeness claim, CAEPIPE compatibility claim, solver-validation claim, code-compliance claim, professional-acceptance claim, commercial solver behavior, proprietary example, protected standards content, or reverse-engineering was introduced.
