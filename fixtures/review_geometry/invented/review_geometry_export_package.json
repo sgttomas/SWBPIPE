@@ -1,0 +1,689 @@
+{
+  "deliverable_id": "DEL-17-08",
+  "diagnostics": [],
+  "export_id": "review-geometry:invented-del-17-08",
+  "export_profile": {
+    "artifact_format": "gltf_json_embedded_buffer",
+    "boundary_notes": [
+      "glTF review geometry is visual review support only.",
+      "The artifact is not solver-fidelity geometry, analysis-fidelity geometry, target compatibility evidence, code compliance evidence, or professional reliance evidence.",
+      "v1 emits JSON .gltf line-mode centerline geometry with embedded buffer data; GLB and surface/tube geometry remain future work.",
+      "The sidecar ID map remains authoritative for audit correlation even when glTF extras carry direct identity metadata."
+    ],
+    "coordinate_policy": "gltf_y_up_right_handed_meters_only",
+    "geometry_scope": "centerline_segments_only",
+    "gltf_version_basis": "2.0",
+    "identity_policy": "gltf_extras_plus_authoritative_sidecar_id_map",
+    "loss_report_policy": "mandatory_for_every_package",
+    "primitive_mode": "LINES",
+    "profile_id": "ops.review_geometry.gltf_lines",
+    "profile_version": "0.1.0",
+    "source_basis_refs": [
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-01"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      {
+        "object_type": "Document",
+        "ref": "GLTF-2.0"
+      }
+    ],
+    "target_family": "gltf_review_geometry",
+    "unit_policy": "meters_required"
+  },
+  "geometry_payload": {
+    "coordinate_basis": "gltf_y_up_right_handed_meters",
+    "elements": [
+      {
+        "element_id": "element:invented:AB",
+        "from_node": "node:invented:A",
+        "target_name": "ops_segment_AB",
+        "to_node": "node:invented:B"
+      },
+      {
+        "element_id": "element:invented:BC",
+        "from_node": "node:invented:B",
+        "target_name": "ops_segment_BC",
+        "to_node": "node:invented:C"
+      }
+    ],
+    "nodes": [
+      {
+        "node_id": "node:invented:A",
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "node_id": "node:invented:B",
+        "x": 1.5,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "node_id": "node:invented:C",
+        "x": 1.5,
+        "y": 0.75,
+        "z": 0
+      }
+    ],
+    "omitted_entities": [
+      {
+        "object_type": "Support",
+        "ref": "support:invented:A"
+      }
+    ],
+    "payload_kind": "review_geometry_centerline_lines",
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/review_geometry/package.py",
+      "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+    },
+    "units": {
+      "length": "m"
+    }
+  },
+  "gltf": {
+    "accessors": [
+      {
+        "bufferView": 0,
+        "byteOffset": 0,
+        "componentType": 5126,
+        "count": 2,
+        "max": [
+          1.5,
+          0.0,
+          0.0
+        ],
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "type": "VEC3"
+      },
+      {
+        "bufferView": 1,
+        "byteOffset": 0,
+        "componentType": 5126,
+        "count": 2,
+        "max": [
+          1.5,
+          0.75,
+          0.0
+        ],
+        "min": [
+          1.5,
+          0.0,
+          0.0
+        ],
+        "type": "VEC3"
+      }
+    ],
+    "asset": {
+      "extras": {
+        "openpipestress": {
+          "artifact_role": "visual_review_geometry_only",
+          "coordinate_basis": "gltf_y_up_right_handed_meters",
+          "linear_unit": "m",
+          "professional_boundary": "not_solver_geometry_not_analysis_fidelity_not_professional_reliance",
+          "profile_id": "ops.review_geometry.gltf_lines"
+        }
+      },
+      "generator": "OpenPipeStress DEL-17-08 review geometry exporter 0.1.0",
+      "version": "2.0"
+    },
+    "bufferViews": [
+      {
+        "buffer": 0,
+        "byteLength": 24,
+        "byteOffset": 0,
+        "target": 34962
+      },
+      {
+        "buffer": 0,
+        "byteLength": 24,
+        "byteOffset": 24,
+        "target": 34962
+      }
+    ],
+    "buffers": [
+      {
+        "byteLength": 48,
+        "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAADAPwAAAAAAAAAAAADAPwAAAAAAAAAAAADAPwAAQD8AAAAA"
+      }
+    ],
+    "meshes": [
+      {
+        "name": "ops_segment_AB",
+        "primitives": [
+          {
+            "attributes": {
+              "POSITION": 0
+            },
+            "extras": {
+              "openpipestress": {
+                "canonical_ref": {
+                  "object_type": "CenterlineElement",
+                  "ref": "element:invented:AB"
+                },
+                "metadata_role": "centerline_segment_primitive",
+                "review_boundary": "visual_review_only",
+                "sidecar_authoritative": true,
+                "target_ref": {
+                  "object_type": "GltfPrimitive",
+                  "ref": "mesh:0:primitive:0"
+                }
+              }
+            },
+            "mode": 1
+          }
+        ]
+      },
+      {
+        "name": "ops_segment_BC",
+        "primitives": [
+          {
+            "attributes": {
+              "POSITION": 1
+            },
+            "extras": {
+              "openpipestress": {
+                "canonical_ref": {
+                  "object_type": "CenterlineElement",
+                  "ref": "element:invented:BC"
+                },
+                "metadata_role": "centerline_segment_primitive",
+                "review_boundary": "visual_review_only",
+                "sidecar_authoritative": true,
+                "target_ref": {
+                  "object_type": "GltfPrimitive",
+                  "ref": "mesh:1:primitive:0"
+                }
+              }
+            },
+            "mode": 1
+          }
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "extras": {
+          "openpipestress": {
+            "canonical_ref": {
+              "object_type": "CenterlineElement",
+              "ref": "element:invented:AB"
+            },
+            "metadata_role": "centerline_segment_node",
+            "review_boundary": "visual_review_only",
+            "sidecar_authoritative": true,
+            "target_ref": {
+              "object_type": "GltfNode",
+              "ref": "0"
+            }
+          }
+        },
+        "mesh": 0,
+        "name": "ops_segment_AB"
+      },
+      {
+        "extras": {
+          "openpipestress": {
+            "canonical_ref": {
+              "object_type": "CenterlineElement",
+              "ref": "element:invented:BC"
+            },
+            "metadata_role": "centerline_segment_node",
+            "review_boundary": "visual_review_only",
+            "sidecar_authoritative": true,
+            "target_ref": {
+              "object_type": "GltfNode",
+              "ref": "1"
+            }
+          }
+        },
+        "mesh": 1,
+        "name": "ops_segment_BC"
+      }
+    ],
+    "scene": 0,
+    "scenes": [
+      {
+        "name": "OpenPipeStress review geometry",
+        "nodes": [
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "loss_report": [
+    {
+      "affected_refs": [
+        {
+          "object_type": "CenterlineElement",
+          "ref": "element:invented:AB"
+        }
+      ],
+      "category": "exported",
+      "downstream_implication": "Visual review geometry only; no solver or analysis fidelity is implied.",
+      "human_review_required": true,
+      "loss_id": "loss:invented:review-centerline-exported",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/review_geometry/package.py",
+        "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+      },
+      "reason": "Invented centerline segment emitted as visual review geometry.",
+      "severity": "info",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      "target_artifact_ref": {
+        "object_type": "ReviewGeometryMember",
+        "ref": "review-geometry:invented-del-17-08:model_gltf"
+      }
+    },
+    {
+      "affected_refs": [
+        {
+          "object_type": "Support",
+          "ref": "support:invented:A"
+        }
+      ],
+      "category": "omitted",
+      "downstream_implication": "Support context remains available only through source records and loss report.",
+      "human_review_required": true,
+      "loss_id": "loss:invented:support-omitted",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/review_geometry/package.py",
+        "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+      },
+      "reason": "Support symbol review geometry is outside the v1 centerline-only scope.",
+      "severity": "warning",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-08"
+      },
+      "target_artifact_ref": {
+        "object_type": "ReviewGeometryMember",
+        "ref": "review-geometry:invented-del-17-08:model_gltf"
+      }
+    }
+  ],
+  "manifest": {
+    "boundary_notes": [
+      "glTF review geometry is visual review support only.",
+      "The artifact is not solver-fidelity geometry, analysis-fidelity geometry, target compatibility evidence, code compliance evidence, or professional reliance evidence.",
+      "v1 emits JSON .gltf line-mode centerline geometry with embedded buffer data; GLB and surface/tube geometry remain future work.",
+      "The sidecar ID map remains authoritative for audit correlation even when glTF extras carry direct identity metadata."
+    ],
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "Model",
+          "ref": "model:invented-review-geometry"
+        },
+        "payload_scope": "source_model_hash",
+        "value": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:diagnostics"
+        },
+        "payload_scope": "review_geometry_diagnostics",
+        "value": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:id_map"
+        },
+        "payload_scope": "review_geometry_id_map",
+        "value": "sha256:a72512bd2d28e955b225a1b4acdb299cede571a6d4d2c15f6c3a0b1c40e33c1f"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:loss_report"
+        },
+        "payload_scope": "review_geometry_loss_report",
+        "value": "sha256:9052258dad89cafe9b51ad142e9cd9311324f3ddafbf6604b7b2566797c1be59"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:manifest"
+        },
+        "payload_scope": "review_geometry_manifest",
+        "value": "sha256:a2e0ae4f5f25e3c709245c23109005512b63c71856c822e85f01670d7eb9061f"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:model_gltf"
+        },
+        "payload_scope": "review_geometry_gltf_json",
+        "value": "sha256:638071a6260a749449014b30fb659eb3f0c370ec7a14c2face44c1ab6a734781"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:validation_report"
+        },
+        "payload_scope": "review_geometry_validation_report",
+        "value": "sha256:52ce1d90105db807aa86bc7ccb8ac4cdbd136c57cc5eeb81135f55129d571904"
+      }
+    ],
+    "diagnostics": [],
+    "export_profile_ref": {
+      "object_type": "ExportProfile",
+      "ref": "ops.review_geometry.gltf_lines"
+    },
+    "gltf_artifact": {
+      "artifact_id": "review-geometry:invented-del-17-08:model.gltf",
+      "artifact_kind": "gltf_json_review_geometry",
+      "buffer_count": 1,
+      "embedded_buffer": true,
+      "gltf_version": "2.0",
+      "hash": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "ReviewGeometryMember",
+          "ref": "review-geometry:invented-del-17-08:model_gltf"
+        },
+        "payload_scope": "review_geometry_gltf_json",
+        "value": "sha256:638071a6260a749449014b30fb659eb3f0c370ec7a14c2face44c1ab6a734781"
+      },
+      "mesh_count": 2,
+      "node_count": 2,
+      "path": "model.gltf",
+      "primitive_mode": "LINES",
+      "scene_count": 1
+    },
+    "manifest_id": "review-geometry:invented-del-17-08:manifest",
+    "package_members": [
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "ReviewGeometryMember",
+            "ref": "review-geometry:invented-del-17-08:diagnostics"
+          },
+          "payload_scope": "review_geometry_diagnostics",
+          "value": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "member_id": "review-geometry:invented-del-17-08:diagnostics",
+        "member_role": "diagnostics",
+        "path": "diagnostics.json"
+      },
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "ReviewGeometryMember",
+            "ref": "review-geometry:invented-del-17-08:loss_report"
+          },
+          "payload_scope": "review_geometry_loss_report",
+          "value": "sha256:9052258dad89cafe9b51ad142e9cd9311324f3ddafbf6604b7b2566797c1be59"
+        },
+        "member_id": "review-geometry:invented-del-17-08:loss_report",
+        "member_role": "loss_report",
+        "path": "loss_report.json"
+      },
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "ReviewGeometryMember",
+            "ref": "review-geometry:invented-del-17-08:manifest"
+          },
+          "payload_scope": "review_geometry_manifest",
+          "value": "sha256:a2e0ae4f5f25e3c709245c23109005512b63c71856c822e85f01670d7eb9061f"
+        },
+        "member_id": "review-geometry:invented-del-17-08:manifest",
+        "member_role": "manifest",
+        "path": "manifest.json"
+      },
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "ReviewGeometryMember",
+            "ref": "review-geometry:invented-del-17-08:model_gltf"
+          },
+          "payload_scope": "review_geometry_gltf_json",
+          "value": "sha256:638071a6260a749449014b30fb659eb3f0c370ec7a14c2face44c1ab6a734781"
+        },
+        "member_id": "review-geometry:invented-del-17-08:model_gltf",
+        "member_role": "model_gltf",
+        "path": "model.gltf"
+      },
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "ReviewGeometryMember",
+            "ref": "review-geometry:invented-del-17-08:id_map"
+          },
+          "payload_scope": "review_geometry_id_map",
+          "value": "sha256:a72512bd2d28e955b225a1b4acdb299cede571a6d4d2c15f6c3a0b1c40e33c1f"
+        },
+        "member_id": "review-geometry:invented-del-17-08:stable_id_map",
+        "member_role": "stable_id_map",
+        "path": "id_map.json"
+      },
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "ReviewGeometryMember",
+            "ref": "review-geometry:invented-del-17-08:validation_report"
+          },
+          "payload_scope": "review_geometry_validation_report",
+          "value": "sha256:52ce1d90105db807aa86bc7ccb8ac4cdbd136c57cc5eeb81135f55129d571904"
+        },
+        "member_id": "review-geometry:invented-del-17-08:validation_report",
+        "member_role": "validation_report",
+        "path": "validation_report.json"
+      }
+    ],
+    "source_model_hash": {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "Model",
+        "ref": "model:invented-review-geometry"
+      },
+      "payload_scope": "source_model_hash",
+      "value": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "source_model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-review-geometry"
+    }
+  },
+  "objectives": [
+    "OBJ-009",
+    "OBJ-017"
+  ],
+  "package_id": "PKG-17",
+  "package_status": "review_geometry_gltf_export_foundation",
+  "privacy": {
+    "classification": "invented_public_example",
+    "commercial_tool_payload_embedded": false,
+    "local_only": true,
+    "private_payload_embedded": false,
+    "protected_payload_embedded": false,
+    "redaction_refs": [],
+    "telemetry_allowed": false
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_creates_professional_reliance_record": false,
+    "software_makes_analysis_fidelity_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_release_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_solver_fidelity_claim": false,
+    "software_makes_solver_validation_claim": false,
+    "software_makes_target_compatibility_claim": false,
+    "supports_identity_correlation": true,
+    "supports_visual_review": true
+  },
+  "provenance": {
+    "contributor": "OpenPipeStress Type 2 worker",
+    "contributor_certification": "implementation-only-no-professional-claim",
+    "privacy_classification": "public_metadata",
+    "redistribution_status": "public_permissive",
+    "review_status": "machine_checked",
+    "source_license": "project-governed",
+    "source_location": "core/handoff/review_geometry/package.py",
+    "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+  },
+  "schema_version": "0.1.0",
+  "scope_items": [
+    "SOW-030",
+    "SOW-074"
+  ],
+  "source_model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "JCS_compatible_json_payload_hash",
+    "payload_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-review-geometry"
+    },
+    "payload_scope": "source_model_hash",
+    "value": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "source_model_ref": {
+    "object_type": "Model",
+    "ref": "model:invented-review-geometry"
+  },
+  "stable_id_map": [
+    {
+      "canonical_ref": {
+        "object_type": "CenterlineElement",
+        "ref": "element:invented:AB"
+      },
+      "gltf_ref": {
+        "object_type": "GltfNode",
+        "ref": "0"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped",
+      "metadata_carrier": "gltf_extras_and_sidecar",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/review_geometry/package.py",
+        "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+      }
+    },
+    {
+      "canonical_ref": {
+        "object_type": "CenterlineElement",
+        "ref": "element:invented:BC"
+      },
+      "gltf_ref": {
+        "object_type": "GltfNode",
+        "ref": "1"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped",
+      "metadata_carrier": "gltf_extras_and_sidecar",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/review_geometry/package.py",
+        "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+      }
+    }
+  ],
+  "validation_report": {
+    "checks": [
+      {
+        "blocking_count": 0,
+        "check_id": "review-geometry-boundary-diagnostics",
+        "check_status": "passed",
+        "diagnostic_count": 0,
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/review_geometry/package.py",
+          "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+        }
+      }
+    ],
+    "human_review_required": true,
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/review_geometry/package.py",
+      "source_name": "OpenPipeStress DEL-17-08 review geometry export package builder"
+    },
+    "validation_status": "passed"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "export_id": "review-geometry:invented-del-17-08",
+  "geometry_payload": {
+    "coordinate_basis": "gltf_y_up_right_handed_meters",
+    "elements": [
+      {
+        "element_id": "element:invented:AB",
+        "from_node": "node:invented:A",
+        "target_name": "ops_segment_AB",
+        "to_node": "node:invented:B"
+      },
+      {
+        "element_id": "element:invented:BC",
+        "from_node": "node:invented:B",
+        "target_name": "ops_segment_BC",
+        "to_node": "node:invented:C"
+      }
+    ],
+    "nodes": [
+      {
+        "node_id": "node:invented:A",
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "node_id": "node:invented:B",
+        "x": 1.5,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "node_id": "node:invented:C",
+        "x": 1.5,
+        "y": 0.75,
+        "z": 0
+      }
+    ],
+    "omitted_entities": [
+      {
+        "object_type": "Support",
+        "ref": "support:invented:A"
+      }
+    ],
+    "units": {
+      "length": "m"
+    }
+  },
+  "loss_report": [
+    {
+      "affected_refs": [
+        {
+          "object_type": "CenterlineElement",
+          "ref": "element:invented:AB"
+        }
+      ],
+      "category": "exported",
+      "downstream_implication": "Visual review geometry only; no solver or analysis fidelity is implied.",
+      "loss_id": "loss:invented:review-centerline-exported",
+      "reason": "Invented centerline segment emitted as visual review geometry.",
+      "severity": "info",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      "target_artifact_ref": {
+        "object_type": "ReviewGeometryMember",
+        "ref": "review-geometry:invented-del-17-08:model_gltf"
+      }
+    },
+    {
+      "affected_refs": [
+        {
+          "object_type": "Support",
+          "ref": "support:invented:A"
+        }
+      ],
+      "category": "omitted",
+      "downstream_implication": "Support context remains available only through source records and loss report.",
+      "loss_id": "loss:invented:support-omitted",
+      "reason": "Support symbol review geometry is outside the v1 centerline-only scope.",
+      "severity": "warning",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-08"
+      },
+      "target_artifact_ref": {
+        "object_type": "ReviewGeometryMember",
+        "ref": "review-geometry:invented-del-17-08:model_gltf"
+      }
+    }
+  ],
+  "source_model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "JCS_compatible_json_payload_hash",
+    "payload_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-review-geometry"
+    },
+    "payload_scope": "source_model_hash",
+    "value": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "source_model_ref": {
+    "object_type": "Model",
+    "ref": "model:invented-review-geometry"
+  },
+  "stable_id_map": [
+    {
+      "canonical_ref": {
+        "object_type": "CenterlineElement",
+        "ref": "element:invented:AB"
+      },
+      "gltf_ref": {
+        "object_type": "GltfNode",
+        "ref": "0"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped",
+      "metadata_carrier": "gltf_extras_and_sidecar"
+    },
+    {
+      "canonical_ref": {
+        "object_type": "CenterlineElement",
+        "ref": "element:invented:BC"
+      },
+      "gltf_ref": {
+        "object_type": "GltfNode",
+        "ref": "1"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped",
+      "metadata_carrier": "gltf_extras_and_sidecar"
+    }
+  ]
+}

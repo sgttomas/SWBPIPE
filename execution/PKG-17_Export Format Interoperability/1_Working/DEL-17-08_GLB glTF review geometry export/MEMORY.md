@@ -11,3 +11,10 @@
 - Parent validation passed: four-document check, minimum fileset check, semantic matrix validator, lens register validator, P3 disposition validator, dependency schema validator, `git diff --check`, and boundary-language scan.
 - Remaining TBDs include exact metadata placement, review-geometry sidecar shape, coordinate handling details, and future visual QA fixture policy pending source evidence.
 - Boundary exclusions preserved: no writer implementation, schema change, solver-fidelity claim, analysis-fidelity claim, target compatibility claim, formal validation claim, release claim, code-compliance claim, or professional-acceptance claim.
+
+## 2026-05-27 - DEL-17-08 glTF review geometry foundation
+- Added bounded implementation foundation for deterministic JSON `.gltf` review geometry packages.
+- Added centerline-only line-mode glTF renderer, package schema, invented public fixtures, and focused tests.
+- v1 carries canonical identity through glTF `extras` and an authoritative sidecar ID map.
+- Remaining TBDs preserved: binary `.glb`, surface/tube geometry, viewer screenshots, GUI/API integration, runtime service wiring, coordinate transforms beyond the selected glTF-meter basis, and visual QA fixture policy.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, solver-fidelity claim, analysis-fidelity claim, target compatibility claim, formal validation claim, release claim, code-compliance claim, or professional-reliance claim.

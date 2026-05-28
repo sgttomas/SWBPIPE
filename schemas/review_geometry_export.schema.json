@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/review_geometry_export.schema.json",
+  "title": "OpenPipeStress glTF Review Geometry Export Package",
+  "description": "Strict JSON Schema 2020-12 contract for DEL-17-08 review geometry glTF export packages. The package records a deterministic JSON .gltf review artifact, sidecar stable identity, loss reporting, diagnostics, provenance, privacy, and professional-boundary notices without asserting solver fidelity, analysis fidelity, target compatibility, code compliance, release readiness, or professional reliance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_items",
+    "objectives",
+    "export_id",
+    "package_status",
+    "source_model_ref",
+    "source_model_hash",
+    "export_profile",
+    "manifest",
+    "geometry_payload",
+    "gltf",
+    "stable_id_map",
+    "loss_report",
+    "validation_report",
+    "diagnostics",
+    "privacy",
+    "provenance",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "deliverable_id": {"const": "DEL-17-08"},
+    "package_id": {"const": "PKG-17"},
+    "scope_items": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {"enum": ["SOW-030", "SOW-074"]}
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {"enum": ["OBJ-009", "OBJ-017"]}
+    },
+    "export_id": {"$ref": "#/$defs/Id"},
+    "package_status": {"const": "review_geometry_gltf_export_foundation"},
+    "source_model_ref": {"$ref": "#/$defs/Reference"},
+    "source_model_hash": {"$ref": "#/$defs/Checksum"},
+    "export_profile": {"$ref": "#/$defs/ExportProfile"},
+    "manifest": {"$ref": "#/$defs/Manifest"},
+    "geometry_payload": {"$ref": "#/$defs/GeometryPayload"},
+    "gltf": {"$ref": "#/$defs/Gltf"},
+    "stable_id_map": {"type": "array", "items": {"$ref": "#/$defs/StableIdMapEntry"}},
+    "loss_report": {"type": "array", "items": {"$ref": "#/$defs/LossReportEntry"}},
+    "validation_report": {"$ref": "#/$defs/ValidationReport"},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}},
+    "privacy": {"$ref": "#/$defs/Privacy"},
+    "provenance": {"$ref": "#/$defs/Provenance"},
+    "professional_boundary": {"$ref": "#/$defs/ProfessionalBoundary"}
+  },
+  "$defs": {
+    "Id": {"type": "string", "minLength": 1},
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["object_type", "ref"],
+      "properties": {
+        "object_type": {"type": "string", "minLength": 1},
+        "ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonicalization", "payload_ref", "payload_scope", "value"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "canonicalization": {"const": "JCS_compatible_json_payload_hash"},
+        "payload_ref": {"$ref": "#/$defs/Reference"},
+        "payload_scope": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+      }
+    },
+    "ExportProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_version",
+        "target_family",
+        "gltf_version_basis",
+        "artifact_format",
+        "primitive_mode",
+        "geometry_scope",
+        "unit_policy",
+        "coordinate_policy",
+        "identity_policy",
+        "loss_report_policy",
+        "boundary_notes",
+        "source_basis_refs"
+      ],
+      "properties": {
+        "profile_id": {"type": "string", "minLength": 1},
+        "profile_version": {"type": "string", "minLength": 1},
+        "target_family": {"const": "gltf_review_geometry"},
+        "gltf_version_basis": {"const": "2.0"},
+        "artifact_format": {"const": "gltf_json_embedded_buffer"},
+        "primitive_mode": {"const": "LINES"},
+        "geometry_scope": {"const": "centerline_segments_only"},
+        "unit_policy": {"const": "meters_required"},
+        "coordinate_policy": {"const": "gltf_y_up_right_handed_meters_only"},
+        "identity_policy": {"const": "gltf_extras_plus_authoritative_sidecar_id_map"},
+        "loss_report_policy": {"const": "mandatory_for_every_package"},
+        "boundary_notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "source_basis_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
+        "free_metadata": true
+      }
+    },
+    "Manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "source_model_ref",
+        "source_model_hash",
+        "export_profile_ref",
+        "gltf_artifact",
+        "package_members",
+        "checksums",
+        "boundary_notes",
+        "diagnostics"
+      ],
+      "properties": {
+        "manifest_id": {"type": "string", "minLength": 1},
+        "source_model_ref": {"$ref": "#/$defs/Reference"},
+        "source_model_hash": {"$ref": "#/$defs/Checksum"},
+        "export_profile_ref": {"$ref": "#/$defs/Reference"},
+        "gltf_artifact": {"$ref": "#/$defs/GltfArtifact"},
+        "package_members": {"type": "array", "items": {"$ref": "#/$defs/PackageMember"}},
+        "checksums": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
+        "boundary_notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/Diagnostic"}}
+      }
+    },
+    "GltfArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "artifact_kind",
+        "path",
+        "gltf_version",
+        "primitive_mode",
+        "scene_count",
+        "node_count",
+        "mesh_count",
+        "buffer_count",
+        "embedded_buffer",
+        "hash"
+      ],
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1},
+        "artifact_kind": {"const": "gltf_json_review_geometry"},
+        "path": {"const": "model.gltf"},
+        "gltf_version": {"const": "2.0"},
+        "primitive_mode": {"const": "LINES"},
+        "scene_count": {"type": "integer", "minimum": 0},
+        "node_count": {"type": "integer", "minimum": 0},
+        "mesh_count": {"type": "integer", "minimum": 0},
+        "buffer_count": {"type": "integer", "minimum": 0},
+        "embedded_buffer": {"type": "boolean"},
+        "hash": {"$ref": "#/$defs/Checksum"}
+      }
+    },
+    "PackageMember": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["member_id", "member_role", "path", "checksum"],
+      "properties": {
+        "member_id": {"type": "string", "minLength": 1},
+        "member_role": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "checksum": {"$ref": "#/$defs/Checksum"}
+      }
+    },
+    "GeometryPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["payload_kind", "units", "coordinate_basis", "nodes", "elements", "omitted_entities", "provenance"],
+      "properties": {
+        "payload_kind": {"const": "review_geometry_centerline_lines"},
+        "units": {"type": "object", "additionalProperties": true},
+        "coordinate_basis": {"type": "string", "minLength": 1},
+        "nodes": {"type": "array", "items": {"type": "object"}},
+        "elements": {"type": "array", "items": {"type": "object"}},
+        "omitted_entities": {"type": "array", "items": {"type": "object"}},
+        "provenance": {"$ref": "#/$defs/Provenance"},
+        "free_metadata": true
+      }
+    },
+    "Gltf": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["asset", "scene", "scenes", "nodes", "meshes", "buffers", "bufferViews", "accessors"],
+      "properties": {
+        "asset": {
+          "type": "object",
+          "required": ["version", "generator", "extras"],
+          "properties": {
+            "version": {"const": "2.0"},
+            "generator": {"type": "string", "minLength": 1},
+            "extras": {"type": "object"}
+          }
+        },
+        "scene": {"type": "integer"},
+        "scenes": {"type": "array"},
+        "nodes": {"type": "array"},
+        "meshes": {"type": "array"},
+        "buffers": {"type": "array"},
+        "bufferViews": {"type": "array"},
+        "accessors": {"type": "array"}
+      }
+    },
+    "StableIdMapEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_ref", "gltf_ref", "metadata_carrier", "mapping_status", "loss_category", "provenance"],
+      "properties": {
+        "canonical_ref": {"$ref": "#/$defs/Reference"},
+        "gltf_ref": {"$ref": "#/$defs/Reference"},
+        "metadata_carrier": {"type": "string", "minLength": 1},
+        "mapping_status": {"type": "string", "minLength": 1},
+        "loss_category": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "LossReportEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "category",
+        "severity",
+        "affected_refs",
+        "target_artifact_ref",
+        "reason",
+        "source_basis_ref",
+        "downstream_implication",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "loss_id": {"type": "string", "minLength": 1},
+        "category": {"enum": ["exported", "omitted", "approximated", "delegated", "unsupported", "tbd"]},
+        "severity": {"enum": ["info", "warning", "blocking"]},
+        "affected_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}},
+        "target_artifact_ref": {"$ref": "#/$defs/Reference"},
+        "reason": {"type": "string", "minLength": 1},
+        "source_basis_ref": {"$ref": "#/$defs/Reference"},
+        "downstream_implication": {"type": "string", "minLength": 1},
+        "human_review_required": {"type": "boolean"},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "ValidationReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_status", "checks", "human_review_required", "provenance"],
+      "properties": {
+        "validation_status": {"enum": ["passed", "blocked"]},
+        "checks": {"type": "array"},
+        "human_review_required": {"type": "boolean"},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "class", "severity", "source", "affected_object", "message", "remediation", "provenance"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "class": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["info", "warning", "blocking"]},
+        "source": {"$ref": "#/$defs/Reference"},
+        "affected_object": {"$ref": "#/$defs/Reference"},
+        "message": {"type": "string", "minLength": 1},
+        "remediation": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/$defs/Provenance"}
+      }
+    },
+    "Privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "local_only",
+        "telemetry_allowed",
+        "private_payload_embedded",
+        "protected_payload_embedded",
+        "commercial_tool_payload_embedded",
+        "redaction_refs"
+      ],
+      "properties": {
+        "classification": {"type": "string", "minLength": 1},
+        "local_only": {"type": "boolean"},
+        "telemetry_allowed": {"type": "boolean"},
+        "private_payload_embedded": {"type": "boolean"},
+        "protected_payload_embedded": {"type": "boolean"},
+        "commercial_tool_payload_embedded": {"type": "boolean"},
+        "redaction_refs": {"type": "array", "items": {"$ref": "#/$defs/Reference"}}
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "supports_visual_review",
+        "supports_identity_correlation",
+        "software_makes_release_claim",
+        "software_makes_target_compatibility_claim",
+        "software_makes_solver_fidelity_claim",
+        "software_makes_analysis_fidelity_claim",
+        "software_makes_solver_validation_claim",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_creates_professional_reliance_record"
+      ],
+      "properties": {
+        "human_review_required": {"type": "boolean"},
+        "supports_visual_review": {"type": "boolean"},
+        "supports_identity_correlation": {"type": "boolean"},
+        "software_makes_release_claim": {"const": false},
+        "software_makes_target_compatibility_claim": {"const": false},
+        "software_makes_solver_fidelity_claim": {"const": false},
+        "software_makes_analysis_fidelity_claim": {"const": false},
+        "software_makes_solver_validation_claim": {"const": false},
+        "software_makes_compliance_claim": {"const": false},
+        "software_makes_certification_claim": {"const": false},
+        "software_makes_sealing_claim": {"const": false},
+        "software_makes_approval_claim": {"const": false},
+        "software_creates_professional_reliance_record": {"const": false}
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["source_name", "source_location", "source_license"],
+      "properties": {
+        "source_name": {"type": "string", "minLength": 1},
+        "source_location": {"type": "string", "minLength": 1},
+        "source_license": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
