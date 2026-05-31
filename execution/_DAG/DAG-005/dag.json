@@ -557,7 +557,7 @@
       "package_id": "PKG-11",
       "name": "Invented educational example models",
       "type": "DOC_UPDATE",
-      "lifecycle_state": "CHECKING",
+      "lifecycle_state": "IN_PROGRESS",
       "path": "execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models"
     },
     {
