@@ -1,0 +1,2 @@
+GapID,Owner,Severity,Status,Summary,Evidence,RecommendedNextAction
+TP-DESKTOP-BOOTSTRAP-001-GAP-001,PKG-10/PKG-07 desktop dependency maintenance,WARNING,CLOSED,"Full npm audit previously reported 6 moderate dev-tooling vulnerabilities.","Closed by `npm audit fix` for `ws` and desktop Vitest upgrade to `^4.1.7`; `npm audit --audit-level=moderate` now reports `found 0 vulnerabilities`; desktop tests and build pass.","No further dependency-audit action required for the current installed desktop workspace; rerun audit/test/build after future dependency changes."

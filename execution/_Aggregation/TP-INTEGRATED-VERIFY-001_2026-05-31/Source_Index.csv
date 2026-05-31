@@ -1,0 +1,12 @@
+SourceID,SourcePath,SourceKind,UseInSnapshot
+SRC-001,execution/_Coordination/_COORDINATION.md,coordination_contract,"Defines Integrated Verification and Tranche Selection Loop and supplemental desktop checks."
+SRC-002,execution/_Coordination/NEXT_INSTANCE_STATE.md,handoff_state,"Recorded prior DEL-11-04 residual and next verification direction."
+SRC-003,execution/_Decomposition/SOFTWARE_DECOMP.md,decomposition_authority,"Defines revision 0.7 objectives, package scope, and deliverable ownership."
+SRC-004,execution/_DAG/_LATEST.md,dag_pointer,"Identifies DAG-005 as approved graph authority."
+SRC-005,execution/_DAG/DAG-005/APPROVAL_RECORD.md,dag_approval,"Defines active-edge approval boundary and candidate non-gating treatment."
+SRC-006,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,implementation_evidence,"Implementation evidence authority referenced by coordination derivative check."
+SRC-007,execution/_Coordination/DEV-001_BLOCKER_QUEUE.md,blocker_derivative,"Current advisory implementation-readiness surface."
+SRC-008,tools/coordination/maintain_dev001_coordination.py,tool_command,"Validated DEV-001 coordination derivatives for DAG-005."
+SRC-009,tools/release/check_release_readiness.py,tool_command,"Executed provider-neutral release readiness profile."
+SRC-010,package.json,npm_workspace_manifest,"Defines root desktop scripts and workspace."
+SRC-011,apps/desktop/package.json,desktop_manifest,"Defines desktop test/build scripts and devDependency expectations."

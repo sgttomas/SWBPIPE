@@ -1,0 +1,7 @@
+SourceID,SourcePath,SourceKind,UseInSnapshot
+SRC-001,execution/_Aggregation/TP-DESKTOP-BOOTSTRAP-001_2026-05-31/Gap_Register.csv,prior_gap_register,"Identified `TP-DESKTOP-BOOTSTRAP-001-GAP-001` as the dev dependency audit warning."
+SRC-002,apps/desktop/package.json,desktop_manifest,"Updated desktop dev dependency `vitest` to `^4.1.7`."
+SRC-003,package-lock.json,npm_lockfile,"Records resolved dependency tree after `npm audit fix` and Vitest upgrade."
+SRC-004,package.json,npm_workspace_manifest,"Defines root desktop scripts used for validation."
+SRC-005,execution/_Coordination/NEXT_INSTANCE_STATE.md,handoff_state,"Records coordination state and residual queue."
+SRC-006,tools/coordination/maintain_dev001_coordination.py,tool_command,"Validated DEV-001 coordination derivatives for DAG-005."

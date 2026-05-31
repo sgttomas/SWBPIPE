@@ -51,10 +51,40 @@ Updated by: WORKING_ITEMS
   `python3 -m pytest tests/test_model_schema.py -q` (`4 passed`),
   `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
   (`VALID`), and `git diff --check`.
-- Integrated release-readiness is still not globally closed by this focused
-  tranche. No lifecycle state, DAG artifact, DEV-001 evidence row, blocker
-  queue, release record, acceptance record, professional claim, or
-  code-compliance claim was changed.
+- `TP-INTEGRATED-VERIFY-001_2026-05-31` ran the next read-only integrated
+  verification snapshot under
+  `execution/_Aggregation/TP-INTEGRATED-VERIFY-001_2026-05-31/`.
+- The provider-neutral release readiness profile passed:
+  `python3 tools/release/check_release_readiness.py --profile all --execute`
+  completed all 29 planned checks successfully, including 269 repository
+  Python contract tests, security/privacy tests, coordination tests, DAG schema
+  validation, release-readiness script tests, and 24 discovered crate-local
+  Cargo test surfaces.
+- Supplemental desktop checks remain blocked by local workspace bootstrap:
+  `npm run test:desktop` failed with `sh: vitest: command not found`, and
+  `npm run build:desktop` failed with `sh: tsc: command not found`. No
+  `node_modules` or `apps/desktop/node_modules` directory was present during
+  verification.
+- `TP-DESKTOP-BOOTSTRAP-001_2026-05-31` addressed the desktop bootstrap gap by
+  running `npm ci` from the project root, then rerunning supplemental desktop
+  checks. `npm run test:desktop` passed 1 Vitest file / 5 tests, and
+  `npm run build:desktop` completed the TypeScript/Vite production build.
+- `npm audit --omit=dev --audit-level=moderate` reports zero production
+  vulnerabilities. Full `npm audit --audit-level=moderate` reports 6 moderate
+  dev-tooling vulnerabilities through `vitest`/`vite`/`esbuild` and `ws`;
+  remediation may require dependency/lockfile changes and should be handled as
+  a separate bounded dependency-maintenance tranche.
+- `TP-DESKTOP-DEPS-001_2026-05-31` addressed the dev-tooling vulnerabilities:
+  `npm audit fix` updated `ws` to `8.21.0`, and the desktop workspace upgraded
+  `vitest` from `^2.1.0` to `^4.1.7`. Full
+  `npm audit --audit-level=moderate` now reports zero vulnerabilities.
+- Desktop validation still passes after the dependency update:
+  `npm run test:desktop` passed 1 Vitest file / 5 tests, and
+  `npm run build:desktop` completed the TypeScript/Vite production build.
+- Current integrated verification status after bootstrap and dependency
+  maintenance is `PASS_FOR_EXECUTED_CHECKS`. No lifecycle state, DAG artifact,
+  DEV-001 evidence row, blocker queue, release record, acceptance record,
+  professional claim, or code-compliance claim was changed.
 - `execution/_Coordination/_COORDINATION.md` now records the canonical
   Integrated Verification and Tranche Selection Loop for steering development
   through remaining objectives.
@@ -71,17 +101,19 @@ Updated by: WORKING_ITEMS
 5. Run `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
    and record `git status --short` before coordination-sensitive tranche
    selection.
-6. Because the pinned DEL-11-04 residual was locally remediated, propose the
-   next bounded read-only integrated verification snapshot under
-   `execution/_Aggregation/TP-INTEGRATED-VERIFY-###_YYYY-MM-DD/` unless a newer
-   authoritative artifact identifies a more specific pinned residual.
+6. No pinned implementation blocker remains in this handoff state after
+   `TP-DESKTOP-DEPS-001_2026-05-31`. If development continues, re-enter the
+   Integrated Verification and Tranche Selection Loop and propose exactly one
+   next bounded tranche from current authoritative surfaces.
 7. Do not implement until approved.
 
 ## Active Residuals
 
 | ID | Owner | Summary | Required next action |
 |---|---|---|---|
-| `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | Locally remediated by approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31`; focused tests now pass. | Verify through the next read-only integrated verification snapshot before making broader release-readiness claims. |
+| `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | Locally remediated by approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31` and verified through `TP-INTEGRATED-VERIFY-001_2026-05-31`; provider-neutral release readiness profile passed. | No bounded implementation action remains for this residual; do not convert this into a release/reliance claim without the normal human release/acceptance gates. |
+| `TP-INTEGRATED-VERIFY-001-GAP-001` | `PKG-10` / `PKG-07` desktop workspace bootstrap | Closed by `TP-DESKTOP-BOOTSTRAP-001_2026-05-31`; root `npm ci` restored local Node dependencies, `npm run test:desktop` passed 5 tests, and `npm run build:desktop` completed. | No further bootstrap action required unless dependencies or local environment are removed. |
+| `TP-DESKTOP-BOOTSTRAP-001-GAP-001` | `PKG-10` / `PKG-07` desktop dependency maintenance | Closed by `TP-DESKTOP-DEPS-001_2026-05-31`; full `npm audit --audit-level=moderate` now reports zero vulnerabilities, and desktop test/build checks pass. | No further dependency-audit action required for the current installed desktop workspace; rerun audit/test/build after future dependency changes. |
 
 ## Do Not Change Without Explicit Human Approval
 
