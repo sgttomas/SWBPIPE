@@ -1,0 +1,13 @@
+SourceID,Path,Role,Notes
+SRC-001,execution/_Aggregation/AGG_RELEASE_READINESS_GAP_AUDIT_2026-05-11_2054_lifecycle_corrected/Aggregated/ReleaseReadiness/Gap_Register.csv,prior_gap_register,"May 11 release-readiness gap source."
+SRC-002,execution/_Aggregation/AGG_RELEASE_READINESS_GAP_AUDIT_2026-05-11_2054_lifecycle_corrected/RUN_SUMMARY.md,prior_gap_summary,"May 11 aggregation summary."
+SRC-003,execution/_Evaluation/EVALUATION_REPORT.md,evaluation_report,"May 11 evaluation scorecard and key finding."
+SRC-004,execution/_Evaluation/reports/DIM-03_Release_gates_and_CI_build_posture.md,evaluation_dimension,"Release gates and CI build posture findings."
+SRC-005,execution/_Evaluation/reports/DIM-06_Runtime_and_release_target_surface.md,evaluation_dimension,"Runtime and release target findings."
+SRC-006,execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/RUN_SUMMARY.md,lifecycle_correction,"Records IN_PROGRESS/SEMANTIC_READY correction and non-claims."
+SRC-007,execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/RUN_SUMMARY.md,current_verification,"May 31 integrated verification summary."
+SRC-008,execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/Verification_Results.md,current_verification,"May 31 executed-check result matrix."
+SRC-009,execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/Gap_Register.csv,current_verification,"Records no open executed-check verification gap."
+SRC-010,execution/_Aggregation/TP-DESKTOP-BOOTSTRAP-001_2026-05-31/RUN_SUMMARY.md,prior_closeout,"Desktop bootstrap closeout."
+SRC-011,execution/_Aggregation/TP-DESKTOP-DEPS-001_2026-05-31/RUN_SUMMARY.md,prior_closeout,"Desktop dependency-maintenance closeout."
+SRC-012,execution/_Coordination/NEXT_INSTANCE_STATE.md,handoff_state,"Current handoff state recording closed residuals and non-claims."

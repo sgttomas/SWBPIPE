@@ -17,6 +17,15 @@ Updated by: WORKING_ITEMS
   `execution/_Coordination/DEV-001_BLOCKER_QUEUE.md` and `.csv`.
 - Latest integrated verification snapshot:
   `execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/`.
+- Latest aggregation pointer:
+  `execution/_Aggregation/_LATEST.md` now points to
+  `TP-INTEGRATED-VERIFY-002_2026-05-31`.
+- Latest release gap refresh:
+  `execution/_Aggregation/TP-RELEASE-GAP-REGISTER-REFRESH-001_2026-05-31/`.
+- Latest lifecycle readiness audit:
+  `execution/_Aggregation/TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31/`.
+- Latest next-tranche selection:
+  `execution/_Coordination/TP-NEXT-TRANCHE-SELECTION-001_2026-05-31.md`.
 - Handoff prompt: `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`.
 
 ## Current Program State
@@ -98,11 +107,26 @@ Updated by: WORKING_ITEMS
 - `TP-INTEGRATED-VERIFY-002_2026-05-31` recorded no open verification gap in
   executed checks. Its status is `PASS_FOR_EXECUTED_CHECKS`; it is not a
   release, acceptance, professional-reliance, or code-compliance claim.
-- Coordination pointer hygiene note: `execution/_Aggregation/_LATEST.md` still
-  points to `AGG_RELEASE_READINESS_GAP_AUDIT_2026-05-11_2054_lifecycle_corrected`.
-  This session did not update that pointer because the approved tranche write
-  bounds were limited to `TP-INTEGRATED-VERIFY-002_2026-05-31/` plus this
-  handoff state.
+- `TP-AGG-LATEST-POINTER-001` updated `execution/_Aggregation/_LATEST.md` to
+  point to `TP-INTEGRATED-VERIFY-002_2026-05-31` as the latest aggregation
+  snapshot. This was pointer hygiene only and did not change decomposition,
+  DAG, DEV-001, lifecycle, release, acceptance, professional, or
+  code-compliance authority.
+- `TP-RELEASE-GAP-REGISTER-REFRESH-001_2026-05-31` refreshed the May 11
+  release-readiness gap register against May 31 evidence. It closed only the
+  transient executed-check gaps directly supported by May 31 evidence and
+  preserved release, lifecycle-complete, professional-reliance, CI authority,
+  artifact archive, and release-threshold items as open or human-gated.
+- `TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31` audited 101 deliverables
+  read-only. DEV-001 reports 0 blocked deliverables. The audit found 7 missing
+  `MEMORY.md` files, all in PKG-00 architecture-basis surfaces; 100 local
+  status-text surfaces differ from the DEV-001 lifecycle view; 84 deliverables
+  were classified as `STATUS_TEXT_STALE_NEEDS_HUMAN_REVIEW`; 9 PKG-17
+  deliverables were classified as `HUMAN_GATE_REQUIRED`; and 8 PKG-00
+  deliverables were classified as `ARCHITECTURE_BASIS_NO_ACTION`.
+- `TP-NEXT-TRANCHE-SELECTION-001_2026-05-31` selected exactly one next bounded
+  tranche: `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-05-31`. The selected
+  tranche was not executed.
 - `execution/_Coordination/_COORDINATION.md` now records the canonical
   Integrated Verification and Tranche Selection Loop for steering development
   through remaining objectives.
@@ -121,10 +145,14 @@ Updated by: WORKING_ITEMS
    selection.
 6. No pinned implementation blocker or open executed-check verification gap
    remains in this handoff state after
-   `TP-INTEGRATED-VERIFY-002_2026-05-31`. If development continues, re-enter
-   the Integrated Verification and Tranche Selection Loop and propose exactly
-   one next bounded tranche from current authoritative surfaces.
-7. Do not implement until approved.
+   `TP-INTEGRATED-VERIFY-002_2026-05-31`.
+7. If development continues and the human approves lifecycle/status-surface
+   work, execute only the selected tranche
+   `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-05-31` within the write bounds and
+   human-gate requirements recorded in
+   `execution/_Coordination/TP-NEXT-TRANCHE-SELECTION-001_2026-05-31.md`.
+8. Do not implement the selected tranche or change lifecycle files until
+   explicitly approved.
 
 ## Active Residuals
 
@@ -133,7 +161,9 @@ Updated by: WORKING_ITEMS
 | `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | Locally remediated by approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31` and verified through `TP-INTEGRATED-VERIFY-001_2026-05-31` and `TP-INTEGRATED-VERIFY-002_2026-05-31`; provider-neutral release readiness profile passed. | No bounded implementation action remains for this residual; do not convert this into a release/reliance claim without the normal human release/acceptance gates. |
 | `TP-INTEGRATED-VERIFY-001-GAP-001` | `PKG-10` / `PKG-07` desktop workspace bootstrap | Closed by `TP-DESKTOP-BOOTSTRAP-001_2026-05-31`; root `npm ci` restored local Node dependencies, `npm run test:desktop` passed 5 tests, and `npm run build:desktop` completed. | No further bootstrap action required unless dependencies or local environment are removed. |
 | `TP-DESKTOP-BOOTSTRAP-001-GAP-001` | `PKG-10` / `PKG-07` desktop dependency maintenance | Closed by `TP-DESKTOP-DEPS-001_2026-05-31`; full `npm audit --audit-level=moderate` now reports zero vulnerabilities, and desktop test/build checks pass. | No further dependency-audit action required for the current installed desktop workspace; rerun audit/test/build after future dependency changes. |
-| `AGG-LATEST-POINTER-001` | `execution/_Aggregation/_LATEST.md` | Pointer still references the May 11 release-readiness audit rather than the May 31 integrated verification snapshots. This is pointer hygiene only; it does not override explicit snapshot paths or authoritative decomposition/DAG/DEV-001 state. | If the human or aggregation owner approves a pointer-hygiene tranche, update `_LATEST.md`; otherwise verify integrated snapshots by explicit path. |
+| `AGG-LATEST-POINTER-001` | `execution/_Aggregation/_LATEST.md` | Closed by `TP-AGG-LATEST-POINTER-001`; pointer now references `TP-INTEGRATED-VERIFY-002_2026-05-31`. | No further pointer-hygiene action required for the current aggregation pointer. |
+| `RGAP-001` through `RGAP-007` | Release, lifecycle, CI, artifact, runtime, and professional gates | Preserved as open or human-gated by `TP-RELEASE-GAP-REGISTER-REFRESH-001_2026-05-31`; May 31 passing checks do not close release/professional/lifecycle-complete claims. | Handle only through future human-approved release, lifecycle, CI, artifact, runtime, or professional-boundary tranches. |
+| `LIFE-AUDIT-001` | Deliverable lifecycle/status hygiene | `TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31` found stale local status text relative to DEV-001 lifecycle and a PKG-17 human-gated lifecycle disposition need. | Selected next tranche is `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-05-31`; do not execute until explicitly approved. |
 
 ## Do Not Change Without Explicit Human Approval
 

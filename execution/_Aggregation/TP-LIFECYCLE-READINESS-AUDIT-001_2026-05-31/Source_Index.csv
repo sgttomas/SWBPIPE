@@ -1,0 +1,9 @@
+SourceID,Path,Role,Notes
+SRC-001,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,dev001_lifecycle_blocker_view,"Provides DEV-001 lifecycle, evidence, and blocker state for 101 deliverables."
+SRC-002,execution/_Coordination/DEV-001_BLOCKER_QUEUE.md,dev001_lifecycle_blocker_view,Human-readable blocker queue summary.
+SRC-003,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,implementation_evidence,Committed implementation evidence register.
+SRC-004,execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Lifecycle_Correction_Register.csv,prior_lifecycle_correction,May 11 lifecycle correction register.
+SRC-005,execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/RUN_SUMMARY.md,prior_lifecycle_correction,May 11 lifecycle correction summary and non-claims.
+SRC-006,execution/PKG-*/1_Working/DEL-*/_STATUS.md,deliverable_local_status,Observed local lifecycle/status prose; read-only audit input.
+SRC-007,execution/PKG-*/1_Working/DEL-*/MEMORY.md,deliverable_local_memory,Presence/absence checked as lifecycle hygiene input.
+SRC-008,execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/RUN_SUMMARY.md,current_verification,Current PASS_FOR_EXECUTED_CHECKS verification basis.
