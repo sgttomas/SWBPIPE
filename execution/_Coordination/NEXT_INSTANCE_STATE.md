@@ -15,6 +15,8 @@ Updated by: WORKING_ITEMS
   `execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv`.
 - Blocker queue derivatives:
   `execution/_Coordination/DEV-001_BLOCKER_QUEUE.md` and `.csv`.
+- Latest integrated verification snapshot:
+  `execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/`.
 - Handoff prompt: `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`.
 
 ## Current Program State
@@ -60,7 +62,8 @@ Updated by: WORKING_ITEMS
   Python contract tests, security/privacy tests, coordination tests, DAG schema
   validation, release-readiness script tests, and 24 discovered crate-local
   Cargo test surfaces.
-- Supplemental desktop checks remain blocked by local workspace bootstrap:
+- `TP-INTEGRATED-VERIFY-001_2026-05-31` observed a local desktop bootstrap
+  blocker:
   `npm run test:desktop` failed with `sh: vitest: command not found`, and
   `npm run build:desktop` failed with `sh: tsc: command not found`. No
   `node_modules` or `apps/desktop/node_modules` directory was present during
@@ -85,6 +88,21 @@ Updated by: WORKING_ITEMS
   maintenance is `PASS_FOR_EXECUTED_CHECKS`. No lifecycle state, DAG artifact,
   DEV-001 evidence row, blocker queue, release record, acceptance record,
   professional claim, or code-compliance claim was changed.
+- `TP-INTEGRATED-VERIFY-002_2026-05-31` was approved and executed by
+  WORKING_ITEMS as a read-only integrated verification derivative snapshot.
+  DEV-001 coordination freshness passed, full `npm audit --audit-level=moderate`
+  reported zero vulnerabilities, the provider-neutral release readiness profile
+  passed all 29 planned checks, `npm run test:desktop` passed 1 Vitest file / 5
+  tests, `npm run build:desktop` completed the TypeScript/Vite production
+  build, and `git diff --check` passed.
+- `TP-INTEGRATED-VERIFY-002_2026-05-31` recorded no open verification gap in
+  executed checks. Its status is `PASS_FOR_EXECUTED_CHECKS`; it is not a
+  release, acceptance, professional-reliance, or code-compliance claim.
+- Coordination pointer hygiene note: `execution/_Aggregation/_LATEST.md` still
+  points to `AGG_RELEASE_READINESS_GAP_AUDIT_2026-05-11_2054_lifecycle_corrected`.
+  This session did not update that pointer because the approved tranche write
+  bounds were limited to `TP-INTEGRATED-VERIFY-002_2026-05-31/` plus this
+  handoff state.
 - `execution/_Coordination/_COORDINATION.md` now records the canonical
   Integrated Verification and Tranche Selection Loop for steering development
   through remaining objectives.
@@ -101,19 +119,21 @@ Updated by: WORKING_ITEMS
 5. Run `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
    and record `git status --short` before coordination-sensitive tranche
    selection.
-6. No pinned implementation blocker remains in this handoff state after
-   `TP-DESKTOP-DEPS-001_2026-05-31`. If development continues, re-enter the
-   Integrated Verification and Tranche Selection Loop and propose exactly one
-   next bounded tranche from current authoritative surfaces.
+6. No pinned implementation blocker or open executed-check verification gap
+   remains in this handoff state after
+   `TP-INTEGRATED-VERIFY-002_2026-05-31`. If development continues, re-enter
+   the Integrated Verification and Tranche Selection Loop and propose exactly
+   one next bounded tranche from current authoritative surfaces.
 7. Do not implement until approved.
 
 ## Active Residuals
 
 | ID | Owner | Summary | Required next action |
 |---|---|---|---|
-| `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | Locally remediated by approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31` and verified through `TP-INTEGRATED-VERIFY-001_2026-05-31`; provider-neutral release readiness profile passed. | No bounded implementation action remains for this residual; do not convert this into a release/reliance claim without the normal human release/acceptance gates. |
+| `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | Locally remediated by approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31` and verified through `TP-INTEGRATED-VERIFY-001_2026-05-31` and `TP-INTEGRATED-VERIFY-002_2026-05-31`; provider-neutral release readiness profile passed. | No bounded implementation action remains for this residual; do not convert this into a release/reliance claim without the normal human release/acceptance gates. |
 | `TP-INTEGRATED-VERIFY-001-GAP-001` | `PKG-10` / `PKG-07` desktop workspace bootstrap | Closed by `TP-DESKTOP-BOOTSTRAP-001_2026-05-31`; root `npm ci` restored local Node dependencies, `npm run test:desktop` passed 5 tests, and `npm run build:desktop` completed. | No further bootstrap action required unless dependencies or local environment are removed. |
 | `TP-DESKTOP-BOOTSTRAP-001-GAP-001` | `PKG-10` / `PKG-07` desktop dependency maintenance | Closed by `TP-DESKTOP-DEPS-001_2026-05-31`; full `npm audit --audit-level=moderate` now reports zero vulnerabilities, and desktop test/build checks pass. | No further dependency-audit action required for the current installed desktop workspace; rerun audit/test/build after future dependency changes. |
+| `AGG-LATEST-POINTER-001` | `execution/_Aggregation/_LATEST.md` | Pointer still references the May 11 release-readiness audit rather than the May 31 integrated verification snapshots. This is pointer hygiene only; it does not override explicit snapshot paths or authoritative decomposition/DAG/DEV-001 state. | If the human or aggregation owner approves a pointer-hygiene tranche, update `_LATEST.md`; otherwise verify integrated snapshots by explicit path. |
 
 ## Do Not Change Without Explicit Human Approval
 
