@@ -169,6 +169,11 @@
                 "X",
                 "Y",
                 "Z"
+              ],
+              "y_reference": [
+                0.0,
+                1.0,
+                0.0
               ]
             },
             "result_stations": [
@@ -288,6 +293,7 @@
             "load_type": "other",
             "loads": [
               {
+                "load_record_type": "nodal_force",
                 "target_ref": {
                   "object_type": "Node",
                   "id": "INV_RULE_NODE_B"
@@ -572,6 +578,11 @@
                 "X",
                 "Y",
                 "Z"
+              ],
+              "y_reference": [
+                0.0,
+                1.0,
+                0.0
               ]
             },
             "result_stations": [
@@ -691,6 +702,7 @@
             "load_type": "other",
             "loads": [
               {
+                "load_record_type": "nodal_force",
                 "target_ref": {
                   "object_type": "Node",
                   "id": "INV_RULE_NODE_B"
@@ -1075,7 +1087,7 @@
           "object_type": "Project",
           "id": "INV_FAKE_RULE_TOY_PROJECT"
         },
-        "value": "sha256:3d578915cac2268ec2600107200a4f5423ba6c7a0e7d945f21849d3a83cf80e5"
+        "value": "sha256:f3ff424f8a180b6993bd2a0c41dc1d5e67c79a1c4e401c7e2d15445c6af8d29a"
       }
     ]
   }

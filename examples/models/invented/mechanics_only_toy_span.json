@@ -169,6 +169,11 @@
                 "X",
                 "Y",
                 "Z"
+              ],
+              "y_reference": [
+                0.0,
+                1.0,
+                0.0
               ]
             },
             "result_stations": [
@@ -316,6 +321,7 @@
             "load_type": "other",
             "loads": [
               {
+                "load_record_type": "nodal_force",
                 "target_ref": {
                   "object_type": "Node",
                   "id": "INV_NODE_B"
@@ -579,6 +585,11 @@
                 "X",
                 "Y",
                 "Z"
+              ],
+              "y_reference": [
+                0.0,
+                1.0,
+                0.0
               ]
             },
             "result_stations": [
@@ -726,6 +737,7 @@
             "load_type": "other",
             "loads": [
               {
+                "load_record_type": "nodal_force",
                 "target_ref": {
                   "object_type": "Node",
                   "id": "INV_NODE_B"
@@ -994,7 +1006,7 @@
           "object_type": "Project",
           "id": "INV_MECH_TOY_SPAN_PROJECT"
         },
-        "value": "sha256:6171366f7dec7e3985f0fffa990d190763063439cdda634453be5b75977d7838"
+        "value": "sha256:e62999e374cd2eaf02ca3286e6e3dd9f017f8c2f571e5b3e009f1d0133c63226"
       }
     ]
   }

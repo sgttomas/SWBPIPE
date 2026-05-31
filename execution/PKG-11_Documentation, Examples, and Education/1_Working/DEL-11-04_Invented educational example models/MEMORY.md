@@ -58,3 +58,15 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Resolution evidence is indexed in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/RESOLUTION_MATRIX.csv`; validation evidence is summarized in `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/VALIDATION_SUMMARY.md`.
 - Local `Review_Findings.csv` entries remain subject to the human disposition gate. `HumanDisposition` stays `TBD` until review, and `Status` must not be changed to `RESOLVED` automatically.
 - No lifecycle promotion, release claim, or professional/code-compliance claim is implied by the technical closeout.
+
+## 2026-05-31 - TP-DEL1104-SCHEMA-ALIGN-001 schema-example alignment
+
+Durable context after approved WORKING_ITEMS tranche:
+- Human approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31` to remediate `TP-VERIFY-017-RESIDUAL-001` for DEL-11-04 schema-example alignment.
+- The original approved write scope targeted `examples/models/invented/fake_rule_pack_toy_model.json`; during validation, the same current-schema drift was found in `examples/models/invented/mechanics_only_toy_span.json`, and the human approved expanding scope to include that sibling DEL-11-04 fixture.
+- Both invented model fixtures now carry required straight-pipe `local_coordinate_system.y_reference` values on their physical and analytical elements.
+- Both fixtures now type their node loads with `load_record_type: "nodal_force"` according to the current canonical load-record schema.
+- Project hashes in both fixture files were recomputed after payload changes using the repository's canonical JSON helper.
+- Validation passed: `python3 -m pytest tests/test_invented_example_models.py -q` (`7 passed`), `python3 -m pytest tests/test_model_schema.py -q` (`4 passed`), `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check` (`VALID`), and `git diff --check`.
+- Run record: `_run_records/TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31.md`.
+- No lifecycle state, DAG artifact, dependency register, DEV-001 evidence row, blocker queue, release record, acceptance record, professional claim, certification claim, sealing claim, authentication claim, code-compliance claim, or release-readiness-for-reliance claim was changed or made.

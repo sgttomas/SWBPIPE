@@ -38,10 +38,23 @@ Updated by: WORKING_ITEMS
 - `TP-VERIFY-017` remediated the three `TP-VERIFY-016` release-readiness gaps:
   witness tooling import surface, DEL-12-04 security wording, and DEL-10-04
   coordination regression command surface.
-- Integrated release-readiness is not closed. `TP-VERIFY-017` recorded
-  `TP-VERIFY-017-RESIDUAL-001`: the DEL-11-04 invented fake-rule model fixture
-  no longer validates against the current model schema and persistence envelope
-  checks.
+- `TP-VERIFY-017` recorded `TP-VERIFY-017-RESIDUAL-001`: the DEL-11-04
+  invented fake-rule model fixture no longer validated against the current
+  model schema and persistence-envelope checks.
+- `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31` was approved and executed by
+  WORKING_ITEMS. The tranche aligned the two DEL-11-04 invented model fixtures
+  with current straight-pipe orientation and load-record schema requirements,
+  recomputed their project hashes, and recorded closeout in
+  `execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/_run_records/TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31.md`.
+- Focused validation passed for the DEL-11-04 schema-example remediation:
+  `python3 -m pytest tests/test_invented_example_models.py -q` (`7 passed`),
+  `python3 -m pytest tests/test_model_schema.py -q` (`4 passed`),
+  `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
+  (`VALID`), and `git diff --check`.
+- Integrated release-readiness is still not globally closed by this focused
+  tranche. No lifecycle state, DAG artifact, DEV-001 evidence row, blocker
+  queue, release record, acceptance record, professional claim, or
+  code-compliance claim was changed.
 - `execution/_Coordination/_COORDINATION.md` now records the canonical
   Integrated Verification and Tranche Selection Loop for steering development
   through remaining objectives.
@@ -58,17 +71,17 @@ Updated by: WORKING_ITEMS
 5. Run `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
    and record `git status --short` before coordination-sensitive tranche
    selection.
-6. If gaps are not pinned to one bounded owner, propose a read-only integrated
-   verification snapshot under
-   `execution/_Aggregation/TP-INTEGRATED-VERIFY-###_YYYY-MM-DD/`; otherwise
-   propose the next bounded implementation tranche.
+6. Because the pinned DEL-11-04 residual was locally remediated, propose the
+   next bounded read-only integrated verification snapshot under
+   `execution/_Aggregation/TP-INTEGRATED-VERIFY-###_YYYY-MM-DD/` unless a newer
+   authoritative artifact identifies a more specific pinned residual.
 7. Do not implement until approved.
 
 ## Active Residuals
 
 | ID | Owner | Summary | Required next action |
 |---|---|---|---|
-| `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | `examples/models/invented/fake_rule_pack_toy_model.json` fails current schema and persistence-envelope tests: missing `local_coordinate_system.y_reference` and an invalid load record under current load schemas. | Consider proposing a bounded DEL-11-04/schema-example alignment tranche after reading the active surfaces. |
+| `TP-VERIFY-017-RESIDUAL-001` | `DEL-11-04` / schema-example alignment | Locally remediated by approved `TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31`; focused tests now pass. | Verify through the next read-only integrated verification snapshot before making broader release-readiness claims. |
 
 ## Do Not Change Without Explicit Human Approval
 
