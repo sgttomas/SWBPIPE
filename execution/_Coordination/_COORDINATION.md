@@ -22,9 +22,6 @@ Primary pointers:
 - `execution/PKG-*/1_Working/DEL-*/MEMORY.md`
 - `execution/PKG-*/1_Working/DEL-*/_STATUS.md`
 
-Archived coordination files remain inspectable evidence under
-`execution/_Coordination/_Archive/`, but they are not the active state surface.
-
 ## Current Authority
 
 `DAG-005` is approved graph authority as of 2026-05-18. Approval applies to the

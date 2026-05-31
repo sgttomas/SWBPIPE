@@ -207,3 +207,38 @@ This resolves the TP-VERIFY-014 command-path gap for current evidence. Human
 owned release governance remains open: CI provider, release matrix, thresholds,
 signing/attestation, release authority, waiver roles, acceptance workflow, and
 professional-boundary decisions are not changed by this closeout.
+
+## 2026-05-28 - TP-VERIFY-016 integrated release-readiness sweep
+
+TP-VERIFY-016 created `TP_VERIFY_016_INTEGRATED_RELEASE_READINESS_SWEEP.md` as
+an evidence-only integrated release-readiness verification sweep under current
+`DAG-005` authority and current `DEV-001` coordination derivatives.
+
+Validation evidence:
+- `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
+  passed before and after the sweep.
+- `python3 tools/release/check_release_readiness.py --profile all --execute`
+  failed at repository Python contract test collection because
+  `validation.witness.tools` is not importable from
+  `tests/test_calculation_witness.py`.
+- `python3 tools/release/check_release_readiness.py --profile security --execute`
+  failed one security wording gate:
+  `tests/security/test_secret_private_library_handling.py::test_changed_files_do_not_embed_disallowed_example_content`
+  rejected the phrase `real secret` in the DEL-12-04 evidence surface.
+- `python3 tools/release/check_release_readiness.py --profile cargo --execute`
+  passed across all 24 discovered crate-local Cargo manifests.
+- `python3 -m pytest -q tools/coordination` collected no tests and exited 5
+  when probed directly; the deterministic coordination maintenance check itself
+  passed.
+
+Disposition:
+- Current evidence does not support a passing integrated release-readiness
+  profile.
+- Open gaps are implementation/package-surface completion for calculation
+  witness tooling, DEL-12-04 security wording/test-policy reconciliation, and
+  release-readiness command-surface reconciliation for direct coordination
+  pytest invocation.
+- Lifecycle state, candidate rows, blocker queues, dependency records,
+  implementation evidence, release records, acceptance records,
+  professional-boundary decisions, and code-compliance decisions were not
+  changed.
