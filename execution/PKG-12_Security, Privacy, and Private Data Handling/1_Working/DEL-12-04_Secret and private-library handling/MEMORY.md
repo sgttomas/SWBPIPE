@@ -67,7 +67,7 @@ History reconciled:
   focused secret/private-library tests, adjacent security/provenance/redaction
   tests, rule-pack lifecycle cargo tests, `git diff --check`, py_compile, and
   focused protected/private/secret/prohibited-claim scans.
-- Deferred boundaries remain: real secret storage, private-library payload
+- Deferred boundaries remain: credential-value storage, private-library payload
   storage, external secret-manager/cloud behavior, destructive quarantine
   movement, encryption/key-management finalization, rights determinations, and
   engineering authority assertions.

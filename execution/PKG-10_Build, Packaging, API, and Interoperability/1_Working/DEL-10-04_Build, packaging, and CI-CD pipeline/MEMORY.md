@@ -203,3 +203,30 @@ surface, this `MEMORY.md`, the local run record, and the `DEL-09-05` fan-in
 closeout. It did not change lifecycle state, CI workflows, release records,
 candidate rows, blocker queues, implementation evidence, professional-boundary
 decisions, or code-compliance decisions.
+
+## 2026-05-31 - TP-VERIFY-017 coordination readiness command correction
+
+TP-VERIFY-017 corrected the DEL-10-04 release-readiness coordination
+regression command surface.
+
+Changes:
+- Updated `tools/release/check_release_readiness.py` so the `python` and `all`
+  profiles run `python3 -m pytest -q tests/test_coordination_maintenance.py`
+  instead of collecting `tools/coordination`.
+- Added focused coverage in `tests/test_release_readiness_script.py` confirming
+  the `python` and `all` profiles include the intended coordination
+  maintenance test command and exclude the old `tools/coordination` target.
+
+Validation:
+- `python3 -m pytest -q tests/test_release_readiness_script.py tests/test_coordination_maintenance.py`
+  passed with 9 tests.
+- `git diff --check` passed.
+
+Local run record:
+- `_run_records/TASK_RUN_2026-05-31_TP-VERIFY-017_DEL-10-04.md`
+
+Boundary: this tranche changed only the DEL-10-04 release-readiness command
+surface, the focused script test, this `MEMORY.md`, and the local run record.
+It did not change lifecycle state, DAG artifacts, blocker queues,
+implementation evidence, release records, CI workflows, professional-boundary
+decisions, or code-compliance decisions.

@@ -53,3 +53,20 @@ def test_skeleton_plan_uses_local_commands_only():
     )
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert all(isinstance(step.command, tuple) for step in steps)
+
+
+def test_python_profiles_use_coordination_maintenance_test():
+    release = load_module()
+    expected = (
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_coordination_maintenance.py",
+    )
+    old_target = "tools/coordination"
+
+    for profile in ("python", "all"):
+        commands = [step.command for step in release.build_plan(profile, ROOT)]
+
+        assert any(command[1:] == expected for command in commands)
+        assert all(old_target not in part for command in commands for part in command)

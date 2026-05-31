@@ -123,7 +123,12 @@ def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
         steps.append(
             CheckStep(
                 name="coordination tool tests",
-                command=python_cmd("-m", "pytest", "-q", "tools/coordination"),
+                command=python_cmd(
+                    "-m",
+                    "pytest",
+                    "-q",
+                    "tests/test_coordination_maintenance.py",
+                ),
                 description="Run coordination tool regression tests.",
             )
         )

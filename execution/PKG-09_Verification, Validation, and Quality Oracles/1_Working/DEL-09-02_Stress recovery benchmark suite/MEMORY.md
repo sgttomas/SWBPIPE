@@ -555,3 +555,33 @@ Durable context preserved after PKG-02 grounded finding resolution:
   SIF/flexibility data, fatigue/design-code checks, professional reliance
   claim, code-compliance claim, release statement, or human-acceptance
   statement was changed or introduced.
+
+## 2026-05-31 TP-VERIFY-017 Witness Tooling Restoration
+
+- Restored the validation-local formal witness tooling package surface required
+  by TP-WITNESS-023 and `tests/test_calculation_witness.py`.
+- Added `validation/witness/tools/__init__.py` and
+  `validation/witness/tools/witness_validator.py`.
+- The validator provides `WitnessError`, `load_json`, `evaluate_witness`,
+  `render_markdown`, and `assert_generated_artifacts_current`, plus CLI support
+  for `python3 validation/witness/tools/witness_validator.py --write-generated
+  --check-generated`.
+- The implementation preserves the witness contract: canonical SHA-256 over
+  sorted-key compact JSON, schema validation, validation-local OpenMath
+  phrasebook only, dimension checks, formula evaluation independent from
+  production solver/stress/section-property code, deterministic Markdown and
+  MathML renderings, and comparison against the existing invented result-export
+  fixture.
+- Local run record:
+  `_run_records/TASK_RUN_2026-05-31_TP-VERIFY-017_DEL-09-02.md`.
+- Validation passed:
+  `python3 validation/witness/tools/witness_validator.py --write-generated
+  --check-generated`;
+  `python3 -m pytest -q tests/test_calculation_witness.py`.
+- No generated witness artifact content, production solver/stress/
+  section-property behavior, lifecycle/status file, dependency register, DAG
+  file, blocker queue, implementation evidence row, release record, acceptance
+  record, protected standards content, allowables, SIF/flexibility data,
+  fatigue/design-code checks, professional reliance claim, code-compliance
+  claim, release statement, or human-acceptance statement was changed or
+  introduced.

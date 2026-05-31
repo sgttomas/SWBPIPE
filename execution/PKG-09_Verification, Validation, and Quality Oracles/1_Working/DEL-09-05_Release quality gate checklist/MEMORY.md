@@ -242,3 +242,48 @@ Disposition:
   implementation evidence, release records, acceptance records,
   professional-boundary decisions, and code-compliance decisions were not
   changed.
+
+## 2026-05-31 - TP-VERIFY-017 release-readiness gap closeout
+
+TP-VERIFY-017 created `TP_VERIFY_017_RELEASE_READINESS_GAP_CLOSEOUT.md` and
+`_run_records/TASK_RUN_2026-05-31_TP-VERIFY-017_FANIN.md` as evidence-only
+fan-in for the three TP-VERIFY-016 release-readiness gaps.
+
+Resolved TP-VERIFY-016 gaps:
+- GAP-001: `validation.witness.tools` import surface restored via
+  `validation/witness/tools/__init__.py` and
+  `validation/witness/tools/witness_validator.py`; calculation witness tests
+  now pass.
+- GAP-002: DEL-12-04 memory wording now uses `credential-value storage` instead
+  of the forbidden example phrase; security tests now pass.
+- GAP-003: `tools/release/check_release_readiness.py` now runs
+  `tests/test_coordination_maintenance.py` for the coordination regression
+  step; focused release-readiness script tests now lock this command.
+
+Passing validation evidence:
+- `python3 validation/witness/tools/witness_validator.py --write-generated
+  --check-generated`
+- `python3 -m pytest -q tests/test_calculation_witness.py`
+- `python3 -m pytest -q tests/security/test_secret_private_library_handling.py`
+- `python3 -m pytest -q tests/test_release_readiness_script.py tests/test_coordination_maintenance.py`
+- `python3 tools/release/check_release_readiness.py --profile security --execute`
+- `git diff --check`
+
+Residual release-readiness gap:
+- `python3 tools/release/check_release_readiness.py --profile python --execute`
+  and `python3 tools/release/check_release_readiness.py --profile all --execute`
+  both fail at `tests/test_invented_example_models.py` after reaching the
+  Python contract suite.
+- New finding `TP-VERIFY-017-RESIDUAL-001`: the DEL-11-04 invented fake-rule
+  model fixture no longer validates against the current model schema and
+  persistence envelope path. Reported errors include missing
+  `local_coordinate_system.y_reference` in both fake-rule models and a load
+  record that is not valid under the current load schemas.
+- This residual finding is outside TP-VERIFY-017 write scope and should be
+  handled by a later DEL-11-04 / schema-example alignment tranche.
+
+This was remediation/fan-in evidence only. It did not change lifecycle state,
+candidate rows, blocker queues, dependency records, implementation evidence
+rows, release records, acceptance records, CI workflows, release automation,
+signing, attestation, professional-boundary decisions, code-compliance
+decisions, or release claims.
