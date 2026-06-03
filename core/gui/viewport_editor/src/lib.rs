@@ -511,7 +511,7 @@ pub fn invented_provenance() -> Provenance {
         source_name: "OpenPipeStress invented GUI fixture".to_string(),
         source_location: "core/gui/viewport_editor".to_string(),
         source_license: "project_fixture".to_string(),
-        contributor: "OpenPipeStress DEV-001".to_string(),
+        contributor: "OpenPipeStress invented fixture author".to_string(),
         contributor_certification:
             "Invented non-engineering interaction data; not copied from protected standards, vendor catalogs, or private projects."
                 .to_string(),

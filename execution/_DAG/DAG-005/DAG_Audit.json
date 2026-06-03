@@ -365,7 +365,7 @@
       }
     ]
   },
-  "dev001_projection": {
+  "execution_projection": {
     "definition": "Excludes PKG-00 endpoints and ARCHITECTURE_BASIS rows; candidate rows remain non-gating.",
     "node_count": 93,
     "edge_row_count": 406,

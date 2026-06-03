@@ -14,9 +14,6 @@ Updated by: WORKING_ITEMS
 - Lifecycle vocabulary: `docs/TYPES.md`.
 - Deliverable status discovery helper:
   `tools/coordination/list_deliverable_status.py`.
-- Historical DEV-001 artifacts, not active loop authority:
-  `execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv` and
-  `execution/_Coordination/DEV-001_BLOCKER_QUEUE.md/.csv`.
 - Latest review-surface closeout:
   `execution/_Aggregation/TP-CHECKING-REVIEW-GAP-CLOSEOUT-001_2026-06-03/`.
 
@@ -32,10 +29,6 @@ Updated by: WORKING_ITEMS
   authority intake, status discovery, candidate selection, deliverable-local
   context inspection, DAG-guided related context, human approval, bounded
   execution, fan-in, validation, and handoff.
-- `DEV-001` is retired from the active development loop. Existing DEV-001 files
-  remain historical artifacts only and must not drive work selection, blocker
-  analysis, closure readiness, lifecycle transitions, `ISSUED` consideration,
-  or release/professional claims.
 - `DAG-005` remains approved active graph authority. Candidate rows are
   non-gating unless later promoted by explicit human gate and graph
   revalidation.
@@ -43,17 +36,13 @@ Updated by: WORKING_ITEMS
   deliverable-local folder: `_STATUS.md`, `MEMORY.md`, dependencies, run
   records, review files when present, semantic/lensing files when present, and
   the four-document kit.
-- `TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03` records human
-  acceptance that the non-resolving DEV-001 evidence commits for the 11
-  reconciled CHECKING candidates are migration artifacts. Do not treat that
-  same missing-commit condition as a new blocker for those deliverables.
 - `TP-CHECKING-REVIEW-GAP-CLOSEOUT-001_2026-06-03` closed the local review
   surface gap for the 11 CHECKING deliverables. Existing review surfaces were
   inventoried for `DEL-02-01` through `DEL-02-05`, `DEL-06-03`, `DEL-08-04`,
   and `DEL-08-05`; new SELF_CHECK / AGENT_CHECK review surfaces were created
   for `DEL-17-01`, `DEL-17-02`, and `DEL-17-03`. No lifecycle, DAG authority,
-  DEV-001 implementation evidence, release, compatibility, code-compliance, or
-  professional-reliance claim was made.
+  release, compatibility, code-compliance, or professional-reliance claim was
+  made.
 - Review closeout residuals after subsequent DEL-17-03 remediation:
   `DEL-06-03`, `DEL-08-04`, `DEL-08-05`, and `DEL-17-01` have clean review
   surfaces for the next human gate. `DEL-02-01` through `DEL-02-05` and
@@ -85,7 +74,6 @@ Updated by: WORKING_ITEMS
 - lifecycle `_STATUS.md` files;
 - DAG artifacts or dependency registers;
 - candidate-edge promotion or graph authority;
-- historical DEV-001 files;
 - release records or acceptance records;
 - professional, certification, sealing, authentication, code-compliance, or
   release-readiness-for-reliance claims.

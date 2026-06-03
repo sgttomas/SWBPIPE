@@ -1,11 +1,11 @@
 ---
-doc_id: DEV-001-AGGREGATE-DAG-AUDIT
+doc_id: DAG-005-AGGREGATE-DAG-AUDIT
 doc_kind: coordination.audit
 status: generated
 created: 2026-04-30
 ---
 
-# DEV-001 Aggregate DAG Audit
+# DAG-005 Aggregate DAG Audit
 
 ## Authority
 
@@ -41,7 +41,7 @@ created: 2026-04-30
 - Duplicate directed edges: 0
 - Bidirectional pairs: 4
 
-## DEV-001 Projection
+## Execution Projection
 
 - Definition: Excludes PKG-00 endpoints and ARCHITECTURE_BASIS rows; candidate rows remain non-gating.
 - Projection nodes: 93
@@ -78,4 +78,3 @@ created: 2026-04-30
 - DEL-03-02: in=10 out=10 total=20
 - DEL-04-01: in=12 out=8 total=20
 - DEL-06-01: in=8 out=12 total=20
-

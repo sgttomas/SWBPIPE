@@ -37,13 +37,6 @@ deliverable-local folder before judging readiness or selecting work. The local
 `_run_records/**`, four-document kit, semantic/lensing files, review files when
 present, and referenced code/tests are the expected discovery structure.
 
-`DEV-001` is retired from the active development loop. The existing
-`DEV-001_IMPLEMENTATION_EVIDENCE.csv` and `DEV-001_BLOCKER_QUEUE.md/.csv`
-surfaces remain historical coordination artifacts only. They may be read to
-understand past migration evidence, but they must not drive work selection,
-blocker analysis, closure readiness, lifecycle transitions, `ISSUED`
-consideration, or release/professional claims.
-
 ## State Tracking Rules
 
 Use two layers of state. Do not let handoff prose become substitute authority.
@@ -61,25 +54,6 @@ Authoritative state:
    helper. It lists local `_STATUS.md` values and optional DAG node context; it
    does not write state and is not a substitute for deliverable-local
    inspection.
-
-Historical DEV-001 treatment:
-
-- `DEV-001` files are preserved in place as historical artifacts. Existing
-  records may explain prior bounded implementation evidence, but they are no
-  longer active authority for readiness, blocked/unblocked state, closure, or
-  tranche selection.
-- `tools/coordination/maintain_dev001_coordination.py` is a legacy compatibility
-  tool. Use `--check` only when explicitly reconciling historical DEV-001
-  surfaces; do not use its blocker queues as the active development loop.
-- `TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03` records human
-  acceptance that the non-resolving DEV-001 evidence commits for
-  `DEL-02-01` through `DEL-02-05`, `DEL-06-03`, `DEL-08-04`, `DEL-08-05`, and
-  `DEL-17-01` through `DEL-17-03` are migration artifacts.
-- For those deliverables, do not rediscover the same missing-commit condition
-  as a new blocker. Use current source/test traceability, local deliverable
-  evidence, and the reconciliation snapshot as the replacement evidence basis.
-- This reconciliation does not generalize to other deliverables unless a later
-  human disposition says so.
 
 Handoff state:
 
@@ -121,7 +95,7 @@ the selection steps to propose exactly one next bounded tranche.
    deliverables, normally `IN_PROGRESS`. For human-directed formal review or
    closeout gates, select from `CHECKING`. Treat `SEMANTIC_READY` as
    architecture/preparation basis unless the human explicitly asks to work that
-   surface. Do not use DEV-001 blocker queues to select or block work.
+   surface.
 4. **Deliverable-local context.** After selecting one deliverable, read its
    local `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`,
    `Dependencies.csv` when present, `MEMORY.md`, `_run_records/**`, review

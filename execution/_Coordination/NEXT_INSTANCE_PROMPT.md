@@ -28,11 +28,6 @@ Act in the `WORKING_ITEMS` persona for
    approval, local-status discovery, DAG-guided context selection, `TASK`
    workers, fan-in, validation, and evidence records.
 
-`DEV-001` files are historical artifacts only. Do not use
-`DEV-001_IMPLEMENTATION_EVIDENCE.csv` or `DEV-001_BLOCKER_QUEUE.md/.csv` to
-select work, determine blocked/unblocked state, judge closure readiness, or
-advance lifecycle gates.
-
 ## Next Action
 
 1. Enter through the coordination workflow:

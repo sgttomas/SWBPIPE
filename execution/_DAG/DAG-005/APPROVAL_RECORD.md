@@ -42,7 +42,6 @@ This approval accepts the `SCA-004` export-interoperability graph extension over
 | Cycle report | `execution/_DAG/DAG-005/Cycle_Report.md` |
 | DAG audit | `execution/_DAG/DAG-005/DAG_Audit.md` / `.json` |
 | Approval review packet | `execution/_DAG/DAG-005/DAG-005_APPROVAL_REVIEW_PACKET.md` |
-| DEV-001 blocker queue | `execution/_DAG/DAG-005/DEV-001_BLOCKER_QUEUE.md` / `.csv` |
 
 ## Approved Graph Facts
 
@@ -61,9 +60,6 @@ This approval accepts the `SCA-004` export-interoperability graph extension over
 | Active-edge cycle status | ACYCLIC |
 | Active plus candidate SCC warnings | 2 |
 | Topological waves | 15 |
-| DEV-001 advisory unblocked | 93 |
-| DEV-001 advisory blocked | 8 |
-
 ## Approval Conditions
 
 - Approval applies to `ACTIVE` edges and the `SCA-004` export-interoperability coordination extension only.
@@ -103,11 +99,10 @@ python3 tools/validation/validate_dependencies_schema.py execution/_DAG/DAG-005/
 python3 tools/coordination/audit_dag.py --dag-dir execution/_DAG/DAG-005 --strict
 python3 -m json.tool execution/_DAG/DAG-005/dag.json
 python3 -m json.tool execution/_DAG/DAG-005/DAG_Audit.json
-python3 tools/coordination/build_dev001_blocker_queue.py --dag-dir execution/_DAG/DAG-005 --evidence execution/_Coordination/_Archive/ROOT_HISTORICAL_COORDINATION_2026-05-10/DEV-001_IMPLEMENTATION_EVIDENCE.csv --csv-out execution/_DAG/DAG-005/DEV-001_BLOCKER_QUEUE.csv --markdown-out execution/_DAG/DAG-005/DEV-001_BLOCKER_QUEUE.md --generated-date 2026-05-18
 ```
 
 All required validation checks passed before approval record creation.
 
 ## Immediate Follow-Up Boundary
 
-Later dispatch planning, candidate promotion, lifecycle transitions, CAEPIPE source-basis dossier work, export implementation work, downstream derivative closure, and git actions remain separate guarded workflow steps. This approval only promotes `DAG-005` active edge set to graph authority and refreshes the DEV-001 advisory blocker queue against that authority.
+Later dispatch planning, candidate promotion, lifecycle transitions, CAEPIPE source-basis dossier work, export implementation work, downstream derivative closure, and git actions remain separate guarded workflow steps. This approval only promotes `DAG-005` active edge set to graph authority.
