@@ -14,11 +14,22 @@ refs:
 
 This file defines the initial maintainer policy skeleton for OpenPipeStress. It is a governance artifact, not a legal opinion, professional engineering approval, certification, sealing, or code-compliance claim.
 
+## Authority Basis
+
+This draft maintainer policy is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-005` coordination authority. Those artifacts define current package and
+deliverable scope and active dependency relationships; they do not by
+themselves approve releases, lifecycle transitions, professional reliance,
+code-compliance claims, or final governance decisions.
+
 ## 1. Project Status
 
 | Field | Current value |
 |---|---|
 | Project intent | Free and open-source piping stress analysis platform |
+| Decomposition authority | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` |
+| Coordination graph authority | `execution/_DAG/DAG-005/` active edge set; candidate rows remain non-gating |
 | License | `TBD` |
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
 | Maintainer roster | `TBD` |
@@ -35,6 +46,7 @@ Maintainers are responsible for project stewardship within the boundaries in `do
 Maintainers must:
 
 - preserve stable package, deliverable, scope, objective, decision, issue, and risk IDs;
+- use the current decomposition, approved DAG, and deliverable-local lifecycle files as coordination evidence without treating them as release acceptance;
 - enforce the open-mechanics/private-code-data boundary;
 - require source, provenance, license or redistribution status, contributor certification, and review disposition for public data contributions;
 - quarantine suspected protected standards content, proprietary data, or private project data before merge or release;
@@ -77,6 +89,7 @@ only when it preserves the same evidence fields and disposition states.
 
 A public release must not be published until maintainers complete a release review covering:
 
+- an explicit human release decision and a recorded governance authority basis;
 - release scope, changed surfaces, and any excluded or deferred work;
 - selected license and notices; if the license remains `TBD`, no public source release may be published without a recorded human exception;
 - validation status and known limitations;

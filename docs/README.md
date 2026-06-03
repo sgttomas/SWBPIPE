@@ -30,19 +30,28 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 | `IP_AND_DATA_BOUNDARY.md` | Data/IP policy | Public/private data rules, contributor certification, provenance, and quarantine policy. |
 | `VALIDATION_STRATEGY.md` | Verification and validation | Benchmark and release-quality strategy. |
 | `user_guide/index.md` | User guide | Draft user-facing workflow skeleton, limitations, data boundaries, and current `TBD`s. |
-| `_Decomposition/SOFTWARE_DECOMP.md` | Working surface | SSOW, objectives, packages, deliverables, scope ledger summary, telemetry, open issues. |
+| `../execution/_Decomposition/SOFTWARE_DECOMP.md` | Working surface | SSOW, objectives, packages, deliverables, scope ledger summary, telemetry, open issues. |
 | `_Registers/ScopeLedger.csv` | Authoritative companion register | Machine-readable scope-to-package/deliverable mapping. |
 | `_Registers/Deliverables.csv` | Authoritative companion register | Machine-readable deliverable catalog. |
 | `_Registers/ContextBudgetQA.csv` | Authoritative companion register | Context-envelope and sizing audit. |
+| `../governance/MAINTAINERS.md` | Maintainer policy skeleton | Draft public-governance surface for maintainer, contribution, release, and open governance questions. |
 
 ## Status
 
-This package is the **v0.3 current downstream decomposition basis** for agentic preparation and sealed deliverable execution. Revision v0.3 adds `PKG-00 — Software Architecture Runway` as the first architecture gate before package-level implementation planning proceeds. It is not an approved engineering work product, not a legal opinion, and not a claim of code compliance.
+The current decomposition authority is
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, coordinated by
+approved `DAG-005` under `execution/_DAG/DAG-005/`. Revision `0.7` carries
+the accepted architecture runway, design-engine and persistence amendments, and
+export-format interoperability scope into the active working surface.
+
+This docs package remains a governance and coordination index. It is not an
+approved engineering work product, not a legal opinion, not a release record,
+and not a claim of code compliance or professional reliance.
 
 ## How agents should use this package
 
 1. Start from the root `INIT.md`, then follow `execution/_Coordination/_COORDINATION.md` for authority intake, work selection, execution discipline, validation, and handoff.
-2. Use `_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
+2. Use `execution/_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
 3. Use `_Registers/*.csv` for machine-checkable mappings.
 4. Treat every deliverable as bounded: no agent may expand scope silently.
 5. Unknown values become `TBD`; suspected protected data is quarantined and escalated.

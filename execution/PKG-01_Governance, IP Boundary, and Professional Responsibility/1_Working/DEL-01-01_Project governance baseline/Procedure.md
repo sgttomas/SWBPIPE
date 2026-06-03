@@ -2,12 +2,14 @@
 
 ## Purpose
 
-This procedure describes how to produce and review the DEL-01-01 governance baseline artifacts inside the deliverable-local setup folder.
+This procedure describes how to produce, refresh, and review the DEL-01-01
+governance baseline artifacts and authorized visible governance surfaces.
 
 ## Prerequisites
 
 - Sealed DEL-01-01 brief and write scope.
-- `_CONTEXT.md`, `_REFERENCES.md`, and decomposition/register rows for DEL-01-01.
+- `_CONTEXT.md`, `_REFERENCES.md`, current decomposition revision `0.7`,
+  approved `DAG-005`, and register rows for DEL-01-01.
 - Access to `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, and `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`.
 - No protected standards/code data or proprietary contribution data.
 
@@ -15,21 +17,21 @@ This procedure describes how to produce and review the DEL-01-01 governance base
 
 1. Confirm the deliverable identity: DEL-01-01, PKG-01, SOW-001, SOW-048, OBJ-001, and OBJ-002.
 2. Read the applicable contract invariants for hierarchy, IDs, IP boundary, professional authority, governance, and agent execution.
-3. Draft deliverable-local `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; do not edit repo-level governance targets.
+3. Draft or refresh deliverable-local `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; edit repo-level governance targets only when the active tranche grants explicit write scope.
 4. Mark unresolved governance choices as `TBD`, including license, maintainer roster, quorum, release signing, release authority, and legal review process.
 5. Check that draft language does not assert certification, sealing, endorsement, code compliance, legal opinion, or professional approval.
 6. Generate `_SEMANTIC.md` as a question-shaping semantic lens after the four documents exist.
 7. Generate `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.
 8. Apply P3 enrichment only where the lensing register identifies warranted additions supported by local sources.
 9. Generate `Dependencies.csv` and refresh `_DEPENDENCIES.md` using conservative dependency extraction.
-10. Persist `_run_records` evidence for the setup sequence and leave `_STATUS.md` below `ISSUED`.
+10. Persist `_run_records` evidence for the setup or refresh sequence and leave `_STATUS.md` unchanged unless a separate human lifecycle gate authorizes a transition.
 
 ## Verification
 
 | Check | Expected result |
 |---|---|
-| Scope boundary | Only the DEL-01-01 deliverable folder is written. |
-| Repo-level targets | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `governance/MAINTAINERS.md` are not edited in this setup run. |
+| Scope boundary | Writes stay within the deliverable folder and any explicitly authorized governance surfaces. |
+| Repo-level targets | `docs/README.md` and `governance/MAINTAINERS.md` may be edited when explicitly authorized; `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, lifecycle files, release records, and DAG artifacts are not edited by this refresh. |
 | Protected content | No protected standards/code text, tables, examples, or proprietary data are reproduced. |
 | Professional boundary | No certification, approval, sealing, authentication, or compliance-for-reliance claim appears. |
 | Unknowns | Unresolved policy values are marked `TBD`. |

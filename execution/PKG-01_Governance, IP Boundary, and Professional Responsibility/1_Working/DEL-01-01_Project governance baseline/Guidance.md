@@ -2,7 +2,11 @@
 
 ## Purpose
 
-This deliverable-local kit gives later human or Type 1 governance work a structured baseline for the first public project governance surface. It is intentionally conservative: it records required policy boundaries and unresolved choices without asserting legal conclusions or final project policy.
+This deliverable-local kit gives later human or Type 1 governance work a
+structured baseline for the public project governance surface. It is
+intentionally conservative: it records required policy boundaries and
+unresolved choices without asserting legal conclusions, release acceptance, or
+final project policy.
 
 ## Principles
 
@@ -14,7 +18,12 @@ This deliverable-local kit gives later human or Type 1 governance work a structu
 
 ## Considerations
 
-The current governing documents already contain much of the baseline intent. Future repo-level edits should avoid duplicating or weakening existing invariants. If `governance/MAINTAINERS.md` is created or expanded, it should point back to `docs/CONTRACT.md` and `docs/DIRECTIVE.md` rather than restating every invariant in full.
+The current governing documents already contain much of the baseline intent.
+Repo-level governance edits should avoid duplicating or weakening existing
+invariants. `governance/MAINTAINERS.md` should point back to
+`docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and
+the current decomposition/DAG authority rather than restating every invariant
+in full.
 
 Contribution review should be written as a gate with explicit evidence fields. At minimum, public data contributions need source, provenance, redistribution status, contributor certification, and review disposition. Suspected protected content should be quarantined and escalated rather than rewritten or paraphrased.
 

@@ -16,6 +16,8 @@ Updated by: WORKING_ITEMS
   `tools/coordination/list_deliverable_status.py`.
 - Latest review-surface closeout:
   `execution/_Aggregation/TP-CHECKING-REVIEW-GAP-CLOSEOUT-001_2026-06-03/`.
+- Latest IN_PROGRESS governance refresh:
+  `execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/_run_records/WORKING_ITEMS_RUN_2026-06-03_TP-DEL-01-01-GOVERNANCE-BASELINE-REFRESH-001.md`.
 
 ## Current Program State
 
@@ -52,6 +54,17 @@ Updated by: WORKING_ITEMS
   human-directed revision of production documents to recognize the bounded
   native JSON package foundation implementation. `DEL-17-03` RF-002 remains
   open for DAG-005 artifact-flag refresh or owning-workflow disposition.
+- Human direction after review-closeout handoff was to prioritize deliverables
+  in `IN_PROGRESS` for normal development, not the held `CHECKING` review
+  surface, unless a later human instruction explicitly requests review-gate
+  disposition.
+- `TP-DEL-01-01-GOVERNANCE-BASELINE-REFRESH-001` refreshed DEL-01-01 local
+  governance docs plus `docs/README.md` and `governance/MAINTAINERS.md` to
+  current decomposition revision `0.7` and approved `DAG-005` wording. It
+  updated `Dependencies.csv` notes without renumbering dependency IDs. It did
+  not edit `_STATUS.md`, DAG artifacts, release/acceptance records, or review
+  dispositions. Validation passed: status helper, DEL-01-01 dependency schema,
+  `git diff --check`, and manual claim scan.
 
 ## Immediate Next Actions
 
@@ -61,14 +74,14 @@ Updated by: WORKING_ITEMS
    execution or review intake documents according to the selected tranche type.
 4. Run
    `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`.
-5. Review
-   `execution/_Aggregation/TP-CHECKING-REVIEW-GAP-CLOSEOUT-001_2026-06-03/`.
+5. Select from `IN_PROGRESS` deliverables for normal development unless the
+   human explicitly requests a `CHECKING` review gate.
 6. Propose exactly one next bounded tranche. Recommended next tranche:
-   human-disposition review for the six held CHECKING deliverables
-   (`DEL-02-01` through `DEL-02-05`, `DEL-17-02`) plus a coordination
-   disposition or refresh proposal for `DEL-17-03` RF-002. No lifecycle
-   transition should occur unless the human separately approves the gate
-   action.
+   inspect and plan an `IN_PROGRESS` wave-2 deliverable, preferably
+   `DEL-01-04 Professional responsibility and product-claims policy`, because
+   it is foundational to the same governance/professional-boundary surface and
+   should be read locally before execution. No lifecycle transition should
+   occur unless the human separately approves the gate action.
 
 
 ## Do Not Change Without Explicit Human Approval

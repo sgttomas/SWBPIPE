@@ -4,7 +4,11 @@
 
 This deliverable specifies a draft governance baseline for OpenPipeStress. It covers the intended public/free/open-source posture, maintainer and release policy skeleton needs, and required policy boundaries for protected content, professional authority, and agent-generated outputs.
 
-This deliverable excludes product implementation, solver behavior, GUI behavior, legal advice, license selection, certification/approval language, and direct edits to the repo-level governance artifacts.
+This deliverable excludes product implementation, solver behavior, GUI
+behavior, legal advice, license selection, certification/approval language,
+release acceptance, and professional/code-compliance claims. It may update the
+visible docs index and maintainer policy skeleton when an approved tranche
+explicitly grants repo-level governance write scope.
 
 ## Requirements
 
@@ -27,7 +31,7 @@ This deliverable excludes product implementation, solver behavior, GUI behavior,
 | AC-01-01-02 | Contribution-review policy slots include source, provenance, redistribution status, contributor certification, review disposition, quarantine status, and private-data risk. | Specification REQ-01-01-03; future repo-level governance artifact review |
 | AC-01-01-03 | Release policy slots include scope, validation status, known limitations, data-boundary constraints, professional-responsibility limitations, and release maturity wording marked `TBD` until decided. | Specification REQ-01-01-04; Guidance trade-offs |
 | AC-01-01-04 | Maintainer/release authority values remain `TBD` until recorded by the human project authority. | Datasheet decision surface; Guidance conflict C-01-01-002 |
-| AC-01-01-05 | Run evidence records that no repo-level artifacts were edited and no protected standards/code content was reproduced. | `_run_records/TASK_RUN_*.md` |
+| AC-01-01-05 | Run evidence records which repo-level governance artifacts were edited and confirms no protected standards/code content was reproduced. | `_run_records/TASK_RUN_*.md` |
 
 ## Standards
 
@@ -43,9 +47,9 @@ This deliverable excludes product implementation, solver behavior, GUI behavior,
 
 Verification for this setup deliverable is document review:
 
-- compare DEL-01-01 identity, scope items, objectives, and anticipated artifacts against `_CONTEXT.md` and the registers;
+- compare DEL-01-01 identity, scope items, objectives, and anticipated artifacts against `_CONTEXT.md`, current decomposition revision `0.7`, `DAG-005`, and the registers;
 - confirm all applicable contract invariants are named or reflected;
-- confirm repo-level artifacts were not modified;
+- confirm any repo-level governance edits stay within the authorized tranche write scope;
 - confirm no protected standards content, proprietary data, legal conclusion, or professional certification claim was introduced;
 - confirm `TBD` is used for unresolved license, maintainer, release, quorum, signing, and human-authority choices;
 - confirm `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, and `_run_records` evidence exist after the setup workflow completes.
@@ -58,6 +62,9 @@ Anticipated downstream artifacts from the register are:
 - `docs/DIRECTIVE.md`
 - `governance/MAINTAINERS.md`
 
-For this setup workflow, those artifacts are discussed only as targets for future human-approved repo-level edits.
+For current-basis refresh work, `docs/README.md` and
+`governance/MAINTAINERS.md` may be updated as governance surfaces. Changes to
+`docs/CONTRACT.md`, `docs/DIRECTIVE.md`, license selection, release acceptance,
+and lifecycle state remain outside this tranche unless separately authorized.
 
 The release maturity label taxonomy, validation-status wording, release signing process, and governance acceptance record format remain `TBD`.

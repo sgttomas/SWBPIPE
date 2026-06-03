@@ -28,9 +28,9 @@ The review brief listed ScopeLedger rows `SOW-001`, `SOW-002`, `SOW-003`, and `S
 | AP-002 | `docs/DIRECTIVE.md` | PASS | Present; contains founding intent, principles, scope, stop rules, and governance baseline. |
 | AP-003 | `governance/MAINTAINERS.md` | PASS | Present; contains maintainer policy skeleton. |
 | AP-004 | Deliverable `_CONTEXT.md` | PASS | Present. |
-| AP-005 | Deliverable `_STATUS.md` | PASS | Present; state remains `OPEN`. |
-| AP-006 | Deliverable `_REFERENCES.md` | PASS_AFTER_RECHECK | Present; stale decomposition revision reference recorded as RF-001 was corrected to accepted revision 0.4 current decomposition basis. |
-| AP-007 | Deliverable `_DEPENDENCIES.md` | PASS | Present; dependency extraction is `NOT_RUN_YET`. |
+| AP-005 | Deliverable `_STATUS.md` | PASS | Present; lifecycle state is governed by `_STATUS.md`. This review and later current-basis refresh did not change lifecycle state. |
+| AP-006 | Deliverable `_REFERENCES.md` | PASS_AFTER_RECHECK | Present; RF-001 was rechecked fixed in the original review, and later current-basis refresh updated `_REFERENCES.md` to accepted revision 0.7. |
+| AP-007 | Deliverable `_DEPENDENCIES.md` | PASS | Present; local dependency evidence is refreshed from local evidence and remains non-authoritative relative to aggregate `DAG-005`. |
 
 ## 3. Scope and objective coverage
 
@@ -99,4 +99,4 @@ Finding RF-001 records a stale decomposition revision reference in `_REFERENCES.
 
 Mechanical recommendation: AGENT_CHECK PASS AFTER RECHECK, with no open AGENT_CHECK finding.
 
-This is not a lifecycle gate approval. `_STATUS.md` remains `OPEN`, and no transition to `CHECKING`, `SEMANTIC_READY`, or `ISSUED` was performed.
+This is not a lifecycle gate approval. `_STATUS.md` was not edited by this review or the later current-basis refresh, and no transition to `CHECKING`, `SEMANTIC_READY`, or `ISSUED` was performed by either surface.

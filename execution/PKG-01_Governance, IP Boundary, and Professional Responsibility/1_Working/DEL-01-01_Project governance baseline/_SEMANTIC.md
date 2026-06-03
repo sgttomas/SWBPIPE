@@ -13,7 +13,7 @@
 - `Guidance.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Guidance.md#guidance-del-01-01-project-governance-baseline`
 - `Procedure.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Procedure.md#procedure-del-01-01-project-governance-baseline`
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/_REFERENCES.md#references-del-01-01-project-governance-baseline`
-- `SOFTWARE_DECOMP.md` - `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md#pkg-01-governance-ip-boundary-and-professional-responsibility` (trace input only)
+- `SOFTWARE_DECOMP.md` - `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md#pkg-01-governance-ip-boundary-and-professional-responsibility` (trace input only)
 
 ## Matrix A - Orientation (3x4) - Canonical
 

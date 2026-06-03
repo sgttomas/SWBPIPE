@@ -63,6 +63,12 @@ Baseline intake for every new session:
 - `execution/_DAG/_LATEST.md`, the current DAG approval record, and the current
   DAG node/edge registers for approved relationship context.
 
+Baseline governance documents are the usable authority for ordinary work.
+Deliverable-local folders are read for the selected deliverable and for active
+DAG-discovered dependencies only. Do not read governance deliverable folders
+merely to understand project-wide policy unless the selected work, local
+references, or active DAG edges point there.
+
 Execution intake when selecting or implementing a deliverable:
 
 - `docs/SPEC.md` for technical architecture and implementation mechanics.

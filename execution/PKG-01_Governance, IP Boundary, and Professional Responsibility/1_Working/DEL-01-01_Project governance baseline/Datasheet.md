@@ -12,8 +12,9 @@
 | Scope Items | SOW-001, SOW-048 |
 | Objectives | OBJ-001, OBJ-002 |
 | Context Envelope | M |
-| Decomposition Basis | docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 |
-| Status | Draft deliverable-local setup kit |
+| Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
+| Coordination Basis | execution/_DAG/DAG-005/ approved active graph authority |
+| Status | IN_PROGRESS governance baseline refresh |
 
 ## Attributes
 
@@ -31,7 +32,7 @@
 
 | Condition | Status |
 |---|---|
-| No repo-level artifacts are edited by this setup run | Applied |
+| Repo-level governance surfaces exist and are explicitly in current-basis refresh scope | Applied |
 | No protected standards/code data is reproduced | Applied |
 | No legal conclusion beyond draft policy language is made | Applied |
 | Maintainer roster, release authority, quorum, signing, and license choice | TBD |
@@ -51,7 +52,10 @@
 
 ## Construction
 
-This deliverable-local kit describes the baseline content that future human-approved edits may apply to the governance artifacts. It does not itself amend `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, or `governance/MAINTAINERS.md`.
+This deliverable-local kit describes the baseline content and current-basis
+maintenance rules for public governance artifacts. It may update
+`docs/README.md` and `governance/MAINTAINERS.md` under explicit tranche write
+scope, while preserving all human-governed decisions as `TBD`.
 
 The baseline is constructed from:
 
@@ -65,7 +69,8 @@ The baseline is constructed from:
 
 - `_CONTEXT.md`
 - `_REFERENCES.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md`
+- `execution/_Decomposition/SOFTWARE_DECOMP.md`
+- `execution/_DAG/DAG-005/`
 - `docs/_Registers/Deliverables.csv`
 - `docs/_Registers/ScopeLedger.csv`
 - `docs/_Registers/ContextBudgetQA.csv`

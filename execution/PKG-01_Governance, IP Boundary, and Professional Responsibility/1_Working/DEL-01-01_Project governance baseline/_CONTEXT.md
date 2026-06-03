@@ -7,7 +7,9 @@
 **Type:** DOC_UPDATE
 
 ## Description
-Create the initial governance documents and maintainer policy skeleton for the public project.
+Maintain the project governance baseline, visible docs index, and maintainer
+policy skeleton for the public project while preserving unresolved governance
+choices as `TBD`.
 
 ## Anticipated Artifacts
 - docs/CONTRACT.md
@@ -38,8 +40,8 @@ Create the initial governance documents and maintainer policy skeleton for the p
 - **Package Exclusions:** Does not implement solver or GUI behavior except through requirements and policies.
 
 ## Decomposition Reference
-- **Decomposition:** docs/_Decomposition/SOFTWARE_DECOMP.md
-- **Accepted Revision:** 0.4
+- **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
+- **Accepted Revision:** 0.7
 - **Status:** current_basis
 
 ## Register References
@@ -51,12 +53,17 @@ Create the initial governance documents and maintainer policy skeleton for the p
 ## Architecture Basis Injection
 - **Scope Change:** SCA-001
 - **Architecture Basis:** `PKG-00 - Software Architecture Runway` at `SEMANTIC_READY` supplies dispatchable architecture-basis constraints for this sealed context. This does not mark PKG-00 as `ISSUED`.
-- **Decomposition Revision:** docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4
+- **Decomposition Revision:** execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-06, AB-00-08
 - **Resolved Baseline:** Rust core/application services; Tauri 2 desktop shell where GUI-facing; TypeScript/React/Vite GUI where GUI-facing; Three.js viewport where 3D viewport-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable.
 - **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, import/export format list, CI provider/coverage thresholds, and physical project package/container remain implementation-level decisions unless this deliverable explicitly resolves one under human approval.
 - **Dispatch Rule:** Future TASK execution must apply only the applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
 
-## PREPARATION Notes
-- Structural scaffold only.
-- No Type 2 implementation artifacts are drafted in this folder by PREPARATION.
+## Current-Basis Refresh Notes
+- The original PREPARATION scaffold was structural only.
+- Later governance artifacts now exist at `docs/README.md` and
+  `governance/MAINTAINERS.md`; current-basis refresh work may update those
+  surfaces when explicitly authorized.
+- This context does not authorize lifecycle transition, release acceptance,
+  license selection, legal conclusion, professional approval, or code-compliance
+  claim.

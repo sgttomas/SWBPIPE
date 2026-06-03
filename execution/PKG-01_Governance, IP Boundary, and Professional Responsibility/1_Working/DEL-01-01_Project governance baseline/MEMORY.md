@@ -55,3 +55,24 @@ Deferred boundaries:
 - Protected standards text, proprietary data, private project/rule/material
   data, code-specific defaults, certification, sealing, endorsement, approval,
   authentication, and code-compliance claims remain out of scope.
+
+## 2026-06-03 - TP-DEL-01-01-GOVERNANCE-BASELINE-REFRESH-001
+
+- Human-approved tranche refreshed DEL-01-01 from older setup-kit framing to
+  current project basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision
+  `0.7` and approved `DAG-005`.
+- Updated deliverable-local governance docs plus `docs/README.md` and
+  `governance/MAINTAINERS.md` under explicit write scope.
+- Preserved unresolved governance decisions as `TBD`: license, maintainer
+  roster, quorum or approval model, release authority, release
+  signing/provenance process, security contact, legal review process, release
+  maturity labels, validation wording, governance acceptance record format, and
+  human project authority record.
+- Validation passed: status helper for `DAG-005`, `Dependencies.csv` schema
+  validation, `git diff --check`, and manual claim scan.
+- Boundary preserved: no lifecycle change, DAG edit, candidate promotion,
+  release or acceptance record, legal conclusion, professional approval,
+  certification, sealing, authentication, code-compliance, or
+  release-readiness-for-reliance claim.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-03_TP-DEL-01-01-GOVERNANCE-BASELINE-REFRESH-001.md`.

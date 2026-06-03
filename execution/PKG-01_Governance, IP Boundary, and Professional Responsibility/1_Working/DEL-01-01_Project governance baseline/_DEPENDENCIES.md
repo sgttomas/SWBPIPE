@@ -8,10 +8,9 @@
 - **Refreshed:** 2026-05-10
 
 ## Authority Boundary
-- Aggregate `DAG-002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is refreshed dependency evidence for later reconciliation, not independent aggregate graph authority.
-- `DAG-003` remains preliminary and not approval-ready.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
+- Aggregate `DAG-005` is the approved active graph authority within its approval boundary.
+- This local register is refreshed dependency evidence for deliverable-local context, not independent aggregate graph authority.
+- `CANDIDATE` rows remain non-gating unless later promoted by explicit human gate and graph revalidation.
 - `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers in TP-DAG-004.
 
 ## Extracted Dependency Register
@@ -57,6 +56,6 @@
 
 ## Downstream Handoff Notes
 
-- This refresh is suitable as DEL-local evidence for a later graph reconciliation pass.
-- The refreshed rows do not approve `DAG-003`, promote candidate edges, change lifecycle state, or authorize Type 2 product implementation dispatch.
-- Later reconciliation should compare these local anchor/document/prerequisite rows against `DAG-002` and preliminary `DAG-003` without silently promoting non-gating evidence into aggregate graph authority.
+- This refresh is suitable as DEL-local evidence for later coordination or review.
+- The refreshed rows do not edit `DAG-005`, promote candidate edges, change lifecycle state, or authorize release acceptance.
+- Later reconciliation should compare these local anchor/document/prerequisite rows against `DAG-005` without silently promoting non-gating evidence into aggregate graph authority.
