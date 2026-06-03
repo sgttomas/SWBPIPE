@@ -1,0 +1,20 @@
+SourceID,Path,Use
+SRC-001,execution/_Coordination/NEXT_INSTANCE_PROMPT.md,Stable handoff entry instructions approving coordination workflow entry.
+SRC-002,execution/_Coordination/_COORDINATION.md,"Integrated Verification and Tranche Selection Loop, write-scope, state-tracking, and non-claim boundaries."
+SRC-003,execution/_Coordination/NEXT_INSTANCE_STATE.md,Compact resume state and immediate next-action pointers; verified against cited authority.
+SRC-004,execution/_Decomposition/SOFTWARE_DECOMP.md,"Decomposition revision 0.7, package/objective scope, and SCA-004 PKG-17 basis."
+SRC-005,execution/_DAG/_LATEST.md,DAG-005 active graph pointer.
+SRC-006,execution/_DAG/DAG-005/APPROVAL_RECORD.md,Approved graph authority boundaries and non-gating candidate treatment.
+SRC-007,execution/_DAG/DAG-005/DeliverableNodes.csv,"Execution paths, node lifecycle display basis, package and deliverable metadata."
+SRC-008,execution/_DAG/DAG-005/DependencyEdges.csv,Approved active dependency surface used by DEV-001 derivatives.
+SRC-009,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,Committed implementation evidence records.
+SRC-010,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,Deterministic implementation-readiness blocker queue and lifecycle display column.
+SRC-011,execution/_Coordination/DEV-001_BLOCKER_QUEUE.md,Human-readable DEV-001 blocker queue summary.
+SRC-012,execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/RUN_SUMMARY.md,Latest integrated verification PASS_FOR_EXECUTED_CHECKS basis.
+SRC-013,execution/_Aggregation/TP-RELEASE-GAP-REGISTER-REFRESH-001_2026-05-31/,Release/professional/CI/artifact/runtime gaps preserved as open or human-gated.
+SRC-014,execution/_Aggregation/TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31/,Prior read-only lifecycle readiness audit used as comparison basis.
+SRC-015,execution/_Aggregation/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03/,PKG-17 human-gated lifecycle disposition closeout.
+SRC-016,execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/,May 11 lifecycle correction precedent separating committed evidence from completion claims.
+SRC-017,execution/PKG-*/1_Working/DEL-*/_STATUS.md,Current deliverable-local lifecycle status text read directly for this snapshot.
+SRC-018,execution/PKG-*/1_Working/DEL-*/MEMORY.md,Deliverable-local memory presence checked for hygiene only.
+SRC-019,plans/TP-LIFECYCLE-READINESS-DISPOSITION-002_PLAN.md,"Human-approved tranche plan, objective, write bounds, method, and non-changes."
