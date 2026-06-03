@@ -1,0 +1,11 @@
+SourceID,Path,Use
+SRC-001,execution/_Decomposition/SOFTWARE_DECOMP.md,Decomposition revision 0.7 and PKG-17 scope/objective basis
+SRC-002,execution/_DAG/_LATEST.md,DAG-005 active graph pointer
+SRC-003,execution/_DAG/DAG-005/APPROVAL_RECORD.md,DAG approval boundaries and non-claims
+SRC-004,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,Committed evidence commits for PKG-17 deliverables
+SRC-005,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,Committed/unblocked implementation-readiness view for PKG-17
+SRC-006,execution/_Aggregation/TP-INTEGRATED-VERIFY-002_2026-05-31/RUN_SUMMARY.md,Latest integrated verification status
+SRC-007,execution/_Aggregation/TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31/RUN_SUMMARY.md,Human-gated PKG-17 lifecycle-disposition finding
+SRC-008,execution/_Coordination/TP-NEXT-TRANCHE-SELECTION-001_2026-05-31.md,Selected tranche objective and write bounds
+SRC-009,docs/CONTRACT.md,Professional/IP/data/non-invention invariants
+SRC-010,docs/IP_AND_DATA_BOUNDARY.md,Protected/private data and public repository boundaries

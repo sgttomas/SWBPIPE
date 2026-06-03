@@ -1,6 +1,6 @@
 # NEXT INSTANCE STATE
 
-Last updated: 2026-05-31
+Last updated: 2026-06-03
 Updated by: WORKING_ITEMS
 
 ## Authority Pointers
@@ -24,6 +24,8 @@ Updated by: WORKING_ITEMS
   `execution/_Aggregation/TP-RELEASE-GAP-REGISTER-REFRESH-001_2026-05-31/`.
 - Latest lifecycle readiness audit:
   `execution/_Aggregation/TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31/`.
+- Latest lifecycle disposition:
+  `execution/_Aggregation/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03/`.
 - Latest next-tranche selection:
   `execution/_Coordination/TP-NEXT-TRANCHE-SELECTION-001_2026-05-31.md`.
 - Handoff prompt: `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`.
@@ -43,6 +45,12 @@ Updated by: WORKING_ITEMS
   revalidation.
 - `DEV-001_BLOCKER_QUEUE.md` reports 101 implementation-unblocked deliverables
   and 0 blocked deliverables using active `DAG-005` edges only.
+- `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03` completed the
+  human-approved PKG-17 lifecycle disposition: local `_STATUS.md` files for
+  `DEL-17-01` through `DEL-17-09` now report `IN_PROGRESS`. DAG authority,
+  DEV-001 implementation evidence, blocker queues, release records,
+  acceptance records, professional claims, compatibility claims, and
+  code-compliance claims were not changed.
 
 ## Recent Context
 
@@ -132,6 +140,18 @@ Updated by: WORKING_ITEMS
   through remaining objectives.
 - `execution/_Coordination/NEXT_INSTANCE_PROMPT.md` was updated to initiate the
   loop before proposing work.
+- `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03` was explicitly approved and
+  executed by WORKING_ITEMS. The tranche updated only PKG-17 deliverable-local
+  `_STATUS.md`, `MEMORY.md`, and `_run_records/**`, plus the derivative
+  closeout snapshot and this handoff state.
+- Validation passed after the lifecycle disposition: DEV-001 coordination
+  freshness, PKG-17 status consistency, closeout CSV parsing, `git diff
+  --check`, full `npm audit --audit-level=moderate`, provider-neutral release
+  readiness profile, `npm run test:desktop`, and `npm run build:desktop`.
+- The lifecycle disposition is not a product-complete, release,
+  target-support, target-compatibility, formal solver-validation,
+  professional-reliance, certification, sealing, authentication,
+  code-compliance, or release-readiness-for-reliance claim.
 
 ## Immediate Next Actions
 
@@ -145,14 +165,13 @@ Updated by: WORKING_ITEMS
    selection.
 6. No pinned implementation blocker or open executed-check verification gap
    remains in this handoff state after
-   `TP-INTEGRATED-VERIFY-002_2026-05-31`.
-7. If development continues and the human approves lifecycle/status-surface
-   work, execute only the selected tranche
-   `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-05-31` within the write bounds and
-   human-gate requirements recorded in
-   `execution/_Coordination/TP-NEXT-TRANCHE-SELECTION-001_2026-05-31.md`.
-8. Do not implement the selected tranche or change lifecycle files until
-   explicitly approved.
+   `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03`.
+7. Do not rerun or broaden the completed PKG-17 lifecycle disposition unless
+   the human gives a new explicit lifecycle/status instruction.
+8. If development continues, use the Integrated Verification and Tranche
+   Selection Loop to propose exactly one next bounded tranche from the
+   remaining release, lifecycle-complete, CI authority, artifact archive,
+   runtime assembly, threshold/evidence-bundle, or professional-boundary gaps.
 
 ## Active Residuals
 
@@ -163,7 +182,7 @@ Updated by: WORKING_ITEMS
 | `TP-DESKTOP-BOOTSTRAP-001-GAP-001` | `PKG-10` / `PKG-07` desktop dependency maintenance | Closed by `TP-DESKTOP-DEPS-001_2026-05-31`; full `npm audit --audit-level=moderate` now reports zero vulnerabilities, and desktop test/build checks pass. | No further dependency-audit action required for the current installed desktop workspace; rerun audit/test/build after future dependency changes. |
 | `AGG-LATEST-POINTER-001` | `execution/_Aggregation/_LATEST.md` | Closed by `TP-AGG-LATEST-POINTER-001`; pointer now references `TP-INTEGRATED-VERIFY-002_2026-05-31`. | No further pointer-hygiene action required for the current aggregation pointer. |
 | `RGAP-001` through `RGAP-007` | Release, lifecycle, CI, artifact, runtime, and professional gates | Preserved as open or human-gated by `TP-RELEASE-GAP-REGISTER-REFRESH-001_2026-05-31`; May 31 passing checks do not close release/professional/lifecycle-complete claims. | Handle only through future human-approved release, lifecycle, CI, artifact, runtime, or professional-boundary tranches. |
-| `LIFE-AUDIT-001` | Deliverable lifecycle/status hygiene | `TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31` found stale local status text relative to DEV-001 lifecycle and a PKG-17 human-gated lifecycle disposition need. | Selected next tranche is `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-05-31`; do not execute until explicitly approved. |
+| `LIFE-AUDIT-001` | Deliverable lifecycle/status hygiene | PKG-17 human-gated lifecycle disposition was completed by `TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03`; `DEL-17-01` through `DEL-17-09` local statuses now report `IN_PROGRESS`. | No further PKG-17 lifecycle-disposition action remains unless the human requests a broader lifecycle/queue-mirror/readiness tranche. |
 
 ## Do Not Change Without Explicit Human Approval
 

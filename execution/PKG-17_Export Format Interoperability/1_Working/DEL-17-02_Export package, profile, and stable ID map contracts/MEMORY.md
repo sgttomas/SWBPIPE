@@ -52,3 +52,9 @@
 - Human ruling applied: blockers outside `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping` and outside the approved deliverable write scope are bypassed as external-scope noise for this project tranche.
 - Updated `Procedure.md` and `_run_records/TASK_RUN_2026-05-23_1414_DEL-17-02_export-contract.md` to make scoped `git diff --check -- <deliverable path>` the controlling diff-hygiene evidence.
 - The known sibling-project whitespace finding under `projects/chirality-app-dev/.../DEL-03-02.../Procedure.md:26` remains outside scope and was not edited.
+
+## 2026-06-03 - TP-PKG17-LIFECYCLE-DISPOSITION-001
+- Human-approved lifecycle disposition set local `_STATUS.md` to `IN_PROGRESS` for the current committed-evidence posture.
+- Evidence basis: `DEV-001_BLOCKER_QUEUE.csv` records this deliverable as committed and unblocked; `TP-INTEGRATED-VERIFY-002_2026-05-31` passed executed checks; `TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31` identified PKG-17 lifecycle disposition as human-gated.
+- Run record: `_run_records/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03.md`; closeout snapshot: `execution/_Aggregation/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03/`.
+- Non-claims preserved: no product implementation change, DAG change, DEV-001 evidence edit, release claim, target compatibility claim, code-compliance claim, or professional-reliance claim.

@@ -17,3 +17,9 @@
 - Added denied-by-default runtime grant records, target candidate admission records, validation checklist records, JSON Schema, invented public fixtures, and focused tests.
 - Candidate targets remain non-gating; source-basis intake, target-specific writers, runtime loaders, sandbox/API mechanics, permission taxonomy ownership, and signoff format remain future work.
 - Boundary exclusions preserved: no lifecycle promotion, DAG change, blocker-queue update, implementation-evidence update, target support claim, compatibility claim, release claim, formal validation claim, code-compliance claim, public API promise, runtime plugin loading, external process execution, or professional-reliance claim.
+
+## 2026-06-03 - TP-PKG17-LIFECYCLE-DISPOSITION-001
+- Human-approved lifecycle disposition set local `_STATUS.md` to `IN_PROGRESS` for the current committed-evidence posture.
+- Evidence basis: `DEV-001_BLOCKER_QUEUE.csv` records this deliverable as committed and unblocked; `TP-INTEGRATED-VERIFY-002_2026-05-31` passed executed checks; `TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31` identified PKG-17 lifecycle disposition as human-gated.
+- Run record: `_run_records/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03.md`; closeout snapshot: `execution/_Aggregation/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03/`.
+- Non-claims preserved: no product implementation change, DAG change, DEV-001 evidence edit, release claim, target compatibility claim, code-compliance claim, or professional-reliance claim.
