@@ -11,10 +11,12 @@ Updated by: WORKING_ITEMS
   `execution/_DAG/_LATEST.md`.
 - Graph approval record: `execution/_DAG/DAG-005/APPROVAL_RECORD.md`.
 - Coordination record: `execution/_Coordination/_COORDINATION.md`.
-- Implementation evidence:
-  `execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv`.
-- Blocker queue derivatives:
-  `execution/_Coordination/DEV-001_BLOCKER_QUEUE.md` and `.csv`.
+- Lifecycle vocabulary: `docs/TYPES.md`.
+- Deliverable status discovery helper:
+  `tools/coordination/list_deliverable_status.py`.
+- Historical DEV-001 artifacts, not active loop authority:
+  `execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv` and
+  `execution/_Coordination/DEV-001_BLOCKER_QUEUE.md/.csv`.
 - Latest review-surface closeout:
   `execution/_Aggregation/TP-CHECKING-REVIEW-GAP-CLOSEOUT-001_2026-06-03/`.
 
@@ -22,12 +24,18 @@ Updated by: WORKING_ITEMS
 
 - `SOFTWARE_DECOMP` says what must be built and why.
 - `DAG-005` says what depends on what, using approved active edges.
-- `DEV-001` says what is currently unblocked or blocked for implementation
-  based on committed evidence.
-- `_COORDINATION.md` defines the Integrated Verification and Tranche Selection
-  Loop: authority intake, state verification, optional read-only integrated
-  verification snapshot, gap-to-tranche selection, human approval, bounded
-  execution, fan-in, validation, evidence updates, and handoff.
+- Deliverable-local `_STATUS.md` files say the current lifecycle state for work
+  selection. The current status-discovery helper reports 101 local status files:
+  82 `IN_PROGRESS`, 11 `CHECKING`, and 8 tolerated nonstandard
+  `SEMANTIC_READY` architecture-basis statuses.
+- `_COORDINATION.md` defines the Local Status And DAG-Guided Development Loop:
+  authority intake, status discovery, candidate selection, deliverable-local
+  context inspection, DAG-guided related context, human approval, bounded
+  execution, fan-in, validation, and handoff.
+- `DEV-001` is retired from the active development loop. Existing DEV-001 files
+  remain historical artifacts only and must not drive work selection, blocker
+  analysis, closure readiness, lifecycle transitions, `ISSUED` consideration,
+  or release/professional claims.
 - `DAG-005` remains approved active graph authority. Candidate rows are
   non-gating unless later promoted by explicit human gate and graph
   revalidation.
@@ -46,24 +54,30 @@ Updated by: WORKING_ITEMS
   for `DEL-17-01`, `DEL-17-02`, and `DEL-17-03`. No lifecycle, DAG authority,
   DEV-001 implementation evidence, release, compatibility, code-compliance, or
   professional-reliance claim was made.
-- Review closeout residuals: `DEL-06-03`, `DEL-08-04`, `DEL-08-05`, and
-  `DEL-17-01` have clean review surfaces for the next human gate. `DEL-02-01`
-  through `DEL-02-05`, `DEL-17-02`, and `DEL-17-03` remain held for human
-  disposition of AGENT_CHECK findings before any later `ISSUED` consideration.
-  `DEL-17-03` has one MAJOR AGENT_CHECK finding about production-document
-  implementation posture versus later implementation evidence.
+- Review closeout residuals after subsequent DEL-17-03 remediation:
+  `DEL-06-03`, `DEL-08-04`, `DEL-08-05`, and `DEL-17-01` have clean review
+  surfaces for the next human gate. `DEL-02-01` through `DEL-02-05` and
+  `DEL-17-02` remain held for human disposition of AGENT_CHECK findings before
+  any later `ISSUED` consideration. `DEL-17-03` RF-001 was resolved by
+  human-directed revision of production documents to recognize the bounded
+  native JSON package foundation implementation. `DEL-17-03` RF-002 remains
+  open for DAG-005 artifact-flag refresh or owning-workflow disposition.
 
 ## Immediate Next Actions
 
 1. Read `NEXT_INSTANCE_PROMPT.md`.
 2. Read `_COORDINATION.md` and this `NEXT_INSTANCE_STATE.md`.
-3. Read `SOFTWARE_DECOMP`, `DAG-005`, and `DEV-001` surfaces as stipulated.
-4. Review
+3. Read `SOFTWARE_DECOMP`, `docs/TYPES.md`, and needed `DAG-005` surfaces.
+4. Run
+   `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`.
+5. Review
    `execution/_Aggregation/TP-CHECKING-REVIEW-GAP-CLOSEOUT-001_2026-06-03/`.
-5. Propose exactly one next bounded tranche. Recommended next tranche:
-   human-disposition review for the seven held CHECKING deliverables
-   (`DEL-02-01` through `DEL-02-05`, `DEL-17-02`, `DEL-17-03`), with no
-   lifecycle transition unless the human separately approves the gate action.
+6. Propose exactly one next bounded tranche. Recommended next tranche:
+   human-disposition review for the six held CHECKING deliverables
+   (`DEL-02-01` through `DEL-02-05`, `DEL-17-02`) plus a coordination
+   disposition or refresh proposal for `DEL-17-03` RF-002. No lifecycle
+   transition should occur unless the human separately approves the gate
+   action.
 
 
 ## Do Not Change Without Explicit Human Approval
@@ -71,8 +85,7 @@ Updated by: WORKING_ITEMS
 - lifecycle `_STATUS.md` files;
 - DAG artifacts or dependency registers;
 - candidate-edge promotion or graph authority;
-- `DEV-001_IMPLEMENTATION_EVIDENCE.csv`;
-- blocker queues except through approved deterministic coordination workflow;
+- historical DEV-001 files;
 - release records or acceptance records;
 - professional, certification, sealing, authentication, code-compliance, or
   release-readiness-for-reliance claims.

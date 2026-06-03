@@ -11,19 +11,18 @@ Primary pointers:
 - `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - `docs/CONTRACT.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
+- `docs/TYPES.md`
 - `docs/_Registers/Deliverables.csv`
 - `execution/_DAG/_LATEST.md`
 - `execution/_DAG/DAG-005/APPROVAL_RECORD.md`
 - `execution/_DAG/DAG-005/DAG_Audit.md`
 - `execution/_DAG/DAG-005/DependencyEdges.csv`
 - `execution/_DAG/DAG-005/DeliverableNodes.csv`
-- `execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv`
-- `execution/_Coordination/DEV-001_BLOCKER_QUEUE.md`
-- `execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv`
 - `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`
 - `execution/_Coordination/NEXT_INSTANCE_STATE.md` when present
 - `execution/PKG-*/1_Working/DEL-*/MEMORY.md`
 - `execution/PKG-*/1_Working/DEL-*/_STATUS.md`
+- `tools/coordination/list_deliverable_status.py`
 
 ## Current Authority
 
@@ -31,17 +30,19 @@ Primary pointers:
 active edge set only. Candidate rows remain non-gating unless a later explicit
 human gate promotes them and the graph is revalidated.
 
-The DAG is a relationship map, not the freshness surface for deliverable state.
-For any deliverable under consideration, inspect the deliverable-local folder
-before judging readiness or selecting work. The local `_STATUS.md`, `MEMORY.md`,
-`_DEPENDENCIES.md` / `Dependencies.csv`, `_run_records/**`, four-document kit,
-semantic/lensing files, review files when present, and referenced code/tests are
-the expected discovery structure.
+The DAG is a relationship map, not the freshness surface for deliverable state
+or artifact presence. For any deliverable under consideration, inspect the
+deliverable-local folder before judging readiness or selecting work. The local
+`_STATUS.md`, `MEMORY.md`, `_DEPENDENCIES.md` / `Dependencies.csv`,
+`_run_records/**`, four-document kit, semantic/lensing files, review files when
+present, and referenced code/tests are the expected discovery structure.
 
-`DEV-001` remains the current implementation-evidence and blocker-queue
-derivative path. Use it to understand committed evidence and active dependency
-blocking under `DAG-005`, but do not treat the blocker queue as a substitute for
-deliverable-local inspection.
+`DEV-001` is retired from the active development loop. The existing
+`DEV-001_IMPLEMENTATION_EVIDENCE.csv` and `DEV-001_BLOCKER_QUEUE.md/.csv`
+surfaces remain historical coordination artifacts only. They may be read to
+understand past migration evidence, but they must not drive work selection,
+blocker analysis, closure readiness, lifecycle transitions, `ISSUED`
+consideration, or release/professional claims.
 
 ## State Tracking Rules
 
@@ -53,15 +54,23 @@ Authoritative state:
 2. `execution/_DAG/DAG-005/` says what depends on what, using approved active
    edges only. Candidate rows remain non-gating unless explicitly promoted by a
    later human gate and graph revalidation.
-3. `execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv` records
-   committed implementation evidence. `DEV-001_BLOCKER_QUEUE.md/.csv` are
-   deterministic derivative views of blocked/unblocked implementation state.
-4. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
+3. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
    lifecycle, working memory, and execution evidence inside each deliverable's
    ownership boundary.
+4. `tools/coordination/list_deliverable_status.py` is a read-only discovery
+   helper. It lists local `_STATUS.md` values and optional DAG node context; it
+   does not write state and is not a substitute for deliverable-local
+   inspection.
 
-Migration reconciliation:
+Historical DEV-001 treatment:
 
+- `DEV-001` files are preserved in place as historical artifacts. Existing
+  records may explain prior bounded implementation evidence, but they are no
+  longer active authority for readiness, blocked/unblocked state, closure, or
+  tranche selection.
+- `tools/coordination/maintain_dev001_coordination.py` is a legacy compatibility
+  tool. Use `--check` only when explicitly reconciling historical DEV-001
+  surfaces; do not use its blocker queues as the active development loop.
 - `TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03` records human
   acceptance that the non-resolving DEV-001 evidence commits for
   `DEL-02-01` through `DEL-02-05`, `DEL-06-03`, `DEL-08-04`, `DEL-08-05`, and
@@ -81,8 +90,8 @@ Handoff state:
   residual blockers, and explicit do-not-change boundaries.
 - `NEXT_INSTANCE_STATE.md` may summarize authoritative state but must cite the
   owning authoritative artifacts. It must not replace decomposition truth, DAG
-  authority, implementation evidence, blocker queue derivatives, lifecycle
-  files, release records, or professional/acceptance records.
+  authority, deliverable-local lifecycle files, review records, release
+  records, or professional/acceptance records.
 
 At session closeout, update affected deliverable-local `MEMORY.md` and
 `_run_records/**`, then update `NEXT_INSTANCE_STATE.md` with only current
@@ -90,71 +99,58 @@ pointers, completed work, residual gaps, validation state, and next action.
 Leave `NEXT_INSTANCE_PROMPT.md` mostly stable unless the entry protocol itself
 changes.
 
-## Integrated Verification And Tranche Selection Loop
+## Local Status And DAG-Guided Development Loop
 
 Use this loop as the default OpenPipeStress development driver until the
 `SOFTWARE_DECOMP` objectives are closed. It is project-specific, but general
 across packages and deliverables. If a human has already approved an
-implementation tranche, continue at the execution step; otherwise use the
-verification and gap-selection steps to propose exactly one next bounded
-tranche.
+implementation or review tranche, continue at the execution step; otherwise use
+the selection steps to propose exactly one next bounded tranche.
 
 1. **Authority intake.** Read `NEXT_INSTANCE_PROMPT.md`,
    `NEXT_INSTANCE_STATE.md` when present, this coordination record, and the
-   active surface. `SOFTWARE_DECOMP` defines what must be built and why;
-   `DAG-005` defines approved active dependencies; `DEV-001` records committed
-   implementation evidence and derived blocked/unblocked state.
-2. **State verification.** Before coordination-sensitive planning, run
-   `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check`
-   so stale derivative blocker queues are visible. Record
-   `git status --short` so evidence is tied to the working-tree state. For
-   release-readiness or whole-surface gap selection, run or propose a read-only
-   verification tranche that runs
-   `python3 tools/release/check_release_readiness.py --profile all --execute`
-   plus supplemental local checks not covered by that script, currently
-   `npm run test:desktop` and `npm run build:desktop` when the desktop package
-   is in scope.
-3. **Verification snapshot.** When the approved tranche is a read-only
-   integrated verification sweep, write only derivative audit evidence under
-   `execution/_Aggregation/TP-INTEGRATED-VERIFY-###_YYYY-MM-DD/`. Expected
-   closeout files are `RUN_SUMMARY.md`, `Verification_Results.md`,
-   `Gap_Register.csv`, and `Source_Index.csv`. The snapshot may compare results
-   against accepted evaluation findings and latest package refresh evidence,
-   including PKG-17 refresh evidence when relevant.
-4. **Gap-to-tranche decision.** Map each observed failure or gap to the owning
-   `PackageID`, `DeliverableID`, objective, active `DAG-005` dependency status,
-   and evidence source. Prefer local deliverable discovery over global status
-   summaries when deciding what work remains. Recommend exactly one next bounded
-   tranche with objective, scope, write bounds, validation commands, expected
-   closeout, and any useful `TASK` fan-out. Do not implement until the human
-   approves or redirects the tranche.
-5. **Bounded execution.** After approval, dispatch canonical `TASK` workers
-   only where the file sets are disjoint and the write scopes are explicit.
-   Normally use one deliverable or one clearly owned slice per worker. Any brief
-   with `DeliverablePath` uses `TASK` deliverable-local mode and must read
-   `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`,
-   `MEMORY.md`, `Dependencies.csv` when present, `_run_records/**`, review
+   active surface. `SOFTWARE_DECOMP` defines what must be built and why.
+   `DAG-005` defines approved active relationships. Deliverable-local files
+   define current deliverable state.
+2. **Status discovery.** Run
+   `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`
+   or the same command with `--format csv` when machine-readable output is
+   needed. Record `git status --short` before coordination-sensitive planning
+   or execution so evidence is tied to the working-tree state.
+3. **Candidate selection.** For ordinary development, select from non-`ISSUED`
+   deliverables, normally `IN_PROGRESS`. For human-directed formal review or
+   closeout gates, select from `CHECKING`. Treat `SEMANTIC_READY` as
+   architecture/preparation basis unless the human explicitly asks to work that
+   surface. Do not use DEV-001 blocker queues to select or block work.
+4. **Deliverable-local context.** After selecting one deliverable, read its
+   local `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`,
+   `Dependencies.csv` when present, `MEMORY.md`, `_run_records/**`, review
    files when present, semantic/lensing files when present, the four-document
    kit, and primary deliverable artifacts before acting.
-6. **Fan-in and validation.** The parent agent fans in worker results, checks
-   for scope drift, runs targeted validation, and reruns broader release
-   readiness checks when the tranche affects release surface. Record pass,
-   fail, waived, or deferred evidence without overstating acceptance.
-7. **Evidence and derivatives.** Update affected deliverable-local `MEMORY.md`
-   and `_run_records/**`. Edit `DEV-001_IMPLEMENTATION_EVIDENCE.csv` only when
-   explicitly authorized and backed by committed evidence. After approved
-   implementation-evidence edits, run
-   `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --write`
-   to refresh derivative blocker queue mirrors, then rerun `--check`.
-8. **Handoff.** Update `NEXT_INSTANCE_STATE.md` with current authority
+5. **DAG-guided related context.** Use `DAG-005/DependencyEdges.csv` and
+   `DAG-005/DeliverableNodes.csv` to discover relevant upstream and downstream
+   deliverables for the selected work. Inspect those related deliverable-local
+   files only as needed for context. DAG rows do not replace local artifact
+   inspection.
+6. **Bounded execution.** After approval, dispatch canonical `TASK` workers
+   only where the file sets are disjoint and the write scopes are explicit.
+   Normally use one deliverable or one clearly owned slice per worker. Do not
+   advance lifecycle state unless the human explicitly approves the lifecycle
+   gate.
+7. **Fan-in and validation.** The parent agent fans in worker results, checks
+   for scope drift, runs targeted validation, and runs broader readiness checks
+   only when the tranche affects release or shared integration surface. Record
+   pass, fail, waived, or deferred evidence without overstating acceptance.
+8. **Handoff.** Update affected deliverable-local `MEMORY.md` and
+   `_run_records/**`, then update `NEXT_INSTANCE_STATE.md` with current
    pointers, completed work, residual gaps, validation state, and the
    recommended next action. Leave `NEXT_INSTANCE_PROMPT.md` stable unless the
    entry protocol itself changes.
 
-The coordination maintenance tool is deterministic TOOLMAKER-style support: it
-validates evidence and regenerates blocker queue derivatives, but it does not
-approve or edit implementation evidence rows, lifecycle states, candidate rows,
-release claims, professional claims, or graph authority.
+The deliverable status helper is deterministic TOOLMAKER-style support: it
+lists local lifecycle status and DAG node presence, but it does not approve or
+edit lifecycle states, candidate rows, release claims, professional claims, or
+graph authority.
 
 Human approval is required for lifecycle changes, candidate promotion, commits,
 release claims, acceptance records, or any professional/code compliance claim.
@@ -162,7 +158,8 @@ Read-only verification snapshots and derivative gap registers are not release,
 professional, code-compliance, or acceptance claims.
 
 Completion requires accepted implementation evidence for all applicable
-`SOFTWARE_DECOMP` objectives, satisfied active `DAG-005` dependencies, passing
+`SOFTWARE_DECOMP` objectives inside the owning deliverable-local evidence
+surface, satisfied or explicitly waived active `DAG-005` dependencies, passing
 or explicitly waived readiness checks, closed or formally deferred residual
-gaps, and the required human gate for any release, acceptance, professional, or
-code-compliance assertion.
+gaps, and the required human gate for any lifecycle transition, release,
+acceptance, professional, or code-compliance assertion.

@@ -43,3 +43,10 @@
 - Evidence basis: `TP-CODE-EVIDENCE-AUDIT-001_2026-06-03` found current source/schema/fixture/test evidence and passing targeted/full-gate checks; `TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03` reconciled the migration-era commit-pointer gap.
 - Local `_STATUS.md`, DEV-001 blocker queue lifecycle displays, and DAG-005 deliverable display surfaces were aligned to `CHECKING` where applicable.
 - Boundary preserved: this is review-readiness only; no `ISSUED`, release-readiness, external compatibility, code-compliance, protected-IP/private-data, or professional-engineering authentication claim is made.
+
+## 2026-06-03 - RF-001 production-document implementation posture remediation
+- Human direction accepted the WORKING_ITEMS recommendation that TP-EXPORT-006 implementation outputs belong in DEL-17-03 rather than another deliverable.
+- Revised `Specification.md`, `Datasheet.md`, `Guidance.md`, `Procedure.md`, and local `Dependencies.csv` to recognize the bounded native JSON package foundation as DEL-17-03-owned scope.
+- Bounded foundation outputs now reflected in production docs: `schemas/native_json_export.schema.json`, `core/handoff/native_json/`, `fixtures/native_json/invented/native_json_export_package.json`, and `tests/test_native_json_export_package.py`.
+- Preserved exclusions for API/CLI/GUI integration, project-store export flow, downstream target adapters, target compatibility, release, code-compliance, solver-validation, professional-reliance, and professional-acceptance claims.
+- Updated `Review_Findings.csv` and `_REVIEW.md` so RF-001 is `HumanDisposition=REVISE` and `Status=RESOLVED`; RF-002 remains open for DAG-005 artifact-flag refresh or disposition by the owning workflow.

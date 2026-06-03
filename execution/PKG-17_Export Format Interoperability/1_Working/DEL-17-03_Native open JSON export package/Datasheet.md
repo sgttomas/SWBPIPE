@@ -8,13 +8,13 @@
 | Package | PKG-17 Export Format Interoperability |
 | Type | BACKEND_FEATURE_SLICE |
 | Source foundation | DEL-17-01 and DEL-17-02 |
-| Lifecycle role | First project-owned target package design for export interoperability |
+| Lifecycle role | First project-owned native JSON package implementation foundation for export interoperability |
 
 ## Purpose
 
 DEL-17-03 defines the native open JSON export package as the project-owned debug, interchange, archival, adapter-input, manifest, ID-map, and validation-report package target.
 
-This tranche describes the package contract at document level only. It does not implement an exporter, JSON schema, Rust module, fixture, round-trip test, public API, GUI action, or persistence runtime.
+This deliverable owns the bounded native JSON package foundation: schema contract, deterministic package builder/writer helper, invented public fixture, and focused tests. It does not implement public API, GUI action, persistence runtime, project-store export flow, downstream target adapter behavior, target compatibility, release claims, code-compliance claims, or professional-reliance claims.
 
 ## Package Members
 
@@ -26,6 +26,15 @@ This tranche describes the package contract at document level only. It does not 
 | `loss_report` | Records exported, omitted, approximated, delegated, unsupported, and TBD behavior. |
 | `validation_report` | Records package-shape and source-boundary checks without claiming solver validation. |
 | `diagnostics` | Carries warnings and blocking messages from export preparation. |
+
+## Implementation Artifacts
+
+| Artifact | Role |
+|---|---|
+| `schemas/native_json_export.schema.json` | JSON Schema 2020-12 contract for the native JSON package foundation. |
+| `core/handoff/native_json/` | Deterministic builder and canonical writer helper for native JSON package evidence. |
+| `fixtures/native_json/invented/native_json_export_package.json` | Invented public fixture for package-shape and boundary checks. |
+| `tests/test_native_json_export_package.py` | Focused tests for deterministic hashes, member inventory, diagnostics, privacy/professional-boundary flags, canonical writer output, and protected/private payload screening. |
 
 ## Profile Basis
 
@@ -45,5 +54,4 @@ The native JSON profile shall consume the DEL-17-02 export profile contract and 
 - Native JSON is project-owned interchange and adapter input, not a public compatibility promise.
 - The package may preserve source model semantics but does not certify solver correctness.
 - Protected standards values, private model data, proprietary target examples, and owner criteria remain excluded.
-- Any future implementation must keep unsupported or omitted behavior visible in the loss report.
-
+- Any future integration or target-adapter work must keep unsupported or omitted behavior visible in the loss report.

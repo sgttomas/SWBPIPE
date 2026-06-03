@@ -3,26 +3,27 @@
 ## Population Procedure
 
 1. Read DEL-17-01 source basis and DEL-17-02 export contract.
-2. Draft the native JSON package contract/design documents at document level only.
+2. Maintain the native JSON package contract and bounded implementation foundation in sync.
 3. Generate `_SEMANTIC.md` with `semantic-matrix-build`.
 4. Generate `_SEMANTIC_LENSING.md` with `lens-register`.
 5. Apply warranted P3 enrichment through `four-documents P3_ONLY`.
 6. Extract dependencies into `Dependencies.csv`.
 7. Record memory and run evidence.
 
-## Future Implementation Procedure
+## Bounded Implementation Procedure
 
-Future implementation work must:
+Bounded native JSON foundation work must:
 
-1. Define concrete package schema or code artifacts in an approved implementation tranche.
+1. Define concrete package schema and builder/writer artifacts inside the DEL-17-03 scope.
 2. Preserve manifest, stable ID map, loss report, validation report, and diagnostics behavior.
-3. Use invented fixtures only.
-4. Keep protected, proprietary, release, compatibility, code-compliance, and professional-acceptance claims out of the package.
-5. Confirm boundary review evidence names excluded claim classes: release, external compatibility, code-compliance, solver-validation, and professional-acceptance claims.
+3. Use invented public fixtures only.
+4. Test deterministic hashes, member inventory, diagnostics, privacy/professional-boundary flags, canonical writer output, and protected/private payload screening.
+5. Keep protected, proprietary, release, compatibility, target-support, code-compliance, solver-validation, professional-reliance, and professional-acceptance claims out of the package.
+6. Leave public API, GUI behavior, persistence runtime, project-store export flow, and downstream target-adapter behavior to separately scoped work.
 
 ## Semantic Enrichment Verification
 
-Pass 3 checked the lensing register against DEL-17-02 manifest, stable-ID, and loss-report requirements. No P3 item authorized code or schema creation in this tranche.
+Pass 3 checked the lensing register against DEL-17-02 manifest, stable-ID, and loss-report requirements. Later TP-EXPORT-006 evidence authorized and produced the bounded schema, builder, fixture, and test foundation now reflected in this procedure.
 
 
 ## Pass 3 Source Reread Evidence
@@ -30,5 +31,5 @@ Pass 3 checked the lensing register against DEL-17-02 manifest, stable-ID, and l
 | Register Item | Source slices reread | Disposition |
 |---|---|---|
 | A-001 | Specification.md Requirements; Datasheet.md Package Members | Incorporated as member-level acceptance criteria in Specification.md. |
-| F-001 | Guidance.md Open Questions | Incorporated as TBD-17-03-004 in Guidance.md. |
-| X-001 | Specification.md Verification Requirements; Procedure.md Future Implementation Procedure | Incorporated as explicit boundary-review verification in Specification.md and Procedure.md. |
+| F-001 | Guidance.md Closed Foundation Questions And Residual Boundaries | Dispositioned by TP-EXPORT-006 foundation evidence; residual integration work remains future-scoped. |
+| X-001 | Specification.md Verification Requirements; Procedure.md Bounded Implementation Procedure | Incorporated as explicit boundary-review verification in Specification.md and Procedure.md. |
