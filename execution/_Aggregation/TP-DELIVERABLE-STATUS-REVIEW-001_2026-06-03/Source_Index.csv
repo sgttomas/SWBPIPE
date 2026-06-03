@@ -1,0 +1,8 @@
+SourceID,Path,Role
+SRC-001,execution/_Decomposition/SOFTWARE_DECOMP.md,Authoritative decomposition scope
+SRC-002,execution/_DAG/DAG-005/,Approved DAG-005 graph authority and derivative queue source
+SRC-003,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,Committed implementation evidence register
+SRC-004,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,DEV-001 lifecycle/evidence/blocker coordination surface
+SRC-005,docs/CONTRACT.md,"Project constraints, no protected IP/private data/code-compliance/professional claim boundaries"
+SRC-006,docs/TYPES.md,Deliverable lifecycle vocabulary and epistemic typing
+SRC-007,execution/PKG-*/1_Working/DEL-*,"Deliverable-local status, memory, dependencies, reviews, run records, four-document kits, semantic/lensing files"
