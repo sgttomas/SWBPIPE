@@ -10,7 +10,7 @@ refs:
   - rel: governed_by
     to: OPS-CONTRIBUTING
   - rel: explains
-    to: OPS-AGENTIC-DEVELOPMENT-WORKFLOW
+    to: OPS-COORDINATION
 ---
 
 # Contributor Onboarding Guide
@@ -18,7 +18,7 @@ refs:
 This guide is a tutorial path through the existing OpenPipeStress governance
 and deliverable workflow. It does not replace `CONTRIBUTING.md`,
 `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, or
-`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`. If this guide conflicts with an
+`execution/_Coordination/_COORDINATION.md`. If this guide conflicts with an
 assigned sealed brief, a governing document, or a human project-authority
 instruction, stop and surface the conflict instead of guessing.
 
@@ -38,7 +38,7 @@ Use this sequence before changing files.
 | 4 | [`docs/CONTRACT.md`](../CONTRACT.md) | Check invariant IDs for IP, data, governance, privacy, and agent behavior. |
 | 5 | [`docs/TYPES.md`](../TYPES.md) | Confirm package, deliverable, status, and professional-boundary vocabulary. |
 | 6 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Confirm public/private data, provenance, and quarantine rules. |
-| 7 | [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](../AGENTIC_DEVELOPMENT_WORKFLOW.md) | Confirm the Type 1/Type 2 workflow, evidence expectations, and review gate. |
+| 7 | [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) | Confirm authority intake, work selection, execution discipline, evidence expectations, and review gates. |
 | 8 | [`execution/_Decomposition/SOFTWARE_DECOMP.md`](../../execution/_Decomposition/SOFTWARE_DECOMP.md) and [`docs/_Registers`](../_Registers/) | Confirm the active package/deliverable identity and scope rows. |
 | 9 | Your assigned sealed brief and deliverable folder | Confirm the exact write scope, acceptance criteria, and verification commands. |
 

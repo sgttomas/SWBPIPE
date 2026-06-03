@@ -2,7 +2,6 @@
   "created": "2026-04-30",
   "root": "docs/",
   "files": [
-    "AGENTIC_DEVELOPMENT_WORKFLOW.md",
     "CONTRACT.md",
     "DIRECTIVE.md",
     "INTENT.md",

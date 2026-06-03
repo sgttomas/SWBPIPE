@@ -29,7 +29,6 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 | `SPEC.md` | Technical specification | Architecture, schemas, solver mechanics, GUI, reports, V&V, and agentic execution mechanics. |
 | `IP_AND_DATA_BOUNDARY.md` | Data/IP policy | Public/private data rules, contributor certification, provenance, and quarantine policy. |
 | `VALIDATION_STRATEGY.md` | Verification and validation | Benchmark and release-quality strategy. |
-| `AGENTIC_DEVELOPMENT_WORKFLOW.md` | Agent workflow | How Type 1/Type 2 agents should consume this package and produce deliverables. |
 | `_Decomposition/SOFTWARE_DECOMP.md` | Working surface | SSOW, objectives, packages, deliverables, scope ledger summary, telemetry, open issues. |
 | `_Registers/ScopeLedger.csv` | Authoritative companion register | Machine-readable scope-to-package/deliverable mapping. |
 | `_Registers/Deliverables.csv` | Authoritative companion register | Machine-readable deliverable catalog. |
@@ -41,7 +40,7 @@ This package is the **v0.2 current downstream decomposition basis** for agentic 
 
 ## How agents should use this package
 
-1. Start from `INIT.md`, then read `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, and `docs/SPEC.md` before writing code.
+1. Start from `INIT.md`, then follow `execution/_Coordination/_COORDINATION.md` for authority intake, work selection, execution discipline, validation, and handoff.
 2. Use `docs/_Decomposition/SOFTWARE_DECOMP.md` as the authoritative working surface for packages and deliverables.
 3. Use `docs/_Registers/*.csv` for machine-checkable mappings.
 4. Treat every deliverable as bounded: no agent may expand scope silently.

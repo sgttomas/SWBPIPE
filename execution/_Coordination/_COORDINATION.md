@@ -14,7 +14,6 @@ Primary pointers:
 - `docs/SPEC.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
-- `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 - `docs/_Registers/*.csv`
 - `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - `execution/_DAG/_LATEST.md`
@@ -67,7 +66,6 @@ Baseline intake for every new session:
 Execution intake when selecting or implementing a deliverable:
 
 - `docs/SPEC.md` for technical architecture and implementation mechanics.
-- `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` for agent execution discipline.
 - Relevant rows from `docs/_Registers/*.csv`; query the rows needed for the
   selected package or deliverable instead of reading every register wholesale.
 - The selected deliverable-local folder, including `_STATUS.md`, `MEMORY.md`,
@@ -177,10 +175,74 @@ lists local lifecycle status and DAG node presence, but it does not approve or
 edit lifecycle states, candidate rows, release claims, professional claims, or
 graph authority.
 
+## Execution Discipline
+
+Roles and authority:
+
+| Role | Function | Authority |
+|---|---|---|
+| Human project authority | Confirms scope, resolves ambiguity, accepts deliverables and gates. | Binding decisions. |
+| Type 1 persona agent | Decomposes, routes, reconciles, prepares briefs, and fans in results. | Draft/proposal authority only. |
+| Type 2 `TASK` agent or bounded worker | Executes one sealed deliverable or explicit tranche slice with bounded context. | Draft/proposal authority only. |
+| Deterministic tools | Validate schemas, tests, hashes, reports, lint rules, and status discovery. | Evidence only. |
+
+Expected deliverable-local kit:
+
+| File | Purpose |
+|---|---|
+| `_STATUS.md` | Lifecycle state and history. |
+| `_CONTEXT.md` | Identity, package, scope items, objectives, and acceptance criteria. |
+| `_REFERENCES.md` | Source documents and design references. |
+| `_DEPENDENCIES.md` | Upstream/downstream dependencies and local dependency evidence. |
+| `Datasheet.md` | Key parameters and structured metadata. |
+| `Specification.md` | Requirements and acceptance criteria. |
+| `Guidance.md` | Rationale, principles, and implementation guidance. |
+| `Procedure.md` | Step-by-step execution procedure and checks. |
+
+Some deliverables also carry `Dependencies.csv`, `Review_Findings.csv`,
+semantic or lensing files, `_run_records/**`, implementation artifacts, tests,
+or generated evidence. Inspect those local files before relying on summaries.
+
+A bounded worker must:
+
+- execute only the assigned `DEL-XX-YY` or explicitly approved tranche slice;
+- not expand scope silently;
+- not introduce protected public data;
+- label unknowns as `TBD`;
+- surface conflicts and missing inputs;
+- produce tests or evidence appropriate to the deliverable type;
+- update only its declared write scope and deliverable-local evidence surface;
+- return a concise run summary with artifacts, evidence, warnings, and open
+  issues;
+- query only the relevant rows from `docs/_Registers/*.csv`;
+- use the active DAG only to discover relationship context, never as a
+  substitute for inspecting local deliverable artifacts;
+- avoid creating project-wide readiness or blocker authority unless the human
+  explicitly requests that derivative package.
+
+Review readiness requires:
+
+- deliverable ID and package match the decomposition;
+- anticipated artifacts exist or deferrals are recorded;
+- tests/lints pass where applicable;
+- no suspected protected data is present;
+- private data paths are respected;
+- assumptions and warnings are visible;
+- cross-deliverable dependencies are recorded;
+- local status, memory, run records, dependency files, and review files are
+  internally consistent or discrepancies are surfaced;
+- no claim exceeds its warrant.
+
 Human approval is required for lifecycle changes, candidate promotion, commits,
 release claims, acceptance records, or any professional/code compliance claim.
 Read-only verification snapshots and derivative gap registers are not release,
 professional, code-compliance, or acceptance claims.
+
+Material changes to scope, package boundaries, IDs, solver behavior, rule-pack
+semantics, lifecycle state, graph authority, candidate-edge status, release
+posture, or data-boundary policy require a decomposition amendment, owning
+workflow update, or explicit human decision as applicable. Do not renumber
+stable IDs unless the human explicitly requests it.
 
 Completion requires accepted implementation evidence for all applicable
 `SOFTWARE_DECOMP` objectives inside the owning deliverable-local evidence
