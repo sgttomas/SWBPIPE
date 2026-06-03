@@ -1,0 +1,9 @@
+SourceID,Path,Role
+SRC-001,execution/_Aggregation/TP-CODE-EVIDENCE-AUDIT-001_2026-06-03/,Prior code-evidence audit snapshot
+SRC-002,execution/_Aggregation/TP-CODE-EVIDENCE-AUDIT-001_2026-06-03/Code_Evidence_Audit_Register.csv,Original CODE_EVIDENCE_PARTIAL findings
+SRC-003,execution/_Aggregation/TP-CODE-EVIDENCE-AUDIT-001_2026-06-03/Commit_Evidence_Register.csv,Original non-resolving commit evidence register
+SRC-004,"User statement in current thread, 2026-06-03",Human acceptance that commit aberrations are caused by migration
+SRC-005,execution/_Aggregation/TP-CODE-EVIDENCE-AUDIT-001_2026-06-03/Source_Traceability_Register.csv,Current source/schema/fixture/test traceability basis
+SRC-006,execution/_Aggregation/TP-CODE-EVIDENCE-AUDIT-001_2026-06-03/Test_Execution_Register.csv,Targeted test PASS evidence
+SRC-007,execution/_Aggregation/TP-CODE-EVIDENCE-AUDIT-001_2026-06-03/Gate_Check_Register.csv,Broad gate PASS evidence
+SRC-008,docs/CONTRACT.md; docs/TYPES.md; docs/IP_AND_DATA_BOUNDARY.md; docs/PROFESSIONAL_BOUNDARY.md,Lifecycle and boundary constraints

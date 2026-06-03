@@ -1,0 +1,21 @@
+SourceID,SourcePath,SourceKind,Use
+SRC-001,execution/_Coordination/_COORDINATION.md,coordination,Integrated Verification and Tranche Selection Loop authority.
+SRC-002,execution/_Coordination/NEXT_INSTANCE_STATE.md,coordination,Current handoff state before closeout update.
+SRC-003,execution/_Decomposition/SOFTWARE_DECOMP.md,decomposition,Revision 0.7 decomposition authority.
+SRC-004,execution/_DAG/_LATEST.md,dag_pointer,DAG-005 active authority pointer.
+SRC-005,execution/_DAG/DAG-005/APPROVAL_RECORD.md,dag_authority,DAG-005 approval boundary and candidate treatment.
+SRC-006,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,coordination_derivative,Current implementation-readiness and lifecycle display rows.
+SRC-007,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,coordination_evidence,Committed implementation evidence basis.
+SRC-008,execution/_Aggregation/TP-CHECKING-TRANSITION-001_2026-06-03/,aggregation_snapshot,Human-approved CHECKING transition basis for the 11 scoped deliverables.
+SRC-009,execution/_Aggregation/TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03/,aggregation_snapshot,Human disposition accepting migration-caused evidence-commit aberrations.
+SRC-010,execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_REVIEW.md,deliverable_review,Existing DEL-02-01 review surface.
+SRC-011,execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_REVIEW.md,deliverable_review,Existing DEL-02-02 review surface.
+SRC-012,execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_REVIEW.md,deliverable_review,Existing DEL-02-03 review surface.
+SRC-013,execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/_REVIEW.md,deliverable_review,Existing DEL-02-04 review surface.
+SRC-014,execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_REVIEW.md,deliverable_review,Existing DEL-02-05 review surface.
+SRC-015,execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/_REVIEW.md,deliverable_review,Existing DEL-06-03 clean review surface.
+SRC-016,execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_REVIEW.md,deliverable_review,Existing DEL-08-04 clean review surface.
+SRC-017,execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/_REVIEW.md,deliverable_review,Existing DEL-08-05 clean review surface.
+SRC-018,execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/_REVIEW.md,deliverable_review,Created DEL-17-01 review surface.
+SRC-019,execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/_REVIEW.md,deliverable_review,Created DEL-17-02 review surface.
+SRC-020,execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/_REVIEW.md,deliverable_review,Created DEL-17-03 review surface.

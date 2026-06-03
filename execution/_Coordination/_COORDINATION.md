@@ -31,14 +31,17 @@ Primary pointers:
 active edge set only. Candidate rows remain non-gating unless a later explicit
 human gate promotes them and the graph is revalidated.
 
-`DAG-005` is oriented toward export-format contract fulfillment from SCA-004.
-The 8 `PKG-00` deliverables remain architecture-basis context, not
-implementation work.
+The DAG is a relationship map, not the freshness surface for deliverable state.
+For any deliverable under consideration, inspect the deliverable-local folder
+before judging readiness or selecting work. The local `_STATUS.md`, `MEMORY.md`,
+`_DEPENDENCIES.md` / `Dependencies.csv`, `_run_records/**`, four-document kit,
+semantic/lensing files, review files when present, and referenced code/tests are
+the expected discovery structure.
 
-`DEV-001` remains the current development path. The blocker queue has been
-recomputed from approved `DAG-005`: 101 unblocked, 0 blocked. TP-EXPORT-CLOSEOUT-001
-refreshed PKG-17 implementation evidence for `DEL-17-07`, `DEL-17-08`, and
-`DEL-17-09`; lifecycle states remain unchanged.
+`DEV-001` remains the current implementation-evidence and blocker-queue
+derivative path. Use it to understand committed evidence and active dependency
+blocking under `DAG-005`, but do not treat the blocker queue as a substitute for
+deliverable-local inspection.
 
 ## State Tracking Rules
 
@@ -56,6 +59,18 @@ Authoritative state:
 4. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
    lifecycle, working memory, and execution evidence inside each deliverable's
    ownership boundary.
+
+Migration reconciliation:
+
+- `TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03` records human
+  acceptance that the non-resolving DEV-001 evidence commits for
+  `DEL-02-01` through `DEL-02-05`, `DEL-06-03`, `DEL-08-04`, `DEL-08-05`, and
+  `DEL-17-01` through `DEL-17-03` are migration artifacts.
+- For those deliverables, do not rediscover the same missing-commit condition
+  as a new blocker. Use current source/test traceability, local deliverable
+  evidence, and the reconciliation snapshot as the replacement evidence basis.
+- This reconciliation does not generalize to other deliverables unless a later
+  human disposition says so.
 
 Handoff state:
 
@@ -108,16 +123,19 @@ tranche.
    including PKG-17 refresh evidence when relevant.
 4. **Gap-to-tranche decision.** Map each observed failure or gap to the owning
    `PackageID`, `DeliverableID`, objective, active `DAG-005` dependency status,
-   and evidence source. Recommend exactly one next bounded tranche with
-   objective, scope, write bounds, validation commands, expected closeout, and
-   any useful `TASK` fan-out. Do not implement until the human approves or
-   redirects the tranche.
+   and evidence source. Prefer local deliverable discovery over global status
+   summaries when deciding what work remains. Recommend exactly one next bounded
+   tranche with objective, scope, write bounds, validation commands, expected
+   closeout, and any useful `TASK` fan-out. Do not implement until the human
+   approves or redirects the tranche.
 5. **Bounded execution.** After approval, dispatch canonical `TASK` workers
    only where the file sets are disjoint and the write scopes are explicit.
    Normally use one deliverable or one clearly owned slice per worker. Any brief
    with `DeliverablePath` uses `TASK` deliverable-local mode and must read
    `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`,
-   `MEMORY.md`, and primary deliverable artifacts before acting.
+   `MEMORY.md`, `Dependencies.csv` when present, `_run_records/**`, review
+   files when present, semantic/lensing files when present, the four-document
+   kit, and primary deliverable artifacts before acting.
 6. **Fan-in and validation.** The parent agent fans in worker results, checks
    for scope drift, runs targeted validation, and reruns broader release
    readiness checks when the tranche affects release surface. Record pass,

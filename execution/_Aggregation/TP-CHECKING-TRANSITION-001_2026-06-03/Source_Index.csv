@@ -1,0 +1,6 @@
+SourceID,Path,Role
+SRC-001,execution/_Aggregation/TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001_2026-06-03/,Accepted code-evidence migration reconciliation basis
+SRC-002,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,Updated DEV-001 lifecycle/evidence/blocker display
+SRC-003,execution/_DAG/DAG-005/DeliverableNodes.csv,Updated DAG-005 deliverable lifecycle display
+SRC-004,execution/PKG-*/1_Working/DEL-*/_STATUS.md and MEMORY.md,Updated deliverable-local lifecycle and memory surfaces
+SRC-005,Current thread human approval: Change status to CHECKING; Proceed,Human lifecycle transition approval

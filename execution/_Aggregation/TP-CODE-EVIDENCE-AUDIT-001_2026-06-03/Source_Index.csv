@@ -1,0 +1,11 @@
+SourceID,Path,Role
+SRC-001,execution/_Aggregation/TP-DELIVERABLE-STATUS-REVIEW-001_2026-06-03/Checking_Recommendation_Register.csv,Input list of 11 CHECKING candidates
+SRC-002,execution/_Coordination/DEV-001_IMPLEMENTATION_EVIDENCE.csv,Claimed committed implementation evidence
+SRC-003,execution/_Coordination/DEV-001_BLOCKER_QUEUE.csv,DEV-001 blocker/lifecycle coordination surface
+SRC-004,docs/_Registers/Deliverables.csv,Deliverable identity and anticipated artifacts
+SRC-005,docs/_Registers/ScopeLedger.csv,Scope item traceability
+SRC-006,schemas/,Current schema implementation evidence
+SRC-007,core/,Current source implementation evidence
+SRC-008,tests/,Current targeted test evidence
+SRC-009,fixtures/,Invented fixture evidence
+SRC-010,docs/CONTRACT.md; docs/TYPES.md; docs/IP_AND_DATA_BOUNDARY.md; docs/PROFESSIONAL_BOUNDARY.md,Boundary and lifecycle constraints

@@ -765,7 +765,7 @@
       "package_id": "PKG-17",
       "name": "CAEPIPE and export-format source basis",
       "type": "DOC_UPDATE",
-      "lifecycle_state": "OPEN",
+      "lifecycle_state": "CHECKING",
       "path": "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis"
     },
     {
@@ -773,7 +773,7 @@
       "package_id": "PKG-17",
       "name": "Export package, profile, and stable ID map contracts",
       "type": "API_CONTRACT",
-      "lifecycle_state": "OPEN",
+      "lifecycle_state": "CHECKING",
       "path": "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts"
     },
     {
@@ -781,7 +781,7 @@
       "package_id": "PKG-17",
       "name": "Native open JSON export package",
       "type": "BACKEND_FEATURE_SLICE",
-      "lifecycle_state": "OPEN",
+      "lifecycle_state": "CHECKING",
       "path": "execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package"
     },
     {

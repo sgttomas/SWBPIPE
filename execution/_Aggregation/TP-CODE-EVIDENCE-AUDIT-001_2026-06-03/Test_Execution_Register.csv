@@ -1,0 +1,17 @@
+PackageID,DeliverableID,Command,Result,Scope,FailureClassification,Notes
+PKG-02,DEL-02-01,python3 tests/test_model_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-02,DEL-02-02,python3 tests/test_units_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-02,DEL-02-03,python3 tests/test_analysis_boundary_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-02,DEL-02-04,python3 tests/test_plugin_manifest_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-02,DEL-02-04,python3 tests/test_adapter_framework_contract.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-02,DEL-02-05,python3 tests/test_persistence_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-02,DEL-02-05,python3 tests/test_project_persistence_service.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-06,DEL-06-03,cargo test --manifest-path core/rules/completeness_checker/Cargo.toml,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-06,DEL-06-03,python3 tests/test_rule_pack_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-08,DEL-08-04,python3 tests/test_results_schema.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-08,DEL-08-04,cargo test --manifest-path core/reporting/result_export/Cargo.toml,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-08,DEL-08-05,python3 tests/test_report_protected_content_linter.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-08,DEL-08-05,cargo test --manifest-path core/reporting/protected_content_linter/Cargo.toml,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-17,DEL-17-01,python3 tests/test_native_json_export_package.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-17,DEL-17-02,python3 tests/test_native_json_export_package.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.
+PKG-17,DEL-17-03,python3 tests/test_native_json_export_package.py,PASS,TARGETED,N/A,Executed by parent and/or subagent; quiet Python tests returned exit code 0 where no stdout was emitted.

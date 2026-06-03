@@ -1,0 +1,64 @@
+PackageID,DeliverableID,ArtifactPath,ArtifactKind,TraceRole,Exists
+PKG-02,DEL-02-01,schemas/model.schema.yaml,schema,current implementation evidence,YES
+PKG-02,DEL-02-01,fixtures/domain/invented_minimal_project_model.json,fixture,supporting evidence,YES
+PKG-02,DEL-02-01,fixtures/domain/invented_physical_source_of_truth_model.json,fixture,supporting evidence,YES
+PKG-02,DEL-02-01,tests/test_model_schema.py,test,supporting evidence,YES
+PKG-02,DEL-02-01,docs/_Registers/Deliverables.csv,doc,supporting evidence,YES
+PKG-02,DEL-02-01,docs/_Registers/ScopeLedger.csv,doc,supporting evidence,YES
+PKG-02,DEL-02-02,schemas/units.schema.yaml,schema,current implementation evidence,YES
+PKG-02,DEL-02-02,core/units/README.md,source,current implementation evidence,YES
+PKG-02,DEL-02-02,fixtures/units/invented_unit_contract_fixture.json,fixture,supporting evidence,YES
+PKG-02,DEL-02-02,tests/test_units_schema.py,test,supporting evidence,YES
+PKG-02,DEL-02-02,docs/_Registers/Deliverables.csv,doc,supporting evidence,YES
+PKG-02,DEL-02-02,docs/_Registers/ScopeLedger.csv,doc,supporting evidence,YES
+PKG-02,DEL-02-03,schemas/analysis_boundary.schema.yaml,schema,current implementation evidence,YES
+PKG-02,DEL-02-03,docs/architecture/code_neutral_analysis_boundary.md,doc,supporting evidence,YES
+PKG-02,DEL-02-03,fixtures/analysis_boundary/invented_mechanics_solved_rule_inputs_incomplete.json,fixture,supporting evidence,YES
+PKG-02,DEL-02-03,tests/test_analysis_boundary_schema.py,test,supporting evidence,YES
+PKG-02,DEL-02-03,docs/_Registers/Deliverables.csv,doc,supporting evidence,YES
+PKG-02,DEL-02-03,docs/_Registers/ScopeLedger.csv,doc,supporting evidence,YES
+PKG-02,DEL-02-04,schemas/plugin_manifest.schema.yaml,schema,current implementation evidence,YES
+PKG-02,DEL-02-04,docs/architecture/extension_domain_contracts.md,doc,supporting evidence,YES
+PKG-02,DEL-02-04,fixtures/plugin_manifest/invented_manifest_no_bypass.json,fixture,supporting evidence,YES
+PKG-02,DEL-02-04,tests/test_plugin_manifest_schema.py,test,supporting evidence,YES
+PKG-02,DEL-02-04,schemas/adapter_framework.schema.yaml,schema,current implementation evidence,YES
+PKG-02,DEL-02-04,core/adapters/framework/adapter_framework.py,source,current implementation evidence,YES
+PKG-02,DEL-02-04,tests/test_adapter_framework_contract.py,test,supporting evidence,YES
+PKG-02,DEL-02-05,schemas/project_persistence.schema.yaml,schema,current implementation evidence,YES
+PKG-02,DEL-02-05,docs/architecture/persistence_contract.md,doc,supporting evidence,YES
+PKG-02,DEL-02-05,core/project_persistence/service.py,source,current implementation evidence,YES
+PKG-02,DEL-02-05,fixtures/persistence/invented_persisted_preview_project.json,fixture,supporting evidence,YES
+PKG-02,DEL-02-05,tests/test_persistence_schema.py,test,supporting evidence,YES
+PKG-02,DEL-02-05,tests/test_project_persistence_service.py,test,supporting evidence,YES
+PKG-06,DEL-06-03,core/rules/completeness_checker/src/lib.rs,source,current implementation evidence,YES
+PKG-06,DEL-06-03,core/rules/completeness_checker/README.md,source,current implementation evidence,YES
+PKG-06,DEL-06-03,schemas/rule_pack.schema.yaml,schema,current implementation evidence,YES
+PKG-06,DEL-06-03,tests/test_rule_pack_schema.py,test,supporting evidence,YES
+PKG-06,DEL-06-03,examples/rule_packs/invented_demo.yaml,fixture,supporting evidence,YES
+PKG-06,DEL-06-03,fixtures/analysis_boundary/invented_mechanics_solved_rule_inputs_incomplete.json,fixture,supporting evidence,YES
+PKG-06,DEL-06-03,docs/SPEC.md,doc,supporting evidence,YES
+PKG-06,DEL-06-03,docs/TYPES.md,doc,supporting evidence,YES
+PKG-08,DEL-08-04,schemas/results.schema.yaml,schema,current implementation evidence,YES
+PKG-08,DEL-08-04,core/reporting/result_export/src/lib.rs,source,current implementation evidence,YES
+PKG-08,DEL-08-04,fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json,fixture,supporting evidence,YES
+PKG-08,DEL-08-04,fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json,fixture,supporting evidence,YES
+PKG-08,DEL-08-04,tests/test_results_schema.py,test,supporting evidence,YES
+PKG-08,DEL-08-04,"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_CONTEXT.md",doc,supporting evidence,YES
+PKG-08,DEL-08-05,schemas/report_protected_content_linter.schema.yaml,schema,current implementation evidence,YES
+PKG-08,DEL-08-05,core/reporting/protected_content_linter/src/lib.rs,source,current implementation evidence,YES
+PKG-08,DEL-08-05,fixtures/report_lint/invented/lint_run_fixture.json,fixture,supporting evidence,YES
+PKG-08,DEL-08-05,fixtures/report_lint/invented/synthetic_risk_template.txt,fixture,supporting evidence,YES
+PKG-08,DEL-08-05,fixtures/report_lint/invented/safe_metadata_template.txt,fixture,supporting evidence,YES
+PKG-08,DEL-08-05,tests/test_report_protected_content_linter.py,test,supporting evidence,YES
+PKG-08,DEL-08-05,"execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/_CONTEXT.md",doc,supporting evidence,YES
+PKG-17,DEL-17-01,execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/Source_Basis_Register.md,doc,supporting evidence,YES
+PKG-17,DEL-17-01,execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/CAEPIPE_Question_Dossier.md,doc,supporting evidence,YES
+PKG-17,DEL-17-01,execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/Specification.md,doc,supporting evidence,YES
+PKG-17,DEL-17-02,"execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/Specification.md",doc,supporting evidence,YES
+PKG-17,DEL-17-02,"execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/Datasheet.md",doc,supporting evidence,YES
+PKG-17,DEL-17-02,tests/test_native_json_export_package.py,test,supporting evidence,YES
+PKG-17,DEL-17-03,schemas/native_json_export.schema.json,schema,current implementation evidence,YES
+PKG-17,DEL-17-03,core/handoff/native_json/package.py,source,current implementation evidence,YES
+PKG-17,DEL-17-03,core/handoff/native_json/__init__.py,source,current implementation evidence,YES
+PKG-17,DEL-17-03,fixtures/native_json/invented/native_json_export_package.json,fixture,supporting evidence,YES
+PKG-17,DEL-17-03,tests/test_native_json_export_package.py,test,supporting evidence,YES
