@@ -25,10 +25,11 @@ Updated by: WORKING_ITEMS
   selection. The current status-discovery helper reports 101 local status files:
   82 `IN_PROGRESS`, 11 `CHECKING`, and 8 tolerated nonstandard
   `SEMANTIC_READY` architecture-basis statuses.
-- `_COORDINATION.md` defines the Local Status And DAG-Guided Development Loop:
-  authority intake, status discovery, candidate selection, deliverable-local
-  context inspection, DAG-guided related context, human approval, bounded
-  execution, fan-in, validation, and handoff.
+- `_COORDINATION.md` defines the Authority Intake Tiers and the Local Status
+  And DAG-Guided Development Loop: baseline intake, execution/review intake,
+  status discovery, candidate selection, deliverable-local context inspection,
+  DAG-guided related context, human approval, bounded execution, fan-in,
+  validation, and handoff.
 - `DAG-005` remains approved active graph authority. Candidate rows are
   non-gating unless later promoted by explicit human gate and graph
   revalidation.
@@ -56,7 +57,8 @@ Updated by: WORKING_ITEMS
 
 1. Read `NEXT_INSTANCE_PROMPT.md`.
 2. Read `_COORDINATION.md` and this `NEXT_INSTANCE_STATE.md`.
-3. Read `SOFTWARE_DECOMP`, `docs/TYPES.md`, and needed `DAG-005` surfaces.
+3. Perform the baseline authority intake defined in `_COORDINATION.md`; add
+   execution or review intake documents according to the selected tranche type.
 4. Run
    `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`.
 5. Review

@@ -9,8 +9,8 @@ Act in the `WORKING_ITEMS` persona for
 
 - Read
   `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/_COORDINATION.md`
-  and follow the active-surface, state-tracking, and Local Status And
-  DAG-Guided Development Loop directions.
+  and follow the active-surface, Authority Intake Tiers, state-tracking, and
+  Local Status And DAG-Guided Development Loop directions.
 - Read
   `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/NEXT_INSTANCE_STATE.md`
   if present, and treat it as compact resume state only. When it summarizes
@@ -33,11 +33,9 @@ Act in the `WORKING_ITEMS` persona for
 1. Enter through the coordination workflow:
    - read this prompt;
    - read `_COORDINATION.md`;
-   - read `NEXT_INSTANCE_STATE.md` if present;
-   - read `execution/_Decomposition/SOFTWARE_DECOMP.md`;
-   - read `docs/TYPES.md` lifecycle-state vocabulary;
-   - read `execution/_DAG/_LATEST.md`, `DAG-005/APPROVAL_RECORD.md`, and the
-     needed `DAG-005` node/edge/wave artifacts;
+   - perform the baseline authority intake defined in `_COORDINATION.md`;
+   - add execution or review intake documents only as required by the selected
+     tranche type;
    - run
      `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`.
 2. Use the Local Status And DAG-Guided Development Loop in `_COORDINATION.md`

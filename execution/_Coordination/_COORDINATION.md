@@ -8,11 +8,15 @@ artifacts, and deliverable-local records as the active state.
 Primary pointers:
 
 - `AGENTS.md`
-- `execution/_Decomposition/SOFTWARE_DECOMP.md`
+- `docs/DIRECTIVE.md`
 - `docs/CONTRACT.md`
-- `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/TYPES.md`
-- `docs/_Registers/Deliverables.csv`
+- `docs/SPEC.md`
+- `docs/IP_AND_DATA_BOUNDARY.md`
+- `docs/VALIDATION_STRATEGY.md`
+- `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
+- `docs/_Registers/*.csv`
+- `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - `execution/_DAG/_LATEST.md`
 - `execution/_DAG/DAG-005/APPROVAL_RECORD.md`
 - `execution/_DAG/DAG-005/DAG_Audit.md`
@@ -36,6 +40,52 @@ deliverable-local folder before judging readiness or selecting work. The local
 `_STATUS.md`, `MEMORY.md`, `_DEPENDENCIES.md` / `Dependencies.csv`,
 `_run_records/**`, four-document kit, semantic/lensing files, review files when
 present, and referenced code/tests are the expected discovery structure.
+
+## Authority Intake Tiers
+
+Use progressive intake. Do not turn every session into a full manual reread of
+the repository, but do ground each session in the governing documents before
+selecting or executing work.
+
+Baseline intake for every new session:
+
+- `docs/DIRECTIVE.md` for founding intent and stop rules.
+- `docs/CONTRACT.md` for invariant authority.
+- `docs/TYPES.md` for lifecycle states, identifiers, artifact vocabulary, and
+  domain terms.
+- `docs/IP_AND_DATA_BOUNDARY.md` for public/private data and protected-content
+  boundaries.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` for the current package and
+  deliverable working surface.
+- `execution/_Coordination/_COORDINATION.md`,
+  `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`, and
+  `execution/_Coordination/NEXT_INSTANCE_STATE.md` when present for current
+  entry protocol and resume state.
+- `execution/_DAG/_LATEST.md`, the current DAG approval record, and the current
+  DAG node/edge registers for approved relationship context.
+
+Execution intake when selecting or implementing a deliverable:
+
+- `docs/SPEC.md` for technical architecture and implementation mechanics.
+- `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` for agent execution discipline.
+- Relevant rows from `docs/_Registers/*.csv`; query the rows needed for the
+  selected package or deliverable instead of reading every register wholesale.
+- The selected deliverable-local folder, including `_STATUS.md`, `MEMORY.md`,
+  `_CONTEXT.md`, `_REFERENCES.md`, dependency files, run records, semantic or
+  lensing files when present, review files when present, the four-document kit,
+  and primary artifacts.
+- DAG-discovered upstream and downstream deliverable-local files as needed for
+  context.
+
+Review, closeout, or release-readiness intake:
+
+- `docs/VALIDATION_STRATEGY.md` for verification and release-quality
+  expectations.
+- Applicable deliverable-local review files, `Review_Findings.csv`, run
+  records, validation evidence, source indexes, and aggregation or
+  reconciliation snapshots.
+- Relevant register rows and active DAG context needed to check closure,
+  dependency satisfaction, and lifecycle-gate boundaries.
 
 ## State Tracking Rules
 
@@ -83,9 +133,10 @@ the selection steps to propose exactly one next bounded tranche.
 
 1. **Authority intake.** Read `NEXT_INSTANCE_PROMPT.md`,
    `NEXT_INSTANCE_STATE.md` when present, this coordination record, and the
-   active surface. `SOFTWARE_DECOMP` defines what must be built and why.
-   `DAG-005` defines approved active relationships. Deliverable-local files
-   define current deliverable state.
+   baseline intake documents above. Add execution or review intake documents
+   according to the tranche type. `SOFTWARE_DECOMP` defines what must be built
+   and why. `DAG-005` defines approved active relationships.
+   Deliverable-local files define current deliverable state.
 2. **Status discovery.** Run
    `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`
    or the same command with `--format csv` when machine-readable output is
