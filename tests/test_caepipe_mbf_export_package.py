@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -194,6 +195,10 @@ def walk_strings(value):
     elif isinstance(value, list):
         for item in value:
             yield from walk_strings(item)
+
+
+def sha256_value(value: str) -> str:
+    return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
 def check_jsonschema_validation():
@@ -421,15 +426,38 @@ def test_privacy_and_authority_boundary_diagnostics_block_public_package():
     assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
-def test_writer_outputs_mbf_and_sidecars(tmp_path):
+def test_writer_outputs_all_manifest_members_with_matching_hashes(tmp_path):
     package = build_from_source()
 
     write_caepipe_mbf_export_package(tmp_path, package)
 
-    assert (tmp_path / "model.mbf").read_text(encoding="ascii") == package["mbf_text"]
-    assert load_json(tmp_path / "manifest.json") == package["manifest"]
-    assert load_json(tmp_path / "stable_id_map.json") == package["stable_id_map"]
-    assert load_json(tmp_path / "loss_report.json") == package["loss_report"]
+    members = package["manifest"]["package_members"]
+    expected_paths = {member["path"] for member in members}
+    written_paths = {str(path.relative_to(tmp_path)) for path in tmp_path.rglob("*") if path.is_file()}
+    assert written_paths == expected_paths
+
+    declared_checksums = package["manifest"]["checksums"]
+    for member in members:
+        role = member["member_role"]
+        path = tmp_path / member["path"]
+        assert path.exists()
+        assert member["hash"] in declared_checksums
+
+        if role == "manifest":
+            assert load_json(path) == package["manifest"]
+            continue
+        if member["content_kind"] == "text/plain":
+            text = path.read_text(encoding="ascii")
+            assert text == package[role]
+            assert member["hash"]["canonicalization"] == "normalized_ascii_lf_text"
+            assert sha256_value(canonical_text(text)) == member["hash"]["value"]
+        else:
+            text = path.read_text(encoding="utf-8")
+            parsed = json.loads(text)
+            assert parsed == package[role]
+            assert text == canonical_json(package[role]) + "\n"
+            assert member["hash"]["canonicalization"] == "JCS_compatible_json_payload_hash"
+            assert sha256_value(canonical_json(parsed)) == member["hash"]["value"]
 
 
 def test_fixture_contains_no_private_or_protected_payload_text():

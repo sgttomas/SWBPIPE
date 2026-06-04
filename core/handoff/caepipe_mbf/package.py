@@ -471,19 +471,24 @@ def canonical_text(value: str) -> str:
 
 
 def write_caepipe_mbf_export_package(directory: str | Path, package: Mapping[str, Any]) -> None:
-    """Write MBF text plus JSON sidecars using deterministic encodings."""
+    """Write manifest-declared MBF package members using deterministic encodings."""
 
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
-    (root / "model.mbf").write_text(str(package["mbf_text"]), encoding="ascii")
-    for key, filename in (
-        ("manifest", "manifest.json"),
-        ("stable_id_map", "stable_id_map.json"),
-        ("loss_report", "loss_report.json"),
-        ("validation_report", "validation_report.json"),
-        ("diagnostics", "diagnostics.json"),
-    ):
-        (root / filename).write_text(canonical_json(package[key]) + "\n", encoding="utf-8")
+    for member in package["manifest"]["package_members"]:
+        role = str(member["member_role"])
+        member_path = Path(str(member["path"]))
+        if member_path.is_absolute() or ".." in member_path.parts:
+            raise ValueError(f"Unsafe CAEPIPE MBF package member path: {member_path}")
+        destination = root / member_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+
+        if role == "mbf_text":
+            destination.write_text(str(package["mbf_text"]), encoding="ascii")
+            continue
+        if role not in package:
+            raise ValueError(f"Unknown CAEPIPE MBF package member role: {role}")
+        destination.write_text(canonical_json(package[role]) + "\n", encoding="utf-8")
 
 
 def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]) -> dict[str, Any]:
