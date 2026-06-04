@@ -122,7 +122,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| F-001 | F:evaluative:necessity | VerificationGap | Specification | Specification | Preserve the human acceptance hook for draft repo-level `CONTRIBUTING.md` and certification-template artifacts. | Current repo-level artifacts exist, but final contributor legal mechanism, license language, reviewer authority, and acceptance remain outside this deliverable-local refresh. | `Specification.md` | Documentation; Acceptance Criteria |  | PROPOSAL: human project authority approves before final governance adoption. | TBD |
+| F-001 | F:evaluative:necessity | VerificationGap | Specification | Specification | Preserve the human acceptance hook for draft repo-level `CONTRIBUTING.md` and certification-template artifacts. | Current repo-level artifacts exist and the project license is selected as `PolyForm-Noncommercial-1.0.0`, but final contributor legal mechanism, legal sufficiency, reviewer authority, and acceptance remain outside this deliverable-local refresh. | `Specification.md` | Documentation; Acceptance Criteria |  | PROPOSAL: human project authority approves before final governance adoption. | Human ruling 2026-06-04: defer contributor legal mechanism, legal sufficiency, reviewer authority, and acceptance until external contribution intake or public release readiness becomes relevant. |
 
 ## Matrix D - Objectives
 

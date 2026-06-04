@@ -76,9 +76,9 @@ Reconciled status:
   with `RUN_STATUS=SUCCESS` and `QA_OUTCOME=PASS_WITH_WARNING`; the warning was
   the legacy ID-format helper rejecting current two-digit project IDs while
   schema and enum checks passed.
-- The final open-source license, contributor legal mechanism, maintainer
-  roster/quorum, legal-review authority, release policy, and concrete
-  quarantine path remain `TBD`.
+- The project license is now selected as `PolyForm-Noncommercial-1.0.0`;
+  contributor legal mechanism, maintainer roster/quorum, legal-review
+  authority, release policy, and concrete quarantine path remain `TBD`.
 - This reconciliation records historical implementation evidence only. It does
   not change product artifacts, dependency registers, candidate edges, or
   release/final acceptance state.
@@ -100,10 +100,10 @@ Reconciled status:
     repo-level evidence.
   - `DEL-01-03-E005` added for the existing draft contributor certification
     template at `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`.
-- Preserved unresolved decisions as `TBD`: final open-source license,
-  contributor legal mechanism such as DCO/CLA/other, reviewer role, maintainer
-  authority, legal-review threshold, release authority, and final governance
-  acceptance.
+- Preserved unresolved decisions as `TBD`: contributor legal mechanism such as
+  DCO/CLA/other, legal sufficiency, reviewer role, maintainer authority,
+  legal-review threshold, release authority, and final governance acceptance.
+  The project license is selected as `PolyForm-Noncommercial-1.0.0`.
 - Boundary preserved: no lifecycle state edit, aggregate DAG edit, candidate
   promotion, repo-level contributor-artifact edit, legal conclusion,
   professional approval, certification, sealing, authentication,
@@ -117,3 +117,45 @@ Reconciled status:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - PKG-01-NONISSUED-GOVERNANCE-REFRESH
+
+- Human approved implementation of the expanded PKG-01 non-issued governance
+  refresh covering `DEL-01-02`, `DEL-01-03`, and `DEL-01-04`; `DEL-01-01`
+  remained out of scope because it is `ISSUED`.
+- Parent WORKING_ITEMS performed the integrated repo-level edit pass rather
+  than parallel TASK writers because governance artifacts overlap across the
+  included deliverables.
+- Updated current-authority and selected-license wording across repo-level
+  governance drafts, including `CONTRIBUTING.md`,
+  `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`,
+  `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, `governance/MAINTAINERS.md`,
+  `docs/IP_AND_DATA_BOUNDARY.md`, `docs/PROFESSIONAL_BOUNDARY.md`, and
+  `docs/report_notice_template.md`.
+- DEL-01-03-specific evidence: contributor workflow and certification surfaces
+  now state that the project license is `PolyForm-Noncommercial-1.0.0` while
+  the final contributor legal mechanism such as DCO, CLA, or other instrument
+  remains `TBD`; source-license and redistribution fields remain contribution
+  evidence, not replacement project-license terms.
+- Boundary preserved: no lifecycle state edit, aggregate DAG edit, candidate
+  promotion, legal conclusion, professional approval, certification, sealing,
+  authentication, code-compliance claim, release claim, maintainer assignment,
+  or public acceptance of contributed data.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-04_PKG-01-NONISSUED-GOVERNANCE-REFRESH.md`.
+
+## 2026-06-04 - CHECKING Transition
+
+- Resolved formal-review finding `DEL-01-03-REV-001` by updating local
+  DEL-01-03 source text to state that the project license is selected as
+  `PolyForm-Noncommercial-1.0.0`.
+- Preserved final contributor legal mechanism, legal sufficiency,
+  maintainer/reviewer authority, and related governance decisions as deferred
+  `TBD` items.
+- Updated `Review_Findings.csv` so `DEL-01-03-REV-001` is `RESOLVED`.
+- Updated `_STATUS.md` from `IN_PROGRESS` to `CHECKING`.
+- Boundary preserved: this is not legal approval, contributor legal mechanism
+  selection, release approval, professional reliance, or code-compliance
+  approval.
+- Run record:
+  `_run_records/TP-PKG01-CHECKING-TRANSITION-DEL-01-03_2026-06-04.md`.

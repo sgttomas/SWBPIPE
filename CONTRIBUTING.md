@@ -28,6 +28,21 @@ This workflow is project governance. It is not legal advice, professional
 engineering approval, certification, sealing, standards-body endorsement, or a
 code-compliance determination.
 
+## Current Authority Basis
+
+This draft contributor workflow is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-006` coordination authority. The project license has been selected as
+`PolyForm-Noncommercial-1.0.0`; this is a project governance notice, not legal
+advice or a contributor legal mechanism.
+
+The final contributor legal mechanism, such as DCO, CLA, or another
+instrument, remains `TBD`. Maintainer roster/quorum, release authority,
+legal-review authority, security contact, release-label vocabulary,
+human-acceptance workflow, and jurisdiction-specific professional-practice
+wording also remain `TBD` until recorded by the human project authority or
+qualified reviewer.
+
 ## 1. Contribution Scope
 
 Contributions may include code, schemas, documentation, tests, examples,
@@ -63,13 +78,14 @@ At minimum, the contributor must record:
 | Contributor identity | Person or organization submitting the contribution. |
 | Changed content | Paths, records, or artifacts covered by the certification. |
 | Source name and location | Origin of the submitted material, or `TBD` if still under review. |
-| Source license / redistribution basis | Public-domain, permissive license, original, invented, private-only, permission record, `unknown`, or `TBD`. |
+| Source license / redistribution basis | Public-domain, permissive license, original, invented, private-only, permission record, `unknown`, or `TBD`; this is separate from the selected project license. |
 | Contributor statement | Statement that the contributor has the right to submit the material for repository review under the project contribution process. |
 | Redistribution status | `public_permissive`, `private_only`, `unknown`, `protected_suspected`, or `rejected`. |
 | Protected-content screen | Confirmation that protected standards/proprietary content was not copied, or an escalation note. |
 | Private-data screen | Confirmation that private project, rule-pack, material, component, owner-standard, and company data are excluded unless intentionally submitted with documented rights. |
 
-The final project-wide mechanism, such as DCO, CLA, or another legal instrument,
+The project license is `PolyForm-Noncommercial-1.0.0`. The final project-wide
+contributor legal mechanism, such as DCO, CLA, or another legal instrument,
 remains `TBD` until the human project authority records a decision.
 
 ## 3. Review Routing

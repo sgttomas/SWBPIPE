@@ -52,7 +52,7 @@ Define contributor attestations, provenance fields, review routing, and rejectio
 - **Decomposition Revision:** execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-06, AB-00-08
 - **Resolved Baseline:** Rust core/application services; Tauri 2 desktop shell where GUI-facing; TypeScript/React/Vite GUI where GUI-facing; Three.js viewport where 3D viewport-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable.
-- **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, concrete adapter/export target behavior, CI provider/coverage thresholds, and final license/contributor legal mechanism/reviewer authority/release governance remain implementation-level decisions unless this deliverable explicitly resolves one under human approval.
+- **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, concrete adapter/export target behavior, CI provider/coverage thresholds, and final contributor legal mechanism/reviewer authority/release governance remain implementation-level decisions unless this deliverable explicitly resolves one under human approval. The project license itself has been selected as `PolyForm-Noncommercial-1.0.0`.
 - **Dispatch Rule:** Future TASK execution must apply only the applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
 
 ## Current-Basis Notes
@@ -61,6 +61,6 @@ Define contributor attestations, provenance fields, review routing, and rejectio
   `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` now exist as draft repo-level
   governance artifacts connected to this deliverable.
 - This context does not authorize lifecycle transition, final contributor legal
-  mechanism selection, license selection, legal conclusion, maintainer or
+  mechanism selection, legal conclusion, maintainer or
   reviewer authority assignment, professional approval, code-compliance claim,
   or public acceptance of any specific contributed data.

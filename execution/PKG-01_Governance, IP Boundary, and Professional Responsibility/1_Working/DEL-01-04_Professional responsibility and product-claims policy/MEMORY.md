@@ -129,3 +129,46 @@ Preserved boundaries:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - PKG-01-NONISSUED-GOVERNANCE-REFRESH
+
+- Human approved implementation of the expanded PKG-01 non-issued governance
+  refresh covering `DEL-01-02`, `DEL-01-03`, and `DEL-01-04`; `DEL-01-01`
+  remained out of scope because it is `ISSUED`.
+- Parent WORKING_ITEMS performed the integrated repo-level edit pass rather
+  than parallel TASK writers because governance artifacts overlap across the
+  included deliverables.
+- Updated current-authority and selected-license wording across repo-level
+  governance drafts, including `docs/PROFESSIONAL_BOUNDARY.md`,
+  `docs/report_notice_template.md`, `governance/MAINTAINERS.md`,
+  `docs/IP_AND_DATA_BOUNDARY.md`,
+  `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, `CONTRIBUTING.md`, and
+  `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`.
+- DEL-01-04-specific evidence: professional-boundary and report-notice drafts
+  now explicitly cover analysis-grade design-engine workflows, stress-model
+  authoring, design-authoring records, comparison outputs, handoff/export
+  metadata, and external-prover references as review aids or workflow evidence
+  only, not professional validation, certification, sealing, authentication,
+  endorsement, or code-compliance evidence.
+- Boundary preserved: no lifecycle state edit, aggregate DAG edit, candidate
+  promotion, legal conclusion, professional approval, certification, sealing,
+  authentication, code-compliance claim, release claim, issued-policy claim, or
+  human-acceptance workflow decision.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-04_PKG-01-NONISSUED-GOVERNANCE-REFRESH.md`.
+
+## 2026-06-04 - CHECKING Transition
+
+- Human project authority ruled that the project is currently solo, has no
+  other contributors, has no imminent real-world use, and should continue
+  application development into testing/validation while deferring final
+  professional/legal/release/human-acceptance workflow judgments.
+- Updated `Review_Findings.csv` so `DEL-01-04-REV-W001` is carried as
+  `DEFERRED_BY_HUMAN_RULING` and `DEL-01-04-REV-W002` is carried as
+  `NO_ACTION_HISTORICAL_ONLY`.
+- Updated `_STATUS.md` from `IN_PROGRESS` to `CHECKING`.
+- Boundary preserved: this is not ISSUED policy, release approval,
+  legal/professional acceptance, professional reliance workflow, or
+  code-compliance approval.
+- Run record:
+  `_run_records/TP-PKG01-CHECKING-TRANSITION-DEL-01-04_2026-06-04.md`.

@@ -16,6 +16,21 @@ This policy keeps the public OpenPipeStress repository aligned with the project 
 
 This policy is a project governance control, not legal advice, professional engineering approval, certification, sealing, standards-body endorsement, or a code-compliance claim. Human/legal review remains required when redistribution rights or protected-content status are uncertain.
 
+## 1.1 Current authority basis
+
+This draft policy is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-006` coordination authority. The project license has been selected as
+`PolyForm-Noncommercial-1.0.0`; contribution-source license and redistribution
+fields still record the source basis for submitted material and do not replace
+the project license notice.
+
+The final contributor legal mechanism, maintainer roster/quorum, release
+authority, legal-review authority, security contact, release-label vocabulary,
+human-acceptance workflow, and jurisdiction-specific professional-practice
+wording remain `TBD` until recorded by the human project authority or qualified
+reviewer.
+
 ## 2. Public repository may contain
 
 - solver algorithms based on open mechanics;

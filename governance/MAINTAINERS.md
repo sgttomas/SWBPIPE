@@ -34,7 +34,11 @@ code-compliance claims, or final governance decisions.
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
 | Maintainer roster | `TBD` |
 | Release authority | `TBD` |
+| Legal-review authority | `TBD` |
 | Security contact | `TBD` |
+| Release-label vocabulary | `TBD` |
+| Human-acceptance workflow | `TBD` |
+| Jurisdiction-specific professional-practice wording | `TBD` |
 | Human project authority record | `TBD` |
 
 No contributor, maintainer, agent, or release note may state a final governance authority until the corresponding `TBD` is resolved by the human project authority. The project license has been selected by human project authority as `PolyForm-Noncommercial-1.0.0`.
@@ -125,6 +129,8 @@ The ADR location and numbering convention remain `TBD`.
 | GOV-TBD-004 | What release signing and artifact-retention process will be used? | `TBD` |
 | GOV-TBD-005 | What security disclosure channel and response process will be used? | `TBD` |
 | GOV-TBD-006 | What public-data sources, if any, are acceptable beyond invented, original, public-domain, or permissively licensed examples? | `TBD` |
+| GOV-TBD-007 | Who has legal-review authority for protected-content, contributor, release, and license questions? | `TBD` |
+| GOV-TBD-008 | What release-label vocabulary and human-acceptance workflow will be used without implying professional approval or code compliance? | `TBD` |
 
 ## 7. Stop Rules
 

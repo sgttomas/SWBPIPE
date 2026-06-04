@@ -131,3 +131,47 @@ Deferred scope:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - PKG-01-NONISSUED-GOVERNANCE-REFRESH
+
+- Human approved implementation of the expanded PKG-01 non-issued governance
+  refresh covering `DEL-01-02`, `DEL-01-03`, and `DEL-01-04`; `DEL-01-01`
+  remained out of scope because it is `ISSUED`.
+- Parent WORKING_ITEMS performed the integrated repo-level edit pass rather
+  than parallel TASK writers because governance artifacts overlap across the
+  included deliverables.
+- Updated current-authority and selected-license wording across repo-level
+  governance drafts, including `docs/IP_AND_DATA_BOUNDARY.md`,
+  `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, `CONTRIBUTING.md`,
+  `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`,
+  `governance/MAINTAINERS.md`, `docs/PROFESSIONAL_BOUNDARY.md`, and
+  `docs/report_notice_template.md`.
+- DEL-01-02-specific evidence: protected-content and public/private data
+  boundary language now explicitly distinguishes source redistribution basis
+  from the selected project license `PolyForm-Noncommercial-1.0.0`, while
+  preserving final contributor legal mechanism, reviewer role, legal-review
+  authority, maintainer roster/quorum, release authority, security contact,
+  release-label vocabulary, human-acceptance workflow, and jurisdiction-specific
+  professional-practice wording as `TBD`.
+- Boundary preserved: no lifecycle state edit, aggregate DAG edit, candidate
+  promotion, legal conclusion, professional approval, certification, sealing,
+  authentication, code-compliance claim, release claim, or public acceptance of
+  contributed data.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-04_PKG-01-NONISSUED-GOVERNANCE-REFRESH.md`.
+
+## 2026-06-04 - CHECKING Transition
+
+- Human project authority ruled that the project is currently solo, has no
+  other contributors, has no imminent real-world use, and should continue
+  application development into testing/validation while deferring contributor
+  legal mechanism, legal-review authority, maintainer/reviewer authority, and
+  related governance assignments.
+- Updated `Review_Findings.csv` so `DEL-01-02-RF-001` is carried as
+  `DEFERRED_BY_HUMAN_RULING`.
+- Updated `_STATUS.md` from `IN_PROGRESS` to `CHECKING`.
+- Boundary preserved: this is not legal approval, public contribution
+  acceptance, release approval, professional reliance, or code-compliance
+  approval.
+- Run record:
+  `_run_records/TP-PKG01-CHECKING-TRANSITION-DEL-01-02_2026-06-04.md`.

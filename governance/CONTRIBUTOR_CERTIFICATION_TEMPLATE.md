@@ -20,6 +20,21 @@ evidence for public OpenPipeStress contributions. It is project governance. It
 is not legal advice, professional engineering approval, certification, sealing,
 standards-body endorsement, or a code-compliance determination.
 
+## Current Authority Basis
+
+This draft template is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-006` coordination authority. The project license has been selected as
+`PolyForm-Noncommercial-1.0.0`; source-license and redistribution fields below
+record the submitted material's basis and do not replace that project license
+notice.
+
+The final contributor legal mechanism remains `TBD`. Maintainer roster/quorum,
+release authority, legal-review authority, security contact, release-label
+vocabulary, human-acceptance workflow, and jurisdiction-specific
+professional-practice wording remain `TBD` until recorded by the human project
+authority or qualified reviewer.
+
 ## 1. Contribution Identity
 
 | Field | Value |
@@ -59,8 +74,9 @@ Contributor statement:
 | Contributor signature / account affirmation | `TBD` |
 | Certification date | `TBD` |
 
-The final project-wide contributor mechanism, such as DCO, CLA, or another
-legal instrument, remains `TBD`.
+The project license is `PolyForm-Noncommercial-1.0.0`. The final project-wide
+contributor mechanism, such as DCO, CLA, or another legal instrument, remains
+`TBD`.
 
 ## 3. Protected-Content Screen
 

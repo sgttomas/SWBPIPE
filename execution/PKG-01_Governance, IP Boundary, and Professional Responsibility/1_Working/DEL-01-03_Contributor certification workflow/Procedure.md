@@ -55,7 +55,7 @@ Define a repeatable local procedure for contributor certification intake, proven
 8. Maintain repo-level workflow evidence.
    - Treat `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` as draft governance surfaces until human acceptance.
    - Edit repo-level contributor artifacts only under an explicitly approved write scope.
-   - Keep exact legal mechanism and license language `TBD` until the human project authority records it.
+   - Carry the selected project license as `PolyForm-Noncommercial-1.0.0`; keep exact contributor legal mechanism, legal sufficiency, and reviewer/release authority `TBD` until the human project authority records them.
 
 ## Verification
 
@@ -64,7 +64,7 @@ Define a repeatable local procedure for contributor certification intake, proven
 | Field completeness | All required provenance and certification fields are present or explicitly `TBD`. |
 | Protected-content stop rule | Suspected protected/private content is not reproduced and is routed to quarantine/human review. |
 | Authority boundary | Records do not claim certification, sealing, legal clearance, code compliance, or professional approval. |
-| License/governance uncertainty | License and maintainer/release authority unresolved items remain `TBD`. |
+| Contributor-governance uncertainty | Contributor legal mechanism, legal sufficiency, and maintainer/release authority unresolved items remain `TBD`; selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
 | Local write scope | This current-basis refresh edits only DEL-01-03 local artifacts; repo-level artifacts are read as evidence unless separately approved for editing. |
 
 ## Records

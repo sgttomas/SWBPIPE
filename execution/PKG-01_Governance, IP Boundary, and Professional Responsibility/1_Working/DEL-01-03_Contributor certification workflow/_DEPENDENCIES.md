@@ -93,5 +93,5 @@
 ## Downstream Handoff Notes
 - `RECONCILIATION` should treat this file as deliverable-local evidence only. It must not promote any normalized aggregate mirror row to aggregate authority without its own review and CHANGE approval.
 - The DEL-01-01 and DEL-01-02 predecessor rows are satisfied for the `SEMANTIC_READY` dependency purpose using current-basis local evidence. This does not imply lifecycle closure for those deliverables.
-- `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist as draft repo-level governance artifacts. Final contributor legal mechanism, license language, reviewer authority, legal-review threshold, and acceptance remain `TBD`.
+- `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist as draft repo-level governance artifacts. The project license is selected as `PolyForm-Noncommercial-1.0.0`; final contributor legal mechanism, legal sufficiency, reviewer authority, legal-review threshold, and acceptance remain `TBD`.
 - This refresh does not edit aggregate `DAG-006`, lifecycle `_STATUS.md`, repo-level contributor artifacts, release records, or professional/legal acceptance records.

@@ -9,7 +9,7 @@ This workflow exists to make public contribution intake auditable before data en
 1. Evidence first: accept public data only when source, provenance, license or redistribution status, contributor certification, and review disposition are recorded.
 2. Stop on protected-content risk: suspected standards text, tables, figures, examples, code-derived formulas, protected dimensional tables, proprietary catalogs, or private project/rule-pack data are blockers, not cleanup tasks.
 3. Human authority remains external: maintainers can review repository governance acceptance, but this workflow does not create legal clearance or professional engineering approval.
-4. `TBD` is safer than invention: unresolved license, legal, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority.
+4. `TBD` is safer than invention: unresolved contributor legal mechanism, legal sufficiency, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority. The project license has already been selected as `PolyForm-Noncommercial-1.0.0`.
 5. Local evidence first: this current-basis refresh reads the existing draft `CONTRIBUTING.md` section and certification template as evidence without editing repo-level policy files.
 
 ## Considerations
@@ -23,7 +23,7 @@ Reviewer notes should distinguish factual evidence from assumptions and proposal
 | Topic | Trade-off | Preferred posture |
 |---|---|---|
 | Contributor friction | More fields slow contribution intake. | Keep fields minimal but mandatory for public data records. |
-| License uncertainty | Fast acceptance may be tempting when data looks useful. | Preserve `TBD` or reject/quarantine until rights are documented. |
+| Source-rights uncertainty | Fast acceptance may be tempting when data looks useful. | Preserve `TBD` or reject/quarantine until rights are documented. |
 | Protected-content detection | Automated checks may miss paraphrased or reformatted protected data. | Use automated gates as evidence aids plus human review. |
 | Maintainer authority | Maintainers need a clear merge gate. | Treat maintainer disposition as repository governance only. |
 
@@ -50,12 +50,12 @@ Limits: Repository governance review only; no engineering approval or legal conc
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| C-001 | Exact open-source license and final contributor legal mechanism are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Human project authority decides before final policy issuance. | TBD |
+| C-001 | Project license is selected as `PolyForm-Noncommercial-1.0.0`, but final contributor legal mechanism and legal sufficiency are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Carry selected project license as fact; defer contributor legal mechanism and legal sufficiency until human/legal review. | Human ruling 2026-06-04: defer until external contribution intake or public release readiness becomes relevant. |
 | C-002 | Legal review threshold and reviewer role for accepting public component/material data remain unresolved. | `governance/MAINTAINERS.md` section 6 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
 
 ## Human Rulings Needed
 
-- Final open-source license and whether a separate contributor license agreement, developer certificate of origin, or project-specific certification text will be used.
+- Whether a separate contributor license agreement, developer certificate of origin, or project-specific certification text will be used, and whether the final contributor instrument is legally sufficient.
 - Maintainer/reviewer authority model, quorum, and release-policy linkage.
 - Quarantine storage location and access rules for suspected protected/private submissions.
 - Whether automated protected-content/provenance lint gates are required before every contribution review or only before release.

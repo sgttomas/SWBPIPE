@@ -20,6 +20,20 @@ This checklist is a project-governance intake record for public repository contr
 
 Use this checklist before accepting contributions that add or modify public data, examples, report templates, benchmark cases, import fixtures, documentation excerpts, rule-pack examples, component/material/library records, or generated artifacts that may expose private or protected content.
 
+## Current Authority Basis
+
+This draft checklist is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-006` coordination authority. The project license has been selected as
+`PolyForm-Noncommercial-1.0.0`; this checklist records contribution-source
+rights and redistribution evidence separately from that project license notice.
+
+The final contributor legal mechanism, maintainer roster/quorum, release
+authority, legal-review authority, security contact, release-label vocabulary,
+human-acceptance workflow, and jurisdiction-specific professional-practice
+wording remain `TBD` until recorded by the human project authority or qualified
+reviewer.
+
 ## 1. Contribution Identity
 
 | Field | Review value |
@@ -31,6 +45,7 @@ Use this checklist before accepting contributions that add or modify public data
 | Related deliverable / issue / PR | `TBD` |
 | Changed paths | `TBD` |
 | Contribution type | `code`, `schema`, `documentation`, `example`, `benchmark`, `data`, `template`, `other` |
+| Project license notice | `PolyForm-Noncommercial-1.0.0` |
 | Contributor certification record | `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` or equivalent |
 | Review date | `TBD` |
 
@@ -52,7 +67,8 @@ Acceptance requires a recorded source, redistribution basis, contributor certifi
 Use `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` for the default
 contributor certification record unless a maintainer-approved form preserves
 the same source, rights, redistribution, protected-content, private-data, and
-review fields. The final project-wide legal mechanism remains `TBD`.
+review fields. The project license is `PolyForm-Noncommercial-1.0.0`; the final
+project-wide contributor legal mechanism remains `TBD`.
 
 ## 3. Protected-Content Screen
 

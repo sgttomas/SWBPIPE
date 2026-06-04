@@ -18,26 +18,43 @@ refs:
 This policy defines the professional-responsibility boundary for
 OpenPipeStress product, report, documentation, release, and agent claims.
 
-OpenPipeStress is decision-support software. It may compute mechanics, evaluate
-user-supplied rule packs, record diagnostics, and assemble auditable reports.
-It does not replace competent professional judgment for a project-specific
-piping calculation.
+OpenPipeStress is decision-support software for transparent piping mechanics,
+analysis-grade design-engine workflows, and stress-model authoring. It may
+compute mechanics, evaluate user-supplied rule packs, record diagnostics,
+support design-authoring and comparison workflows, and assemble auditable
+reports. It does not replace competent professional judgment for a
+project-specific piping calculation.
 
 This policy is project governance. It is not legal advice, professional
 engineering approval, certification, sealing, standards-body endorsement, or a
 code-compliance determination.
 
-## 2. Authority Boundaries
+## 2. Current Authority Basis
+
+This draft policy is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-006` coordination authority. The project license has been selected as
+`PolyForm-Noncommercial-1.0.0`; this is a project governance notice and not
+legal advice, professional approval, or code-compliance evidence.
+
+The final contributor legal mechanism, maintainer roster/quorum, release
+authority, legal-review authority, security contact, release-label vocabulary,
+human-acceptance workflow, and jurisdiction-specific professional-practice
+wording remain `TBD` until recorded by the human project authority or qualified
+reviewer.
+
+## 3. Authority Boundaries
 
 | Surface | What it may state | What it must not state |
 |---|---|---|
 | Solver | Mechanical solve status, numerical results, diagnostics, warnings, and limitations. | That a piping design is professionally approved or code-compliant for reliance. |
 | Rule pack | User-defined check results using recorded user inputs, formulas, and allowables. | That the software has authenticated, sealed, or professionally approved the design. |
 | Report | Inputs, versions, hashes, provenance, warnings, assumptions, results, rule-pack references, limitations, and review notices. | That the report itself certifies, seals, endorses, or approves engineering work. |
+| Design-engine workflow | Model-authoring support, comparison views, handoff packages, export packages, warnings, assumptions, and review aids. | That design-authoring, export, or comparison output is professional acceptance or external solver validation. |
 | Agent output | Drafts, proposals, evidence summaries, checks, and open issues. | That agent output is accepted policy, accepted engineering work, or professional approval without a human gate. |
 | Release notes | Implemented scope, validation evidence, known limitations, data-boundary constraints, and professional-boundary notices. | That a release is suitable for project-specific reliance without competent human review. |
 
-## 3. Permitted Claims
+## 4. Permitted Claims
 
 OpenPipeStress materials may claim supported behavior when the claim is backed
 by implementation, tests, documentation, or recorded evidence. Permitted claims
@@ -47,6 +64,8 @@ include:
 - user-rule check results computed from user-supplied rule-pack definitions and
   user-supplied data;
 - diagnostics, warnings, missing-input findings, assumptions, and limitations;
+- design-authoring, comparison, handoff, and export support when described as
+  review support or workflow evidence rather than professional approval;
 - source, provenance, redistribution, version, checksum, and hash records;
 - validation or regression evidence for software behavior;
 - report generation for competent human review;
@@ -56,7 +75,7 @@ include:
 Claims must be specific to the feature, version, data, and evidence available.
 Unsupported claims remain `TBD`, `ASSUMPTION`, or `PROPOSAL`.
 
-## 4. Prohibited Claims
+## 5. Prohibited Claims
 
 OpenPipeStress software, reports, agents, examples, releases, and public
 documentation must not state or imply that the project:
@@ -69,12 +88,14 @@ documentation must not state or imply that the project:
   material, component, load, SIF, flexibility, allowable, and project data;
 - makes public example data suitable for real project use;
 - turns user-rule pass/fail results into professional approval;
+- treats design-engine, comparison, handoff, export, or external-prover
+  metadata as automatic professional validation;
 - provides legal advice or jurisdiction-specific professional-practice advice.
 
 Prohibited language is unacceptable even when convenient for marketing, release
 notes, generated reports, examples, or UI labels.
 
-## 5. Status Vocabulary
+## 6. Status Vocabulary
 
 Product and report language must preserve these distinctions:
 
@@ -89,7 +110,7 @@ Software must not emit automatic professional-approval or automatic
 code-compliance statuses. Human acceptance records are external governance or
 project records, not solver-generated conclusions.
 
-## 6. Human Acceptance Records
+## 7. Human Acceptance Records
 
 If OpenPipeStress stores or references a human acceptance record, that record
 must:
@@ -105,7 +126,7 @@ must:
 The exact acceptance-record storage workflow remains `TBD` until implemented by
 the relevant persistence, report, and governance deliverables.
 
-## 7. Report Notice Requirements
+## 8. Report Notice Requirements
 
 Generated reports and public report templates must include notices that:
 
@@ -117,13 +138,15 @@ Generated reports and public report templates must include notices that:
 - disclose warnings, assumptions, missing data, provenance notes, versions,
   hashes, and limitations;
 - state that competent human review is required before professional reliance;
+- describe design-authoring, comparison, handoff, export, and external-prover
+  metadata as workflow evidence only, where included;
 - avoid protected standards text, protected tables, proprietary engineering
   values, private project data, and private rule-pack content unless the user
   intentionally includes private material in a private report workflow.
 
 The baseline notice template is `docs/report_notice_template.md`.
 
-## 8. Product-Claim Review Checklist
+## 9. Product-Claim Review Checklist
 
 Before merging public-facing claims, generated notices, report templates,
 examples, release notes, or documentation, maintainers must check:
@@ -139,10 +162,12 @@ examples, release notes, or documentation, maintainers must check:
 
 If a claim is ambiguous, stop and route it to human review before publication.
 
-## 9. Open TBDs
+## 10. Open TBDs
 
 | TBD ID | Item | Owner |
 |---|---|---|
 | PB-TBD-001 | Jurisdiction-specific legal or professional-practice wording, if any. | Qualified human/legal/professional reviewer |
 | PB-TBD-002 | Exact storage and invalidation workflow for human acceptance records. | Future persistence/report/governance deliverables |
 | PB-TBD-003 | Release-label vocabulary and final release policy language. | Human project authority |
+| PB-TBD-004 | Legal-review authority for product-claim and professional-practice wording. | Human project authority |
+| PB-TBD-005 | Final acceptance or revision of this draft policy and report notice template. | Human project authority |

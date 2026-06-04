@@ -18,13 +18,27 @@ reports and public report-template examples. Report generators may format this
 content for the target output, but the professional-boundary meaning must be
 preserved.
 
+## Current Authority Basis
+
+This draft notice template is aligned to
+`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+`DAG-006` coordination authority. The project license has been selected as
+`PolyForm-Noncommercial-1.0.0`; report notices may cite that project license
+notice, but it is not legal advice, professional approval, or code-compliance
+evidence.
+
+Release-label vocabulary, human-acceptance workflow, legal-review authority,
+and jurisdiction-specific professional-practice wording remain `TBD`.
+
 ## Required Notice
 
 ```text
 OpenPipeStress is decision-support software for transparent piping mechanics
-analysis. This report may include mechanical results, diagnostics, warnings,
+analysis, analysis-grade design-engine workflows, and stress-model authoring.
+This report may include mechanical results, diagnostics, warnings,
 assumptions, provenance notes, software versions, model hashes, rule-pack
-references, and user-rule check results.
+references, design-authoring or comparison records, handoff/export metadata,
+and user-rule check results.
 
 Mechanical solve results are not professional engineering approval. User-rule
 check results are computed from user-supplied rule packs and user-supplied
@@ -38,6 +52,10 @@ the specific project use.
 OpenPipeStress does not provide legal advice, standards-body approval,
 professional engineering certification, sealing, endorsement, authentication,
 or project-specific code-compliance approval.
+
+Design-authoring records, comparison outputs, handoff packages, export
+metadata, and external-prover references are review aids only unless a separate
+competent human acceptance record states otherwise for the bound project basis.
 ```
 
 ## Report Metadata Slots
@@ -48,6 +66,7 @@ metadata:
 | Field | Requirement |
 |---|---|
 | Software version | OpenPipeStress version or commit basis used to generate the report. |
+| Project license notice | `PolyForm-Noncommercial-1.0.0` where report packaging includes project governance notices. |
 | Model hash | Hash of the model basis used for the reported results. |
 | Input manifest hash | Hash or reference for the input manifest where implemented. |
 | Rule-pack reference | Rule-pack ID, version, checksum, source note, and public/private marker when rule checks are included. |
@@ -56,6 +75,7 @@ metadata:
 | Warnings and assumptions | All active warnings, missing-input findings, assumptions, and limitations relevant to review. |
 | Provenance notes | Source/provenance/license or private-source notes for user-supplied data where engineering reliance may be affected. |
 | Human acceptance reference | Optional external human-review record, if one exists, bound to the applicable hashes. |
+| Handoff/export references | Optional handoff packages, export package IDs, comparison records, or external-prover metadata, marked as review evidence only. |
 
 ## Optional Human Acceptance Notice
 
@@ -100,3 +120,4 @@ Before publication or release of a report template, verify:
 | Protected content | No protected standards text, tables, examples, copied formulas, or proprietary values appear in public template text. |
 | Private data | Public examples omit private project, owner-standard, material-library, component-library, and rule-pack data. |
 | Claims | The report does not state or imply certification, sealing, endorsement, automatic approval, or code compliance for reliance. |
+| Handoff/export boundary | Handoff, export, comparison, and external-prover references are framed as workflow evidence or review aids only. |
