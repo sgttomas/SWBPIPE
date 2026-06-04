@@ -83,3 +83,19 @@ Deferred boundaries:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-03 - TP-DEL-01-01-REVIEW-EVIDENCE-CONSISTENCY-001
+
+- Human approved a bounded WORKING_ITEMS tranche to align DEL-01-01 review evidence after the current-basis refresh.
+- Updated `Review_Findings.csv` RF-001 and `_REVIEW.md` so the rechecked finding no longer states revision `0.4` as the current basis; active evidence now cites `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `execution/_DAG/DAG-006/`.
+- Preserved `HumanDisposition=TBD`, `Status=RECHECKED_FIXED`, and the non-gating review posture.
+- No lifecycle transition, `_STATUS.md` edit, aggregate DAG edit, repo-level governance edit, release/acceptance record, legal conclusion, professional approval, certification, sealing, authentication, code-compliance, or release-readiness claim was made.
+
+## 2026-06-03 - REVIEW_RUN_DEL-01-01_SELF_CHECK_CHECKING_PROPOSAL
+
+- Human requested a REVIEW pass with a proposal to change lifecycle state to `CHECKING` or not.
+- Current review pass appended to `_REVIEW.md` and snapshot created at `execution/_Reconciliation/Reviews/REV_DEL-01-01_2026-06-03_2327/`.
+- Recommendation: `RECOMMEND_ADVANCE_TO_CHECKING`.
+- Basis: zero CRITICAL findings, zero MAJOR findings, one historical MINOR AGENT_CHECK finding `RF-001` already `RECHECKED_FIXED`, populated checklist, satisfied active dependencies, no protected/private data or professional/code-compliance claim observed, and remaining `TBD`s are expected governance-decision placeholders.
+- Human Gate 5 approval then directed changing status to `CHECKING`; `_STATUS.md` was updated on 2026-06-03.
+- The transition is formal review lifecycle state only. It does not issue the deliverable, resolve governance `TBD`s, approve a release, make a legal conclusion, or create professional approval, certification, sealing, authentication, or code-compliance claims.
