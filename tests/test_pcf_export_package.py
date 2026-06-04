@@ -179,6 +179,16 @@ def test_negative_cases_block_hidden_defaults_and_missing_identity():
     assert package["validation_report"]["validation_status"] == "blocked"
 
 
+def test_profile_source_basis_refs_are_required():
+    payload = source_payload()
+    payload["export_profile"] = {"source_basis_refs": [{"object_type": "Deliverable", "ref": "DEL-17-02"}]}
+
+    package = build_pcf_export_package(**payload)
+
+    assert "PCF-SOURCE-BASIS-REFS-MISSING" in {item["code"] for item in package["diagnostics"]}
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
 def test_no_prohibited_professional_or_external_compatibility_language():
     package = build_from_source()
     text = "\n".join(walk_strings(package)).lower()
@@ -199,5 +209,6 @@ if __name__ == "__main__":
     test_pcf_text_is_byte_stable_ascii_and_sidecar_identity_is_authoritative()
     test_loss_report_covers_required_categories_and_tbd_boundaries()
     test_negative_cases_block_hidden_defaults_and_missing_identity()
+    test_profile_source_basis_refs_are_required()
     test_no_prohibited_professional_or_external_compatibility_language()
     print("PASS: DEL-17-07 PCF export package checks")

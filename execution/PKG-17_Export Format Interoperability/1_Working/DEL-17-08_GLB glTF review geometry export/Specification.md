@@ -48,6 +48,7 @@ This deliverable does not implement a writer, parser, schema, GUI view, fixture 
 | DEL-17-08-REQ-032 | The loss report shall classify each material review-geometry limitation as exported, omitted, approximated, delegated, unsupported, or `TBD`. |
 | DEL-17-08-REQ-033 | Binary GLB or non-JSON package members shall record a hash or explain why a hash is unavailable. |
 | DEL-17-08-REQ-034 | Timestamp or generator metadata shall be declared as deterministic, normalized, omitted, or intentionally runtime-dependent. |
+| DEL-17-08-REQ-035 | The review-geometry profile shall carry DEL-17-01, DEL-17-02, and GLTF-2.0 source-basis references; missing references shall block package acceptance. |
 
 ### Review Geometry Coverage Requirements
 

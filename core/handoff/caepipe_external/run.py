@@ -95,6 +95,8 @@ DEFAULT_PARSER_COVERAGE = [
     },
 ]
 
+REQUIRED_MBF_REF = {"object_type": "CaePipeMbfExportPackage", "ref": "caepipe-mbf:invented-del-17-04"}
+
 
 def build_skipped_caepipe_external_run_package(
     *,
@@ -313,7 +315,8 @@ def diagnostics_for_caepipe_external_run_package(package: Mapping[str, Any]) -> 
                 provenance,
             )
         )
-    if not package.get("mbf_package_ref"):
+    mbf_ref = package.get("mbf_package_ref")
+    if not mbf_ref:
         diagnostics.append(
             _diagnostic(
                 "CAEPIPE-RUN-MBF-REF-MISSING",
@@ -321,6 +324,20 @@ def diagnostics_for_caepipe_external_run_package(package: Mapping[str, Any]) -> 
                 "EXPORT_BLOCKING",
                 "External-run evidence has no DEL-17-04 MBF package reference.",
                 "Bind run evidence to the accepted DEL-17-04 MBF package manifest and sidecars.",
+                [package_ref],
+                provenance,
+            )
+        )
+    elif mbf_ref.get("object_type") != "CaePipeMbfExportPackage" or "del-17-04" not in str(
+        mbf_ref.get("ref", "")
+    ).lower():
+        diagnostics.append(
+            _diagnostic(
+                "CAEPIPE-RUN-MBF-REF-UNSAFE",
+                "blocking",
+                "EXPORT_BLOCKING",
+                "External-run evidence is not bound to a DEL-17-04 CAEPIPE MBF export package reference.",
+                "Bind CAEPIPE external-run evidence to the accepted DEL-17-04 MBF package manifest and sidecars.",
                 [package_ref],
                 provenance,
             )
@@ -336,6 +353,30 @@ def diagnostics_for_caepipe_external_run_package(package: Mapping[str, Any]) -> 
                 "EXECUTION_BOUNDARY_WARNING",
                 "Execution is marked attempted without a present user-owned executable path.",
                 "Do not attempt external execution unless the user supplied a local executable path.",
+                [package_ref],
+                provenance,
+            )
+        )
+    if attempted and not executable.get("license_responsibility_acknowledged"):
+        diagnostics.append(
+            _diagnostic(
+                "CAEPIPE-RUN-LICENSE-RESPONSIBILITY-MISSING",
+                "blocking",
+                "EXECUTION_BOUNDARY_WARNING",
+                "External execution is attempted without an acknowledged user/license responsibility record.",
+                "Require user-owned executable configuration and license responsibility acknowledgement before recording an attempted run.",
+                [package_ref],
+                provenance,
+            )
+        )
+    if attempted and not executable.get("environment_responsibility_acknowledged"):
+        diagnostics.append(
+            _diagnostic(
+                "CAEPIPE-RUN-ENVIRONMENT-RESPONSIBILITY-MISSING",
+                "blocking",
+                "EXECUTION_BOUNDARY_WARNING",
+                "External execution is attempted without an acknowledged user-owned run environment record.",
+                "Require the caller to acknowledge local environment responsibility before recording an attempted run.",
                 [package_ref],
                 provenance,
             )

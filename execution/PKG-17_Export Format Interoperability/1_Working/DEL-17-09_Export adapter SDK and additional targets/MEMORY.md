@@ -30,3 +30,10 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TP-PKG17-SIBLING-GUARDRAIL-HARDENING-001
+
+- Added adapter contract source-basis guardrails for DEL-17-01 and DEL-17-02.
+- Added a stricter admission guardrail requiring target-specific source evidence for any `source_basis_admitted` target beyond package-level contract refs.
+- Added focused regression coverage for contract refs and target-specific admission evidence.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, runtime loader, public endpoint, compatibility claim, release claim, code-compliance claim, solver-validation claim, or professional-acceptance claim.

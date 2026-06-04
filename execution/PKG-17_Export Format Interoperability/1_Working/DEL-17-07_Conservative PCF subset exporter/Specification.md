@@ -26,6 +26,7 @@ This deliverable shall not claim PCF completeness, CAEPIPE compatibility, solver
 | DEL-17-07-REQ-012 | The target version basis shall remain `TBD` until public evidence or human project authority selects a first PCF target profile. |
 | DEL-17-07-REQ-013 | The profile shall classify each candidate entity family as exported, omitted, approximated, delegated, unsupported, or `TBD`. |
 | DEL-17-07-REQ-014 | The initial candidate subset shall be limited to the plan-listed PCF entities and attributes unless later source review narrows or expands it. |
+| DEL-17-07-REQ-015 | The PCF profile shall carry DEL-17-01, DEL-17-02, CAEPIPE-PCF, and PLAN-EXPORT-INTEROP source-basis references; missing references shall block package acceptance. |
 
 ### Writer Requirements
 

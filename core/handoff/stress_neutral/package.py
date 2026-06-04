@@ -23,6 +23,12 @@ from core.handoff.external_prover.authority_boundary import (
 
 
 STRESS_NEUTRAL_EXPORT_VERSION = "0.1.0"
+REQUIRED_SOURCE_BASIS_REFS = {
+    ("Deliverable", "DEL-08-04"),
+    ("Deliverable", "DEL-14-02"),
+    ("Deliverable", "DEL-14-05"),
+    ("Deliverable", "DEL-17-02"),
+}
 
 LOSS_CATEGORIES = {
     "exported",
@@ -329,6 +335,19 @@ def diagnostics_for_stress_neutral_export_package(
                 [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
             )
         )
+    source_basis = _ref_pairs(export_profile.get("source_basis_refs", []))
+    missing_source_basis = sorted(REQUIRED_SOURCE_BASIS_REFS - source_basis)
+    if missing_source_basis:
+        diagnostics.append(
+            _diagnostic(
+                "SN-SOURCE-BASIS-REFS-MISSING",
+                "blocking",
+                "PROVENANCE_WARNING",
+                "Stress-neutral profile omits required result/export/run/comparison source-basis references.",
+                "Carry DEL-08-04, DEL-14-02, DEL-14-05, and DEL-17-02 as source-basis refs.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
     if contains_prohibited_authority_term(export_profile.get("free_metadata", {})):
         diagnostics.append(
             _diagnostic(
@@ -337,7 +356,7 @@ def diagnostics_for_stress_neutral_export_package(
                 "IP_BOUNDARY_WARNING",
                 "Export profile free metadata contains authority wording.",
                 "Remove validation, compatibility, compliance, approval, or professional-reliance wording.",
-                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+                    [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
             )
         )
     for field in (
@@ -408,7 +427,12 @@ def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]
             list(
                 profile.get(
                     "source_basis_refs",
-                    [_ref("Deliverable", "DEL-08-04"), _ref("Deliverable", "DEL-17-02")],
+                    [
+                        _ref("Deliverable", "DEL-08-04"),
+                        _ref("Deliverable", "DEL-14-02"),
+                        _ref("Deliverable", "DEL-14-05"),
+                        _ref("Deliverable", "DEL-17-02"),
+                    ],
                 )
             )
         ),
@@ -593,6 +617,14 @@ def _list(value: Any) -> list[Any]:
     if isinstance(value, list):
         return value
     return [value]
+
+
+def _ref_pairs(refs: Any) -> set[tuple[str, str]]:
+    pairs = set()
+    for item in _list(refs):
+        if isinstance(item, Mapping):
+            pairs.add((str(item.get("object_type", "")), str(item.get("ref", ""))))
+    return pairs
 
 
 def _csv_value(value: Any) -> str:

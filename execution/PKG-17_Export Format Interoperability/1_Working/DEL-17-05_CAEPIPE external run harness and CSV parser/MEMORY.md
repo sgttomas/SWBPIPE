@@ -31,3 +31,10 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TP-PKG17-SIBLING-GUARDRAIL-HARDENING-001
+
+- Added a DEL-17-04 MBF-package binding guardrail for attempted CAEPIPE external-run evidence.
+- Added blocking diagnostics for attempted external execution when license responsibility or user-owned environment responsibility is not acknowledged.
+- Added focused regression coverage for unsafe MBF refs and missing responsibility acknowledgements.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, executable bundling, license-bypass path, compatibility claim, release claim, code-compliance claim, solver-validation claim, or professional-acceptance claim.

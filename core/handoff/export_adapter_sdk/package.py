@@ -20,6 +20,10 @@ from core.handoff.external_prover.authority_boundary import (
 
 
 EXPORT_ADAPTER_SDK_VERSION = "0.1.0"
+REQUIRED_CONTRACT_SOURCE_BASIS_REFS = {
+    ("Deliverable", "DEL-17-01"),
+    ("Deliverable", "DEL-17-02"),
+}
 LOSS_CATEGORIES = {
     "exported",
     "omitted",
@@ -230,6 +234,7 @@ def diagnostics_for_export_adapter_sdk_package(
                 [package_ref],
             )
         )
+    contract_source_basis = _ref_pairs(adapter_contract.get("source_basis_refs", []))
     if not adapter_contract.get("source_basis_refs"):
         diagnostics.append(
             _diagnostic(
@@ -238,6 +243,17 @@ def diagnostics_for_export_adapter_sdk_package(
                 "PROVENANCE_WARNING",
                 "Adapter contract has no source-basis references.",
                 "Carry forward DEL-17-01 and DEL-17-02 or admitted target source-basis refs.",
+                [package_ref],
+            )
+        )
+    elif REQUIRED_CONTRACT_SOURCE_BASIS_REFS - contract_source_basis:
+        diagnostics.append(
+            _diagnostic(
+                "EASDK-CONTRACT-SOURCE-BASIS-INCOMPLETE",
+                "blocking",
+                "PROVENANCE_WARNING",
+                "Adapter contract omits required PKG-17 source-basis references.",
+                "Carry DEL-17-01 and DEL-17-02 as adapter-contract source-basis refs.",
                 [package_ref],
             )
         )
@@ -311,6 +327,19 @@ def diagnostics_for_export_adapter_sdk_package(
                     "PROVENANCE_WARNING",
                     "Admitted target record lacks target version basis.",
                     "Name the source-grounded target version basis or demote the record to pending.",
+                    [target_ref],
+                )
+            )
+        if target.get("admission_state") == "source_basis_admitted" and _ref_pairs(
+            target.get("source_basis_refs", [])
+        ) <= REQUIRED_CONTRACT_SOURCE_BASIS_REFS:
+            diagnostics.append(
+                _diagnostic(
+                    "EASDK-ADMITTED-TARGET-SOURCE-BASIS-INSUFFICIENT",
+                    "blocking",
+                    "PROVENANCE_WARNING",
+                    "Admitted target record has no target-specific source-basis reference beyond package-level contract refs.",
+                    "Keep the target candidate or pending until target-specific source evidence is admitted.",
                     [target_ref],
                 )
             )
@@ -656,6 +685,14 @@ def _ref(object_type: str, value: str) -> dict[str, str]:
 
 def _list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def _ref_pairs(refs: Any) -> set[tuple[str, str]]:
+    pairs = set()
+    for item in _list(refs):
+        if isinstance(item, Mapping):
+            pairs.add((str(item.get("object_type", "")), str(item.get("ref", ""))))
+    return pairs
 
 
 def _stable(items: list[Mapping[str, Any]]) -> list[dict[str, Any]]:

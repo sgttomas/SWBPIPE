@@ -305,6 +305,22 @@ def test_privacy_and_authority_boundary_diagnostics_are_blocking():
     assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
+def test_profile_source_basis_refs_are_required():
+    payload = source_payload()
+    package = build_review_geometry_export_package(
+        export_id="review-geometry:missing-source-basis",
+        source_model_ref=payload["source_model_ref"],
+        source_model_hash=payload["source_model_hash"],
+        geometry_payload=payload["geometry_payload"],
+        stable_id_map=payload["stable_id_map"],
+        loss_report=payload["loss_report"],
+        export_profile={"source_basis_refs": [ref("Document", "GLTF-2.0")]},
+    )
+
+    assert "RG-SOURCE-BASIS-REFS-MISSING" in {item["code"] for item in package["diagnostics"]}
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
 def test_writer_outputs_gltf_and_sidecars(tmp_path):
     package = build_from_source()
 
@@ -340,6 +356,7 @@ def main():
     test_bad_geometry_and_missing_sidecars_are_blocking()
     test_unresolved_node_refs_and_duplicate_ids_are_blocking()
     test_privacy_and_authority_boundary_diagnostics_are_blocking()
+    test_profile_source_basis_refs_are_required()
     test_fixtures_contain_no_private_or_protected_payload_text()
 
 

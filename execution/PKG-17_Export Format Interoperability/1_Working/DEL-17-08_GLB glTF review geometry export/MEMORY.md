@@ -31,3 +31,10 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TP-PKG17-SIBLING-GUARDRAIL-HARDENING-001
+
+- Added review-geometry export-profile source-basis guardrails for DEL-17-01, DEL-17-02, and GLTF-2.0.
+- Added blocking diagnostics when required review-geometry profile source-basis references are absent.
+- Added focused regression coverage for required profile refs.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, solver-geometry claim, analysis-fidelity claim, target compatibility claim, release claim, code-compliance claim, or professional-acceptance claim.

@@ -250,6 +250,43 @@ def test_privacy_and_authority_boundary_diagnostics_are_blocking():
     assert any(item["severity"] == "blocking" for item in package["diagnostics"])
 
 
+def test_attempted_external_run_requires_del_17_04_binding_and_user_acknowledgement():
+    package = build_caepipe_external_run_package(
+        run_id="caepipe-run:unsafe-attempt",
+        package_status="external_run_evidence_recorded",
+        mbf_package_ref=ref("NativeJsonExportPackage", "native-json:invented-del-17-03"),
+        executable_config={
+            "configured_path_state": "present",
+            "path_record": "/user/configured/caepipe",
+            "license_responsibility_acknowledged": False,
+            "environment_responsibility_acknowledged": False,
+        },
+        command_profile={
+            "profile_id": "TBD-17-05-invocation-profile",
+            "invocation_mode": "user_configured_external_process",
+            "command_shape": "user_owned_executable_path_plus_user_workdir",
+            "profile_basis": "TBD-17-05-PH-001",
+        },
+        run_directory={
+            "run_directory_ref": "fixture:unsafe-attempt",
+            "working_directory": "user-owned",
+            "input_mbf_path": "model.mbf",
+            "expected_csv_path": "results.csv",
+            "observed_csv_path": "results.csv",
+            "output_discovery_status": "observed",
+        },
+        execution_result={"attempted": True, "exit_status": 0},
+        parsed_csv=parsed_csv(),
+    )
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert {
+        "CAEPIPE-RUN-MBF-REF-UNSAFE",
+        "CAEPIPE-RUN-LICENSE-RESPONSIBILITY-MISSING",
+        "CAEPIPE-RUN-ENVIRONMENT-RESPONSIBILITY-MISSING",
+    } <= codes
+
+
 def test_writer_outputs_run_metadata_and_sidecars(tmp_path):
     package = parser_only_package()
 
@@ -283,6 +320,7 @@ def main():
     test_parser_only_package_binds_rows_to_sidecar_stable_ids()
     test_parser_records_unknown_sections_and_unmapped_rows_as_warnings()
     test_privacy_and_authority_boundary_diagnostics_are_blocking()
+    test_attempted_external_run_requires_del_17_04_binding_and_user_acknowledgement()
     test_fixtures_contain_no_private_or_protected_payload_text()
 
 

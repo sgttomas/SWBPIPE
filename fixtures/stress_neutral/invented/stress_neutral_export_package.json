@@ -35,6 +35,14 @@
       },
       {
         "object_type": "Deliverable",
+        "ref": "DEL-14-02"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-14-05"
+      },
+      {
+        "object_type": "Deliverable",
         "ref": "DEL-17-02"
       }
     ],

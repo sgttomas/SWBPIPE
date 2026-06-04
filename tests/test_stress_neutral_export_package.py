@@ -259,6 +259,37 @@ def test_privacy_and_authority_boundary_diagnostics_are_blocking():
     assert package["professional_boundary"]["software_creates_professional_reliance_record"] is False
 
 
+def test_source_basis_refs_cover_result_export_run_and_comparison_contracts():
+    package = build_from_source()
+    refs = {
+        (item["object_type"], item["ref"])
+        for item in package["export_profile"]["source_basis_refs"]
+    }
+
+    assert {
+        ("Deliverable", "DEL-08-04"),
+        ("Deliverable", "DEL-14-02"),
+        ("Deliverable", "DEL-14-05"),
+        ("Deliverable", "DEL-17-02"),
+    } <= refs
+
+    payload = source_payload()
+    unsafe = build_stress_neutral_export_package(
+        export_id="stress-neutral:missing-source-basis",
+        source_result_ref=payload["source_result_ref"],
+        source_run_ref=payload["source_run_ref"],
+        source_model_ref=payload["source_model_ref"],
+        source_hashes=payload["source_hashes"],
+        result_rows=payload["result_rows"],
+        stable_id_map=payload["stable_id_map"],
+        loss_report=payload["loss_report"],
+        export_profile={"source_basis_refs": [ref("Deliverable", "DEL-17-02")]},
+    )
+
+    assert "SN-SOURCE-BASIS-REFS-MISSING" in {item["code"] for item in unsafe["diagnostics"]}
+    assert unsafe["validation_report"]["validation_status"] == "blocked"
+
+
 def test_writer_outputs_csv_and_sidecars(tmp_path):
     package = build_from_source()
 
@@ -293,6 +324,7 @@ def main():
     test_csv_and_json_rows_are_synchronized_and_ascii_safe()
     test_missing_units_stable_ids_and_loss_report_are_blocking()
     test_privacy_and_authority_boundary_diagnostics_are_blocking()
+    test_source_basis_refs_cover_result_export_run_and_comparison_contracts()
     test_fixtures_contain_no_private_or_protected_payload_text()
 
 

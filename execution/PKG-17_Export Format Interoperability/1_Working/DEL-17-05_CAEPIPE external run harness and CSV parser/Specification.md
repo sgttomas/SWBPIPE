@@ -34,6 +34,7 @@ This Phase A deliverable shall not implement code, schemas, parser logic, target
 | DEL-17-05-REQ-013 | Public parser fixtures shall be invented, project-owned, public/permissive, or rights-cleared; proprietary CAEPIPE examples, private user projects, and protected standards-derived data shall not be committed. |
 | DEL-17-05-REQ-014 | User-provided CAEPIPE CSV outputs shall default to private/user-controlled handling unless provenance and redistribution rights are documented. |
 | DEL-17-05-REQ-015 | Diagnostics shall preserve unit, coordinate, ID-map, loss-report, and parser-coverage uncertainty instead of silently normalizing or accepting target output. |
+| DEL-17-05-REQ-016 | External-run evidence shall bind to a DEL-17-04 CAEPIPE MBF export package reference, and attempted external execution shall block unless both license responsibility and user-owned environment responsibility are acknowledged. |
 
 ### Required Placeholders for Later Implementation
 

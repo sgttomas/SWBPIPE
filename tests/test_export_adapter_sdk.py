@@ -189,6 +189,25 @@ def test_negative_cases_block_grants_missing_source_basis_and_missing_policies()
     assert package["validation_report"]["validation_status"] == "blocked"
 
 
+def test_contract_and_admitted_target_source_basis_are_guarded():
+    payload = source_payload()
+    payload["adapter_contract"] = {"source_basis_refs": [{"object_type": "Deliverable", "ref": "DEL-17-02"}]}
+    payload["target_registry"] = [deepcopy(payload["target_registry"][0])]
+    payload["target_registry"][0]["admission_state"] = "source_basis_admitted"
+    payload["target_registry"][0]["target_version_basis"] = "invented-target-v1"
+    payload["target_registry"][0]["source_basis_refs"] = [
+        {"object_type": "Deliverable", "ref": "DEL-17-01"},
+        {"object_type": "Deliverable", "ref": "DEL-17-02"},
+    ]
+
+    package = build_export_adapter_sdk_package(**payload)
+    codes = {item["code"] for item in package["diagnostics"]}
+
+    assert "EASDK-CONTRACT-SOURCE-BASIS-INCOMPLETE" in codes
+    assert "EASDK-ADMITTED-TARGET-SOURCE-BASIS-INSUFFICIENT" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
 def test_no_prohibited_professional_or_target_claim_language():
     package = build_from_source()
     text = "\n".join(walk_strings(package)).lower()
@@ -207,5 +226,6 @@ if __name__ == "__main__":
     test_target_registry_records_non_gating_candidate_and_checklist_categories()
     test_runtime_grants_are_denied_by_default()
     test_negative_cases_block_grants_missing_source_basis_and_missing_policies()
+    test_contract_and_admitted_target_source_basis_are_guarded()
     test_no_prohibited_professional_or_target_claim_language()
     print("PASS: DEL-17-09 export adapter SDK checks")

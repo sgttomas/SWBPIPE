@@ -21,6 +21,12 @@ from core.handoff.external_prover.authority_boundary import (
 
 
 PCF_EXPORT_VERSION = "0.1.0"
+REQUIRED_SOURCE_BASIS_REFS = {
+    ("Deliverable", "DEL-17-01"),
+    ("Deliverable", "DEL-17-02"),
+    ("Document", "CAEPIPE-PCF"),
+    ("Document", "PLAN-EXPORT-INTEROP"),
+}
 LOSS_CATEGORIES = {
     "exported",
     "omitted",
@@ -387,6 +393,19 @@ def diagnostics_for_pcf_export_package(
                 [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
             )
         )
+    source_basis = _ref_pairs(export_profile.get("source_basis_refs", []))
+    missing_source_basis = sorted(REQUIRED_SOURCE_BASIS_REFS - source_basis)
+    if missing_source_basis:
+        diagnostics.append(
+            _diagnostic(
+                "PCF-SOURCE-BASIS-REFS-MISSING",
+                "blocking",
+                "PROVENANCE_WARNING",
+                "PCF profile omits required source-basis references.",
+                "Carry DEL-17-01, DEL-17-02, CAEPIPE-PCF, and PLAN-EXPORT-INTEROP as source-basis refs.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
     if contains_prohibited_authority_term(export_profile.get("free_metadata", {})):
         diagnostics.append(
             _diagnostic(
@@ -662,6 +681,14 @@ def _list(value: Any) -> list[Any]:
     if isinstance(value, list):
         return value
     return [value]
+
+
+def _ref_pairs(refs: Any) -> set[tuple[str, str]]:
+    pairs = set()
+    for item in _list(refs):
+        if isinstance(item, Mapping):
+            pairs.add((str(item.get("object_type", "")), str(item.get("ref", ""))))
+    return pairs
 
 
 def _stable(values: list[Any]) -> list[Any]:

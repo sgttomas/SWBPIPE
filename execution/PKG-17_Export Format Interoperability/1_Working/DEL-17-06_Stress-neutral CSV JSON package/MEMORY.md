@@ -31,3 +31,10 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TP-PKG17-SIBLING-GUARDRAIL-HARDENING-001
+
+- Added stress-neutral export-profile source-basis guardrails for DEL-08-04, DEL-14-02, DEL-14-05, and DEL-17-02.
+- Added blocking diagnostics when required source-basis references are absent.
+- Refreshed the invented stress-neutral package fixture to carry the required source-basis refs.
+- Boundary exclusions preserved: no lifecycle promotion, DAG change, vendor-format claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, or professional-reliance claim.
