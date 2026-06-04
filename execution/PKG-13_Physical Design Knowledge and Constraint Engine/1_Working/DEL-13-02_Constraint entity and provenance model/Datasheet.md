@@ -49,7 +49,7 @@ Concrete JSON Schema structure, required properties, `$id`, `$schema`, enum spel
 
 - `_CONTEXT.md` - deliverable identity, scope, artifacts, context envelope, architecture-basis injection.
 - `_REFERENCES.md` - deliverable-local reference index.
-- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-002 mirror/evidence surface for active predecessor context.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.5 package and deliverable basis.
+- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 mirror/evidence surface for active predecessor context.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package and deliverable basis.
 - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, `docs/_Registers/ContextBudgetQA.csv` - machine-readable deliverable, scope, and context rows.
 - `INIT.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md` - governing boundaries for schema, provenance, unit safety, privacy/IP, and professional responsibility.

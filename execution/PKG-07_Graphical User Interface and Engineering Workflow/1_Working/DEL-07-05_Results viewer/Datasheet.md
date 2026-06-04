@@ -12,7 +12,7 @@
 | Scope item | SOW-023 |
 | Objectives | OBJ-006, OBJ-007 |
 | Context envelope | L |
-| Current source basis | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` |
+| Current source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` |
 
 ## Attributes
 
@@ -58,6 +58,6 @@ The viewer setup must preserve these visible boundaries:
 - `docs/SPEC.md` - architecture, GUI, warnings, reporting, acceptance semantics.
 - `docs/TYPES.md` - analysis-status vocabulary and Result/Report object boundary.
 - `docs/DIRECTIVE.md` - product principles, stop rules, and professional boundary.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` - package, objective, and architecture-basis context.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - package, objective, and architecture-basis context.
 - `docs/_Registers/Deliverables.csv` - DEL-07-05 row.
 - `docs/_Registers/ScopeLedger.csv` - SOW-023 row.

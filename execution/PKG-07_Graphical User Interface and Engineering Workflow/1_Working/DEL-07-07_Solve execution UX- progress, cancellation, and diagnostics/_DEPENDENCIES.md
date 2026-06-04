@@ -52,7 +52,7 @@
 - Architecture-basis rows remain context evidence and do not mark `PKG-00` as `ISSUED`.
 
 ## Run History
-- 2026-05-03: synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 12 total rows; 11 ACTIVE and 1 CANDIDATE under legacy mirror semantics.
+- 2026-05-03: synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 12 total rows; 11 ACTIVE and 1 CANDIDATE under legacy mirror semantics.
 - 2026-05-10 22:51 MDT: TP-DAG-004 dependency-extract refresh for DEL-07-07; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; added explicit anchor rows; normalized v3.1 enum fields; validation passed for schema and enum fields; ID-format helper reported regex mismatch with current decomposition ID style.
 - 2026-05-16: DEV-001 Stage 2 technical resolution; added 2 ACTIVE package-local PKG-02 compatibility rows with code/test evidence; no aggregate DAG or human disposition changed.
 

@@ -18,7 +18,7 @@ Out of scope:
 - legal sufficiency, certification, approval, sealing, endorsement, or professional code-compliance claims;
 - real private libraries, real credentials, real private project data, protected standards text, protected tables, proprietary formulas, material allowables, SIF/flexibility tables, or protected dimensional data.
 
-Sources: `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` PKG-12 and row `DEL-12-04`; `docs/PRD.md` sections 17.3, 18.1, and 18.3.
+Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-12 and row `DEL-12-04`; `docs/PRD.md` sections 17.3, 18.1, and 18.3.
 
 ## Requirements
 
@@ -31,7 +31,7 @@ Sources: `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` PKG-12 and row 
 | DEL-12-04-R5 | Export, report, issue/bug-report, and shared-model paths shall warn before exposing private data and shall redact or omit protected/private values by default. | `docs/PRD.md` sections 15.2, 17.3, and 18.3; SOW-040 | Export/redaction tests verify default omission and warning diagnostics. |
 | DEL-12-04-R6 | If protected standards data or proprietary source content is suspected in a private-library import or public contribution path, ingestion/publication shall stop and route to quarantine/human review. | `docs/IP_AND_DATA_BOUNDARY.md` section 5; `docs/DIRECTIVE.md` section 5 | Quarantine-routing tests verify diagnostic emission and no public artifact write. |
 | DEL-12-04-R7 | Plugins and adapters shall be denied private-library, private-rule-pack, filesystem, and network access unless an explicit permission grant exists. | `docs/architecture/plugin_boundary.md` Permission Model Skeleton; `docs/architecture/extension_domain_contracts.md` Denied-By-Default Behavior | Permission tests verify fail-closed access behavior. |
-| DEL-12-04-R8 | Plugins, adapters, imports, exports, and private storage shall not bypass schema validation, unit checks, provenance checks, privacy controls, protected-content screening, diagnostics, checksums, or report controls. | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-06, AB-00-07; `docs/architecture/extension_domain_contracts.md` No-Bypass Rules | Boundary tests verify routed control checks and diagnostics. |
+| DEL-12-04-R8 | Plugins, adapters, imports, exports, and private storage shall not bypass schema validation, unit checks, provenance checks, privacy controls, protected-content screening, diagnostics, checksums, or report controls. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-06, AB-00-07; `docs/architecture/extension_domain_contracts.md` No-Bypass Rules | Boundary tests verify routed control checks and diagnostics. |
 | DEL-12-04-R9 | Reports and exported result payloads may identify private rule packs or libraries by name/version/checksum/source note without exposing protected formulas, private values, or proprietary source content in public templates. | `docs/PRD.md` sections 15.2 and 17.3; `docs/architecture/plugin_boundary.md` Checksums and Provenance | Report/export tests inspect metadata-only references and protected-content omission. |
 | DEL-12-04-R10 | Missing provenance, unknown redistribution status, or uncertain privacy classification shall be surfaced as explicit diagnostics or findings, not silent defaults. | OPS-K-DATA-2/3; `docs/PRD.md` section 13.5; `docs/SPEC.md` section 7 | Validation tests verify `PROVENANCE_WARNING` or `IP_BOUNDARY_WARNING` class behavior. |
 
@@ -43,7 +43,7 @@ No protected standards text, tables, figures, or proprietary values are needed t
 - `docs/DIRECTIVE.md` non-negotiable product principles and stop rules.
 - `docs/IP_AND_DATA_BOUNDARY.md` public/private data and quarantine policy.
 - `docs/PRD.md` sections 12, 13, 15, 17, and 18.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 architecture basis AB-00-01/02/03/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 architecture basis AB-00-01/02/03/04/06/07/08.
 
 ## Verification
 

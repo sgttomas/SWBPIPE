@@ -95,3 +95,10 @@ Durable context preserved after reconciliation review:
 - Package audit summary is `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/_audit/PKG02_DOWNSTREAM_REVIEW_2026-05-16.md`; package run record is `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/_run_records/TASK_RUN_2026-05-16_pkg08_pkg02_downstream_audit.md`.
 - This was audit evidence only. It did not change lifecycle state, authorize release, or make a professional, certification, sealing, approval, or code-compliance claim.
 - The May 16 package-worker TASK run record did not fully preserve canonical per-deliverable TASK documentation context; this addendum preserves the durable deliverable-local pointer without modifying the completed run record.
+
+## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
+
+- WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-08-03`.
+- Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
+- Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
+- Preserved historical references remain evidence of earlier work, not current authority claims.

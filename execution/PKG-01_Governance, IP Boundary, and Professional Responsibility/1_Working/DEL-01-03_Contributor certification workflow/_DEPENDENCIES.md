@@ -3,7 +3,7 @@
 ## Generated Dependency Register
 - **Status:** CURRENT_BASIS_REFRESHED_BY_WORKING_ITEMS
 - **Source of Truth:** Deliverable-local evidence refresh; aggregate DAG artifacts remain outside this refresh authority.
-- **Previous Mirror Source:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Previous Mirror Source:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Approved Graph Context:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 15 total; 15 ACTIVE; 0 RETIRED.
@@ -64,7 +64,7 @@
 - **EXECUTION_DOC_ORDER:** `Procedure.md`, `Specification.md`, `Guidance.md`, `_CONTEXT.md`.
 - **Defaults Applied:** conservative refresh; no inferred protected standards content; unresolved legal/governance decisions preserved as `TBD`; draft repo-level handoff artifacts recorded as present without final acceptance.
 - **Enum Normalization:** Existing synchronized DAG rows contained values outside the v3.1 enum sets. They were normalized locally: `AnchorType=DELIVERABLE` to `NOT_APPLICABLE`, architecture/governance dependency subtypes to `OTHER`, `INFERRED_DIRECT` to `IMPLICIT`, `UNKNOWN` satisfaction to `TBD`, and non-v3.1 origins to `DECLARED`. Original values remain in row notes.
-- **Warnings:** Historical run records still preserve the old `docs/_Decomposition/SOFTWARE_DECOMP.md` and revision `0.4`/`0.5` references as history. Active local source documents now cite `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `DAG-006`.
+- **Warnings:** Historical run records still preserve the old `execution/_Decomposition/SOFTWARE_DECOMP.md` and revision `0.4`/`0.5` references as history. Active local source documents now cite `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `DAG-006`.
 - **Warnings:** `tools/validation/validate_id_format.sh` rejects project IDs such as `DEL-01-03` because it expects `^DEL-[0-9]{3}-[0-9]{2}$`. Project IDs were instead checked against the assigned decomposition and preserved unchanged.
 - **Warnings:** No `[WARNING] FLOATING_NODE`; exactly one ACTIVE `IMPLEMENTS_NODE` anchor is present.
 - **Warnings:** No `[WARNING] AMBIGUOUS_ANCHOR`; only one ACTIVE parent anchor is present.
@@ -74,8 +74,8 @@
 ## Run History
 | Timestamp | Mode | Strictness | Decomposition | Warnings | ACTIVE Counts |
 |---|---|---|---|---|---|
-| 2026-05-03 | DAG mirror sync | n/a | `execution/_DAG/DAG-002/DependencyEdges.csv` | Aggregate authority boundary applies. | 6 execution; 0 anchor |
-| 2026-05-10 21:40 America/Edmonton | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 | Stale local source reference to decomposition revision 0.4; normalized legacy/non-v3.1 enum values; ID-format helper regex mismatch with project IDs. | 10 execution; 4 anchor |
+| 2026-05-03 | DAG mirror sync | n/a | `execution/_DAG/DAG-006/DependencyEdges.csv` | Aggregate authority boundary applies. | 6 execution; 0 anchor |
+| 2026-05-10 21:40 America/Edmonton | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Stale local source reference to decomposition revision 0.4; normalized legacy/non-v3.1 enum values; ID-format helper regex mismatch with project IDs. | 10 execution; 4 anchor |
 | 2026-06-04 | CURRENT_BASIS_REFRESH | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Active local docs aligned to `DAG-006`; historical row IDs preserved; no aggregate DAG or lifecycle edit. | 11 execution; 4 anchor |
 
 ## Lifecycle Summary

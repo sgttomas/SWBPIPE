@@ -9,7 +9,7 @@ Define the setup procedure for producing and later using analysis status semanti
 | Prerequisite | Source |
 |---|---|
 | Sealed DEL-05-04 context with write scope limited to this deliverable folder. | `_CONTEXT.md`; OPS-K-AGENT-3 |
-| Decomposition revision 0.4 and register rows for DEL-05-04, SOW-047, OBJ-005, and OBJ-011. | `docs/_Decomposition/SOFTWARE_DECOMP.md`; registers |
+| Decomposition revision 0.7 and register rows for DEL-05-04, SOW-047, OBJ-005, and OBJ-011. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; registers |
 | Applicable architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08. | `_CONTEXT.md` Architecture Basis Injection |
 | Invariant catalog slices for authority, mechanics/rule separation, missing data, reports, and agent boundaries. | `docs/CONTRACT.md` |
 | Analysis status vocabulary and architecture note. | `docs/TYPES.md`; `docs/architecture/analysis_status_semantics.md` |

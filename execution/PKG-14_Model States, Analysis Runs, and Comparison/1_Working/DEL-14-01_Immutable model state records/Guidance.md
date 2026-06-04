@@ -19,7 +19,7 @@ Sources: `_CONTEXT.md`; OBJ-016 and PKG-14 in `execution/_Decomposition/SOFTWARE
 
 The accepted architecture basis makes this deliverable schema-first and hash-aware, but it does not yet select exact dependency versions, physical project package/container details, or package-specific implementation choices (`_CONTEXT.md`, Architecture Basis Injection). Those choices should remain explicit implementation `TBD`s until a later authorized task resolves them.
 
-The local DAG-002 mirror identifies several upstream evidence surfaces: architecture-basis deliverables, canonical model schema, project persistence/serialization, audit manifest/model hash, and analysis-status vocabulary. These rows are coordination evidence only; they do not dispatch implementation work or authorize lifecycle promotion (`Dependencies.csv`; `execution/_DAG/DAG-002/APPROVAL_RECORD.md`).
+The local DAG-002 mirror identifies several upstream evidence surfaces: architecture-basis deliverables, canonical model schema, project persistence/serialization, audit manifest/model hash, and analysis-status vocabulary. These rows are coordination evidence only; they do not dispatch implementation work or authorize lifecycle promotion (`Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`).
 
 The model state should not borrow formal prover-status language. SOW-071 and the context budget note both state that model states are flexible metadata records, not formal prover approval states.
 

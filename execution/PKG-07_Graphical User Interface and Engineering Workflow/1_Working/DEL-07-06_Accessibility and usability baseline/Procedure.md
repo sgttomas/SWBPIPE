@@ -37,7 +37,7 @@ Define the setup procedure for producing and later using the accessibility and u
 | Professional boundary | No output claims certification, code compliance, sealing, approval, or professional reliance. |
 | Dependency register | `Dependencies.csv` validates against v3.1 schema. |
 
-Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items X-001 and X-002 were checked against `docs/SPEC.md` section 7, `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06, `docs/IP_AND_DATA_BOUNDARY.md` section 3, and this procedure's verification table before this enrichment.
+Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items X-001 and X-002 were checked against `docs/SPEC.md` section 7, `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06, `docs/IP_AND_DATA_BOUNDARY.md` section 3, and this procedure's verification table before this enrichment.
 
 ## Records
 

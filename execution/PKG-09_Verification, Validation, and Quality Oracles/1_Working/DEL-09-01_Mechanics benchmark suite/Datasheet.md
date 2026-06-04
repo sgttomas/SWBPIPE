@@ -8,7 +8,7 @@
 | Package ID | PKG-09 |
 | Package | Verification, Validation, and Quality Oracles |
 | Deliverable type | TEST_SUITE |
-| Decomposition basis | `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 |
+| Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
 | Scope items | SOW-026 |
 | Objectives | OBJ-008 |
 | Context envelope | M |
@@ -49,7 +49,7 @@ The future mechanics benchmark suite must stay aligned with the architecture-bas
 
 - `_CONTEXT.md` for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
 - `_REFERENCES.md` for governing local references.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, rows for PKG-09, DEL-09-01, SOW-026, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-09, DEL-09-01, SOW-026, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
 - `docs/_Registers/Deliverables.csv` row DEL-09-01.
 - `docs/_Registers/ScopeLedger.csv` row SOW-026.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-09-01.

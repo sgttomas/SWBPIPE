@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_FROM_DEPENDENCY_EXTRACT
-- **Prior source mirror:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Prior source mirror:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 11 total; 11 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10

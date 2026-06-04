@@ -25,7 +25,7 @@ Sources: `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-AGENT-1, OPS-K-AGE
 - The decomposition records open issue `OI-012`, which explicitly says physical model schema boundaries, operation granularity, and transformation loss classes require technical architecture detail before implementation briefs are sealed.
 - Agent operation autonomy remains TBD under `OI-016`; the default SCA-002 scope requires user acceptance and audit trail for proposed changes.
 - JSON Schema 2020-12 is an accepted baseline, but code-generation tooling and exact schema file layout remain implementation-level TBD.
-- The local `Dependencies.csv` rows show upstream architecture, domain model, design knowledge, persistence, and professional-boundary predecessors. They are an approved DAG-002 mirror/evidence surface, not independent authority to rewrite dependency semantics.
+- The local `Dependencies.csv` rows show upstream architecture, domain model, design knowledge, persistence, and professional-boundary predecessors. They are an approved DAG-006 mirror/evidence surface, not independent authority to rewrite dependency semantics.
 
 ## Trade-offs
 

@@ -30,8 +30,8 @@ package_id: PKG-10
 |---|---|---|
 | Boundary purpose | Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` row DEL-10-01 |
 | Public API capability families | Model creation/import/export, load-case definition, solve execution, result extraction, rule-pack evaluation, report generation, and validation-test execution. | `docs/PRD.md` section 19.3 |
-| Contract baseline | Schema-first command/query/job/result envelopes; JSON Schema 2020-12 public schema/interchange basis. | `_CONTEXT.md` Architecture Basis Injection; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-| Adapter/plugin baseline | Deny-bypass boundary: adapters/plugins may translate or extend, but cannot bypass units, provenance, diagnostics, rule sandboxing, public/private data controls, or report controls. | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-07; `docs/SPEC.md` section 1 |
+| Contract baseline | Schema-first command/query/job/result envelopes; JSON Schema 2020-12 public schema/interchange basis. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+| Adapter/plugin baseline | Deny-bypass boundary: adapters/plugins may translate or extend, but cannot bypass units, provenance, diagnostics, rule sandboxing, public/private data controls, or report controls. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-07; `docs/SPEC.md` section 1 |
 | Professional boundary | API results can expose mechanics status and user-rule-check status, but not software-declared code compliance or professional approval. | `docs/TYPES.md` sections 4 and 6; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 | Protected-data boundary | Public API/plugin contracts must not bundle protected standards text, tables, code-derived formulas, allowables, SIF/flexibility tables, proprietary catalogs, or private project/rule data. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-3 |
 
@@ -64,5 +64,5 @@ This deliverable records a contract boundary, not an implementation. The boundar
 - `_CONTEXT.md` for sealed deliverable identity, scope, objective, write scope, and SCA-001 architecture-basis injection.
 - `docs/CONTRACT.md` for applicable invariants: OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-PRIV-1/2, OPS-K-AUTH-1, and OPS-K-AGENT-1..4.
 - `docs/SPEC.md` sections 1, 6, 7, 8, 10, and 11 for layer responsibilities, adapter no-bypass language, rule-pack sandboxing, diagnostics/reporting, and deliverable acceptance semantics.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.
 - `docs/PRD.md` sections 13.4, 13.5, 18.2, 18.3, and 19.3 for public/private data, import warnings, telemetry/private-data protection, and public API capability families.

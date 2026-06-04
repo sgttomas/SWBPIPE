@@ -2,8 +2,8 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_TP_DAG_004_LOCAL_SURFACE
-- **Approved graph authority used:** `execution/_DAG/DAG-002/DependencyEdges.csv`
-- **Unapproved graph treatment:** `execution/_DAG/DAG-003/` was not used as authority and was not approved or promoted.
+- **Approved graph authority used:** `execution/_DAG/DAG-006/DependencyEdges.csv`
+- **Unapproved graph treatment:** `execution/_DAG/DAG-006/` was not used as authority and was not approved or promoted.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 16 total; 16 ACTIVE; 0 RETIRED.
 - **Generated/Refreshed:** 2026-05-11
@@ -38,12 +38,12 @@
 ## Run Notes
 - Defaults applied: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=Datasheet.md`, `EXECUTION_DOC_ORDER=_CONTEXT.md, Specification.md, Procedure.md, Datasheet.md, Guidance.md, _REFERENCES.md`.
 - Mode: `UPDATE`; strictness: `CONSERVATIVE`; consumer context: `RECONCILIATION`.
-- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority path: `execution/_DAG/DAG-002/`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority path: `execution/_DAG/DAG-006/`.
 - Existing `DAG-002` mirror rows were preserved where still supported by local evidence. `AnchorType`, `DependencyType`, `Explicitness`, `Origin`, and `SatisfactionStatus` were normalized to values accepted by the local enum validator.
 - Added four source-backed anchor rows for parent package, scope items, and objective support.
 - No source-backed active cycles or bidirectional local execution edges were introduced.
 - `[INFO] DAG_AUTHORITY_BOUNDARY`: `DAG-003` remains preliminary and was not used for approval or promotion.
-- `[INFO] DOWNSTREAM_CONSUMERS_NOT_LOCALIZED`: approved `DAG-002` records `DEL-16-04` and `DEL-07-08` as consumers of `DEL-16-03`; these were left for graph reconciliation rather than represented as local ACTIVE rows.
+- `[INFO] DOWNSTREAM_CONSUMERS_NOT_LOCALIZED`: approved `DAG-006` records `DEL-16-04` and `DEL-07-08` as consumers of `DEL-16-03`; these were left for graph reconciliation rather than represented as local ACTIVE rows.
 - Unresolved implementation details remain `TBD`: exact audit-log schema, persistence container, actor identity model, timestamp precision, autonomy policy beyond default user acceptance, and retention policy.
 
 ## Lifecycle Summary
@@ -69,5 +69,5 @@
 - Do not infer professional approval, code compliance, sealing, hidden mutation, or autonomous acceptance from the audit-trail dependency surface.
 
 ## Run History
-- 2026-05-03: Synchronized from approved `DAG-002` mirror; 12 ACTIVE execution rows; 0 local anchor rows.
-- 2026-05-11: TP-DAG-004 dependency surface refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; graph authority `execution/_DAG/DAG-002/`; 16 ACTIVE rows (4 ANCHOR, 12 EXECUTION); warnings/blockers: none blocking; notes: `DAG-003` not promoted, downstream consumers left to reconciliation.
+- 2026-05-03: Synchronized from approved `DAG-006` mirror; 12 ACTIVE execution rows; 0 local anchor rows.
+- 2026-05-11: TP-DAG-004 dependency surface refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; graph authority `execution/_DAG/DAG-006/`; 16 ACTIVE rows (4 ANCHOR, 12 EXECUTION); warnings/blockers: none blocking; notes: `DAG-003` not promoted, downstream consumers left to reconciliation.

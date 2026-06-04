@@ -19,9 +19,9 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#DEL-14-05`;
 
 ## Considerations
 
-- The comparison mapping contract depends on upstream model-state and analysis-run identity surfaces. The local approved DAG-002 mirror records upstream dependencies on DEL-14-01 and DEL-14-02.
-- Unit-aware tolerance behavior depends on the unit-system contract. The local approved DAG-002 mirror records an upstream dependency on DEL-02-02.
-- Export semantics should remain compatible with result export envelopes. The local approved DAG-002 mirror records an upstream dependency on DEL-08-04.
+- The comparison mapping contract depends on upstream model-state and analysis-run identity surfaces. The local approved DAG-006 mirror records upstream dependencies on DEL-14-01 and DEL-14-02.
+- Unit-aware tolerance behavior depends on the unit-system contract. The local approved DAG-006 mirror records an upstream dependency on DEL-02-02.
+- Export semantics should remain compatible with result export envelopes. The local approved DAG-006 mirror records an upstream dependency on DEL-08-04.
 - Architecture basis rows in the local mirror are context evidence, not independent Type 2 dispatch authority.
 - The accessible sources do not define exact mapping enums, unmatched classification values, tolerance formulas, tolerance default values, CSV columns, JSON property names, or report-section layout. These remain `TBD`.
 

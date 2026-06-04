@@ -53,8 +53,8 @@
 
 - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and anticipated artifacts.
 - `_REFERENCES.md` - source list for this deliverable.
-- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-002 mirror/evidence surface for upstream workflow context.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.5 package, scope, objective, decision, and open-issue context.
+- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 mirror/evidence surface for upstream workflow context.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, scope, objective, decision, and open-issue context.
 - `docs/CONTRACT.md` - invariant catalog.
 - `docs/SPEC.md` - schema-first, unit-aware, provenance, diagnostics, and handoff-related architecture context.
 - `docs/TYPES.md` - canonical object and boundary vocabulary.

@@ -15,7 +15,7 @@
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 - `DEL-10-03`, `SOW-031`, `SOW-049`, `OBJ-009`, and sealed architecture-basis references.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - `DEL-10-03`, `SOW-031`, `SOW-049`, `OBJ-009`, and sealed architecture-basis references.
 - `docs/_Registers/Deliverables.csv` row `DEL-10-03`.
 - `docs/_Registers/ScopeLedger.csv` rows `SOW-031` and `SOW-049`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-10-03`.

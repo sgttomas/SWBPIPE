@@ -57,4 +57,4 @@ Pass 3 reviewed `_SEMANTIC_LENSING.md` and incorporated the warranted setup impr
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| OI-006 | Expression grammar/library is required before implementation but remains unresolved. | `docs/_Decomposition/SOFTWARE_DECOMP.md` open issue OI-006 | `docs/SPEC.md` section 6 requires sandboxed unit-aware evaluator | `Specification.md#Open-Decisions`; `Procedure.md#Prerequisites` | Future human architecture decision should seal grammar/library before implementation. | TBD |
+| OI-006 | Expression grammar/library is required before implementation but remains unresolved. | `execution/_Decomposition/SOFTWARE_DECOMP.md` open issue OI-006 | `docs/SPEC.md` section 6 requires sandboxed unit-aware evaluator | `Specification.md#Open-Decisions`; `Procedure.md#Prerequisites` | Future human architecture decision should seal grammar/library before implementation. | TBD |

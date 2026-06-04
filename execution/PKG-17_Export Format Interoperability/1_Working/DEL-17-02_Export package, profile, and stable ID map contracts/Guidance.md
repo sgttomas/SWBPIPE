@@ -18,7 +18,7 @@ An export profile should be the only place where target-specific export assumpti
 
 Profile authors should prefer narrow, source-confirmed profiles over broad profiles with unproven target behavior. If a target behavior is plausible but not yet sourced, mark it `TBD` and include the affected downstream deliverables.
 
-Use `DEL-17-01 Source_Basis_Register.md` as the upstream authority for admitted source IDs. For non-trivial target statements, cite one or more of `CAEPIPE-IMPORT-MBF`, `CAEPIPE-EXPORT-DATA`, `CAEPIPE-EXPORT-MBF`, `CAEPIPE-BATCH`, `CAEPIPE-PCF`, `GLTF-2.0`, or a project reference such as `CONTRACT`, `IP-DATA`, `SPEC`, `TYPES`, and `DAG-005`. If only `PLAN-EXPORT-INTEROP` supports the planning direction, preserve its plan-location `TBD` and do not convert strategy into target-field evidence.
+Use `DEL-17-01 Source_Basis_Register.md` as the upstream authority for admitted source IDs. For non-trivial target statements, cite one or more of `CAEPIPE-IMPORT-MBF`, `CAEPIPE-EXPORT-DATA`, `CAEPIPE-EXPORT-MBF`, `CAEPIPE-BATCH`, `CAEPIPE-PCF`, `GLTF-2.0`, or a project reference such as `CONTRACT`, `IP-DATA`, `SPEC`, `TYPES`, and `DAG-006`. If only `PLAN-EXPORT-INTEROP` supports the planning direction, preserve its plan-location `TBD` and do not convert strategy into target-field evidence.
 
 ### Stable ID map
 

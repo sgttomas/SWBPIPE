@@ -2,8 +2,8 @@
 
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
-- **Graph Authority:** `execution/_DAG/DAG-005/`
-- **Authority Boundary:** `DAG-005` is approved active graph authority; candidate rows remain non-gating until later explicit promotion and graph revalidation.
+- **Graph Authority:** `execution/_DAG/DAG-006/`
+- **Authority Boundary:** `DAG-006` is approved active graph authority; candidate rows remain non-gating until later explicit promotion and graph revalidation.
 
 ## Declared Upstream Dependencies
 - None declared inside PKG-17; source-basis work starts from SCA-004 and admitted public/project references.

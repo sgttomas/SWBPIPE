@@ -44,7 +44,7 @@ Setup evidence identifies these future artifact slots only:
 ## References
 
 - `_CONTEXT.md` for sealed deliverable identity, scope, artifacts, context budget, and architecture basis.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 rows for SOW-013, SOW-052, OBJ-003, OBJ-012, PKG-05, DEL-05-05, and AB-00-01/02/03/06/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for SOW-013, SOW-052, OBJ-003, OBJ-012, PKG-05, DEL-05-05, and AB-00-01/02/03/06/08.
 - `docs/_Registers/Deliverables.csv` row DEL-05-05.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-052 and SOW-013.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-05.

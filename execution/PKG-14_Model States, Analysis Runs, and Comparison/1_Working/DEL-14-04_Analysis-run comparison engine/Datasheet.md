@@ -34,7 +34,7 @@
 
 - The comparison engine must remain source-grounded in PKG-14 scope: immutable model states, analysis-run records, deterministic state/run comparison, mappings, tolerances, and comparison exports.
 - `ASSUMPTION`: This deliverable consumes analysis-run records, mapping/tolerance contracts, result-export envelopes, and unit-system contracts as upstream evidence surfaces because `Dependencies.csv` lists those rows as ACTIVE DAG-002 mirror entries.
-- The local dependency mirror records eleven ACTIVE rows and identifies the source of truth as approved DAG-002 coordination. These rows are evidence surface only and are not reclassified by this datasheet.
+- The local dependency mirror records eleven ACTIVE rows and identifies the source of truth as approved DAG-006 coordination. These rows are evidence surface only and are not reclassified by this datasheet.
 - Missing or ambiguous units on unit-bearing physical values are diagnostics, not silent defaults, per `docs/SPEC.md` unit-contract text.
 - Result export envelopes must preserve units, diagnostics, provenance, hashes/status boundaries, and professional-boundary notices per `docs/SPEC.md` and `docs/TYPES.md`.
 - Comparison tolerance defaults and mapping workflows are explicitly `TBD` in `execution/_Decomposition/SOFTWARE_DECOMP.md` open issue OI-014.
@@ -55,8 +55,8 @@
 
 - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and context budget.
 - `_REFERENCES.md` - governing reference list and accessible public context.
-- `Dependencies.csv` - approved DAG-002 mirror/evidence surface for upstream dependency rows.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.5 package, deliverable, scope, objective, and open-issue basis.
+- `Dependencies.csv` - approved DAG-006 mirror/evidence surface for upstream dependency rows.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, deliverable, scope, objective, and open-issue basis.
 - `docs/CONTRACT.md` - invariant catalog, including no invention, unit-awareness, professional boundary, IP/privacy, and agent constraints.
 - `docs/SPEC.md` - unit contract, analysis boundary, persistence/hash, result export, runner output, and validation mechanics.
 - `docs/TYPES.md` - stable reference, diagnostic, checksum, result, result-export, and analysis-boundary vocabulary.

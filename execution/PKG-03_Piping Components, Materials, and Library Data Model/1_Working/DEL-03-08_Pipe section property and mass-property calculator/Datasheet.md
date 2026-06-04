@@ -8,7 +8,7 @@
 | Package ID | PKG-03 |
 | Package | Piping Components, Materials, and Library Data Model |
 | Deliverable type | BACKEND_FEATURE_SLICE |
-| Decomposition basis | `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 |
+| Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
 | Scope items | SOW-051, SOW-018 |
 | Objectives | OBJ-004, OBJ-012 |
 | Context envelope | M |

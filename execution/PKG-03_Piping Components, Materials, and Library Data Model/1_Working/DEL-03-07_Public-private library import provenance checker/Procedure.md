@@ -7,7 +7,7 @@ Define the setup-stage procedure for producing and checking the future library i
 ## Prerequisites
 
 - Sealed context for DEL-03-07.
-- `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4.
+- `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
 - Applicable invariants from `docs/CONTRACT.md`.
 - Human-approved decisions for any license/redistribution acceptance vocabulary before product implementation finalizes those fields.
 

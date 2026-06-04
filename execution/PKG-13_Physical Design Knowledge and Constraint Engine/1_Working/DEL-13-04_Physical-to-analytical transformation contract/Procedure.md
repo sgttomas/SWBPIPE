@@ -24,7 +24,7 @@ This procedure defines the conservative workflow for producing and checking the 
    - `docs/TYPES.md`
    - `docs/IP_AND_DATA_BOUNDARY.md`
    - `INIT.md`
-3. Treat `Dependencies.csv` as the approved DAG-002 mirror/evidence surface. Preserve approved rows as ACTIVE; do not retire, delete, or reclassify them during this setup workflow.
+3. Treat `Dependencies.csv` as the approved DAG-006 mirror/evidence surface. Preserve approved rows as ACTIVE; do not retire, delete, or reclassify them during this setup workflow.
 4. Use only source-cleared or invented/public-permissive data in examples and tests. Suspected protected content must be quarantined and escalated under project policy.
 
 ## Steps

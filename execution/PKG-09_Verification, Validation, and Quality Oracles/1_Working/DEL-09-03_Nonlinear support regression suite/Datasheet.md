@@ -46,6 +46,6 @@ The future suite should be organized around source-qualified case definitions, e
 | `docs/CONTRACT.md` | Invariants for IP/data boundaries, unit safety, nonlinear diagnostics, and agent authority. |
 | `docs/TYPES.md` | TEST_SUITE type, analysis-status vocabulary, and data/provenance terms. |
 | `docs/SPEC.md` | Nonlinear support diagnostics, numerical quality, V&V mechanics, and repository layout target. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-09 package scope, DEL-09-03 deliverable entry, SOW-026, and OBJ-008. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-09 package scope, DEL-09-03 deliverable entry, SOW-026, and OBJ-008. |
 | `docs/_Registers/Deliverables.csv` | Deliverable identity, artifacts, scope, objective, and risk note. |
 | `docs/_Registers/ScopeLedger.csv` | SOW-026 scope statement and public/original/permissive benchmark-source note. |

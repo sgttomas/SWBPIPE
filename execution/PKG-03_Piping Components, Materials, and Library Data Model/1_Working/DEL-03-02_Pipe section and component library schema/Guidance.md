@@ -49,5 +49,5 @@ This guidance explains how to think about DEL-03-02 during later schema implemen
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| DEL-03-02-CF-001 | `_CONTEXT.md` identifies SOFTWARE_DECOMP revision 0.4, while `_REFERENCES.md` still describes the decomposition reference as accepted v0.2. | `_CONTEXT.md#Decomposition Reference` | `_REFERENCES.md#Decomposition and Registers` | Datasheet References; Procedure Records | Treat `_CONTEXT.md` and sealed brief revision 0.4 as current basis for this run; route `_REFERENCES.md` cleanup to a metadata owner because it is outside the four-doc write target. | TBD |
+| DEL-03-02-CF-001 | `_CONTEXT.md` identifies SOFTWARE_DECOMP revision 0.7, while `_REFERENCES.md` still describes the decomposition reference as accepted v0.2. | `_CONTEXT.md#Decomposition Reference` | `_REFERENCES.md#Decomposition and Registers` | Datasheet References; Procedure Records | Treat `_CONTEXT.md` and sealed brief revision 0.7 as current basis for this run; route `_REFERENCES.md` cleanup to a metadata owner because it is outside the four-doc write target. | TBD |
 

@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md`
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
 **Perspective:** This deliverable frames the governed straight pipe element as a bounded solver feature: local element mechanics, section-property inputs, weight hooks, and force recovery within a unit-aware centerline/frame architecture. The matrices are a question-shaping lens only; they do not establish engineering correctness, protected formulas, implementation choices, or compliance conclusions.
 **Audit Result:** PASS
 

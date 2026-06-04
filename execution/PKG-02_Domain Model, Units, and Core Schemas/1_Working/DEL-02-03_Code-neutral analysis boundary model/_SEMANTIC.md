@@ -15,7 +15,7 @@
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 - `DEL-02-03`, `SOW-002`, `OBJ-001`, `OBJ-011`, and sealed architecture-basis references.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - `DEL-02-03`, `SOW-002`, `OBJ-001`, `OBJ-011`, and sealed architecture-basis references.
 - `docs/_Registers/Deliverables.csv` row `DEL-02-03`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-002`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-02-03`.

@@ -10,8 +10,8 @@ Define a conservative procedure for producing and reviewing the future `schemas/
 |---|---|
 | Deliverable context for DEL-13-01 | Present in `_CONTEXT.md`. |
 | Reference index | Present in `_REFERENCES.md`. |
-| Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved DAG-002 rows as ACTIVE. |
-| Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5. |
+| Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved DAG-006 rows as ACTIVE. |
+| Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7. |
 | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 | Implementation brief | Not created in this setup task, by user instruction. |
 | Product schema artifact | TBD; no implementation artifact exists in this deliverable folder at setup time. |
@@ -63,7 +63,7 @@ Define a conservative procedure for producing and reviewing the future `schemas/
 | Unsupported details | Unsupported implementation specifics are marked `TBD` or `ASSUMPTION`. |
 | Public/private boundary | No prohibited protected/private data is introduced. |
 | Professional boundary | No automatic professional or code-compliance authority is introduced. |
-| Dependency mirror | Existing approved DAG-002 rows remain ACTIVE and structurally valid. |
+| Dependency mirror | Existing approved DAG-006 rows remain ACTIVE and structurally valid. |
 
 ## Records
 

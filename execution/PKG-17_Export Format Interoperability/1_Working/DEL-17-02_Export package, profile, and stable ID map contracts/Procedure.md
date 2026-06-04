@@ -2,7 +2,7 @@
 
 ## Population Procedure
 
-1. Confirm DAG-005 is the approved active graph authority.
+1. Confirm DAG-006 is the approved active graph authority.
 2. Confirm `DEL-17-01` has committed implementation evidence before treating `DEL-17-02` as the next unblocked PKG-17 population target.
 3. Read the local `DEL-17-01` four-document kit, `Source_Basis_Register.md`, and `CAEPIPE_Question_Dossier.md`.
 4. Populate this four-document kit at contract level only.

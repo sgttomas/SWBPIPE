@@ -16,7 +16,7 @@
 
 | Attribute | Setup value | Source |
 |---|---|---|
-| Primary subject | Unit-aware algebra for user-defined load-case combinations and result-state subtraction/ranging. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-02 |
+| Primary subject | Unit-aware algebra for user-defined load-case combinations and result-state subtraction/ranging. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-02 |
 | Mechanics boundary | Combination results remain mechanics solver/result states; code acceptability is evaluated by user rule packs. | `docs/CONTRACT.md` OPS-K-MECH-2 |
 | Unit discipline | All load-case expressions and result operations must be unit-aware and dimensionally checked. | `docs/CONTRACT.md` OPS-K-UNIT-1 |
 | Data boundary | Code-specific combinations, allowables, and project-specific rule content are user-supplied or privately imported, not bundled defaults. | `docs/CONTRACT.md` OPS-K-DATA-1; SOW-014 notes |
@@ -43,7 +43,7 @@
 
 - `_CONTEXT.md`
 - `_REFERENCES.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - `docs/_Registers/Deliverables.csv` row DEL-05-02
 - `docs/_Registers/ScopeLedger.csv` row SOW-014
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-02

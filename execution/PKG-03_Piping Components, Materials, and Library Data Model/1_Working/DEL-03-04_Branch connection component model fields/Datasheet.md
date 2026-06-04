@@ -29,7 +29,7 @@ No protected branch connection tables, SIF tables, flexibility tables, code form
 
 | Condition | Source | Status |
 |---|---|---|
-| Component model shall support branch connections with user-entered reinforcement, SIF, flexibility, and local data fields. | docs/_Registers/ScopeLedger.csv row SOW-008; docs/_Decomposition/SOFTWARE_DECOMP.md rows SOW-008 and DEL-03-04 | In scope |
+| Component model shall support branch connections with user-entered reinforcement, SIF, flexibility, and local data fields. | docs/_Registers/ScopeLedger.csv row SOW-008; execution/_Decomposition/SOFTWARE_DECOMP.md rows SOW-008 and DEL-03-04 | In scope |
 | Public repository must not contain protected standards text, protected tables, copied formulas, or protected branch/SIF/flexibility data. | docs/CONTRACT.md OPS-K-IP-1, OPS-K-IP-3 | Constraint |
 | Code-specific values are user-supplied or lawfully imported private data, not bundled public defaults. | docs/CONTRACT.md OPS-K-DATA-1 | Constraint |
 | Missing solve-required or rule-check-required values are findings, not silent defaults. | docs/CONTRACT.md OPS-K-DATA-2 | Constraint |
@@ -55,5 +55,5 @@ This setup pass does not create implementation code or repo-level schema files.
 - `docs/_Registers/Deliverables.csv` row DEL-03-04.
 - `docs/_Registers/ScopeLedger.csv` row SOW-008.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-04.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
 - `docs/CONTRACT.md` invariants listed in this kit.

@@ -48,7 +48,7 @@ This datasheet does not assert that the operation audit log has been implemented
 - `_REFERENCES.md`
 - `_DEPENDENCIES.md`
 - `Dependencies.csv`
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - `docs/_Registers/Deliverables.csv`
 - `docs/_Registers/ScopeLedger.csv`
 - `docs/_Registers/ContextBudgetQA.csv`

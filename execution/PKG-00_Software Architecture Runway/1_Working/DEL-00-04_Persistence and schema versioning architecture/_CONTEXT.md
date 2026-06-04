@@ -40,7 +40,7 @@ Define project persistence format, schema versioning, migrations, canonicalizati
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
-- **Accepted Revision:** 0.6
+- **Accepted Revision:** 0.7
 - **Status:** current_basis
 
 ## Register References

@@ -21,7 +21,7 @@
 | Baseline format | Schema-first JSON result envelopes. Source: `docs/_Registers/ScopeLedger.csv` row SOW-046; `_CONTEXT.md` Architecture Basis Injection. |
 | Additional export formats | TBD; this setup deliverable does not choose CSV, HDF5, neutral-file, spreadsheet, or external tool formats as final. |
 | Anticipated implementation artifacts | `schemas/results.schema.yaml`, exporter source, and tests. Source: `_CONTEXT.md` Anticipated Artifacts; not created or edited in this setup session. |
-| Envelope content categories | Result identity, model/run references, unit-aware value arrays, diagnostics, provenance, analysis status, warnings, and reproducibility references. Source: `docs/SPEC.md` sections 4.5, 7, 8, and 9; `docs/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows AB-00-03, AB-00-04, AB-00-06, and AB-00-07. |
+| Envelope content categories | Result identity, model/run references, unit-aware value arrays, diagnostics, provenance, analysis status, warnings, and reproducibility references. Source: `docs/SPEC.md` sections 4.5, 7, 8, and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows AB-00-03, AB-00-04, AB-00-06, and AB-00-07. |
 | Review boundary | Exports support review and comparison; they do not certify, seal, approve, authenticate, or declare code compliance. Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
 | Unit boundary | Exported values must be unit-aware and dimensionally traceable; missing units are findings, not silent defaults. Source: `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2. |
 | Protected-data boundary | Public export contracts must not embed protected standards text, copied standards tables, proprietary formulas, private rule-pack payloads, or private project data by default. Source: `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7. |
@@ -53,7 +53,7 @@ The future result export contract is expected to include these setup-level compo
 - `_CONTEXT.md` for deliverable identity, architecture basis IDs, and write-scope constraints.
 - `docs/_Registers/Deliverables.csv` row DEL-08-04 for artifact and objective mapping.
 - `docs/_Registers/ScopeLedger.csv` row SOW-046 for export baseline acceptance notes.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` rows AB-00-03, AB-00-04, AB-00-06, AB-00-07, and OI-004 for envelope/API/no-bypass and format-TBD constraints.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` rows AB-00-03, AB-00-04, AB-00-06, AB-00-07, and OI-004 for envelope/API/no-bypass and format-TBD constraints.
 - `docs/SPEC.md` sections 4.5, 7, 8, 9, and 11 for deterministic results, diagnostics, reporting, validation, and acceptance semantics.
 - `docs/TYPES.md` sections 4 and 8 for analysis-status vocabulary and `Result` object boundary.
 - `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 for public/private data and report/export boundaries.

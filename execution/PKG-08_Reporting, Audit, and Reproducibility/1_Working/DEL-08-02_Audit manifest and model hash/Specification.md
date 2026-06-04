@@ -11,8 +11,8 @@ This setup run does not implement hashing code, tests, schemas, source files, or
 | ID | Requirement | Source |
 |---|---|---|
 | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` row DEL-08-02; `docs/SPEC.md` section 8 |
-| DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` row SOW-039; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-| DEL-08-02-R3 | Non-JSON and binary assets shall be represented through manifest asset hashes rather than folded into the JSON payload hash. | `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+| DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+| DEL-08-02-R3 | Non-JSON and binary assets shall be represented through manifest asset hashes rather than folded into the JSON payload hash. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 | DEL-08-02-R4 | The manifest shall record software version and solver version sufficient to interpret deterministic result reproduction. | `docs/SPEC.md` sections 4.5 and 8 |
 | DEL-08-02-R5 | The manifest shall record rule-pack name or ID, version, checksum, source notice, and redistribution status where a rule pack participates in a report/run. | `docs/SPEC.md` sections 6 and 8; `docs/IP_AND_DATA_BOUNDARY.md` section 7 |
 | DEL-08-02-R6 | The manifest shall preserve unit-system and unit-aware model context so replay does not depend on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` section 8 |

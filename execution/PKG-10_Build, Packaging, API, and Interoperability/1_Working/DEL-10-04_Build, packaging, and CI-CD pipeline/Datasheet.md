@@ -55,7 +55,7 @@ The build and packaging pipeline must preserve the OpenPipeStress boundaries:
 - `docs/SPEC.md` - architecture layers, reporting/audit requirements, V&V mechanics, and agentic implementation mechanics.
 - `docs/VALIDATION_STRATEGY.md` - benchmark families and release gate expectations.
 - `docs/PRD.md` - platform criteria and release milestones, including PRD 19.2, 19.3, and 22.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.4 scope, architecture basis, decisions, and open issues.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 scope, architecture basis, decisions, and open issues.
 - `docs/_Registers/Deliverables.csv` - row DEL-10-04.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.

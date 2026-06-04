@@ -9,7 +9,7 @@
 | Package | Rule Packs and User-Supplied Code Check Engine | `_CONTEXT.md` |
 | Type | BACKEND_FEATURE_SLICE | `docs/_Registers/Deliverables.csv` row DEL-06-02 |
 | Scope item | SOW-045 | `docs/_Registers/ScopeLedger.csv` row SOW-045 |
-| Objective | OBJ-005 | `docs/_Decomposition/SOFTWARE_DECOMP.md` objective map |
+| Objective | OBJ-005 | `execution/_Decomposition/SOFTWARE_DECOMP.md` objective map |
 | Context envelope | L | `_CONTEXT.md` |
 | Setup status | Setup documents and semantic/dependency artifacts only | Human sealed brief |
 
@@ -61,7 +61,7 @@ The anticipated implementation artifacts remain future work:
 | `docs/TYPES.md` | Rule-pack check, user-rule checked status, human review boundary, and data provenance vocabulary. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private rule-pack and protected-data boundary. |
 | `docs/VALIDATION_STRATEGY.md` | Rule-pack evaluator verification families. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06, DEL-06-02, AB-00 basis rows, OI-006. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06, DEL-06-02, AB-00 basis rows, OI-006. |
 | `docs/_Registers/Deliverables.csv` | Deliverable identity and risk note. |
 | `docs/_Registers/ScopeLedger.csv` | SOW-045 source row. |
 | `docs/_Registers/ContextBudgetQA.csv` | WATCH risk and split-if-expanded note. |

@@ -12,7 +12,7 @@
 - agents/AGENT_PREPARATION.md - PREPARATION scaffolding protocol and file schemas.
 
 ## Decomposition and Registers
-- docs/_Decomposition/SOFTWARE_DECOMP.md - Accepted v0.2 decomposition basis; package PKG-04 and deliverable DEL-04-06.
+- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted revision 0.7 current decomposition basis; package PKG-04 and deliverable DEL-04-06.
 - docs/_Registers/Deliverables.csv - Deliverable identity, description, artifacts, scope, objectives, and context envelope.
 - docs/_Registers/ScopeLedger.csv - Scope item mapping for SOW-053,SOW-035.
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-04-06.

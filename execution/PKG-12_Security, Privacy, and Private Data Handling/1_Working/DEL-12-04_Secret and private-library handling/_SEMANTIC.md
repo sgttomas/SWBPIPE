@@ -14,7 +14,7 @@
 - `Guidance.md` - principles, trade-offs, and human-ruling items.
 - `Procedure.md` - operational steps and records.
 - `_REFERENCES.md` - governing source list.
-- `docs/CONTRACT.md`, `docs/_Decomposition/SOFTWARE_DECOMP.md`, `docs/PRD.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and architecture basis documents - perspective conditioning sources.
+- `docs/CONTRACT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, `docs/PRD.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and architecture basis documents - perspective conditioning sources.
 
 ## Matrix A - Orientation (3x4) - Canonical
 

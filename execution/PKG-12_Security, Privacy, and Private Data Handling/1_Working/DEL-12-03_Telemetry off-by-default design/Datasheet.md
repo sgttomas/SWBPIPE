@@ -18,8 +18,8 @@
 
 | Attribute | Value | Source |
 |---|---|---|
-| MVP telemetry posture | No telemetry by default; telemetry may be a no-op in MVP. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` SOW-037 and OI-008 |
-| User consent posture | Any telemetry, if later implemented, is opt-in only and requires explicit human approval before design activation. | `docs/_Decomposition/SOFTWARE_DECOMP.md` OI-008; `docs/CONTRACT.md` OPS-K-PRIV-2 |
+| MVP telemetry posture | No telemetry by default; telemetry may be a no-op in MVP. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-037 and OI-008 |
+| User consent posture | Any telemetry, if later implemented, is opt-in only and requires explicit human approval before design activation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-008; `docs/CONTRACT.md` OPS-K-PRIV-2 |
 | Forbidden telemetry content | Private project data, code-specific data, private rule-pack data, private material/component data, secrets, paths, report content, and protected standards content. | `docs/CONTRACT.md` OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-PRIV-1/2 |
 | Local-first boundary | No cloud operation is included unless separately authorized. | `_CONTEXT.md`; `docs/DIRECTIVE.md` Section 4.2 |
 | Anticipated artifacts | Telemetry policy, config defaults, tests. | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-12-03 |
@@ -52,7 +52,7 @@ This deliverable defines a design boundary rather than product code in this setu
 - `docs/DIRECTIVE.md` for founding boundaries and out-of-scope hidden cloud telemetry.
 - `docs/IP_AND_DATA_BOUNDARY.md` for public/private data handling limits.
 - `docs/SPEC.md` for architecture, diagnostics, reports, and acceptance semantics.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for PKG-12, DEL-12-03, SOW-037, OBJ-010, OI-008, and AB-00-01/02/03/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for PKG-12, DEL-12-03, SOW-037, OBJ-010, OI-008, and AB-00-01/02/03/04/06/07/08.
 - `docs/_Registers/Deliverables.csv` row DEL-12-03.
 - `docs/_Registers/ScopeLedger.csv` row SOW-037.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-12-03.

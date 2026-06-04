@@ -143,7 +143,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | F-001 | F:normative:necessity | VerificationGap | Specification | Specification | Add future test coverage for keyboard paths and accessible names. | PRD section 21 lists keyboard navigation and labels/tooltips as baseline needs. | `docs/PRD.md`; `Specification.md` | `docs/PRD.md#21`; `Specification.md#Verification` |  | PROPOSAL: use UI/accessibility-tree tests once implementation is authorized. | TBD |
 | F-002 | F:normative:sufficiency | VerificationGap | Specification | Specification | Add future contrast/readability test tied to selected target. | High-contrast result visualization is required, but exact measured threshold is TBD. | `docs/PRD.md`; `ScopeLedger.csv`; `Specification.md` | `docs/PRD.md#21`; `SOW-036`; `Specification.md#Verification` |  | PROPOSAL: keep test pending until target decision. | TBD |
-| F-003 | F:operative:completeness | VerificationGap | Specification | Specification | Add end-to-end engineering review workflow validation. | OBJ-006 requires model creation, missing data, results, and assumptions to stay visible. | `docs/_Decomposition/SOFTWARE_DECOMP.md`; `Specification.md` | `OBJ-006`; `Specification.md#Verification` |  | PROPOSAL: validate a future walkthrough rather than isolated widgets only. | TBD |
+| F-003 | F:operative:completeness | VerificationGap | Specification | Specification | Add end-to-end engineering review workflow validation. | OBJ-006 requires model creation, missing data, results, and assumptions to stay visible. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `Specification.md` | `OBJ-006`; `Specification.md#Verification` |  | PROPOSAL: validate a future walkthrough rather than isolated widgets only. | TBD |
 
 ## Matrix D - Objectives
 
@@ -197,7 +197,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| X-001 | X:judging:necessity | VerificationGap | Procedure | Procedure | Verify solve-blocking and rule-check-blocking warnings stay distinct. | SPEC section 7 and AB-00-06 preserve different warning classes with different review meanings. | `docs/SPEC.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md`; `Procedure.md` | `docs/SPEC.md#7`; `AB-00-06`; `Procedure.md#Verification` |  | PROPOSAL: future tests assert warning class labels directly. | TBD |
+| X-001 | X:judging:necessity | VerificationGap | Procedure | Procedure | Verify solve-blocking and rule-check-blocking warnings stay distinct. | SPEC section 7 and AB-00-06 preserve different warning classes with different review meanings. | `docs/SPEC.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `Procedure.md` | `docs/SPEC.md#7`; `AB-00-06`; `Procedure.md#Verification` |  | PROPOSAL: future tests assert warning class labels directly. | TBD |
 | X-002 | X:reviewing:sufficiency | VerificationGap | Procedure | Procedure | Verify public fixtures/screenshots/reports contain no protected or private data. | Accessibility evidence often uses screenshots and reports, which can leak protected or private data if not checked. | `docs/IP_AND_DATA_BOUNDARY.md`; `Procedure.md` | `docs/IP_AND_DATA_BOUNDARY.md#3`; `Procedure.md#Verification` |  | PROPOSAL: require protected-content/private-data review for fixtures. | TBD |
 
 ## Matrix E - Evaluation

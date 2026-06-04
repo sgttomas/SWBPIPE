@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** TP-DAG-004_REFRESHED_FROM_APPROVED_DAG002_PLUS_EXPLICIT_ANCHORS
-- **Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Generated:** 2026-05-03
@@ -36,7 +36,7 @@
 ## Run Notes
 - **ScopePath:** `execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts`
 - **Decomposition path:** `execution/_Decomposition/SOFTWARE_DECOMP.md`; status: located and used for `SOW-073`, `OBJ-016`, `PKG-14`, and `DEL-14-05` label confirmation.
-- **Approved graph authority:** `execution/_DAG/DAG-002`; status: read-only authority for preserved mirror rows.
+- **Prior graph evidence:** `execution/_DAG/DAG-002`; status: read-only evidence for preserved mirror rows. Current graph authority is `execution/_DAG/DAG-006/`.
 - **Preliminary graph:** `execution/_DAG/DAG-003`; status: intentionally not used for approval or promotion.
 - **Anchor doc:** `Datasheet.md`; explicit identifiers found for `DEL-14-05`, `PKG-14`, `SOW-073`, and `OBJ-016`.
 - **Execution docs:** `_CONTEXT.md`, `Procedure.md`, `Specification.md`, `Guidance.md`, `_REFERENCES.md`.
@@ -50,7 +50,7 @@
 
 | Timestamp | Mode | Strictness | Consumer | Decomposition | Active Rows | Warnings |
 |---|---|---|---|---|---:|---|
-| 2026-05-03 | SYNCHRONIZE | n/a | DAG-002 mirror | `execution/_DAG/DAG-002/DependencyEdges.csv` | 11 | Local mirror only; no anchors. |
+| 2026-05-03 | SYNCHRONIZE | n/a | DAG-002 mirror | `execution/_DAG/DAG-006/DependencyEdges.csv` | 11 | Local mirror only; no anchors. |
 | 2026-05-11 | UPDATE | CONSERVATIVE | RECONCILIATION | `execution/_Decomposition/SOFTWARE_DECOMP.md` | 13 | None blocking; DAG-003 not promoted. |
 
 ## Lifecycle Summary

@@ -62,7 +62,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| A-001 | A:normative:guiding | TBD_Question | Guidance | Guidance | Preserve `TBD`: physical project package/container and OS-specific private roots. | The architecture basis requires deterministic persistence but leaves physical container and root choices open. | `Guidance.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` | `Guidance.md#Open Issues and TBDs`; `SOFTWARE_DECOMP.md#8.2` | NA | PROPOSAL: keep symbolic classes only until human-approved implementation decision. | TBD |
+| A-001 | A:normative:guiding | TBD_Question | Guidance | Guidance | Preserve `TBD`: physical project package/container and OS-specific private roots. | The architecture basis requires deterministic persistence but leaves physical container and root choices open. | `Guidance.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | `Guidance.md#Open Issues and TBDs`; `SOFTWARE_DECOMP.md#8.2` | NA | PROPOSAL: keep symbolic classes only until human-approved implementation decision. | TBD |
 
 ## Matrix B - Conceptualization
 
@@ -224,4 +224,4 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| E-001 | E:reviewing:data | Conflict | Guidance | Guidance | Keep conflict table entry for title/implementation implication vs. physical-container TBD. | The deliverable title and catalog artifact list can imply implementation, while the sealed brief and architecture basis keep this run setup-only and the container TBD. | `Guidance.md`; `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` | `Guidance.md#Conflict Table`; `_CONTEXT.md#Architecture Basis Injection`; `SOFTWARE_DECOMP.md#8.2` | `Guidance.md#Conflict Table`; `_CONTEXT.md#Architecture Basis Injection`; `docs/_Decomposition/SOFTWARE_DECOMP.md#8.2` | PROPOSAL: human should decide the container/root in a later implementation or architecture decision. | TBD |
+| E-001 | E:reviewing:data | Conflict | Guidance | Guidance | Keep conflict table entry for title/implementation implication vs. physical-container TBD. | The deliverable title and catalog artifact list can imply implementation, while the sealed brief and architecture basis keep this run setup-only and the container TBD. | `Guidance.md`; `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | `Guidance.md#Conflict Table`; `_CONTEXT.md#Architecture Basis Injection`; `SOFTWARE_DECOMP.md#8.2` | `Guidance.md#Conflict Table`; `_CONTEXT.md#Architecture Basis Injection`; `execution/_Decomposition/SOFTWARE_DECOMP.md#8.2` | PROPOSAL: human should decide the container/root in a later implementation or architecture decision. | TBD |

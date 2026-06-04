@@ -8,7 +8,7 @@ Provide a conservative setup procedure for producing and later using the structu
 
 | Prerequisite | Source / Status |
 |---|---|
-| Deliverable context and decomposition basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 |
+| Deliverable context and decomposition basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
 | Scope and objective mapping | `docs/_Registers/ScopeLedger.csv` row `SOW-069`; `docs/_Registers/Deliverables.csv` row `DEL-16-01` |
 | Architecture basis constraints | `_CONTEXT.md` "Architecture Basis Injection"; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
 | Approved dependency mirror | `Dependencies.csv`; preserve DAG-002 rows as ACTIVE unless a later approved workflow says otherwise |

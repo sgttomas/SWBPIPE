@@ -6,7 +6,7 @@
 - **Consumer Context:** RECONCILIATION
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
-- **Current Basis Read:** `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 plus assigned DEL-06-01 folder context/evidence
+- **Current Basis Read:** `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 plus assigned DEL-06-01 folder context/evidence
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 12 total; 12 ACTIVE; 0 CANDIDATE.
 - **Refreshed:** 2026-05-10

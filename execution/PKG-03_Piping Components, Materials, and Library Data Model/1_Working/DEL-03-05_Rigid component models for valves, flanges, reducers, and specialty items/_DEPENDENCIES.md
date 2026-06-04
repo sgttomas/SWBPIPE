@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_FOR_RECONCILIATION
-- **Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 9 total; 9 ACTIVE; 0 CANDIDATE.
 - **Generated:** 2026-05-03

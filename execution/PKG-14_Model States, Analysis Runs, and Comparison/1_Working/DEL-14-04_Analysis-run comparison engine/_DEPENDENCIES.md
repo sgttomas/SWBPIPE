@@ -2,13 +2,13 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_FROM_LOCAL_EVIDENCE_AND_APPROVED_DAG002
-- **Graph authority used:** `execution/_DAG/DAG-002/`
+- **Graph authority used:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 17 total; 17 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
 
 ## Authority Boundary
-- Aggregate `DAG-002` remains the approved graph authority for sequencing and blocker computation within its approval boundary.
+- Aggregate `DAG-006` remains the approved graph authority for sequencing and blocker computation within its approval boundary.
 - This local register is a refreshed evidence surface for later RECONCILIATION, not an independent graph approval.
 - `DAG-003` was not used as graph authority and was not approved or promoted by this refresh.
 - Downstream `ENABLES` rows are local reconciliation evidence only; they are not prerequisites blocking DEL-14-04 execution.
@@ -54,7 +54,7 @@
 - **Consumer context:** RECONCILIATION.
 - **Scope:** DEL-14-04 only.
 - **Decomposition path:** `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for PKG-14, SOW-072, SOW-073, OBJ-016, and DEL-14-04 label validation.
-- **Graph authority:** `execution/_DAG/DAG-002/` used as approved graph authority. `DAG-003` was intentionally not used.
+- **Graph authority:** `execution/_DAG/DAG-006/` used as approved graph authority. Historical `DAG-003` material was intentionally not used.
 - **Anchor doc:** `Datasheet.md` selected by AUTO role heuristic; `_CONTEXT.md` supplied the strongest explicit anchor identifiers and was used as evidence for anchor rows.
 - **Execution docs order:** `Procedure.md`, `Guidance.md`, `Specification.md`, `Datasheet.md`, `_CONTEXT.md`, `_REFERENCES.md`, `Dependencies.csv`.
 - **Preserved rows:** 11 existing DAG-002 mirror rows retained with original `DependencyID` values.
@@ -88,10 +88,10 @@
 
 ## Downstream Handoff Notes
 - Reconciliation should treat this file as refreshed local evidence, not as aggregate DAG mutation.
-- `DEL-14-04-D001` and `DEL-14-04-D002` restate approved DAG-002 consumers as downstream local evidence. They should not be interpreted as DEL-14-04 prerequisites.
+- `DEL-14-04-D001` and `DEL-14-04-D002` restate approved DAG-006 consumers as downstream local evidence. They should not be interpreted as DEL-14-04 prerequisites.
 - Open issue OI-014 remains relevant: comparison tolerance defaults and mapping workflows are still TBD pending upstream contract/human product decisions.
 - Later aggregation must reconcile this refreshed local surface against DAG-002 and any preliminary DAG-003 differences without silently promoting candidate or uncertain edges.
 
 ## Run History
-- 2026-05-03: synchronized local mirror from approved `DAG-002`; 11 total rows; 11 ACTIVE; 0 CANDIDATE.
+- 2026-05-03: synchronized local mirror from approved `DAG-006`; 11 total rows; 11 ACTIVE; 0 CANDIDATE.
 - 2026-05-10: TP-DAG-004 dependency surface refresh in UPDATE / CONSERVATIVE / RECONCILIATION mode; decomposition found; DAG-002 authority used; 17 total rows; 17 ACTIVE; 0 RETIRED; warnings: legacy ID-format validator mismatch only.

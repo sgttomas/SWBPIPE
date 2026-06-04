@@ -15,7 +15,7 @@
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 - `DEL-04-06`, `SOW-053, SOW-035`, `OBJ-003, OBJ-008, OBJ-012`, and sealed architecture-basis references.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - `DEL-04-06`, `SOW-053, SOW-035`, `OBJ-003, OBJ-008, OBJ-012`, and sealed architecture-basis references.
 - `docs/_Registers/Deliverables.csv` row `DEL-04-06`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-053, SOW-035`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-04-06`.

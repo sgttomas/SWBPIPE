@@ -9,7 +9,7 @@ This procedure defines how a future authorized session should produce or refresh
 | Prerequisite | Source or status |
 |---|---|
 | Sealed DEL-11-02 brief and explicit write scope | Required before editing the final guide artifact. |
-| Current decomposition and registers | `docs/_Decomposition/SOFTWARE_DECOMP.md`, `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`. |
+| Current decomposition and registers | `execution/_Decomposition/SOFTWARE_DECOMP.md`, `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`. |
 | Governing invariants | `docs/CONTRACT.md`, especially IP, data, unit, rule-pack, privacy, authority, and agent invariants. |
 | Architecture basis | AB-00-01, AB-00-02, AB-00-06, AB-00-07, AB-00-08. |
 | Source references | `INIT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and workflow docs. |
@@ -33,7 +33,7 @@ This procedure defines how a future authorized session should produce or refresh
    - Prefer `docs/SPEC.md` for technical architecture and baseline mechanics.
    - Prefer `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` for boundary constraints.
    - Prefer `docs/VALIDATION_STRATEGY.md` for test families and release gates.
-   - Prefer SOFTWARE_DECOMP revision 0.4 for scope, objectives, and architecture basis.
+   - Prefer SOFTWARE_DECOMP revision 0.7 for scope, objectives, and architecture basis.
 
 4. Draft solver sections conservatively.
    - Explain centerline/frame mechanics, six degree-of-freedom nodes, loads, stress recovery, diagnostics, and test hooks.

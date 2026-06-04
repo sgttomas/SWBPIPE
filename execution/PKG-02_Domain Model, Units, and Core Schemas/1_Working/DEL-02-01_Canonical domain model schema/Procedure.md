@@ -6,7 +6,7 @@ This procedure describes how to produce and review the canonical domain model sc
 
 ## Prerequisites
 
-- Confirm the active deliverable is DEL-02-01 in PKG-02 and that the accepted context is `_CONTEXT.md` revision 0.4.
+- Confirm the active deliverable is DEL-02-01 in PKG-02 and that the accepted context is `_CONTEXT.md` current-basis context.
 - Confirm the schema baseline is JSON Schema 2020-12 from SOW-041 and SCA-001.
 - Read the applicable invariants in `docs/CONTRACT.md`, especially IP/data boundary, units, provenance, authority, reports, privacy, and agent constraints.
 - Read `docs/TYPES.md` for stable identifiers, analysis-status vocabulary, epistemic labels, and provenance labels.

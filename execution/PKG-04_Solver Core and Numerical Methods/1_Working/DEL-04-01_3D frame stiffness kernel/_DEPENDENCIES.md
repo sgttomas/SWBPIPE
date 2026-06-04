@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_TP_DAG_004
-- **Source Basis:** `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 plus local sealed context `_CONTEXT.md`
+- **Source Basis:** `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 plus local sealed context `_CONTEXT.md`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 8 total; 8 ACTIVE; 0 CANDIDATE.
 - **Generated:** 2026-05-03

@@ -13,7 +13,7 @@
 - `Guidance.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/Guidance.md#guidance-del-02-01-canonical-domain-model-schema`
 - `Procedure.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/Procedure.md#procedure-del-02-01-canonical-domain-model-schema`
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_REFERENCES.md#references-del-02-01-canonical-domain-model-schema`
-- `SOFTWARE_DECOMP.md` - `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md#pkg-02-domain-model-units-and-core-schemas` (trace input only)
+- `SOFTWARE_DECOMP.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md#pkg-02-domain-model-units-and-core-schemas` (trace input only)
 
 ## Matrix A - Orientation (3x4) - Canonical
 

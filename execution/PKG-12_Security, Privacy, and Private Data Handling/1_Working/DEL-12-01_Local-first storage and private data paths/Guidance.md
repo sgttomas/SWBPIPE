@@ -77,4 +77,4 @@ The following are symbolic examples only:
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| LFSP-CON-001 | The deliverable title implies storage path decisions, while the accepted risk note keeps the physical container and implementation details TBD. | `docs/_Registers/Deliverables.csv` row DEL-12-01 | `docs/_Registers/ContextBudgetQA.csv` row DEL-12-01; `docs/_Decomposition/SOFTWARE_DECOMP.md` §8.2 | Specification Requirements; Procedure Steps | Keep only symbolic path classes in this run and defer physical container/root choices. | TBD |
+| LFSP-CON-001 | The deliverable title implies storage path decisions, while the accepted risk note keeps the physical container and implementation details TBD. | `docs/_Registers/Deliverables.csv` row DEL-12-01 | `docs/_Registers/ContextBudgetQA.csv` row DEL-12-01; `execution/_Decomposition/SOFTWARE_DECOMP.md` §8.2 | Specification Requirements; Procedure Steps | Keep only symbolic path classes in this run and defer physical container/root choices. | TBD |

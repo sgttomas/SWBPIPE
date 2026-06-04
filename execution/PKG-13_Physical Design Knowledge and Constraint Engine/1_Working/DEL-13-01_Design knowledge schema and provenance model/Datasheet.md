@@ -35,7 +35,7 @@
 | Protected data exclusion | The deliverable must define schema/provenance slots without embedding owner standards, protected code criteria, proprietary project data, protected dimensional tables, protected standards text, or proprietary vendor data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 exclusions |
 | User-supplied knowledge | Design knowledge remains user/project supplied. Public examples, if later created, must use invented or otherwise cleared data. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/IP_AND_DATA_BOUNDARY.md` section 2 |
 | Provenance need | Public data records require source, location, license or redistribution basis, contributor/certification, redistribution status, and review status. | `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
-| Dependency evidence | Approved local `Dependencies.csv` is a DAG-002 mirror/evidence surface with 11 ACTIVE rows; it is not an independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
+| Dependency evidence | Local `Dependencies.csv` preserves DAG-002 mirror/evidence rows with 11 ACTIVE rows; current graph authority is DAG-006, and the local register is not independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
 | Architecture-basis context | DEL-13-01 has upstream active architecture-basis rows from DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, and DEL-00-08. | `Dependencies.csv` |
 | Domain/governance context | DEL-13-01 has upstream active rows for canonical domain model schema, unit system contract, copyright/protected-data boundary policy, and professional responsibility/product-claims policy. | `Dependencies.csv` |
 

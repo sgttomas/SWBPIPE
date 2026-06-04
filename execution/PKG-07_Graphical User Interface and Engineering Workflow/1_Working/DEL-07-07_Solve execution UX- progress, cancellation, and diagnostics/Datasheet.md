@@ -64,7 +64,7 @@ Future implementation work must remain bounded by the GUI/application-service se
 | `docs/DIRECTIVE.md` | Product stop rules and no-silent-default principles |
 | `docs/SPEC.md` | GUI warnings, result/report expectations, and layer boundaries |
 | `docs/TYPES.md` | Analysis-status and professional-boundary vocabulary |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | DEL-07-07 package, scope, objectives, and architecture-basis rows |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | DEL-07-07 package, scope, objectives, and architecture-basis rows |
 | `docs/_Registers/Deliverables.csv` | Deliverable row for DEL-07-07 |
 | `docs/_Registers/ScopeLedger.csv` | SOW-055 row |
 | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/Specification.md` | Command, job, cancellation, progress, and result-envelope boundary |

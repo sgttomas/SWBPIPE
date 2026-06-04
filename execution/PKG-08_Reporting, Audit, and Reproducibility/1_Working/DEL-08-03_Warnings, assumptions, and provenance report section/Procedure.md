@@ -9,7 +9,7 @@ This procedure describes how a future TASK implementation should produce and ver
 | Prerequisite | Expected Source | Status |
 |---|---|---|
 | Sealed DEL-08-03 brief and explicit write scope | `_CONTEXT.md` and human dispatch | Available for setup |
-| Applicable invariants and architecture basis | `docs/CONTRACT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | Available for setup |
+| Applicable invariants and architecture basis | `docs/CONTRACT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | Available for setup |
 | Diagnostics/result-envelope contract | AB-00-06 and future schema/interface artifacts | Partly available; exact implementation `TBD` |
 | Report generator integration point | DEL-08-01 | Upstream/integration dependency |
 | Audit manifest/hash metadata | DEL-08-02 | Upstream/integration dependency |

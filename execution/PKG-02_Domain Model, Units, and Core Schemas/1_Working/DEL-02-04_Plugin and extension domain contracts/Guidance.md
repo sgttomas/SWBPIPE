@@ -15,22 +15,22 @@ DEL-02-04 exists so OpenPipeStress can be extensible without turning plugins or 
 
 ## Principles
 
-1. Deny-bypass is the governing principle. Plugins/adapters may extend behavior only through governed interfaces that preserve validation, diagnostics, envelopes, and report controls. SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-02 and AB-00-07.
-2. Schema-first boundaries should be preferred for public manifests and interchange surfaces because SCA-001 selected JSON Schema 2020-12 and schema-first command/query/job/result envelopes. SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline.
+1. Deny-bypass is the governing principle. Plugins/adapters may extend behavior only through governed interfaces that preserve validation, diagnostics, envelopes, and report controls. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-02 and AB-00-07.
+2. Schema-first boundaries should be preferred for public manifests and interchange surfaces because SCA-001 selected JSON Schema 2020-12 and schema-first command/query/job/result envelopes. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline.
 3. Unit and provenance checks are not optional plugin features. They are part of the core data contract and must be preserved across imports, exports, reports, and rule-facing hooks. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-UNIT-1 and OPS-K-DATA-3.
 4. Private or protected data must remain under user control. Public artifacts can provide schemas, empty templates, invented examples, and import mechanisms, but must not embed protected standards or proprietary data. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 2. Public repository may contain and 3. Public repository must not contain.
-5. Diagnostics should be machine-readable as well as user-visible. Plugin/adapter failures need enough source, affected-object, remediation, and provenance detail to support audit and review. SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06.
+5. Diagnostics should be machine-readable as well as user-visible. Plugin/adapter failures need enough source, affected-object, remediation, and provenance detail to support audit and review. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06.
 6. Software may show computed states and user-rule outcomes, but it must not claim professional approval or code compliance. SourcePath: `docs/TYPES.md`; SectionRef: 4. Analysis-status vocabulary. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1.
 
 ## Considerations
 
-- Keep DEL-02-04 at the domain/API level. Public API transport, concrete import/export formats, concrete plugin loader behavior, and packaging/distribution are later implementation decisions unless separately authorized. SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and DEC-012.
+- Keep DEL-02-04 at the domain/API level. Public API transport, concrete import/export formats, concrete plugin loader behavior, and packaging/distribution are later implementation decisions unless separately authorized. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and DEC-012.
 - Treat plugin capability grants as explicit and minimal. ASSUMPTION: a future permission model will need to distinguish read-only project access, governed project mutation, private-library access, filesystem path access, network access, report/export generation, background job execution, and rule-pack evaluator integration. Exact permission names and enforcement technology are TBD.
 - Treat candidate extension point families as rationale-backed assumptions, not an approved registry. Import/export adapter candidates trace to the public API/import-export scope; report/output extension candidates trace to report-control obligations; validation-hook candidates trace to layered testing and protected-content/provenance gates; rule-pack integration hook candidates trace to sandboxed, unit-aware rule evaluation. Exact registry names, registry owner, and approval record are TBD.
 - Prefer private-by-default behavior for user rule packs, component libraries, material data, project files, and calculation results. SourcePath: `docs/PRD.md`; SectionRef: 18.1 Local-First Design and 18.2 Telemetry.
 - When a plugin imports external values, the contract should require provenance and redistribution metadata before those values can become public or reusable. Missing provenance should produce `PROVENANCE_WARNING` or a blocking result when required for reliance. SourcePath: `docs/SPEC.md`; SectionRef: 7. GUI requirements warning classes; SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 4. Required provenance fields.
 - If a plugin touches rule-pack evaluation, it should not run arbitrary executable code. Keep that work declarative, sandboxed, deterministic, unit-aware, and aligned with the rule-pack engine scope. SourcePath: `docs/PRD.md`; SectionRef: 12.3 Rule-Pack Evaluator.
-- If a plugin hashes a JSON manifest or JSON data payload for reproducibility, use the accepted canonical JSON/JCS-compatible hash basis. SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline.
+- If a plugin hashes a JSON manifest or JSON data payload for reproducibility, use the accepted canonical JSON/JCS-compatible hash basis. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline.
 
 ## Trade-offs
 
@@ -47,10 +47,10 @@ DEL-02-04 exists so OpenPipeStress can be extensible without turning plugins or 
 
 | Decision ID | Decision needed | Current bounded position | Source basis | Human ruling |
 |---|---|---|---|---|
-| OD-02-04-001 | Public API transport for plugin/adapter interfaces | TBD; keep schema-first envelope baseline only | `docs/_Decomposition/SOFTWARE_DECOMP.md` 8.2 Resolved architecture baseline; DEC-012 | TBD |
-| OD-02-04-002 | Approved extension-point registry names and owner | TBD; candidate families remain ASSUMPTION | `docs/_Registers/ScopeLedger.csv` row SOW-038; `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 | TBD |
-| OD-02-04-003 | Permission taxonomy, sandbox mechanism, and approval path | TBD; deny-by-default and no-bypass controls remain governing | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 and DEC-012; `docs/CONTRACT.md` OPS-K-RULE-2 | TBD |
-| OD-02-04-004 | Supported import/export formats | TBD; do not imply concrete format support | `docs/_Decomposition/SOFTWARE_DECOMP.md` OI-004 and DEC-012 | TBD |
+| OD-02-04-001 | Public API transport for plugin/adapter interfaces | TBD; keep schema-first envelope baseline only | `execution/_Decomposition/SOFTWARE_DECOMP.md` 8.2 Resolved architecture baseline; DEC-012 | TBD |
+| OD-02-04-002 | Approved extension-point registry names and owner | TBD; candidate families remain ASSUMPTION | `docs/_Registers/ScopeLedger.csv` row SOW-038; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 | TBD |
+| OD-02-04-003 | Permission taxonomy, sandbox mechanism, and approval path | TBD; deny-by-default and no-bypass controls remain governing | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 and DEC-012; `docs/CONTRACT.md` OPS-K-RULE-2 | TBD |
+| OD-02-04-004 | Supported import/export formats | TBD; do not imply concrete format support | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004 and DEC-012 | TBD |
 | OD-02-04-005 | Whether plugins can ever receive telemetry-facing or private engineering data | TBD; default is no telemetry/private-data exposure | `docs/CONTRACT.md` OPS-K-PRIV-1 and OPS-K-PRIV-2; `docs/PRD.md` 18.2 Telemetry | TBD |
 
 ## Examples
@@ -70,4 +70,4 @@ No technical source conflict was identified for plugin-contract content during P
 
 | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| CONF-02-04-001 | Decomposition revision wording differs between current context and local reference index. | `_CONTEXT.md` - Decomposition Reference identifies accepted revision 0.4/current_basis. | `_REFERENCES.md` - Decomposition and Registers describes the decomposition as accepted v0.2. | Datasheet References; future metadata/reference cleanup. | Treat `_CONTEXT.md` and current `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 as the active basis for this run; route `_REFERENCES.md` cleanup to a later authorized metadata/reference pass. | TBD |
+| CONF-02-04-001 | Decomposition revision wording differs between current context and local reference index. | `_CONTEXT.md` - Decomposition Reference identifies accepted revision 0.7/current_basis. | `_REFERENCES.md` - Decomposition and Registers describes the decomposition as accepted v0.2. | Datasheet References; future metadata/reference cleanup. | Treat `_CONTEXT.md` and current `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 as the active basis for this run; route `_REFERENCES.md` cleanup to a later authorized metadata/reference pass. | TBD |

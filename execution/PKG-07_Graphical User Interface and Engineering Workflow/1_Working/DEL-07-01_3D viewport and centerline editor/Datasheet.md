@@ -18,12 +18,12 @@
 | Attribute | Value | Source |
 |---|---|---|
 | Primary scope item | SOW-020: GUI shall provide a 3D centerline modeler with model tree and piping component visualization | `docs/_Registers/ScopeLedger.csv` row `SOW-020`; `_CONTEXT.md` |
-| Supported objective | OBJ-006: GUI workflow makes model creation, missing data, results, and assumptions visible | `docs/_Decomposition/SOFTWARE_DECOMP.md` section 5; `_CONTEXT.md` |
+| Supported objective | OBJ-006: GUI workflow makes model creation, missing data, results, and assumptions visible | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `_CONTEXT.md` |
 | Future artifact class | GUI viewport and interaction tests | `docs/_Registers/Deliverables.csv` row `DEL-07-01`; `_CONTEXT.md` |
-| Runtime/UI baseline | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js viewport | `_CONTEXT.md` Architecture Basis Injection; `docs/_Decomposition/SOFTWARE_DECOMP.md` `DEC-009` |
-| Unresolved implementation choices | Exact dependency versions, component library, state-management library, and platform release matrix remain `TBD` | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` `DEC-012` |
-| State/editing basis | Durable project state is separate from transient viewport, selection, and session state; mutations route through application-service commands | `docs/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
-| Diagnostic basis | User-facing warnings and result-envelope diagnostics use explicit classes and do not claim code compliance | `docs/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/SPEC.md` section 7 |
+| Runtime/UI baseline | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js viewport | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-009` |
+| Unresolved implementation choices | Exact dependency versions, component library, state-management library, and platform release matrix remain `TBD` | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-012` |
+| State/editing basis | Durable project state is separate from transient viewport, selection, and session state; mutations route through application-service commands | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
+| Diagnostic basis | User-facing warnings and result-envelope diagnostics use explicit classes and do not claim code compliance | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/SPEC.md` section 7 |
 | Data boundary posture | Code-specific values, protected standards data, manufacturer/private data, and professional approval remain user/private or human-owned | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-IP-1`, `OPS-K-AUTH-1`; `docs/IP_AND_DATA_BOUNDARY.md` |
 
 ## Conditions
@@ -67,6 +67,6 @@ This deliverable does not implement product UI in this setup session. It also do
 | `docs/SPEC.md` | GUI requirements, warning classes, architecture layers, and acceptance semantics |
 | `docs/PRD.md` | Functional requirements FR-003, FR-013, and GUI requirements section 14 |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data, provenance, and protected-content policy |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07 and DEL-07-01 decomposition context plus SCA-001 architecture basis |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07 and DEL-07-01 decomposition context plus SCA-001 architecture basis |
 | `docs/_Registers/Deliverables.csv` | Deliverable register row |
 | `docs/_Registers/ScopeLedger.csv` | Scope mapping for SOW-020 |

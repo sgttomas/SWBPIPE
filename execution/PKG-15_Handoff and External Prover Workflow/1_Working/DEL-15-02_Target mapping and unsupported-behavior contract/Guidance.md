@@ -44,7 +44,7 @@ This deliverable prevents silent loss of critical handoff assumptions or unsuppo
 
 | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| CT-001 | Dependency-extract v3.1 enum guidance would normalize dependency rows, but the project task rule requires preserving approved DAG-002 mirror rows as ACTIVE without reclassification. | `skills/dependency-extract/SKILL.md` Function 3 and canonical enums | User task instruction; `_DEPENDENCIES.md` Authority Boundary; `Dependencies.csv` approved DAG-002 rows | `Dependencies.csv`; `_DEPENDENCIES.md`; final workflow report | Preserve the approved mirror unchanged for this run. | TBD |
+| CT-001 | Dependency-extract v3.1 enum guidance would normalize dependency rows, but the project task rule requires preserving approved DAG-006 mirror rows as ACTIVE without reclassification. | `skills/dependency-extract/SKILL.md` Function 3 and canonical enums | User task instruction; `_DEPENDENCIES.md` Authority Boundary; `Dependencies.csv` approved DAG-006 rows | `Dependencies.csv`; `_DEPENDENCIES.md`; final workflow report | Preserve the approved mirror unchanged for this run. | TBD |
 
 ## References
 

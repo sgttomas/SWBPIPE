@@ -70,3 +70,10 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Local `Review_Findings.csv` entries remain subject to the human disposition gate. `HumanDisposition` stays `TBD` until review, and `Status` must not be changed to `RESOLVED` automatically.
 - No lifecycle promotion, release claim, or professional/code-compliance claim is implied by the technical closeout.
 - Residual context: movement-limit class and hardware taxonomy detail remains a future sealed-task TBD; the current evidence does not make a full persistence-completeness claim for that taxonomy.
+
+## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
+
+- WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-03-06`.
+- Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
+- Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
+- Preserved historical references remain evidence of earlier work, not current authority claims.

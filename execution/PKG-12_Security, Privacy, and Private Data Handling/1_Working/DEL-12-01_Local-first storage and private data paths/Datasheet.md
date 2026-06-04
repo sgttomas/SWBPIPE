@@ -72,6 +72,6 @@ No storage code, schema files, real private directories, sample secrets, test fi
 | `docs/TYPES.md` | SECURITY_CONTROL type, private/user-supplied data vocabulary, canonical object registry. |
 | `docs/SPEC.md` | Layered architecture, project storage-policy field, private rule-pack schema, report and agentic acceptance semantics. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy and private user data boundary. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-01, SOW-029, OBJ-010, AB-00 architecture basis. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-01, SOW-029, OBJ-010, AB-00 architecture basis. |
 | `docs/_Registers/Deliverables.csv` | Deliverable identity, anticipated artifacts, context/risk notes. |
 | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-029. |

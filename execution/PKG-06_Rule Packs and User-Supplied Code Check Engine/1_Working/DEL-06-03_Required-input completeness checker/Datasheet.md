@@ -53,6 +53,6 @@ The future implementation is expected to consume a rule-pack schema contract fro
 | `docs/SPEC.md` | Rule-pack object, required inputs, evaluator constraints, warning classes, report notices, and acceptance semantics. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules, quarantine expectations, and private rule-pack handling. |
 | `docs/VALIDATION_STRATEGY.md` | Rule-pack missing-input test expectation. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-03 decomposition context. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-03 decomposition context. |
 | `docs/_Registers/Deliverables.csv` | Machine-readable deliverable row. |
 | `docs/_Registers/ScopeLedger.csv` | SOW-004 scope mapping. |

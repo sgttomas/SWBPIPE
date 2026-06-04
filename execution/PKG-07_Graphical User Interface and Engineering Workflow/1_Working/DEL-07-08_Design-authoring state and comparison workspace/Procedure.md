@@ -2,14 +2,14 @@
 
 ## Purpose
 
-This procedure describes how to produce and verify the DEL-07-08 GUI workspace deliverable in a later implementation pass. It is based on local decomposition, governing references, and the approved DAG-002 dependency mirror. It does not create product code.
+This procedure describes how to produce and verify the DEL-07-08 GUI workspace deliverable in a later implementation pass. It is based on local decomposition, governing references, and the approved DAG-006 dependency mirror. It does not create product code.
 
 ## Prerequisites
 
 | Prerequisite | Evidence |
 |---|---|
 | Accepted deliverable scope and objectives | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` / DEL-07-08 row, SOW-076, OBJ-015, OBJ-016 |
-| Approved dependency basis | `_DEPENDENCIES.md` and `Dependencies.csv`; `execution/_DAG/DAG-002/APPROVAL_RECORD.md` / Approval Conditions |
+| Approved dependency basis | `_DEPENDENCIES.md` and `Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md` / Approval Conditions |
 | Architecture-basis constraints | `_CONTEXT.md` / Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-01 through AB-00-08 as applicable |
 | GUI warning and diagnostic vocabulary | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06 |
 | Data and professional boundaries | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md` |

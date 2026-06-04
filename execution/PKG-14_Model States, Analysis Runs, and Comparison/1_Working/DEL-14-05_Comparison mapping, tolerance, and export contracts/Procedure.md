@@ -9,9 +9,9 @@ This procedure describes how to produce and verify the DEL-14-05 contract artifa
 | Prerequisite | Source |
 |---|---|
 | Deliverable context for DEL-14-05 is present and readable. | `_CONTEXT.md` |
-| Accepted SOFTWARE_DECOMP revision 0.5 is available. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+| Accepted SOFTWARE_DECOMP revision 0.7 is available. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 | Governing project invariants are available. | `_REFERENCES.md`; `docs/CONTRACT.md`; `docs/TYPES.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md` |
-| Approved DAG-002 local mirror is present and preserved. | `_DEPENDENCIES.md`; `Dependencies.csv`; `execution/_DAG/DAG-002/APPROVAL_RECORD.md` |
+| Approved DAG-002 local mirror is present and preserved. | `_DEPENDENCIES.md`; `Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md` |
 | Upstream architecture basis rows remain context evidence only. | `_CONTEXT.md#Architecture-Basis-Injection`; `_DEPENDENCIES.md#Authority-Boundary` |
 
 Approved local dependency mirror, summarized:
@@ -50,7 +50,7 @@ Approved local dependency mirror, summarized:
    - report-facing comparison evidence, limitations, diagnostics, assumptions, and professional-boundary notice;
    - final layout marked `TBD`.
 10. Verify the resulting contract draft against unit safety, data-boundary, professional-boundary, and no-silent-defaults invariants.
-11. Preserve approved DAG-002 mirror rows as ACTIVE. Do not delete, retire, or reclassify them during setup handling.
+11. Preserve approved DAG-006 mirror rows as ACTIVE. Do not delete, retire, or reclassify them during setup handling.
 
 ## Verification
 
@@ -62,7 +62,7 @@ Approved local dependency mirror, summarized:
 | Unit check | Unit-bearing comparison/export values are specified as unit-aware or diagnostic-producing. |
 | Boundary check | No professional approval, certification, code-compliance, or external-validation claim is introduced. |
 | IP/privacy check | No protected standards content, proprietary data, private project data, or private rule-pack payload is embedded. |
-| Dependency mirror check | Existing approved DAG-002 rows remain present and ACTIVE. |
+| Dependency mirror check | Existing approved DAG-006 rows remain present and ACTIVE. |
 
 ## Records
 

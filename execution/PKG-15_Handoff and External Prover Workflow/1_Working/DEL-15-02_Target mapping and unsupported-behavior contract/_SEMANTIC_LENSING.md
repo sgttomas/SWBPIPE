@@ -155,7 +155,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| D-001 | D:[normative]:[reviewing] | Conflict | Guidance | NA | Keep dependency mirror unchanged; record dependency-extract enum conflict for human ruling. | Guidance records a conflict between dependency-extract normalization rules and the explicit project rule to preserve approved DAG-002 mirror rows as ACTIVE. | Guidance.md | Guidance.md#Conflict Table | Guidance.md#Conflict Table Source A cell; Guidance.md#Conflict Table Source B cell | PROPOSAL: user task rule for this run | TBD |
+| D-001 | D:[normative]:[reviewing] | Conflict | Guidance | NA | Keep dependency mirror unchanged; record dependency-extract enum conflict for human ruling. | Guidance records a conflict between dependency-extract normalization rules and the explicit project rule to preserve approved DAG-006 mirror rows as ACTIVE. | Guidance.md | Guidance.md#Conflict Table | Guidance.md#Conflict Table Source A cell; Guidance.md#Conflict Table Source B cell | PROPOSAL: user task rule for this run | TBD |
 
 ## Matrix X - Verification
 

@@ -12,7 +12,7 @@ Describe the conservative production procedure for creating and verifying the DE
 
 - Read `_CONTEXT.md`, `_REFERENCES.md`, and the current deliverable-local dependency mirror before implementation work.
 - Confirm the applicable scope items are SOW-072 and SOW-073, and that OBJ-016 is the objective context.
-- Treat all existing approved DAG-002 rows in `Dependencies.csv` as ACTIVE evidence rows, not as rows to rewrite during this setup workflow.
+- Treat all existing approved DAG-006 rows in `Dependencies.csv` as ACTIVE evidence rows, not as rows to rewrite during this setup workflow.
 - Confirm upstream contract availability before implementing dependent behavior:
   - DEL-14-02 analysis run records;
   - DEL-14-05 comparison mapping, tolerance, and export contracts;

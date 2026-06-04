@@ -16,11 +16,11 @@
 
 | Attribute | Setup value | Source |
 |---|---|---|
-| Primary subject | Deterministic diagnostics for singular, ill-conditioned, nonconverged, and invalid-restraint states. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` row DEL-04-06 |
+| Primary subject | Deterministic diagnostics for singular, ill-conditioned, nonconverged, and invalid-restraint states. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row DEL-04-06 |
 | Solver-result boundary | Diagnostics describe mechanics-solver status and do not decide code compliance. | `docs/CONTRACT.md` OPS-K-MECH-2; OPS-K-AUTH-1 |
-| Diagnostic envelope fields | Code, class, severity, source, affected object, message, remediation, and provenance. | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 |
-| Warning classes | `SOLVE_BLOCKING`, `NONLINEAR_WARNING`, and other shared classes as applicable to solver status reporting. | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7 |
-| Numerical thresholds | TBD. Do not invent singularity, conditioning, or convergence thresholds during setup. | `docs/_Decomposition/SOFTWARE_DECOMP.md` OI-005 |
+| Diagnostic envelope fields | Code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 |
+| Warning classes | `SOLVE_BLOCKING`, `NONLINEAR_WARNING`, and other shared classes as applicable to solver status reporting. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7 |
+| Numerical thresholds | TBD. Do not invent singularity, conditioning, or convergence thresholds during setup. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-005 |
 | Sparse solver library/settings | TBD. | `_CONTEXT.md` Still TBD |
 
 ## Diagnostic Category Register (P3 Candidate Worklist Applied)
@@ -53,7 +53,7 @@
 
 - `_CONTEXT.md`
 - `_REFERENCES.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - `docs/_Registers/Deliverables.csv` row DEL-04-06
 - `docs/_Registers/ScopeLedger.csv` rows SOW-053 and SOW-035
 - `docs/CONTRACT.md`

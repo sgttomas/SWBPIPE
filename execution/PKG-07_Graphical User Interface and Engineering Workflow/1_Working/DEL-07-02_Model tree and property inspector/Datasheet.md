@@ -56,7 +56,7 @@ The future model tree and property inspector are expected to consume accepted sc
 - `_CONTEXT.md` for deliverable identity, scope, artifacts, and architecture-basis injection.
 - `docs/_Registers/Deliverables.csv` row `DEL-07-02`.
 - `docs/_Registers/ScopeLedger.csv` rows `SOW-020` and `SOW-021`.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, `PKG-07`, `OBJ-006`, and architecture basis IDs `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, `PKG-07`, `OBJ-006`, and architecture basis IDs `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
 - `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`, `OPS-K-PRIV-2`, `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, and `OPS-K-AGENT-1..4`.
 - `docs/SPEC.md` sections 1, 3, 6, 7, 10, and 11.
 - `docs/TYPES.md` sections 3, 4, 5, 6, 7, 8, and 9.

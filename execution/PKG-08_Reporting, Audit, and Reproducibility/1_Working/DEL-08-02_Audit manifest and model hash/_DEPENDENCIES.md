@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** TP-DAG-004_REFRESHED_LOCAL
-- **Source of Truth:** Approved ACTIVE rows remain synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; TP-DAG-004 CANDIDATE rows are local refresh evidence for RECONCILIATION.
+- **Source of Truth:** Approved ACTIVE rows remain synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; TP-DAG-004 CANDIDATE rows are local refresh evidence for RECONCILIATION.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 10 ACTIVE; 3 CANDIDATE.
 - **Generated:** 2026-05-11
@@ -33,5 +33,5 @@
 - Mode: `UPDATE`.
 - Strictness: `CONSERVATIVE`.
 - Consumer context: `RECONCILIATION`.
-- Current decomposition basis checked: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5.
+- Current decomposition basis checked: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
 - Original TP-DAG-004 refresh did not edit source documents, status files, memory files, code, schemas, tests, DAG files, or coordination files. DEV-001 Stage 2 later edited package-local metadata and the audit-manifest implementation under the allowed PKG-08 scope.

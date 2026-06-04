@@ -35,4 +35,4 @@
   - `TargetType`: `REQUIREMENT`, `DELIVERABLE`
   - `SatisfactionStatus`: `SATISFIED`, `PENDING`
   - `Status`: `ACTIVE`
-- This local register is evidence for later RECONCILIATION. It does not approve `DAG-003` or change graph authority from approved `DAG-002`.
+- This local register is evidence for later RECONCILIATION. It does not approve `DAG-003` or change graph authority from approved `DAG-006`.

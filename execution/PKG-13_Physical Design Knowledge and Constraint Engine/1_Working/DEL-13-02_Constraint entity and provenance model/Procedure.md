@@ -9,9 +9,9 @@ Provide a bounded procedure for producing and checking the DEL-13-02 constraint 
 | Prerequisite | Source |
 |---|---|
 | Current deliverable context and register rows for DEL-13-02, SOW-067, SOW-068, OBJ-014, and OBJ-018 | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/_Registers/ContextBudgetQA.csv` |
-| Accepted revision 0.5 decomposition basis for PKG-13 and DEL-13-02 | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+| Accepted revision 0.7 current decomposition basis for PKG-13 and DEL-13-02 | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 | Project invariants for protected data, missing-data findings, provenance, units, and professional boundaries | `INIT.md`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md` |
-| Active predecessor context from approved DAG-002 mirror | `_DEPENDENCIES.md`; `Dependencies.csv` |
+| Active predecessor context from approved DAG-006 mirror | `_DEPENDENCIES.md`; `Dependencies.csv` |
 | Architecture basis: Rust core/application services, JSON Schema 2020-12, schema-first envelopes, canonical JSON/JCS-compatible hash basis where JSON payloads are hashed | `_CONTEXT.md#Architecture Basis Injection` |
 
 ## Steps

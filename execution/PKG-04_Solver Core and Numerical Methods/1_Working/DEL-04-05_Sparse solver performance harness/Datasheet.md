@@ -8,7 +8,7 @@
 | Package ID | PKG-04 |
 | Package | Solver Core and Numerical Methods |
 | Deliverable type | TEST_SUITE |
-| Decomposition basis | `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 |
+| Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
 | Scope items | SOW-035 |
 | Objectives | OBJ-003, OBJ-008 |
 | Context envelope | M |
@@ -45,7 +45,7 @@ The harness must remain compatible with the architecture-basis constraints for m
 
 - `_CONTEXT.md` for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
 - `_REFERENCES.md` for governing local references.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, rows for PKG-04, DEL-04-05, SOW-035, OBJ-003, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-04, DEL-04-05, SOW-035, OBJ-003, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
 - `docs/_Registers/Deliverables.csv` row DEL-04-05.
 - `docs/_Registers/ScopeLedger.csv` row SOW-035.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-04-05.

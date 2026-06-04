@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md`
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
 **Perspective:** This deliverable frames the model tree and property inspector as a bounded GUI work surface for navigation, selected-entity inspection, missing-data visibility, provenance/private-status display, and command-backed property edits. The matrices are a question-shaping lens only; they do not establish implementation choices, engineering defaults, protected data content, or professional compliance conclusions.
 **Audit Result:** PASS
 

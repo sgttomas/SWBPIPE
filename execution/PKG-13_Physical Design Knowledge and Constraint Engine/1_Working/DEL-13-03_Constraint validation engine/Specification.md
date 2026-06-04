@@ -29,7 +29,7 @@ No external engineering-code text, tables, values, or clause-level requirements 
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and protected-content boundary. |
 | `docs/SPEC.md` | Technical architecture, domain-core boundary, unit/provenance controls, diagnostics/result-envelope posture, and no-compliance-claim boundary. |
 | `docs/TYPES.md` | Epistemic labels and canonical vocabulary for protected data, user-supplied code data, diagnostics, and professional approval. |
-| `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted revision 0.5 decomposition basis for DEL-13-03 scope and exclusions. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted revision 0.7 current decomposition basis for DEL-13-03 scope and exclusions. |
 | `_CONTEXT.md` | Deliverable-local identity, architecture-basis injection, and control-surface constraints. |
 
 ## Verification
@@ -43,7 +43,7 @@ No external engineering-code text, tables, values, or clause-level requirements 
 | DEL-13-03-R5 | Protected-content/professional-boundary tests assert that validation does not emit standards text, code-specific values, owner-default criteria, or professional approval/compliance statuses. |
 | DEL-13-03-R6 | Schema compatibility tests assert that outputs fit the accepted schema-first envelope once the constraint diagnostic schema is resolved. |
 | DEL-13-03-R7 | Validation diagnostics tests are recorded as part of the deliverable artifact set. |
-| DEL-13-03-R8 | Dependency handling check confirms all approved DAG-002 mirror rows remain ACTIVE and unchanged unless a later human-approved CHANGE process replaces that instruction. |
+| DEL-13-03-R8 | Dependency handling check confirms all approved DAG-006 mirror rows remain ACTIVE and unchanged unless a later human-approved CHANGE process replaces that instruction. |
 
 ## Documentation
 
@@ -54,4 +54,4 @@ Required records for later execution:
 - Validation diagnostics test inventory: required.
 - Public-safe validation fixtures: TBD; must be invented or otherwise permitted, with provenance/review status.
 - Assumptions and unsupported inputs: must be recorded as `TBD` or explicit findings rather than inferred defaults.
-- Dependency mirror handling: preserve approved DAG-002 rows as ACTIVE during this setup workflow.
+- Dependency mirror handling: preserve approved DAG-006 rows as ACTIVE during this setup workflow.

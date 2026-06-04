@@ -21,7 +21,7 @@
 |---|---|
 | Documentation audience | Solver contributors, rule-pack contributors, reviewers, and maintainers. |
 | Guide subject | Developer-facing explanation of solver architecture, rule-pack schema expectations, test discipline, and contribution boundaries. |
-| Architecture basis | AB-00-01, AB-00-02, AB-00-06, AB-00-07, AB-00-08 from SOFTWARE_DECOMP revision 0.4. |
+| Architecture basis | AB-00-01, AB-00-02, AB-00-06, AB-00-07, AB-00-08 from SOFTWARE_DECOMP revision 0.7. |
 | Runtime baseline referenced | Rust core/application services; schema-first command/query/job result envelopes; JSON Schema 2020-12; Cargo/Vitest/Playwright/validation/protected-content gates where applicable. |
 | Solver boundary | The guide must present the solver as open mechanics for a 3D centerline/frame model, not as a code-compliance authority. |
 | Rule-pack boundary | The guide must present rule packs as user-supplied/private design-basis artifacts with provenance, checksums, and redistribution status. |
@@ -64,7 +64,7 @@ The future developer guide should be organized around these content groups:
 | `docs/SPEC.md` | Architecture, solver, rule-pack, report, and V&V baseline for guide content. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules and quarantine behavior. |
 | `docs/VALIDATION_STRATEGY.md` | Verification and validation families and release gate expectations. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | Scope, objectives, package context, architecture basis, and open issues. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | Scope, objectives, package context, architecture basis, and open issues. |
 | `docs/_Registers/Deliverables.csv` | DEL-11-02 identity and anticipated artifact. |
 | `docs/_Registers/ScopeLedger.csv` | SOW-033 scope mapping and no-protected-examples note. |
 

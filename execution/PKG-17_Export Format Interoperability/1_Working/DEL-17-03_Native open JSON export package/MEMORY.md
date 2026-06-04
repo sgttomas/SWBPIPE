@@ -50,3 +50,10 @@
 - Bounded foundation outputs now reflected in production docs: `schemas/native_json_export.schema.json`, `core/handoff/native_json/`, `fixtures/native_json/invented/native_json_export_package.json`, and `tests/test_native_json_export_package.py`.
 - Preserved exclusions for API/CLI/GUI integration, project-store export flow, downstream target adapters, target compatibility, release, code-compliance, solver-validation, professional-reliance, and professional-acceptance claims.
 - Updated `Review_Findings.csv` and `_REVIEW.md` so RF-001 is `HumanDisposition=REVISE` and `Status=RESOLVED`; RF-002 remains open for DAG-005 artifact-flag refresh or disposition by the owning workflow.
+
+## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
+
+- WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-17-03`.
+- Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
+- Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
+- Preserved historical references remain evidence of earlier work, not current authority claims.

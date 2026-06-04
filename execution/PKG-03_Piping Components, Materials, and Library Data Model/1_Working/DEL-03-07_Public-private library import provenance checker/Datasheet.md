@@ -11,7 +11,7 @@
 | Scope Items | SOW-019; SOW-044 |
 | Objectives | OBJ-002; OBJ-004 |
 | Anticipated Artifacts | library import validator; provenance tests |
-| Decomposition Basis | docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 |
+| Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
 | Status | Draft setup evidence |
 
 ## Attributes
@@ -51,5 +51,5 @@ Implementation locations, concrete schemas, external formats, and dependency ver
 - `docs/_Registers/Deliverables.csv` row DEL-03-07.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-019 and SOW-044.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-07.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
 - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, and OPS-K-AGENT-1..4.

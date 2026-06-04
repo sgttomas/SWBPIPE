@@ -5,7 +5,7 @@
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv` remains the approved coordination mirror source.
+- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv` remains the approved coordination mirror source.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 7 total; 7 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Refreshed:** 2026-05-10
@@ -40,7 +40,7 @@
 | Timestamp | Mode | Strictness | Consumer | Rows | Validation | Notes |
 |---|---|---|---|---:|---|---|
 | 2026-04-30 10:15 | UPDATE | CONSERVATIVE | NONE | 5 | PASS | Original dependency-extract run emitted local anchor/objective/execution setup rows. |
-| 2026-05-03 | SYNC | N/A | DAG-002 | 7 | PASS | Local register synchronized from approved `DAG-002` mirror. |
+| 2026-05-03 | SYNC | N/A | DAG-002 | 7 | PASS | Local register synchronized from approved `DAG-006` mirror. |
 | 2026-05-10 22:16 | UPDATE | CONSERVATIVE | RECONCILIATION | 7 | PASS | TP-DAG-004 refresh preserved active mirror rows, updated run notes/history, and kept candidate/lifecycle authority unchanged. |
 
 ## Lifecycle Summary

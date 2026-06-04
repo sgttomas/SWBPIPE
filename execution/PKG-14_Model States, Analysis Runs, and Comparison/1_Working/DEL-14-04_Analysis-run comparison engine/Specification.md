@@ -34,7 +34,7 @@ Project-governing references for this draft are:
 - `docs/SPEC.md` for unit, analysis-boundary, persistence/hash, result-export, runner-output, and validation mechanics.
 - `docs/TYPES.md` for vocabulary and boundary notes.
 - `docs/IP_AND_DATA_BOUNDARY.md` for protected-content/private-data limits.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` for accepted revision 0.5 scope and open issues.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` for accepted revision 0.7 scope and open issues.
 
 ## Verification
 

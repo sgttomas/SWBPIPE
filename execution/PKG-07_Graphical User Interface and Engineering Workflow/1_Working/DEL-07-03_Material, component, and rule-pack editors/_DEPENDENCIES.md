@@ -51,8 +51,8 @@
 
 | Timestamp | Mode | Strictness | Consumer context | Decomposition | Result |
 |---|---|---|---|---|---|
-| 2026-04-30 10:44 | UPDATE | CONSERVATIVE | NONE | docs/_Decomposition/SOFTWARE_DECOMP.md | Prior dependency-extract run reported 14 ACTIVE rows with warning for legacy ID validator mismatch. |
-| 2026-05-03 | DAG-002 mirror sync | N/A | COORDINATION | execution/_DAG/DAG-002/DependencyEdges.csv | Local register synchronized to 13 ACTIVE DAG-002 execution mirror rows, no anchor row. |
+| 2026-04-30 10:44 | UPDATE | CONSERVATIVE | NONE | execution/_Decomposition/SOFTWARE_DECOMP.md | Prior dependency-extract run reported 14 ACTIVE rows with warning for legacy ID validator mismatch. |
+| 2026-05-03 | DAG-002 mirror sync | N/A | COORDINATION | execution/_DAG/DAG-006/DependencyEdges.csv | Local register synchronized to 13 ACTIVE DAG-002 execution mirror rows, no anchor row. |
 | 2026-05-10 22:44 | UPDATE | CONSERVATIVE | RECONCILIATION | execution/_Decomposition/SOFTWARE_DECOMP.md | Refreshed local dependency-extract surface: 14 ACTIVE rows, 1 parent anchor, 13 execution prerequisites, canonical enum write form. |
 | 2026-05-16 | DEV-001 Stage 2 | BOUNDED | PKG-07 TASK | accepted PKG-02 contract | Added 1 ACTIVE package-local DEL-02-02 compatibility row with code/test evidence. |
 

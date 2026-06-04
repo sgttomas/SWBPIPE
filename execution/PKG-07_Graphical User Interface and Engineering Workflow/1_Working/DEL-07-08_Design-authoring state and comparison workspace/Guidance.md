@@ -6,7 +6,7 @@ This deliverable adds a GUI workspace for design iteration and comparison review
 
 ## Principles
 
-1. Consume upstream contracts, do not invent them. DEL-07-08 depends on GUI foundations plus design, transform, state/comparison, and operation contracts. The workspace should represent those contracts faithfully and mark unsupported details as TBD. Source: `Dependencies.csv`; `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
+1. Consume upstream contracts, do not invent them. DEL-07-08 depends on GUI foundations plus design, transform, state/comparison, and operation contracts. The workspace should represent those contracts faithfully and mark unsupported details as TBD. Source: `Dependencies.csv`; `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
 2. Keep authoring controlled. GUI-originated edits should become application-service command intents and controlled operations, not direct writes to durable project state. Source: `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05.
 3. Keep missing information visible. Missing solve-required data, rule-check data, provenance, assumptions, nonlinear uncertainty, and IP-boundary risks are findings or warnings, not values to hide or default. Source: `docs/SPEC.md` / GUI requirements; `docs/CONTRACT.md` / OPS-K-DATA-2.
 4. Keep comparisons non-authoritative. State/run comparisons support design review and audit; they are not automatic professional validation, external approval, or code-compliance findings. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1.

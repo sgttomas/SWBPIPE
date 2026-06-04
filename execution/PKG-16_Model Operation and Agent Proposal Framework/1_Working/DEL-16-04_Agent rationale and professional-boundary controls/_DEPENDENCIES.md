@@ -5,7 +5,7 @@
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Approved Graph Authority:** `execution/_DAG/DAG-002/`
+- **Approved Graph Authority:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
 
@@ -38,8 +38,8 @@
 - [WARNING] ID_FORMAT_TOOL_MISMATCH: `tools/validation/validate_id_format.sh` expects legacy three-digit package/deliverable and four-digit SOW formats, while this project uses IDs such as `PKG-16`, `DEL-16-04`, and `SOW-070`.
 
 ## Run History
-- 2026-05-03: Synchronized from approved DAG-002 mirror; 10 ACTIVE rows.
-- 2026-05-11: TP-DAG-004 dependency surface refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5; approved graph authority `execution/_DAG/DAG-002`; 13 ACTIVE rows; warnings: enum/id-format validator mismatch with current project IDs and DAG-002 mirror taxonomy.
+- 2026-05-03: Synchronized from approved DAG-006 mirror; 10 ACTIVE rows.
+- 2026-05-11: TP-DAG-004 dependency surface refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5; approved graph authority `execution/_DAG/DAG-006`; 13 ACTIVE rows; warnings: enum/id-format validator mismatch with current project IDs and DAG-002 mirror taxonomy.
 
 ## Lifecycle Summary
 - ACTIVE: 13

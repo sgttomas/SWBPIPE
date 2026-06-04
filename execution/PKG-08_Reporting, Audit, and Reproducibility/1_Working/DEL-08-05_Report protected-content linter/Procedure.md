@@ -10,7 +10,7 @@ This procedure records how DEL-08-05 setup artifacts are produced and how future
 |---|---|---|
 | Sealed deliverable context for DEL-08-05 with explicit write scope. | User brief; `_CONTEXT.md` | Available for this setup run. |
 | Local governance references for IP/data, report boundary, professional boundary, and agent constraints. | `_REFERENCES.md`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` | Available. |
-| Decomposition/register scope for SOW-043, OBJ-002, OBJ-007. | `docs/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/*.csv` | Available. |
+| Decomposition/register scope for SOW-043, OBJ-002, OBJ-007. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/*.csv` | Available. |
 | Future report template/example locations. | DEL-08-01 and future implementation work | TBD; not required for setup artifacts. |
 | Future CI guard location and policy. | DEL-10-04 or later authorized implementation work | TBD; not modified in this setup session. |
 

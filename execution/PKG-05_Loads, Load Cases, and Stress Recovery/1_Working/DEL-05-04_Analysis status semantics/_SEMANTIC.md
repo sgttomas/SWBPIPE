@@ -15,7 +15,7 @@
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 - `DEL-05-04`, `SOW-047`, `OBJ-005, OBJ-011`, and sealed architecture-basis references.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - `DEL-05-04`, `SOW-047`, `OBJ-005, OBJ-011`, and sealed architecture-basis references.
 - `docs/_Registers/Deliverables.csv` row `DEL-05-04`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-047`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-05-04`.

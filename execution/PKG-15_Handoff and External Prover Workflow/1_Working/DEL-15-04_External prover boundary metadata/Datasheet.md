@@ -12,7 +12,7 @@
 | Scope Coverage | SOW-075 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-075 |
 | Objective Support | OBJ-017; OBJ-018 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` objective mapping |
 | Context Envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-15-04 |
-| Accepted Decomposition Basis | revision 0.5 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+| Accepted Decomposition Basis | revision 0.7 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 
 ## Attributes
 
@@ -35,7 +35,7 @@
 | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
 | Upstream professional-boundary dependency | DEL-01-04 | `Dependencies.csv` row DAG-002-E0818 |
 | Upstream handoff/state dependencies | DEL-15-01, DEL-15-02, DEL-15-03, DEL-14-01 | `Dependencies.csv` rows DAG-002-E0819 through DAG-002-E0822 |
-| Approved DAG mirror status | 12 ACTIVE rows, synchronized from approved DAG-002 | `_DEPENDENCIES.md`; `Dependencies.csv` |
+| Approved DAG mirror status | 12 ACTIVE rows, synchronized from approved DAG-006 | `_DEPENDENCIES.md`; `Dependencies.csv` |
 | Boundary validation tests | Required anticipated artifact, exact tests TBD | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
 
 ## Construction
@@ -52,8 +52,8 @@
 
 - `_CONTEXT.md` - deliverable identity, scope, objectives, architecture basis, and anticipated artifacts.
 - `_REFERENCES.md` - governing source list for this folder.
-- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-002 local mirror/evidence surface.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.5 package, scope, objective, decision, and issue context.
+- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 local mirror/evidence surface.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, scope, objective, decision, and issue context.
 - `docs/_Registers/Deliverables.csv` - row DEL-15-04.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-075.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-15-04.

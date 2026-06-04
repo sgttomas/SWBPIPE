@@ -71,6 +71,6 @@
 ## Run History
 
 - 2026-04-30 1530: Initial dependency-extract setup run created local dependency artifacts.
-- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 6 ACTIVE rows.
+- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 6 ACTIVE rows.
 - 2026-05-10 2227: TP-DAG-004 dependency-extract refresh for `DEL-05-04`; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition found; 10 ACTIVE rows, 0 RETIRED rows, warnings none.
 - 2026-05-16: DEV-001 Stage 2 package-local alignment for PKG-05 finding resolution updated DAG-002-E0450 evidence, explicitness, satisfaction, confidence, and last-seen metadata while preserving result-envelope/non-JSON hash integration as explicit TBD scope.

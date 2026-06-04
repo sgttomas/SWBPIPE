@@ -61,7 +61,7 @@ Expected future check categories:
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy, quarantine rule, report boundary. |
 | `docs/TYPES.md` | Analysis status vocabulary, protected-content vocabulary, report object boundary. |
 | `docs/DIRECTIVE.md` | Founding stop rules and professional/IP responsibility constraints. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-05 decomposition basis, SOW-043, OBJ-002, OBJ-007, architecture-basis IDs. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-05 decomposition basis, SOW-043, OBJ-002, OBJ-007, architecture-basis IDs. |
 | `docs/_Registers/Deliverables.csv` | DEL-08-05 register row. |
 | `docs/_Registers/ScopeLedger.csv` | SOW-043 register row. |
 

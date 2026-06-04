@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_BY_TP_DAG_004
-- **Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv` remains the prior aggregate mirror source for preserved DAG rows.
+- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv` remains the prior aggregate mirror source for preserved DAG rows.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10

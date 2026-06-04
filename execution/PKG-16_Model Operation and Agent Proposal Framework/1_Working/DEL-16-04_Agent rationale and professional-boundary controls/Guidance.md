@@ -21,7 +21,7 @@ This deliverable exists to keep agent-assisted model operation workflows auditab
 |---|---|
 | Record shape | The exact agent rationale record schema is TBD. The available sources support categories, not final field names or storage paths. |
 | Guard-test surface | Guard tests should eventually cover the surfaces where claims could appear, such as statuses, reports, result envelopes, UI copy, API responses, and agent proposal text. Exact product surfaces are TBD. |
-| Dependency context | The approved DAG-002 mirror identifies architecture-basis deliverables, professional responsibility policy, user acceptance/audit trail, and security threat model as upstream context. This setup pass preserves that mirror rather than reclassifying it. |
+| Dependency context | The approved DAG-006 mirror identifies architecture-basis deliverables, professional responsibility policy, user acceptance/audit trail, and security threat model as upstream context. This setup pass preserves that mirror rather than reclassifying it. |
 | Rationale privacy | Rationale may mention project context or user inputs. Future implementation must respect private-data and protected-content controls before public export. |
 | Human review | Human review is a boundary, not a wording detail. A UI label or report phrase must not imply human acceptance unless backed by an external, human-owned, hash-bound record. |
 

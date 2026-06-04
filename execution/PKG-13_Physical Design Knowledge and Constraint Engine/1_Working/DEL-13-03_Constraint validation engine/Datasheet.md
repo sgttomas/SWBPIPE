@@ -34,7 +34,7 @@
 | Public/private data boundary | Public artifacts must not bundle protected standards text, protected tables, proprietary values, owner standards, or private project data. Sources: `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6. |
 | Professional boundary | Software outputs are decision support and must not automatically claim certification, approval, sealing, authentication, code compliance, or professional reliance. Sources: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 4.3; `docs/DIRECTIVE.md` Professional boundary. |
 | Unit and provenance controls | Domain-core and adapter paths may not bypass unit checks, provenance checks, or public/private data boundaries. Sources: `docs/SPEC.md` sections 1 and 4. |
-| Upstream evidence surface | `Dependencies.csv` is an approved DAG-002 mirror/evidence surface with ACTIVE rows for architecture basis, design-knowledge schema/provenance, constraint entity/provenance, unit, diagnostics, and persistence predecessors. Source: `_DEPENDENCIES.md`; `Dependencies.csv`. |
+| Upstream evidence surface | `Dependencies.csv` is an approved DAG-006 mirror/evidence surface with ACTIVE rows for architecture basis, design-knowledge schema/provenance, constraint entity/provenance, unit, diagnostics, and persistence predecessors. Source: `_DEPENDENCIES.md`; `Dependencies.csv`. |
 
 ## Construction
 
@@ -51,8 +51,8 @@ This setup pass does not create product code. It records the deliverable-local d
 
 - `_CONTEXT.md` - deliverable identity, scope, artifacts, architecture-basis injection.
 - `_REFERENCES.md` - governing reference list for this DEL folder.
-- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-002 local dependency mirror/evidence surface.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 package, scope, objective, and deliverable entries.
+- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 local dependency mirror/evidence surface.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 package, scope, objective, and deliverable entries.
 - `docs/_Registers/Deliverables.csv` - row DEL-13-03.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-068.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-03.

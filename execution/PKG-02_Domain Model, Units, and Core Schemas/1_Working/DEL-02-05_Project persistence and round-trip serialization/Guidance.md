@@ -2,16 +2,16 @@
 
 ## Purpose
 
-DEL-02-05 exists to make project files auditable, deterministic, and reusable across the OpenPipeStress workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.
+DEL-02-05 exists to make project files auditable, deterministic, and reusable across the OpenPipeStress workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.
 
 ## Principles
 
-- Treat the project file as a versioned domain artifact, not as an implementation dump. Required persisted content must be described by schema and service contracts. Source: `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04.
-- Preserve semantics, not formatting accidents. Round-trip success means required project content is preserved and canonical JSON/hash behavior is deterministic. Source: `docs/PRD.md` section 10 FR-001; `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04.
+- Treat the project file as a versioned domain artifact, not as an implementation dump. Required persisted content must be described by schema and service contracts. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04.
+- Preserve semantics, not formatting accidents. Round-trip success means required project content is preserved and canonical JSON/hash behavior is deterministic. Source: `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04.
 - Keep units explicit. Every numerical value that can affect solving, rule checks, reports, or exports needs unit metadata or a traceable unit-system reference. Source: `docs/CONTRACT.md` OPS-K-UNIT-1.
 - Preserve provenance. Missing provenance is a finding or warning, not a reason to invent source information. Source: `docs/CONTRACT.md` OPS-K-DATA-2 and OPS-K-DATA-3; `docs/TYPES.md` section 5.
 - Store rule-pack references and checksums without bundling protected rule content into public project examples. Source: `docs/SPEC.md` section 6; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7.
-- Route persistence through application/service/storage boundaries that keep validation and diagnostics enforceable. Source: `docs/SPEC.md` section 1; `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-03, AB-00-06, and AB-00-07.
+- Route persistence through application/service/storage boundaries that keep validation and diagnostics enforceable. Source: `docs/SPEC.md` section 1; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-03, AB-00-06, and AB-00-07.
 - Separate software-computed state from professional approval. Persistence may record user-rule check states or human review records only with appropriate authority labels and hashes; it must not turn software output into code compliance. Source: `docs/TYPES.md` section 4; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2.
 
 ## Considerations
@@ -23,7 +23,7 @@ DEL-02-05 exists to make project files auditable, deterministic, and reusable ac
 - Represent private data boundaries in the contract. Project files may reference private libraries and rule packs, but the public project must not assume those files are redistributable.
 - Design diagnostics for machine and user review. Open/save/migrate failures should identify affected objects, source, severity, remediation, and provenance rather than returning unstructured text only.
 - Avoid overclaiming SCA-001. The architecture basis resolves JSON Schema 2020-12, canonical JSON/JCS-compatible hash basis, schema-first envelopes, and test-gate classes; it does not resolve exact dependency versions, physical container, migration framework, or binary packaging.
-- Record unresolved persistence decisions in an ADR/open-decision mechanism before implementation depends on them. Source: `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01, section 8.2, and OI-011.
+- Record unresolved persistence decisions in an ADR/open-decision mechanism before implementation depends on them. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01, section 8.2, and OI-011.
 - Treat local-first behavior as a boundary condition for persistence, not only as a publication policy. Create/open/save must not imply cloud storage, public commit, telemetry, or redistribution of private project/rule/library data by default; the exact split between persistence checks and PKG-12 privacy controls remains TBD. Source: `docs/CONTRACT.md` OPS-K-PRIV-1; `docs/PRD.md` sections 18.1-18.3.
 
 ### Vocabulary Normalization

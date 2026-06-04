@@ -6,10 +6,10 @@
 |---|---|---|
 | Deliverable ID | `DEL-11-03` | `_CONTEXT.md` |
 | Name | Theory notes: classical to modern centerline analysis | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-11-03` |
-| Package | `PKG-11` Documentation, Examples, and Education | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 7 |
+| Package | `PKG-11` Documentation, Examples, and Education | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7 |
 | Deliverable type | `DOC_UPDATE` | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-11-03` |
 | Scope item | `SOW-033` | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row `SOW-033` |
-| Objectives | `OBJ-001`, `OBJ-003` | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` rows `OBJ-001` and `OBJ-003` |
+| Objectives | `OBJ-001`, `OBJ-003` | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `OBJ-001` and `OBJ-003` |
 | Anticipated artifact | `docs/theory/centerline_analysis.md` | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-11-03` |
 | Context envelope | `M`; risk `OK` | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row `DEL-11-03` |
 
@@ -17,7 +17,7 @@
 
 | Attribute | Draft setup value | Source / notes |
 |---|---|---|
-| Documentation purpose | Explain the lineage from classical piping flexibility analysis to modern global centerline/frame implementation. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-11-03` |
+| Documentation purpose | Explain the lineage from classical piping flexibility analysis to modern global centerline/frame implementation. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-11-03` |
 | Solver concept boundary | The project uses a global 3D centerline/frame model as the primary practical analysis model; local shell/solid FEA is a separate handoff path. | `docs/CONTRACT.md` invariant `OPS-K-MECH-1`; `INIT.md` boundary 4 |
 | Public-source constraint | Future theory text must use public/permissive sources only and must cite them explicitly. | `_CONTEXT.md` Context Budget QA; `docs/CONTRACT.md` `OPS-K-IP-1` and `OPS-K-IP-2` |
 | Protected-data exclusion | The note must not reproduce protected standards text, examples, figures, tables, code-specific formulas, SIF/flexibility tables, material allowables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`; `_CONTEXT.md` |
@@ -64,5 +64,5 @@ Future source-selection register fields:
 - `_REFERENCES.md` for currently available governing references.
 - `INIT.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
 - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
 - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` rows for `DEL-11-03` and `SOW-033`.

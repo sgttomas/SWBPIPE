@@ -56,4 +56,4 @@ This setup surface describes the future implementation contract without creating
 - docs/architecture/persistence_contract.md - canonical JSON/JCS hash basis and hash metadata.
 - docs/architecture/code_neutral_analysis_boundary.md - rule-pack reference and professional-boundary separation.
 - docs/architecture/extension_domain_contracts.md - no-bypass constraints for provenance, privacy, checksums, and protected-content controls.
-- docs/_Decomposition/SOFTWARE_DECOMP.md - DEL-06-04 scope and SCA-001 architecture basis.
+- execution/_Decomposition/SOFTWARE_DECOMP.md - DEL-06-04 scope and SCA-001 architecture basis.

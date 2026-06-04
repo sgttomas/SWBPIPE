@@ -49,7 +49,7 @@ No external engineering standard text is locally available or authorized as sour
 | `docs/SPEC.md` | Schema-first model role, unit metadata, diagnostics/warnings, and warning class context. |
 | `docs/TYPES.md` | Vocabulary for model roles, traceability, diagnostics, frame kernel, supports, and load semantics. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Protected-data and private-data handling. |
-| `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 | Accepted decomposition and SOW/OBJ mapping. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Accepted decomposition and SOW/OBJ mapping. |
 
 Referenced PRD source material (`PRD v0.2 Section8.3`, `FR-MOD-007`) is not locally available in this deliverable's references. Any requirement depending on the PRD beyond the SOW-066 text remains `TBD`.
 
@@ -64,7 +64,7 @@ Referenced PRD source material (`PRD v0.2 Section8.3`, `FR-MOD-007`) is not loca
 | No silent defaults | Missing solve-required physical data yields findings rather than inferred defaults. | Required by OPS-K-DATA-2. |
 | Protected-content boundary | Public contract/tests do not include protected standards text, values, tables, or proprietary data. | Required by OPS-K-IP-1. |
 | Professional boundary | Outputs remain diagnostics / transform artifacts, not compliance or professional-approval claims. | Required by OPS-K-AUTH-1. |
-| DAG mirror preservation | All approved DAG-002 rows in `Dependencies.csv` remain ACTIVE and are not retired, deleted, or reclassified by this setup run. | Required by user instruction and `_DEPENDENCIES.md`. |
+| DAG mirror preservation | All approved DAG-006 rows in `Dependencies.csv` remain ACTIVE and are not retired, deleted, or reclassified by this setup run. | Required by user instruction and `_DEPENDENCIES.md`. |
 
 ## Documentation
 

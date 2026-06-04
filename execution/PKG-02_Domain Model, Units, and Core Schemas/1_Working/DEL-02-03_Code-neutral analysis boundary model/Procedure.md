@@ -6,11 +6,11 @@ Define a repeatable procedure for producing and checking the `DEL-02-03` boundar
 
 ## Prerequisites
 
-- Read `_CONTEXT.md` revision 0.4 for deliverable identity, scope, artifacts, and SCA-001 architecture-basis injection.
+- Read `_CONTEXT.md` revision 0.7 for deliverable identity, scope, artifacts, and SCA-001 architecture-basis injection.
 - Confirm `_STATUS.md` allows editing under the active task brief. Reread the current state for each run; do not carry forward stale prior-run state claims.
 - Read `_REFERENCES.md` and use accessible local sources.
 - Read `docs/_Registers/Deliverables.csv` row `DEL-02-03`, `docs/_Registers/ScopeLedger.csv` row `SOW-002`, and `docs/_Registers/ContextBudgetQA.csv` row `DEL-02-03`.
-- Read `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 sections for objectives, `PKG-02`, `DEL-02-03`, SCA-001 basis, and `SOW-002`.
+- Read `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 sections for objectives, `PKG-02`, `DEL-02-03`, SCA-001 basis, and `SOW-002`.
 - Read governing source slices: `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/PRD.md` sections 6.1/6.2/12/17.4, `docs/INTENT.md` rule-pack/mechanics boundary, and `docs/IP_AND_DATA_BOUNDARY.md`.
 - Confirm no human-owned upstream dependency list blocks the work. `_DEPENDENCIES.md` states dependencies are coordinated externally and not tracked in this folder.
 

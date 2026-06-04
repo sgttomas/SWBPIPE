@@ -144,7 +144,7 @@
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | F-001 | F:[normative]:[sufficiency] | VerificationGap | Specification | Specification | Define future sandbox test evidence for rule-pack-facing API hooks. | Requirements prohibit arbitrary code execution, but exact expression grammar/library and sandbox mechanism remain TBD. | Specification.md; Guidance.md | Requirements REQ-08, REQ-12, REQ-13; Human-Ruling Queue | NA | PROPOSAL: require deterministic/unit/security tests once PKG-06/PKG-12 decisions exist. | TBD |
-| F-002 | F:[operative]:[consistency] | TBD_Question | Guidance | Guidance | TBD: link future external format decisions to adapter validation gates. | External formats are intentionally not selected; each future format needs unit/provenance/redistribution/protected-content controls. | Guidance.md; docs/_Decomposition/SOFTWARE_DECOMP.md | Human-Ruling Queue; OI-004 | NA | PROPOSAL: route format choices through PKG-10 adapter deliverables and human decision. | TBD |
+| F-002 | F:[operative]:[consistency] | TBD_Question | Guidance | Guidance | TBD: link future external format decisions to adapter validation gates. | External formats are intentionally not selected; each future format needs unit/provenance/redistribution/protected-content controls. | Guidance.md; execution/_Decomposition/SOFTWARE_DECOMP.md | Human-Ruling Queue; OI-004 | NA | PROPOSAL: route format choices through PKG-10 adapter deliverables and human decision. | TBD |
 
 ## Matrix D - Objectives
 
@@ -229,7 +229,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| E-001 | E:[guiding]:[information] | MissingSlot | Guidance | Guidance | Add durable open-issue or decision-log references once project authority creates them. | The Human-Ruling Queue is clear but lacks issue IDs beyond decomposition open issues for some decisions. | Guidance.md; docs/_Decomposition/SOFTWARE_DECOMP.md | Human-Ruling Queue; Open issues | NA | PROPOSAL: link future decisions to OI/DEC IDs rather than embedding decisions here. | TBD |
+| E-001 | E:[guiding]:[information] | MissingSlot | Guidance | Guidance | Add durable open-issue or decision-log references once project authority creates them. | The Human-Ruling Queue is clear but lacks issue IDs beyond decomposition open issues for some decisions. | Guidance.md; execution/_Decomposition/SOFTWARE_DECOMP.md | Human-Ruling Queue; Open issues | NA | PROPOSAL: link future decisions to OI/DEC IDs rather than embedding decisions here. | TBD |
 | E-002 | E:[applying]:[wisdom] | RationaleGap | Specification | Specification | Add privacy/security rationale when any plugin capability could expose private project, rule-pack, material, component, or result data. | The deny-by-default rule is present, but later exceptions require rationale and explicit approval evidence. | Specification.md; docs/PRD.md | Requirements REQ-12; PRD sections 18.2 and 18.3 | NA | PROPOSAL: defer exception rationale to PKG-12/security review and human ruling. | TBD |
 
 ## Register Closure

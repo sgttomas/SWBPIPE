@@ -30,7 +30,7 @@
 
 | Condition | Status |
 |---|---|
-| Upstream dependency mirror | `Dependencies.csv` contains 21 rows; all are ACTIVE approved DAG-002 mirror rows. Source: `Dependencies.csv` and `_DEPENDENCIES.md` / Generated Dependency Register. |
+| Upstream dependency mirror | `Dependencies.csv` contains 21 rows; all are ACTIVE approved DAG-006 mirror rows. Source: `Dependencies.csv` and `_DEPENDENCIES.md` / Generated Dependency Register. |
 | Architecture basis dependencies | AB-00-01, AB-00-02, AB-00-03, AB-00-05, AB-00-06, AB-00-07, and AB-00-08 apply as dispatchable constraints. Source: `_CONTEXT.md` / Architecture Basis Injection. |
 | GUI predecessor dependencies | DEL-07-01, DEL-07-02, DEL-07-04, and DEL-07-05 are declared upstream GUI foundations. Source: `Dependencies.csv` rows DAG-002-E0840 through DAG-002-E0843. |
 | Design/constraint dependencies | DEL-13-01, DEL-13-03, and DEL-13-04 are declared upstream design-knowledge, constraint-validation, and transformation inputs. Source: `Dependencies.csv` rows DAG-002-E0844 through DAG-002-E0846. |
@@ -42,7 +42,7 @@
 
 This deliverable is a GUI workflow slice. The expected construction surface is a workspace that composes design knowledge, warnings, operation/diff review, state/run browsing, comparison tables, and graphical comparison overlays without owning the backend schemas or engines that produce those records.
 
-The workspace must consume upstream contracts rather than invent placeholder semantics. The approved DAG-002 edge review states that DEL-07-08 should consume existing GUI foundations plus initial design, transform, comparison, and operation contracts. Source: `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
+The workspace must consume upstream contracts rather than invent placeholder semantics. The approved DAG-006 edge review states that DEL-07-08 should consume existing GUI foundations plus initial design, transform, comparison, and operation contracts. Source: `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
 
 Implementation details not supported by local evidence remain TBD, including concrete component hierarchy, state-management library, route names, data-fetching library, visual encoding rules, keyboard shortcuts, and Playwright coverage thresholds.
 

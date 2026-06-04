@@ -3,7 +3,7 @@
 ## Extracted Dependency Register
 
 - **Status:** TP-DAG-004_REFRESHED
-- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5
+- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 12 total; 11 ACTIVE; 1 RETIRED.
 - **Generated:** 2026-05-10
@@ -63,7 +63,7 @@
 ## Downstream Handoff Notes
 
 - This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
-- Aggregate DAG and coordination surfaces may still be stale relative to `SOFTWARE_DECOMP.md` revision 0.5.
+- Aggregate DAG and coordination surfaces may still be stale relative to `SOFTWARE_DECOMP.md` revision 0.7.
 - The retained predecessor rows have `SatisfactionStatus=TBD` because this local refresh did not inspect target deliverable maturity outside the allowed read boundary.
 - The retired `DEL-04-04` row should be reviewed by RECONCILIATION if nonlinear diagnostic sequencing is later formalized.
 

@@ -6,7 +6,7 @@
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Source of Truth Boundary:** `execution/_DAG/DAG-002/` remains the approved graph authority.
+- **Source of Truth Boundary:** `execution/_DAG/DAG-006/` remains the approved graph authority.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 14 total; 14 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -47,7 +47,7 @@ No human-owned declared dependency list was present in the prior `_DEPENDENCIES.
 - Anchor document selected: `Datasheet.md`.
 - Execution documents scanned: `_CONTEXT.md`, `Procedure.md`, `Specification.md`, `Guidance.md`, `_REFERENCES.md`, prior `_DEPENDENCIES.md`, and existing `Dependencies.csv`.
 - Decomposition path used: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; status: found and used for SOW/OBJ/deliverable label validation.
-- Approved graph authority read: `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-002/`; status: used only to preserve prior approved mirror rows and evidence boundary.
+- Approved graph authority read: `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-006/`; status: used only to preserve prior approved mirror rows and evidence boundary.
 - Parent anchor check: exactly one ACTIVE `IMPLEMENTS_NODE` anchor found.
 - Conservative row treatment: preserved all 12 approved DAG-002 mirror execution rows as ACTIVE because DEL-13-03 source documents explicitly instruct later implementation to treat approved ACTIVE dependency rows as predecessor evidence and not retire, delete, or reclassify them during this setup workflow.
 - Canonicalization: local mirror rows were normalized to dependency-extract enum values (`AnchorType=NOT_APPLICABLE`, `DependencyType=PREREQUISITE`, `Origin=EXTRACTED`, `SatisfactionStatus=TBD` where prior mirror value was `UNKNOWN`) while preserving the source `DependencyID` values.
@@ -56,7 +56,7 @@ No human-owned declared dependency list was present in the prior `_DEPENDENCIES.
 
 ## Run History
 
-- 2026-05-10 23:37 MDT — MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; decomposition found at `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; graph authority read from `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-002/`; ACTIVE counts: ANCHOR=2, EXECUTION=12; RETIRED counts: none; warnings: legacy ID-format validator mismatch.
+- 2026-05-10 23:37 MDT — MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; decomposition found at `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; graph authority read from `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-006/`; ACTIVE counts: ANCHOR=2, EXECUTION=12; RETIRED counts: none; warnings: legacy ID-format validator mismatch.
 
 ## Lifecycle Summary
 

@@ -40,7 +40,7 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/CON
 | TBD discipline | Confirm package container, target list, exact field names, and target-specific mappings are not invented. |
 | Data boundary | Check that schema guidance does not embed protected/private/proprietary payloads or examples. |
 | Professional boundary | Check that the contract does not emit automatic approval/compliance/certification statuses. |
-| Dependency mirror preservation | Confirm approved DAG-002 rows remain ACTIVE and are not retired, deleted, or reclassified. |
+| Dependency mirror preservation | Confirm approved DAG-006 rows remain ACTIVE and are not retired, deleted, or reclassified. |
 
 ## Records
 

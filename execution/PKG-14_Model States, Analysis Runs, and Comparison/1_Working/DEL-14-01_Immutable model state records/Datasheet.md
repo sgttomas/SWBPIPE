@@ -31,7 +31,7 @@
 - The model state record must respect OpenPipeStress data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).
 - Missing or unsupported data remains explicit and visible; silent engineering defaults are disallowed (`docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3).
 - Human acceptance or external approval, if referenced later, remains external and hash-bound; the software must not emit professional approval, certification, sealing, authentication, or code-compliance equivalents as automatic statuses (`docs/SPEC.md` sections 4.4 and 9; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2).
-- Approved DAG-002 mirror rows identify architecture-basis predecessors plus dependencies on canonical model, persistence, audit/hash, and analysis-status vocabulary surfaces (`Dependencies.csv`; `execution/_DAG/DAG-002/APPROVAL_RECORD.md`).
+- Approved DAG-002 mirror rows identify architecture-basis predecessors plus dependencies on canonical model, persistence, audit/hash, and analysis-status vocabulary surfaces (`Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`).
 
 ## Construction
 
@@ -53,7 +53,7 @@ The source-supported construction target is a schema and persistence-test surfac
 
 - `_CONTEXT.md` for deliverable identity, package, artifacts, scope, objective, architecture basis, and envelope notes.
 - `_REFERENCES.md` for the approved source list and authority boundary.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register-backed identity and scope data.
 - `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for invariants, technical boundaries, vocabulary, and data-boundary constraints.
-- `Dependencies.csv` as the local approved DAG-002 mirror/evidence surface.
+- `Dependencies.csv` as the local approved DAG-006 mirror/evidence surface.

@@ -43,7 +43,7 @@
 | Agent rationale record | A future product artifact that records the rationale and unresolved assumptions associated with accepted model operations. Exact schema remains TBD. |
 | Professional-boundary controls | Future controls that prevent agent/software output from becoming or appearing to be certification, approval, professional reliance, or code-compliance authority. Exact implementation remains TBD. |
 | Guard tests | Future tests or checks proving prohibited claim/status language is blocked and assumptions/rationale remain visible. Exact test framework remains TBD. |
-| Dependency evidence surface | `Dependencies.csv` is an approved DAG-002 mirror with ACTIVE upstream rows for architecture-basis deliverables, professional responsibility policy, user acceptance/audit trail, and security threat model. The mirror is not rewritten by this setup pass. |
+| Dependency evidence surface | `Dependencies.csv` is an approved DAG-006 mirror with ACTIVE upstream rows for architecture-basis deliverables, professional responsibility policy, user acceptance/audit trail, and security threat model. The mirror is not rewritten by this setup pass. |
 
 ## References
 

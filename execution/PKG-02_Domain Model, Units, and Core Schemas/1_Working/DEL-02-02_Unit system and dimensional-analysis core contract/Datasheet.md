@@ -19,7 +19,7 @@ created: 2026-04-30
 | Scope item | SOW-025 |
 | Objectives | OBJ-001, OBJ-012 |
 | Anticipated artifacts | `core/units` module contract; unit tests; `docs/SPEC.md` section |
-| Sealed context basis | `_CONTEXT.md` revision 0.4; `SOFTWARE_DECOMP.md` revision 0.4 |
+| Sealed context basis | `_CONTEXT.md` revision 0.7; `SOFTWARE_DECOMP.md` revision 0.7 |
 | Draft status | Draft/proposal until accepted by a human review gate per `docs/CONTRACT.md` OPS-K-AGENT-4 |
 
 ## Attributes
@@ -66,12 +66,12 @@ The DEL-02-02 implementation surface should be constructed as a domain-core unit
 
 ## References
 
-- `_CONTEXT.md` revision 0.4 for sealed deliverable identity, package exclusions, artifacts, and SCA-001 basis IDs.
+- `_CONTEXT.md` revision 0.7 for sealed deliverable identity, package exclusions, artifacts, and SCA-001 basis IDs.
 - `_REFERENCES.md` for accessible source set and note that no package-specific source material beyond governance/register content was introduced by PREPARATION.
 - `docs/CONTRACT.md` Section 1 for invariants OPS-K-IP-1 through OPS-K-IP-3, OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-UNIT-1, OPS-K-AGENT-1 through OPS-K-AGENT-4.
 - `docs/SPEC.md` Sections 1-3, 6-9, 11 for layer ownership, `core/units`, domain objects with units, rule evaluator constraints, diagnostics, reports, tests, and acceptance semantics.
 - `docs/DIRECTIVE.md` Sections 2-5 for unit safety, provenance, no silent defaults, professional boundary, and stop rules.
 - `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-7 for public/private data and provenance limits.
 - `docs/VALIDATION_STRATEGY.md` Sections 2-5 for unit/schema test and benchmark-source expectations.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 Sections 4-8 for SOW-025, OBJ-001, OBJ-012, PKG-02, DEL-02-02, and SCA-001 architecture basis.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 Sections 4-8 for SOW-025, OBJ-001, OBJ-012, PKG-02, DEL-02-02, and SCA-001 architecture basis.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` rows for DEL-02-02 and SOW-025.

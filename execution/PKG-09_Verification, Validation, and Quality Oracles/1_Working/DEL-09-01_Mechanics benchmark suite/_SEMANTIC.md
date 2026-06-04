@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md` (traceability input; not reinterpreted here)
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` (traceability input; not reinterpreted here)
 **Perspective:** This deliverable is for shaping the validation boundary through which mechanics benchmark cases can exercise solver behavior while remaining inside governed schemas, diagnostics, provenance, unit safety, result-envelope controls, and protected-data constraints. It carries question-shaping knowledge about cantilever, frame, thermal-growth, imposed-displacement, and stiffness-transform benchmark categories; it is not an implementation design, tolerance authority, or engineering approval.
 **Framework:** Chirality Semantic Algebra
 **Lens Boundary:** These matrices are a semantic lens for asking better questions. They do not establish engineering correctness, approve design content, or resolve implementation TBDs.

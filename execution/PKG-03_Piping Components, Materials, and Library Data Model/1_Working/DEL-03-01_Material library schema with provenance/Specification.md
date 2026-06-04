@@ -24,7 +24,7 @@ This setup pass does not implement `schemas/material.schema.yaml`, create materi
 | Standard or policy source | Use in this setup evidence |
 |---|---|
 | OpenPipeStress CONTRACT | Governs protected-content, provenance, privacy, data, unit, governance, and agent-output constraints. |
-| SOFTWARE_DECOMP revision 0.4 | Provides package/deliverable scope and architecture basis IDs. |
+| SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope and architecture basis IDs. |
 | External engineering standards | Referenced only as possible source categories; exact text, tables, values, and clauses are not locally available and remain `TBD`. |
 
 ## Verification

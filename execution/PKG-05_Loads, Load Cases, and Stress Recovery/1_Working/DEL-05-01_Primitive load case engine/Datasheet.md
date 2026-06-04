@@ -16,7 +16,7 @@
 
 | Attribute | Setup value | Source |
 |---|---|---|
-| Primary subject | Primitive load definitions for weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional categories. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-01; `docs/_Registers/ScopeLedger.csv` row SOW-013 |
+| Primary subject | Primitive load definitions for weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional categories. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-01; `docs/_Registers/ScopeLedger.csv` row SOW-013 |
 | Analysis model boundary | Primitive loads are inputs to a 3D centerline/frame mechanics model. | `docs/CONTRACT.md` OPS-K-MECH-1 |
 | Mechanics/rule boundary | This deliverable defines mechanics load categories and application evidence; it does not evaluate user-rule acceptability or professional compliance. | `docs/CONTRACT.md` OPS-K-MECH-2 |
 | Unit boundary | Load magnitudes, temperature changes, pressures, displacements, accelerations, and distributed quantities are unit-aware and dimensionally checked. | `docs/CONTRACT.md` OPS-K-UNIT-1 |
@@ -57,7 +57,7 @@
 
 - `_CONTEXT.md`
 - `_REFERENCES.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - `docs/_Registers/Deliverables.csv` row DEL-05-01
 - `docs/_Registers/ScopeLedger.csv` row SOW-013
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-01

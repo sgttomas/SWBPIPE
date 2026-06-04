@@ -33,7 +33,7 @@ Out of scope for this setup run:
 
 ## Standards
 
-No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal OpenPipeStress governance artifacts: `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `docs/_Decomposition/SOFTWARE_DECOMP.md`.
+No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal OpenPipeStress governance artifacts: `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
 
 The term "Tauri-supported targets" is used only as an architecture-baseline label from the sealed context. Exact Tauri target details, operating-system versions, signing requirements, installer formats, and publishing rules remain `TBD`.
 

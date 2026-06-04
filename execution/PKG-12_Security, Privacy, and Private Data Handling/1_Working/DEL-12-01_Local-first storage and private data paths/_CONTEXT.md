@@ -37,7 +37,7 @@ Define and implement private data storage conventions outside public repository 
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
-- **Accepted Revision:** 0.6
+- **Accepted Revision:** 0.7
 - **Status:** current_basis
 
 ## Register References
@@ -49,7 +49,7 @@ Define and implement private data storage conventions outside public repository 
 ## Architecture Basis Injection
 - **Scope Change:** SCA-001
 - **Architecture Basis:** `PKG-00 - Software Architecture Runway` at `SEMANTIC_READY` supplies dispatchable architecture-basis constraints for this sealed context. This does not mark PKG-00 as `ISSUED`.
-- **Decomposition Revision:** execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.6
+- **Decomposition Revision:** execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08
 - **Resolved Baseline:** Rust core/application services; Tauri 2 desktop shell where GUI-facing; TypeScript/React/Vite GUI where GUI-facing; Three.js viewport where 3D viewport-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed; SCA-003 local SQLite project store/index profile with rebuildable SQLite FTS5/BM25 retrieval sidecars; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable.
 - **Still TBD:** Exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, import/export format list, CI provider/coverage thresholds, migration framework/tooling, DB migration implementation details, binary asset/export packaging, and optional retrieval-cache implementation details remain implementation-level decisions unless resolved under human approval.

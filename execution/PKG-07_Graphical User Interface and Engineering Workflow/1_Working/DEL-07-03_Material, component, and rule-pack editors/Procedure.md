@@ -12,8 +12,8 @@ This procedure does not implement GUI code.
 |---|---|
 | Sealed deliverable context | `_CONTEXT.md` for `DEL-07-03` |
 | Governing invariants | `docs/CONTRACT.md`, especially data, unit, rule-pack, privacy, IP, agent, and professional-boundary invariants |
-| Decomposition/register identity | `docs/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/_Registers/ContextBudgetQA.csv` |
-| Architecture basis constraints | `_CONTEXT.md` Architecture Basis Injection and `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
+| Decomposition/register identity | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/_Registers/ContextBudgetQA.csv` |
+| Architecture basis constraints | `_CONTEXT.md` Architecture Basis Injection and `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
 | Skill contracts | `skills/four-documents/SKILL.md`; `skills/semantic-matrix-build/SKILL.md`; `skills/lens-register/SKILL.md`; `skills/dependency-extract/SKILL.md` |
 | Write scope | Only this deliverable folder and its descendants |
 

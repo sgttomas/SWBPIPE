@@ -35,4 +35,4 @@ This setup artifact intentionally includes no engineering example values. Later 
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| CF-DEL-06-03-001 | Exact future expression grammar/library for rule-pack declarations is not selected. | `docs/_Decomposition/SOFTWARE_DECOMP.md` OI-006 | `docs/SPEC.md` rule-pack evaluator section | Specification External Inputs; Procedure Prerequisites | Treat grammar/library as `TBD` and do not encode executable rules in setup artifacts. | TBD |
+| CF-DEL-06-03-001 | Exact future expression grammar/library for rule-pack declarations is not selected. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-006 | `docs/SPEC.md` rule-pack evaluator section | Specification External Inputs; Procedure Prerequisites | Treat grammar/library as `TBD` and do not encode executable rules in setup artifacts. | TBD |

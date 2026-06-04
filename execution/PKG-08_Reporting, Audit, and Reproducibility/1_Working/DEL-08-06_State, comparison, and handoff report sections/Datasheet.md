@@ -25,7 +25,7 @@
 | Professional boundary | Reports are decision support and must not declare code compliance, certification, sealing, approval, authentication, endorsement, or professional reliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 9 |
 | IP/data boundary | Public report artifacts must not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, or real secrets. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2; `docs/SPEC.md` section 9; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 7 |
 | Hash/provenance basis | JSON payload hashes use the accepted JCS-compatible canonical JSON basis where applicable; reports preserve stable references, checksums, source notes, privacy classification, review state, and provenance. | `_CONTEXT.md` Architecture Basis; `docs/SPEC.md` sections 4.4 and 9 |
-| Upstream dependency mirror | 22 ACTIVE approved DAG-002 rows are present as local evidence. | `Dependencies.csv`; `_DEPENDENCIES.md` |
+| Upstream dependency mirror | 22 ACTIVE approved DAG-006 rows are present as local evidence. | `Dependencies.csv`; `_DEPENDENCIES.md` |
 
 ## Conditions
 
@@ -52,8 +52,8 @@
 
 - `_CONTEXT.md` - deliverable identity, scope, objectives, architecture-basis injection, and package boundaries.
 - `_REFERENCES.md` - accessible governing reference list for this folder.
-- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-002 local mirror and evidence surface.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 package, deliverable, objective, scope, and architecture-basis entries.
+- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 local mirror and evidence surface.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 package, deliverable, objective, scope, and architecture-basis entries.
 - `docs/_Registers/Deliverables.csv` - row DEL-08-06.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-024 and related source rows SOW-071 through SOW-075.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-08-06.

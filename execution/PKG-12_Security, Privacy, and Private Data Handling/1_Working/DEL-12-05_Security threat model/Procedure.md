@@ -9,7 +9,7 @@ This procedure defines how a bounded TASK worker drafts, refreshes, and checks t
 | Prerequisite | Required handling |
 |---|---|
 | Sealed deliverable context | Confirm `DEL-12-05`, `PKG-12`, `SOW-040`, `OBJ-010`, and the allowed write scope before editing. |
-| Governance sources | Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, relevant `SOFTWARE_DECOMP.md` revision 0.4 rows, register rows, and deliverable-local metadata. |
+| Governance sources | Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, relevant `SOFTWARE_DECOMP.md` revision 0.7 rows, register rows, and deliverable-local metadata. |
 | Source boundary | Use only accessible source material; mark missing implementation details `TBD`. |
 | Write boundary | Write only inside this deliverable folder. Do not create or edit repo-level `docs/security/threat_model.md`. |
 | Protected/private data boundary | Do not include protected standards text/tables/data, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims. |
@@ -26,7 +26,7 @@ This procedure defines how a bounded TASK worker drafts, refreshes, and checks t
    - Use `docs/PRD.md` sections 17-18 for private data, telemetry, report, and bug-report requirements.
    - Use `docs/SPEC.md` sections 1 and 6-8 for architecture, rule-pack, diagnostics, and reporting boundaries.
    - Use `docs/IP_AND_DATA_BOUNDARY.md` for provenance, quarantine, private data, and report boundaries.
-   - Use `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for `PKG-12`, `SOW-040`, `OBJ-010`, and architecture basis rows `AB-00-01/02/03/04/06/07/08`.
+   - Use `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for `PKG-12`, `SOW-040`, `OBJ-010`, and architecture basis rows `AB-00-01/02/03/04/06/07/08`.
 
 3. Draft or refresh the four documents.
    - Keep `Datasheet.md` sections `Identification`, `Attributes`, `Conditions`, `Construction`, and `References`.

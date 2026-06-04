@@ -39,8 +39,8 @@ Define layered software test strategy and acceptance gates for architecture, sch
 - `PKG-01` through `PKG-12` package-level document drafting and implementation planning should not proceed until `PKG-00` reaches the selected architecture readiness threshold or the human changes the gate.
 
 ## Decomposition Reference
-- **Decomposition:** docs/_Decomposition/SOFTWARE_DECOMP.md
-- **Accepted Revision:** 0.3
+- **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
+- **Accepted Revision:** 0.7
 - **Status:** current_basis
 
 ## Register References

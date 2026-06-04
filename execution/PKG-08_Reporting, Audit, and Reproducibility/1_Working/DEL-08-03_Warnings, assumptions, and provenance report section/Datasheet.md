@@ -25,7 +25,7 @@
 | Data boundary | Code-specific values are user-supplied or lawfully imported private data, not bundled defaults | `docs/CONTRACT.md` OPS-K-DATA-1 |
 | Missing data treatment | Missing solve-required or rule-check-required values are explicit findings, never silent defaults | `docs/CONTRACT.md` OPS-K-DATA-2 |
 | Provenance treatment | Materials, components, SIFs, flexibility factors, allowables, and rule-pack values carry provenance fields | `docs/CONTRACT.md` OPS-K-DATA-3 |
-| Diagnostics basis | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 |
+| Diagnostics basis | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 |
 
 ## Conditions
 
@@ -70,7 +70,7 @@ Exact report-section schema field names are `TBD` until implementation-level sch
 | `_REFERENCES.md` | Local reference list for this deliverable |
 | `docs/_Registers/Deliverables.csv` | Deliverable row, anticipated artifacts, context notes |
 | `docs/_Registers/ScopeLedger.csv` | SOW-024 scope statement and protected-content note |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-03 decomposition context; AB-00 architecture basis |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-03 decomposition context; AB-00 architecture basis |
 | `docs/CONTRACT.md` | Applicable invariants for reports, data, IP, rule packs, privacy, units, and agent outputs |
 | `docs/SPEC.md` | Reporting/audit requirements and warning class vocabulary |
 | `docs/TYPES.md` | Analysis-status, epistemic, provenance, and report vocabulary |

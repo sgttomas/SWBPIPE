@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md` (traceability input; not reinterpreted here)
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` (traceability input; not reinterpreted here)
 **Perspective:** This deliverable is for shaping the public API and plugin boundary through which model import/export, solver invocation, result extraction, and rule-pack hooks can interoperate while remaining inside governed schemas, validation, diagnostics, provenance, unit safety, rule sandboxing, report controls, privacy, and public/private data-boundary constraints. It carries question-shaping knowledge about API operation families, envelope obligations, no-bypass constraints, plugin capability boundaries, and verification concerns; it is not a transport decision, plugin runtime implementation, or engineering authority.
 **Framework:** Chirality Semantic Algebra
 **Lens Boundary:** These matrices are a semantic lens for asking better questions. They do not establish engineering correctness, approve design content, or resolve implementation TBDs.

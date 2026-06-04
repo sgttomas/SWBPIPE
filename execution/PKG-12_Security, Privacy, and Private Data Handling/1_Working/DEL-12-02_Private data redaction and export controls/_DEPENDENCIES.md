@@ -2,9 +2,9 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_TP_DAG_004
-- **Previous Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
-- **Approved Graph Authority:** `execution/_DAG/DAG-002/`
-- **Preliminary Graph:** `execution/_DAG/DAG-003/` remains preliminary and is not approved/promoted by this refresh.
+- **Previous Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
+- **Approved Graph Authority:** `execution/_DAG/DAG-006/`
+- **Preliminary Graph:** `execution/_DAG/DAG-006/` remains preliminary and is not approved/promoted by this refresh.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 18 total; 18 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -13,7 +13,7 @@
 - Aggregate `DAG-002` remains the approved sequencing and blocker-computation authority within its approval boundary.
 - This local register is refreshed evidence for later RECONCILIATION, not independent aggregate graph authority.
 - Existing DAG-002 mirror rows were preserved where usable, normalized to v3.1 enums, and annotated as local reconciliation evidence.
-- No DAG-003 row was approved, promoted, or used as graph authority.
+- No historical `DAG-003` row was approved, promoted, or used as graph authority.
 
 ## Extracted Dependency Register
 
@@ -54,7 +54,7 @@
 - Consumer context: RECONCILIATION.
 - Run root: `/Users/ryan/ai-env/projects/chirality-piping/execution`.
 - Decomposition path: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; status: located and used for SOW/OBJ label validation.
-- Approved graph authority read: `execution/_DAG/DAG-002/DependencyEdges.csv`.
+- Approved graph authority read: `execution/_DAG/DAG-006/DependencyEdges.csv`.
 - Preliminary DAG-003 was not used as authority and was not edited.
 - Source docs scanned: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, existing `Dependencies.csv`, and existing `_DEPENDENCIES.md`.
 - Anchor doc selected: `_CONTEXT.md` with corroboration from `Datasheet.md`.
@@ -66,7 +66,7 @@
 
 ## Run History
 - 2026-04-30: Initial dependency extract setup run created local dependency artifacts.
-- 2026-05-03: Local register synchronized from approved `DAG-002` mirror with 13 ACTIVE rows.
+- 2026-05-03: Local register synchronized from approved `DAG-006` mirror with 13 ACTIVE rows.
 - 2026-05-10: TP-DAG-004 dependency surface refresh in UPDATE / CONSERVATIVE mode for RECONCILIATION. Added 2 anchor rows and 3 document-constraint rows; normalized 13 DAG-002 mirror rows; 18 ACTIVE rows after refresh; warnings: CANDIDATE enum unavailable, ID-format helper incompatible with current repo ID shape.
 
 ## Lifecycle Summary

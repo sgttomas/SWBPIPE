@@ -20,13 +20,13 @@ Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-12-04`; `docs
 
 | Attribute | Value | Source |
 |---|---|---|
-| Primary product posture | Local-first; no cloud service required for modeling, solving, rule checking, or reporting | `docs/PRD.md` section 18.1; `docs/_Decomposition/SOFTWARE_DECOMP.md` SOW-029 |
+| Primary product posture | Local-first; no cloud service required for modeling, solving, rule checking, or reporting | `docs/PRD.md` section 18.1; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-029 |
 | Private assets in scope | Private rule packs, private material data, private component data, private libraries, project models, paths, and credential references | `docs/PRD.md` sections 17.3 and 18.3; `_CONTEXT.md` Description |
 | Public repository boundary | Public artifacts may define schemas, importers, mechanisms, and invented examples, but must not contain user private rule packs, owner standards, company design bases, protected tables, or proprietary source content | `docs/IP_AND_DATA_BOUNDARY.md` sections 2, 3, and 6 |
 | Registry artifact | Private library registry | `_CONTEXT.md` Anticipated Artifacts |
 | Test artifact | Secret handling tests | `_CONTEXT.md` Anticipated Artifacts |
 | Secret storage posture | Store references to secrets, not secret material, in project, registry, report, or test artifacts | ASSUMPTION from `docs/PRD.md` section 18.3 and `docs/architecture/plugin_boundary.md` Permission Model Skeleton |
-| Hash/checksum posture | Rule packs, libraries, exports, reports, and relevant JSON payloads should be checksum-addressable using the accepted canonical JSON/JCS-compatible basis where applicable | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04; `docs/architecture/plugin_boundary.md` Checksums and Provenance |
+| Hash/checksum posture | Rule packs, libraries, exports, reports, and relevant JSON payloads should be checksum-addressable using the accepted canonical JSON/JCS-compatible basis where applicable | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04; `docs/architecture/plugin_boundary.md` Checksums and Provenance |
 
 ## Conditions
 
@@ -77,7 +77,7 @@ Tests should verify behaviors, not use real secrets or private libraries:
 
 - `_CONTEXT.md` for deliverable identity, scope, anticipated artifacts, and architecture basis injection.
 - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-PRIV, OPS-K-RULE, and OPS-K-AGENT invariants.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for SOW-029, SOW-040, OBJ-010, PKG-12, and AB-00-01/02/03/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-029, SOW-040, OBJ-010, PKG-12, and AB-00-01/02/03/04/06/07/08.
 - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` for machine-readable scope.
 - `docs/PRD.md` sections 12, 13, 15, 17, and 18 for rule-pack, private-library, report, IP, local-first, telemetry, and private-data handling requirements.
 - `docs/IP_AND_DATA_BOUNDARY.md` sections 2 through 7 for public/private data boundary, provenance, quarantine, and report limits.

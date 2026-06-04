@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Status | TP_DAG_004_REFRESHED_FROM_DAG_002_MIRROR |
-| Source of prior local surface | `execution/_DAG/DAG-002/DependencyEdges.csv` mirror rows already present in `Dependencies.csv` |
+| Source of prior local surface | `execution/_DAG/DAG-006/DependencyEdges.csv` mirror rows already present in `Dependencies.csv` |
 | Local register | `Dependencies.csv` |
 | Register schema | v3.1, 29 required columns |
 | Rows | 11 total; 11 ACTIVE; 0 RETIRED; 0 CANDIDATE |
@@ -44,7 +44,7 @@
 | Dispatch row | `plans/TP-DAG-004_DEPENDENCY_REFRESH_DISPATCH_MATRIX.csv` row for DEL-08-03 |
 | Source documents read | Assigned deliverable folder, governing docs, dependency-extract skill docs, and `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 | Update policy | Existing local rows were treated as prior DAG-002 mirror evidence and preserved non-destructively. |
-| Graph authority | Aggregate `DAG-002` remains the approved graph authority; this local refresh does not approve `DAG-003`. |
+| Graph authority | Aggregate `DAG-006` remains the approved graph authority; this local refresh does not approve `DAG-003`. |
 | Candidate treatment | No candidate rows exist in this local register; no candidate status was promoted. |
 | Warnings | `FLOATING_NODE`: no ACTIVE local ANCHOR rows are present because this register is a DAG-002 mirror surface. Preserved for reconciliation rather than inventing anchors in this bounded refresh. |
 | Open reconciliation note | The dependency-extract skill's setup-era enum helper does not contain current DAG mirror enum values such as `ARCHITECTURE_BASIS`, `INFERRED_DIRECT`, `CONTEXT`, or `DECOMPOSITION`; current CSV values were preserved and checked against observed v3.1 local-surface conventions. |

@@ -74,4 +74,4 @@ Do not treat the six retired GUI predecessor mirror rows as active blockers from
 ## Run History
 
 - 2026-05-10 22:44 MDT - TP-DAG-004 dependency-extract refresh for DEL-07-06. Mode UPDATE; Strictness CONSERVATIVE; ConsumerContext RECONCILIATION; decomposition located; 15 rows total, 9 ACTIVE, 6 RETIRED; warnings: none; validation: schema/enums pass, ID helper drift noted.
-- 2026-05-03 - Prior local register synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 13 ACTIVE rows; local register treated as mirror/evidence surface rather than graph authority.
+- 2026-05-03 - Prior local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 13 ACTIVE rows; local register treated as mirror/evidence surface rather than graph authority.

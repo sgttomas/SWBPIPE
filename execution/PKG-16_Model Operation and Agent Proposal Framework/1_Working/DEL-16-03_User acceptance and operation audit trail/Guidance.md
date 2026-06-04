@@ -28,7 +28,7 @@ Public fixtures or examples for this deliverable should avoid protected standard
 | Rejected-operation retention | Record rejected operations because `_CONTEXT.md` names accepted/rejected operations, but exact retention policy is TBD. |
 | Agent autonomy | Keep user acceptance as the default; do not infer autonomous acceptance from agent proposal capability. |
 | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording. |
-| Dependency mirror handling | Preserve approved DAG-002 rows as ACTIVE; do not reinterpret the mirror as a fresh extraction result. |
+| Dependency mirror handling | Preserve approved DAG-006 rows as ACTIVE; do not reinterpret the mirror as a fresh extraction result. |
 
 ## Examples
 

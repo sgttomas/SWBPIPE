@@ -30,7 +30,7 @@ This deliverable defines persistence architecture only; it does not implement sc
 - `INIT.md` for project bootstrap and data-boundary constraints.
 - `docs/CONTRACT.md` for invariants that must be preserved.
 - `docs/SPEC.md` for target software layers and architecture vocabulary.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.3 for package and deliverable authority.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for package and deliverable authority.
 - `docs/_Registers/Deliverables.csv` row DEL-00-04 for scope identity.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-059 for scope mapping.
 - `execution/_Coordination/_COORDINATION.md` for the deferred Full DAG and `SEMANTIC_READY` threshold.

@@ -4,7 +4,7 @@
 
 This deliverable gives downstream implementation work a bounded, local-first privacy control surface for private libraries and credential references. It exists so OpenPipeStress can support user-owned rule packs, material libraries, component libraries, owner design bases, and project models without treating private or protected content as public repository data.
 
-Sources: `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` SOW-029, SOW-040, and OBJ-010; `docs/PRD.md` sections 17.3 and 18.3.
+Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-029, SOW-040, and OBJ-010; `docs/PRD.md` sections 17.3 and 18.3.
 
 ## Principles
 

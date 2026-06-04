@@ -70,3 +70,10 @@ Durable context after approved WORKING_ITEMS tranche:
 - Validation passed: `python3 -m pytest tests/test_invented_example_models.py -q` (`7 passed`), `python3 -m pytest tests/test_model_schema.py -q` (`4 passed`), `python3 tools/coordination/maintain_dev001_coordination.py --dag DAG-005 --check` (`VALID`), and `git diff --check`.
 - Run record: `_run_records/TP-DEL1104-SCHEMA-ALIGN-001_2026-05-31.md`.
 - No lifecycle state, DAG artifact, dependency register, DEV-001 evidence row, blocker queue, release record, acceptance record, professional claim, certification claim, sealing claim, authentication claim, code-compliance claim, or release-readiness-for-reliance claim was changed or made.
+
+## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
+
+- WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-11-04`.
+- Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
+- Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
+- Preserved historical references remain evidence of earlier work, not current authority claims.

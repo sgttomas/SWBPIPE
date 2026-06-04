@@ -40,7 +40,7 @@ Protected standards text, protected tables, proprietary engineering values, and 
 | Protected content and privacy | Public fixtures, screenshots, reports, and examples pass protected-content and private-data review. |
 | Professional boundary | Text, diagnostics, statuses, and reports do not use automatic `CODE_COMPLIANT` language or professional approval claims. |
 
-Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items A-001, A-002, F-001, F-002, F-003, and D-001 were checked against `docs/PRD.md` section 21, `docs/CONTRACT.md` OPS-K-AUTH-1, `docs/TYPES.md` section 4, `docs/_Registers/ScopeLedger.csv` SOW-036, and `docs/_Decomposition/SOFTWARE_DECOMP.md` OBJ-006 before this enrichment.
+Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items A-001, A-002, F-001, F-002, F-003, and D-001 were checked against `docs/PRD.md` section 21, `docs/CONTRACT.md` OPS-K-AUTH-1, `docs/TYPES.md` section 4, `docs/_Registers/ScopeLedger.csv` SOW-036, and `execution/_Decomposition/SOFTWARE_DECOMP.md` OBJ-006 before this enrichment.
 
 ## Documentation
 

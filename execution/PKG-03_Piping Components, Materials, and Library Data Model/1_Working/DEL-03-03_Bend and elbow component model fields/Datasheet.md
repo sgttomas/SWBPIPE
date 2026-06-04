@@ -10,7 +10,7 @@
 | Type | BACKEND_FEATURE_SLICE |
 | Scope Item | SOW-007 |
 | Objective | OBJ-004 |
-| Decomposition Basis | `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 |
+| Decomposition Basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
 | Anticipated Artifacts | bend component model; validation tests |
 
 ## Attributes
@@ -52,5 +52,5 @@ Minimum draft field categories for later implementation:
 - `_CONTEXT.md` for deliverable identity, objective, scope, and architecture-basis injection.
 - `docs/_Registers/Deliverables.csv` row `DEL-03-03`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-007`.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 rows for `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and applicable architecture basis IDs.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and applicable architecture basis IDs.
 - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-RULE-1, OPS-K-MECH-1, and OPS-K-AGENT-1..4.

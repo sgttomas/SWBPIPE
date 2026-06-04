@@ -30,7 +30,7 @@ No external engineering standard text is locally available or required for this 
 - `docs/CONTRACT.md` for invariant boundaries.
 - `docs/SPEC.md` for unit, persistence, result-envelope, and validation expectations.
 - `docs/TYPES.md` for stable references, traceability links, checksums, diagnostics, and result/report boundary concepts.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 for scope partitioning and architecture-basis constraints.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for scope partitioning and architecture-basis constraints.
 
 Any clause-level external standard requirement is `TBD` and must not be inferred.
 

@@ -16,13 +16,13 @@
 
 | Attribute | Setup value | Source |
 |---|---|---|
-| Primary subject | Explicit result/status semantics that separate mechanics solve state, user rule-pack check state, missing input state, and human acceptance state. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-04 |
+| Primary subject | Explicit result/status semantics that separate mechanics solve state, user rule-pack check state, missing input state, and human acceptance state. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-04 |
 | Mechanics status | `MECHANICS_SOLVED` describes completed numerical mechanics computation for a model snapshot; it is not a code-compliance statement. | `docs/TYPES.md` section 4; `docs/architecture/analysis_status_semantics.md` Usage Rules |
 | Incomplete-data statuses | `MODEL_INCOMPLETE` and `RULE_INPUTS_INCOMPLETE` distinguish solve-required physical data gaps from rule-pack-required user/code data gaps. | `docs/TYPES.md` section 4; OPS-K-DATA-2 |
 | Rule-pack statuses | `USER_RULE_CHECKED` and `USER_RULE_FAILED` describe user-rule-pack evaluation outcomes using user data and rule definitions. | `docs/TYPES.md` section 4; `docs/architecture/analysis_status_semantics.md` Authority Boundary |
 | Human review status | `HUMAN_REVIEW_REQUIRED` is reportable for professional use; `HUMAN_APPROVED_FOR_PROJECT` is human-record-only and not emitted automatically by software. | `docs/TYPES.md` section 4; OPS-K-AUTH-1; OPS-K-AUTH-2 |
 | Result-envelope interface | Status fields belong with schema-first command/query/job result envelopes and diagnostics, preserving mechanics/rule/human distinctions. | AB-00-03; AB-00-06 |
-| Human acceptance workflow | TBD. External human acceptance records and storage/presentation ownership remain outside this setup deliverable. | `docs/_Decomposition/SOFTWARE_DECOMP.md` OI-007; `docs/architecture/analysis_status_semantics.md` Remaining TBDs |
+| Human acceptance workflow | TBD. External human acceptance records and storage/presentation ownership remain outside this setup deliverable. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-007; `docs/architecture/analysis_status_semantics.md` Remaining TBDs |
 
 ## Conditions
 
@@ -57,7 +57,7 @@
 
 - `_CONTEXT.md`
 - `_REFERENCES.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - `docs/_Registers/Deliverables.csv` row DEL-05-04
 - `docs/_Registers/ScopeLedger.csv` row SOW-047
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-04

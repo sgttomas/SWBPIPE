@@ -18,10 +18,10 @@ The component model is scoped to represent expansion joint data supplied by a ma
 
 | Attribute Category | Required Treatment | Source |
 |---|---|---|
-| Stiffness values | Unit-aware user/manufacturer/private-library supplied fields; no bundled defaults. Specific degrees of freedom and required tensor/vector shape remain TBD for implementation. | docs/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
-| Effective area | Unit-aware supplied value with provenance. Required pressure/thrust usage semantics remain TBD for solver integration. | docs/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
-| Movement limits | Supplied limits with explicit units and missing-value diagnostics. Limit taxonomy remains TBD. | docs/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-2 |
-| Hardware data | Flags/fields for hardware characteristics supplied by user/manufacturer/private data. Enumerations remain TBD. | docs/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
+| Stiffness values | Unit-aware user/manufacturer/private-library supplied fields; no bundled defaults. Specific degrees of freedom and required tensor/vector shape remain TBD for implementation. | execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
+| Effective area | Unit-aware supplied value with provenance. Required pressure/thrust usage semantics remain TBD for solver integration. | execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
+| Movement limits | Supplied limits with explicit units and missing-value diagnostics. Limit taxonomy remains TBD. | execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-2 |
+| Hardware data | Flags/fields for hardware characteristics supplied by user/manufacturer/private data. Enumerations remain TBD. | execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
 | Provenance | Source, license/redistribution status, contributor certification/review disposition where public contribution is involved. | docs/CONTRACT.md#OPS-K-IP-2; docs/CONTRACT.md#OPS-K-DATA-3 |
 
 ### Field Taxonomy TBDs from semantic lensing
@@ -55,5 +55,5 @@ Recommended model partitions for later implementation:
 ## References
 
 - `_CONTEXT.md` for deliverable identity, architecture basis, and package scope.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for SOW-010, OBJ-004, PKG-03, and AB-00-01/02/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-010, OBJ-004, PKG-03, and AB-00-01/02/04/06/07/08.
 - `docs/CONTRACT.md` for OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.

@@ -2,8 +2,8 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_TP_DAG_004_CONSERVATIVE
-- **Approved graph authority:** `execution/_DAG/DAG-002/`
-- **Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv` for approved execution rows.
+- **Approved graph authority:** `execution/_DAG/DAG-006/`
+- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv` for approved execution rows.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 14 total; 14 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Generated:** 2026-05-03
@@ -36,11 +36,11 @@
 | DAG-002-E0678 | EXECUTION | UPSTREAM | ARCHITECTURE_BASIS | DEL-00-06 | ACTIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 | DAG-002-E0679 | EXECUTION | UPSTREAM | ARCHITECTURE_BASIS | DEL-00-07 | ACTIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 | DAG-002-E0680 | EXECUTION | UPSTREAM | ARCHITECTURE_BASIS | DEL-00-08 | ACTIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-| DAG-002-E0783 | EXECUTION | UPSTREAM | PERSISTENCE_CONTRACT | DEL-14-01 | ACTIVE | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` |
-| DAG-002-E0784 | EXECUTION | UPSTREAM | LOAD_STRESS_PREDECESSOR | DEL-05-04 | ACTIVE | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` |
-| DAG-002-E0785 | EXECUTION | UPSTREAM | REPORTING_PREDECESSOR | DEL-08-02 | ACTIVE | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` |
-| DAG-002-E0786 | EXECUTION | UPSTREAM | REPORTING_PREDECESSOR | DEL-08-04 | ACTIVE | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` |
-| DAG-002-E0787 | EXECUTION | UPSTREAM | PERSISTENCE_CONTRACT | DEL-02-05 | ACTIVE | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` |
+| DAG-002-E0783 | EXECUTION | UPSTREAM | PERSISTENCE_CONTRACT | DEL-14-01 | ACTIVE | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` |
+| DAG-002-E0784 | EXECUTION | UPSTREAM | LOAD_STRESS_PREDECESSOR | DEL-05-04 | ACTIVE | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` |
+| DAG-002-E0785 | EXECUTION | UPSTREAM | REPORTING_PREDECESSOR | DEL-08-02 | ACTIVE | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` |
+| DAG-002-E0786 | EXECUTION | UPSTREAM | REPORTING_PREDECESSOR | DEL-08-04 | ACTIVE | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` |
+| DAG-002-E0787 | EXECUTION | UPSTREAM | PERSISTENCE_CONTRACT | DEL-02-05 | ACTIVE | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` |
 | DEL-14-02-A001 | ANCHOR | UPSTREAM | OTHER | SOW-072 | ACTIVE | `_CONTEXT.md` |
 | DEL-14-02-A002 | ANCHOR | UPSTREAM | OTHER | OBJ-016 | ACTIVE | `_CONTEXT.md` |
 
@@ -51,7 +51,7 @@
 - **Consumer context:** RECONCILIATION
 - **Run root:** `/Users/ryan/ai-env/projects/chirality-piping/execution`
 - **Decomposition path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Graph authority consulted:** `execution/_DAG/DAG-002/DependencyEdges.csv` and `execution/_DAG/DAG-002/DeliverableNodes.csv`
+- **Graph authority consulted:** `execution/_DAG/DAG-006/DependencyEdges.csv` and `execution/_DAG/DAG-006/DeliverableNodes.csv`
 - **DAG-003 treatment:** not used as approved authority; not approved or promoted.
 - **Anchor document:** `_CONTEXT.md`
 - **Execution documents read:** `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, `_REFERENCES.md`
@@ -66,8 +66,8 @@
 
 | Timestamp | Mode | Strictness | Decomposition | Graph authority | Active rows | Warnings |
 |---|---|---|---|---|---:|---|
-| 2026-05-03 | SYNCHRONIZE | N/A | `execution/_Decomposition/SOFTWARE_DECOMP.md` | `execution/_DAG/DAG-002/` | 12 | Local register synchronized from approved DAG-002 mirror. |
-| 2026-05-10 23:46 MDT | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` | `execution/_DAG/DAG-002/` | 14 | Preserved DAG-002 mirror enum values outside narrow validator, including execution-row `AnchorType=DELIVERABLE`; ID helper expects legacy three-digit IDs; no DAG-003 promotion. |
+| 2026-05-03 | SYNCHRONIZE | N/A | `execution/_Decomposition/SOFTWARE_DECOMP.md` | `execution/_DAG/DAG-006/` | 12 | Local register synchronized from approved DAG-006 mirror. |
+| 2026-05-10 23:46 MDT | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` | `execution/_DAG/DAG-006/` | 14 | Preserved DAG-002 mirror enum values outside narrow validator, including execution-row `AnchorType=DELIVERABLE`; ID helper expects legacy three-digit IDs; no DAG-003 promotion. |
 
 ## Lifecycle Summary
 

@@ -6,8 +6,8 @@
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Prior Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
-- **Approved graph authority:** `execution/_DAG/DAG-002/`
+- **Prior Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
+- **Approved graph authority:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 18 total; 18 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Refreshed:** 2026-05-11
@@ -26,7 +26,7 @@
 |---:|---|
 | 12 | Preserved active DAG-002 mirror execution rows |
 | 5 | Added active local anchor rows from explicit DEL-13-02 identifiers |
-| 1 | Added active downstream handoff row supported by local source text and approved DAG-002 inverse evidence |
+| 1 | Added active downstream handoff row supported by local source text and approved DAG-006 inverse evidence |
 | 0 | Retired rows |
 | 0 | Candidate rows |
 
@@ -57,18 +57,18 @@
 - Chosen anchor source: `Datasheet.md`.
 - Chosen execution sources: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, and approved local-mirror rows from `execution/_DAG/DAG-002`.
 - Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`; anchor identifiers were validated against the decomposition/register content available in the repo.
-- Approved graph authority consulted: `execution/_DAG/DAG-002`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
+- Approved graph authority consulted: `execution/_DAG/DAG-006`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
 - Existing DAG-002 execution rows were preserved unchanged because they remain the approved graph-authority mirror evidence for this deliverable.
 - Added one `IMPLEMENTS_NODE` anchor to `PKG-13` and four `TRACES_TO_REQUIREMENT` anchors to `SOW-068`, `SOW-067`, `OBJ-014`, and `OBJ-018`.
 - Added one downstream handoff to `DEL-13-03` because local guidance explicitly assigns deterministic validation behavior to DEL-13-03 and approved DAG-002 already contains the inverse dependency `DAG-002-E0768`.
-- No candidate row was introduced. The possible downstream consumer `DEL-13-04` remains represented only in approved DAG-002 inverse evidence because the local DEL-13-02 source text was less direct than the DEL-13-03 handoff.
+- No candidate row was introduced. The possible downstream consumer `DEL-13-04` remains represented only in approved DAG-006 inverse evidence because the local DEL-13-02 source text was less direct than the DEL-13-03 handoff.
 - [WARNING] ENUM_TOOL_SCOPE: `tools/validation/validate_enum.py` does not include approved DAG-002 local mirror values such as `ARCHITECTURE_BASIS`, `DOMAIN_MODEL`, `UNIT_CONTRACT`, `PERSISTENCE_CONTRACT`, `GOVERNANCE_PREDECESSOR`, `CONTEXT`, `GRAPH_REVIEW`, `INFERRED_DIRECT`, `UNKNOWN`, or `CANDIDATE`. Those prior rows were preserved under DAG-002 authority; newly extracted rows use canonical enum values accepted by the tool where applicable.
 - [WARNING] ID_FORMAT_TOOL_SCOPE: `tools/validation/validate_id_format.sh` expects legacy three-digit package/deliverable IDs and rejects current decomposition IDs such as `PKG-13`, `DEL-13-02`, `SOW-068`, and `OBJ-014`. Canonical current IDs were preserved.
 - No protected standards content, private data, engineering default values, implementation schema claims, or professional approval/code-compliance claims were added.
 
 ## Run History
 
-- 2026-05-03: Local dependency register synchronized from approved `DAG-002` mirror; 12 ACTIVE execution rows.
+- 2026-05-03: Local dependency register synchronized from approved `DAG-006` mirror; 12 ACTIVE execution rows.
 - 2026-05-11: TP-DAG-004 dependency surface refresh for RECONCILIATION. Mode `UPDATE`, strictness `CONSERVATIVE`, decomposition located, DAG-002 authority preserved, 18 ACTIVE rows total: 13 EXECUTION and 5 ANCHOR.
 
 ## Lifecycle Summary
@@ -111,5 +111,5 @@
 
 - RECONCILIATION should treat the five `DEP-013-02-00*` anchor rows as local traceability anchors, not DAG sequencing edges.
 - RECONCILIATION should treat `DEP-013-02-006` as local source-supported downstream handoff evidence aligned with approved DAG-002 inverse edge `DAG-002-E0768`.
-- RECONCILIATION should continue to use `DAG-002` as approved graph authority until a later refreshed graph proposal is explicitly approved.
+- RECONCILIATION should use approved `DAG-006` as current graph authority; retained `DAG-002-*` rows remain local historical evidence only.
 - The preserved DAG-002 mirror rows contain project-specific dependency types, origins, and satisfaction values that exceed the current narrow enum validator; this is a tooling/schema-alignment warning, not a request to rewrite approved DAG-002 evidence locally.

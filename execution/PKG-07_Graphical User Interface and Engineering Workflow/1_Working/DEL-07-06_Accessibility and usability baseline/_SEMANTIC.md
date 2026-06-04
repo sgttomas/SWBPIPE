@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md`
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
 **Perspective:** This deliverable frames accessibility and usability as a bounded baseline for engineering-review GUI and report-facing workflows. The matrices are a question-shaping lens only; they do not choose a final WCAG target, implement UI behavior, introduce protected data, or make professional compliance claims.
 **Audit Result:** PASS
 

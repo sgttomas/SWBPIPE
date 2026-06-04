@@ -5,7 +5,7 @@
 - **Consumer Context:** RECONCILIATION
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
-- **Base Register:** Synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Base Register:** Synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Refresh Basis:** Assigned deliverable folder plus `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 10 total; 10 ACTIVE; 0 CANDIDATE.

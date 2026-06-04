@@ -3,7 +3,7 @@
 ## Generated Dependency Register
 
 - **Status:** REFRESHED_TP_DAG_004
-- **Source of Truth:** approved DAG-002 mirror plus conservative deliverable-local refresh evidence
+- **Source of Truth:** approved DAG-006 mirror plus conservative deliverable-local refresh evidence
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 15 total; 15 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Generated:** 2026-05-03
@@ -54,20 +54,20 @@
 | DAG-002-E0792 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-14-01 Immutable model state records | `Procedure.md` Prerequisites / Steps |
 | DAG-002-E0793 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-14-05 Comparison mapping, tolerance, and export contracts | `Procedure.md` Prerequisites / Steps |
 | DAG-002-E0794 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 Unit system and dimensional-analysis core contract | `Specification.md` Requirements REQ-14-03-007 |
-| DEL-14-03-D001 | EXECUTION | DOWNSTREAM | ENABLES | DEL-16-02 Operation validation and diff preview | `execution/_DAG/DAG-002/DependencyEdges.csv` DAG-002-E0829 |
-| DEL-14-03-D002 | EXECUTION | DOWNSTREAM | ENABLES | DEL-07-08 Design-authoring state and comparison workspace | `execution/_DAG/DAG-002/DependencyEdges.csv` DAG-002-E0848 |
-| DEL-14-03-D003 | EXECUTION | DOWNSTREAM | ENABLES | DEL-08-06 State, comparison, and handoff report sections | `execution/_DAG/DAG-002/DependencyEdges.csv` DAG-002-E0863 |
+| DEL-14-03-D001 | EXECUTION | DOWNSTREAM | ENABLES | DEL-16-02 Operation validation and diff preview | `execution/_DAG/DAG-006/DependencyEdges.csv` DAG-002-E0829 |
+| DEL-14-03-D002 | EXECUTION | DOWNSTREAM | ENABLES | DEL-07-08 Design-authoring state and comparison workspace | `execution/_DAG/DAG-006/DependencyEdges.csv` DAG-002-E0848 |
+| DEL-14-03-D003 | EXECUTION | DOWNSTREAM | ENABLES | DEL-08-06 State, comparison, and handoff report sections | `execution/_DAG/DAG-006/DependencyEdges.csv` DAG-002-E0863 |
 
 ## Run Notes
 
 - Defaults applied: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`.
 - Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used to validate DEL-14-03, PKG-14, SOW-073, SOW-071, and OBJ-016 labels.
-- Approved graph authority: `execution/_DAG/DAG-002`; DAG-003 was not used as authority and no aggregate DAG file was edited.
+- Approved graph authority: `execution/_DAG/DAG-006`; `DAG-003` was not used as authority and no aggregate DAG file was edited.
 - Anchor document selected: `Datasheet.md` plus `_CONTEXT.md` for explicit identity, SOW, and objective fields.
-- Execution documents scanned: `Specification.md`, `Procedure.md`, `Guidance.md`, `_REFERENCES.md`, and approved DAG-002 edge rows for this deliverable.
+- Execution documents scanned: `Specification.md`, `Procedure.md`, `Guidance.md`, `_REFERENCES.md`, and approved DAG-006 edge rows for this deliverable.
 - Existing DAG-002 row IDs were preserved where target and statement matched the approved graph surface.
 - Added two ACTIVE anchor rows for SOW-073 and OBJ-016.
-- Added three ACTIVE downstream ENABLES rows for approved DAG-002 consumers DEL-16-02, DEL-07-08, and DEL-08-06.
+- Added three ACTIVE downstream ENABLES rows for approved DAG-006 consumers DEL-16-02, DEL-07-08, and DEL-08-06.
 - Normalized local register enums to the validator's v3.1 set: execution rows use `AnchorType=NOT_APPLICABLE`, canonical `DependencyType`, `Origin`, `Explicitness`, and `SatisfactionStatus` values. Original DAG-002 specialized edge types remain visible in statements/notes.
 - [WARNING] ID format helper expects three-digit package/deliverable IDs (`PKG-014`, `DEL-014-03`) and rejects this repository's current stable IDs (`PKG-14`, `DEL-14-03`); treated as tool/schema mismatch, not a deliverable blocker.
 - No active cycles, bidirectional pairs, candidate promotions, protected-data assumptions, engineering default values, or professional-approval claims were introduced in this local surface.
@@ -76,7 +76,7 @@
 
 | Timestamp | Mode | Strictness | Decomposition | Warnings | ACTIVE Rows |
 |---|---|---|---|---|---:|
-| 2026-05-03 | SYNCHRONIZE | N/A | `execution/_DAG/DAG-002/DependencyEdges.csv` | DAG-002 mirror only; no local extraction anchors | 10 |
+| 2026-05-03 | SYNCHRONIZE | N/A | `execution/_DAG/DAG-006/DependencyEdges.csv` | DAG-002 mirror only; no local extraction anchors | 10 |
 | 2026-05-10 23:48 | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` | ID format helper mismatch with repo stable IDs | 15 |
 
 ## Lifecycle Summary

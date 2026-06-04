@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md` (traceability input; not reinterpreted here)
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` (traceability input; not reinterpreted here)
 **Perspective:** This deliverable is for shaping the domain/schema boundary through which pipe section and mass-property calculations can prepare solver-consumable values while remaining inside governed schemas, validation, diagnostics, provenance, unit safety, report controls, and data-boundary constraints. It carries question-shaping knowledge about calculation-input categories, mass-contributor boundaries, unit-safety, provenance boundaries, and verification concerns; it is not an implementation design or engineering authority.
 **Framework:** Chirality Semantic Algebra
 **Lens Boundary:** These matrices are a semantic lens for asking better questions. They do not establish engineering correctness, approve design content, or resolve implementation TBDs.

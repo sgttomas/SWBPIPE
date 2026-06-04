@@ -8,7 +8,7 @@
 | Name | Nonlinear support active-set solver |
 | Package | PKG-04 Solver Core and Numerical Methods |
 | Type | BACKEND_FEATURE_SLICE |
-| Decomposition basis | docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 |
+| Decomposition basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
 | Scope item | SOW-012 |
 | Objective | OBJ-003 |
 | Context envelope | L; WATCH |
@@ -52,5 +52,5 @@ This setup kit defines a documentation boundary for a future nonlinear active-se
 - docs/_Registers/Deliverables.csv row DEL-04-04.
 - docs/_Registers/ScopeLedger.csv row SOW-012.
 - docs/_Registers/ContextBudgetQA.csv row DEL-04-04.
-- docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 rows for PKG-04, DEL-04-04, SOW-012, OBJ-003, and AB-00-01/02/03/06/08.
+- execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for PKG-04, DEL-04-04, SOW-012, OBJ-003, and AB-00-01/02/03/06/08.
 - docs/CONTRACT.md invariants OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-SOLVER-2, OPS-K-DATA-2, OPS-K-REPORT-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.

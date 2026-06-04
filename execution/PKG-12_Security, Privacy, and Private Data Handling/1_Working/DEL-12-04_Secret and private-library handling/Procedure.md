@@ -7,12 +7,12 @@ Use this procedure to produce or review the DEL-12-04 setup artifacts and to gui
 ## Prerequisites
 
 - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `_STATUS.md`.
-- Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, and the relevant register rows for `DEL-12-04`, `SOW-040`, `SOW-029`, and `OBJ-010`.
+- Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, and the relevant register rows for `DEL-12-04`, `SOW-040`, `SOW-029`, and `OBJ-010`.
 - Confirm write scope is limited to this deliverable folder.
 - Confirm no real secrets, real private libraries, protected standards text, proprietary values, credential examples, or private project data are needed.
 - Treat exact secret provider, encrypted-storage default, physical project package/container, permission grant storage, and public API transport as `TBD` unless a later human-approved brief resolves them.
 
-Sources: TASK brief; `_CONTEXT.md`; `docs/DIRECTIVE.md` section 5; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.
+Sources: TASK brief; `_CONTEXT.md`; `docs/DIRECTIVE.md` section 5; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.
 
 ## Steps
 

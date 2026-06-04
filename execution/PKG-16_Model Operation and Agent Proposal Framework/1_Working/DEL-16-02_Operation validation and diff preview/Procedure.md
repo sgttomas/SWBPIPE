@@ -60,4 +60,4 @@ This procedure describes a conservative production workflow for creating and usi
 - Diff preview service contract: TBD.
 - Validation test cases and fixture inventory: required artifact.
 - Diagnostic/result-envelope mapping notes: TBD.
-- Dependency preservation record: existing `Dependencies.csv` approved DAG-002 rows remain ACTIVE and unchanged by this setup workflow.
+- Dependency preservation record: existing `Dependencies.csv` approved DAG-006 rows remain ACTIVE and unchanged by this setup workflow.

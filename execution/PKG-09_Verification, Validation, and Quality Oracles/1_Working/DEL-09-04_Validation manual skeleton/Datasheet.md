@@ -64,7 +64,7 @@ The validation manual skeleton is organized as the following outline. Section co
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md`
+- `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - `docs/_Registers/Deliverables.csv`
 - `docs/_Registers/ScopeLedger.csv`
 - `docs/_Registers/ContextBudgetQA.csv`

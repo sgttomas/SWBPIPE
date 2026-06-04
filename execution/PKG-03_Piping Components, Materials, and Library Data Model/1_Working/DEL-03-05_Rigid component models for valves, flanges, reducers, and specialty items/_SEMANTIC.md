@@ -15,7 +15,7 @@
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 - `DEL-03-05`, `SOW-009`, `OBJ-004`, and sealed architecture-basis references.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - `DEL-03-05`, `SOW-009`, `OBJ-004`, and sealed architecture-basis references.
 - `docs/_Registers/Deliverables.csv` row `DEL-03-05`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-009`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-03-05`.

@@ -75,4 +75,4 @@ Required records for later implementation work:
 - CSV export contract documentation;
 - report-section export contract documentation;
 - unresolved `TBD` register for tolerance defaults, mapping workflows, exact fields, and export layout;
-- dependency evidence record preserving the approved DAG-002 mirror rows.
+- dependency evidence record preserving the approved DAG-006 mirror rows.

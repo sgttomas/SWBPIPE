@@ -15,7 +15,7 @@
 - `_REFERENCES.md` - `/Users/ryan/ai-env/projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 - `DEL-11-03`, `SOW-033`, `OBJ-001`, `OBJ-003`, and sealed architecture-basis references.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - `DEL-11-03`, `SOW-033`, `OBJ-001`, `OBJ-003`, and sealed architecture-basis references.
 - `docs/_Registers/Deliverables.csv` row `DEL-11-03`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-033`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-11-03`.

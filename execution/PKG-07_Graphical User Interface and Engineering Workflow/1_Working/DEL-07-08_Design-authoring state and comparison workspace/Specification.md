@@ -13,7 +13,7 @@ This deliverable must not silently supply missing code data, protected engineeri
 | ID | Requirement | Source |
 |---|---|---|
 | REQ-07-08-001 | The workspace shall support design-authoring and comparison workflows, including design knowledge panels, constraint/warning panels, state/run browsers, comparison tables, and graphical comparison overlays. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-076 |
-| REQ-07-08-002 | The workspace shall consume existing GUI, design, transform, comparison, and operation contracts rather than inventing placeholder semantics. | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015 |
+| REQ-07-08-002 | The workspace shall consume existing GUI, design, transform, comparison, and operation contracts rather than inventing placeholder semantics. | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015 |
 | REQ-07-08-003 | GUI-originated mutations shall route through application-service command intents and shall not directly mutate persisted project payloads. | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05 |
 | REQ-07-08-004 | The operation/diff review surface shall preserve the distinction between proposed, validated, accepted, and audited model operations; exact UI state labels are TBD pending upstream operation contracts. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-069, SOW-070; `Dependencies.csv` rows DAG-002-E0851 through DAG-002-E0853 |
 | REQ-07-08-005 | The state/run browser shall treat immutable model states, analysis runs, and deterministic comparisons as first-class review records; exact data contract shape is inherited from upstream PKG-14 deliverables. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-071 through SOW-073; `Dependencies.csv` rows DAG-002-E0847 through DAG-002-E0850 |
@@ -30,7 +30,7 @@ This deliverable must not silently supply missing code data, protected engineeri
 | `docs/CONTRACT.md` | Binding project invariants for data boundary, no silent defaults, professional boundary, agent limits, and review status. |
 | `docs/SPEC.md` | Technical architecture and GUI diagnostic requirements. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content and private-data boundary for public artifacts. |
-| `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 | Accepted decomposition basis for SOW-076, OBJ-015, OBJ-016, PKG-07, and architecture-basis constraints. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Accepted decomposition basis for SOW-076, OBJ-015, OBJ-016, PKG-07, and architecture-basis constraints. |
 | PRD v0.2 references | Mentioned by decomposition for SOW-076, SOW-069 through SOW-073, but the PRD source text was not locally read in this workflow. Clause-level requirements from PRD remain TBD unless source text is supplied. |
 
 ## Verification

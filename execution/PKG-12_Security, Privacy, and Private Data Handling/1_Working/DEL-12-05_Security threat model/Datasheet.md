@@ -23,8 +23,8 @@ Source basis: `_CONTEXT.md` sections "Description", "Anticipated Artifacts", "Sc
 | Attribute | Value | Source |
 |---|---|---|
 | Primary purpose | Draft and maintain a threat model for private data, report sharing, plugins, imports, and supply chain exposure. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` row `DEL-12-05` |
-| Data protection objective | Protect private project, code, rule-pack, and component data in local-first workflows. | `docs/_Decomposition/SOFTWARE_DECOMP.md` objective `OBJ-010` |
-| Governing scope | Private data handling controls, including redaction/export safeguards where reports or shared models may expose protected/private values. | `docs/_Decomposition/SOFTWARE_DECOMP.md` row `SOW-040` |
+| Data protection objective | Protect private project, code, rule-pack, and component data in local-first workflows. | `execution/_Decomposition/SOFTWARE_DECOMP.md` objective `OBJ-010` |
+| Governing scope | Private data handling controls, including redaction/export safeguards where reports or shared models may expose protected/private values. | `execution/_Decomposition/SOFTWARE_DECOMP.md` row `SOW-040` |
 | Product posture | Local-first; no cloud service required for modeling, solving, rule checking, or reporting. | `docs/PRD.md` section 18.1 |
 | Telemetry posture | Disabled by default; opt-in only if added; must not transmit private engineering data without explicit user action. | `docs/PRD.md` section 18.2; `docs/CONTRACT.md` `OPS-K-PRIV-2` |
 | Rule-pack posture | Private or user-owned; versioned, checksummed, source-noted, and marked public/private. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-3` |
@@ -89,7 +89,7 @@ This setup document represents the planned content for `docs/security/threat_mod
 |---|---|---|
 | Local-first default | Prevent hidden network dependency or hidden cloud storage for ordinary workflows. | `docs/PRD.md` 18.1; `docs/DIRECTIVE.md` section 4.2 |
 | Explicit disclosure action | Require user intent before private data leaves local control. | `docs/PRD.md` 18.2-18.3 |
-| Redaction and warning | Warn before export and redact private data from bug reports. | `docs/PRD.md` 18.3; `docs/_Decomposition/SOFTWARE_DECOMP.md` `SOW-040` |
+| Redaction and warning | Warn before export and redact private data from bug reports. | `docs/PRD.md` 18.3; `execution/_Decomposition/SOFTWARE_DECOMP.md` `SOW-040` |
 | Provenance and redistribution | Record source, license/redistribution status, and review disposition. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/CONTRACT.md` `OPS-K-IP-2` |
 | Sandboxed evaluation | Keep rule packs from executing arbitrary code. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-2` |
 | No-bypass adapters | Ensure plugins/adapters cannot skip validation, provenance, diagnostics, sandboxing, or report controls. | `_CONTEXT.md` `AB-00-07`; `docs/SPEC.md` section 1 |
@@ -107,6 +107,6 @@ This setup document represents the planned content for `docs/security/threat_mod
 | `docs/SPEC.md` | Layer responsibilities, rule-pack evaluator requirements, diagnostics, reports, and acceptance semantics. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy, provenance fields, quarantine rule, and report boundary. |
 | `docs/PRD.md` | Security/privacy requirements, private-data handling, report prohibitions, and risk table. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, SOW-040, OBJ-010, and AB-00 architecture-basis constraints. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, SOW-040, OBJ-010, and AB-00 architecture-basis constraints. |
 | `docs/_Registers/*.csv` | Machine-readable deliverable, scope, and context-budget rows. |
 

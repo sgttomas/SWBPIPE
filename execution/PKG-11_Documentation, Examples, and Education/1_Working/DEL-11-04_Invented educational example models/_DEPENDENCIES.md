@@ -43,7 +43,7 @@
 - Defaults recorded: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`.
 - Chosen anchor evidence: `_CONTEXT.md` and `Datasheet.md`, with decomposition validation from `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
 - Chosen execution evidence order: `Specification.md`, `Procedure.md`, `Guidance.md`, `Datasheet.md`, then contextual cross-checks in `_CONTEXT.md` and `_REFERENCES.md`.
-- `DAG-002` mirror rows were retained as ACTIVE local evidence from the approved graph authority; this local refresh does not approve, promote, or modify any aggregate DAG artifact.
+- `DAG-002` mirror rows are retained as ACTIVE local historical evidence; current graph authority is `DAG-006`, and this local refresh does not approve, promote, or modify any aggregate DAG artifact.
 - Legacy mirror values were normalized on write: `AnchorType=DELIVERABLE` became `NOT_APPLICABLE`; `ARCHITECTURE_BASIS` became `CONSTRAINT`; `DOCS_PREDECESSOR` and `GOVERNANCE_PREDECESSOR` became `PREREQUISITE`; `Origin=CONTEXT/DECOMPOSITION` became `EXTRACTED`; `SatisfactionStatus=UNKNOWN` became `TBD`; `Explicitness=INFERRED_DIRECT` became `IMPLICIT`.
 - Added prerequisites for `DEL-02-01`, `DEL-02-05`, and `DEL-06-01` because `Specification.md` explicitly identifies model/schema, persistence, and rule-pack schema inputs before future example materialization.
 - No `[WARNING] FLOATING_NODE`: one ACTIVE `IMPLEMENTS_NODE` anchor is present.
@@ -74,6 +74,6 @@
 ## Downstream Handoff Notes
 
 - For RECONCILIATION, consume ACTIVE rows as the refreshed local dependency surface for DEL-11-04.
-- `DAG-002-*` row IDs remain active because they mirror approved `DAG-002` authority and were not contradicted by local source documents; their enum fields were normalized locally for v3.1 validation.
+- `DAG-002-*` row IDs remain active because they mirror approved `DAG-006` authority and were not contradicted by local source documents; their enum fields were normalized locally for v3.1 validation.
 - New `DEP-11-04-*` rows represent local evidence not present in the prior mirror, especially Tree anchors and explicit schema prerequisites.
 - Future model format, fake-rule-pack schema details, validation-fixture promotion, and public tutorial materialization remain `TBD` until later sealed implementation scope or human approval.

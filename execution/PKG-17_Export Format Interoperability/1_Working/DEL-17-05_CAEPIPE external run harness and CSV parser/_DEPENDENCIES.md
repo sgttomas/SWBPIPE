@@ -2,8 +2,8 @@
 
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
-- **Graph Authority:** `execution/_DAG/DAG-005/`.
-- **Authority Boundary:** `DAG-005` is the approved active graph authority.
+- **Graph Authority:** `execution/_DAG/DAG-006/`.
+- **Authority Boundary:** `DAG-006` is the approved active graph authority.
 
 ## Declared Upstream Dependencies
 - `DEL-17-04`

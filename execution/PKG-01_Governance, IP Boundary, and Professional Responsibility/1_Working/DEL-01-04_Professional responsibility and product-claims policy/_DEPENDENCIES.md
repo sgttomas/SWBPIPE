@@ -4,7 +4,7 @@
 
 - **Status:** CURRENT_BASIS_REFRESHED_BY_WORKING_ITEMS
 - **Source of Truth:** Deliverable-local evidence refresh; aggregate DAG artifacts remain outside this refresh authority.
-- **Previous Mirror Source:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Previous Mirror Source:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Approved Graph Context:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 17 total; 16 ACTIVE; 1 RETIRED.
@@ -72,7 +72,7 @@
 - **ANCHOR_DOC:** `Datasheet.md`.
 - **EXECUTION_DOC_ORDER:** `Procedure.md`, `Specification.md`, `Guidance.md`, `_CONTEXT.md`.
 - **Defaults Applied:** conservative refresh; no inferred protected standards content; unresolved legal/professional and human-acceptance decisions preserved as `TBD`/`PENDING`; draft repo-level artifacts recorded as present without final acceptance.
-- **Warnings:** Historical run records still preserve old `docs/_Decomposition/SOFTWARE_DECOMP.md` and revision `0.4`/`0.5` references as history. Active local source documents now cite `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `DAG-006`.
+- **Warnings:** Historical run records still preserve old `execution/_Decomposition/SOFTWARE_DECOMP.md` and revision `0.4`/`0.5` references as history. Active local source documents now cite `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `DAG-006`.
 - **Warnings:** The retired historical `DAG-002-E0392` row remains preserved as retired evidence and was not promoted into local or aggregate active authority.
 - **Warnings:** No lifecycle edit, aggregate DAG edit, candidate promotion, repo-level policy edit, release claim, professional approval, certification, sealing, authentication, or code-compliance claim was made.
 - **Failed Inputs:** none.
@@ -81,7 +81,7 @@
 
 | Timestamp | Mode | Strictness | Decomposition | Warnings | ACTIVE Counts |
 |---|---|---|---|---|---|
-| 2026-05-03 | DAG mirror sync | n/a | `execution/_DAG/DAG-002/DependencyEdges.csv` | Aggregate authority boundary applies. | 5 execution; 0 anchor |
+| 2026-05-03 | DAG mirror sync | n/a | `execution/_DAG/DAG-006/DependencyEdges.csv` | Aggregate authority boundary applies. | 5 execution; 0 anchor |
 | 2026-05-10 21:40 America/Edmonton | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 | Stale local source reference to decomposition revision 0.4; normalized legacy/non-v3.1 enum values; prior inferred governance-predecessor row retired. | 8 execution; 2 anchor |
 | 2026-06-04 | CURRENT_BASIS_REFRESH | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Active local docs aligned to `DAG-006`; SOW-064/OBJ-018 anchors added; draft repo-level policy/template artifacts recorded as present; no aggregate DAG or lifecycle edit. | 11 execution; 5 anchor |
 

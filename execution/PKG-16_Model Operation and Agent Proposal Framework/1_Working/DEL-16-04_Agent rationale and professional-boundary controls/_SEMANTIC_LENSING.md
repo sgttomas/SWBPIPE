@@ -165,7 +165,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| D-001 | D:[operative]:[reviewing] | VerificationGap | Procedure | Procedure | Add deterministic check for preserving approved DAG-002 mirror rows when dependency refresh is attempted. | The procedure states the preservation rule, but no concrete local diff/check command is defined in the production documents. | `Procedure.md`; `_DEPENDENCIES.md` | `## Steps`; `## Verification`; `## Authority Boundary` |  | PROPOSAL | TBD |
+| D-001 | D:[operative]:[reviewing] | VerificationGap | Procedure | Procedure | Add deterministic check for preserving approved DAG-006 mirror rows when dependency refresh is attempted. | The procedure states the preservation rule, but no concrete local diff/check command is defined in the production documents. | `Procedure.md`; `_DEPENDENCIES.md` | `## Steps`; `## Verification`; `## Authority Boundary` |  | PROPOSAL | TBD |
 
 ## Matrix X - Verification
 

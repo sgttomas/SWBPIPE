@@ -16,7 +16,7 @@
 - `_REFERENCES.md` - `./_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4: DEL-05-02, SOW-014, OBJ-003, OBJ-005, AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7: DEL-05-02, SOW-014, OBJ-003, OBJ-005, AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08.
 - `docs/_Registers/Deliverables.csv` row DEL-05-02.
 - `docs/_Registers/ScopeLedger.csv` row SOW-014.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-02.

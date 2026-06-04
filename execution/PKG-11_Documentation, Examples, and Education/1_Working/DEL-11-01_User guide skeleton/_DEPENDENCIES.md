@@ -6,7 +6,7 @@
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Source of Truth:** deliverable-local extraction from assigned source documents plus `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority checked against `execution/_DAG/DAG-002`.
+- **Source of Truth:** deliverable-local extraction from assigned source documents plus `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority checked against `execution/_DAG/DAG-006`.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 20 total; 20 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -47,7 +47,7 @@
 - Defaults used: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
 - Chosen anchor source: `Datasheet.md`.
 - Chosen execution sources: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Approved graph authority consulted: `execution/_DAG/DAG-002`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
+- Approved graph authority consulted: `execution/_DAG/DAG-006`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
 - The prior local register mirrored DAG-002 rows with project-specific values such as `ARCHITECTURE_BASIS`, `DOCS_PREDECESSOR`, `GOVERNANCE_PREDECESSOR`, `CONTEXT`, `DECOMPOSITION`, and `UNKNOWN`; those values are not accepted by the current enum validator.
 - This refresh normalized retained DAG-002 mirror rows into accepted v3.1 enums while preserving original context in `Notes`.
 - Added three anchor rows for SOW-033, OBJ-001, and OBJ-011 because the previous mirror had no Tree anchor surface.
@@ -75,5 +75,5 @@
 
 ## Run History
 
-- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 10 ACTIVE rows; local mirror only.
-- 2026-05-10: TP-DAG-004 dependency-extract refresh; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition path `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority `execution/_DAG/DAG-002`; warnings: enum normalization required for prior DAG mirror rows; legacy ID-format helper rejects current two-digit decomposition IDs; active rows 20; retired rows 0.
+- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 10 ACTIVE rows; local mirror only.
+- 2026-05-10: TP-DAG-004 dependency-extract refresh; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition path `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority `execution/_DAG/DAG-006`; warnings: enum normalization required for prior DAG mirror rows; legacy ID-format helper rejects current two-digit decomposition IDs; active rows 20; retired rows 0.

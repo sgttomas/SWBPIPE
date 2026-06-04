@@ -18,8 +18,8 @@
 | Attribute | Draft setup value |
 |---|---|
 | Primary artifact family | Audit manifest and reproducibility metadata for OpenPipeStress runs. |
-| Hash basis for JSON payloads | Canonical JSON with JCS-compatible canonicalization. Source: `docs/_Registers/ScopeLedger.csv` row SOW-039; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
-| Hash basis for non-JSON or binary assets | Manifest hashes recorded as separate asset entries. Source: `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
+| Hash basis for JSON payloads | Canonical JSON with JCS-compatible canonicalization. Source: `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
+| Hash basis for non-JSON or binary assets | Manifest hashes recorded as separate asset entries. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
 | Required reproducibility markers | Model hash, solver version, rule-pack checksum, and input manifest. Source: `docs/_Registers/Deliverables.csv` row DEL-08-02. |
 | Rule-pack boundary | Rule packs are user/private design-basis artifacts; public artifacts may reference ID, version, checksum, and source note without embedding protected formulas. Source: `docs/SPEC.md` sections 6 and 8; `docs/IP_AND_DATA_BOUNDARY.md` section 7. |
 | Professional boundary | The manifest supports review and reproducibility; it does not certify, seal, approve, or authenticate engineering work. Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` section 3. |

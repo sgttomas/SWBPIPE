@@ -30,7 +30,7 @@ This procedure describes how to produce and later maintain the DEL-02-04 plugin/
 
 2. Gather governing source slices.
    - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and the DEL-02-04 rows in the registers.
-   - Read `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/DIRECTIVE.md`, `docs/VALIDATION_STRATEGY.md`, and relevant SCA-001 rows in `docs/_Decomposition/SOFTWARE_DECOMP.md`.
+   - Read `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/DIRECTIVE.md`, `docs/VALIDATION_STRATEGY.md`, and relevant SCA-001 rows in `execution/_Decomposition/SOFTWARE_DECOMP.md`.
    - Use PRD sections only as supporting context where the decomposition or scope ledger cites them.
 
 3. Define the plugin interface specification at contract level.

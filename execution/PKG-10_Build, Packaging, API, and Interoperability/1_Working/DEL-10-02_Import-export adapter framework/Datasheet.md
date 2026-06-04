@@ -33,7 +33,7 @@
 | All import/export operations must be unit-aware and deterministically report unit conversions. | docs/PRD.md section 6.6; docs/CONTRACT.md OPS-K-UNIT-1 |
 | Imported data must flag missing required fields, missing or inconsistent units, missing provenance, unclear redistribution status, protected-table risk, and user-defined reasonableness concerns. | docs/PRD.md section 13.5 |
 | Private rule packs, component libraries, material data, project files, and calculation results must not be transmitted or exported unexpectedly. | docs/PRD.md sections 18.2 and 18.3; docs/CONTRACT.md OPS-K-PRIV-1 |
-| Adapter outputs for nontrivial operations use diagnostics/result envelopes and must not make certification or compliance claims. | docs/_Decomposition/SOFTWARE_DECOMP.md AB-00-06; docs/CONTRACT.md OPS-K-AUTH-1 |
+| Adapter outputs for nontrivial operations use diagnostics/result envelopes and must not make certification or compliance claims. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06; docs/CONTRACT.md OPS-K-AUTH-1 |
 | Adapter interfaces remain code-neutral and do not bundle protected standards data or proprietary tool behavior. | INIT.md; docs/DIRECTIVE.md; docs/IP_AND_DATA_BOUNDARY.md |
 
 ## Construction
@@ -59,7 +59,7 @@ The future framework should be described as a shell around import/export provide
 - docs/SPEC.md
 - docs/IP_AND_DATA_BOUNDARY.md
 - docs/PRD.md
-- docs/_Decomposition/SOFTWARE_DECOMP.md
+- execution/_Decomposition/SOFTWARE_DECOMP.md
 - docs/_Registers/Deliverables.csv
 - docs/_Registers/ScopeLedger.csv
 - docs/_Registers/ContextBudgetQA.csv

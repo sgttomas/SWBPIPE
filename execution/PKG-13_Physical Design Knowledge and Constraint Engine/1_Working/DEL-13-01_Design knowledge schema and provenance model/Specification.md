@@ -45,7 +45,7 @@ This setup pass does not implement `schemas/design_knowledge.schema.json` or pro
 | Unit metadata | Review all unit-bearing fields. | Unit metadata is explicit; no dimensionless fallback hides missing units. |
 | Missing-data behavior | Review negative fixtures or schema examples when they exist. | Missing values are diagnostics/findings/assumptions, not defaults. |
 | Professional boundary | Review enum/status/diagnostic strings. | No automatic code-compliance or professional-approval terms are produced. |
-| Dependency boundary | Confirm local dependency mirror remains approved DAG-002 evidence and all approved rows remain ACTIVE. | `Dependencies.csv` validates structurally and preserves DAG-002 rows. |
+| Dependency boundary | Confirm local dependency mirror remains approved DAG-006 evidence and all approved rows remain ACTIVE. | `Dependencies.csv` validates structurally and preserves DAG-002 rows. |
 
 ## Documentation
 

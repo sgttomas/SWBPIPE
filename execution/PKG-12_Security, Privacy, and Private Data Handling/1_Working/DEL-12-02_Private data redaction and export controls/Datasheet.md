@@ -95,7 +95,7 @@ No product source code, JSON Schema file, actual redaction config, executable ex
 | `docs/TYPES.md` | SECURITY_CONTROL type, private/user-supplied data vocabulary, report object, rule-pack reference, and analysis-status boundaries. |
 | `docs/SPEC.md` | Layered architecture, adapter no-bypass rule, report/audit content, warning classes, and validation expectations. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy, quarantine rule, and report boundary. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-02, SOW-040, OBJ-010, and AB-00 architecture basis. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-02, SOW-040, OBJ-010, and AB-00 architecture basis. |
 | `docs/_Registers/Deliverables.csv` | Deliverable identity, anticipated artifacts, context/risk notes. |
 | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-040. |
 

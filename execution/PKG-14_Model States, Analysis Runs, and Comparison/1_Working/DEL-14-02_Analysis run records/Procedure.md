@@ -8,7 +8,7 @@ This procedure describes how later Type 2 implementation work should produce and
 
 | Prerequisite | Status | Source |
 |---|---|---|
-| Accepted decomposition basis | Available: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 | `_CONTEXT.md` |
+| Accepted decomposition basis | Available: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | `_CONTEXT.md` |
 | Deliverable identity and scope | Available: DEL-14-02, SOW-072, OBJ-016 | `_CONTEXT.md`; registers |
 | Approved dependency evidence | Available as local DAG-002 mirror in `Dependencies.csv` | `_DEPENDENCIES.md`; `Dependencies.csv` |
 | Architecture basis constraints | Available in `_CONTEXT.md`; exact package-specific implementation choices remain decision-gated | `_CONTEXT.md` |
@@ -50,4 +50,4 @@ The implementation pass should leave:
 - Validation output for schema and tests.
 - Notes for any TBD schema fields, hash partitions, migration behavior, or fixture policies.
 - Protected-content/private-data review notes for public examples.
-- Any dependency-register changes only if they preserve approved DAG-002 rows or have explicit human/change authority.
+- Any dependency-register changes only if they preserve approved DAG-006 rows or have explicit human/change authority.

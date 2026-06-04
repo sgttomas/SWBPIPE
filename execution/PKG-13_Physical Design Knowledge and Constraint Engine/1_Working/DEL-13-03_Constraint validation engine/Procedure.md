@@ -46,7 +46,7 @@ This procedure describes how later sealed execution should produce and verify th
    - Required coverage: deterministic output behavior, SOW-068 category handling, missing-data findings, provenance visibility, and boundary protection.
    - Exact fixtures and test harness details remain TBD unless resolved by a sealed implementation brief or human ruling.
 
-8. Preserve approved DAG-002 dependency mirror rows.
+8. Preserve approved DAG-006 dependency mirror rows.
    - Do not retire, delete, reclassify, or normalize approved ACTIVE mirror rows during this setup workflow.
 
 ## Verification

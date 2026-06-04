@@ -18,7 +18,7 @@
 |---|---|
 | Primary function | Run schema validation, constraint validation, and deterministic diff preview before model operations are applied. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-16`. |
 | Anticipated artifacts | Operation validator; diff preview service; validation tests. Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv`. |
-| Operation input boundary | Structured model operation schema from DEL-16-01 is an approved upstream dependency. Source: `Dependencies.csv` rows `DAG-002-E0827`; `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md#DAG2-RD-012`. |
+| Operation input boundary | Structured model operation schema from DEL-16-01 is an approved upstream dependency. Source: `Dependencies.csv` rows `DAG-002-E0827`; `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md#DAG2-RD-012`. |
 | Constraint input boundary | Constraint validation engine DEL-13-03 is an approved upstream dependency. Source: `Dependencies.csv` row `DAG-002-E0828`. |
 | Diff input boundary | Model-state comparison engine DEL-14-03 and comparison mapping/tolerance/export contracts DEL-14-05 are approved upstream dependencies. Source: `Dependencies.csv` rows `DAG-002-E0829` and `DAG-002-E0830`. |
 | Diagnostics input boundary | Solver diagnostics and singularity detection DEL-04-06 is an approved upstream dependency. Source: `Dependencies.csv` row `DAG-002-E0831`. |
@@ -50,8 +50,8 @@
 
 - `_CONTEXT.md` - deliverable identity, scope, objective, package reference, architecture-basis injection.
 - `_REFERENCES.md` - source inventory for this deliverable.
-- `Dependencies.csv` - approved DAG-002 local mirror/evidence surface for active upstream dependencies.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 scope, package, deliverable, objective, and architecture-basis context.
+- `Dependencies.csv` - approved DAG-006 local mirror/evidence surface for active upstream dependencies.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 scope, package, deliverable, objective, and architecture-basis context.
 - `docs/_Registers/Deliverables.csv` - deliverable identity and anticipated artifacts.
 - `docs/_Registers/ScopeLedger.csv` - SOW-069 wording and product-boundary notes.
 - `docs/_Registers/ContextBudgetQA.csv` - context-envelope row.

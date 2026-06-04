@@ -7,7 +7,7 @@ Describe the setup procedure for converting the DEL-03-01 evidence into a future
 ## Prerequisites
 
 - Sealed DEL-03-01 brief and write scope.
-- `_CONTEXT.md`, `_REFERENCES.md`, `docs/CONTRACT.md`, register rows, and SOFTWARE_DECOMP revision 0.4.
+- `_CONTEXT.md`, `_REFERENCES.md`, `docs/CONTRACT.md`, register rows, and SOFTWARE_DECOMP revision 0.7.
 - Human-approved rules for any public fixture source, license, redistribution status, and review disposition.
 - No protected material tables or proprietary library data in the working folder.
 

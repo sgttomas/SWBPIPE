@@ -7,7 +7,7 @@ Define the operational setup path for future DEL-05-05 implementation without im
 ## Prerequisites
 
 - Sealed task brief for DEL-05-05 with explicit write scope.
-- Access to `_CONTEXT.md`, `_REFERENCES.md`, `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, relevant register rows, and `docs/CONTRACT.md`.
+- Access to `_CONTEXT.md`, `_REFERENCES.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, relevant register rows, and `docs/CONTRACT.md`.
 - Future implementation task must resolve or explicitly inherit applicable unit, solver, schema, diagnostics, and result-envelope contracts.
 
 ## Steps

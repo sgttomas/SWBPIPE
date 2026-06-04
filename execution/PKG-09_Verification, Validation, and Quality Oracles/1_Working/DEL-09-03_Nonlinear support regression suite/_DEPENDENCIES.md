@@ -68,5 +68,5 @@
 
 ## Run History
 
-- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 6 total rows, 6 ACTIVE, 0 CANDIDATE.
+- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 6 total rows, 6 ACTIVE, 0 CANDIDATE.
 - 2026-05-10 2305 MDT: `TP-DAG-004` dependency-extract refresh for `DEL-09-03`; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition loaded from `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; 8 total rows, 8 ACTIVE, 0 RETIRED; warnings: none.

@@ -51,6 +51,6 @@ The future material schema should be evaluated for these descriptive record grou
 - docs/_Registers/Deliverables.csv row DEL-03-01
 - docs/_Registers/ScopeLedger.csv row SOW-017
 - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
-- docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4
+- execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
 

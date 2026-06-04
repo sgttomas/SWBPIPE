@@ -25,7 +25,7 @@ This deliverable excludes:
 ## Standards
 
 - Governing invariant catalog: `docs/CONTRACT.md`, location rows listed in `_CONTEXT.md` and this document.
-- Decomposition basis: `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4.
+- Decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
 - Public schema/interchange baseline: JSON Schema 2020-12 from architecture basis injection; exact schema fields are TBD.
 - Code-specific rules, combinations, and allowables: excluded from bundled defaults; user/rule-pack supplied.
 

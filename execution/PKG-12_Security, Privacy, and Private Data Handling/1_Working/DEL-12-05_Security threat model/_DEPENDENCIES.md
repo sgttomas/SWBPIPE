@@ -3,7 +3,7 @@
 ## Generated Dependency Register
 - **Status:** REFRESHED_FOR_TP_DAG_004
 - **Source of Truth:** `Dependencies.csv`
-- **Graph Authority Context:** `execution/_DAG/DAG-002/` remains the approved aggregate graph authority. `DAG-003` is preliminary and was not used for promotion.
+- **Graph Authority Context:** `execution/_DAG/DAG-006/` remains the approved aggregate graph authority. Historical `DAG-003` material was not used for promotion.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 23 total; 21 ACTIVE; 2 CANDIDATE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -59,14 +59,14 @@
 - Strictness: CONSERVATIVE.
 - Consumer context: RECONCILIATION.
 - Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Approved graph authority used: `execution/_DAG/DAG-002/`.
-- Preliminary graph not promoted: `execution/_DAG/DAG-003/` was not used as authority.
+- Approved graph authority used: `execution/_DAG/DAG-006/`.
+- Preliminary graph not promoted: `execution/_DAG/DAG-006/` was not used as authority.
 - Anchor doc selected by default heuristic: `Datasheet.md`.
 - Execution docs selected by default heuristic: `Procedure.md`, `Guidance.md`, `Specification.md`, `_CONTEXT.md`, `_REFERENCES.md`, and existing dependency artifacts.
 - Existing DAG-002 mirror rows were preserved. Their `LastSeen` values were refreshed to this run date.
 - Added missing conservative anchors to `SOW-040` and `OBJ-010`.
 - Added evidence-backed governing-document constraints because DEL-12-05 source documents explicitly identify them as content constraints.
-- Added local downstream surface rows only where the relationship is already present in approved DAG-002; these rows do not mutate aggregate graph authority.
+- Added local downstream surface rows only where the relationship is already present in approved DAG-006; these rows do not mutate aggregate graph authority.
 - No source documents, lifecycle files, aggregate DAG artifacts, coordination files, schemas, tests, code, `MEMORY.md`, or `_STATUS.md` were edited.
 - Parent anchor check: PASS. One ACTIVE `IMPLEMENTS_NODE` anchor exists.
 - Non-gating candidate treatment: `DAG-002-E0619` and `DEP-012-05-012` remain `CANDIDATE`.
@@ -87,4 +87,4 @@
 ## Downstream Handoff Notes
 - RECONCILIATION should compare the restored anchors/document constraints and downstream surface rows against the preserved DAG-002 mirror rows before proposing any aggregate graph change.
 - The `DEL-10-02` adapter-framework relationship remains CANDIDATE because DAG-002 explicitly retained it as non-gating to avoid forcing threat modeling after adapters without approval.
-- The `DEL-06-02` evaluator-hardening relationship is represented as a local downstream CANDIDATE from approved DAG-002 candidate evidence only; it should not be promoted without reconciliation and CHANGE approval.
+- The `DEL-06-02` evaluator-hardening relationship is represented as a local downstream CANDIDATE from approved DAG-006 candidate evidence only; it should not be promoted without reconciliation and CHANGE approval.

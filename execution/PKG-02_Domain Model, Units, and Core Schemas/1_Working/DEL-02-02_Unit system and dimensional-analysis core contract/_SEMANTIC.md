@@ -16,7 +16,7 @@
 - `_REFERENCES.md` - governing references, decomposition/register pointers, and package-specific reference notes.
 - `docs/CONTRACT.md` - invariant catalog, especially unit, data-boundary, professional-boundary, and agent-discipline invariants.
 - `docs/_Registers/Deliverables.csv` - row `DEL-02-02`.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` - PKG-02, DEL-02-02, SOW-025, OBJ-001, and OBJ-012 context.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - PKG-02, DEL-02-02, SOW-025, OBJ-001, and OBJ-012 context.
 
 ## Matrix A - Orientation (3x4) - Canonical
 

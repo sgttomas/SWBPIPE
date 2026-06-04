@@ -14,7 +14,7 @@
 - `Guidance.md`
 - `Procedure.md`
 - `_REFERENCES.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - `docs/CONTRACT.md`
 - `docs/SPEC.md`
 - `docs/TYPES.md`

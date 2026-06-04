@@ -48,7 +48,7 @@ This deliverable is a contract-level planning artifact. It does not implement JS
 | CAEPIPE-PCF | PCF translator planning evidence with mapping/default caveats for conservative downstream subset work. | `Source_Basis_Register.md#Public and Official Source Evidence`; PCF PDF `Reference`, `PCF to CAEPIPE component Mapping`. |
 | GLTF-2.0 | Review-geometry package evidence for glTF/GLB asset, identity, coordinate, and container semantics. | `Source_Basis_Register.md#Public and Official Source Evidence`; glTF `2.4`, `3.2`, `3.3`, `3.4`, `4`. |
 | PLAN-EXPORT-INTEROP | Strategy and priority basis only; section location remains `location TBD`. | `Source_Basis_Register.md#Accepted Project References`; `location TBD within plan`. |
-| CONTRACT / IP-DATA / SPEC / TYPES / DAG-005 | Governance, workflow, lifecycle, provenance, TBD, data-boundary, and active graph-coordination basis. | `Source_Basis_Register.md#Accepted Project References`; local governance files and DAG-005 approval record locations cited there. |
+| CONTRACT / IP-DATA / SPEC / TYPES / DAG-005 | Governance, workflow, lifecycle, provenance, TBD, data-boundary, and active graph-coordination basis. | `Source_Basis_Register.md#Accepted Project References`; local governance files and DAG-006 approval record locations cited there. |
 
 ## Local Contract Artifact Inventory
 

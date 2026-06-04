@@ -32,8 +32,8 @@ package_id: PKG-10
 | Boundary purpose | Define an export package for selected local shell/solid FEA handoff and advisory labels for when handoff is recommended. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` row DEL-10-03 |
 | Normal global method | OpenPipeStress primary analysis remains a 3D centerline/frame model. | `INIT.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |
 | Handoff role | Local FEA handoff is a specialized interoperability path for local-detail problems, not the normal global analysis method. | `docs/_Registers/ScopeLedger.csv` rows SOW-031 and SOW-049 |
-| Contract baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 public schema/interchange basis; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-| Adapter boundary | Handoff exports are governed adapter payloads and cannot bypass unit checks, provenance, diagnostics, privacy, protected-content screening, report controls, or professional-boundary language. | `docs/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-06, AB-00-07; `docs/SPEC.md` section 1 |
+| Contract baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 public schema/interchange basis; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+| Adapter boundary | Handoff exports are governed adapter payloads and cannot bypass unit checks, provenance, diagnostics, privacy, protected-content screening, report controls, or professional-boundary language. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-06, AB-00-07; `docs/SPEC.md` section 1 |
 | Criteria authority | Handoff criteria labels are guidance only and do not certify that global beam analysis is sufficient or that local FEA is code-compliant. | `_CONTEXT.md` Context Budget QA; `docs/_Registers/ScopeLedger.csv` row SOW-049; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 | Protected-data posture | The public contract must not embed protected standards text, protected tables, copied code formulas, allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data, or private project/rule data. | `docs/CONTRACT.md` OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6 |
 
@@ -72,4 +72,4 @@ The local FEA handoff contract is a conceptual export package. It should be desc
 - `docs/TYPES.md` sections 3, 4, 5, 6, 7, and 8 for deliverable type, analysis status, epistemic labels, local FEA handoff vocabulary, provenance labels, and domain object registry.
 - `docs/SPEC.md` sections 1, 3, 4, 7, 8, 9, 10, and 11 for architecture layering, domain objects, solver/result/report boundaries, diagnostics, verification, and acceptance semantics.
 - `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6 for public/private data boundaries, provenance, quarantine, and private user data.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for SOW-031, SOW-049, OBJ-009, PKG-10, AB-00-02/03/04/06/07/08, and OI-004.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-031, SOW-049, OBJ-009, PKG-10, AB-00-02/03/04/06/07/08, and OI-004.

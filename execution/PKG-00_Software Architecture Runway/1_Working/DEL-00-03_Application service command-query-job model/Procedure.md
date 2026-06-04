@@ -5,7 +5,7 @@ Execute and review this deliverable-local architecture document kit without cros
 
 ## Prerequisites
 - Root bootstrap and governance documents have been read.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.3 is the current basis.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 is the current basis.
 - Coordination mode remains Full DAG with DAG authoring deferred.
 - Blocker computation remains disabled until a human-approved acyclic DAG exists.
 

@@ -59,4 +59,4 @@ Future implementation work is expected to consume:
 - `docs/TYPES.md` section 4 for analysis-status vocabulary.
 - `docs/DIRECTIVE.md` sections 2 and 5 for missing-data, professional-boundary, and stop-rule treatment.
 - `docs/IP_AND_DATA_BOUNDARY.md` for provenance and quarantine rules.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` rows SOW-022, OBJ-006, OBJ-011, and AB-00-03/05/06.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` rows SOW-022, OBJ-006, OBJ-011, and AB-00-03/05/06.

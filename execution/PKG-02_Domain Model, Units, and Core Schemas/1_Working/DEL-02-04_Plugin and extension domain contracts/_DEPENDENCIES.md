@@ -44,7 +44,7 @@ No human-owned declared dependency list was present in the prior `_DEPENDENCIES.
 - Execution documents scanned: `_CONTEXT.md`, `Procedure.md`, `Specification.md`, `Guidance.md`, `_REFERENCES.md`, prior `_DEPENDENCIES.md`, and existing `Dependencies.csv`.
 - Decomposition path used: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; status: found and used for SOW/OBJ/deliverable label validation.
 - Parent anchor check: exactly one ACTIVE `IMPLEMENTS_NODE` anchor found.
-- Warnings: `_REFERENCES.md` still calls the decomposition basis accepted v0.2 while `_CONTEXT.md` and the active decomposition identify revision 0.4/current basis. Source cleanup is outside this run's write scope.
+- Warnings: Earlier dependency-refresh evidence recorded stale decomposition-basis wording; this authority-refresh pass records `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and `DAG-006` as current authority.
 - Validation tool warning: `tools/validation/validate_id_format.sh` rejects canonical active decomposition IDs such as `DEL-02-04` because it expects the legacy pattern `DEL-[0-9]{3}-[0-9]{2}`. Canonical IDs were preserved; no source IDs were rewritten.
 - Failed-input notes: none.
 

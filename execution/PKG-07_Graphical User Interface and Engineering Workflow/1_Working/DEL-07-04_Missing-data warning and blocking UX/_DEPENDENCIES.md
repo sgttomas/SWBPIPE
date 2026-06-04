@@ -47,7 +47,7 @@
 - **SCOPE:** DEL-07-04
 - **RUN_ROOT:** `/Users/ryan/ai-env/projects/chirality-piping/execution`
 - **DECOMPOSITION_PATH:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Decomposition status:** Found; revision 0.5 read-only validation basis.
+- **Decomposition status:** Found; revision 0.7 read-only validation basis.
 - **Anchor doc:** `Datasheet.md`
 - **Execution docs scanned:** `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`
 - **Reference doc scanned:** `_REFERENCES.md`

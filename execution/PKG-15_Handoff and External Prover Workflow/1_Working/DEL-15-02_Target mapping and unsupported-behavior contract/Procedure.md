@@ -46,8 +46,8 @@ Define and check the target mapping and unsupported-behavior contract for handof
    - Exclude private project data, protected standards text, proprietary formulas, proprietary values, and private rule-pack payloads from public artifacts by default.
 
 7. Check dependencies:
-   - Read the deliverable-local `Dependencies.csv` as an approved DAG-002 mirror/evidence surface.
-   - Preserve all approved DAG-002 rows as ACTIVE for this workflow.
+   - Read the deliverable-local `Dependencies.csv` as an approved DAG-006 mirror/evidence surface.
+   - Preserve all approved DAG-006 rows as ACTIVE for this workflow.
    - Record any conflict with dependency-extract normalization rules rather than rewriting the mirror.
 
 8. Record unresolved decisions:
@@ -66,7 +66,7 @@ Define and check the target mapping and unsupported-behavior contract for handof
 | Unsupported behavior | Unsupported and approximate behavior are explicit; no silent defaults are introduced. |
 | Privacy/IP boundary | Public artifacts do not copy private/protected payloads. |
 | Professional boundary | No field or procedure creates software-generated approval, certification, sealing, authentication, or code-compliance status. |
-| Dependency mirror preservation | All existing approved DAG-002 rows in `Dependencies.csv` remain ACTIVE and unmodified. |
+| Dependency mirror preservation | All existing approved DAG-006 rows in `Dependencies.csv` remain ACTIVE and unmodified. |
 | Schema validation | `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes if `Dependencies.csv` exists. |
 
 ## Records

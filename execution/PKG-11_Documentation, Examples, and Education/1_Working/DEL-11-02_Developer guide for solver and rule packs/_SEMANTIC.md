@@ -13,7 +13,7 @@
 - `Guidance.md` - purpose, principles, considerations, trade-offs, examples, open decisions.
 - `Procedure.md` - purpose, prerequisites, steps, verification, records.
 - `_REFERENCES.md` - governing references and register pointers.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` - read for traceability only; not reinterpreted as matrix authority.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - read for traceability only; not reinterpreted as matrix authority.
 
 ## Matrix A - Orientation (3x4) - Canonical
 

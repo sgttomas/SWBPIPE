@@ -62,6 +62,6 @@ Future example artifacts should include:
 | `docs/TYPES.md` | Provenance labels, analysis-status vocabulary, and data-boundary terms. |
 | `docs/SPEC.md` | Repository target for invented examples, rule-pack boundaries, reporting notices, and V&V expectations. |
 | `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` | Type 2 execution rules and review expectations. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-11 and DEL-11-04 decomposition context. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-11 and DEL-11-04 decomposition context. |
 | `docs/_Registers/Deliverables.csv` | Machine-readable DEL-11-04 row. |
 | `docs/_Registers/ScopeLedger.csv` | SOW-033 scope mapping. |

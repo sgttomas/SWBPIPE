@@ -8,7 +8,7 @@ Define the conservative operating procedure for producing and later verifying th
 
 - Current deliverable context: `_CONTEXT.md`.
 - Governing reference list: `_REFERENCES.md`.
-- Accepted decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5.
+- Accepted decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
 - Approved local DAG-002 dependency mirror: `_DEPENDENCIES.md` and `Dependencies.csv`.
 - Upstream context recorded in the local mirror, including architecture-basis rows DAG-002-E0744 through DAG-002-E0750 and execution context rows DAG-002-E0832 through DAG-002-E0836.
 - Default user-acceptance posture from `_CONTEXT.md` and OI-016.

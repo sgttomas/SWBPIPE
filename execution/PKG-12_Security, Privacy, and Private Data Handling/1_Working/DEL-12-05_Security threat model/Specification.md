@@ -6,14 +6,14 @@ This specification defines the deliverable-local setup content for the planned O
 
 This document is not the product artifact `docs/security/threat_model.md`; it is the setup-stage source content inside the sealed DEL-12-05 folder. It must not introduce protected standards content, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims.
 
-Source basis: `_CONTEXT.md`, `docs/_Decomposition/SOFTWARE_DECOMP.md` rows `PKG-12`, `SOW-040`, `OBJ-010`, architecture basis rows `AB-00-01/02/03/04/06/07/08`, `docs/CONTRACT.md`, `docs/PRD.md` section 18, and `docs/IP_AND_DATA_BOUNDARY.md`.
+Source basis: `_CONTEXT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `PKG-12`, `SOW-040`, `OBJ-010`, architecture basis rows `AB-00-01/02/03/04/06/07/08`, `docs/CONTRACT.md`, `docs/PRD.md` section 18, and `docs/IP_AND_DATA_BOUNDARY.md`.
 
 ## Requirements
 
 | ID | Requirement | Source | Verification |
 |---|---|---|---|
 | STM-REQ-001 | The threat model must identify private project, code, rule-pack, material, component, report, diagnostic, plugin/import, and supply-chain assets as protected or private-sensitive where applicable. | `OBJ-010`; `docs/TYPES.md` sections 6-8; `docs/PRD.md` 17.3, 18.3 | Asset table includes each asset family or marks omissions `TBD`. |
-| STM-REQ-002 | The threat model must preserve the local-first default and must not assume cloud operation unless separately approved. | `docs/PRD.md` 18.1; `docs/_Decomposition/SOFTWARE_DECOMP.md` `PKG-12` exclusion | Trust-boundary table includes local/default and cloud-out-of-scope notes. |
+| STM-REQ-002 | The threat model must preserve the local-first default and must not assume cloud operation unless separately approved. | `docs/PRD.md` 18.1; `execution/_Decomposition/SOFTWARE_DECOMP.md` `PKG-12` exclusion | Trust-boundary table includes local/default and cloud-out-of-scope notes. |
 | STM-REQ-003 | Telemetry threats must assume telemetry is disabled by default and opt-in if implemented, with no private engineering/code data transmitted without explicit user action. | `docs/PRD.md` 18.2; `OPS-K-PRIV-2` | Telemetry threat row and control notes are present. |
 | STM-REQ-004 | Export, report, shared-model, and bug-report threats must include redaction and explicit warning controls for protected/private values. | `SOW-040`; `docs/PRD.md` 18.3; `docs/PRD.md` 17.3 | Report/export threat rows include redaction, warning, and protected-content lint controls. |
 | STM-REQ-005 | Public report templates and examples must not reproduce protected standards content, proprietary formulas, protected tables, or private project data by default. | `OPS-K-IP-1`; `OPS-K-REPORT-2`; `docs/SPEC.md` section 8 | Public-template threat/control rows include protected-content review. |

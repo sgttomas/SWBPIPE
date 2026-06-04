@@ -13,14 +13,14 @@
 - agents/AGENT_PREPARATION.md - PREPARATION scaffolding protocol and file schemas.
 
 ## Decomposition and Registers
-- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted revision 0.5 decomposition basis; package PKG-16 and deliverable DEL-16-01.
+- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted revision 0.7 current decomposition basis; package PKG-16 and deliverable DEL-16-01.
 - docs/_Registers/Deliverables.csv - Deliverable identity, description, artifacts, scope, objectives, and context envelope.
 - docs/_Registers/ScopeLedger.csv - Scope item mapping for SOW-069.
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-16-01.
 
 ## DAG and Coordination References
-- execution/_DAG/DAG-002/APPROVAL_RECORD.md - Approved revision 0.5 active-edge coordination basis.
-- execution/_DAG/DAG-002/DependencyEdges.csv - Aggregate dependency source of truth.
+- execution/_DAG/DAG-006/APPROVAL_RECORD.md - Approved revision 0.7 active-edge coordination basis.
+- execution/_DAG/DAG-006/DependencyEdges.csv - Aggregate dependency source of truth.
 - execution/_Coordination/NEXT_INSTANCE_STATE.md - Current handoff state.
 - execution/_Coordination/_COORDINATION.md - Durable coordination rulings.
 - execution/_ScopeChange/SCA-002_2026-05-02_1854/ACCEPTANCE_RECORD.md - SCA-002 acceptance record.

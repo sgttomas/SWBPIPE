@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md`
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
 **Perspective:** This deliverable frames mechanics stress recovery as a bounded backend feature: unit-aware conversion from governed force resultants, pressure, and section properties into fundamental stress components. The matrices are a question-shaping lens only; they do not establish engineering correctness, protected formulas, implementation choices, code stress categories, allowables, or compliance conclusions.
 **Audit Result:** PASS
 
@@ -13,7 +13,7 @@
 - `Specification.md` — setup requirements and verification hooks.
 - `Guidance.md` — setup principles and trade-offs.
 - `Procedure.md` — future implementation procedure and records.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` — revision 0.4 scope/decomposition basis for `DEL-05-03`.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` — revision 0.7 scope/decomposition basis for `DEL-05-03`.
 
 ## Matrix A - Orientation (3x4) - Canonical
 

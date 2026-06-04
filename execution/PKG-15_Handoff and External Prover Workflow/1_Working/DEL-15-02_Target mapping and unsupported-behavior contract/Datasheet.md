@@ -52,8 +52,8 @@
 
 - `_CONTEXT.md` - deliverable identity, scope, package envelope, architecture-basis injection.
 - `_REFERENCES.md` - local reference index.
-- `Dependencies.csv` - approved DAG-002 mirror/evidence surface for predecessor context.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 decomposition basis, PKG-15 and DEL-15-02 rows.
+- `Dependencies.csv` - approved DAG-006 mirror/evidence surface for predecessor context.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis, PKG-15 and DEL-15-02 rows.
 - `docs/_Registers/Deliverables.csv` - DEL-15-02 row.
 - `docs/_Registers/ScopeLedger.csv` - SOW-074 row.
 - `docs/_Registers/ContextBudgetQA.csv` - DEL-15-02 row.

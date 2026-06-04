@@ -43,7 +43,7 @@
 - Anchor document selected by AUTO heuristic: `Datasheet.md`.
 - Execution document order selected by AUTO heuristic: `Procedure.md`, `Guidance.md`, `Specification.md`, `_CONTEXT.md`, `_REFERENCES.md`.
 - Decomposition path used: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Decomposition status: available; DEL-10-02, SOW-030, and target deliverable IDs were validated against revision 0.5.
+- Decomposition status: available; DEL-10-02, SOW-030, and target deliverable IDs were validated against revision 0.7.
 - UPDATE behavior: prior local DAG mirror rows were not preserved verbatim because several fields used non-v3.1 enum values. Their supported intent was re-extracted into canonical enum rows.
 - Warning: prior architecture-basis rows for DEL-00-01 and DEL-00-02 were not re-emitted as execution dependencies because assigned DEL-10-02 evidence did not state a concrete adapter-framework execution need beyond general architecture-basis applicability.
 - Warning: target deliverables DEL-02-04, DEL-03-07, DEL-12-01, and DEL-10-03 are decomposition-resolved from assigned-source obligations rather than explicitly named in the assigned deliverable text; these rows use MEDIUM or LOW confidence for RECONCILIATION review.

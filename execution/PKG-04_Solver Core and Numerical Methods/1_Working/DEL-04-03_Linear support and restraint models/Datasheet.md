@@ -20,7 +20,7 @@
 | Covered support families | Anchors, guides, line stops, vertical supports, springs, and imposed displacement boundary data. | `_CONTEXT.md` Description; `docs/_Registers/ScopeLedger.csv` row SOW-011 |
 | Analysis basis | Support behavior is part of the primary 3D centerline/frame global model with six degrees of freedom per node. | `docs/CONTRACT.md` OPS-K-MECH-1; `docs/SPEC.md` section 4.1 |
 | Support object boundary | Support records target model objects, directions, unit-bearing properties, and result hooks. | `docs/TYPES.md` section 8, object `Support` |
-| Linear-only boundary | This deliverable covers linear support/restraint setup. Nonlinear one-way behavior, lift-off, gaps, and friction belong to DEL-04-04 unless explicitly deferred back by human authority. | `docs/_Decomposition/SOFTWARE_DECOMP.md` rows DEL-04-03 and DEL-04-04 |
+| Linear-only boundary | This deliverable covers linear support/restraint setup. Nonlinear one-way behavior, lift-off, gaps, and friction belong to DEL-04-04 unless explicitly deferred back by human authority. | `execution/_Decomposition/SOFTWARE_DECOMP.md` rows DEL-04-03 and DEL-04-04 |
 | Imposed displacement boundary data | Imposed displacement references are node/support boundary data and must remain unit-aware. | `docs/SPEC.md` sections 3 and 5; `docs/TYPES.md` object `Node` |
 | Default stiffness values | TBD. No invented support stiffness/defaults are introduced in this setup kit. | `docs/CONTRACT.md` OPS-K-AGENT-1; human hard stop |
 
@@ -45,7 +45,7 @@
 ## References
 
 - `_CONTEXT.md` for sealed deliverable identity and applicable architecture basis IDs.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 for SOW-011, OBJ-003, PKG-04, DEL-04-03, and AB-00-01/02/03/06/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-011, OBJ-003, PKG-04, DEL-04-03, and AB-00-01/02/03/06/08.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register rows.
 - `docs/CONTRACT.md` for applicable invariants.
 - `docs/SPEC.md`, `docs/TYPES.md`, and `docs/INTENT.md` for public architecture and vocabulary slices.

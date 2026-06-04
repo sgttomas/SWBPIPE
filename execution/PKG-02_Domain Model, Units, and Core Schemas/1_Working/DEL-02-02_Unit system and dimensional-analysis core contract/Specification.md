@@ -77,7 +77,7 @@ No protected engineering code or standards-body source text was available or use
 | `docs/DIRECTIVE.md` | Founding intent, unit-safety principle, no silent defaults, data boundary, and stop rules. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and provenance rules for conversion/unit data and fixtures. |
 | `docs/VALIDATION_STRATEGY.md` | Unit/schema verification expectations and benchmark-source restrictions. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | Revision 0.4 scope, SOW-025, DEL-02-02, OBJ-001, OBJ-012, and SCA-001 architecture basis IDs. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | Revision 0.7 scope, SOW-025, DEL-02-02, OBJ-001, OBJ-012, and SCA-001 architecture basis IDs. |
 | `_CONTEXT.md` | Sealed context, applicable architecture basis IDs, package exclusions, and anticipated artifacts. |
 
 ## Verification

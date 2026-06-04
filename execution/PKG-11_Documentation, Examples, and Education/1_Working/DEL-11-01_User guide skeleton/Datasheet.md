@@ -36,7 +36,7 @@
 | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance. |
 | Primary global analysis is a 3D centerline/frame model. | `docs/DIRECTIVE.md` section 3; `docs/SPEC.md` sections 1 and 4 | Modeling sections emphasize centerline nodes, elements, components, supports, loads, and unit-aware fields. |
 | Reports must be auditable and boundary-aware. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 and OPS-K-AUTH-1 | Reporting sections include provenance, warnings, hashes/checksums, limitations, and human review notice. |
-| Future implementation details are unresolved. | `_CONTEXT.md` Architecture Basis Injection; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
+| Future implementation details are unresolved. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
 
 ## Construction
 
@@ -67,7 +67,7 @@ The user guide skeleton is organized as a documentation outline. Section content
 - `docs/SPEC.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
-- `docs/_Decomposition/SOFTWARE_DECOMP.md`
+- `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - `docs/_Registers/Deliverables.csv`
 - `docs/_Registers/ScopeLedger.csv`
 - `docs/_Registers/ContextBudgetQA.csv`

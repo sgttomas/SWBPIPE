@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md`
+**Decomposition Path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
 **Perspective:** This deliverable frames the future stress recovery benchmark suite as a bounded verification asset for mechanics-only behavior coverage across axial, bending, torsion, pressure, and stress range slots. The matrices are a question-shaping lens only; they do not establish benchmark formulas, protected standards content, final tolerances, code stress checks, or professional approval.
 **Framework:** Chirality Semantic Algebra
 **Audit Result:** PASS
@@ -16,7 +16,7 @@
 - `Guidance.md` - setup principles, considerations, and trade-offs.
 - `Procedure.md` - future benchmark production procedure and records.
 - `_REFERENCES.md` - local reference pointer inventory.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.4 scope/decomposition basis for `DEL-09-02`.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 scope/decomposition basis for `DEL-09-02`.
 
 ## Matrix A - Orientation (3x4) - Canonical
 

@@ -16,7 +16,7 @@
 - `_REFERENCES.md` - `./_REFERENCES.md#Governing-References`
 
 **Dispatch Trace:**
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 rows `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and architecture basis `AB-00-01`, `AB-00-02`, `AB-00-04`, `AB-00-06`, `AB-00-07`, `AB-00-08`.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and architecture basis `AB-00-01`, `AB-00-02`, `AB-00-04`, `AB-00-06`, `AB-00-07`, `AB-00-08`.
 - `docs/_Registers/Deliverables.csv` row `DEL-03-03`.
 - `docs/_Registers/ScopeLedger.csv` row `SOW-007`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-03-03`.

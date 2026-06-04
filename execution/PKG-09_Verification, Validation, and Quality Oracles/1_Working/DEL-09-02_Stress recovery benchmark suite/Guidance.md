@@ -45,4 +45,4 @@ Example source patterns for future work are `TBD`. This setup pass intentionally
 
 ## Pass 3 Lensing Notes
 
-Semantic lensing items were applied as setup clarifications only. Additions were limited to explicit coverage slots, provenance fields, tolerance authority placeholders, result-envelope review language, and professional-boundary wording. Sources reread: `_CONTEXT.md`; `docs/CONTRACT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`.
+Semantic lensing items were applied as setup clarifications only. Additions were limited to explicit coverage slots, provenance fields, tolerance authority placeholders, result-envelope review language, and professional-boundary wording. Sources reread: `_CONTEXT.md`; `docs/CONTRACT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`.

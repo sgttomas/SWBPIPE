@@ -13,8 +13,8 @@
 - `Guidance.md` - production document context.
 - `Procedure.md` - production document context.
 - `_REFERENCES.md` - governing reference pointers.
-- `Dependencies.csv` - approved DAG-002 mirror/evidence surface.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 slices for PKG-08, DEL-08-06, SOW-024, OBJ-007, OBJ-016, OBJ-017, OBJ-018, AB-00 basis rows.
+- `Dependencies.csv` - approved DAG-006 mirror/evidence surface.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 slices for PKG-08, DEL-08-06, SOW-024, OBJ-007, OBJ-016, OBJ-017, OBJ-018, AB-00 basis rows.
 - `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/DIRECTIVE.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/TYPES.md` - accessible governing source slices.
 
 ## Matrix A - Orientation (3x4) - Canonical

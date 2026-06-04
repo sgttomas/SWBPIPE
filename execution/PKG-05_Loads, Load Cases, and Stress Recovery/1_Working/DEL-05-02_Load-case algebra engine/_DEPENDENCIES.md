@@ -69,8 +69,8 @@
 
 | Timestamp | Mode | Strictness | Decomposition | Warnings | Active Rows | Notes |
 |---|---|---|---|---|---:|---|
-| 2026-04-30T10:23:35-0600 | UPDATE | CONSERVATIVE | docs/_Decomposition/SOFTWARE_DECOMP.md | none | 7 | Initial dependency-extract run created v3.1 register. |
-| 2026-05-03 | SYNC | N/A | execution/_DAG/DAG-002/DependencyEdges.csv | none | 8 + 1 candidate | Register synchronized from DAG-002 graph rows. |
+| 2026-04-30T10:23:35-0600 | UPDATE | CONSERVATIVE | execution/_Decomposition/SOFTWARE_DECOMP.md | none | 7 | Initial dependency-extract run created v3.1 register. |
+| 2026-05-03 | SYNC | N/A | execution/_DAG/DAG-006/DependencyEdges.csv | none | 8 + 1 candidate | Register synchronized from DAG-002 graph rows. |
 | 2026-05-10T22:27:35-0600 | UPDATE | CONSERVATIVE | execution/_Decomposition/SOFTWARE_DECOMP.md | none | 19 | TP-DAG-004 refresh normalized v3.1 enums, added explicit SOW/REQ anchors, and prepared RECONCILIATION handoff. |
 | 2026-05-16 | STAGE2_LOCAL_ALIGNMENT | CONSERVATIVE | accepted PKG-02 contract | none | 19 | Updated DEL-02-02 unit predecessor evidence and satisfaction for algebra boundary metadata only; no aggregate DAG or lifecycle action. |
 

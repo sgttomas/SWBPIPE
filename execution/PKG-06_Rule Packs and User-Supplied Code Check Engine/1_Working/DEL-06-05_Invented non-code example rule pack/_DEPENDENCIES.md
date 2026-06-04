@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Prior status:** SYNCHRONIZED_FROM_DAG_002
-- **Prior source of truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Prior source of truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Refresh status:** UPDATED_BY_DEPENDENCY_EXTRACT_REFRESH
 - **Local register:** `Dependencies.csv`
 - **Rows:** 14 total; 12 ACTIVE; 2 RETIRED.
@@ -55,7 +55,7 @@
 - **Conservative retirement note:** `DAG-002-E0476` and `DAG-002-E0477` were retained but marked RETIRED because the allowed DEL-06-05 source evidence contains the protected-content and professional-boundary constraints, but does not explicitly cite target deliverables `DEL-01-02` or `DEL-01-04`.
 
 ## Run History
-- 2026-05-03: Generated from `execution/_DAG/DAG-002/DependencyEdges.csv`; 11 ACTIVE rows.
+- 2026-05-03: Generated from `execution/_DAG/DAG-006/DependencyEdges.csv`; 11 ACTIVE rows.
 - 2026-05-10 22:36 MDT: dependency-extract refresh, MODE=UPDATE, STRICTNESS=CONSERVATIVE, CONSUMER_CONTEXT=RECONCILIATION, decomposition located, ACTIVE rows=12, RETIRED rows=2, warnings=none.
 
 ## Lifecycle Summary

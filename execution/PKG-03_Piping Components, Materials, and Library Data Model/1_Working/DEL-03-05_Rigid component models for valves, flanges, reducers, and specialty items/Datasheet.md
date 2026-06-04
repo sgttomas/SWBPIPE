@@ -47,7 +47,7 @@ The future model should preserve the architecture basis stated in the sealed bri
 ## References
 
 - `_CONTEXT.md` for deliverable identity, architecture-basis injection, and scope envelope.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
 - `docs/_Registers/Deliverables.csv` row DEL-03-05.
 - `docs/_Registers/ScopeLedger.csv` row SOW-009.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-05.

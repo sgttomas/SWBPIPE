@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_TP_DAG_004_LOCAL
-- **Graph authority:** `execution/_DAG/DAG-002/` remains the approved graph authority; `DAG-003` was not used or promoted.
+- **Graph authority:** `execution/_DAG/DAG-006/` remains the approved graph authority; historical `DAG-003` material was not used or promoted.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 17 total; 17 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -49,7 +49,7 @@
 - Strictness: CONSERVATIVE.
 - Consumer context: RECONCILIATION.
 - Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for target resolution.
-- Approved graph authority read: `execution/_DAG/DAG-002/DependencyEdges.csv`; `DAG-003` was not used as authority.
+- Approved graph authority read: `execution/_DAG/DAG-006/DependencyEdges.csv`; `DAG-003` was not used as authority.
 - Anchor doc: `Datasheet.md`; supplemental anchor evidence from `_CONTEXT.md`.
 - Execution docs scanned: `Procedure.md`, `Specification.md`, `Guidance.md`, `Datasheet.md`, `_CONTEXT.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`, and DAG-002 rows for DEL-12-04.
 - Existing DAG-002 mirror rows were preserved by `DependencyID` and normalized to dependency-extract enums: `AnchorType=NOT_APPLICABLE`, `DependencyType=PREREQUISITE`, and `Origin=DECLARED`.
@@ -57,7 +57,7 @@
 - Added two local execution interface rows for DEL-12-02 redaction/export controls and DEL-12-03 telemetry-off design because DEL-12-04 source documents explicitly require those handling surfaces.
 - No uncertain candidate rows were promoted. No RETIRED rows were needed in this refresh.
 - [WARNING] ENUM_NORMALIZATION: Original DAG-002 mirror values included graph-specific enums (`ARCHITECTURE_BASIS`, `SECURITY_PREDECESSOR`, `CONTEXT`, `DECOMPOSITION`) that are not accepted by `skills/dependency-extract` enum validation. Local rows now preserve that provenance in `Notes`.
-- [WARNING] GRAPH_AUTHORITY_BOUNDARY: New extracted rows are local evidence for RECONCILIATION only and do not modify approved `DAG-002`.
+- [WARNING] GRAPH_AUTHORITY_BOUNDARY: New extracted rows are local evidence for RECONCILIATION only and do not modify approved `DAG-006`.
 
 ## Run History
 
@@ -79,6 +79,6 @@
 
 ## Downstream Handoff Notes
 
-- RECONCILIATION should compare the two new local interface rows (`DEL-12-04-E001`, `DEL-12-04-E002`) against approved `DAG-002`; they are evidence-backed local additions but are not aggregate authority.
+- RECONCILIATION should compare the two new local interface rows (`DEL-12-04-E001`, `DEL-12-04-E002`) against approved `DAG-006`; they are evidence-backed local additions but are not aggregate authority.
 - RECONCILIATION should note that the local v3.1 enum validator is narrower than the DAG-002 mirror vocabulary. This refresh stores graph-specific source classifications in `Notes` while keeping CSV enum fields validator-clean.
 - No cycle-producing downstream edges were added from DEL-12-04.

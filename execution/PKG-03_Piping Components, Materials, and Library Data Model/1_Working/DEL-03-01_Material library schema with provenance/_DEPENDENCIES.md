@@ -44,7 +44,7 @@
 - Chosen anchor evidence: `Datasheet.md`, `_CONTEXT.md`, and `SOFTWARE_DECOMP.md` for canonical package/scope labels.
 - Chosen execution evidence: `_CONTEXT.md`, `Specification.md`, `Datasheet.md`, `Procedure.md`, and `Guidance.md`.
 - Decomposition path: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Decomposition status: revision 0.5, `current_basis`.
+- Decomposition status: revision 0.7, `current_basis`.
 - No `[WARNING] MISSING_DECOMPOSITION`.
 - Parent anchor check: PASS; exactly one ACTIVE `IMPLEMENTS_NODE` row.
 - ID-format helper check: WARNING. `tools/validation/validate_id_format.sh` expects older three-digit patterns such as `PKG-003`, `DEL-003-01`, and `SOW-0017`, while the current decomposition uses canonical IDs `PKG-03`, `DEL-03-01`, and `SOW-017`. The refresh preserves decomposition IDs rather than rewriting identifiers to satisfy the stale helper.
@@ -72,7 +72,7 @@
 ## Run History
 
 - 2026-04-30T09:55:57-0600 — `TASK_RUN_DEL-03-01_2026-04-30_0955_dependency-extract`; mode `UPDATE`; strictness `CONSERVATIVE`; produced prior local register and dependency index.
-- 2026-05-03 — synchronized local register from `execution/_DAG/DAG-002/DependencyEdges.csv`; 10 ACTIVE rows.
+- 2026-05-03 — synchronized local register from `execution/_DAG/DAG-006/DependencyEdges.csv`; 10 ACTIVE rows.
 - 2026-05-10T21:56:41-0600 — TP-DAG-004 refresh row; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition revision 0.5 at `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; 12 ACTIVE rows; warnings: ID-format helper pattern mismatch.
 
 ## Authority Boundary

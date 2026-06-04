@@ -104,7 +104,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| C-001 | C:evaluative:completeness | MissingSlot | Specification | Specification | Add supply-chain exposure to the threat inventory. | The brief names supply chain exposure and architecture basis requires layered security/release gates, so the threat list should not stop at local/report/plugin surfaces. | Specification.md; _CONTEXT.md; docs/_Decomposition/SOFTWARE_DECOMP.md | Specification.md#Threat Inventory; _CONTEXT.md#Architecture Basis Injection; SOFTWARE_DECOMP.md#8.1 Architecture basis register | N/A | Add supply-chain row with implementation details left TBD. | TBD |
+| C-001 | C:evaluative:completeness | MissingSlot | Specification | Specification | Add supply-chain exposure to the threat inventory. | The brief names supply chain exposure and architecture basis requires layered security/release gates, so the threat list should not stop at local/report/plugin surfaces. | Specification.md; _CONTEXT.md; execution/_Decomposition/SOFTWARE_DECOMP.md | Specification.md#Threat Inventory; _CONTEXT.md#Architecture Basis Injection; SOFTWARE_DECOMP.md#8.1 Architecture basis register | N/A | Add supply-chain row with implementation details left TBD. | TBD |
 
 ## Matrix F — Requirements
 
@@ -127,7 +127,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| F-001 | F:operative:necessity | VerificationGap | Specification | Specification | Add acceptance signal for report/export redaction and warning controls. | SOW-040 requires redaction/export safeguards; the verification table should explicitly check that path. | Specification.md; docs/_Decomposition/SOFTWARE_DECOMP.md; docs/PRD.md | Specification.md#Verification; SOFTWARE_DECOMP.md#SOW-040; PRD.md#18.3 Private Data Protection | N/A | Add a verification row for redaction, warning, and protected-content lint controls. | TBD |
+| F-001 | F:operative:necessity | VerificationGap | Specification | Specification | Add acceptance signal for report/export redaction and warning controls. | SOW-040 requires redaction/export safeguards; the verification table should explicitly check that path. | Specification.md; execution/_Decomposition/SOFTWARE_DECOMP.md; docs/PRD.md | Specification.md#Verification; SOFTWARE_DECOMP.md#SOW-040; PRD.md#18.3 Private Data Protection | N/A | Add a verification row for redaction, warning, and protected-content lint controls. | TBD |
 
 ## Matrix D — Objectives
 

@@ -55,7 +55,7 @@ No external engineering standard text is accessible or required for this setup p
 | Prohibited claim prevention | Guard tests for automatic statuses, UI/API/report strings, and agent outputs where applicable. | No automatic certification, approval, sealing, authentication, professional reliance, or code-compliance output. |
 | Human acceptance separation | Review records or schemas once implementation exists. | Human acceptance is external, actor-owned, and hash-bound; software does not self-approve. |
 | Protected-content/data boundary | Protected-content and private-data checks. | No protected standards content or private project/rule data added to public artifacts. |
-| Dependency preservation | Check approved DAG-002 local mirror. | Existing approved rows remain ACTIVE unless later changed by RECONCILIATION plus CHANGE approval. |
+| Dependency preservation | Check approved DAG-006 local mirror. | Existing approved rows remain ACTIVE unless later changed by RECONCILIATION plus CHANGE approval. |
 
 ## Documentation
 

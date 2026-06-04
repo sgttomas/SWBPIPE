@@ -60,7 +60,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| A-001 | A:normative:reviewing | Conflict | Guidance | NA | Preserve approved DAG-002 mirror rows unchanged; do not normalize/reclassify in this run. | `Guidance.md` records that dependency-extract v3.1 write-form enums conflict with the task rule preserving approved DAG-002 rows as ACTIVE. This must remain a human/coordination ruling rather than a local overwrite. | Guidance.md; Dependencies.csv; skills/dependency-extract/SKILL.md | Guidance.md Conflict Table; Dependencies.csv entire file scanned; dependency-extract "Canonical enums" | Guidance.md#Conflict Table; Dependencies.csv#entire file scanned; skills/dependency-extract/SKILL.md#Canonical register | PROPOSAL: preserve mirror unchanged for this task and report conflict. | TBD |
+| A-001 | A:normative:reviewing | Conflict | Guidance | NA | Preserve approved DAG-006 mirror rows unchanged; do not normalize/reclassify in this run. | `Guidance.md` records that dependency-extract v3.1 write-form enums conflict with the task rule preserving approved DAG-006 rows as ACTIVE. This must remain a human/coordination ruling rather than a local overwrite. | Guidance.md; Dependencies.csv; skills/dependency-extract/SKILL.md | Guidance.md Conflict Table; Dependencies.csv entire file scanned; dependency-extract "Canonical enums" | Guidance.md#Conflict Table; Dependencies.csv#entire file scanned; skills/dependency-extract/SKILL.md#Canonical register | PROPOSAL: preserve mirror unchanged for this task and report conflict. | TBD |
 
 ## Matrix B - Conceptualization
 

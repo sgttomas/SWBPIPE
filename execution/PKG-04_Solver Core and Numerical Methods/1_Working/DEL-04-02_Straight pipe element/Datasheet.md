@@ -47,7 +47,7 @@ The future element is expected to receive validated geometry, section properties
 - `docs/_Registers/ScopeLedger.csv` row `SOW-006`.
 - `docs/_Registers/ContextBudgetQA.csv` row `DEL-04-02`.
 - `docs/CONTRACT.md` invariants listed in the sealed brief.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, and `AB-00-08`.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, and `AB-00-08`.
 
 ## Open Setup Questions
 

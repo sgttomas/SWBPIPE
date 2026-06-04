@@ -167,7 +167,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| D-001 | D:evaluative:guiding | Conflict | Guidance | Guidance | Keep expression grammar/library unresolved. | The architecture/decomposition notes leave the exact rule expression grammar/library as TBD, so setup docs cannot prescribe it. | `docs/_Decomposition/SOFTWARE_DECOMP.md`; `Guidance.md` | `OI-006`; `Guidance.md#Conflict Table` | `docs/_Decomposition/SOFTWARE_DECOMP.md#OI-006`; `Guidance.md#Conflict Table` | PROPOSAL: defer to future human architecture decision. | TBD |
+| D-001 | D:evaluative:guiding | Conflict | Guidance | Guidance | Keep expression grammar/library unresolved. | The architecture/decomposition notes leave the exact rule expression grammar/library as TBD, so setup docs cannot prescribe it. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `Guidance.md` | `OI-006`; `Guidance.md#Conflict Table` | `execution/_Decomposition/SOFTWARE_DECOMP.md#OI-006`; `Guidance.md#Conflict Table` | PROPOSAL: defer to future human architecture decision. | TBD |
 
 ## Matrix X - Verification
 

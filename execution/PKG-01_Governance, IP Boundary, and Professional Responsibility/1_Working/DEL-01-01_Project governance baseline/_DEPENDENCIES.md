@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_FROM_LOCAL_EVIDENCE
-- **Previous Source:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Previous Source:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Refreshed:** 2026-05-10

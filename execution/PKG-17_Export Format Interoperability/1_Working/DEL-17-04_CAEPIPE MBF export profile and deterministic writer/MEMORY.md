@@ -39,3 +39,10 @@
 - Evidence basis: `DEV-001_BLOCKER_QUEUE.csv` records this deliverable as committed and unblocked; `TP-INTEGRATED-VERIFY-002_2026-05-31` passed executed checks; `TP-LIFECYCLE-READINESS-AUDIT-001_2026-05-31` identified PKG-17 lifecycle disposition as human-gated.
 - Run record: `_run_records/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03.md`; closeout snapshot: `execution/_Aggregation/TP-PKG17-LIFECYCLE-DISPOSITION-001_2026-06-03/`.
 - Non-claims preserved: no product implementation change, DAG change, DEV-001 evidence edit, release claim, target compatibility claim, code-compliance claim, or professional-reliance claim.
+
+## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
+
+- WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-17-04`.
+- Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
+- Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
+- Preserved historical references remain evidence of earlier work, not current authority claims.

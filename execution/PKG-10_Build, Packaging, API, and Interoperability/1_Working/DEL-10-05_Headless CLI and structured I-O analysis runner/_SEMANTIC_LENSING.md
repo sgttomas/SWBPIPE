@@ -122,7 +122,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| F-001 | F:normative:sufficiency | TBD_Question | Specification | Specification | Record TBD: exact command names, schema fields, transport, CI provider, and release matrix need later implementation scope or human ruling. | The setup docs must not let future readers mistake accepted architecture basis for final command/schema decisions. | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md`; `Specification.md` | Architecture Basis Injection; section 8.2; Standards | N/A | PROPOSAL: keep all concrete runner surface details TBD in setup. | TBD |
+| F-001 | F:normative:sufficiency | TBD_Question | Specification | Specification | Record TBD: exact command names, schema fields, transport, CI provider, and release matrix need later implementation scope or human ruling. | The setup docs must not let future readers mistake accepted architecture basis for final command/schema decisions. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `Specification.md` | Architecture Basis Injection; section 8.2; Standards | N/A | PROPOSAL: keep all concrete runner surface details TBD in setup. | TBD |
 
 ## Matrix D - Objectives
 

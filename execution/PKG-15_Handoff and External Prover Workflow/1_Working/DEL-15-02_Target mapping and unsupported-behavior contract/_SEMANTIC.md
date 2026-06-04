@@ -12,7 +12,7 @@
 - Guidance.md - full file
 - Procedure.md - full file
 - _REFERENCES.md - full file
-- Dependencies.csv - approved DAG-002 mirror/evidence surface
+- Dependencies.csv - approved DAG-006 mirror/evidence surface
 - execution/_Decomposition/SOFTWARE_DECOMP.md - PKG-15, DEL-15-02, SOW-074, OBJ-017, OI-015, DEC-015 slices
 
 ## Matrix A - Orientation (3x4) - Canonical

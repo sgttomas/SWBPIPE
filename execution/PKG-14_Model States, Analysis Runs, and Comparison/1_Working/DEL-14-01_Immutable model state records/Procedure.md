@@ -7,9 +7,9 @@ Define and verify the immutable model state record surface for DEL-14-01 without
 ## Prerequisites
 
 - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `Dependencies.csv` in this deliverable folder.
-- Use `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.5 for SOW-071, OBJ-016, PKG-14, and DEL-14-01 scope.
+- Use `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-071, OBJ-016, PKG-14, and DEL-14-01 scope.
 - Apply `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for governance, technical, vocabulary, and data-boundary constraints.
-- Treat approved DAG-002 rows as coordination evidence, not as authorization to edit upstream deliverables or dispatch Type 2 implementation.
+- Treat approved DAG-006 rows as coordination evidence, not as authorization to edit upstream deliverables or dispatch Type 2 implementation.
 - Preserve all unknown implementation choices as `TBD` unless a later accepted source resolves them.
 
 Declared upstream coordination evidence from the local mirror:

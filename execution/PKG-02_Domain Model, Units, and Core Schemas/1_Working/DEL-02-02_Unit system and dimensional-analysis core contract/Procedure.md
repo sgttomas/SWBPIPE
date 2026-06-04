@@ -15,7 +15,7 @@ This procedure describes how to produce and use the DEL-02-02 unit-system contra
 
 | Prerequisite | Status / source |
 |---|---|
-| Sealed DEL-02-02 context | Present in `_CONTEXT.md` revision 0.4. |
+| Sealed DEL-02-02 context | Present in `_CONTEXT.md` revision 0.7. |
 | Scope and objectives | DEL-02-02, PKG-02, SOW-025, OBJ-001, OBJ-012 from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`. |
 | Applicable invariants | OPS-K-UNIT-1, OPS-K-DATA-2, OPS-K-IP-1 through OPS-K-IP-3, OPS-K-AUTH-1, OPS-K-AGENT-1 through OPS-K-AGENT-4 from `docs/CONTRACT.md`. |
 | Architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 from `_CONTEXT.md`. |

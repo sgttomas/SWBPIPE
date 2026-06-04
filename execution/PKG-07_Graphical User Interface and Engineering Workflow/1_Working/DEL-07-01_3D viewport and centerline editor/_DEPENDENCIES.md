@@ -29,7 +29,7 @@
 
 | Timestamp | Mode | Strictness | Consumer Context | Decomposition | Active Rows | Warnings |
 |---|---|---|---|---|---:|---|
-| 2026-04-30 | UPDATE | CONSERVATIVE | NONE | `docs/_Decomposition/SOFTWARE_DECOMP.md` | 15 | None recorded in prior run record. |
+| 2026-04-30 | UPDATE | CONSERVATIVE | NONE | `execution/_Decomposition/SOFTWARE_DECOMP.md` | 15 | None recorded in prior run record. |
 | 2026-05-10_2243 | UPDATE | CONSERVATIVE | RECONCILIATION | `execution/_Decomposition/SOFTWARE_DECOMP.md` | 15 | FLOATING_NODE |
 
 ## Lifecycle Summary

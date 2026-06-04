@@ -53,7 +53,7 @@ The deliverable is expected to materialize as a schema-first data model plus fix
 
 - `_CONTEXT.md` - deliverable identity, scope, objective, architecture-basis injection.
 - `_REFERENCES.md` - source list for this setup pass.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
 - `docs/_Registers/Deliverables.csv` - deliverable register row `DEL-16-01`.
 - `docs/_Registers/ScopeLedger.csv` - scope ledger row `SOW-069`.
 - `docs/_Registers/ContextBudgetQA.csv` - context budget row `DEL-16-01`.

@@ -74,6 +74,6 @@
 ## Run History
 
 - 2026-04-30: Initial `dependency-extract` run produced v3.1 dependency artifacts.
-- 2026-05-03: Local register was synchronized from approved `DAG-002` mirror; 8 ACTIVE rows.
+- 2026-05-03: Local register was synchronized from approved `DAG-006` mirror; 8 ACTIVE rows.
 - 2026-05-10: TP-DAG-004 refresh for `RECONCILIATION`; mode `UPDATE`, strictness `CONSERVATIVE`, decomposition path `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; 13 ACTIVE rows, 4 ANCHOR, 9 EXECUTION; warnings: none.
 - 2026-05-16: DEV-001 Stage 2 package-local alignment updated DEL-02-02 unit predecessor evidence and satisfaction for user-load boundary metadata only; no aggregate DAG or lifecycle action.

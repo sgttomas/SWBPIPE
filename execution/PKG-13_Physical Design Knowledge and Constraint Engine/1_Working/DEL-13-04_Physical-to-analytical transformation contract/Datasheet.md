@@ -40,7 +40,7 @@
 
 ### Upstream Inputs
 
-The local `Dependencies.csv` is an approved DAG-002 mirror/evidence surface. It lists these ACTIVE upstream dependencies for DEL-13-04:
+The local `Dependencies.csv` is an approved DAG-006 mirror/evidence surface. It lists these ACTIVE upstream dependencies for DEL-13-04:
 
 | Target | Relationship summary | Source |
 |---|---|---|
@@ -84,8 +84,8 @@ The deliverable should materialize as a contract plus transform warning tests, a
 
 - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
 - `_REFERENCES.md` - governing reference list and source boundary.
-- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-002 mirror/evidence surface.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.5 package, scope, objective, and deliverable entries.
+- `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 mirror/evidence surface.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, scope, objective, and deliverable entries.
 - `docs/_Registers/Deliverables.csv` - row DEL-13-04.
 - `docs/_Registers/ScopeLedger.csv` - row SOW-066.
 - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-04.

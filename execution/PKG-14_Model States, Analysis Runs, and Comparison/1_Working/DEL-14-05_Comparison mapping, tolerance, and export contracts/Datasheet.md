@@ -61,4 +61,4 @@
 - `docs/SPEC.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/DIRECTIVE.md`
-- `execution/_DAG/DAG-002/APPROVAL_RECORD.md`
+- `execution/_DAG/DAG-006/APPROVAL_RECORD.md`

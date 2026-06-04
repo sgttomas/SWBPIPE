@@ -28,7 +28,7 @@ This setup pass does not implement `schemas/rule_pack.schema.yaml`, update `docs
 | Standard or policy source | Use in this setup evidence |
 |---|---|
 | OpenPipeStress CONTRACT | Governs protected-content, provenance, privacy, unit, rule-pack, professional-boundary, and agent-output constraints. |
-| SOFTWARE_DECOMP revision 0.4 | Provides package/deliverable scope, accepted architecture basis, open issues, and remaining `TBD` boundaries. |
+| SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope, accepted architecture basis, open issues, and remaining `TBD` boundaries. |
 | JSON Schema 2020-12 | Required baseline for future public schema/interchange artifacts. Exact file layout and code-generation tooling remain `TBD`. |
 | Canonical JSON / JCS-compatible hashing | Required checksum basis where JSON payloads are hashed. Exact implementation library remains `TBD`. |
 | External engineering standards | May be referenced by user-owned private rule packs, but their protected text, tables, examples, formulas, and values are not public project content. |

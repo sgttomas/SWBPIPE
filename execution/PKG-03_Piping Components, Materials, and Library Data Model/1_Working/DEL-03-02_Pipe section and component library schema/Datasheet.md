@@ -18,9 +18,9 @@ package_id: PKG-03
 | Package | PKG-03 - Piping Components, Materials, and Library Data Model | SourcePath: `_CONTEXT.md`; SectionRef: Package Reference |
 | Type | DATA_MODEL_CHANGE | SourcePath: `_CONTEXT.md`; SectionRef: Type |
 | Scope item | SOW-018 | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-018 |
-| Objective | OBJ-004 | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: objective row OBJ-004 |
+| Objective | OBJ-004 | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: objective row OBJ-004 |
 | Anticipated artifacts | `schemas/component.schema.yaml`; `schemas/section.schema.yaml` | SourcePath: `_CONTEXT.md`; SectionRef: Anticipated Artifacts |
-| Decomposition basis | `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
+| Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
 | Responsible party | TBD | Not assigned in accessible sources |
 
 ## Attributes
@@ -32,8 +32,8 @@ package_id: PKG-03
 | Section record intent | User-entered dimensions, weights/mass-property inputs, provenance, and redistribution status | SourcePath: `_CONTEXT.md`; SectionRef: Description |
 | Component record intent | User-entered component dimensions, weights, centers of gravity, source/license metadata, and redistribution status | SourcePath: `_CONTEXT.md`; SectionRef: Description |
 | Schema baseline | JSON Schema 2020-12 contracts | SourcePath: `_CONTEXT.md`; SectionRef: Architecture Basis Injection |
-| Persistence baseline | Deterministic, versioned, unit-aware, provenance-preserving, schema-governed, migration-aware, and round-trip testable | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
-| Diagnostics baseline | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06 |
+| Persistence baseline | Deterministic, versioned, unit-aware, provenance-preserving, schema-governed, migration-aware, and round-trip testable | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
+| Diagnostics baseline | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06 |
 | Exact schema fields | TBD | This setup pass does not implement `schemas/component.schema.yaml` or `schemas/section.schema.yaml` |
 
 ## Conditions
@@ -68,7 +68,7 @@ This setup deliverable should prepare later schema implementation without defini
 - `docs/_Registers/Deliverables.csv`, row DEL-03-02.
 - `docs/_Registers/ScopeLedger.csv`, row SOW-018.
 - `docs/_Registers/ContextBudgetQA.csv`, row DEL-03-02.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md`, revision 0.4, especially PKG-03, DEL-03-02, OBJ-004, SOW-018, and AB-00-01/02/04/06/07/08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md`, revision 0.7, especially PKG-03, DEL-03-02, OBJ-004, SOW-018, and AB-00-01/02/04/06/07/08.
 - `docs/CONTRACT.md`, invariant catalog.
 - `docs/TYPES.md`, epistemic labels and data provenance labels.
 - `docs/SPEC.md`, sections 1, 3, 10, and 11.

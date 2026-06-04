@@ -38,7 +38,7 @@ Define and check the external-prover boundary metadata deliverable without imple
 | Status-boundary check | Automatic approval, certification, code-compliance, sealing, authentication, professional reliance, and formal prover lifecycle states are absent or rejected. |
 | Human acceptance check | Any human acceptance reference is external, human-owned, and hash-bound; otherwise it is `TBD` or absent. |
 | Data-boundary check | Fixtures/examples contain no protected standards text, proprietary values, private project data, unauthorized commercial examples, real secrets, or private rule-pack payloads. |
-| Dependency check | Upstream dependency context from `Dependencies.csv` is preserved; approved DAG-002 mirror rows are not deleted, retired, or reclassified by this setup pass. |
+| Dependency check | Upstream dependency context from `Dependencies.csv` is preserved; approved DAG-006 mirror rows are not deleted, retired, or reclassified by this setup pass. |
 
 ## Records
 

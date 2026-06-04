@@ -140,7 +140,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| F-001 | F:normative:necessity | VerificationGap | Specification | Specification | Make future tests assert every warning class is preserved. | The requirement names all classes; acceptance needs explicit per-class test coverage to avoid silent collapse into generic alerts. | `Specification.md`; `docs/SPEC.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md` | `Specification.md#Requirements`; `docs/SPEC.md#7`; `SOFTWARE_DECOMP.md#AB-00-06` |  | PROPOSAL: require representative diagnostics for all six classes. | TBD |
+| F-001 | F:normative:necessity | VerificationGap | Specification | Specification | Make future tests assert every warning class is preserved. | The requirement names all classes; acceptance needs explicit per-class test coverage to avoid silent collapse into generic alerts. | `Specification.md`; `docs/SPEC.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | `Specification.md#Requirements`; `docs/SPEC.md#7`; `SOFTWARE_DECOMP.md#AB-00-06` |  | PROPOSAL: require representative diagnostics for all six classes. | TBD |
 
 ## Matrix D - Objectives
 

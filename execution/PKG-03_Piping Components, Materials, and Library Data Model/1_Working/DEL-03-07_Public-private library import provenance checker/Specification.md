@@ -35,7 +35,7 @@ It excludes:
 | Standard or governing source | Applicability | Status |
 |---|---|---|
 | docs/CONTRACT.md | Invariant source for IP, data, unit, privacy, governance, and agent behavior. | Locally accessible |
-| docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 | Scope and objective source for DEL-03-07. | Locally accessible |
+| execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Scope and objective source for DEL-03-07. | Locally accessible |
 | External import format specifications | Potential future input format constraints. | TBD |
 | Legal license interpretation sources | May govern redistribution-right acceptance. | TBD; human/legal review required |
 

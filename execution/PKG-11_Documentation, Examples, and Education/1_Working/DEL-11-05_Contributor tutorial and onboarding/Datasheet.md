@@ -61,7 +61,7 @@ The onboarding path should be constructed as a contributor journey with the foll
 | docs/IP_AND_DATA_BOUNDARY.md | Sections 2-7 | Public/private data and quarantine policy. |
 | docs/VALIDATION_STRATEGY.md | Sections 1, 4-5 | Validation boundary and permitted benchmark/example sources. |
 | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md | Sections 1-6 | Type 1/Type 2 workflow and review checklist. |
-| docs/_Decomposition/SOFTWARE_DECOMP.md | Revision 0.4; SOW-033; DEL-11-05 | Scope and objectives. |
+| execution/_Decomposition/SOFTWARE_DECOMP.md | Revision 0.7; SOW-033; DEL-11-05 | Scope and objectives. |
 | docs/_Registers/Deliverables.csv | Row DEL-11-05 | Deliverable identity. |
 | docs/_Registers/ScopeLedger.csv | Row SOW-033 | Scope item basis. |
 | execution/_ScopeChange/SCA-001_2026-04-30_0045/Handoff_State.md | Explicit holds | Architecture-basis handling and ISSUED hold. |

@@ -12,7 +12,7 @@
 | Deliverable identity | PASS | `_CONTEXT.md` identifies `DEL-02-01`, `PKG-02`, `DATA_MODEL_CHANGE`, name `Canonical domain model schema`. |
 | Lifecycle state | WARNING | `_STATUS.md` current state is `SEMANTIC_READY`. The human requested this mechanical review; no lifecycle transition was requested or performed. |
 | Sealed context basis | PASS | `_CONTEXT.md` accepted decomposition revision is `0.4` and includes SCA-001 architecture-basis injection. |
-| Decomposition/register coverage | PASS | `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 lists `DEL-02-01`; `docs/_Registers/Deliverables.csv` and `ScopeLedger.csv` include the matching DEL/SOW rows. |
+| Decomposition/register coverage | PASS | `execution/_Decomposition/`SOFTWARE_DECOMP.md` revision 0.7 lists `DEL-02-01`; `docs/_Registers/Deliverables.csv` and `ScopeLedger.csv` include the matching DEL/SOW rows. |
 | Context consistency | WARNING | Two human-ruling conflicts remain visible in `Guidance.md`: objective mapping and stale revision pointers. See RF-002 and RF-003. |
 | Write scope | PASS | This review writes only `_REVIEW.md` and `Review_Findings.csv` inside this deliverable folder. |
 

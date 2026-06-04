@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** TP-DAG-004_REFRESHED_FOR_RECONCILIATION
-- **Source of Truth:** approved DAG-002 mirror plus conservative decomposition refresh evidence
+- **Source of Truth:** approved DAG-006 mirror plus conservative decomposition refresh evidence
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 17 total; 17 ACTIVE; 0 RETIRED.
 - **Candidate disposition rows:** 2 active rows are non-gating candidates for RECONCILIATION.

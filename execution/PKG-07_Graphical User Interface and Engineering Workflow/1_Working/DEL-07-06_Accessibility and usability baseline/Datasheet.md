@@ -55,6 +55,6 @@ Future implementation should translate the checklist into GUI and report tests o
 | `docs/TYPES.md` | Analysis-status vocabulary, provenance labels, report/result boundary |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and report boundary |
 | `docs/VALIDATION_STRATEGY.md` | GUI workflow validation and report reproducibility validation |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07, DEL-07-06, AB-00-03, AB-00-05, AB-00-06, AB-00-08, OI-002 |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07, DEL-07-06, AB-00-03, AB-00-05, AB-00-06, AB-00-08, OI-002 |
 | `docs/_Registers/Deliverables.csv` | DEL-07-06 register row |
 | `docs/_Registers/ScopeLedger.csv` | SOW-036 row |

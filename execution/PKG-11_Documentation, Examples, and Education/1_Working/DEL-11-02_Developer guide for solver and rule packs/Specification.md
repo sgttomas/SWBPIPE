@@ -33,7 +33,7 @@ The guide is documentation for contributors. It must help developers inspect and
 |---|---|
 | OpenPipeStress CONTRACT | Governs IP, data, privacy, rule-pack, unit, professional-authority, and agent-output constraints. |
 | OpenPipeStress SPEC | Provides current architecture, solver, rule-pack, GUI-warning, report, and V&V baseline for developer-guide requirements. |
-| SOFTWARE_DECOMP revision 0.4 | Provides package/deliverable scope, architecture basis injection, objectives, and remaining `TBD` decisions. |
+| SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope, architecture basis injection, objectives, and remaining `TBD` decisions. |
 | IP and Data Boundary Policy | Governs public/private content rules, provenance, and quarantine behavior. |
 | Validation Strategy | Governs test families and release-quality expectations to describe in the guide. |
 | External engineering standards | May be referenced as user-owned/private design bases; protected text, tables, examples, formulas, and values are not public guide content. |

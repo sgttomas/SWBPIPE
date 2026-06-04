@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_TP_DAG_004
-- **Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv` remains the approved graph authority.
+- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv` remains the approved graph authority.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 16 total; 16 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Generated:** 2026-05-03
@@ -53,15 +53,15 @@
 - Consumer context: `RECONCILIATION`.
 - Run root: `/Users/ryan/ai-env/projects/chirality-piping/execution`.
 - Decomposition path: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; status found and used for anchor validation.
-- Approved graph authority: `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-002/`.
-- Preliminary graph explicitly not used as authority: `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-003/`.
+- Approved graph authority: `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-006/`.
+- Preliminary graph explicitly not used as authority: `/Users/ryan/ai-env/projects/chirality-piping/execution/_DAG/DAG-006/`.
 - Anchor document selection: `Datasheet.md` and `_CONTEXT.md` because both explicitly identify DEL-16-01, SOW-069, and OBJ-015.
-- Execution document order: `Specification.md`, `Procedure.md`, `Guidance.md`, `_CONTEXT.md`, `_REFERENCES.md`, plus approved DAG-002 edge rows for graph-authority preservation.
+- Execution document order: `Specification.md`, `Procedure.md`, `Guidance.md`, `_CONTEXT.md`, `_REFERENCES.md`, plus approved DAG-006 edge rows for graph-authority preservation.
 - Existing DAG-002 mirror rows were preserved by `DependencyID` and refreshed with canonical dependency-extract enums. Original DAG-002 semantic types are preserved in `Notes`.
 - Added one parent anchor (`SOW-069`) and one requirement/objective trace (`OBJ-015`) from explicit sealed-context fields.
 - Added three conservative downstream consumer rows already present as active DAG-002 edges: `DEL-16-02`, `DEL-16-03`, and `DEL-07-08`. These are local reconciliation evidence only; they do not change aggregate graph authority.
 - No candidate rows were promoted. No active cycles were introduced in this local surface.
-- `[WARNING] ID_FORMAT_VALIDATOR_STALE`: `tools/validation/validate_id_format.sh` expects legacy three-digit formats (`PKG-000`, `DEL-000-00`, `SOW-0000`) and rejects current revision 0.5 IDs such as `PKG-16`, `DEL-16-01`, and `SOW-069`; `OBJ-015` validates.
+- `[WARNING] ID_FORMAT_VALIDATOR_STALE`: `tools/validation/validate_id_format.sh` expects legacy three-digit formats (`PKG-000`, `DEL-000-00`, `SOW-0000`) and rejects current revision 0.7 IDs such as `PKG-16`, `DEL-16-01`, and `SOW-069`; `OBJ-015` validates.
 
 ## Lifecycle Summary
 
@@ -91,5 +91,5 @@
 - The `DEL-02-05` persistence interface remains active due to DAG-002 authority, but local source evidence keeps exact hash binding and operation persistence granularity as TBD.
 
 ## Run History
-- 2026-05-03: Local register synchronized from approved `DAG-002`; 11 ACTIVE upstream execution rows; 0 CANDIDATE rows.
+- 2026-05-03: Local register synchronized from approved `DAG-006`; 11 ACTIVE upstream execution rows; 0 CANDIDATE rows.
 - 2026-05-11 00:02 MDT: TP-DAG-004 dependency surface refresh; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition found; DAG-002 authority used; 16 ACTIVE rows after refresh; warnings: `ID_FORMAT_VALIDATOR_STALE`.

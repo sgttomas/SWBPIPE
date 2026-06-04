@@ -2,8 +2,8 @@
 
 ## Generated Dependency Register
 - **Status:** TP-DAG-004_LOCAL_REFRESH
-- **Prior Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
-- **Approved graph authority:** `execution/_DAG/DAG-002/`
+- **Prior Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
+- **Approved graph authority:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 15 total; 15 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Refreshed:** 2026-05-11
@@ -48,8 +48,8 @@
 - Consumer context: `RECONCILIATION`.
 - Run root: `/Users/ryan/ai-env/projects/chirality-piping/execution`.
 - Decomposition path: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for label validation.
-- Approved graph authority used for prior mirror context: `execution/_DAG/DAG-002/`.
-- Preliminary graph boundary: `execution/_DAG/DAG-003/` was not promoted or edited.
+- Approved graph authority used for prior mirror context: `execution/_DAG/DAG-006/`.
+- Preliminary graph boundary: `execution/_DAG/DAG-006/` was not promoted or edited.
 - Anchor doc: `Datasheet.md`.
 - Execution docs reviewed: `_CONTEXT.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`.
 - Existing DAG-002 execution rows were preserved because they remain valid approved graph-authority mirror evidence for this deliverable.
@@ -59,7 +59,7 @@
 
 ## Run History
 - 2026-04-30 1215: Initial dependency extraction run; local register later synchronized from DAG-002.
-- 2026-05-03: Local dependency register synchronized from approved `DAG-002` mirror; 11 ACTIVE execution rows.
+- 2026-05-03: Local dependency register synchronized from approved `DAG-006` mirror; 11 ACTIVE execution rows.
 - 2026-05-11: TP-DAG-004 dependency surface refresh for RECONCILIATION. Mode `UPDATE`, strictness `CONSERVATIVE`, decomposition located, DAG-002 authority preserved, 15 ACTIVE rows total: 11 EXECUTION and 4 ANCHOR.
 
 ## Lifecycle Summary
@@ -82,5 +82,5 @@
 
 ## Downstream Handoff Notes
 - RECONCILIATION should treat the four `DEP-011-02-*` rows as local traceability anchors, not DAG sequencing edges.
-- RECONCILIATION should continue to use `DAG-002` as approved graph authority until a later refreshed graph proposal is explicitly approved.
+- RECONCILIATION should use approved `DAG-006` as current graph authority; retained `DAG-002-*` rows remain local historical evidence only.
 - The preserved DAG-002 mirror rows contain project-specific dependency types and origins that exceed the current narrow enum validator; this is a tooling/schema-alignment warning, not a local data rewrite request.

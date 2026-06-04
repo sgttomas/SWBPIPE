@@ -27,10 +27,10 @@ This setup pass does not implement repository-level schema files, does not add p
 | DEL-03-02-REQ-06 | Unit-bearing dimensional, weight, mass-property, center-of-gravity, and property fields shall be unit-aware and dimensionally checked. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-UNIT-1 |
 | DEL-03-02-REQ-07 | Suspected protected content shall be representable as a quarantined/escalated status, not accepted as public library content. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-3 |
 | DEL-03-02-REQ-08 | The future schema design shall align with JSON Schema 2020-12 and schema-first command/query/job result envelope architecture where service-facing. | SourcePath: `_CONTEXT.md`; SectionRef: Architecture Basis Injection |
-| DEL-03-02-REQ-09 | Persistence-facing records shall be deterministic, versioned, unit-aware, provenance-preserving, schema-governed, migration-aware, and round-trip testable. | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
-| DEL-03-02-REQ-10 | Library import/export or adapter-facing use shall preserve internal/public API boundaries and shall not bypass validation, provenance, redistribution, diagnostics, or public/private data boundaries. | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 |
-| DEL-03-02-REQ-11 | Diagnostics for invalid, incomplete, private, unknown-source, or suspected protected library records shall include code, class, severity, source, affected object, message, remediation, and provenance where applicable. | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06 |
-| DEL-03-02-REQ-12 | Future tests shall include schema validation, unit checks, provenance/redistribution gates, protected-content gates, persistence round-trip tests, and regression coverage where relevant. | SourcePath: `docs/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-08 |
+| DEL-03-02-REQ-09 | Persistence-facing records shall be deterministic, versioned, unit-aware, provenance-preserving, schema-governed, migration-aware, and round-trip testable. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
+| DEL-03-02-REQ-10 | Library import/export or adapter-facing use shall preserve internal/public API boundaries and shall not bypass validation, provenance, redistribution, diagnostics, or public/private data boundaries. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 |
+| DEL-03-02-REQ-11 | Diagnostics for invalid, incomplete, private, unknown-source, or suspected protected library records shall include code, class, severity, source, affected object, message, remediation, and provenance where applicable. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06 |
+| DEL-03-02-REQ-12 | Future tests shall include schema validation, unit checks, provenance/redistribution gates, protected-content gates, persistence round-trip tests, and regression coverage where relevant. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-08 |
 | DEL-03-02-REQ-13 | Exact schema filenames are anticipated as `schemas/component.schema.yaml` and `schemas/section.schema.yaml`, but this setup pass shall not edit repository-level artifacts. | SourcePath: `_CONTEXT.md`; SectionRef: Anticipated Artifacts |
 
 ## Standards
@@ -42,7 +42,7 @@ Applicable internal standards and baselines:
 - `docs/CONTRACT.md`: OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1 through OPS-K-AGENT-4.
 - `docs/TYPES.md`: epistemic labels and data provenance labels.
 - `docs/SPEC.md`: domain objects, schema-governed development workflow, and acceptance semantics.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4: SOW-018, OBJ-004, and architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7: SOW-018, OBJ-004, and architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
 - JSON Schema 2020-12 is the accepted schema-contract basis; this document does not reproduce external specification text.
 
 ## Verification

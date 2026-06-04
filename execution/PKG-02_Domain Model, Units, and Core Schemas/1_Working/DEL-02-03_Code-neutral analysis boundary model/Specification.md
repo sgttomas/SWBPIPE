@@ -20,7 +20,7 @@ Out of scope:
 - External code, standard, or certification logic.
 - Protected standards/code data, code tables, allowables, SIF/flexibility factors, or proprietary examples.
 
-Primary governing sources are `_CONTEXT.md`, `SOW-002`, `docs/TYPES.md` section 4, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/PRD.md` sections 6.1/6.2/12/17.4, and `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4.
+Primary governing sources are `_CONTEXT.md`, `SOW-002`, `docs/TYPES.md` section 4, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/PRD.md` sections 6.1/6.2/12/17.4, and `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
 
 ## Requirements
 
@@ -33,10 +33,10 @@ Primary governing sources are `_CONTEXT.md`, `SOW-002`, `docs/TYPES.md` section 
 | DEL-02-03-R05 | Missing solve-required and rule-check-required values shall surface as explicit statuses or diagnostics, never as silent defaults. | `docs/CONTRACT.md` `OPS-K-DATA-2`; `docs/PRD.md` section 6.2 |
 | DEL-02-03-R06 | The model shall keep user-rule pass/fail outcomes distinct from human professional acceptance. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/TYPES.md` section 4 |
 | DEL-02-03-R07 | A human acceptance record, if represented, shall be outside solver authority and bound to the specific model/rule/report evidence that was reviewed. | `docs/CONTRACT.md` `OPS-K-AUTH-2`; `docs/TYPES.md` section 4 |
-| DEL-02-03-R08 | Status envelopes and diagnostics shall carry provenance sufficient to identify the source/evidence for the status. | `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.1 `AB-00-06`; `docs/SPEC.md` sections 7-8 |
-| DEL-02-03-R09 | Where a public schema/interchange artifact is produced, it shall align with the JSON Schema 2020-12 baseline from SCA-001. | `_CONTEXT.md` Architecture Basis Injection; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+| DEL-02-03-R08 | Status envelopes and diagnostics shall carry provenance sufficient to identify the source/evidence for the status. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.1 `AB-00-06`; `docs/SPEC.md` sections 7-8 |
+| DEL-02-03-R09 | Where a public schema/interchange artifact is produced, it shall align with the JSON Schema 2020-12 baseline from SCA-001. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 | DEL-02-03-R10 | The model shall preserve application-service and API boundary separation; adapters/plugins shall not bypass governance, validation, diagnostics, or public/private data boundaries. | `AB-00-02`; `AB-00-07`; `docs/SPEC.md` section 1 |
-| DEL-02-03-R11 | The model shall leave exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, and physical project container as implementation-level TBD unless a later human project-authority decision resolves them. | `_CONTEXT.md` Still TBD; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
+| DEL-02-03-R11 | The model shall leave exact dependency versions, solver numerical library, rule expression grammar/library, public API transport, and physical project container as implementation-level TBD unless a later human project-authority decision resolves them. | `_CONTEXT.md` Still TBD; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 | DEL-02-03-R12 | ASSUMPTION: If `analysis_status` remains a single enum, `USER_RULE_FAILED` represents an evaluated user-defined rule failure and `USER_RULE_CHECKED` represents completed user-rule evaluation without a blocking missing-input condition. A richer outcome field may be needed; exact split is TBD. | Inference from `docs/TYPES.md` section 4 and anticipated artifact `analysis_status enum` |
 
 ### Status Authority and Evidence Model
@@ -48,10 +48,10 @@ Minimum provenance sufficiency:
 | Evidence area | Minimum contents | Source |
 |---|---|---|
 | Any emitted status | `analysis_status`, the authority/producer basis for that status, and a reference to the evidence that justifies it. | `docs/TYPES.md` section 4; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
-| Diagnostic-backed status | Diagnostic code, class, severity, source, affected object, message, remediation, and provenance. | `docs/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/SPEC.md` section 7 |
+| Diagnostic-backed status | Diagnostic code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/SPEC.md` section 7 |
 | User-rule status | Rule-pack identity, version/checksum, source/provenance note, redistribution/private status, and evaluation or missing-input evidence. | `docs/SPEC.md` section 6; `docs/PRD.md` section 12.2; `docs/IP_AND_DATA_BOUNDARY.md` section 7 |
 | Human acceptance status | Pointer to a project-specific human acceptance record outside solver core and to the reviewed model/rule/report evidence. Storage location and stale-state field remain `TBD`. | `docs/TYPES.md` section 4; `docs/CONTRACT.md` `OPS-K-AUTH-2` |
-| Reproducibility binding | Model/result hash or input manifest when available; exact hash scope remains `TBD`. | `docs/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-04`; `docs/SPEC.md` section 8 |
+| Reproducibility binding | Model/result hash or input manifest when available; exact hash scope remains `TBD`. | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-04`; `docs/SPEC.md` section 8 |
 
 Field-level obligation map:
 
@@ -87,7 +87,7 @@ No external engineering code or protected standard is a governing source for thi
 | `docs/TYPES.md` | Analysis-status vocabulary, epistemic labels, domain terms, and lifecycle states. |
 | `docs/DIRECTIVE.md` | Product boundaries, no silent defaults, human authority, and stop rules. |
 | `docs/SPEC.md` | Layered architecture, rule-pack evaluator requirements, warning classes, report/audit boundaries, and acceptance semantics. |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | Accepted revision 0.4 decomposition, `SOW-002`, `DEL-02-03`, objectives, and SCA-001 architecture basis. |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted revision 0.7 decomposition, `SOW-002`, `DEL-02-03`, objectives, and SCA-001 architecture basis. |
 | `docs/PRD.md` | Open mechanics/private code data, no silent engineering defaults, rule-pack requirements, private data handling, and disclaimer requirements. |
 | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data boundary, provenance fields, quarantine rule, and report boundary. |
 

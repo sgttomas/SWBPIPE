@@ -26,9 +26,9 @@ The deliverable excludes:
 | DEL-06-05-REQ-03 | The setup documentation shall distinguish a user-rule check from professional approval and shall not claim certification, sealing, authentication, or code compliance for reliance. | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
 | DEL-06-05-REQ-04 | The setup documentation shall keep code-specific values user-supplied or private and shall mark unknowns as `TBD` rather than supplying defaults. | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-2`; `INIT.md` Agent rule |
 | DEL-06-05-REQ-05 | A future example rule pack shall carry source/provenance and redistribution status fields; actual checksum values remain `TBD` until a concrete payload exists. | `docs/CONTRACT.md` `OPS-K-DATA-3`, `OPS-K-RULE-3`; `docs/SPEC.md` section 6 |
-| DEL-06-05-REQ-06 | A future example rule pack shall remain declarative and non-executable; evaluator grammar and sandbox details remain owned by separate PKG-06 deliverables. | `docs/CONTRACT.md` `OPS-K-RULE-2`; `docs/_Decomposition/SOFTWARE_DECOMP.md` `DEL-06-02` and `OI-006` |
+| DEL-06-05-REQ-06 | A future example rule pack shall remain declarative and non-executable; evaluator grammar and sandbox details remain owned by separate PKG-06 deliverables. | `docs/CONTRACT.md` `OPS-K-RULE-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEL-06-02` and `OI-006` |
 | DEL-06-05-REQ-07 | This setup run shall not write outside the assigned deliverable folder or move any artifact to `ISSUED`. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
-| DEL-06-05-REQ-08 | Setup outputs shall preserve architecture-basis constraints that are applicable to rule-pack examples: schema-first records, provenance, diagnostics, protected-content gates, and no-bypass boundaries. | `_CONTEXT.md` Architecture Basis Injection; `docs/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
+| DEL-06-05-REQ-08 | Setup outputs shall preserve architecture-basis constraints that are applicable to rule-pack examples: schema-first records, provenance, diagnostics, protected-content gates, and no-bypass boundaries. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
 
 ## Standards
 

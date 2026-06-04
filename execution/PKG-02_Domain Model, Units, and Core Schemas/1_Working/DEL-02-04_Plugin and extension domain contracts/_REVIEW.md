@@ -9,7 +9,7 @@
 
 - Deliverable identity: PASS - `DEL-02-04`, `PKG-02`, `API_CONTRACT`, `SOW-038`, `OBJ-009` match `_CONTEXT.md`, `docs/_Registers/Deliverables.csv`, and `docs/_Registers/ScopeLedger.csv`.
 - Lifecycle state: PASS - `_STATUS.md` records `SEMANTIC_READY`. No lifecycle transition was requested or performed.
-- Context validity: PASS with minor warning - sealed context uses `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 and SCA-001 architecture-basis injection; `_REFERENCES.md` still says accepted v0.2 and is tracked as `CONF-02-04-001`.
+- Context validity: PASS with minor warning - sealed context uses `execution/_Decomposition/`SOFTWARE_DECOMP.md` revision 0.7 and SCA-001 architecture-basis injection; `_REFERENCES.md` still says accepted v0.2 and is tracked as `CONF-02-04-001`.
 - Architecture basis: PASS - applicable SCA-001 IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, `AB-00-07`, and `AB-00-08` are referenced in the deliverable kit.
 - Write scope: PASS - this REVIEW pass is limited to `_REVIEW.md` and `Review_Findings.csv` in this ScopePath.
 

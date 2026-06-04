@@ -4,7 +4,7 @@
 
 - **Status:** REFRESHED_TP_DAG_004
 - **Source of Truth:** Local `Dependencies.csv` v3.1 for this deliverable-local evidence surface.
-- **Prior Source:** `execution/_DAG/DAG-002/DependencyEdges.csv` synchronized mirror rows preserved as declared rows.
+- **Prior Source:** `execution/_DAG/DAG-006/DependencyEdges.csv` synchronized mirror rows preserved as declared rows.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 17 total; 17 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -56,7 +56,7 @@
 
 ## Run History
 
-- 2026-05-03: Synchronized 8 ACTIVE rows from `execution/_DAG/DAG-002/DependencyEdges.csv`.
+- 2026-05-03: Synchronized 8 ACTIVE rows from `execution/_DAG/DAG-006/DependencyEdges.csv`.
 - 2026-05-10 21:48 MDT: TP-DAG-004 dependency-extract refresh, MODE=`UPDATE`, STRICTNESS=`CONSERVATIVE`, CONSUMER_CONTEXT=`RECONCILIATION`; decomposition located; 17 ACTIVE rows after refresh; warnings: `TARGET_UNRESOLVED`, `TOOL_ID_FORMAT_CONTRACT`.
 
 ## Lifecycle Summary

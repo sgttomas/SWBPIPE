@@ -2,7 +2,7 @@
 
 ## Generated Dependency Register
 - **Status:** REFRESHED_BY_DEPENDENCY_EXTRACT
-- **Previous source:** `execution/_DAG/DAG-002/DependencyEdges.csv`
+- **Previous source:** `execution/_DAG/DAG-006/DependencyEdges.csv`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -59,7 +59,7 @@
 - **Uncertainty handling:** unresolved human/legal review, reviewer role, and final governance/legal mechanism remain `TBD`/`PENDING`; checklist path and repo-level artifact handoff evidence are now resolved in the current-basis local register.
 
 ## Run History
-- 2026-05-03: synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 5 ACTIVE rows; local register was a mirror/evidence surface.
+- 2026-05-03: synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 5 ACTIVE rows; local register was a mirror/evidence surface.
 - 2026-05-10: dependency-extract refresh, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`; decomposition available; warnings: ID-format validator pattern mismatch for current project IDs; ACTIVE counts: 4 ANCHOR, 9 EXECUTION.
 - 2026-06-03: WORKING_ITEMS current-basis dependency update after requested completion assessment; preserved historical dependency IDs while marking satisfied current-basis evidence for DEL-01-01 governance predecessor and repo-level policy/checklist handoff.
 

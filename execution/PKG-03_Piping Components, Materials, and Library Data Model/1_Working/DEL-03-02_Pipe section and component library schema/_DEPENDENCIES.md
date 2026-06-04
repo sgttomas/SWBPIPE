@@ -38,7 +38,7 @@
 
 | Timestamp | Mode | Strictness | Decomposition path | Warnings | ACTIVE rows |
 |---|---|---|---|---|---:|
-| 2026-04-30T00:04:00-0600 | UPDATE | CONSERVATIVE | `/Users/ryan/ai-env/projects/chirality-piping/docs/_Decomposition/SOFTWARE_DECOMP.md` | ID helper used legacy three-digit formats; assigned software IDs preserved. | 5 |
+| 2026-04-30T00:04:00-0600 | UPDATE | CONSERVATIVE | `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` | ID helper used legacy three-digit formats; assigned software IDs preserved. | 5 |
 | 2026-05-10T21:56:42-0600 | UPDATE | CONSERVATIVE | `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` | Current register parsed before refresh but required enum normalization for v3.1 validator compatibility. | 10 |
 
 ## Lifecycle Summary

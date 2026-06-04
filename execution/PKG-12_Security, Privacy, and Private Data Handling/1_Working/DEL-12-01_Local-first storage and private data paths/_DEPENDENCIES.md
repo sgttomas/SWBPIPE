@@ -6,7 +6,7 @@
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Source of Truth:** deliverable-local extraction from assigned source documents plus `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority checked against `execution/_DAG/DAG-002`.
+- **Source of Truth:** deliverable-local extraction from assigned source documents plus `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority checked against `execution/_DAG/DAG-006`.
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 14 total; 14 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
@@ -43,7 +43,7 @@
 - Defaults used: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
 - Chosen anchor source: `Datasheet.md`.
 - Chosen execution sources: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, and approved local-mirror rows from `execution/_DAG/DAG-002`.
-- Approved graph authority consulted: `execution/_DAG/DAG-002`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
+- Approved graph authority consulted: `execution/_DAG/DAG-006`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
 - The prior local register mirrored DAG-002 rows with project-specific graph-authoring values such as `ARCHITECTURE_BASIS`, `SECURITY_PREDECESSOR`, `CONTEXT`, `DECOMPOSITION`, and `UNKNOWN`; those values are not accepted by the current enum validator for local v3.1 dependency-extract rows.
 - This refresh normalized retained DAG-002 mirror rows into accepted v3.1 enums while preserving original graph authority context in `Notes`.
 - Added two anchor rows for SOW-029 and OBJ-010 because the previous mirror had no Tree anchor surface.
@@ -67,9 +67,9 @@
 - RECONCILIATION should treat normalized DAG-002 rows as retained local evidence only; they do not alter aggregate graph authority.
 - The DEL-12-02 and DEL-12-04 downstream rows represent local source-supported information flow from DEL-12-01, matching existing approved DAG-002 inverse dependencies without approving DAG-003.
 - Architecture-basis rows remain context constraints only; they do not mark PKG-00 deliverables as `ISSUED`.
-- DEL-12-05 remains active from approved DAG-002 mirror evidence with medium confidence because local DEL-12-01 docs support threat-model relevance at package level but do not close the target lifecycle state.
+- DEL-12-05 remains active from approved DAG-006 mirror evidence with medium confidence because local DEL-12-01 docs support threat-model relevance at package level but do not close the target lifecycle state.
 
 ## Run History
 
-- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 10 ACTIVE rows; local mirror only.
-- 2026-05-10: TP-DAG-004 dependency-extract refresh; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition path `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority `execution/_DAG/DAG-002`; warnings: enum normalization required for prior DAG mirror rows; legacy ID-format helper rejects current two-digit decomposition IDs; active rows 14; retired rows 0.
+- 2026-05-03: Local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 10 ACTIVE rows; local mirror only.
+- 2026-05-10: TP-DAG-004 dependency-extract refresh; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition path `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority `execution/_DAG/DAG-006`; warnings: enum normalization required for prior DAG mirror rows; legacy ID-format helper rejects current two-digit decomposition IDs; active rows 14; retired rows 0.

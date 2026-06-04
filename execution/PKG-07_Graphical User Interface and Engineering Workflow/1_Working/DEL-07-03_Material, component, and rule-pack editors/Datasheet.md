@@ -29,7 +29,7 @@ Sources: `_CONTEXT.md` sections "Scope Coverage", "Objective Support", "Context 
 | Diagnostic route | Editor validation must surface result-envelope diagnostics and warning classes rather than silently normalizing missing or private data. |
 | Data boundary | Code-specific and proprietary material, component, allowable, SIF/flexibility, and rule-pack values are user-supplied or private, not public defaults. |
 
-Sources: `docs/SPEC.md` sections 1, 3, 6, 7; `docs/_Decomposition/SOFTWARE_DECOMP.md` sections 4, 8; `_CONTEXT.md` section "Architecture Basis Injection"; `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`.
+Sources: `docs/SPEC.md` sections 1, 3, 6, 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 4, 8; `_CONTEXT.md` section "Architecture Basis Injection"; `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`.
 
 ## Conditions
 
@@ -60,7 +60,7 @@ The editor workflow is a future GUI slice, but this setup pass records the inten
 | Private library editor | Presents private/local library references and provenance/redistribution status while preserving local-first/private-data posture. |
 | Validation UX | Surfaces `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING` classes when applicable. |
 
-Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `docs/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`.
+Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`.
 
 ## References
 
@@ -73,5 +73,5 @@ Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `doc
 - `docs/TYPES.md` - statuses, data provenance labels, and domain object vocabulary.
 - `docs/SPEC.md` - architecture, domain object, rule-pack, GUI, report, and validation requirements.
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - Type 2 execution and deliverable document kit.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` - accepted v0.4 decomposition basis.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, `ContextBudgetQA.csv` - machine-readable deliverable, scope, and context records.

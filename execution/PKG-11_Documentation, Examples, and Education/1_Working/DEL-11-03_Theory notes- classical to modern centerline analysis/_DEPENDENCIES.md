@@ -45,7 +45,7 @@
 - Defaults recorded: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`.
 - Chosen anchor evidence: `Datasheet.md`, with decomposition validation from `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
 - Chosen execution evidence order: `Specification.md`, `Guidance.md`, `Datasheet.md`, then contextual cross-checks in `_CONTEXT.md` and `_REFERENCES.md`.
-- Approved graph authority used for preservation/cross-check only: `execution/_DAG/DAG-002`. `DAG-003` was not approved, promoted, or used as authority.
+- Prior graph evidence used for preservation/cross-check only: `execution/_DAG/DAG-002`. Current graph authority is `execution/_DAG/DAG-006/`; `DAG-003` was not approved, promoted, or used as authority.
 - ACTIVE rows use only v3.1 canonical dependency enums.
 - Prior DAG-002 synchronized rows used non-v3.1 values in enum-controlled fields: `AnchorType=DELIVERABLE`, `DependencyType=ARCHITECTURE_BASIS/DOCS_PREDECESSOR/GOVERNANCE_PREDECESSOR`, `Explicitness=INFERRED_DIRECT`, `SatisfactionStatus=UNKNOWN`, and `Origin=CONTEXT/DECOMPOSITION`. These values were normalized while preserving the source context in `Notes`.
 - No `[WARNING] FLOATING_NODE`: one ACTIVE `IMPLEMENTS_NODE` anchor is present.
@@ -76,6 +76,6 @@
 
 - For RECONCILIATION, consume ACTIVE rows as the current local dependency-extract surface for `DEL-11-03`.
 - The architecture-basis rows remain local evidence only; they do not change PKG-00 issuance status or aggregate DAG authority.
-- `DEL-04-01`, `DEL-04-02`, and `DEL-09-01` remain active but conservative prerequisites retained from approved DAG-002. Local source text supports frame, line-element, and mechanics-results concepts, while exact deliverable targeting is still decomposition/DAG-resolved.
+- `DEL-04-01`, `DEL-04-02`, and `DEL-09-01` remain active but conservative prerequisites retained from approved DAG-006. Local source text supports frame, line-element, and mechanics-results concepts, while exact deliverable targeting is still decomposition/DAG-resolved.
 - `DEL-01-02` remains a high-confidence constraint because local requirements explicitly require public/permissive sources and prohibit protected standards text, examples, figures, tables, code-specific formulas, and proprietary commercial data.
 - Public/permissive mechanics source selection, exact citation sections, detailed historical claims, numerical examples, and formula-level content remain `TBD` for future sealed documentation work.

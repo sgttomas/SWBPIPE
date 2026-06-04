@@ -2,8 +2,8 @@
 
 ## Generated Dependency Register
 - **Status:** TP-DAG-004_REFRESHED_FROM_LOCAL_EVIDENCE
-- **Prior Source of Truth:** `execution/_DAG/DAG-002/DependencyEdges.csv`
-- **Approved Graph Authority Used:** `execution/_DAG/DAG-002/`
+- **Prior Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
+- **Approved Graph Authority Used:** `execution/_DAG/DAG-006/`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 11 total; 11 ACTIVE; 0 RETIRED; 0 CANDIDATE.
 - **Generated:** 2026-05-10

@@ -18,11 +18,11 @@
 | Attribute | Value | Source |
 |---|---|---|
 | Primary scope item | SOW-016: private rule-pack schema for user-defined stress checks, allowables, formulas, and pass/fail criteria | `docs/_Registers/ScopeLedger.csv` row `SOW-016`; `_CONTEXT.md` |
-| Supported objectives | OBJ-005 and OBJ-011 | `docs/_Decomposition/SOFTWARE_DECOMP.md` section 5; `_CONTEXT.md` |
+| Supported objectives | OBJ-005 and OBJ-011 | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `_CONTEXT.md` |
 | Example posture | Demonstration only; no proprietary content | `docs/_Registers/Deliverables.csv` row `DEL-06-05`; `_CONTEXT.md` |
 | Public data posture | Invented/original non-code values only; no protected standards or proprietary engineering data | `docs/CONTRACT.md` `OPS-K-RULE-1`, `OPS-K-IP-1`, `OPS-K-DATA-1`; `docs/DIRECTIVE.md` section 3 |
-| Professional boundary | Software assists analysis; it does not authenticate engineering work | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/_Decomposition/SOFTWARE_DECOMP.md` `OBJ-011` |
-| Rule-pack authority | User-defined rule packs evaluate user-owned design bases; they do not create professional approval | `docs/_Decomposition/SOFTWARE_DECOMP.md` `OBJ-005`; `docs/TYPES.md` section 4 |
+| Professional boundary | Software assists analysis; it does not authenticate engineering work | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `OBJ-011` |
+| Rule-pack authority | User-defined rule packs evaluate user-owned design bases; they do not create professional approval | `execution/_Decomposition/SOFTWARE_DECOMP.md` `OBJ-005`; `docs/TYPES.md` section 4 |
 
 ## Conditions
 
@@ -61,6 +61,6 @@ Actual numeric allowables, code formulas, protected examples, owner design bases
 | `docs/DIRECTIVE.md` | Founding intent, non-negotiable product principles, and stop rules |
 | `docs/TYPES.md` | Analysis status, epistemic labels, provenance labels, and rule-pack vocabulary |
 | `docs/SPEC.md` | Rule-pack evaluator minimum sections, reporting notices, and validation expectations |
-| `docs/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-05 decomposition context plus objectives |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-05 decomposition context plus objectives |
 | `docs/_Registers/Deliverables.csv` | Deliverable register row |
 | `docs/_Registers/ScopeLedger.csv` | Scope mapping for SOW-016 |

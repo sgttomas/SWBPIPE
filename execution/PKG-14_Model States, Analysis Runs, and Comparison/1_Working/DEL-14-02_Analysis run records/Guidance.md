@@ -19,7 +19,7 @@ Analysis run records exist so solver outputs can be reviewed as reproducible rec
 
 - The folder is a setup-stage production unit. It contains no implementation evidence yet; statements about passing behavior, field names, storage APIs, or committed tests must remain TBD until produced by later Type 2 work.
 - SOW-072 is sufficient to identify required binding categories, but it is not sufficient to define exact schema field names, cardinality, or migration behavior.
-- The dependency mirror records approved DAG-002 predecessor evidence for architecture basis, immutable model state records, analysis status semantics, audit manifest/hash conventions, result export format, and persistence/round-trip support. Those rows are an evidence surface, not independent graph authority.
+- The dependency mirror records approved DAG-006 predecessor evidence for architecture basis, immutable model state records, analysis status semantics, audit manifest/hash conventions, result export format, and persistence/round-trip support. Those rows are an evidence surface, not independent graph authority.
 - The deliverable should align with `schemas/results.schema.yaml` and result-export envelopes where run records include or point to result payloads, but this folder does not define the final result export schema.
 - `PRD v0.2` references are cited by decomposition/register rows but the PRD source text was not locally read in this task. Requirements must not exceed accessible SOW/decomposition wording.
 

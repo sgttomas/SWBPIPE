@@ -56,8 +56,8 @@ Source: `Dependencies.csv` approved DAG-002 mirror rows `DAG-002-E0792`, `DAG-00
 
 - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and dependency envelope.
 - `_REFERENCES.md` - local reference index for this deliverable.
-- `Dependencies.csv` - approved DAG-002 local mirror/evidence surface.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.5 decomposition basis.
+- `Dependencies.csv` - approved DAG-006 local mirror/evidence surface.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis.
 - `docs/_Registers/Deliverables.csv` - deliverable row `DEL-14-03`.
 - `docs/_Registers/ScopeLedger.csv` - rows `SOW-071` and `SOW-073`.
 - `docs/CONTRACT.md` - invariants for IDs, units, professional authority, data, and agent behavior.

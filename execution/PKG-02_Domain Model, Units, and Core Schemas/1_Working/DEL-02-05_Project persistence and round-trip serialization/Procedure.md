@@ -7,7 +7,7 @@ This procedure describes how to produce and check the DEL-02-05 artifacts: proje
 ## Prerequisites
 
 - Confirm the active deliverable is DEL-02-05 under PKG-02 and that write scope is limited to the deliverable-local artifacts. Source: `_CONTEXT.md`; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4.
-- Use `_CONTEXT.md` revision 0.4, `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4, and register rows for DEL-02-05, SOW-050, SOW-041, and ContextBudgetQA DEL-02-05.
+- Use `_CONTEXT.md` revision 0.7, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, and register rows for DEL-02-05, SOW-050, SOW-041, and ContextBudgetQA DEL-02-05.
 - Apply SCA-001 basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 only to the extent they constrain this persistence deliverable.
 - Treat `_DEPENDENCIES.md` as human-owned dependency context. Current state: no specific upstream/downstream dependency list was declared.
 - Keep protected standards/code data, proprietary values, and code-compliance/certification claims out of public artifacts. Source: `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`.
