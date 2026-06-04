@@ -180,8 +180,19 @@ pub enum BoundaryMetadataError {
     MissingField {
         field: &'static str,
     },
+    EmptyCollection {
+        field: &'static str,
+    },
     NonFiniteValue {
         field: &'static str,
+    },
+    DuplicateLoadId {
+        load_id: String,
+    },
+    LoadCategoryMismatch {
+        load_id: String,
+        expected: PrimitiveLoadCategory,
+        actual: PrimitiveLoadCategory,
     },
     UnknownCanonicalDimension {
         value: String,
@@ -204,7 +215,21 @@ impl fmt::Display for BoundaryMetadataError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::MissingField { field } => write!(f, "{field} is required at the boundary"),
+            Self::EmptyCollection { field } => {
+                write!(f, "{field} must contain at least one entry")
+            }
             Self::NonFiniteValue { field } => write!(f, "{field} must be finite"),
+            Self::DuplicateLoadId { load_id } => {
+                write!(f, "duplicate primitive load id {load_id}")
+            }
+            Self::LoadCategoryMismatch {
+                load_id,
+                expected,
+                actual,
+            } => write!(
+                f,
+                "primitive load {load_id} has category {actual:?}; expected {expected:?}"
+            ),
             Self::UnknownCanonicalDimension { value } => {
                 write!(f, "{value} is not an accepted canonical dimension")
             }
@@ -272,6 +297,7 @@ impl QuantityUnitMetadata {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CanonicalSchemaBinding {
+    ModelLoadCase,
     ModelLoadRecord,
     ModelResultValue,
     ResultsQuantityResult,
@@ -280,6 +306,7 @@ pub enum CanonicalSchemaBinding {
 impl CanonicalSchemaBinding {
     pub fn schema_ref(self) -> &'static str {
         match self {
+            Self::ModelLoadCase => "schemas/model.schema.yaml#/$defs/LoadCase",
             Self::ModelLoadRecord => "schemas/model.schema.yaml#/$defs/LoadRecord",
             Self::ModelResultValue => "schemas/model.schema.yaml#/$defs/Result/values",
             Self::ResultsQuantityResult => "schemas/results.schema.yaml#/$defs/QuantityResult",
@@ -349,6 +376,145 @@ pub struct BoundaryQuantityRecord {
     pub value: f64,
     pub unit: QuantityUnitMetadata,
     pub provenance_ref: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PrimitiveLoadCaseKind {
+    Weight,
+    Pressure,
+    Thermal,
+    ImposedDisplacement,
+    Hydrotest,
+    Wind,
+    Seismic,
+    Occasional,
+}
+
+impl PrimitiveLoadCaseKind {
+    pub fn schema_load_type(self) -> &'static str {
+        match self {
+            Self::Weight => "weight",
+            Self::Pressure => "pressure",
+            Self::Thermal => "temperature",
+            Self::ImposedDisplacement => "imposed_displacement",
+            Self::Hydrotest => "hydrotest",
+            Self::Wind => "wind",
+            Self::Seismic => "seismic",
+            Self::Occasional => "user_occasional",
+        }
+    }
+
+    pub fn primitive_category(self) -> PrimitiveLoadCategory {
+        match self {
+            Self::Weight => PrimitiveLoadCategory::Weight,
+            Self::Pressure => PrimitiveLoadCategory::Pressure,
+            Self::Thermal => PrimitiveLoadCategory::Thermal,
+            Self::ImposedDisplacement => PrimitiveLoadCategory::ImposedDisplacement,
+            Self::Hydrotest => PrimitiveLoadCategory::Hydrotest,
+            Self::Wind => PrimitiveLoadCategory::Wind,
+            Self::Seismic => PrimitiveLoadCategory::Seismic,
+            Self::Occasional => PrimitiveLoadCategory::Occasional,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct PrimitiveLoadCaseRecord {
+    pub record: BoundaryRecordRef,
+    pub name: String,
+    pub load_type: PrimitiveLoadCaseKind,
+    pub loads: Vec<PrimitiveLoad>,
+    pub provenance_ref: String,
+}
+
+impl PrimitiveLoadCaseRecord {
+    pub fn new(
+        record: BoundaryRecordRef,
+        name: impl Into<String>,
+        load_type: PrimitiveLoadCaseKind,
+        loads: Vec<PrimitiveLoad>,
+        provenance_ref: impl Into<String>,
+    ) -> Result<Self, BoundaryMetadataError> {
+        require_schema_binding(record.schema_binding, CanonicalSchemaBinding::ModelLoadCase)?;
+        record.validate()?;
+        let name = name.into();
+        validate_boundary_ref("name", &name)?;
+        if loads.is_empty() {
+            return Err(BoundaryMetadataError::EmptyCollection { field: "loads" });
+        }
+        let provenance_ref = provenance_ref.into();
+        validate_boundary_ref("provenance_ref", &provenance_ref)?;
+
+        let expected_category = load_type.primitive_category();
+        let mut sorted_loads = loads;
+        sorted_loads.sort_by(|a, b| a.load_id.cmp(&b.load_id));
+        let mut previous_id: Option<&str> = None;
+        for load in &sorted_loads {
+            validate_boundary_ref("load_id", &load.load_id)?;
+            if previous_id == Some(load.load_id.as_str()) {
+                return Err(BoundaryMetadataError::DuplicateLoadId {
+                    load_id: load.load_id.clone(),
+                });
+            }
+            if load.category != expected_category {
+                return Err(BoundaryMetadataError::LoadCategoryMismatch {
+                    load_id: load.load_id.clone(),
+                    expected: expected_category,
+                    actual: load.category,
+                });
+            }
+            previous_id = Some(load.load_id.as_str());
+        }
+
+        Ok(Self {
+            record,
+            name,
+            load_type,
+            loads: sorted_loads,
+            provenance_ref,
+        })
+    }
+
+    pub fn schema_load_type(&self) -> &'static str {
+        self.load_type.schema_load_type()
+    }
+
+    pub fn load_ids(&self) -> Vec<&str> {
+        self.loads
+            .iter()
+            .map(|load| load.load_id.as_str())
+            .collect()
+    }
+
+    pub fn canonical_field_pairs(&self) -> Vec<(&'static str, String)> {
+        vec![
+            ("basis_ref", self.record.basis_ref.clone()),
+            (
+                "canonicalization",
+                self.record.canonicalization.as_str().to_string(),
+            ),
+            ("load_ids", self.load_ids().join(",")),
+            ("load_type", self.schema_load_type().to_string()),
+            ("name", self.name.clone()),
+            ("payload_hash_ref", self.record.payload_hash_ref.clone()),
+            ("payload_ref", self.record.payload_ref.clone()),
+            ("provenance_ref", self.provenance_ref.clone()),
+            ("record_id", self.record.record_id.clone()),
+            (
+                "schema_ref",
+                self.record.schema_binding.schema_ref().to_string(),
+            ),
+            ("target_ref", self.record.target_ref.clone()),
+        ]
+    }
+
+    pub fn round_trip_key(&self) -> String {
+        self.canonical_field_pairs()
+            .into_iter()
+            .map(|(key, value)| format!("{key}={value}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
 }
 
 impl BoundaryQuantityRecord {
@@ -440,6 +606,16 @@ impl BoundaryQuantityRecord {
 fn validate_boundary_ref(field: &'static str, value: &str) -> Result<(), BoundaryMetadataError> {
     if value.trim().is_empty() || value.trim() == "TBD" {
         return Err(BoundaryMetadataError::MissingField { field });
+    }
+    Ok(())
+}
+
+fn require_schema_binding(
+    actual: CanonicalSchemaBinding,
+    expected: CanonicalSchemaBinding,
+) -> Result<(), BoundaryMetadataError> {
+    if actual != expected {
+        return Err(BoundaryMetadataError::SchemaBindingMismatch { expected, actual });
     }
     Ok(())
 }
@@ -1697,6 +1873,28 @@ mod tests {
         .unwrap()
     }
 
+    fn load_case_ref() -> BoundaryRecordRef {
+        BoundaryRecordRef::new(
+            "load-case:weight",
+            CanonicalSchemaBinding::ModelLoadCase,
+            "model:example",
+            "load-basis:manual",
+            "payload:model",
+            "hash:model",
+        )
+        .unwrap()
+    }
+
+    fn weight_line_load(load_id: &str) -> PrimitiveLoad {
+        PrimitiveLoad::uniform_element_load(
+            load_id,
+            PrimitiveLoadCategory::Weight,
+            0,
+            LoadDirection::GlobalZ,
+            q(-10.0, LoadDimension::ForcePerLength),
+        )
+    }
+
     #[test]
     fn canonical_dimension_parser_rejects_retired_aliases() {
         assert_eq!(
@@ -1789,6 +1987,178 @@ mod tests {
             BoundaryMetadataError::DimensionMismatch {
                 expected: CanonicalDimension::Force,
                 actual: CanonicalDimension::Moment,
+            }
+        );
+    }
+
+    #[test]
+    fn primitive_load_case_record_binds_model_load_case_and_sorts_load_ids() {
+        let record = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load("z-load"), weight_line_load("a-load")],
+            "provenance:manual",
+        )
+        .unwrap();
+
+        assert_eq!(
+            record.record.schema_binding.schema_ref(),
+            "schemas/model.schema.yaml#/$defs/LoadCase"
+        );
+        assert_eq!(record.schema_load_type(), "weight");
+        assert_eq!(record.load_ids(), vec!["a-load", "z-load"]);
+        assert!(record.round_trip_key().contains("load_ids=a-load,z-load"));
+        assert!(record.round_trip_key().contains("load_type=weight"));
+        assert!(record
+            .round_trip_key()
+            .contains("schema_ref=schemas/model.schema.yaml#/$defs/LoadCase"));
+    }
+
+    #[test]
+    fn primitive_load_case_kind_maps_to_schema_load_type_values() {
+        assert_eq!(
+            PrimitiveLoadCaseKind::Thermal.schema_load_type(),
+            "temperature"
+        );
+        assert_eq!(
+            PrimitiveLoadCaseKind::Occasional.schema_load_type(),
+            "user_occasional"
+        );
+    }
+
+    #[test]
+    fn primitive_load_case_record_rejects_wrong_schema_and_missing_metadata() {
+        let wrong_schema = PrimitiveLoadCaseRecord::new(
+            record_ref(CanonicalSchemaBinding::ModelLoadRecord),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load("weight-1")],
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            wrong_schema,
+            BoundaryMetadataError::SchemaBindingMismatch {
+                expected: CanonicalSchemaBinding::ModelLoadCase,
+                actual: CanonicalSchemaBinding::ModelLoadRecord,
+            }
+        );
+
+        let missing_name = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            " ",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load("weight-1")],
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            missing_name,
+            BoundaryMetadataError::MissingField { field: "name" }
+        );
+
+        let missing_provenance = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load("weight-1")],
+            "TBD",
+        )
+        .unwrap_err();
+        assert_eq!(
+            missing_provenance,
+            BoundaryMetadataError::MissingField {
+                field: "provenance_ref"
+            }
+        );
+
+        let missing_record_id = PrimitiveLoadCaseRecord::new(
+            BoundaryRecordRef {
+                record_id: "TBD".to_string(),
+                schema_binding: CanonicalSchemaBinding::ModelLoadCase,
+                target_ref: "model:example".to_string(),
+                basis_ref: "load-basis:manual".to_string(),
+                payload_ref: "payload:model".to_string(),
+                payload_hash_ref: "hash:model".to_string(),
+                canonicalization: BoundaryCanonicalization::JsonJcs,
+            },
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load("weight-1")],
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            missing_record_id,
+            BoundaryMetadataError::MissingField { field: "record_id" }
+        );
+    }
+
+    #[test]
+    fn primitive_load_case_record_rejects_empty_duplicate_and_mismatched_loads() {
+        let empty_loads = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            Vec::new(),
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            empty_loads,
+            BoundaryMetadataError::EmptyCollection { field: "loads" }
+        );
+
+        let blank_load_id = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load(" ")],
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            blank_load_id,
+            BoundaryMetadataError::MissingField { field: "load_id" }
+        );
+
+        let duplicate_load_id = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![weight_line_load("weight-1"), weight_line_load("weight-1")],
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            duplicate_load_id,
+            BoundaryMetadataError::DuplicateLoadId {
+                load_id: "weight-1".to_string(),
+            }
+        );
+
+        let pressure_load = PrimitiveLoad::uniform_element_load(
+            "pressure-1",
+            PrimitiveLoadCategory::Pressure,
+            0,
+            LoadDirection::GlobalX,
+            q(1000.0, LoadDimension::Pressure),
+        );
+        let category_mismatch = PrimitiveLoadCaseRecord::new(
+            load_case_ref(),
+            "Sustained weight",
+            PrimitiveLoadCaseKind::Weight,
+            vec![pressure_load],
+            "provenance:manual",
+        )
+        .unwrap_err();
+        assert_eq!(
+            category_mismatch,
+            BoundaryMetadataError::LoadCategoryMismatch {
+                load_id: "pressure-1".to_string(),
+                expected: PrimitiveLoadCategory::Weight,
+                actual: PrimitiveLoadCategory::Pressure,
             }
         );
     }

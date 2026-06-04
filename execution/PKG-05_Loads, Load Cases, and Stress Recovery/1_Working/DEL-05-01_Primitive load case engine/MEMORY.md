@@ -203,3 +203,32 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TP-DEL-05-01-LOAD-CASE-RECORD
+
+- Executed approved bounded tranche `TP-DEL-05-01-LOAD-CASE-RECORD` for
+  `DEL-05-01` / `PKG-05` with write scope limited to
+  `core/loads/primitive_loads/**`, this `MEMORY.md`, and deliverable-local
+  `_run_records/**`.
+- Added a storage-neutral primitive load-case boundary record in
+  `core/loads/primitive_loads` that binds one primitive category to canonical
+  model `LoadCase` metadata, provenance, payload, and hash references.
+- Added deterministic load-case metadata helpers for schema load-type mapping,
+  sorted load IDs, canonical field pairs, and stable round-trip key material.
+- Added validation for model `LoadCase` schema binding, non-empty/non-`TBD`
+  boundary refs, non-empty case name/provenance, non-empty loads, non-empty
+  and unique load IDs, and single-category membership. Mixed-category algebra
+  remains downstream `DEL-05-02` scope.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml`;
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 32
+  tests passed; `git diff --check` passed.
+- Remaining TBDs: canonical unit conversions, final result-envelope/API
+  integration, production tolerance policy, release thresholds, and
+  professional reliance.
+- No `_STATUS.md`, `Dependencies.csv`, DAG artifact, schema file, repo-level
+  governance file, PKG-01 deliverable, load-case algebra behavior, protected
+  standards data, code-specific combination/default, private data, release
+  claim, code-compliance claim, or professional reliance claim was changed or
+  introduced by this tranche.

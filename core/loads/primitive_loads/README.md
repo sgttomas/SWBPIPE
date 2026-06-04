@@ -8,6 +8,8 @@ contributions for the current frame/support boundary.
 
 - Weight, pressure, thermal, imposed displacement, hydrotest, wind, seismic,
   and occasional primitive load categories.
+- Storage-neutral primitive load-case records that bind one primitive category
+  to canonical model `LoadCase` metadata, provenance, payload, and hash refs.
 - Explicit unit/dimension intent for load magnitudes.
 - Boundary quantity records that carry canonical schema binding, explicit unit
   metadata, provenance reference, JCS payload reference, and payload-hash
@@ -28,12 +30,15 @@ professional/code-compliance claims. Inputs are explicit mechanics quantities
 that upstream schema, unit, provenance, and solver boundaries must already
 govern.
 
-Boundary records bind to `schemas/model.schema.yaml#/$defs/LoadRecord`,
+Boundary records bind to `schemas/model.schema.yaml#/$defs/LoadCase`,
+`schemas/model.schema.yaml#/$defs/LoadRecord`,
 `schemas/model.schema.yaml#/$defs/Result/values`, or
 `schemas/results.schema.yaml#/$defs/QuantityResult` by explicit enum. Unit
 metadata uses the accepted PKG-02 dimension vocabulary and rejects retired
 aliases such as `temperature_difference`, `area_moment`, and generic
 `stiffness`. No unit conversion constants are supplied by this crate.
+Primitive load-case records enforce one primitive category per record; mixed
+case algebra remains downstream `DEL-05-02` scope.
 
 The lumped equivalent nodal conversion is limited to translational/global
 `ForcePerLength` element loads. Pressure, thermal, rotational, acceleration or
