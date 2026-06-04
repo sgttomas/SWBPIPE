@@ -510,7 +510,6 @@ def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]
                     [
                         _ref("Deliverable", "DEL-17-01"),
                         _ref("Deliverable", "DEL-17-02"),
-                        _ref("Deliverable", "DEL-17-03"),
                         _ref("SourceID", "CAEPIPE-IMPORT-MBF"),
                         _ref("SourceID", "CAEPIPE-EXPORT-MBF"),
                     ],

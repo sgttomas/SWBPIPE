@@ -249,6 +249,17 @@ def test_builder_is_deterministic_and_preserves_package_members():
     assert "TBD-17-01-001" in first["export_profile"]["carried_tbd_refs"]
     assert "TBD-17-01-002" in first["export_profile"]["carried_tbd_refs"]
     assert "TBD-17-01-003" in first["export_profile"]["carried_tbd_refs"]
+    source_basis_refs = {
+        (item["object_type"], item["ref"]) for item in first["export_profile"]["source_basis_refs"]
+    }
+    assert source_basis_refs == {
+        ("Deliverable", "DEL-17-01"),
+        ("Deliverable", "DEL-17-02"),
+        ("SourceID", "CAEPIPE-IMPORT-MBF"),
+        ("SourceID", "CAEPIPE-EXPORT-MBF"),
+    }
+    assert ("Deliverable", "DEL-17-03") not in source_basis_refs
+    assert first["manifest"]["source_basis_refs"] == first["export_profile"]["source_basis_refs"]
 
     member_roles = {item["member_role"] for item in first["manifest"]["package_members"]}
     assert member_roles == {

@@ -29,10 +29,6 @@
         "ref": "DEL-17-02"
       },
       {
-        "object_type": "Deliverable",
-        "ref": "DEL-17-03"
-      },
-      {
         "object_type": "SourceID",
         "ref": "CAEPIPE-IMPORT-MBF"
       },
@@ -282,7 +278,7 @@
           "ref": "caepipe-mbf:invented-del-17-04:manifest"
         },
         "payload_scope": "caepipe_mbf_manifest",
-        "value": "sha256:05bec295350c0ef479a7ee25d19cb27df4e6860cff544f14281eec2b2a3fff54"
+        "value": "sha256:ebd41ed8c8f8b8ca400e9a6e76465671b3265c46bfc65c68011ce6e686ec29a3"
       },
       {
         "algorithm": "sha256",
@@ -342,7 +338,7 @@
             "ref": "caepipe-mbf:invented-del-17-04:manifest"
           },
           "payload_scope": "caepipe_mbf_manifest",
-          "value": "sha256:05bec295350c0ef479a7ee25d19cb27df4e6860cff544f14281eec2b2a3fff54"
+          "value": "sha256:ebd41ed8c8f8b8ca400e9a6e76465671b3265c46bfc65c68011ce6e686ec29a3"
         },
         "member_name": "caepipe-mbf:invented-del-17-04:manifest",
         "member_role": "manifest",
@@ -461,10 +457,6 @@
       {
         "object_type": "Deliverable",
         "ref": "DEL-17-02"
-      },
-      {
-        "object_type": "Deliverable",
-        "ref": "DEL-17-03"
       },
       {
         "object_type": "SourceID",
