@@ -40,7 +40,7 @@ This document defines binding invariants for agentic development of OpenPipeStre
 |OPS-K-REPORT-2|Public report templates and examples must not reproduce protected standards content.|Report protected-content linter; human review|
 |OPS-K-PRIV-1|Private project, material, component, and rule-pack data must not be transmitted or committed publicly by default.|Storage policy; telemetry config; CI checks|
 |OPS-K-PRIV-2|Telemetry is off by default and cannot include private engineering/code data.|Security review; telemetry tests|
-|OPS-K-GOV-1|The project is intended to be free and open source, but the exact license remains `TBD` until recorded by the human project authority.|Maintainer policy; release review|
+|OPS-K-GOV-1|The human project authority selected `PolyForm-Noncommercial-1.0.0` as the project license on 2026-06-03; governance and release records must state the selected license without treating it as legal advice, professional approval, certification, sealing, authentication, or a code-compliance claim.|Maintainer policy; release review|
 |OPS-K-GOV-2|Maintainer authority, release authority, and public-governance decisions must be recorded in public governance artifacts before they are treated as project policy.|Maintainer policy; decision records|
 |OPS-K-GOV-3|Public releases must disclose scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations.|Release checklist; human review gate|
 |OPS-K-GOV-4|Maintainers must apply IP, provenance, privacy, and protected-content review before accepting public repository contributions.|Contribution review; protected-content gate|

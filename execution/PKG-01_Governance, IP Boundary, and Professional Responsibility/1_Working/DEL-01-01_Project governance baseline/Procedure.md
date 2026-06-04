@@ -18,7 +18,7 @@ governance baseline artifacts and authorized visible governance surfaces.
 1. Confirm the deliverable identity: DEL-01-01, PKG-01, SOW-001, SOW-048, OBJ-001, and OBJ-002.
 2. Read the applicable contract invariants for hierarchy, IDs, IP boundary, professional authority, governance, and agent execution.
 3. Draft or refresh deliverable-local `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; edit repo-level governance targets only when the active tranche grants explicit write scope.
-4. Mark unresolved governance choices as `TBD`, including license, maintainer roster, quorum, release signing, release authority, and legal review process.
+4. Record the selected project license as `PolyForm-Noncommercial-1.0.0`; mark remaining unresolved governance choices as `TBD`, including maintainer roster, quorum, release signing, release authority, and legal review process.
 5. Check that draft language does not assert certification, sealing, endorsement, code compliance, legal opinion, or professional approval.
 6. Generate `_SEMANTIC.md` as a question-shaping semantic lens after the four documents exist.
 7. Generate `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.

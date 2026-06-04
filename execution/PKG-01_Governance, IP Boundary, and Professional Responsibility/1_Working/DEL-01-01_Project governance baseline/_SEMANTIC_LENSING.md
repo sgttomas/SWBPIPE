@@ -46,7 +46,7 @@
 | A:[normative]:[guiding] | normative | guiding | prescriptive direction | 0 | NO_ITEMS | No warranted item under available docs. |
 | A:[normative]:[applying] | normative | applying | mandatory practice | 0 | NO_ITEMS | No warranted item under available docs. |
 | A:[normative]:[judging] | normative | judging | compliance determination | 0 | NO_ITEMS | No warranted item under available docs. |
-| A:[normative]:[reviewing] | normative | reviewing | regulatory audit | 1 | HAS_ITEMS | The documents require open-source licensing policy while OPS-K-GOV-1 and SOW notes keep the exact license as TBD. |
+| A:[normative]:[reviewing] | normative | reviewing | regulatory audit | 1 | RESOLVED_BY_HUMAN | Human project authority selected `PolyForm-Noncommercial-1.0.0` on 2026-06-03. |
 | A:[operative]:[guiding] | operative | guiding | procedural direction | 0 | NO_ITEMS | No warranted item under available docs. |
 | A:[operative]:[applying] | operative | applying | practical execution | 0 | NO_ITEMS | No warranted item under available docs. |
 | A:[operative]:[judging] | operative | judging | performance assessment | 0 | NO_ITEMS | No warranted item under available docs. |
@@ -59,7 +59,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| A-001 | A:[normative]:[reviewing] | Conflict | Guidance | Multi | Keep license choice as an explicit human-ruling item. | The documents require open-source licensing policy while OPS-K-GOV-1 and SOW notes keep the exact license as TBD. | Guidance.md; Specification.md; Datasheet.md | Guidance Conflict Table C-01-01-001; Specification Requirements REQ-01-01-01; Datasheet Conditions | Guidance.md#Conflict Table C-01-01-001 Source A; Specification.md#REQ-01-01-01 | PROPOSAL: preserve TBD until human project authority records a license. | TBD |
+| A-001 | A:[normative]:[reviewing] | Conflict | Guidance | Multi | License choice resolved by human ruling. | Human project authority selected `PolyForm-Noncommercial-1.0.0` on 2026-06-03. | Guidance.md; Specification.md; Datasheet.md | Guidance Conflict Table C-01-01-001; Specification Requirements REQ-01-01-01; Datasheet Conditions | Guidance.md#Conflict Table C-01-01-001 Source A; Specification.md#REQ-01-01-01 | PROPOSAL: use selected license and keep remaining governance choices visible. | Resolved 2026-06-03 |
 
 ## Matrix B
 
@@ -151,7 +151,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| D-001 | D:[normative]:[guiding] | TBD_Question | Guidance | Guidance | TBD: who is the human project authority for license, maintainer, release, and policy acceptance decisions? | The documents require human authority but the specific authority is not recorded. | Guidance.md; Specification.md; Datasheet.md | Guidance Principles; Specification Requirements REQ-01-01-05; Datasheet Conditions | NA | PROPOSAL: route to human project authority before repo-level governance artifacts are issued. | TBD |
+| D-001 | D:[normative]:[guiding] | TBD_Question | Guidance | Guidance | TBD: who is the standing human project authority for maintainer, release, and policy acceptance decisions? | The license was selected by human ruling on 2026-06-03, but the standing authority record is not otherwise identified. | Guidance.md; Specification.md; Datasheet.md | Guidance Principles; Specification Requirements REQ-01-01-05; Datasheet Conditions | NA | PROPOSAL: route remaining authority decisions to human project authority before repo-level governance artifacts are changed. | TBD |
 
 ## Matrix X
 

@@ -70,7 +70,7 @@ Public safety, professional responsibility, evidence, auditability, and respect 
 
 ### 4.1 In scope
 
-- Open-source global piping flexibility and stress analysis.
+- Source-available noncommercial global piping flexibility and stress analysis.
 - 3D centerline/frame solver.
 - Piping-specific component and support models.
 - User-defined rule-pack system.
@@ -104,7 +104,10 @@ Agents and software must stop and escalate to a human when:
 
 ## 6. Governance baseline
 
-OpenPipeStress is intended to be a free and open-source project. The exact open-source license, contributor certification mechanism, release signing process, maintainer roster, and maintainer quorum remain `TBD` until the human project authority records those decisions.
+OpenPipeStress is licensed under `PolyForm-Noncommercial-1.0.0`, selected by
+the human project authority on 2026-06-03. The contributor certification
+mechanism, release signing process, maintainer roster, and maintainer quorum
+remain `TBD` until the human project authority records those decisions.
 
 Governance artifacts must preserve these boundaries:
 

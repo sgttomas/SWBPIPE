@@ -47,9 +47,9 @@ Verification:
 
 Deferred boundaries:
 
-- License, maintainer roster, release authority, security contact, contributor
-  mechanism finalization, release signing, and human project authority remain
-  `TBD` until recorded by the human project authority.
+- Historical note: at this reconciliation point, license, maintainer roster,
+  release authority, security contact, contributor mechanism finalization,
+  release signing, and human project authority remained `TBD`.
 - Any refreshed graph/context completeness decision remains outside this
   bounded reconciliation entry.
 - Protected standards text, proprietary data, private project/rule/material
@@ -88,7 +88,7 @@ Deferred boundaries:
 
 - Human approved a bounded WORKING_ITEMS tranche to align DEL-01-01 review evidence after the current-basis refresh.
 - Updated `Review_Findings.csv` RF-001 and `_REVIEW.md` so the rechecked finding no longer states revision `0.4` as the current basis; active evidence now cites `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `execution/_DAG/DAG-006/`.
-- Preserved `HumanDisposition=TBD`, `Status=RECHECKED_FIXED`, and the non-gating review posture.
+- Preserved `HumanDisposition=TBD`, `Status=RECHECKED_FIXED`, and the non-gating review posture at that time.
 - No lifecycle transition, `_STATUS.md` edit, aggregate DAG edit, repo-level governance edit, release/acceptance record, legal conclusion, professional approval, certification, sealing, authentication, code-compliance, or release-readiness claim was made.
 
 ## 2026-06-03 - REVIEW_RUN_DEL-01-01_SELF_CHECK_CHECKING_PROPOSAL
@@ -99,3 +99,12 @@ Deferred boundaries:
 - Basis: zero CRITICAL findings, zero MAJOR findings, one historical MINOR AGENT_CHECK finding `RF-001` already `RECHECKED_FIXED`, populated checklist, satisfied active dependencies, no protected/private data or professional/code-compliance claim observed, and remaining `TBD`s are expected governance-decision placeholders.
 - Human Gate 5 approval then directed changing status to `CHECKING`; `_STATUS.md` was updated on 2026-06-03.
 - The transition is formal review lifecycle state only. It does not issue the deliverable, resolve governance `TBD`s, approve a release, make a legal conclusion, or create professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## 2026-06-03 - LICENSE_AND_ISSUED_CLOSEOUT
+
+- Human selected `PolyForm-Noncommercial-1.0.0` as the project license and directed resolving the license `TBD`.
+- Added `LICENSE.md` with SPDX identifier `PolyForm-Noncommercial-1.0.0` and official PolyForm URL.
+- Updated governance and DEL-01-01 surfaces to record the license selection while preserving remaining governance `TBD`s for later discretionary resolution.
+- Resolved RF-001 with `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`.
+- Human approved advancing DEL-01-01 from `CHECKING` to `ISSUED`; `_STATUS.md` was updated on 2026-06-03.
+- `ISSUED` closes this deliverable only. It is not a public release, legal advice, professional approval, certification, sealing, authentication, or code-compliance claim.

@@ -36,8 +36,8 @@ The review brief listed ScopeLedger rows `SOW-001`, `SOW-002`, `SOW-003`, and `S
 
 | ChecklistItemRef | Scope/Objective | Result | Evidence |
 |---|---|---|---|
-| OC-001 | SOW-001: free and open-source piping stress analysis platform | PASS | `docs/DIRECTIVE.md` states free/open-source intent while preserving license `TBD`; `governance/MAINTAINERS.md` keeps license unresolved pending human authority. |
-| OC-002 | SOW-048: open-source license, governance, release, and maintainer policies | PASS | `governance/MAINTAINERS.md` defines license, contributor certification, maintainer roster, release authority, decision records, release policy skeleton, and open governance questions as `TBD`. |
+| OC-001 | SOW-001: source-available noncommercial piping stress analysis platform | PASS | `docs/DIRECTIVE.md` and `governance/MAINTAINERS.md` record `PolyForm-Noncommercial-1.0.0` as the selected project license. |
+| OC-002 | SOW-048: project license, governance, release, and maintainer policies | PASS | `governance/MAINTAINERS.md` defines the selected license, contributor certification surface, maintainer roster placeholder, release authority placeholder, decision records, release policy skeleton, and open governance questions. |
 | OC-003 | OBJ-001 | PASS | Governance artifacts support transparent, auditable project boundaries and development controls. No separate objective register exists in `docs/_Registers`. |
 | OC-004 | OBJ-002 | PASS | Governance artifacts emphasize protected-content, provenance, public/private data, and professional-boundary controls. No separate objective register exists in `docs/_Registers`. |
 
@@ -55,7 +55,7 @@ Boundary-context notes:
 | CI-002 | OPS-K-DATA-1 through OPS-K-DATA-3 | PASS | Reviewed artifacts state code-specific values are user-supplied/private and missing values are explicit findings. |
 | CI-003 | OPS-K-AUTH-1 through OPS-K-AUTH-2 | PASS | Reviewed artifacts avoid certification/sealing/compliance claims and require human acceptance records to be bounded by evidence. |
 | CI-004 | OPS-K-MECH-1 through OPS-K-MECH-2 | PASS | `docs/DIRECTIVE.md` preserves centerline/global model primacy and separates solver mechanics from professional compliance judgment. |
-| CI-005 | OPS-K-GOV-1 through OPS-K-GOV-4 | PASS | License, authority, quorum, release, and contributor mechanisms remain `TBD`; policy decisions must be recorded before being treated as project policy. |
+| CI-005 | OPS-K-GOV-1 through OPS-K-GOV-4 | PASS | License is selected as `PolyForm-Noncommercial-1.0.0`; authority, quorum, release, and contributor mechanisms remain `TBD`; policy decisions must be recorded before being treated as project policy. |
 | CI-006 | OPS-K-AGENT-1 through OPS-K-AGENT-4 | PASS | Reviewed artifacts preserve `TBD` for unknowns and describe bounded deliverable/lifecycle governance. This review also did not edit lifecycle state. |
 
 ## 5. Data and professional boundary checks
@@ -65,7 +65,7 @@ Boundary-context notes:
 | DB-001 | Protected standards and proprietary data | PASS | No protected standards text, tables, figures, code examples, material allowables, SIF/flexibility tables, or proprietary commercial data observed in reviewed artifacts. |
 | DB-002 | Public/private data boundary | PASS | Reviewed artifacts require user-controlled private rule packs, material/component data, owner standards, project models, and explicit contribution rights. |
 | DB-003 | Professional responsibility | PASS | Reviewed artifacts clearly state that software and maintainers do not certify, seal, approve, authenticate, or declare code compliance for reliance. |
-| DB-004 | Governance TBD handling | PASS | License, contributor certification, maintainer roster, release authority, security contact, quorum, ADR location, and release labels remain `TBD` pending human decisions. |
+| DB-004 | Governance TBD handling | PASS | License is selected as `PolyForm-Noncommercial-1.0.0`; contributor certification final mechanism, maintainer roster, release authority, security contact, quorum, ADR location, and release labels remain `TBD` pending human decisions. |
 
 ## 6. Validation evidence
 
@@ -93,7 +93,7 @@ git diff --check -- "execution/PKG-01_Governance, IP Boundary, and Professional 
 | MINOR | 0 |
 | INFO | 0 |
 
-Finding RF-001 records a stale decomposition revision reference in `_REFERENCES.md`; it is now `RECHECKED_FIXED` after bounded metadata updates aligned active DEL-01-01 references to `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `execution/_DAG/DAG-006/`. HumanDisposition remains `TBD`.
+Finding RF-001 records a stale decomposition revision reference in `_REFERENCES.md`; it is now `RESOLVED` after bounded metadata updates aligned active DEL-01-01 references to `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved `execution/_DAG/DAG-006/`. HumanDisposition is `ACCEPT_AS_IS`.
 
 ## 8. Mechanical recommendation
 
@@ -145,7 +145,7 @@ This is not a lifecycle gate approval. `_STATUS.md` was not edited by this revie
 
 | ID | Criterion | Result | Evidence |
 |---|---|---|---|
-| AC-101 | License remains `TBD`; no license or legal conclusion is asserted. | PASS | `Datasheet.md`, `Specification.md`, `Guidance.md`, `governance/MAINTAINERS.md`. |
+| AC-101 | License is selected as `PolyForm-Noncommercial-1.0.0`; no legal conclusion is asserted. | PASS | `LICENSE.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `governance/MAINTAINERS.md`. |
 | AC-102 | Contribution-review policy slots include source, provenance, redistribution status, contributor certification, review disposition, quarantine status, and private-data risk. | PASS | `governance/MAINTAINERS.md` Section 3. |
 | AC-103 | Release policy slots include scope, validation status, limitations, data-boundary constraints, professional-responsibility limitations, and release maturity wording as `TBD`. | PASS | `governance/MAINTAINERS.md` Section 4; `Specification.md` AC-01-01-03. |
 | AC-104 | Maintainer/release authority values remain `TBD` until human project authority records them. | PASS | `Datasheet.md` governance decision surface; `governance/MAINTAINERS.md` Sections 1 and 6. |
@@ -179,21 +179,21 @@ This is not a lifecycle gate approval. `_STATUS.md` was not edited by this revie
 
 | ID | Check | Result | Notes |
 |---|---|---|---|
-| TB-101 | Remaining `TBD`s assessed for `CHECKING` readiness. | PASS_WITH_DISCLOSURE | Four-document kit contains 33 `TBD` mentions. They are expected governance-decision placeholders for license, maintainer roster, quorum, release authority, release signing/provenance, legal review, maturity labels, validation wording, governance acceptance record format, and human project authority. They are not treated as solved policy. |
+| TB-101 | Remaining `TBD`s assessed for `CHECKING` readiness. | PASS_WITH_DISCLOSURE | After license resolution, the four-document kit contains 24 `TBD` mentions. They are expected governance-decision placeholders for maintainer roster, quorum, release authority, release signing/provenance, legal review, maturity labels, validation wording, governance acceptance record format, and human project authority. They are not treated as solved policy. |
 
 ### 9.3 Findings Summary
 
-| Severity | Total | Rechecked fixed | Open blocking | Deferred |
+| Severity | Total | Resolved | Open blocking | Deferred |
 |---|---:|---:|---:|---:|
 | CRITICAL | 0 | 0 | 0 | 0 |
 | MAJOR | 0 | 0 | 0 | 0 |
 | MINOR | 1 | 1 | 0 | 0 |
 | OBSERVATION | 0 | 0 | 0 | 0 |
 
-Existing finding RF-001 remains a historical AGENT_CHECK finding with
-`Status=RECHECKED_FIXED` and `HumanDisposition=TBD`. It is MINOR, not CRITICAL
-or MAJOR, and the active evidence inconsistency has been corrected. No new
-findings were opened by this review pass.
+Existing finding RF-001 is a historical AGENT_CHECK finding with
+`Status=RESOLVED` and `HumanDisposition=ACCEPT_AS_IS`. It is MINOR, not
+CRITICAL or MAJOR, and the active evidence inconsistency has been corrected. No
+new findings were opened by this review pass.
 
 ### 9.4 Transition Readiness
 
@@ -210,3 +210,33 @@ Human Gate 5 approval was received after this recommendation. `_STATUS.md` was
 advanced to `CHECKING` on 2026-06-03. This is a formal review lifecycle state
 only; it is not `ISSUED`, release acceptance, professional approval,
 certification, sealing, authentication, or a code-compliance claim.
+
+---
+
+## 10. ISSUED Closeout Review Pass - 2026-06-03
+
+**Review type:** SELF_CHECK / AGENT_CHECK closeout review
+**ReviewerID:** WORKING_ITEMS/REVIEW
+**Date initiated:** 2026-06-03 23:34 MDT
+**Target transition under review:** `CHECKING -> ISSUED`
+**Lifecycle action:** Human approved resolving the license `TBD`, resolving RF-001, and advancing DEL-01-01 to `ISSUED`.
+
+### 10.1 Closeout Findings and TBDs
+
+| Item | Result |
+|---|---|
+| License selection | RESOLVED - `PolyForm-Noncommercial-1.0.0` selected by human project authority. |
+| RF-001 | RESOLVED - `HumanDisposition=ACCEPT_AS_IS`, `Status=RESOLVED`. |
+| Remaining `TBD`s | ACCEPTED_FOR_ISSUED - 24 four-document-kit `TBD` mentions remain by explicit human discretion. |
+| Lifecycle state | ISSUED by explicit human approval. |
+
+### 10.2 ISSUED Recommendation and Decision
+
+**Recommendation:** `ADVANCED_TO_ISSUED_BY_HUMAN_APPROVAL`
+
+The human project authority approved the selected license, accepted the
+remaining non-license governance `TBD`s for later discretionary resolution, and
+approved advancing DEL-01-01 to `ISSUED`. This ISSUED state closes the
+DEL-01-01 governance-baseline deliverable only. It is not a public release, not
+legal advice, not professional engineering approval, not certification, not
+sealing, not authentication, and not a code-compliance claim.

@@ -27,17 +27,17 @@ code-compliance claims, or final governance decisions.
 
 | Field | Current value |
 |---|---|
-| Project intent | Free and open-source piping stress analysis platform |
+| Project intent | Source-available noncommercial piping stress analysis platform |
 | Decomposition authority | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` |
 | Coordination graph authority | `execution/_DAG/DAG-006/` active edge set; candidate rows remain non-gating |
-| License | `TBD` |
+| License | `PolyForm-Noncommercial-1.0.0`; see `LICENSE.md` and `https://polyformproject.org/licenses/noncommercial/1.0.0` |
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
 | Maintainer roster | `TBD` |
 | Release authority | `TBD` |
 | Security contact | `TBD` |
 | Human project authority record | `TBD` |
 
-No contributor, maintainer, agent, or release note may state a final license or final governance authority until the corresponding `TBD` is resolved by the human project authority.
+No contributor, maintainer, agent, or release note may state a final governance authority until the corresponding `TBD` is resolved by the human project authority. The project license has been selected by human project authority as `PolyForm-Noncommercial-1.0.0`.
 
 ## 2. Maintainer Responsibilities
 
@@ -50,7 +50,7 @@ Maintainers must:
 - enforce the open-mechanics/private-code-data boundary;
 - require source, provenance, license or redistribution status, contributor certification, and review disposition for public data contributions;
 - quarantine suspected protected standards content, proprietary data, or private project data before merge or release;
-- keep missing engineering, legal, governance, or release choices as `TBD`;
+- keep missing engineering, legal, governance, or release choices as `TBD`, except for the selected project license;
 - require tests, validation evidence, or explicit deferrals appropriate to the changed surface;
 - prevent product claims that imply certification, endorsement, sealing, authentication, or automatic code compliance;
 - record accepted governance decisions in public artifacts or decision records.
@@ -91,7 +91,7 @@ A public release must not be published until maintainers complete a release revi
 
 - an explicit human release decision and a recorded governance authority basis;
 - release scope, changed surfaces, and any excluded or deferred work;
-- selected license and notices; if the license remains `TBD`, no public source release may be published without a recorded human exception;
+- selected license and notices, including `PolyForm-Noncommercial-1.0.0` and the corresponding `LICENSE.md` notice;
 - validation status and known limitations;
 - data-boundary constraints and professional-responsibility notices;
 - protected-content and provenance review for public examples, templates, and bundled data;
@@ -119,7 +119,7 @@ The ADR location and numbering convention remain `TBD`.
 
 | ID | Question | Status |
 |---|---|---|
-| GOV-TBD-001 | Which open-source license will the project use? | `TBD` |
+| GOV-DEC-001 | Which project license will the project use? | Resolved 2026-06-03: `PolyForm-Noncommercial-1.0.0` |
 | GOV-TBD-002 | Will the project use a Developer Certificate of Origin, contributor license agreement, or another contributor certification mechanism? | `TBD` |
 | GOV-TBD-003 | Who are the initial maintainers and what quorum is required for policy changes? | `TBD` |
 | GOV-TBD-004 | What release signing and artifact-retention process will be used? | `TBD` |

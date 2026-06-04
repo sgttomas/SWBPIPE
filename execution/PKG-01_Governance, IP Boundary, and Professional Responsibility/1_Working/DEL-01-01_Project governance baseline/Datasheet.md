@@ -20,8 +20,8 @@
 
 | Attribute | Value | Source |
 |---|---|---|
-| Product stance | Free and open-source piping stress analysis platform | SOW-001; docs/DIRECTIVE.md Section 6 |
-| License selection | TBD | OPS-K-GOV-1; SOW-048 notes |
+| Product stance | Source-available noncommercial piping stress analysis platform | SOW-001; docs/DIRECTIVE.md Section 6 |
+| License selection | `PolyForm-Noncommercial-1.0.0` | Human project authority ruling on 2026-06-03; OPS-K-GOV-1; SOW-048 notes |
 | Governance surfaces | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `governance/MAINTAINERS.md` | _CONTEXT.md anticipated artifacts |
 | Policy scope | Governance baseline, maintainer policy skeleton, release/governance boundary language | DEL-01-01 register row; SOW-048 |
 | Public data boundary | Protected standards text, tables, figures, examples, protected formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data are not public repository content | OPS-K-IP-1; docs/DIRECTIVE.md Sections 3 and 4 |
@@ -35,7 +35,7 @@
 | Repo-level governance surfaces exist and are explicitly in current-basis refresh scope | Applied |
 | No protected standards/code data is reproduced | Applied |
 | No legal conclusion beyond draft policy language is made | Applied |
-| Maintainer roster, release authority, quorum, signing, and license choice | TBD |
+| Maintainer roster, release authority, quorum, and signing | TBD |
 | Public release maturity labels and validation disclosure format | TBD |
 | Human project authority for governance decisions | TBD |
 
@@ -43,7 +43,7 @@
 
 | Decision Surface | Current Value | Authority Needed |
 |---|---|---|
-| Open-source license | TBD | Human project authority |
+| Project license | `PolyForm-Noncommercial-1.0.0` | Human project authority ruling recorded 2026-06-03 |
 | Maintainer roster | TBD | Human project authority |
 | Maintainer quorum or approval model | TBD | Human project authority |
 | Release authority | TBD | Human project authority |
@@ -55,11 +55,12 @@
 This deliverable-local kit describes the baseline content and current-basis
 maintenance rules for public governance artifacts. It may update
 `docs/README.md` and `governance/MAINTAINERS.md` under explicit tranche write
-scope, while preserving all human-governed decisions as `TBD`.
+scope. The project license is resolved as `PolyForm-Noncommercial-1.0.0`;
+remaining human-governed decisions stay `TBD`.
 
 The baseline is constructed from:
 
-- scope item SOW-001: public free/open-source platform intent;
+- scope item SOW-001: source-available noncommercial platform intent;
 - scope item SOW-048: license, governance, release, and maintainer policy obligation;
 - objective OBJ-001: auditable, inspectable, extensible platform;
 - objective OBJ-002: protected-standards and user-supplied-data separation;

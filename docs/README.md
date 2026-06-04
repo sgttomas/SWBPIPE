@@ -7,7 +7,7 @@ created: 2026-04-30
 
 # OpenPipeStress Agentic Development Docs
 
-This `docs/` package is a seed governance and decomposition set for agentic development of **OpenPipeStress**: a free and open-source, code-neutral piping flexibility and stress-analysis platform.
+This `docs/` package is a seed governance and decomposition set for agentic development of **OpenPipeStress**: a source-available noncommercial, code-neutral piping flexibility and stress-analysis platform.
 
 The central project stance is:
 
@@ -43,6 +43,9 @@ The current decomposition authority is
 approved `DAG-006` under `execution/_DAG/DAG-006/`. Revision `0.7` carries
 the accepted architecture runway, design-engine and persistence amendments, and
 export-format interoperability scope into the active working surface.
+
+The project license selected by human governance decision is
+`PolyForm-Noncommercial-1.0.0`; see `../LICENSE.md`.
 
 This docs package remains a governance and coordination index. It is not an
 approved engineering work product, not a legal opinion, not a release record,
