@@ -16,6 +16,10 @@ contributions for the current frame/support boundary.
   reference for persistence/result-envelope handoff.
 - Deterministic findings for missing target references, invalid numeric input,
   invalid dimensions, and unsupported target/category combinations.
+- Storage-neutral diagnostic records that map primitive-load validation and
+  load-case assembly findings to code, class, severity, source, affected
+  object, message, remediation, and provenance-reference fields for later
+  result-envelope transport.
 - Nodal force, element uniform load, and imposed-displacement contributions for
   later load-case algebra, stress recovery, GUI, and headless execution work.
 - Lumped equivalent nodal conversion for explicit uniform `ForcePerLength`
@@ -39,6 +43,9 @@ aliases such as `temperature_difference`, `area_moment`, and generic
 `stiffness`. No unit conversion constants are supplied by this crate.
 Primitive load-case records enforce one primitive category per record; mixed
 case algebra remains downstream `DEL-05-02` scope.
+Diagnostic records preserve the local finding code and use local primitive-load
+classes; they do not introduce a shared diagnostic enum or final result
+envelope/API behavior.
 
 The lumped equivalent nodal conversion is limited to translational/global
 `ForcePerLength` element loads. Pressure, thermal, rotational, acceleration or
@@ -50,6 +57,6 @@ spans are reported as findings or construction errors rather than inferred.
 ## Verification
 
 The unit tests cover every primitive category, invalid/missing data findings,
-deterministic application behavior, boundary metadata validation, retired
-dimension alias rejection, lumped equivalent nodal conversion, and preservation
-of frame/support DOF assumptions.
+diagnostic-record mapping, deterministic application behavior, boundary
+metadata validation, retired dimension alias rejection, lumped equivalent nodal
+conversion, and preservation of frame/support DOF assumptions.

@@ -232,3 +232,32 @@
   standards data, code-specific combination/default, private data, release
   claim, code-compliance claim, or professional reliance claim was changed or
   introduced by this tranche.
+
+## 2026-06-04 - TP-DEL-05-01-FINDING-ENVELOPE-BRIDGE-001
+
+- Executed approved bounded tranche
+  `TP-DEL-05-01-FINDING-ENVELOPE-BRIDGE-001` for `DEL-05-01` / `PKG-05` with
+  write scope limited to `core/loads/primitive_loads/**`, this `MEMORY.md`, and
+  deliverable-local `_run_records/**`.
+- Added storage-neutral diagnostic metadata records for primitive-load
+  validation and load-case assembly findings. Records preserve local finding
+  codes and carry class, severity, source, affected object, message,
+  remediation, and provenance-reference fields for later result-envelope
+  transport.
+- Added conversion helpers for `LoadFinding` and `LoadCaseAssemblyFinding`
+  collections without changing existing primitive-load preparation, lumping,
+  axial-effect, load-case record, or solver-vector assembly behavior.
+- Updated `core/loads/primitive_loads/README.md` to document the diagnostic
+  bridge and its no-shared-enum/no-final-result-envelope boundary.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/primitive_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 35
+  tests passed; `git diff --check` passed.
+- Remaining TBDs: canonical unit conversions, final result-envelope/API
+  integration, production tolerance policy, release thresholds, and
+  professional reliance.
+- No `_STATUS.md`, `Dependencies.csv`, DAG artifact, schema file, repo-level
+  governance file, shared diagnostic enum, load-case algebra behavior,
+  protected standards data, code-specific combination/default, private data,
+  release claim, code-compliance claim, or professional reliance claim was
+  changed or introduced by this tranche.

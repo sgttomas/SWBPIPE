@@ -620,6 +620,110 @@ fn require_schema_binding(
     Ok(())
 }
 
+fn diagnostic_class_for_load_finding(code: FindingCode) -> LoadDiagnosticClass {
+    match code {
+        FindingCode::MissingLoadTarget
+        | FindingCode::MissingLoadMagnitude
+        | FindingCode::MissingElementSpan
+        | FindingCode::MissingElementProperties
+        | FindingCode::MissingPhysicalProperty => LoadDiagnosticClass::LoadInputBlocking,
+        FindingCode::NodeOutOfRange
+        | FindingCode::ElementOutOfRange
+        | FindingCode::InvalidElementSpan
+        | FindingCode::InvalidElementConnectivity
+        | FindingCode::InvalidElementProperties => LoadDiagnosticClass::LoadTopologyBlocking,
+        FindingCode::InvalidLoadDimension
+        | FindingCode::InvalidLoadDirection
+        | FindingCode::InvalidPhysicalProperty
+        | FindingCode::NonFiniteLoadMagnitude
+        | FindingCode::NonFiniteAxialEffect => LoadDiagnosticClass::LoadNumericBlocking,
+        FindingCode::UnsupportedTargetForCategory => LoadDiagnosticClass::LoadUnsupportedBoundary,
+    }
+}
+
+fn diagnostic_class_for_load_case_assembly_finding(
+    code: LoadCaseAssemblyFindingCode,
+) -> LoadDiagnosticClass {
+    match code {
+        LoadCaseAssemblyFindingCode::NodeOutOfRange
+        | LoadCaseAssemblyFindingCode::DofOutOfRange
+        | LoadCaseAssemblyFindingCode::NodeDofMismatch => LoadDiagnosticClass::LoadAssemblyBlocking,
+        LoadCaseAssemblyFindingCode::NonFiniteContribution => {
+            LoadDiagnosticClass::LoadNumericBlocking
+        }
+    }
+}
+
+fn remediation_for_load_finding(code: FindingCode) -> &'static str {
+    match code {
+        FindingCode::MissingLoadTarget => {
+            "Provide an explicit node, element, or support target for the primitive load."
+        }
+        FindingCode::MissingLoadMagnitude => {
+            "Provide an explicit unit-bearing primitive load magnitude."
+        }
+        FindingCode::NodeOutOfRange => {
+            "Reference an existing node index before preparing primitive loads."
+        }
+        FindingCode::ElementOutOfRange => {
+            "Reference an existing element index before preparing primitive loads."
+        }
+        FindingCode::InvalidLoadDimension => {
+            "Use the dimension required by the primitive load category and target."
+        }
+        FindingCode::InvalidLoadDirection => {
+            "Use a translational or rotational direction compatible with the load target."
+        }
+        FindingCode::MissingElementSpan => {
+            "Supply element span and connectivity before lumped nodal conversion."
+        }
+        FindingCode::InvalidElementSpan => {
+            "Supply one positive finite span record for the referenced element."
+        }
+        FindingCode::InvalidElementConnectivity => {
+            "Supply valid distinct element endpoint node indices."
+        }
+        FindingCode::MissingElementProperties => {
+            "Supply element properties required by the axial-effect helper."
+        }
+        FindingCode::InvalidElementProperties => {
+            "Supply one valid property record for the referenced element."
+        }
+        FindingCode::MissingPhysicalProperty => {
+            "Supply the explicit physical property required for this axial effect."
+        }
+        FindingCode::InvalidPhysicalProperty => {
+            "Supply finite positive physical properties where required."
+        }
+        FindingCode::NonFiniteLoadMagnitude => {
+            "Replace the load magnitude with a finite explicit value."
+        }
+        FindingCode::NonFiniteAxialEffect => {
+            "Check supplied load and property values so the computed axial effect is finite."
+        }
+        FindingCode::UnsupportedTargetForCategory => {
+            "Move this behavior to the owning downstream slice or use a supported target."
+        }
+    }
+}
+
+fn remediation_for_load_case_assembly_finding(code: LoadCaseAssemblyFindingCode) -> &'static str {
+    match code {
+        LoadCaseAssemblyFindingCode::NodeOutOfRange => {
+            "Reference an existing node before solver load-vector assembly."
+        }
+        LoadCaseAssemblyFindingCode::DofOutOfRange => {
+            "Reference a global degree of freedom inside the solver vector."
+        }
+        LoadCaseAssemblyFindingCode::NonFiniteContribution => {
+            "Replace the solver load contribution with a finite value."
+        }
+        LoadCaseAssemblyFindingCode::NodeDofMismatch => {
+            "Align the contribution node index with the node implied by the global degree of freedom."
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LoadQuantity {
     pub value: f64,
@@ -848,6 +952,29 @@ pub enum FindingCode {
     UnsupportedTargetForCategory,
 }
 
+impl FindingCode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::MissingLoadTarget => "MissingLoadTarget",
+            Self::MissingLoadMagnitude => "MissingLoadMagnitude",
+            Self::NodeOutOfRange => "NodeOutOfRange",
+            Self::ElementOutOfRange => "ElementOutOfRange",
+            Self::InvalidLoadDimension => "InvalidLoadDimension",
+            Self::InvalidLoadDirection => "InvalidLoadDirection",
+            Self::MissingElementSpan => "MissingElementSpan",
+            Self::InvalidElementSpan => "InvalidElementSpan",
+            Self::InvalidElementConnectivity => "InvalidElementConnectivity",
+            Self::MissingElementProperties => "MissingElementProperties",
+            Self::InvalidElementProperties => "InvalidElementProperties",
+            Self::MissingPhysicalProperty => "MissingPhysicalProperty",
+            Self::InvalidPhysicalProperty => "InvalidPhysicalProperty",
+            Self::NonFiniteLoadMagnitude => "NonFiniteLoadMagnitude",
+            Self::NonFiniteAxialEffect => "NonFiniteAxialEffect",
+            Self::UnsupportedTargetForCategory => "UnsupportedTargetForCategory",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct LoadFinding {
     pub code: FindingCode,
@@ -863,6 +990,151 @@ impl LoadFinding {
             message: message.into(),
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LoadDiagnosticSeverity {
+    Blocking,
+}
+
+impl LoadDiagnosticSeverity {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Blocking => "blocking",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LoadDiagnosticSource {
+    PrimitiveLoadValidation,
+    LoadCaseAssembly,
+}
+
+impl LoadDiagnosticSource {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::PrimitiveLoadValidation => "primitive_load_validation",
+            Self::LoadCaseAssembly => "load_case_assembly",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LoadDiagnosticClass {
+    LoadInputBlocking,
+    LoadTopologyBlocking,
+    LoadNumericBlocking,
+    LoadUnsupportedBoundary,
+    LoadAssemblyBlocking,
+}
+
+impl LoadDiagnosticClass {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::LoadInputBlocking => "LOAD_INPUT_BLOCKING",
+            Self::LoadTopologyBlocking => "LOAD_TOPOLOGY_BLOCKING",
+            Self::LoadNumericBlocking => "LOAD_NUMERIC_BLOCKING",
+            Self::LoadUnsupportedBoundary => "LOAD_UNSUPPORTED_BOUNDARY",
+            Self::LoadAssemblyBlocking => "LOAD_ASSEMBLY_BLOCKING",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LoadDiagnosticRecord {
+    pub code: String,
+    pub class: LoadDiagnosticClass,
+    pub severity: LoadDiagnosticSeverity,
+    pub source: LoadDiagnosticSource,
+    pub affected_object: String,
+    pub message: String,
+    pub remediation: String,
+    pub provenance_ref: String,
+}
+
+impl LoadDiagnosticRecord {
+    pub fn new(
+        code: impl Into<String>,
+        class: LoadDiagnosticClass,
+        source: LoadDiagnosticSource,
+        affected_object: impl Into<String>,
+        message: impl Into<String>,
+        remediation: impl Into<String>,
+        provenance_ref: impl Into<String>,
+    ) -> Result<Self, BoundaryMetadataError> {
+        let record = Self {
+            code: code.into(),
+            class,
+            severity: LoadDiagnosticSeverity::Blocking,
+            source,
+            affected_object: affected_object.into(),
+            message: message.into(),
+            remediation: remediation.into(),
+            provenance_ref: provenance_ref.into(),
+        };
+        record.validate()?;
+        Ok(record)
+    }
+
+    pub fn validate(&self) -> Result<(), BoundaryMetadataError> {
+        validate_boundary_ref("code", &self.code)?;
+        validate_boundary_ref("affected_object", &self.affected_object)?;
+        validate_boundary_ref("message", &self.message)?;
+        validate_boundary_ref("remediation", &self.remediation)?;
+        validate_boundary_ref("provenance_ref", &self.provenance_ref)?;
+        Ok(())
+    }
+
+    pub fn canonical_field_pairs(&self) -> Vec<(&'static str, String)> {
+        vec![
+            ("affected_object", self.affected_object.clone()),
+            ("class", self.class.as_str().to_string()),
+            ("code", self.code.clone()),
+            ("message", self.message.clone()),
+            ("provenance_ref", self.provenance_ref.clone()),
+            ("remediation", self.remediation.clone()),
+            ("severity", self.severity.as_str().to_string()),
+            ("source", self.source.as_str().to_string()),
+        ]
+    }
+
+    pub fn round_trip_key(&self) -> String {
+        self.canonical_field_pairs()
+            .into_iter()
+            .map(|(key, value)| format!("{key}={value}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+}
+
+impl LoadFinding {
+    pub fn diagnostic_record(
+        &self,
+        provenance_ref: impl Into<String>,
+    ) -> Result<LoadDiagnosticRecord, BoundaryMetadataError> {
+        LoadDiagnosticRecord::new(
+            self.code.as_str(),
+            diagnostic_class_for_load_finding(self.code),
+            LoadDiagnosticSource::PrimitiveLoadValidation,
+            format!("primitive-load:{}", self.load_id),
+            self.message.clone(),
+            remediation_for_load_finding(self.code),
+            provenance_ref,
+        )
+    }
+}
+
+pub fn diagnostic_records_from_load_findings(
+    findings: &[LoadFinding],
+    provenance_ref: impl Into<String>,
+) -> Result<Vec<LoadDiagnosticRecord>, BoundaryMetadataError> {
+    let provenance_ref = provenance_ref.into();
+    validate_boundary_ref("provenance_ref", &provenance_ref)?;
+    findings
+        .iter()
+        .map(|finding| finding.diagnostic_record(provenance_ref.clone()))
+        .collect()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -930,6 +1202,17 @@ pub enum LoadCaseAssemblyFindingCode {
     NodeDofMismatch,
 }
 
+impl LoadCaseAssemblyFindingCode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::NodeOutOfRange => "NodeOutOfRange",
+            Self::DofOutOfRange => "DofOutOfRange",
+            Self::NonFiniteContribution => "NonFiniteContribution",
+            Self::NodeDofMismatch => "NodeDofMismatch",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct LoadCaseAssemblyFinding {
     pub code: LoadCaseAssemblyFindingCode,
@@ -949,6 +1232,33 @@ impl LoadCaseAssemblyFinding {
             message: message.into(),
         }
     }
+
+    pub fn diagnostic_record(
+        &self,
+        provenance_ref: impl Into<String>,
+    ) -> Result<LoadDiagnosticRecord, BoundaryMetadataError> {
+        LoadDiagnosticRecord::new(
+            self.code.as_str(),
+            diagnostic_class_for_load_case_assembly_finding(self.code),
+            LoadDiagnosticSource::LoadCaseAssembly,
+            format!("solver-load-contribution:{}", self.source_id),
+            self.message.clone(),
+            remediation_for_load_case_assembly_finding(self.code),
+            provenance_ref,
+        )
+    }
+}
+
+pub fn diagnostic_records_from_load_case_assembly_findings(
+    findings: &[LoadCaseAssemblyFinding],
+    provenance_ref: impl Into<String>,
+) -> Result<Vec<LoadDiagnosticRecord>, BoundaryMetadataError> {
+    let provenance_ref = provenance_ref.into();
+    validate_boundary_ref("provenance_ref", &provenance_ref)?;
+    findings
+        .iter()
+        .map(|finding| finding.diagnostic_record(provenance_ref.clone()))
+        .collect()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -2879,6 +3189,85 @@ mod tests {
         assert!(prepared.is_blocked());
         assert_eq!(prepared.findings[0].code, FindingCode::MissingLoadTarget);
         assert_eq!(prepared.findings[1].code, FindingCode::MissingLoadMagnitude);
+    }
+
+    #[test]
+    fn primitive_load_findings_convert_to_boundary_diagnostic_records() {
+        let loads = vec![PrimitiveLoad::missing_target(
+            "missing-target",
+            PrimitiveLoadCategory::Weight,
+            LoadDirection::GlobalZ,
+            Some(q(-1.0, LoadDimension::ForcePerLength)),
+        )];
+
+        let prepared = prepare_loads(1, 1, &loads);
+        let records =
+            diagnostic_records_from_load_findings(&prepared.findings, "provenance:load-input")
+                .unwrap();
+
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0].code, "MissingLoadTarget");
+        assert_eq!(records[0].class, LoadDiagnosticClass::LoadInputBlocking);
+        assert_eq!(records[0].severity.as_str(), "blocking");
+        assert_eq!(
+            records[0].source,
+            LoadDiagnosticSource::PrimitiveLoadValidation
+        );
+        assert_eq!(records[0].affected_object, "primitive-load:missing-target");
+        assert_eq!(records[0].provenance_ref, "provenance:load-input");
+        assert!(records[0].message.contains("explicit target"));
+        assert!(records[0].remediation.contains("explicit node"));
+        assert!(records[0]
+            .round_trip_key()
+            .contains("source=primitive_load_validation"));
+    }
+
+    #[test]
+    fn load_diagnostic_records_reject_missing_provenance() {
+        let finding = LoadFinding {
+            code: FindingCode::InvalidLoadDimension,
+            load_id: "load-1".to_string(),
+            message: "wrong dimension".to_string(),
+        };
+
+        let err = diagnostic_records_from_load_findings(&[finding], "TBD").unwrap_err();
+        assert_eq!(
+            err,
+            BoundaryMetadataError::MissingField {
+                field: "provenance_ref"
+            }
+        );
+    }
+
+    #[test]
+    fn load_case_assembly_findings_convert_to_boundary_diagnostic_records() {
+        let contributions = vec![
+            SolverNodalLoadContribution::new("bad-node", 2, 0, 1.0),
+            SolverNodalLoadContribution::new("bad-value", 0, 0, f64::NAN),
+        ];
+
+        let assembled = assemble_solver_load_vector(1, &contributions);
+        let records = diagnostic_records_from_load_case_assembly_findings(
+            &assembled.findings,
+            "provenance:assembly",
+        )
+        .unwrap();
+
+        assert!(assembled.is_blocked());
+        assert_eq!(records.len(), 2);
+        assert_eq!(records[0].code, "NonFiniteContribution");
+        assert_eq!(records[0].class, LoadDiagnosticClass::LoadNumericBlocking);
+        assert_eq!(records[0].source, LoadDiagnosticSource::LoadCaseAssembly);
+        assert_eq!(
+            records[0].affected_object,
+            "solver-load-contribution:bad-value"
+        );
+        assert_eq!(records[1].code, "NodeOutOfRange");
+        assert_eq!(records[1].class, LoadDiagnosticClass::LoadAssemblyBlocking);
+        assert_eq!(records[1].provenance_ref, "provenance:assembly");
+        assert!(records[1]
+            .round_trip_key()
+            .contains("source=load_case_assembly"));
     }
 
     #[test]
