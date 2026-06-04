@@ -22,7 +22,7 @@ This deliverable records decision structure and required evidence; it does not c
 ## Guardrails
 - Do not copy or paraphrase protected standards tables, code text, or proprietary engineering values.
 - Do not claim code compliance or professional approval.
-- Do not infer dependency edges while Full DAG authoring is deferred.
+- Use approved `DAG-006` only for relationship context; do not infer lifecycle promotion, implementation readiness, or release acceptance from graph edges.
 - Do not advance PKG-01 through PKG-12 from this deliverable.
 
 ## Human-Ruling Queue

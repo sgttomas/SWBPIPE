@@ -34,7 +34,7 @@ This deliverable defines GUI interaction architecture only; it does not implemen
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for package and deliverable authority.
 - `docs/_Registers/Deliverables.csv` row DEL-00-05 for scope identity.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-060 for scope mapping.
-- `execution/_Coordination/_COORDINATION.md` for the deferred Full DAG and `SEMANTIC_READY` threshold.
+- `execution/_Coordination/_COORDINATION.md` for approved DAG-006 graph authority and `SEMANTIC_READY` architecture-basis handling.
 
 ## TBD and Human-Ruling Slots
 - TBD: GUI framework

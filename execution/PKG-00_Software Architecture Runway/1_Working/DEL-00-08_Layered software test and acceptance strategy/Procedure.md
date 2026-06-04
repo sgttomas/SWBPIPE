@@ -6,8 +6,8 @@ Execute and review this deliverable-local architecture document kit without cros
 ## Prerequisites
 - Root bootstrap and governance documents have been read.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 is the current basis.
-- Coordination mode remains Full DAG with DAG authoring deferred.
-- Blocker computation remains disabled until a human-approved acyclic DAG exists.
+- Coordination uses approved `DAG-006` graph authority for relationship context; deliverable-local `_STATUS.md` remains lifecycle authority.
+- Do not infer lifecycle promotion or implementation readiness from DAG context; human approval remains required for lifecycle changes.
 
 ## Execution Steps
 1. Inventory future quality obligations from CONTRACT, SPEC, and VALIDATION_STRATEGY.

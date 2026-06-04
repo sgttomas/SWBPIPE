@@ -33,7 +33,7 @@ This deliverable defines diagnostic/result contracts only; it does not implement
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for package and deliverable authority.
 - `docs/_Registers/Deliverables.csv` row DEL-00-06 for scope identity.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-061 for scope mapping.
-- `execution/_Coordination/_COORDINATION.md` for the deferred Full DAG and `SEMANTIC_READY` threshold.
+- `execution/_Coordination/_COORDINATION.md` for approved DAG-006 graph authority and `SEMANTIC_READY` architecture-basis handling.
 
 ## TBD and Human-Ruling Slots
 - TBD: Diagnostic code namespace

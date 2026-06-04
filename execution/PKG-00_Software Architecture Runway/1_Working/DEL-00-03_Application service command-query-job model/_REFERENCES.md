@@ -20,9 +20,9 @@
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-00-03.
 
 ## Coordination References
-- execution/_Coordination/_COORDINATION.md - Full DAG intent, deferred DAG status, and architecture readiness threshold.
+- execution/_Coordination/_COORDINATION.md - approved DAG-006 graph authority, architecture-basis context rules, and lifecycle-state discovery.
 - execution/_Coordination/NEXT_INSTANCE_PROMPT.md - Stable ORCHESTRATOR control-loop instructions.
-- execution/_Coordination/NEXT_INSTANCE_STATE.md - Mutable handoff state.
+- Current state is discovered from deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, and approved DAG-006 surfaces; there is no separate mutable handoff-state authority.
 
 ## Notes
 - No source material beyond governing documents, registers, and coordination records is introduced by PREPARATION.

@@ -33,7 +33,7 @@ This deliverable defines service contracts and flow rules only; it does not impl
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for package and deliverable authority.
 - `docs/_Registers/Deliverables.csv` row DEL-00-03 for scope identity.
 - `docs/_Registers/ScopeLedger.csv` rows SOW-058, SOW-062 for scope mapping.
-- `execution/_Coordination/_COORDINATION.md` for the deferred Full DAG and `SEMANTIC_READY` threshold.
+- `execution/_Coordination/_COORDINATION.md` for approved DAG-006 graph authority and `SEMANTIC_READY` architecture-basis handling.
 
 ## TBD and Human-Ruling Slots
 - TBD: Concrete service interface language
