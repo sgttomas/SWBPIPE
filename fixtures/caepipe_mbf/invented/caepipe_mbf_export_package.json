@@ -50,6 +50,72 @@
     {
       "affected_refs": [
         {
+          "object_type": "Support",
+          "ref": "support:invented:A"
+        }
+      ],
+      "category": "approximated",
+      "downstream_implication": "Detailed support target behavior remains source-gated and must not be inferred from this fixture.",
+      "governing_tbd_id": "TBD-17-01-002",
+      "human_review_required": true,
+      "loss_id": "loss:invented:approximated-support",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/caepipe_mbf/package.py",
+        "source_name": "OpenPipeStress DEL-17-04 CAEPIPE MBF export package builder"
+      },
+      "reason": "Invented support is represented only as a minimal smoke-subset support record.",
+      "severity": "warning",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-04"
+      },
+      "target_artifact_ref": {
+        "object_type": "CaePipeMbfMember",
+        "ref": "caepipe-mbf:invented-del-17-04:mbf_text"
+      }
+    },
+    {
+      "affected_refs": [
+        {
+          "object_type": "LoadCase",
+          "ref": "load:invented:operating"
+        }
+      ],
+      "category": "delegated",
+      "downstream_implication": "External execution and target result interpretation remain DEL-17-05 or later work.",
+      "governing_tbd_id": "TBD-17-04-004",
+      "human_review_required": true,
+      "loss_id": "loss:invented:delegated-target-options",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/caepipe_mbf/package.py",
+        "source_name": "OpenPipeStress DEL-17-04 CAEPIPE MBF export package builder"
+      },
+      "reason": "Target-side execution options are recorded as package metadata and are not executed by this foundation.",
+      "severity": "warning",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-04"
+      },
+      "target_artifact_ref": {
+        "object_type": "CaePipeMbfMember",
+        "ref": "caepipe-mbf:invented-del-17-04:manifest"
+      }
+    },
+    {
+      "affected_refs": [
+        {
           "object_type": "CaePipeMbfRecord",
           "ref": "P001"
         }
@@ -112,6 +178,72 @@
         "object_type": "CaePipeMbfMember",
         "ref": "caepipe-mbf:invented-del-17-04:mbf_text"
       }
+    },
+    {
+      "affected_refs": [
+        {
+          "object_type": "ExpansionJoint",
+          "ref": "joint:invented:not-in-first-subset"
+        }
+      ],
+      "category": "omitted",
+      "downstream_implication": "A later source-confirmed profile tranche must classify expansion joint records before export.",
+      "governing_tbd_id": "TBD-17-01-002",
+      "human_review_required": true,
+      "loss_id": "loss:invented:omitted-expansion-joint",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/caepipe_mbf/package.py",
+        "source_name": "OpenPipeStress DEL-17-04 CAEPIPE MBF export package builder"
+      },
+      "reason": "Invented expansion joint behavior is outside the bounded smoke subset.",
+      "severity": "warning",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-04"
+      },
+      "target_artifact_ref": {
+        "object_type": "CaePipeMbfMember",
+        "ref": "caepipe-mbf:invented-del-17-04:loss_report"
+      }
+    },
+    {
+      "affected_refs": [
+        {
+          "object_type": "BranchConnection",
+          "ref": "branch:invented:not-in-first-subset"
+        }
+      ],
+      "category": "unsupported",
+      "downstream_implication": "The unsupported branch must remain visible until a later profile tranche classifies branch record support.",
+      "governing_tbd_id": "TBD-17-04-004",
+      "human_review_required": true,
+      "loss_id": "loss:invented:unsupported-branch",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/caepipe_mbf/package.py",
+        "source_name": "OpenPipeStress DEL-17-04 CAEPIPE MBF export package builder"
+      },
+      "reason": "Invented branch connection is not supported by the first CAEPIPE MBF smoke subset.",
+      "severity": "warning",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-04"
+      },
+      "target_artifact_ref": {
+        "object_type": "CaePipeMbfMember",
+        "ref": "caepipe-mbf:invented-del-17-04:loss_report"
+      }
     }
   ],
   "manifest": {
@@ -140,7 +272,7 @@
           "ref": "caepipe-mbf:invented-del-17-04:loss_report"
         },
         "payload_scope": "caepipe_mbf_loss_report",
-        "value": "sha256:87d571c3f1b3b20492ea7eb5e172c509d2cf143a286d7c5cc1109004b03a079c"
+        "value": "sha256:ebff4a649c75628018073295f398ed6186f2abb2fd029c17d23ae6701fbde8ee"
       },
       {
         "algorithm": "sha256",
@@ -150,7 +282,7 @@
           "ref": "caepipe-mbf:invented-del-17-04:manifest"
         },
         "payload_scope": "caepipe_mbf_manifest",
-        "value": "sha256:299d3e9518d420500c593569d2a27ff7586e49c70176e285348d84b35d2c631f"
+        "value": "sha256:05bec295350c0ef479a7ee25d19cb27df4e6860cff544f14281eec2b2a3fff54"
       },
       {
         "algorithm": "sha256",
@@ -210,7 +342,7 @@
             "ref": "caepipe-mbf:invented-del-17-04:manifest"
           },
           "payload_scope": "caepipe_mbf_manifest",
-          "value": "sha256:299d3e9518d420500c593569d2a27ff7586e49c70176e285348d84b35d2c631f"
+          "value": "sha256:05bec295350c0ef479a7ee25d19cb27df4e6860cff544f14281eec2b2a3fff54"
         },
         "member_name": "caepipe-mbf:invented-del-17-04:manifest",
         "member_role": "manifest",
@@ -270,7 +402,7 @@
             "ref": "caepipe-mbf:invented-del-17-04:loss_report"
           },
           "payload_scope": "caepipe_mbf_loss_report",
-          "value": "sha256:87d571c3f1b3b20492ea7eb5e172c509d2cf143a286d7c5cc1109004b03a079c"
+          "value": "sha256:ebff4a649c75628018073295f398ed6186f2abb2fd029c17d23ae6701fbde8ee"
         },
         "member_name": "caepipe-mbf:invented-del-17-04:loss_report",
         "member_role": "loss_report",

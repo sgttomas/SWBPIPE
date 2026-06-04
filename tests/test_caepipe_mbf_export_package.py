@@ -34,6 +34,14 @@ from schema_validation import (  # noqa: E402
 SCHEMA_PATH = ROOT / "schemas" / "caepipe_mbf_export.schema.json"
 FIXTURE_PATH = ROOT / "fixtures" / "caepipe_mbf" / "invented" / "caepipe_mbf_export_package.json"
 SHA256_PATTERN = re.compile(r"^sha256:[a-f0-9]{64}$")
+EXPECTED_LOSS_CATEGORIES = {
+    "exported",
+    "omitted",
+    "approximated",
+    "delegated",
+    "unsupported",
+    "tbd",
+}
 
 FORBIDDEN_PAYLOAD_TEXT = {
     "real client",
@@ -124,6 +132,50 @@ def source_payload() -> dict[str, object]:
                 "governing_tbd_id": "TBD-17-01-003",
                 "downstream_implication": "Downstream MBF work must keep sidecar mapping until direct carrier evidence is admitted.",
             },
+            {
+                "loss_id": "loss:invented:omitted-expansion-joint",
+                "category": "omitted",
+                "severity": "warning",
+                "affected_refs": [{"object_type": "ExpansionJoint", "ref": "joint:invented:not-in-first-subset"}],
+                "target_artifact_ref": {"object_type": "CaePipeMbfMember", "ref": "caepipe-mbf:invented-del-17-04:loss_report"},
+                "reason": "Invented expansion joint behavior is outside the bounded smoke subset.",
+                "source_basis_ref": {"object_type": "Deliverable", "ref": "DEL-17-04"},
+                "governing_tbd_id": "TBD-17-01-002",
+                "downstream_implication": "A later source-confirmed profile tranche must classify expansion joint records before export.",
+            },
+            {
+                "loss_id": "loss:invented:approximated-support",
+                "category": "approximated",
+                "severity": "warning",
+                "affected_refs": [{"object_type": "Support", "ref": "support:invented:A"}],
+                "target_artifact_ref": {"object_type": "CaePipeMbfMember", "ref": "caepipe-mbf:invented-del-17-04:mbf_text"},
+                "reason": "Invented support is represented only as a minimal smoke-subset support record.",
+                "source_basis_ref": {"object_type": "Deliverable", "ref": "DEL-17-04"},
+                "governing_tbd_id": "TBD-17-01-002",
+                "downstream_implication": "Detailed support target behavior remains source-gated and must not be inferred from this fixture.",
+            },
+            {
+                "loss_id": "loss:invented:delegated-target-options",
+                "category": "delegated",
+                "severity": "warning",
+                "affected_refs": [{"object_type": "LoadCase", "ref": "load:invented:operating"}],
+                "target_artifact_ref": {"object_type": "CaePipeMbfMember", "ref": "caepipe-mbf:invented-del-17-04:manifest"},
+                "reason": "Target-side execution options are recorded as package metadata and are not executed by this foundation.",
+                "source_basis_ref": {"object_type": "Deliverable", "ref": "DEL-17-04"},
+                "governing_tbd_id": "TBD-17-04-004",
+                "downstream_implication": "External execution and target result interpretation remain DEL-17-05 or later work.",
+            },
+            {
+                "loss_id": "loss:invented:unsupported-branch",
+                "category": "unsupported",
+                "severity": "warning",
+                "affected_refs": [{"object_type": "BranchConnection", "ref": "branch:invented:not-in-first-subset"}],
+                "target_artifact_ref": {"object_type": "CaePipeMbfMember", "ref": "caepipe-mbf:invented-del-17-04:loss_report"},
+                "reason": "Invented branch connection is not supported by the first CAEPIPE MBF smoke subset.",
+                "source_basis_ref": {"object_type": "Deliverable", "ref": "DEL-17-04"},
+                "governing_tbd_id": "TBD-17-04-004",
+                "downstream_implication": "The unsupported branch must remain visible until a later profile tranche classifies branch record support.",
+            },
         ],
     }
 
@@ -201,8 +253,14 @@ def test_builder_is_deterministic_and_preserves_package_members():
     }
     assert all(SHA256_PATTERN.match(item["value"]) for item in first["manifest"]["checksums"])
     assert {item["carrier_mode"] for item in first["stable_id_map"]} == {"sidecar_mapping"}
-    assert {"exported", "tbd"} <= {item["category"] for item in first["loss_report"]}
+    assert {item["category"] for item in first["loss_report"]} == EXPECTED_LOSS_CATEGORIES
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_fixture_loss_report_covers_required_categories():
+    fixture = load_json(FIXTURE_PATH)
+
+    assert {item["category"] for item in fixture["loss_report"]} == EXPECTED_LOSS_CATEGORIES
 
 
 def test_rendered_mbf_text_is_stable_and_ascii_safe():
@@ -236,6 +294,70 @@ def test_missing_subset_stable_ids_and_loss_report_are_blocking():
     assert any(item["severity"] == "blocking" for item in package["diagnostics"])
     assert package["validation_report"]["validation_status"] == "blocked"
     assert package["loss_report"][0]["category"] == "tbd"
+
+
+def test_unsupported_entities_require_reference_shape():
+    payload = source_payload()
+    model_payload = deepcopy(payload["model_payload"])
+    model_payload["unsupported_entities"] = [{"object_type": "BranchConnection"}]
+
+    package = build_caepipe_mbf_export_package(
+        export_id="caepipe-mbf:malformed-unsupported",
+        source_model_ref=payload["source_model_ref"],
+        source_model_hash=payload["source_model_hash"],
+        model_payload=model_payload,
+        stable_id_map=payload["stable_id_map"],
+        loss_report=payload["loss_report"],
+    )
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-UNSUPPORTED-ENTITY-REF-MISSING" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_unsupported_entities_require_matching_loss_report():
+    payload = source_payload()
+    loss_report = [item for item in payload["loss_report"] if item["category"] != "unsupported"]
+
+    package = build_caepipe_mbf_export_package(
+        export_id="caepipe-mbf:unsupported-loss-missing",
+        source_model_ref=payload["source_model_ref"],
+        source_model_hash=payload["source_model_hash"],
+        model_payload=payload["model_payload"],
+        stable_id_map=payload["stable_id_map"],
+        loss_report=loss_report,
+    )
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-UNSUPPORTED-ENTITY-LOSS-MISSING" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_unsupported_warning_or_blocking_loss_classifies_entity():
+    for severity in ("warning", "blocking"):
+        payload = source_payload()
+        for item in payload["loss_report"]:
+            if item["category"] == "unsupported":
+                item["severity"] = severity
+
+        package = build_caepipe_mbf_export_package(**payload)
+        codes = {item["code"] for item in package["diagnostics"]}
+
+        assert "MBF-UNSUPPORTED-ENTITY-LOSS-MISSING" not in codes
+        assert "MBF-UNSUPPORTED-LOSS-SEVERITY-UNSAFE" not in codes
+
+
+def test_unsupported_info_loss_severity_is_blocking():
+    payload = source_payload()
+    for item in payload["loss_report"]:
+        if item["category"] == "unsupported":
+            item["severity"] = "info"
+
+    package = build_caepipe_mbf_export_package(**payload)
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-UNSUPPORTED-LOSS-SEVERITY-UNSAFE" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
 
 
 def test_privacy_and_authority_boundary_diagnostics_block_public_package():
@@ -281,8 +403,13 @@ def test_fixture_contains_no_private_or_protected_payload_text():
 def main():
     check_jsonschema_validation()
     test_builder_is_deterministic_and_preserves_package_members()
+    test_fixture_loss_report_covers_required_categories()
     test_rendered_mbf_text_is_stable_and_ascii_safe()
     test_missing_subset_stable_ids_and_loss_report_are_blocking()
+    test_unsupported_entities_require_reference_shape()
+    test_unsupported_entities_require_matching_loss_report()
+    test_unsupported_warning_or_blocking_loss_classifies_entity()
+    test_unsupported_info_loss_severity_is_blocking()
     test_privacy_and_authority_boundary_diagnostics_block_public_package()
     test_fixture_contains_no_private_or_protected_payload_text()
 

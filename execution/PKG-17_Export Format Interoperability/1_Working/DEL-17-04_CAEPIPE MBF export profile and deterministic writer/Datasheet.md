@@ -36,6 +36,7 @@ The implementation foundation emits a deliberately narrow invented smoke subset,
 | Stable ID strategy | Direct MBF carrying remains `TBD`; the implementation foundation uses manifest-referenced sidecar mapping as the conservative default. |
 | Source basis trace | Each CAEPIPE-specific requirement must map to DEL-17-01, DEL-17-02, a public MBF source, or an explicit `TBD`. |
 | Loss reporting | Required for exported, omitted, approximated, delegated, unsupported, and TBD behavior. |
+| Unsupported-entity severity | Missing or malformed unsupported-entity evidence blocks the package; explicit unsupported behavior is warning-level by default unless separately marked blocking; `info` severity is not accepted for unsupported behavior. |
 | Pass-through options | May be target configuration only; not local code-checking logic. |
 
 ## Boundary Summary

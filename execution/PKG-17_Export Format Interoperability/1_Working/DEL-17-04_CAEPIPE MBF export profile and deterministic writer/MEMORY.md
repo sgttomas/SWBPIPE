@@ -46,3 +46,13 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - Unsupported-entity diagnostic/loss-report tranche
+
+- Implemented four-document-anchored DEL-17-04 refinement for unsupported CAEPIPE MBF entities.
+- Added blocking diagnostics for malformed unsupported entity refs, missing matching `unsupported` loss-report entries, and `info`-severity unsupported loss entries.
+- Regenerated the invented CAEPIPE MBF fixture so its loss report covers exported, omitted, approximated, delegated, unsupported, and `tbd` categories.
+- Updated `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` to record the selected `TBD-17-04-004` policy: explicit unsupported behavior is warning-level by default unless separately marked blocking; missing or understated coverage blocks.
+- Validation passed: py_compile for CAEPIPE MBF code/tests; JSON parse checks for schema and fixture; `pytest tests/test_caepipe_mbf_export_package.py` (12 passed); adjacent native JSON and handoff workflow tests (12 passed); four-document, minimum-fileset, dependency-schema, semantic-matrix, and lens-register checks; boundary scan reviewed; targeted `git diff --check` passed.
+- Remaining TBDs preserved: CAEPIPE target version/profile, definitive MBF record-family and required-field subset, direct MBF stable-ID carrier, external execution, CSV parsing, runtime/API/GUI integration, lifecycle/acceptance decisions, and target-specific compatibility claims remain future guarded work.
+- Boundary exclusions preserved: no edits to lifecycle status, coordination/DAG files, PKG-01, release claims, CAEPIPE compatibility claims, solver-validation claims, code-compliance claims, professional-acceptance claims, commercial solver behavior, proprietary examples, protected standards content, or reverse-engineering.

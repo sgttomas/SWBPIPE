@@ -38,7 +38,7 @@ This deliverable's implementation foundation shall remain limited to determinist
 | Record subset closure | REQ-002 remains unresolved until MBF record families and required fields are enumerated from admitted evidence. |
 | Stable ID preservation | REQ-005 is accepted only when direct MBF carrying is source-confirmed or the writer uses manifest-referenced sidecar mapping. |
 | Loss category coverage | REQ-004 is accepted only when exported, omitted, approximated, delegated, unsupported, and `TBD` behavior are all visible in the loss report. |
-| Diagnostic classification | Blocking versus non-blocking diagnostics remain `TBD` until the later profile tranche defines unsupported-entity severity. |
+| Diagnostic classification | `TBD-17-04-004` is addressed for this foundation: malformed unsupported refs, missing unsupported loss coverage, and `info`-severity unsupported losses block; explicit `warning` or `blocking` unsupported losses are accepted as classification evidence. |
 | Fixture provenance | REQ-007 is accepted only with invented fixtures and no vendor, proprietary, protected, or owner/project examples. |
 | Foundation implementation | REQ-008 and REQ-009 are accepted when schema, builder, fixture, and tests demonstrate sidecar-first IDs, deterministic MBF text, and blocking diagnostics for incomplete packages. |
 

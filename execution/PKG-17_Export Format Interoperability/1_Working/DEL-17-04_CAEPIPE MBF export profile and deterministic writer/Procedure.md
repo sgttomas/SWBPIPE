@@ -17,7 +17,7 @@ Bounded foundation implementation work must:
 
 1. Close or explicitly carry target version and MBF record-family TBDs.
 2. Define the deterministic writer subset from admitted evidence.
-3. Emit a loss report for unsupported, omitted, approximated, delegated, and TBD behavior.
+3. Emit a loss report for exported, unsupported, omitted, approximated, delegated, and TBD behavior.
 4. Preserve stable IDs through manifest-referenced sidecars unless direct MBF carrying is source-confirmed.
 5. Use invented fixtures only.
 6. Avoid CAEPIPE compatibility, release, code-compliance, and professional-acceptance claims.
@@ -31,7 +31,7 @@ Before a later writer tranche begins, re-read DEL-17-01, DEL-17-02, the admitted
 2. MBF record-family and required-field subset closure or explicit carried `TBD`.
 3. Stable-ID direct-carry evidence or manifest-referenced sidecar policy.
 4. Loss-report coverage for exported, omitted, approximated, delegated, unsupported, and `TBD` behavior.
-5. Blocking versus non-blocking diagnostic classification, or an explicit unresolved gate.
+5. Blocking versus non-blocking diagnostic classification: unsupported behavior defaults to warning-level evidence unless explicitly blocking, while missing coverage, malformed refs, or `info` severity block.
 6. Invented-fixture provenance.
 7. Validation results for the deliverable-local document kit, semantic artifacts, dependency schema, and diff hygiene.
 

@@ -329,6 +329,48 @@ def diagnostics_for_caepipe_mbf_export_package(
                     [_ref("LossReportEntry", str(entry.get("loss_id", "unknown")))],
                 )
             )
+    unsupported_loss_refs: set[tuple[str, str]] = set()
+    for entry in loss_report:
+        if entry.get("category") != "unsupported":
+            continue
+        if entry.get("severity") == "info":
+            diagnostics.append(
+                _diagnostic(
+                    "MBF-UNSUPPORTED-LOSS-SEVERITY-UNSAFE",
+                    "blocking",
+                    "UNSUPPORTED_BEHAVIOR_WARNING",
+                    "Unsupported CAEPIPE MBF behavior cannot be classified as informational only.",
+                    "Classify unsupported behavior as warning or blocking until target support evidence closes it.",
+                    [_ref("LossReportEntry", str(entry.get("loss_id", "unknown")))],
+                )
+            )
+        for affected_ref in _list(entry.get("affected_refs")):
+            if _is_reference(affected_ref):
+                unsupported_loss_refs.add(_reference_key(affected_ref))
+    for unsupported_entity in _list(model_payload.get("unsupported_entities")):
+        if not _is_reference(unsupported_entity):
+            diagnostics.append(
+                _diagnostic(
+                    "MBF-UNSUPPORTED-ENTITY-REF-MISSING",
+                    "blocking",
+                    "UNSUPPORTED_BEHAVIOR_WARNING",
+                    "Unsupported CAEPIPE MBF entity is not recorded as a stable reference.",
+                    "Record unsupported entities with object_type and ref so loss reports can cover them.",
+                    [package_ref],
+                )
+            )
+            continue
+        if _reference_key(unsupported_entity) not in unsupported_loss_refs:
+            diagnostics.append(
+                _diagnostic(
+                    "MBF-UNSUPPORTED-ENTITY-LOSS-MISSING",
+                    "blocking",
+                    "UNSUPPORTED_BEHAVIOR_WARNING",
+                    "Unsupported CAEPIPE MBF entity lacks a matching unsupported loss-report entry.",
+                    "Add a loss_report entry with category unsupported and the unsupported entity in affected_refs.",
+                    [unsupported_entity],
+                )
+            )
     if contains_prohibited_authority_term(model_payload.get("free_metadata", {})):
         diagnostics.append(
             _diagnostic(
@@ -668,6 +710,14 @@ def _is_ascii(value: str) -> bool:
 
 def _list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def _is_reference(value: Any) -> bool:
+    return isinstance(value, Mapping) and bool(value.get("object_type")) and bool(value.get("ref"))
+
+
+def _reference_key(value: Mapping[str, Any]) -> tuple[str, str]:
+    return (str(value.get("object_type")), str(value.get("ref")))
 
 
 def _ref(object_type: str, value: str) -> dict[str, str]:
