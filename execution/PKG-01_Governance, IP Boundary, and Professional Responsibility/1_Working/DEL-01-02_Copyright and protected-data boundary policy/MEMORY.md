@@ -90,3 +90,37 @@ Deferred scope:
   implementation, exact quarantine path, and reviewer/maintainer gate ownership
   remain unresolved until a human project authority or legal-review decision is
   recorded.
+
+## 2026-06-03 - TP-DEL-01-02-CURRENT-STATE-CONSISTENCY-001
+
+- Determined current-basis alignment was required because DEL-01-02 active
+  local documents still referred to `docs/_Decomposition/SOFTWARE_DECOMP.md`
+  revision `0.4` and described the repo-level checklist as future-only.
+- Updated deliverable-local context, references, datasheet, specification,
+  guidance, procedure, and dependency summary to align with
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, approved
+  `DAG-006`, existing `docs/IP_AND_DATA_BOUNDARY.md`, and existing
+  `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`.
+- Preserved unresolved decisions as `TBD`: final legal/governance mechanism,
+  reviewer role, legal-review authority, maintainer roster, project license,
+  and any maintainer-approved alternative quarantine path.
+- Boundary preserved: no lifecycle change, aggregate DAG edit, candidate
+  promotion, legal conclusion, professional approval, certification, sealing,
+  authentication, code-compliance claim, or acceptance of any contributed data.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-03_TP-DEL-01-02-CURRENT-STATE-CONSISTENCY-001.md`.
+
+## 2026-06-03 - Dependency Evidence Update
+
+- After completion assessment, human directed no review tranche and requested
+  dependency updates only.
+- Updated `Dependencies.csv` and `_DEPENDENCIES.md` to mark current-basis
+  evidence satisfied for:
+  - `DAG-002-E0389` DEL-01-01 governance predecessor;
+  - `DEL-01-02-E004` repo-level protected-data policy/checklist handoff.
+- Kept `DEL-01-02-E002` human/legal review and `DEL-01-02-E003` human project
+  authority assignment as `PENDING`, with wording narrowed to unresolved
+  reviewer role, legal-review authority, and final governance/legal mechanism.
+- No lifecycle state, aggregate DAG, candidate edge, legal conclusion,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim was changed.

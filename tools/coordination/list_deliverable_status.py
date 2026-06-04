@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""List deliverable-local lifecycle status with optional DAG context.
+"""List deliverable-local lifecycle status with optional DAG node context.
 
 This is a read-only coordination helper. It discovers deliverables from local
-`_STATUS.md` files and joins to the selected DAG's `DeliverableNodes.csv` when
-available. Local `_STATUS.md` values remain the lifecycle source of truth for
-work selection.
+`_STATUS.md` files and joins to the selected DAG's `DeliverableNodes.csv` for
+node presence and path context when available. Local `_STATUS.md` values are
+the lifecycle source of truth for work selection.
 """
 
 from __future__ import annotations
@@ -38,9 +38,7 @@ HEADER = [
     "StatusPath",
     "DAG",
     "DAGNodePresent",
-    "DAGLifecycleState",
     "DAGExecutionPath",
-    "DAGStatusMatchesLocal",
 ]
 
 
@@ -143,7 +141,6 @@ def rows(root: Path, dag: str, statuses: Iterable[LocalStatus]) -> list[dict[str
     output_rows: list[dict[str, str]] = []
     for item in sorted(statuses, key=lambda row: (row.package_id, row.deliverable_id)):
         node = dag_nodes.get(item.deliverable_id, {})
-        dag_state = node.get("LifecycleState", "")
         output_rows.append(
             {
                 "DeliverableID": item.deliverable_id,
@@ -157,11 +154,7 @@ def rows(root: Path, dag: str, statuses: Iterable[LocalStatus]) -> list[dict[str
                 "StatusPath": rel(item.status_path, root),
                 "DAG": dag,
                 "DAGNodePresent": "TRUE" if node else "FALSE",
-                "DAGLifecycleState": dag_state,
                 "DAGExecutionPath": node.get("ExecutionPath", ""),
-                "DAGStatusMatchesLocal": (
-                    "TRUE" if node and dag_state == item.status else "FALSE" if node else ""
-                ),
             }
         )
     return output_rows
@@ -196,7 +189,6 @@ def write_table(output_rows: list[dict[str, str]]) -> None:
         "LocalStatus",
         "StatusVocabulary",
         "DAGNodePresent",
-        "DAGStatusMatchesLocal",
         "DeliverablePath",
     ]
     widths = {
@@ -218,7 +210,6 @@ def write_markdown(output_rows: list[dict[str, str]]) -> None:
         "LocalStatus",
         "StatusVocabulary",
         "DAGNodePresent",
-        "DAGStatusMatchesLocal",
         "DeliverablePath",
     ]
     print("| " + " | ".join(columns) + " |")
@@ -241,7 +232,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         description="List deliverable-local _STATUS.md values with DAG context."
     )
     parser.add_argument("--repo-root", default=str(ROOT), help="Repository root.")
-    parser.add_argument("--dag", default=None, help="DAG folder name, for example DAG-005.")
+    parser.add_argument("--dag", default=None, help="DAG folder name, for example DAG-006.")
     parser.add_argument(
         "--format",
         choices=("table", "csv", "markdown"),

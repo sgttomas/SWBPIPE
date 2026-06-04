@@ -47,7 +47,7 @@ explicitly grants repo-level governance write scope.
 
 Verification for this setup deliverable is document review:
 
-- compare DEL-01-01 identity, scope items, objectives, and anticipated artifacts against `_CONTEXT.md`, current decomposition revision `0.7`, `DAG-005`, and the registers;
+- compare DEL-01-01 identity, scope items, objectives, and anticipated artifacts against `_CONTEXT.md`, current decomposition revision `0.7`, `DAG-006`, and the registers;
 - confirm all applicable contract invariants are named or reflected;
 - confirm any repo-level governance edits stay within the authorized tranche write scope;
 - confirm no protected standards content, proprietary data, legal conclusion, or professional certification claim was introduced;

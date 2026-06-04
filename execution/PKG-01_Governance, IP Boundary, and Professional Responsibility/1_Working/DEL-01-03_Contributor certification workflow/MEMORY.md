@@ -82,3 +82,31 @@ Reconciled status:
 - This reconciliation records historical implementation evidence only. It does
   not change product artifacts, dependency registers, candidate edges, or
   release/final acceptance state.
+
+## 2026-06-04 - TP-DEL-01-03-CURRENT-BASIS-REFRESH-001
+
+- Human approved the proposed WORKING_ITEMS tranche to refresh DEL-01-03 to
+  current basis within deliverable-local write scope.
+- Updated active local context, references, datasheet, specification, guidance,
+  procedure, semantic lensing notes, dependency CSV, and dependency summary to
+  align with `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and
+  approved `DAG-006`.
+- Recorded current-basis dependency evidence:
+  - `DAG-002-E0390` DEL-01-01 governance predecessor satisfied for
+    `SEMANTIC_READY` dependency purposes using current local DEL-01-01 evidence.
+  - `DAG-002-E0391` DEL-01-02 protected-data boundary predecessor satisfied for
+    `SEMANTIC_READY` dependency purposes using current local DEL-01-02 evidence.
+  - `DEL-01-03-E004` `CONTRIBUTING.md` draft handoff satisfied as existing
+    repo-level evidence.
+  - `DEL-01-03-E005` added for the existing draft contributor certification
+    template at `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`.
+- Preserved unresolved decisions as `TBD`: final open-source license,
+  contributor legal mechanism such as DCO/CLA/other, reviewer role, maintainer
+  authority, legal-review threshold, release authority, and final governance
+  acceptance.
+- Boundary preserved: no lifecycle state edit, aggregate DAG edit, candidate
+  promotion, repo-level contributor-artifact edit, legal conclusion,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, or public acceptance of any specific contributed data.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-04_TP-DEL-01-03-CURRENT-BASIS-REFRESH-001.md`.

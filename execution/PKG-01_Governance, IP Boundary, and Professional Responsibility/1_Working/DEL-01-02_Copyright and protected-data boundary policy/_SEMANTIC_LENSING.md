@@ -107,7 +107,7 @@
 |---|---|---|---|---:|---|---|
 | F:normative:necessity | normative | necessity | prohibited content rule | 0 | NO_ITEMS | R1 covers rule. |
 | F:normative:sufficiency | normative | sufficiency | provenance requirement | 0 | NO_ITEMS | R2 covers fields. |
-| F:normative:completeness | normative | completeness | checklist completeness | 1 | HAS_ITEMS | Repo-level checklist does not yet exist in scope. |
+| F:normative:completeness | normative | completeness | checklist completeness | 1 | UPDATED_BY_CURRENT_BASIS | Repo-level checklist now exists at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`; reviewer role and final governance/legal mechanism remain `TBD`. |
 | F:normative:consistency | normative | consistency | nonclaim consistency | 0 | NO_ITEMS | R8 covers forbidden claims. |
 | F:operative:necessity | operative | necessity | intake stop rule | 0 | NO_ITEMS | Procedure step 5 covers stop. |
 | F:operative:sufficiency | operative | sufficiency | review evidence gate | 0 | NO_ITEMS | Procedure step 4 covers fields. |

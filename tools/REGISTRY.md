@@ -7,6 +7,6 @@
 ## Examples
 
 ```bash
-python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary
-python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --status IN_PROGRESS --format csv
+python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --format table --summary
+python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --status IN_PROGRESS --format csv
 ```

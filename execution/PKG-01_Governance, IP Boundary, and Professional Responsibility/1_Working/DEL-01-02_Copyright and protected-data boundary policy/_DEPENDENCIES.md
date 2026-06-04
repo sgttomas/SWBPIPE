@@ -9,6 +9,7 @@
 
 ## Authority Boundary
 - Aggregate DAG artifacts remain the sequencing and blocker-computation authority only within their approval boundary.
+- Aggregate `DAG-006` is the approved active graph authority within its approval boundary.
 - This local register is a deliverable-local evidence surface for downstream RECONCILIATION, not an independent aggregate graph authority.
 - Candidate or uncertain rows are preserved as evidence and are not promoted to aggregate authority by this refresh.
 - Previously synchronized DAG rows are retained as `Origin=DECLARED` after v3.1 enum normalization.
@@ -55,23 +56,24 @@
 - **Warnings:** `validate_id_format.sh` rejects project identifiers `PKG-01`, `DEL-01-02`, and `SOW-003` because the tool pattern expects three-digit package and four-digit SOW forms. Decomposition evidence uses the project identifiers as authoritative for this refresh.
 - **Tree x DAG check:** exactly one ACTIVE parent anchor (`DEL-01-02-A001`); no `FLOATING_NODE` or `AMBIGUOUS_ANCHOR` warning.
 - **Protected-content posture:** no protected standards content, private data, engineering defaults, legal conclusions, or professional/code-compliance claims were inferred.
-- **Uncertainty handling:** unresolved human/legal review, checklist path, reviewer role, and repo-level handoff state remain `TBD`/`PENDING`.
+- **Uncertainty handling:** unresolved human/legal review, reviewer role, and final governance/legal mechanism remain `TBD`/`PENDING`; checklist path and repo-level artifact handoff evidence are now resolved in the current-basis local register.
 
 ## Run History
 - 2026-05-03: synchronized from `execution/_DAG/DAG-002/DependencyEdges.csv`; 5 ACTIVE rows; local register was a mirror/evidence surface.
 - 2026-05-10: dependency-extract refresh, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`; decomposition available; warnings: ID-format validator pattern mismatch for current project IDs; ACTIVE counts: 4 ANCHOR, 9 EXECUTION.
+- 2026-06-03: WORKING_ITEMS current-basis dependency update after requested completion assessment; preserved historical dependency IDs while marking satisfied current-basis evidence for DEL-01-01 governance predecessor and repo-level policy/checklist handoff.
 
 ## Lifecycle Summary
 - **Total rows:** 13
 - **ACTIVE:** 13
 - **RETIRED:** 0
 - **Origin breakdown:** 5 DECLARED; 8 EXTRACTED.
-- **SatisfactionStatus breakdown:** 9 SATISFIED; 3 PENDING; 1 TBD.
+- **SatisfactionStatus breakdown:** 11 SATISFIED; 2 PENDING; 0 TBD.
 - **RequiredMaturity breakdown:** 13 SEMANTIC_READY.
-- **ProposedMaturity breakdown:** 10 SEMANTIC_READY; 3 TBD.
+- **ProposedMaturity breakdown:** 11 SEMANTIC_READY; 2 TBD.
 
-## Downstream Handoff Notes
+## Current-Basis Notes
 - For RECONCILIATION, treat this file as deliverable-local evidence only; do not use it as aggregate DAG authority without downstream approval.
-- `DAG-002-E0389` remains an uncertain preserved predecessor evidence row with `SatisfactionStatus=TBD` and medium confidence.
-- Human/legal review and human project authority assignment are explicit upstream prerequisites, not legal conclusions or implementation authorization.
-- Repo-level artifacts (`docs/IP_AND_DATA_BOUNDARY.md` and a contribution review checklist) are downstream handoff targets only; this refresh did not edit them.
+- `DAG-002-E0389` remains a preserved historical predecessor row by ID, but current-basis evidence now satisfies the local DEL-01-01 governance predecessor dependency.
+- Human/legal review and human project authority assignment remain explicit pending upstream prerequisites, not legal conclusions or implementation authorization.
+- Repo-level artifacts exist at `docs/IP_AND_DATA_BOUNDARY.md` and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`; this satisfies local handoff evidence and does not edit or approve aggregate `DAG-006`.

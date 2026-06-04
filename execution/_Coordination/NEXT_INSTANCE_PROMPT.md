@@ -1,27 +1,15 @@
 # NEXT INSTANCE PROMPT
 
-Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_WORKING_ITEMS.md`
-
-Act in the `WORKING_ITEMS` persona for
-`/Users/ryan/ai-env/projects/chirality/projects/chirality-piping`.
-
 ## Current Authority
 
-- Read
-  `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/_COORDINATION.md`
-  and follow the active-surface, Authority Intake Tiers, state-tracking, and
-  Local Status And DAG-Guided Development Loop directions.
-- Read
-  `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/NEXT_INSTANCE_STATE.md`
-  if present, and treat it as compact resume state only. When it summarizes
-  project truth, verify against the authoritative artifact it cites.
-- Treat blockers or dirty git state outside this project/write scope as
-  external-scope noise; record and bypass, do not fix.
+- Read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/_COORDINATION.md` and follow the Development Loop directions.
+- Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, and current aggregation or review artifacts as needed.
+- Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
 
 ## Governing Imperatives
 
 1. `SOFTWARE_DECOMP` says what must be built and why.
-2. `DAG-005` says what depends on what, using approved active edges.
+2. `DAG-006` says what depends on what, using approved active edges.
 3. Deliverable-local `_STATUS.md` files say the current lifecycle state for
    work selection.
 4. `_COORDINATION.md` says how to execute work: bounded tranches, human
@@ -34,10 +22,8 @@ Act in the `WORKING_ITEMS` persona for
    - read this prompt;
    - read `_COORDINATION.md`;
    - perform the baseline authority intake defined in `_COORDINATION.md`;
-   - add execution or review intake documents only as required by the selected
-     tranche type;
-   - run
-     `python3 tools/coordination/list_deliverable_status.py --dag DAG-005 --format table --summary`.
+   - add execution or review intake documents only as required by the selected tranche type;
+   - run  `python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --format table --summary`.
 2. Use the Local Status And DAG-Guided Development Loop in `_COORDINATION.md`
    as the governing workflow. If a human-approved implementation or review
    tranche is already active, continue that tranche within its write bounds.
@@ -48,7 +34,7 @@ Act in the `WORKING_ITEMS` persona for
    `SEMANTIC_READY` is architecture/preparation basis unless specifically
    directed.
 4. For the selected deliverable, inspect the local deliverable folder first,
-   then use `DAG-005` only to discover upstream/downstream context to read.
+   then use `DAG-006` only to discover upstream/downstream context to read.
 5. Record `git status --short` before coordination-sensitive planning or
    execution.
 6. Inspect in detail any execution files, or other core implementation code

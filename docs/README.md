@@ -40,7 +40,7 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 
 The current decomposition authority is
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, coordinated by
-approved `DAG-005` under `execution/_DAG/DAG-005/`. Revision `0.7` carries
+approved `DAG-006` under `execution/_DAG/DAG-006/`. Revision `0.7` carries
 the accepted architecture runway, design-engine and persistence amendments, and
 export-format interoperability scope into the active working surface.
 

@@ -113,7 +113,7 @@
 | F:operative:sufficiency | operative | sufficiency | Sufficient reviewer packet | 0 | NO_ITEMS | Procedure step 6 present. |
 | F:operative:completeness | operative | completeness | Complete workflow evidence | 0 | NO_ITEMS | Records present. |
 | F:operative:consistency | operative | consistency | Consistent disposition flow | 0 | NO_ITEMS | Disposition states present. |
-| F:evaluative:necessity | evaluative | necessity | Required acceptance criteria | 1 | HAS_ITEMS | Repo-level acceptance remains future. |
+| F:evaluative:necessity | evaluative | necessity | Required acceptance criteria | 1 | UPDATED_BY_CURRENT_BASIS | Repo-level contributor artifacts exist as drafts; final acceptance remains human-gated. |
 | F:evaluative:sufficiency | evaluative | sufficiency | Sufficient disposition rationale | 0 | NO_ITEMS | Disposition note template present. |
 | F:evaluative:completeness | evaluative | completeness | Complete ruling record | 0 | NO_ITEMS | Human rulings listed. |
 | F:evaluative:consistency | evaluative | consistency | Consistent review basis | 0 | NO_ITEMS | Governance-only review stated. |
@@ -122,7 +122,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| F-001 | F:evaluative:necessity | VerificationGap | Specification | Specification | Add future acceptance hook for human-approved repo-level `CONTRIBUTING.md` adoption. | The setup brief forbids editing repo-level artifacts, while anticipated artifacts include a future `CONTRIBUTING.md` section. The local kit should preserve the future gate explicitly. | `Specification.md` | Documentation; Acceptance Criteria |  | PROPOSAL: human project authority approves before repo-level adoption. | TBD |
+| F-001 | F:evaluative:necessity | VerificationGap | Specification | Specification | Preserve the human acceptance hook for draft repo-level `CONTRIBUTING.md` and certification-template artifacts. | Current repo-level artifacts exist, but final contributor legal mechanism, license language, reviewer authority, and acceptance remain outside this deliverable-local refresh. | `Specification.md` | Documentation; Acceptance Criteria |  | PROPOSAL: human project authority approves before final governance adoption. | TBD |
 
 ## Matrix D - Objectives
 
@@ -147,7 +147,7 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| D-001 | D:normative:judging | Conflict | Guidance | Guidance | Keep legal mechanism unresolved until human ruling. | Sources require contributor governance but also state license/contributor legal mechanism is TBD. | `Guidance.md`; `docs/CONTRACT.md`; `docs/DIRECTIVE.md` | Conflict Table C-001; OPS-K-GOV-1; section 6 | `Guidance.md#Conflict Table`; `docs/CONTRACT.md#OPS-K-GOV-1`; `docs/DIRECTIVE.md#6 Governance baseline` | PROPOSAL: human project authority decides before issuance. | TBD |
+| D-001 | D:normative:judging | Conflict | Guidance | Guidance | Keep legal mechanism unresolved until human ruling. | Sources require contributor governance but also state license/contributor legal mechanism is TBD. | `Guidance.md`; `docs/CONTRACT.md`; `docs/DIRECTIVE.md`; `governance/MAINTAINERS.md` | Conflict Table C-001; OPS-K-GOV-1; section 6; Open Governance Questions | `Guidance.md#Conflict Table`; `docs/CONTRACT.md#OPS-K-GOV-1`; `docs/DIRECTIVE.md#6 Governance baseline`; `governance/MAINTAINERS.md#6 Open Governance Questions` | PROPOSAL: human project authority decides before issuance. | TBD |
 
 ## Matrix X - Verification
 
@@ -181,7 +181,7 @@
 | E:guiding:data | guiding | data | Evidence direction record | 0 | NO_ITEMS | Present. |
 | E:guiding:information | guiding | information | Routing information frame | 0 | NO_ITEMS | Present. |
 | E:guiding:knowledge | guiding | knowledge | Governance knowledge frame | 0 | NO_ITEMS | Present. |
-| E:guiding:wisdom | guiding | wisdom | Principled guidance judgment | 1 | HAS_ITEMS | Quarantine location remains TBD. |
+| E:guiding:wisdom | guiding | wisdom | Principled guidance judgment | 1 | UPDATED_BY_CURRENT_BASIS | Default quarantine path exists; access rule and escalation owner remain TBD. |
 | E:applying:data | applying | data | Practice evidence record | 0 | NO_ITEMS | Present. |
 | E:applying:information | applying | information | Execution information frame | 0 | NO_ITEMS | Present. |
 | E:applying:knowledge | applying | knowledge | Workflow knowledge frame | 0 | NO_ITEMS | Present. |
@@ -199,5 +199,5 @@
 
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| E-001 | E:guiding:wisdom | TBD_Question | Procedure | Procedure | TBD: name the approved quarantine path and access rule. | Procedure says future approved quarantine path because no source establishes a concrete path. | `Procedure.md` | Step 5 |  | PROPOSAL: human/legal authority defines quarantine path before public use. | TBD |
-| E-002 | E:judging:wisdom | Conflict | Guidance | Guidance | Preserve unresolved legal review threshold. | Sources require stop-and-escalate but do not define when legal review is mandatory versus maintainer review. | `Guidance.md`; SOFTWARE_DECOMP | Conflict Table C-002; OI-003 | `Guidance.md#Conflict Table`; `docs/_Decomposition/SOFTWARE_DECOMP.md#Open issues` | PROPOSAL: quarantine or reject uncertain rights pending human/legal ruling. | TBD |
+| E-001 | E:guiding:wisdom | TBD_Question | Procedure | Procedure | Preserve default quarantine path while leaving access rule and escalation owner unresolved. | `docs/IP_AND_DATA_BOUNDARY.md` and the checklist name `quarantine/protected-content/` or maintainer-approved equivalent, but final access control and escalation ownership remain unassigned. | `Procedure.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` | Step 5; Quarantine rule; Quarantine Record |  | PROPOSAL: human/legal authority defines quarantine access and escalation ownership before public use. | TBD |
+| E-002 | E:judging:wisdom | Conflict | Guidance | Guidance | Preserve unresolved legal review threshold. | Sources require stop-and-escalate but do not define when legal review is mandatory versus maintainer review. | `Guidance.md`; `governance/MAINTAINERS.md` | Conflict Table C-002; Open Governance Questions | `Guidance.md#Conflict Table`; `governance/MAINTAINERS.md#6 Open Governance Questions` | PROPOSAL: quarantine or reject uncertain rights pending human/legal ruling. | TBD |

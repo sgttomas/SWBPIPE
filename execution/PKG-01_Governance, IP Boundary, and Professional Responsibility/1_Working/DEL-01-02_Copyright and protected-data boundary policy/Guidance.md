@@ -15,7 +15,7 @@ The policy exists to protect standards-body and vendor intellectual property whi
 
 ## Considerations
 
-The existing draft `docs/IP_AND_DATA_BOUNDARY.md` already provides useful categories for allowed public content, prohibited public content, provenance fields, quarantine behavior, private user data, and reports. A future repo-level update should keep those categories but may need human decisions for exact quarantine storage path, contributor certification wording, license status vocabulary, reviewer roles, and escalation owner.
+The existing draft `docs/IP_AND_DATA_BOUNDARY.md` provides categories for allowed public content, prohibited public content, provenance fields, quarantine behavior, private user data, reports, and the contribution review checklist. The draft `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` provides the current checklist surface. Later governance work may still need human decisions for final legal mechanism, license status vocabulary, reviewer roles, and escalation owner.
 
 Architecture-basis items AB-00-01, AB-00-02, AB-00-06, and AB-00-08 matter as downstream constraints: protected-content and provenance gates should be testable, diagnostics should include `IP_BOUNDARY_WARNING` where implementation later touches contribution/report flows, and adapters/plugins should not bypass provenance or data-boundary controls. This document does not implement those controls.
 
@@ -38,6 +38,6 @@ Architecture-basis items AB-00-01, AB-00-02, AB-00-06, and AB-00-08 matter as do
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| C-001 | Exact quarantine storage path is required operationally but not specified in the accessible governance sources. | docs/IP_AND_DATA_BOUNDARY.md §5 | docs/CONTRACT.md OPS-K-IP-3 | Procedure §Steps; Specification R3 | Human project authority should define a private/quarantine path outside public examples. | TBD |
+| C-001 | Exact quarantine storage path is now specified as `quarantine/protected-content/` or maintainer-approved equivalent, but no maintainer-approved alternative path or owner is assigned. | docs/IP_AND_DATA_BOUNDARY.md §5 | governance/CONTRIBUTION_REVIEW_CHECKLIST.md §8 | Procedure §Steps; Specification R3 | Treat `quarantine/protected-content/` as the default unless a maintainer-approved equivalent is recorded. | TBD |
 | C-002 | Contributor certification mechanism is required by policy intent but exact wording/mechanism remains unresolved. | docs/CONTRACT.md OPS-K-IP-2 | docs/DIRECTIVE.md §6 | Specification R2; Procedure checklist | Human/legal review should approve final attestation language. | TBD |
-| C-003 | Final contribution checklist path and reviewer role are needed for execution but are not assigned by the sealed setup context. | _CONTEXT.md §Anticipated Artifacts | docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Specification R11; Procedure §Prerequisites | Human project authority should assign the owning governance surface and reviewer role. | TBD |
+| C-003 | The contribution checklist path exists, but reviewer role and final governance/legal mechanism remain unresolved. | docs/IP_AND_DATA_BOUNDARY.md §8; governance/CONTRIBUTION_REVIEW_CHECKLIST.md | docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Specification R11; Procedure §Prerequisites | Human project authority should assign reviewer role and final governance/legal mechanism. | TBD |

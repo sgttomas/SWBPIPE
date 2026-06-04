@@ -60,7 +60,7 @@ Deferred boundaries:
 
 - Human-approved tranche refreshed DEL-01-01 from older setup-kit framing to
   current project basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision
-  `0.7` and approved `DAG-005`.
+  `0.7` and approved `DAG-006`.
 - Updated deliverable-local governance docs plus `docs/README.md` and
   `governance/MAINTAINERS.md` under explicit write scope.
 - Preserved unresolved governance decisions as `TBD`: license, maintainer
@@ -68,7 +68,7 @@ Deferred boundaries:
   signing/provenance process, security contact, legal review process, release
   maturity labels, validation wording, governance acceptance record format, and
   human project authority record.
-- Validation passed: status helper for `DAG-005`, `Dependencies.csv` schema
+- Validation passed: status helper for `DAG-006`, `Dependencies.csv` schema
   validation, `git diff --check`, and manual claim scan.
 - Boundary preserved: no lifecycle change, DAG edit, candidate promotion,
   release or acceptance record, legal conclusion, professional approval,

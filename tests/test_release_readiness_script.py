@@ -28,7 +28,7 @@ def test_latest_dag_dependency_edges_uses_approved_graph_pointer():
     release = load_module()
     assert (
         release.latest_dag_dependency_edges(ROOT)
-        == Path("execution/_DAG/DAG-005/DependencyEdges.csv")
+        == Path("execution/_DAG/DAG-006/DependencyEdges.csv")
     )
 
 
@@ -47,7 +47,7 @@ def test_skeleton_plan_uses_local_commands_only():
     commands = [" ".join(step.command) for step in steps]
 
     assert any(
-        "validate_dependencies_schema.py execution/_DAG/DAG-005/DependencyEdges.csv"
+        "validate_dependencies_schema.py execution/_DAG/DAG-006/DependencyEdges.csv"
         in command
         for command in commands
     )

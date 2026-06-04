@@ -8,7 +8,7 @@
 - **Refreshed:** 2026-05-10
 
 ## Authority Boundary
-- Aggregate `DAG-005` is the approved active graph authority within its approval boundary.
+- Aggregate `DAG-006` is the approved active graph authority within its approval boundary.
 - This local register is refreshed dependency evidence for deliverable-local context, not independent aggregate graph authority.
 - `CANDIDATE` rows remain non-gating unless later promoted by explicit human gate and graph revalidation.
 - `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers in TP-DAG-004.
@@ -57,5 +57,5 @@
 ## Downstream Handoff Notes
 
 - This refresh is suitable as DEL-local evidence for later coordination or review.
-- The refreshed rows do not edit `DAG-005`, promote candidate edges, change lifecycle state, or authorize release acceptance.
-- Later reconciliation should compare these local anchor/document/prerequisite rows against `DAG-005` without silently promoting non-gating evidence into aggregate graph authority.
+- The refreshed rows do not edit `DAG-006`, promote candidate edges, change lifecycle state, or authorize release acceptance.
+- Later reconciliation should compare these local anchor/document/prerequisite rows against `DAG-006` without silently promoting non-gating evidence into aggregate graph authority.

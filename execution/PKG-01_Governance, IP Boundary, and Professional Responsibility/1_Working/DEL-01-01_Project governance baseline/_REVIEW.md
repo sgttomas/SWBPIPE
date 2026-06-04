@@ -30,7 +30,7 @@ The review brief listed ScopeLedger rows `SOW-001`, `SOW-002`, `SOW-003`, and `S
 | AP-004 | Deliverable `_CONTEXT.md` | PASS | Present. |
 | AP-005 | Deliverable `_STATUS.md` | PASS | Present; lifecycle state is governed by `_STATUS.md`. This review and later current-basis refresh did not change lifecycle state. |
 | AP-006 | Deliverable `_REFERENCES.md` | PASS_AFTER_RECHECK | Present; RF-001 was rechecked fixed in the original review, and later current-basis refresh updated `_REFERENCES.md` to accepted revision 0.7. |
-| AP-007 | Deliverable `_DEPENDENCIES.md` | PASS | Present; local dependency evidence is refreshed from local evidence and remains non-authoritative relative to aggregate `DAG-005`. |
+| AP-007 | Deliverable `_DEPENDENCIES.md` | PASS | Present; local dependency evidence is refreshed from local evidence and remains non-authoritative relative to aggregate `DAG-006`. |
 
 ## 3. Scope and objective coverage
 

@@ -11,15 +11,15 @@
 | Type | DOC_UPDATE |
 | Objective | OBJ-002 |
 | Scope Items | SOW-028, SOW-048 |
-| Source basis | `_CONTEXT.md`; `docs/_Decomposition/SOFTWARE_DECOMP.md`; `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md`; `docs/SPEC.md`; register rows for DEL-01-03, SOW-028, SOW-048 |
+| Source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved `DAG-006`; `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md`; `docs/SPEC.md`; register rows for DEL-01-03, SOW-028, SOW-048 |
 
 ## Attributes
 
 | Attribute | Value | Source |
 |---|---|---|
 | Workflow purpose | Define contributor attestations, provenance fields, review routing, and rejection rules for public data contributions. | `_CONTEXT.md` Description |
-| Anticipated repo artifacts | `CONTRIBUTING.md` section; contributor certification template. | `_CONTEXT.md` Anticipated Artifacts |
-| Local artifact boundary | This deliverable drafts the workflow kit only; repo-level artifacts are not edited in this setup run. | Sealed brief |
+| Anticipated repo artifacts | `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist as draft repo-level governance artifacts. | `_CONTEXT.md` Anticipated Artifacts; `CONTRIBUTING.md`; `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` |
+| Local artifact boundary | This current-basis refresh updates the DEL-01-03 local kit only; repo-level artifacts are read as evidence and remain draft governance surfaces. | Approved tranche `TP-DEL-01-03-CURRENT-BASIS-REFRESH-001` |
 | License decision | TBD. The project intends to be free/open-source, but exact license remains a human project authority decision. | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
 | Maintainer/release authority | TBD until recorded in public governance artifacts. | `docs/CONTRACT.md` OPS-K-GOV-2 |
 | Public contribution review gate | Source, provenance, redistribution rights, protected-content risk, private-data risk, and test evidence must be checked before merge. | `docs/DIRECTIVE.md` section 6; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 5 |
@@ -49,7 +49,7 @@
 | protected_content_screen | Required | Records whether protected standards text/tables/figures/examples, copied formulas, protected dimensional tables, or proprietary catalog data appear suspected. |
 | private_data_screen | Required | Records whether user-private project, owner, rule-pack, material, or component data is present. |
 | review_status | Required | `pending`, `accepted`, `rejected`, or `quarantined`. |
-| reviewer | Required at disposition | Maintainer/reviewer identity; authority model remains `TBD`. |
+| reviewer | Required at disposition | Maintainer/reviewer identity; final role assignment remains `TBD`. |
 | disposition_notes | Required at disposition | Short rationale and links to evidence, issue, or quarantine record. |
 
 ### Review Routing States
@@ -69,5 +69,7 @@
 - `docs/CONTRACT.md` invariant index.
 - `docs/DIRECTIVE.md` sections 5-6.
 - `docs/SPEC.md` sections 6, 8, 10-11.
-- `docs/_Decomposition/SOFTWARE_DECOMP.md` revision 0.4 rows DEL-01-03, SOW-028, SOW-048, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows DEL-01-03, SOW-028, SOW-048, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
+- `execution/_DAG/DAG-006/` approved active graph authority.
+- `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` draft repo-level contributor workflow artifacts.
 - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, `ContextBudgetQA.csv` rows named in `_CONTEXT.md`.

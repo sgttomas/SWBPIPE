@@ -10,7 +10,7 @@ This workflow exists to make public contribution intake auditable before data en
 2. Stop on protected-content risk: suspected standards text, tables, figures, examples, code-derived formulas, protected dimensional tables, proprietary catalogs, or private project/rule-pack data are blockers, not cleanup tasks.
 3. Human authority remains external: maintainers can review repository governance acceptance, but this workflow does not create legal clearance or professional engineering approval.
 4. `TBD` is safer than invention: unresolved license, legal, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority.
-5. Local draft only: this setup deliverable describes the future `CONTRIBUTING.md` section and certification template without editing repo-level policy files.
+5. Local evidence first: this current-basis refresh reads the existing draft `CONTRIBUTING.md` section and certification template as evidence without editing repo-level policy files.
 
 ## Considerations
 
@@ -50,8 +50,8 @@ Limits: Repository governance review only; no engineering approval or legal conc
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| C-001 | Exact open-source license and contributor legal mechanism are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6 | Specification Standards; Procedure Records | Human project authority decides before repo-level policy issuance. | TBD |
-| C-002 | Legal review threshold for accepting public component/material data is unresolved. | SOFTWARE_DECOMP OI-003 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
+| C-001 | Exact open-source license and final contributor legal mechanism are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Human project authority decides before final policy issuance. | TBD |
+| C-002 | Legal review threshold and reviewer role for accepting public component/material data remain unresolved. | `governance/MAINTAINERS.md` section 6 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
 
 ## Human Rulings Needed
 

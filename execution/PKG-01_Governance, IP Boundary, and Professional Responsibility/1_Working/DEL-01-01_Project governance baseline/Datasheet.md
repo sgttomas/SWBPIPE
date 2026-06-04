@@ -13,7 +13,7 @@
 | Objectives | OBJ-001, OBJ-002 |
 | Context Envelope | M |
 | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
-| Coordination Basis | execution/_DAG/DAG-005/ approved active graph authority |
+| Coordination Basis | execution/_DAG/DAG-006/ approved active graph authority |
 | Status | IN_PROGRESS governance baseline refresh |
 
 ## Attributes
@@ -70,7 +70,7 @@ The baseline is constructed from:
 - `_CONTEXT.md`
 - `_REFERENCES.md`
 - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-- `execution/_DAG/DAG-005/`
+- `execution/_DAG/DAG-006/`
 - `docs/_Registers/Deliverables.csv`
 - `docs/_Registers/ScopeLedger.csv`
 - `docs/_Registers/ContextBudgetQA.csv`

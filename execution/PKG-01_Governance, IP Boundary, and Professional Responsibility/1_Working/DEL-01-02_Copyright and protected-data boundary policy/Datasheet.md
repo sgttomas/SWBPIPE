@@ -12,15 +12,16 @@
 | Scope items | SOW-003, SOW-028 |
 | Objective | OBJ-002 |
 | Anticipated repo-level artifacts | docs/IP_AND_DATA_BOUNDARY.md; contribution review checklist |
-| Local artifact role | Deliverable-local setup kit only; does not edit repo-level policy files |
+| Repo-level artifact status | `docs/IP_AND_DATA_BOUNDARY.md` and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` exist as draft governance artifacts |
+| Local artifact role | Deliverable-local evidence and review kit for the protected-data boundary policy |
 | Lifecycle authority | Draft/proposal until accepted by human gate |
 
 ## Attributes
 
 | Attribute | Value | Source |
 |---|---|---|
-| Primary boundary | Public repository must not redistribute protected standards/code/vendor data | docs/_Decomposition/SOFTWARE_DECOMP.md §Scope Ledger; docs/CONTRACT.md §1 |
-| Contributor governance need | Repository must include IP controls and review procedures | docs/_Decomposition/SOFTWARE_DECOMP.md §Scope Ledger; docs/CONTRACT.md §1 |
+| Primary boundary | Public repository must not redistribute protected standards/code/vendor data | execution/_Decomposition/SOFTWARE_DECOMP.md §Scope of Work; docs/CONTRACT.md §1 |
+| Contributor governance need | Repository must include IP controls and review procedures | execution/_Decomposition/SOFTWARE_DECOMP.md §Scope of Work; docs/CONTRACT.md §1 |
 | Quarantine posture | Stop ingestion, mark suspected protected content, quarantine outside public examples, record issue, request human/legal review | docs/IP_AND_DATA_BOUNDARY.md §5 |
 | Public data prerequisites | Source, provenance, license or redistribution status, contributor certification, and review disposition | docs/CONTRACT.md §1; docs/IP_AND_DATA_BOUNDARY.md §4 |
 | Legal conclusion authority | Human/legal review required; this deliverable is not a legal opinion | docs/_Registers/ContextBudgetQA.csv row DEL-01-02; docs/README.md §Status |
@@ -44,13 +45,14 @@ The intended repo-level policy artifact should be constructed from:
 
 ## References
 
-- INIT.md — bootstrap boundary rules and required reading order.
 - AGENTS.md — OpenPipeStress agent index and Type 2 dispatch rule.
 - docs/DIRECTIVE.md — founding intent, public/private boundary, stop rules.
 - docs/CONTRACT.md — invariant catalog.
 - docs/TYPES.md — canonical vocabulary and provenance labels.
 - docs/SPEC.md — technical implementation context, reports, rule packs, and warning classes.
-- docs/IP_AND_DATA_BOUNDARY.md — existing draft policy source, read-only for this setup deliverable.
+- docs/IP_AND_DATA_BOUNDARY.md — draft repo-level policy artifact.
+- governance/CONTRIBUTION_REVIEW_CHECKLIST.md — draft repo-level contribution review checklist.
 - docs/AGENTIC_DEVELOPMENT_WORKFLOW.md — Type 2 execution and review expectations.
-- docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 — DEL-01-02, SOW-003, SOW-028, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
+- execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 — DEL-01-02, SOW-003, SOW-028, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
+- execution/_DAG/DAG-006/ — approved active graph authority.
 - docs/_Registers/Deliverables.csv, ScopeLedger.csv, ContextBudgetQA.csv — register evidence.

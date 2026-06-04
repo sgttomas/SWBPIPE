@@ -9,7 +9,7 @@ governance baseline artifacts and authorized visible governance surfaces.
 
 - Sealed DEL-01-01 brief and write scope.
 - `_CONTEXT.md`, `_REFERENCES.md`, current decomposition revision `0.7`,
-  approved `DAG-005`, and register rows for DEL-01-01.
+  approved `DAG-006`, and register rows for DEL-01-01.
 - Access to `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, and `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`.
 - No protected standards/code data or proprietary contribution data.
 

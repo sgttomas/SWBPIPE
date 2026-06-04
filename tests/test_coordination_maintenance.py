@@ -44,18 +44,18 @@ def write_status(root: Path, package: str, folder: str, state: str) -> Path:
 
 
 def write_fixture_repo(root: Path) -> None:
-    (root / "execution/_DAG/DAG-005").mkdir(parents=True)
+    (root / "execution/_DAG/DAG-006").mkdir(parents=True)
     (root / "execution/_DAG/_LATEST.md").write_text(
-        "- Approved graph authority: `execution/_DAG/DAG-005/`\n",
+        "- Approved graph authority: `execution/_DAG/DAG-006/`\n",
         encoding="utf-8",
     )
-    (root / "execution/_DAG/DAG-005/DeliverableNodes.csv").write_text(
+    (root / "execution/_DAG/DAG-006/DeliverableNodes.csv").write_text(
         "\n".join(
             [
-                "NodeID,PackageID,DeliverableID,DeliverableName,DeliverableType,ScopeItems,Objectives,ContextEnvelope,LifecycleState,ExecutionPath,ContextPath,DependenciesPath,HasFourDocumentKit,HasSemanticMatrix,HasSemanticLensing,HasReview,SourceRegister,Notes",
-                "DEL-00-01,PKG-00,DEL-00-01,Architecture baseline,DOC,SOW,OBJ,M,SEMANTIC_READY,execution/PKG-00_Runway/1_Working/DEL-00-01_Architecture baseline,context,deps,TRUE,TRUE,TRUE,FALSE,register,",
-                "DEL-01-01,PKG-01,DEL-01-01,Governance,DOC,SOW,OBJ,M,IN_PROGRESS,execution/PKG-01_Governance/1_Working/DEL-01-01_Governance,context,deps,TRUE,TRUE,TRUE,FALSE,register,",
-                "DEL-02-01,PKG-02,DEL-02-01,Domain schema,DOC,SOW,OBJ,M,CHECKING,execution/PKG-02_Domain/1_Working/DEL-02-01_Domain schema,context,deps,TRUE,TRUE,TRUE,FALSE,register,",
+                "NodeID,PackageID,DeliverableID,DeliverableName,DeliverableType,ScopeItems,Objectives,ContextEnvelope,ExecutionPath,ContextPath,DependenciesPath,HasFourDocumentKit,HasSemanticMatrix,HasSemanticLensing,HasReview,SourceRegister,Notes",
+                "DEL-00-01,PKG-00,DEL-00-01,Architecture baseline,DOC,SOW,OBJ,M,execution/PKG-00_Runway/1_Working/DEL-00-01_Architecture baseline,context,deps,TRUE,TRUE,TRUE,FALSE,register,",
+                "DEL-01-01,PKG-01,DEL-01-01,Governance,DOC,SOW,OBJ,M,execution/PKG-01_Governance/1_Working/DEL-01-01_Governance,context,deps,TRUE,TRUE,TRUE,FALSE,register,",
+                "DEL-02-01,PKG-02,DEL-02-01,Domain schema,DOC,SOW,OBJ,M,execution/PKG-02_Domain/1_Working/DEL-02-01_Domain schema,context,deps,TRUE,TRUE,TRUE,FALSE,register,",
             ]
         )
         + "\n",
@@ -71,12 +71,12 @@ def test_discovers_local_status_and_dag_context(tmp_path):
     write_fixture_repo(tmp_path)
 
     discovered = tool.discover_statuses(tmp_path)
-    output_rows = tool.rows(tmp_path, "DAG-005", discovered)
+    output_rows = tool.rows(tmp_path, "DAG-006", discovered)
 
     by_id = {row["DeliverableID"]: row for row in output_rows}
     assert set(by_id) == {"DEL-00-01", "DEL-01-01", "DEL-02-01"}
     assert by_id["DEL-01-01"]["LocalStatus"] == "IN_PROGRESS"
-    assert by_id["DEL-02-01"]["DAGStatusMatchesLocal"] == "TRUE"
+    assert by_id["DEL-02-01"]["DAGNodePresent"] == "TRUE"
     assert by_id["DEL-00-01"]["StatusVocabulary"] == "NONSTANDARD_TOLERATED"
 
 
@@ -84,7 +84,7 @@ def test_filters_statuses_without_hiding_inventory_by_default(tmp_path):
     tool = load_module()
     write_fixture_repo(tmp_path)
 
-    output_rows = tool.rows(tmp_path, "DAG-005", tool.discover_statuses(tmp_path))
+    output_rows = tool.rows(tmp_path, "DAG-006", tool.discover_statuses(tmp_path))
     filtered = tool.filter_rows(output_rows, {"IN_PROGRESS"}, exclude_issued=False)
 
     assert len(output_rows) == 3
@@ -98,7 +98,7 @@ def test_live_status_discovery_command_passes():
             sys.executable,
             "tools/coordination/list_deliverable_status.py",
             "--dag",
-            "DAG-005",
+            "DAG-006",
             "--format",
             "csv",
             "--summary",
