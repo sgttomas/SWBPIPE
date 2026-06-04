@@ -59,7 +59,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| A-001 | A:[normative]:[judging] | VerificationGap | Specification | Specification | Add acceptance criteria for the exact prohibited-claim wording before repo-level policy issuance. | The requirement prohibits certification/approval/compliance claims, but exact future repo-level wording remains outside this local setup artifact. | Specification.md | Requirements; Verification |  | PROPOSAL | TBD |
+| A-001 | A:[normative]:[judging] | VerificationGap | Specification | Specification | Keep acceptance criteria for prohibited-claim wording before repo-level policy issuance. | The requirement prohibits certification/approval/compliance claims, and existing repo-level draft text still requires human-gated acceptance before issued policy status. | Specification.md | Requirements; Verification |  | PROPOSAL | TBD |
 
 ## Matrix B - Conceptualization
 
@@ -127,7 +127,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| F-001 | F:[normative]:[completeness] | MissingSlot | Specification | Specification | Record the final report notice template text once repo-level editing is authorized. | The anticipated report notice template is identified, but this setup task is barred from editing repo-level artifacts. | Specification.md; _CONTEXT.md | Documentation; Anticipated Artifacts |  | PROPOSAL | TBD |
+| F-001 | F:[normative]:[completeness] | MissingSlot | Specification | Specification | Record human acceptance or required revision of `docs/report_notice_template.md` before issuance. | The draft report notice template exists, but final acceptance and jurisdiction-specific wording remain human-gated. | Specification.md; _CONTEXT.md | Documentation; Anticipated Artifacts |  | PROPOSAL | TBD |
 
 ## Matrix D - Objectives
 
@@ -150,7 +150,7 @@
 ### Warranted Items
 | ItemID | LensKey | Type | AppliesToDoc | SuggestedEditDoc | CandidateInfo | WhyWarranted | SourcePath | SectionRef | Contenders | ProposedAuthority (PROPOSAL) | HumanRuling |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| D-001 | D:[normative]:[judging] | MissingSlot | Procedure | Procedure | Add a hash-bound human acceptance record procedure when the acceptance workflow is designed. | The specification requires hash-bound acceptance records if used, but the concrete workflow remains future work. | Specification.md; Procedure.md | Requirements; Steps |  | PROPOSAL | TBD |
+| D-001 | D:[normative]:[judging] | MissingSlot | Procedure | Procedure | Add a hash-bound human acceptance record procedure when the acceptance workflow is designed. | The specification requires hash-bound acceptance records if used, but the concrete storage/invalidation workflow remains future work. | Specification.md; Procedure.md | Requirements; Steps |  | PROPOSAL | TBD |
 
 ## Matrix X - Verification
 

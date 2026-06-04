@@ -15,6 +15,7 @@ The central boundary is: OpenPipeStress may assist analysis, expose evidence, co
 | Preserve human decision rights | A human project authority may accept a development artifact; a competent engineering professional may accept a project calculation. These are different gates. |
 | Make missing data visible | Missing code data, provenance, assumptions, and warnings are findings, not silent defaults. |
 | Keep public examples safe | Public notices and examples use original, invented, or permissively sourced content only. |
+| Keep design-engine claims bounded | The current product scope may describe a design engine and stress-model authoring environment, but that language cannot imply professional approval or code compliance. |
 
 ## Considerations
 
@@ -22,7 +23,7 @@ The central boundary is: OpenPipeStress may assist analysis, expose evidence, co
 - Report notices should be attached to the report output and not hidden only in documentation.
 - A release maturity claim can describe validation evidence and limitations, but it cannot imply approval for a specific piping design.
 - Legal or jurisdiction-specific professional-practice wording is `TBD` until a qualified human authority provides it.
-- Exact repo-level notice wording is `TBD` in this setup artifact. The local kit can state constraints and candidate checks, but it cannot issue project policy.
+- Draft repo-level notice wording exists in `docs/report_notice_template.md`; final acceptance, jurisdiction-specific wording, and release-policy language remain human-gated.
 
 ## Trade-offs
 
@@ -32,7 +33,7 @@ The central boundary is: OpenPipeStress may assist analysis, expose evidence, co
 | Automated report convenience vs. human review | Reports may assemble evidence, but reliance remains a human decision. |
 | User-rule pass/fail vs. code compliance | Treat user-rule pass/fail as a computational result using user-supplied inputs, not a professional compliance declaration. |
 | Draft agent output vs. accepted governance | Treat agent output as draft/proposal until human acceptance. |
-| Local setup text vs. repo-level policy | Keep local setup text as draft evidence until an authorized repo-level edit and human gate accept it. |
+| Draft repo-level policy vs. accepted governance | Treat `docs/PROFESSIONAL_BOUNDARY.md` and `docs/report_notice_template.md` as draft evidence until a human gate accepts or revises them. |
 
 ## Examples
 

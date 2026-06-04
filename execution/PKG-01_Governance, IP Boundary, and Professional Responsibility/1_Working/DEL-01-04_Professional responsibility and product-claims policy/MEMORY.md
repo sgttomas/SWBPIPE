@@ -83,4 +83,42 @@ Preserved boundaries:
 - This reconciliation makes no code, schema, test, specification, procedure,
   dependency, aggregate DAG, blocker queue, evidence projection, or dispatch
   edits.
-- No lifecycle promotion is made; `_STATUS.md` remains `CHECKING`.
+- No lifecycle promotion was made by the reconciliation. The later lifecycle
+  correction recorded in `_STATUS.md` reset the current state to
+  `IN_PROGRESS`.
+
+## 2026-06-04 - TP-DEL-01-04-CURRENT-BASIS-REFRESH-001
+
+- Human approved the proposed WORKING_ITEMS tranche to refresh DEL-01-04 to
+  current basis within deliverable-local write scope.
+- Updated active local context, references, datasheet, specification,
+  guidance, procedure, semantic note, semantic-lensing notes, dependency CSV,
+  and dependency summary to align with
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
+  `DAG-006`.
+- Recorded current-basis scope/objective evidence:
+  - `SOW-034` / `OBJ-011` remain the professional-responsibility boundary.
+  - `SOW-064` / `OBJ-018` add the design-engine/product-claims boundary:
+    OpenPipeStress may be framed as an analysis-grade design engine and
+    stress-model authoring environment only while preserving the
+    non-authoritative professional reliance boundary.
+- Recorded current-basis dependency evidence:
+  - Existing `DAG-002-*` architecture-basis rows were preserved as
+    deliverable-local evidence and not promoted to aggregate authority.
+  - Historical `DAG-002-E0392` remains retired and was not reactivated.
+  - `DEP-DEL-01-04-E003` and `DEP-DEL-01-04-E004` now record the existing
+    draft repo-level artifacts `docs/PROFESSIONAL_BOUNDARY.md` and
+    `docs/report_notice_template.md` as satisfied handoff evidence.
+  - `DEP-DEL-01-04-E006` and `DEP-DEL-01-04-E007` preserve pending
+    human/legal/professional review and human project-authority acceptance.
+- Preserved unresolved decisions as `TBD`: jurisdiction-specific
+  professional-practice wording, exact human-acceptance record
+  storage/invalidation workflow, release-label vocabulary, final release policy
+  language, legal-review authority, and final acceptance or revision of the
+  draft policy/template text.
+- Boundary preserved: no lifecycle state edit, aggregate DAG edit,
+  candidate-edge promotion, repo-level policy/template edit, legal conclusion,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, release claim, or issued-policy claim.
+- Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-04_TP-DEL-01-04-CURRENT-BASIS-REFRESH-001.md`.

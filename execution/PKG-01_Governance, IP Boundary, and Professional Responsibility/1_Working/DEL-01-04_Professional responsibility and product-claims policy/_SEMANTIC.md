@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-30
 **DECOMP_VARIANT:** SOFTWARE
-**Perspective:** This deliverable defines draft policy knowledge for professional-responsibility and product-claims boundaries. It frames software, agents, reports, rule packs, and human acceptance as distinct authority surfaces without deciding engineering compliance or jurisdiction-specific obligations.
+**Perspective:** This deliverable defines draft policy knowledge for professional-responsibility and product-claims boundaries under the current design-engine scope. It frames software, agents, reports, rule packs, design-authoring support, and human acceptance as distinct authority surfaces without deciding engineering compliance or jurisdiction-specific obligations.
 **Framework:** Chirality Semantic Algebra
 **Inputs Read:**
 - _CONTEXT.md - deliverable identity, scope, objective, architecture-basis injection

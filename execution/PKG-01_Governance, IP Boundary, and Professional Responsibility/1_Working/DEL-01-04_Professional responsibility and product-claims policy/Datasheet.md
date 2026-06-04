@@ -9,21 +9,23 @@
 | Package ID | PKG-01 |
 | Package | Governance, IP Boundary, and Professional Responsibility |
 | Type | DOC_UPDATE |
-| Scope Item | SOW-034 |
-| Objective | OBJ-011 |
-| Decomposition Basis | docs/_Decomposition/SOFTWARE_DECOMP.md revision 0.4 |
-| Local Status | Draft setup artifact; not human-issued |
+| Scope Items | SOW-034, SOW-064 |
+| Objectives | OBJ-011, OBJ-018 |
+| Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
+| DAG Context | execution/_DAG/DAG-006/ approved active graph authority |
+| Local Status | IN_PROGRESS; draft governance/report-notice evidence, not issued or professionally accepted |
 
 ## Attributes
 
 | Attribute | Value | Source |
 |---|---|---|
-| Primary purpose | Define permitted/prohibited claims, report disclaimers, and human approval boundaries. | _CONTEXT.md; Deliverables.csv row DEL-01-04 |
+| Primary purpose | Define permitted/prohibited claims, report disclaimers, human approval boundaries, and product-claim boundaries for the design-engine scope. | _CONTEXT.md; Deliverables.csv row DEL-01-04 |
 | Professional boundary | Software and agents do not certify, approve, seal, authenticate, or declare engineering code compliance for reliance. | CONTRACT.md OPS-K-AUTH-1; ScopeLedger.csv SOW-034 |
+| Design-engine scope boundary | OpenPipeStress may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |
 | Solver/rule boundary | The solver computes mechanics; rule packs evaluate user-defined acceptability; professional compliance remains human judgment. | CONTRACT.md OPS-K-MECH-2 |
 | Report boundary | Reports must disclose provenance, warnings, assumptions, limitations, and professional-responsibility notices. | CONTRACT.md OPS-K-REPORT-1; SPEC.md Section 8 |
 | Release boundary | Public releases must disclose scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | CONTRACT.md OPS-K-GOV-3 |
-| Agent authority | Agent outputs are drafts/proposals until accepted by a human gate. | CONTRACT.md OPS-K-AGENT-4; AGENTIC_DEVELOPMENT_WORKFLOW.md |
+| Agent authority | Agent outputs are drafts/proposals until accepted by a human gate. | CONTRACT.md OPS-K-AGENT-4; AGENT_WORKING_ITEMS.md |
 
 ## Conditions
 
@@ -40,9 +42,9 @@
 | Local Artifact | Intended Repo-Level Artifact Discussed | Construction Note |
 |---|---|---|
 | Datasheet.md | docs/PROFESSIONAL_BOUNDARY.md | Structured identity and policy attributes only. |
-| Specification.md | docs/PROFESSIONAL_BOUNDARY.md; report notice template | Normative draft requirements for later repo-level policy work. |
+| Specification.md | docs/PROFESSIONAL_BOUNDARY.md; docs/report_notice_template.md | Normative requirements and acceptance boundaries for draft repo-level policy surfaces. |
 | Guidance.md | docs/PROFESSIONAL_BOUNDARY.md | Rationale and examples for product-claims boundaries. |
-| Procedure.md | report notice template | Operational workflow for drafting/reviewing claims and notices. |
+| Procedure.md | docs/report_notice_template.md | Operational workflow for drafting/reviewing claims and notices. |
 
 ## References
 
@@ -53,9 +55,11 @@
 - docs/CONTRACT.md
 - docs/TYPES.md
 - docs/SPEC.md
-- docs/AGENTIC_DEVELOPMENT_WORKFLOW.md
 - agents/AGENT_PREPARATION.md
-- docs/_Decomposition/SOFTWARE_DECOMP.md
+- execution/_Decomposition/SOFTWARE_DECOMP.md
+- execution/_DAG/DAG-006/
 - docs/_Registers/Deliverables.csv
 - docs/_Registers/ScopeLedger.csv
 - docs/_Registers/ContextBudgetQA.csv
+- docs/PROFESSIONAL_BOUNDARY.md
+- docs/report_notice_template.md

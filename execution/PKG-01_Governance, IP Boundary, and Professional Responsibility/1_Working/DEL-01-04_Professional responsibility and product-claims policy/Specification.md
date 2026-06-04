@@ -2,9 +2,9 @@
 
 ## Scope
 
-This deliverable-local specification defines draft requirements for a future professional-boundary policy and report notice template. It covers product-claims language, software/agent authority limits, report notices, and human approval boundaries for OpenPipeStress.
+This deliverable-local specification defines requirements and acceptance boundaries for the draft professional-boundary policy and report notice template. It covers product-claims language, software/agent authority limits, report notices, and human approval boundaries for OpenPipeStress.
 
-This setup artifact does not edit repo-level policy files, implement product behavior, provide legal advice, certify engineering work, or determine project-specific code compliance.
+This current-basis refresh does not edit repo-level policy files, implement product behavior, provide legal advice, certify engineering work, issue project policy, or determine project-specific code compliance.
 
 ## Requirements
 
@@ -18,7 +18,8 @@ This setup artifact does not edit repo-level policy files, implement product beh
 | DEL-01-04-R06 | Draft and generated outputs shall remain proposals until accepted by a human gate. | OPS-K-AGENT-4; AGENTIC_DEVELOPMENT_WORKFLOW.md | Lifecycle/status language avoids issued/accepted claims unless human approval exists. |
 | DEL-01-04-R07 | Unknown policy choices, legal interpretations, or jurisdiction-specific professional obligations shall be marked `TBD` and escalated for human/legal/professional review. | OPS-K-AGENT-1; DIRECTIVE.md stop rules | Review confirms no legal conclusion is stated as fact. |
 | DEL-01-04-R08 | Public notices and examples shall not reproduce protected standards content or proprietary engineering data. | OPS-K-IP-1; OPS-K-REPORT-2 | Protected-content review gate. |
-| DEL-01-04-R09 | Exact repo-level professional-boundary wording and report notice text shall remain `TBD` until an authorized repo-level task and human review gate approve them. | _CONTEXT.md write-scope limit; OPS-K-AGENT-4 | Review confirms this local kit does not present repo-level text as issued policy. |
+| DEL-01-04-R09 | Repo-level professional-boundary and report-notice text shall remain draft until a human review gate accepts it; local evidence must not present draft text as issued policy. | _CONTEXT.md write-scope limit; OPS-K-AGENT-4 | Review confirms this local kit does not present repo-level text as issued policy. |
+| DEL-01-04-R10 | Product claims may frame OpenPipeStress as an analysis-grade piping design engine and stress-model authoring environment only when they preserve the non-authoritative professional reliance boundary. | SOW-064; OBJ-018; DIRECTIVE.md §1-§3 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance. |
 
 ## Standards
 
@@ -28,6 +29,9 @@ This setup artifact does not edit repo-level policy files, implement product beh
 | docs/DIRECTIVE.md | Founding intent and stop rules, including human authority and data-boundary principles. | Repo-local |
 | docs/TYPES.md | Vocabulary for analysis statuses, epistemic labels, and professional approval. | Repo-local |
 | docs/SPEC.md | Report and architecture requirements that notices must align with. | Repo-local |
+| docs/IP_AND_DATA_BOUNDARY.md | Protected-content and private-data rules that public report notices and claims must preserve. | Repo-local |
+| docs/PROFESSIONAL_BOUNDARY.md | Existing draft professional-boundary policy surface for this deliverable. | Repo-local |
+| docs/report_notice_template.md | Existing draft report notice template surface for this deliverable. | Repo-local |
 | Protected engineering codes/standards | Not a source for this draft unless lawfully available and explicitly authorized; do not reproduce. | TBD |
 
 ## Verification
@@ -43,17 +47,18 @@ This setup artifact does not edit repo-level policy files, implement product beh
 
 ## Documentation
 
-Anticipated repo-level artifacts for a later authorized task:
+Draft repo-level artifacts already present:
 
 - `docs/PROFESSIONAL_BOUNDARY.md`
-- report notice template
+- `docs/report_notice_template.md`
 
-For this setup workflow, those artifacts are discussed only in this deliverable-local kit.
+This refresh records those artifacts as draft evidence only. Final issuance, legal/professional wording, and lifecycle acceptance remain human-gated.
 
 ## Open TBDs
 
 | TBD ID | Item | Resolution Owner |
 |---|---|---|
-| DEL-01-04-TBD-01 | Final text of `docs/PROFESSIONAL_BOUNDARY.md`. | Human project authority after authorized repo-level task |
-| DEL-01-04-TBD-02 | Final report notice template wording. | Human project authority after authorized repo-level task |
+| DEL-01-04-TBD-01 | Final acceptance or revision of `docs/PROFESSIONAL_BOUNDARY.md`. | Human project authority |
+| DEL-01-04-TBD-02 | Final acceptance or revision of `docs/report_notice_template.md`. | Human project authority |
 | DEL-01-04-TBD-03 | Jurisdiction-specific legal/professional-practice language, if any. | Qualified human/legal/professional reviewer |
+| DEL-01-04-TBD-04 | Exact storage and invalidation workflow for hash-bound human acceptance records. | Future persistence/report/governance deliverables |
