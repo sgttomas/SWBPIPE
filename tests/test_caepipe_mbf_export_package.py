@@ -43,6 +43,12 @@ EXPECTED_LOSS_CATEGORIES = {
     "unsupported",
     "tbd",
 }
+EXPECTED_SOURCE_BASIS_REFS = {
+    ("Deliverable", "DEL-17-01"),
+    ("Deliverable", "DEL-17-02"),
+    ("SourceID", "CAEPIPE-IMPORT-MBF"),
+    ("SourceID", "CAEPIPE-EXPORT-MBF"),
+}
 
 FORBIDDEN_PAYLOAD_TEXT = {
     "real client",
@@ -252,12 +258,7 @@ def test_builder_is_deterministic_and_preserves_package_members():
     source_basis_refs = {
         (item["object_type"], item["ref"]) for item in first["export_profile"]["source_basis_refs"]
     }
-    assert source_basis_refs == {
-        ("Deliverable", "DEL-17-01"),
-        ("Deliverable", "DEL-17-02"),
-        ("SourceID", "CAEPIPE-IMPORT-MBF"),
-        ("SourceID", "CAEPIPE-EXPORT-MBF"),
-    }
+    assert source_basis_refs == EXPECTED_SOURCE_BASIS_REFS
     assert ("Deliverable", "DEL-17-03") not in source_basis_refs
     assert first["manifest"]["source_basis_refs"] == first["export_profile"]["source_basis_refs"]
 
@@ -414,6 +415,39 @@ def test_required_profile_tbd_refs_must_be_carried():
     assert package["validation_report"]["validation_status"] == "blocked"
 
 
+def test_required_source_basis_refs_must_be_carried():
+    payload = source_payload()
+    payload["export_profile"] = {
+        "source_basis_refs": [
+            {"object_type": "Deliverable", "ref": "DEL-17-01"},
+            {"object_type": "SourceID", "ref": "CAEPIPE-IMPORT-MBF"},
+        ],
+    }
+
+    package = build_caepipe_mbf_export_package(**payload)
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-SOURCE-BASIS-REFS-MISSING" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_del_17_03_is_not_caepipe_source_basis_authority():
+    payload = source_payload()
+    payload["export_profile"] = {
+        "source_basis_refs": [
+            {"object_type": object_type, "ref": ref}
+            for object_type, ref in sorted(EXPECTED_SOURCE_BASIS_REFS)
+        ]
+        + [{"object_type": "Deliverable", "ref": "DEL-17-03"}],
+    }
+
+    package = build_caepipe_mbf_export_package(**payload)
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-SOURCE-BASIS-REFS-UNSAFE" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
 def test_privacy_and_authority_boundary_diagnostics_block_public_package():
     payload = source_payload()
     model_payload = deepcopy(payload["model_payload"])
@@ -490,6 +524,8 @@ def main():
     test_target_version_basis_must_remain_carried_tbd()
     test_record_subset_basis_must_remain_carried_tbd()
     test_required_profile_tbd_refs_must_be_carried()
+    test_required_source_basis_refs_must_be_carried()
+    test_del_17_03_is_not_caepipe_source_basis_authority()
     test_privacy_and_authority_boundary_diagnostics_block_public_package()
     test_fixture_contains_no_private_or_protected_payload_text()
 

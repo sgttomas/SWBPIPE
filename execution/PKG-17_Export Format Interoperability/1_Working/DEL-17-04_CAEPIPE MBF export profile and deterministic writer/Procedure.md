@@ -20,9 +20,10 @@ Bounded foundation implementation work must:
 3. Emit a loss report for exported, unsupported, omitted, approximated, delegated, and TBD behavior.
 4. Preserve stable IDs through manifest-referenced sidecars unless direct MBF carrying is source-confirmed.
 5. Block blank or unsupported profile-basis values until target version, record subset, and direct stable-ID carrying are closed by admitted source evidence.
-6. Use invented fixtures only.
-7. Avoid CAEPIPE compatibility, release, code-compliance, and professional-acceptance claims.
-8. Keep external execution, CSV parsing, target result interpretation, public API, and GUI integration out of scope unless separately authorized.
+6. Block missing or unsafe profile source-basis refs so DEL-17-01, DEL-17-02, `CAEPIPE-IMPORT-MBF`, and `CAEPIPE-EXPORT-MBF` remain visible, and DEL-17-03 is not treated as CAEPIPE target/source authority.
+7. Use invented fixtures only.
+8. Avoid CAEPIPE compatibility, release, code-compliance, and professional-acceptance claims.
+9. Keep external execution, CSV parsing, target result interpretation, public API, and GUI integration out of scope unless separately authorized.
 
 ## Implementation Readiness Checks
 
@@ -34,8 +35,9 @@ Before a later writer tranche begins, re-read DEL-17-01, DEL-17-02, the admitted
 4. Loss-report coverage for exported, omitted, approximated, delegated, unsupported, and `TBD` behavior.
 5. Blocking versus non-blocking diagnostic classification: unsupported behavior defaults to warning-level evidence unless explicitly blocking, while missing coverage, malformed refs, or `info` severity block.
 6. Profile-basis diagnostics proving target-version, record-subset, and carried-TBD evidence cannot be silently omitted or weakened.
-7. Invented-fixture provenance.
-8. Validation results for the deliverable-local document kit, semantic artifacts, dependency schema, and diff hygiene.
+7. Source-basis diagnostics proving required CAEPIPE source authority cannot be silently omitted or replaced by implementation-pattern evidence.
+8. Invented-fixture provenance.
+9. Validation results for the deliverable-local document kit, semantic artifacts, dependency schema, and diff hygiene.
 
 ## Semantic Enrichment Verification
 

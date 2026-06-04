@@ -28,6 +28,15 @@ REQUIRED_PROFILE_TBD_REFS = {
     RECORD_SUBSET_TBD,
     DIRECT_STABLE_ID_TBD,
 }
+REQUIRED_SOURCE_BASIS_REFS = {
+    ("Deliverable", "DEL-17-01"),
+    ("Deliverable", "DEL-17-02"),
+    ("SourceID", "CAEPIPE-IMPORT-MBF"),
+    ("SourceID", "CAEPIPE-EXPORT-MBF"),
+}
+FORBIDDEN_SOURCE_BASIS_REFS = {
+    ("Deliverable", "DEL-17-03"),
+}
 
 LOSS_CATEGORIES = {
     "exported",
@@ -356,6 +365,32 @@ def diagnostics_for_caepipe_mbf_export_package(
                 "TBD",
                 "CAEPIPE MBF profile does not carry all required open TBD references.",
                 "Carry target version, record subset, and direct stable-ID TBD refs until each is closed by source evidence.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
+    source_basis_refs = {
+        _reference_key(item) for item in _list(export_profile.get("source_basis_refs")) if _is_reference(item)
+    }
+    if REQUIRED_SOURCE_BASIS_REFS - source_basis_refs:
+        diagnostics.append(
+            _diagnostic(
+                "MBF-SOURCE-BASIS-REFS-MISSING",
+                "blocking",
+                "PROVENANCE_WARNING",
+                "CAEPIPE MBF profile does not carry all required source-basis authority references.",
+                "Carry DEL-17-01, DEL-17-02, CAEPIPE-IMPORT-MBF, and CAEPIPE-EXPORT-MBF until a later guarded source-basis update changes this authority set.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
+    forbidden_refs = FORBIDDEN_SOURCE_BASIS_REFS & source_basis_refs
+    if forbidden_refs:
+        diagnostics.append(
+            _diagnostic(
+                "MBF-SOURCE-BASIS-REFS-UNSAFE",
+                "blocking",
+                "PROVENANCE_WARNING",
+                "CAEPIPE MBF profile includes a non-authoritative implementation-pattern deliverable as target/source authority.",
+                "Use DEL-17-03 only as historical implementation-pattern evidence outside CAEPIPE source-basis refs.",
                 [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
             )
         )
