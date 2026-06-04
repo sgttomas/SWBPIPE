@@ -37,3 +37,10 @@
 - Added a stricter admission guardrail requiring target-specific source evidence for any `source_basis_admitted` target beyond package-level contract refs.
 - Added focused regression coverage for contract refs and target-specific admission evidence.
 - Boundary exclusions preserved: no lifecycle promotion, DAG change, runtime loader, public endpoint, compatibility claim, release claim, code-compliance claim, solver-validation claim, or professional-acceptance claim.
+
+## 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001
+
+- Explicit human approval set local `_STATUS.md` to `CHECKING` after formal review fan-in found no blockers for DEL-17-09.
+- Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005/DEV-001 wording is provenance only.
+- Narrowed the review warning to remaining Phase A/historical-context wording; adapter target-support and runtime-loader TBDs remain non-blocking for CHECKING.
+- Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, runtime loader, public endpoint, compatibility claim, release claim, code-compliance claim, solver-validation claim, professional-acceptance claim, or external-validation claim.

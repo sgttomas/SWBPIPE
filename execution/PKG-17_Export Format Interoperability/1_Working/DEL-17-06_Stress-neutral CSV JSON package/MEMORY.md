@@ -38,3 +38,10 @@
 - Added blocking diagnostics when required source-basis references are absent.
 - Refreshed the invented stress-neutral package fixture to carry the required source-basis refs.
 - Boundary exclusions preserved: no lifecycle promotion, DAG change, vendor-format claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, or professional-reliance claim.
+
+## 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001
+
+- Explicit human approval set local `_STATUS.md` to `CHECKING` after formal review fan-in found no blockers for DEL-17-06.
+- Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005/DEV-001 wording is provenance only.
+- Closed the active-surface DAG/DEV authority warning in `Review_Findings.csv`; remaining Phase A wording remains non-blocking for CHECKING.
+- Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, vendor-format claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, professional-reliance claim, or external-validation claim.

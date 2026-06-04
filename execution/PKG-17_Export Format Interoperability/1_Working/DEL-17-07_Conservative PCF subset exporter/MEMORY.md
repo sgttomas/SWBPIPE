@@ -39,3 +39,10 @@
 - Added blocking diagnostics when required PCF profile source-basis references are absent.
 - Added focused regression coverage for required profile refs.
 - Boundary exclusions preserved: no lifecycle promotion, DAG change, PCF completeness claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, or professional-acceptance claim.
+
+## 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001
+
+- Explicit human approval set local `_STATUS.md` to `CHECKING` after formal review fan-in found no blockers for DEL-17-07.
+- Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005/DEV-001 wording is provenance only.
+- Narrowed the review warning to remaining Phase A/historical-context wording; PCF target-support TBDs remain non-blocking for CHECKING.
+- Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, PCF completeness claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, professional-acceptance claim, protected standards content, or external-validation claim.

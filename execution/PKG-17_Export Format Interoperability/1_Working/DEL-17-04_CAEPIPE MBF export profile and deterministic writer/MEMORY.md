@@ -97,3 +97,10 @@
 - Boundary-language scan hits were reviewed as negative guardrail language, schema/property text, historical run evidence, or explicit no-claim boundary wording; no affirmative CAEPIPE compatibility, release, code-compliance, professional-acceptance, protected-content, proprietary-data, or reverse-engineering claim was introduced.
 - Remaining TBDs preserved: CAEPIPE target version/profile, definitive MBF record-family and required-field subset, direct MBF stable-ID carrier, external execution, CSV parsing, runtime/API/GUI integration, lifecycle/acceptance decisions, and target-specific compatibility claims remain future guarded work.
 - Boundary exclusions preserved: no lifecycle status edit, coordination/DAG edit, candidate promotion, dependency authority edit, release claim, CAEPIPE compatibility claim, solver-validation claim, code-compliance claim, professional-acceptance claim, commercial solver behavior, proprietary example, protected standards content, or reverse-engineering.
+
+## 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001
+
+- Explicit human approval set local `_STATUS.md` to `CHECKING` after formal review fan-in found no blockers for DEL-17-04.
+- Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005 wording is provenance only.
+- Closed the DAG-authority review warning in `Review_Findings.csv`; open target-support TBDs remain non-blocking for CHECKING.
+- Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, release claim, target compatibility claim, code-compliance claim, professional-acceptance claim, commercial solver behavior, protected standards content, or external-validation claim.

@@ -38,3 +38,10 @@
 - Added blocking diagnostics when required review-geometry profile source-basis references are absent.
 - Added focused regression coverage for required profile refs.
 - Boundary exclusions preserved: no lifecycle promotion, DAG change, solver-geometry claim, analysis-fidelity claim, target compatibility claim, release claim, code-compliance claim, or professional-acceptance claim.
+
+## 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001
+
+- Explicit human approval set local `_STATUS.md` to `CHECKING` after formal review fan-in found no blockers for DEL-17-08.
+- Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005 wording is provenance only.
+- Closed the active-surface DAG-authority warning in `Review_Findings.csv`; remaining Phase A/future-only wording remains non-blocking for CHECKING.
+- Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, solver-geometry claim, analysis-fidelity claim, target compatibility claim, release claim, code-compliance claim, professional-acceptance claim, or external-validation claim.

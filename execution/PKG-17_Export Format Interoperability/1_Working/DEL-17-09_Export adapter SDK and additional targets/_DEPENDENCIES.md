@@ -12,7 +12,7 @@
 - `DEL-10-02`
 
 ## Declared Downstream Dependencies
-- To be materialized by DAG-005 and later dependency-extract.
+- No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005 extraction wording is superseded by DAG-006 active graph authority.
 
 ## Extracted Dependency Register
 - `Dependencies.csv` was created by TASK + `dependency-extract` after production documents existed.

@@ -3,7 +3,7 @@
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
 - **Graph Authority:** `execution/_DAG/DAG-006/` is the approved active graph authority.
-- **Authority Boundary:** `DAG-005` active edges govern implementation-readiness coordination; candidate rows remain non-gating.
+- **Authority Boundary:** `DAG-006` active edges govern implementation-readiness coordination. Historical `DAG-005` row IDs or notes are provenance only; candidate rows remain non-gating.
 
 ## Declared Upstream Dependencies
 - `DEL-17-02`

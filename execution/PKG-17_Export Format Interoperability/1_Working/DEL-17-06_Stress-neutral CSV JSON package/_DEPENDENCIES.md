@@ -12,7 +12,7 @@
 - `DEL-14-05`
 
 ## Declared Downstream Dependencies
-- To be materialized by DAG-005 and later dependency-extract.
+- No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005 extraction wording is superseded by DAG-006 active graph authority.
 
 ## Extracted Dependency Register
 - Register: `Dependencies.csv`
@@ -51,7 +51,7 @@
 - Existing `Dependencies.csv` was absent at run start, so the register was created.
 - Existing declared upstream list was preserved exactly: `DEL-17-02`, `DEL-08-04`, `DEL-14-02`, `DEL-14-05`.
 - The explicit `DEL-17-01` source-basis prerequisite was added as `Origin=EXTRACTED` from `Procedure.md#Prerequisites`; it was not promoted into the declared dependency list.
-- DAG-005 proposal rows were inspected read-only for context. Proposed architecture-basis edges were not materialized into the local register because the local declared list and four source documents do not declare those targets as execution inputs; `_CONTEXT.md` remains the applicable architecture-basis control surface.
+- Historical DAG-005 proposal rows were inspected read-only for context during the original extraction. Proposed architecture-basis edges were not materialized into the local register because the local declared list and four source documents did not declare those targets as execution inputs; `_CONTEXT.md` remains the applicable architecture-basis control surface under current DAG-006 authority.
 - Tree/DAG integrity: one ACTIVE parent anchor row is present; no `FLOATING_NODE` or `AMBIGUOUS_ANCHOR` warning applies.
 - ID-format validation warning: `tools/validation/validate_id_format.sh` expects three-digit package/deliverable formats such as `PKG-017` and `DEL-017-06`, while this project's accepted registers use canonical IDs such as `PKG-17` and `DEL-17-06`. Canonical project IDs were preserved.
 - No downstream handoff section was added because `CONSUMER_CONTEXT=NONE`.
