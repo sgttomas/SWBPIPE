@@ -56,3 +56,14 @@
 - Validation passed: py_compile for CAEPIPE MBF code/tests; JSON parse checks for schema and fixture; `pytest tests/test_caepipe_mbf_export_package.py` (12 passed); adjacent native JSON and handoff workflow tests (12 passed); four-document, minimum-fileset, dependency-schema, semantic-matrix, and lens-register checks; boundary scan reviewed; targeted `git diff --check` passed.
 - Remaining TBDs preserved: CAEPIPE target version/profile, definitive MBF record-family and required-field subset, direct MBF stable-ID carrier, external execution, CSV parsing, runtime/API/GUI integration, lifecycle/acceptance decisions, and target-specific compatibility claims remain future guarded work.
 - Boundary exclusions preserved: no edits to lifecycle status, coordination/DAG files, PKG-01, release claims, CAEPIPE compatibility claims, solver-validation claims, code-compliance claims, professional-acceptance claims, commercial solver behavior, proprietary examples, protected standards content, or reverse-engineering.
+
+## 2026-06-04 - Profile-basis guardrail tranche
+
+- Implemented DEL-17-04 profile-basis guardrails for the CAEPIPE MBF export foundation.
+- Added blocking diagnostics for blank or weakened target-version basis, record-subset basis, and missing carried TBD references while source-confirmed CAEPIPE version/profile and MBF record-family closure remain unresolved.
+- Tightened `schemas/caepipe_mbf_export.schema.json` so `target_version_basis` and `record_subset_basis` are non-empty and `carried_tbd_refs` must include `TBD-17-01-001`, `TBD-17-01-002`, and `TBD-17-01-003`.
+- Updated focused tests in `tests/test_caepipe_mbf_export_package.py`; the invented fixture still matched the deterministic builder output, so no fixture checksum churn was introduced.
+- Updated `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` to record the profile-basis guardrail without closing CAEPIPE target/version, MBF subset, or direct stable-ID TBDs.
+- Validation passed: py_compile for CAEPIPE MBF code/tests; `pytest tests/test_caepipe_mbf_export_package.py` (15 passed); adjacent native JSON and handoff workflow tests (12 passed); JSON parse checks for schema and fixture; `Dependencies.csv` schema validation; four-document, minimum-fileset, semantic-matrix, and lens-register checks.
+- Remaining TBDs preserved: CAEPIPE target version/profile, definitive MBF record-family and required-field subset, direct MBF stable-ID carrier, external execution, CSV parsing, runtime/API/GUI integration, lifecycle/acceptance decisions, and target-specific compatibility claims remain future guarded work.
+- Boundary exclusions preserved: no lifecycle status edit, coordination/DAG edit, candidate promotion, release claim, CAEPIPE compatibility claim, solver-validation claim, code-compliance claim, professional-acceptance claim, commercial solver behavior, proprietary example, protected standards content, or reverse-engineering.

@@ -20,6 +20,14 @@ from core.handoff.external_prover.authority_boundary import (
 
 
 CAEPIPE_MBF_EXPORT_VERSION = "0.1.0"
+TARGET_VERSION_TBD = "TBD-17-01-001"
+RECORD_SUBSET_TBD = "TBD-17-01-002"
+DIRECT_STABLE_ID_TBD = "TBD-17-01-003"
+REQUIRED_PROFILE_TBD_REFS = {
+    TARGET_VERSION_TBD,
+    RECORD_SUBSET_TBD,
+    DIRECT_STABLE_ID_TBD,
+}
 
 LOSS_CATEGORIES = {
     "exported",
@@ -317,6 +325,40 @@ def diagnostics_for_caepipe_mbf_export_package(
                 [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
             )
         )
+    if str(export_profile.get("target_version_basis", "")).strip() != TARGET_VERSION_TBD:
+        diagnostics.append(
+            _diagnostic(
+                "MBF-TARGET-VERSION-BASIS-UNSAFE",
+                "blocking",
+                "TBD",
+                "CAEPIPE MBF target version basis is not carried as the open source-confirmation TBD.",
+                f"Use {TARGET_VERSION_TBD} until a later guarded tranche admits source-confirmed target-version evidence.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
+    if str(export_profile.get("record_subset_basis", "")).strip() != RECORD_SUBSET_TBD:
+        diagnostics.append(
+            _diagnostic(
+                "MBF-RECORD-SUBSET-BASIS-UNSAFE",
+                "blocking",
+                "TBD",
+                "CAEPIPE MBF record subset basis is not carried as the open source-confirmation TBD.",
+                f"Use {RECORD_SUBSET_TBD} until a later guarded tranche admits source-confirmed record-family evidence.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
+    missing_tbd_refs = REQUIRED_PROFILE_TBD_REFS - set(_list(export_profile.get("carried_tbd_refs")))
+    if missing_tbd_refs:
+        diagnostics.append(
+            _diagnostic(
+                "MBF-CARRIED-TBD-REFS-MISSING",
+                "blocking",
+                "TBD",
+                "CAEPIPE MBF profile does not carry all required open TBD references.",
+                "Carry target version, record subset, and direct stable-ID TBD refs until each is closed by source evidence.",
+                [_ref("ExportProfile", str(export_profile.get("profile_id", "unknown")))],
+            )
+        )
     for entry in loss_report:
         if entry.get("category") not in LOSS_CATEGORIES:
             diagnostics.append(
@@ -450,8 +492,8 @@ def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]
         "profile_id": str(profile.get("profile_id", "ops.caepipe_mbf.smoke_tbd")),
         "profile_version": str(profile.get("profile_version", CAEPIPE_MBF_EXPORT_VERSION)),
         "target_family": "caepipe_mbf",
-        "target_version_basis": str(profile.get("target_version_basis", "TBD-17-01-001")),
-        "record_subset_basis": str(profile.get("record_subset_basis", "TBD-17-01-002")),
+        "target_version_basis": str(profile.get("target_version_basis", TARGET_VERSION_TBD)),
+        "record_subset_basis": str(profile.get("record_subset_basis", RECORD_SUBSET_TBD)),
         "stable_id_policy": "sidecar_mapping_until_direct_mbf_carrier_confirmed",
         "unit_policy": str(profile.get("unit_policy", "explicit_units_record_required")),
         "loss_report_policy": "mandatory_for_every_package",
@@ -475,9 +517,9 @@ def _export_profile(profile: Mapping[str, Any] | None, boundary_notes: list[str]
                 profile.get(
                     "carried_tbd_refs",
                     [
-                        "TBD-17-01-001",
-                        "TBD-17-01-002",
-                        "TBD-17-01-003",
+                        TARGET_VERSION_TBD,
+                        RECORD_SUBSET_TBD,
+                        DIRECT_STABLE_ID_TBD,
                     ],
                 )
             )

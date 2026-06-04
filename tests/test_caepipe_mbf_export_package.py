@@ -240,6 +240,9 @@ def test_builder_is_deterministic_and_preserves_package_members():
     assert first["package_status"] == "caepipe_mbf_export_foundation"
     assert first["export_profile"]["target_family"] == "caepipe_mbf"
     assert first["export_profile"]["target_version_basis"] == "TBD-17-01-001"
+    assert first["export_profile"]["record_subset_basis"] == "TBD-17-01-002"
+    assert "TBD-17-01-001" in first["export_profile"]["carried_tbd_refs"]
+    assert "TBD-17-01-002" in first["export_profile"]["carried_tbd_refs"]
     assert "TBD-17-01-003" in first["export_profile"]["carried_tbd_refs"]
 
     member_roles = {item["member_role"] for item in first["manifest"]["package_members"]}
@@ -360,6 +363,41 @@ def test_unsupported_info_loss_severity_is_blocking():
     assert package["validation_report"]["validation_status"] == "blocked"
 
 
+def test_target_version_basis_must_remain_carried_tbd():
+    payload = source_payload()
+    payload["export_profile"] = {"target_version_basis": ""}
+
+    package = build_caepipe_mbf_export_package(**payload)
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-TARGET-VERSION-BASIS-UNSAFE" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_record_subset_basis_must_remain_carried_tbd():
+    payload = source_payload()
+    payload["export_profile"] = {"record_subset_basis": "unreviewed-first-subset"}
+
+    package = build_caepipe_mbf_export_package(**payload)
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-RECORD-SUBSET-BASIS-UNSAFE" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
+def test_required_profile_tbd_refs_must_be_carried():
+    payload = source_payload()
+    payload["export_profile"] = {
+        "carried_tbd_refs": ["TBD-17-01-001", "TBD-17-01-003"],
+    }
+
+    package = build_caepipe_mbf_export_package(**payload)
+
+    codes = {item["code"] for item in package["diagnostics"]}
+    assert "MBF-CARRIED-TBD-REFS-MISSING" in codes
+    assert package["validation_report"]["validation_status"] == "blocked"
+
+
 def test_privacy_and_authority_boundary_diagnostics_block_public_package():
     payload = source_payload()
     model_payload = deepcopy(payload["model_payload"])
@@ -410,6 +448,9 @@ def main():
     test_unsupported_entities_require_matching_loss_report()
     test_unsupported_warning_or_blocking_loss_classifies_entity()
     test_unsupported_info_loss_severity_is_blocking()
+    test_target_version_basis_must_remain_carried_tbd()
+    test_record_subset_basis_must_remain_carried_tbd()
+    test_required_profile_tbd_refs_must_be_carried()
     test_privacy_and_authority_boundary_diagnostics_block_public_package()
     test_fixture_contains_no_private_or_protected_payload_text()
 

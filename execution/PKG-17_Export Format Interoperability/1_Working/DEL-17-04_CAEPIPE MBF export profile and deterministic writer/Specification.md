@@ -19,6 +19,7 @@ This deliverable's implementation foundation shall remain limited to determinist
 | DEL-17-04-REQ-007 | Later implementation shall use invented fixtures only. |
 | DEL-17-04-REQ-008 | The first implementation foundation shall use sidecar stable-ID mapping while `TBD-17-01-003` remains open. |
 | DEL-17-04-REQ-009 | The first implementation foundation shall expose blocking diagnostics when the invented smoke subset, sidecar stable-ID map, or loss report is missing. |
+| DEL-17-04-REQ-010 | The first implementation foundation shall expose blocking diagnostics when target-version basis, record-subset basis, or carried profile TBD references are missing, blank, or weakened without admitted source-confirmed closure. |
 
 ## Verification Requirements
 
@@ -27,6 +28,7 @@ This deliverable's implementation foundation shall remain limited to determinist
 | Source trace | CAEPIPE-specific statements cite DEL-17-01 source IDs or remain `TBD`. |
 | Boundary trace | No proprietary examples or protected data are introduced. |
 | Loss trace | Unsupported and TBD behavior is visible in the loss-report contract. |
+| Profile-basis trace | Target-version, record-subset, and direct stable-ID uncertainty remain visible through carried TBD refs until source-confirmed closure exists. |
 | Dependency trace | `Dependencies.csv` validates as v3.1. |
 
 ## Acceptance Criteria
@@ -39,6 +41,7 @@ This deliverable's implementation foundation shall remain limited to determinist
 | Stable ID preservation | REQ-005 is accepted only when direct MBF carrying is source-confirmed or the writer uses manifest-referenced sidecar mapping. |
 | Loss category coverage | REQ-004 is accepted only when exported, omitted, approximated, delegated, unsupported, and `TBD` behavior are all visible in the loss report. |
 | Diagnostic classification | `TBD-17-04-004` is addressed for this foundation: malformed unsupported refs, missing unsupported loss coverage, and `info`-severity unsupported losses block; explicit `warning` or `blocking` unsupported losses are accepted as classification evidence. |
+| Profile-basis guardrail | REQ-010 is accepted when diagnostics block blank or unsupported `target_version_basis`, `record_subset_basis`, or carried-TBD evidence while the foundation remains source-bounded. |
 | Fixture provenance | REQ-007 is accepted only with invented fixtures and no vendor, proprietary, protected, or owner/project examples. |
 | Foundation implementation | REQ-008 and REQ-009 are accepted when schema, builder, fixture, and tests demonstrate sidecar-first IDs, deterministic MBF text, and blocking diagnostics for incomplete packages. |
 

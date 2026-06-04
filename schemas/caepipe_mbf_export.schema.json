@@ -239,10 +239,12 @@
           "const": "caepipe_mbf"
         },
         "target_version_basis": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "record_subset_basis": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "stable_id_policy": {
           "const": "sidecar_mapping_until_direct_mbf_carrier_confirmed"
@@ -265,9 +267,25 @@
         },
         "carried_tbd_refs": {
           "type": "array",
-          "contains": {
-            "const": "TBD-17-01-003"
-          },
+          "minItems": 3,
+          "uniqueItems": true,
+          "allOf": [
+            {
+              "contains": {
+                "const": "TBD-17-01-001"
+              }
+            },
+            {
+              "contains": {
+                "const": "TBD-17-01-002"
+              }
+            },
+            {
+              "contains": {
+                "const": "TBD-17-01-003"
+              }
+            }
+          ],
           "items": {
             "type": "string"
           }

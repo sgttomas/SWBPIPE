@@ -33,6 +33,7 @@ The implementation foundation emits a deliberately narrow invented smoke subset,
 | Target family | CAEPIPE MBF profile. |
 | Target version basis | `TBD` until source-confirmed. |
 | Record-family subset | `TBD` until downstream source review and/or vendor clarification closes it. |
+| Profile-basis guardrail | The implementation foundation blocks blank or unsupported target-version and record-subset basis values; until source-confirmed closure exists, the profile must carry `TBD-17-01-001`, `TBD-17-01-002`, and `TBD-17-01-003`. |
 | Stable ID strategy | Direct MBF carrying remains `TBD`; the implementation foundation uses manifest-referenced sidecar mapping as the conservative default. |
 | Source basis trace | Each CAEPIPE-specific requirement must map to DEL-17-01, DEL-17-02, a public MBF source, or an explicit `TBD`. |
 | Loss reporting | Required for exported, omitted, approximated, delegated, unsupported, and TBD behavior. |
@@ -45,3 +46,4 @@ The implementation foundation emits a deliberately narrow invented smoke subset,
 - No reverse-engineered behavior or license-bypass workflow is introduced.
 - No protected standards values, material allowables, SIF/flexibility values, or owner criteria are introduced.
 - MBF export work remains a source-bounded foundation until a later tranche closes target version/profile and record-family coverage.
+- Guardrail diagnostics preserve source uncertainty; they do not close CAEPIPE version/profile, record-family coverage, direct stable-ID carrying, compatibility, or professional reliance.

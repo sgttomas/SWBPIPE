@@ -6,6 +6,8 @@ Treat CAEPIPE MBF as a narrow, source-confirmed target profile. The purpose is n
 
 The safe posture is conservative: if a record family, required field, stable ID carrier, option, or target behavior is not confirmed by admitted source evidence, mark it `TBD` and require a loss-report or profile diagnostic. The first implementation foundation therefore uses sidecar stable-ID mapping and carries direct MBF ID carrying as `TBD-17-01-003`.
 
+Profile-basis fields are guardrails, not target-support claims. Until later source-confirmed closure exists, blank values or informal target-version/record-subset labels should block the package because they would make unresolved CAEPIPE scope look settled.
+
 ## Interpretation Guidance
 
 - Use DEL-17-01 for CAEPIPE source facts and unanswered questions.
@@ -39,5 +41,7 @@ The first implementation foundation should remain sidecar-first and loss-report-
 - deterministic text output is acceptable only for the invented smoke subset;
 - every canonical identity must appear in a sidecar mapping or an explicit loss entry;
 - every unsupported entity must be a stable reference and must have an explicit unsupported loss entry;
+- target-version, record-subset, and direct stable-ID uncertainty must remain carried as `TBD-17-01-001`, `TBD-17-01-002`, and `TBD-17-01-003`;
 - missing smoke-subset inputs, sidecar IDs, or loss reports should block the package;
+- missing, blank, or weakened profile-basis evidence should block the package;
 - external execution, CSV parsing, target result interpretation, and target code/check logic remain out of scope.
