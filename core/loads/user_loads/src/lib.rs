@@ -357,6 +357,12 @@ impl ResultRecoveryHook {
                     actual: CanonicalSchemaBinding::ModelLoadRecord,
                 })
             }
+            CanonicalSchemaBinding::ModelLoadCase => {
+                Err(BoundaryMetadataError::SchemaBindingMismatch {
+                    expected: CanonicalSchemaBinding::ModelResultValue,
+                    actual: CanonicalSchemaBinding::ModelLoadCase,
+                })
+            }
         }
     }
 }
@@ -1306,6 +1312,36 @@ mod tests {
             BoundaryMetadataError::SchemaBindingMismatch {
                 expected: CanonicalSchemaBinding::ModelResultValue,
                 actual: CanonicalSchemaBinding::ModelLoadRecord,
+            }
+        );
+    }
+
+    #[test]
+    fn recovery_hook_boundary_record_rejects_load_case_binding() {
+        let load = UserLoad::concentrated_force(
+            "user-fx",
+            0,
+            UserLoadDirection::GlobalX,
+            q(10.0, LoadDimension::Force),
+        );
+        let prepared = apply_user_loads(1, 0, &[load]);
+
+        let err = prepared.recovery_hooks[0]
+            .to_result_boundary_record(
+                10.0,
+                boundary_ref(CanonicalSchemaBinding::ModelLoadCase, "load-case:LC-1"),
+                unit(
+                    "N",
+                    open_pipe_stress_primitive_loads::CanonicalDimension::Force,
+                ),
+            )
+            .unwrap_err();
+
+        assert_eq!(
+            err,
+            BoundaryMetadataError::SchemaBindingMismatch {
+                expected: CanonicalSchemaBinding::ModelResultValue,
+                actual: CanonicalSchemaBinding::ModelLoadCase,
             }
         );
     }

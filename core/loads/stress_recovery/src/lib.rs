@@ -808,7 +808,7 @@ fn require_result_schema_binding(
     match actual {
         CanonicalSchemaBinding::ModelResultValue
         | CanonicalSchemaBinding::ResultsQuantityResult => Ok(()),
-        CanonicalSchemaBinding::ModelLoadRecord => {
+        CanonicalSchemaBinding::ModelLoadCase | CanonicalSchemaBinding::ModelLoadRecord => {
             Err(BoundaryMetadataError::SchemaBindingMismatch {
                 expected: CanonicalSchemaBinding::ModelResultValue,
                 actual,
@@ -1176,6 +1176,29 @@ mod tests {
         assert!(record
             .round_trip_key()
             .contains("payload_hash_ref=hash:result-envelope"));
+    }
+
+    #[test]
+    fn stress_component_boundary_record_rejects_load_case_schema_binding() {
+        let result = recover_stresses_with_unit_metadata(&complete_input(), &complete_units());
+
+        let err = result
+            .components
+            .to_result_boundary_record(
+                StressComponentKind::AxialNormal,
+                boundary_ref(CanonicalSchemaBinding::ModelLoadCase),
+                unit("Pa", CanonicalDimension::Stress),
+                "provenance:stress",
+            )
+            .unwrap_err();
+
+        assert_eq!(
+            err,
+            BoundaryMetadataError::SchemaBindingMismatch {
+                expected: CanonicalSchemaBinding::ModelResultValue,
+                actual: CanonicalSchemaBinding::ModelLoadCase,
+            }
+        );
     }
 
     #[test]

@@ -194,7 +194,7 @@ fn require_result_schema_binding(
     match actual {
         CanonicalSchemaBinding::ModelResultValue
         | CanonicalSchemaBinding::ResultsQuantityResult => Ok(()),
-        CanonicalSchemaBinding::ModelLoadRecord => {
+        CanonicalSchemaBinding::ModelLoadCase | CanonicalSchemaBinding::ModelLoadRecord => {
             Err(BoundaryMetadataError::SchemaBindingMismatch {
                 expected: CanonicalSchemaBinding::ModelResultValue,
                 actual,
@@ -633,6 +633,30 @@ mod tests {
             BoundaryMetadataError::SchemaBindingMismatch {
                 expected: CanonicalSchemaBinding::ModelResultValue,
                 actual: CanonicalSchemaBinding::ModelLoadRecord,
+            }
+        );
+    }
+
+    #[test]
+    fn algebra_result_boundary_rejects_load_case_schema_binding() {
+        let operands = vec![operand("sustain", "sustain", 10.0, LoadDimension::Force)];
+        let terms = vec![CombinationTerm::new("sustain", 1.0).unwrap()];
+        let result =
+            evaluate_expression(&operands, &AlgebraExpression::LinearCombination { terms });
+
+        let err = result
+            .to_result_boundary_record(
+                boundary_ref(CanonicalSchemaBinding::ModelLoadCase),
+                force_unit(),
+                "provenance:algebra",
+            )
+            .unwrap_err();
+
+        assert_eq!(
+            err,
+            BoundaryMetadataError::SchemaBindingMismatch {
+                expected: CanonicalSchemaBinding::ModelResultValue,
+                actual: CanonicalSchemaBinding::ModelLoadCase,
             }
         );
     }
