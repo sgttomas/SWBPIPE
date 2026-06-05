@@ -258,3 +258,48 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `ResultRecoveryHook::to_result_boundary_record` match. Core code was
   read-only for this task, so remediation requires a separate authorized code
   change or human ruling.
+
+## 2026-06-04 - Station/span/transformed user-load hardening
+
+- Executed bounded `DELIVERABLE_TASK` for `DEL-05-05` / `PKG-05` with write
+  scope limited to `core/loads/user_loads/**`, this `MEMORY.md`, and
+  deliverable-local `_run_records/**`.
+- Hardened generic element-station handling so invalid element indices,
+  invalid station fractions, unsupported station moments, rotational station
+  directions, and wrong dimensions produce specific findings before the true
+  straight-pipe geometry gap is reported.
+- Hardened straight-pipe distributed-load recovery so nonfinite or
+  nonpositive supplied element lengths report `NonPositiveElementLength`
+  before geometry comparison.
+- Added focused regression tests for generic station validation, transformed
+  partial-span distributed loads, transformed station point forces, and
+  unsupported rotational distributed-load combinations.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/user_loads/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/user_loads/Cargo.toml` with 28 tests
+  passed. The prior `ModelLoadCase` validation blocker was not present in the
+  current crate state.
+- Remaining TBDs: final result-envelope/API/persistence/GUI/CLI/report
+  integration, production tolerance policy, release thresholds, primitive
+  axial-effect provenance beyond `load_id`, public/product-facing examples,
+  other element families, other distribution shapes, and professional
+  reliance.
+- No `_STATUS.md`, dependency register, DAG, blocker queue, candidate row,
+  review disposition, protected standards data, public default load factors,
+  rule-pack checks, code-compliance claim, or professional reliance claim was
+  changed or introduced by this TASK slice.
+
+## 2026-06-04 - TP-PHYS-024 parent fan-in
+
+- WORKING_ITEMS fan-in reviewed the completed parallel TASK slice for
+  `DEL-05-05` together with sibling slices for `DEL-04-04`, `DEL-04-05`, and
+  `DEL-05-02`.
+- Aggregate validation passed after fan-in:
+  `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14
+  tests), `cargo test --manifest-path core/solver/performance_harness/Cargo.toml`
+  (8 tests), `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`
+  (17 tests), `cargo test --manifest-path core/loads/user_loads/Cargo.toml` (28
+  tests), each corresponding `cargo fmt --check`, and `git diff --check`.
+- Fan-in found no cross-worker scope drift for this deliverable. Lifecycle, DAG,
+  dependency, review-disposition, release, professional-approval, and
+  code-compliance surfaces remain unchanged.

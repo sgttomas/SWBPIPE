@@ -18,6 +18,9 @@ claims.
   supplied.
 - Sign conventions are explicit through activation and gap-direction enums
   rather than hidden assumptions.
+- Gap clearance and friction coefficient fields are validated at classification
+  time as well as constructor time, so public-struct callers cannot accidentally
+  receive zero defaults.
 - Friction behavior uses user/model supplied coefficient and normal reaction
   values; no engineering defaults are invented.
 - `NonlinearSupportUnitMetadata` binds gap/trial displacement, reaction, and
@@ -29,6 +32,7 @@ claims.
 
 ## Tests
 
-The unit tests cover one-way activation, gap opening/closing, lift-off behavior,
-friction sticking/sliding, invalid numeric inputs, active-set convergence, and
-iteration-limit nonconvergence diagnostics.
+The unit tests cover one-way activation, gap opening/closing, missing gap data,
+lift-off behavior, friction sticking/sliding/contact-loss/missing-coefficient
+edges, invalid numeric inputs, active-set convergence, and iteration-limit
+nonconvergence diagnostics with active-set context.

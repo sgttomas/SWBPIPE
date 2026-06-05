@@ -52,6 +52,23 @@ pub struct HarnessSettings {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct RepeatRunObservation {
+    pub repeat_index: usize,
+    pub max_abs_solution_delta_from_first: f64,
+    pub max_abs_residual: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConditioningObservation {
+    pub matrix_dimension: usize,
+    pub finite_diagonal_count: usize,
+    pub zero_diagonal_count: usize,
+    pub min_abs_diagonal: Option<f64>,
+    pub max_abs_diagonal: Option<f64>,
+    pub diagonal_condition_ratio_estimate: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct HarnessRunRecord {
     pub fixture_id: String,
     pub fixture_name: String,
@@ -67,6 +84,8 @@ pub struct HarnessRunRecord {
     pub repeat_count: usize,
     pub max_abs_solution_delta: f64,
     pub max_abs_residual: f64,
+    pub repeat_observations: Vec<RepeatRunObservation>,
+    pub conditioning_observation: ConditioningObservation,
     pub condition_ratio_estimate: Option<f64>,
     pub diagnostics: Vec<SolverDiagnostic>,
     pub assumptions: Vec<String>,
@@ -193,7 +212,8 @@ pub fn run_fixture_repeat(
         sparse_solver_tbd_diagnostic(),
         tolerance_policy_tbd_diagnostic(),
     ];
-    let condition_ratio_estimate = estimate_diagonal_condition_ratio(&reduced.stiffness);
+    let conditioning_observation = observe_diagonal_conditioning(&reduced.stiffness);
+    let condition_ratio_estimate = conditioning_observation.diagonal_condition_ratio_estimate;
     if let (Some(warning), Some(failure), Some(ratio)) = (
         settings.condition_warning_threshold,
         settings.condition_failure_threshold,
@@ -221,6 +241,8 @@ pub fn run_fixture_repeat(
                 force_nonzero_count,
                 0.0,
                 0.0,
+                Vec::new(),
+                conditioning_observation,
                 condition_ratio_estimate,
                 diagnostics,
             ));
@@ -228,13 +250,27 @@ pub fn run_fixture_repeat(
     };
 
     let mut max_abs_solution_delta: f64 = 0.0;
+    let mut repeat_observations = vec![RepeatRunObservation {
+        repeat_index: 0,
+        max_abs_solution_delta_from_first: 0.0,
+        max_abs_residual: max_abs_residual(&reduced.stiffness, &first_solution, &reduced.force),
+    }];
     for _ in 1..settings.repeat_count {
+        let repeat_index = repeat_observations.len();
         let solution = solve_dense(&reduced.stiffness, &reduced.force)?;
-        max_abs_solution_delta =
-            max_abs_solution_delta.max(max_abs_delta(&first_solution, &solution));
+        let repeat_delta = max_abs_delta(&first_solution, &solution);
+        max_abs_solution_delta = max_abs_solution_delta.max(repeat_delta);
+        repeat_observations.push(RepeatRunObservation {
+            repeat_index,
+            max_abs_solution_delta_from_first: repeat_delta,
+            max_abs_residual: max_abs_residual(&reduced.stiffness, &solution, &reduced.force),
+        });
     }
 
-    let max_abs_residual = max_abs_residual(&reduced.stiffness, &first_solution, &reduced.force);
+    let max_abs_residual = repeat_observations
+        .iter()
+        .map(|observation| observation.max_abs_residual)
+        .fold(0.0, f64::max);
 
     Ok(run_record(
         fixture,
@@ -248,6 +284,8 @@ pub fn run_fixture_repeat(
             .count(),
         max_abs_solution_delta,
         max_abs_residual,
+        repeat_observations,
+        conditioning_observation,
         condition_ratio_estimate,
         diagnostics,
     ))
@@ -261,6 +299,8 @@ fn run_record(
     force_nonzero_count: usize,
     max_abs_solution_delta: f64,
     max_abs_residual: f64,
+    repeat_observations: Vec<RepeatRunObservation>,
+    conditioning_observation: ConditioningObservation,
     condition_ratio_estimate: Option<f64>,
     diagnostics: Vec<SolverDiagnostic>,
 ) -> HarnessRunRecord {
@@ -279,6 +319,8 @@ fn run_record(
         repeat_count: settings.repeat_count,
         max_abs_solution_delta,
         max_abs_residual,
+        repeat_observations,
+        conditioning_observation,
         condition_ratio_estimate,
         diagnostics,
         assumptions: vec![
@@ -359,22 +401,40 @@ fn validate_settings(settings: &HarnessSettings) -> Result<(), HarnessError> {
     }
 }
 
-fn estimate_diagonal_condition_ratio(matrix: &DenseMatrix) -> Option<f64> {
+fn observe_diagonal_conditioning(matrix: &DenseMatrix) -> ConditioningObservation {
+    let mut finite_diagonal_count = 0;
+    let mut zero_diagonal_count = 0;
     let mut min_diag = f64::INFINITY;
     let mut max_diag: f64 = 0.0;
 
     for (index, row) in matrix.iter().enumerate() {
-        let value = row.get(index)?.abs();
-        if value > 0.0 {
-            min_diag = min_diag.min(value);
-            max_diag = max_diag.max(value);
+        if let Some(value) = row.get(index) {
+            let abs_value = value.abs();
+            if abs_value.is_finite() {
+                finite_diagonal_count += 1;
+                if abs_value > 0.0 {
+                    min_diag = min_diag.min(abs_value);
+                    max_diag = max_diag.max(abs_value);
+                } else {
+                    zero_diagonal_count += 1;
+                }
+            }
         }
     }
 
-    if min_diag.is_finite() && min_diag > 0.0 {
+    let diagonal_condition_ratio_estimate = if min_diag.is_finite() && min_diag > 0.0 {
         Some(max_diag / min_diag)
     } else {
         None
+    };
+
+    ConditioningObservation {
+        matrix_dimension: matrix.len(),
+        finite_diagonal_count,
+        zero_diagonal_count,
+        min_abs_diagonal: min_diag.is_finite().then_some(min_diag),
+        max_abs_diagonal: (max_diag > 0.0).then_some(max_diag),
+        diagonal_condition_ratio_estimate,
     }
 }
 
@@ -432,8 +492,16 @@ mod tests {
         assert_eq!(record.node_count, 5);
         assert_eq!(record.element_count, 4);
         assert_eq!(record.repeat_count, 3);
+        assert_eq!(record.repeat_observations.len(), 3);
+        assert_eq!(record.repeat_observations[0].repeat_index, 0);
+        assert_eq!(record.repeat_observations[1].repeat_index, 1);
+        assert_eq!(record.repeat_observations[2].repeat_index, 2);
         assert_eq!(record.max_abs_solution_delta, 0.0);
         assert!(record.max_abs_residual < 1.0e-6);
+        assert!(record
+            .repeat_observations
+            .iter()
+            .all(|observation| observation.max_abs_residual < 1.0e-6));
         assert!(record.stiffness_nonzero_count > record.reduced_stiffness_nonzero_count);
         assert!(record
             .diagnostics
@@ -446,6 +514,38 @@ mod tests {
         assert!(record.assumptions.iter().any(|assumption| {
             assumption.contains("unit identifiers declare the calculation basis")
         }));
+    }
+
+    #[test]
+    fn conditioning_observation_is_recorded_without_threshold_policy() {
+        let fixture = invented_cantilever_chain_fixture(3).unwrap();
+        let record = run_fixture_repeat(&fixture, &HarnessSettings::default()).unwrap();
+
+        assert_eq!(
+            record.conditioning_observation.matrix_dimension,
+            record.reduced_dofs
+        );
+        assert_eq!(
+            record.conditioning_observation.finite_diagonal_count,
+            record.reduced_dofs
+        );
+        assert_eq!(record.conditioning_observation.zero_diagonal_count, 0);
+        assert!(record.conditioning_observation.min_abs_diagonal.unwrap() > 0.0);
+        assert_eq!(
+            record.condition_ratio_estimate,
+            record
+                .conditioning_observation
+                .diagonal_condition_ratio_estimate
+        );
+        assert!(record.condition_ratio_estimate.unwrap() >= 1.0);
+        assert!(!record.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == SolverDiagnosticCode::ConditioningFailure
+                || diagnostic.code == SolverDiagnosticCode::IllConditionedSystem
+        }));
+        assert!(record
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::TolerancePolicyTbd));
     }
 
     #[test]
@@ -469,6 +569,30 @@ mod tests {
             .limitations
             .iter()
             .any(|limitation| limitation.contains("thresholds remain TBD")));
+    }
+
+    #[test]
+    fn singular_repeat_attempt_records_solver_diagnostic() {
+        let mut fixture = invented_cantilever_chain_fixture(1).unwrap();
+        fixture.restrained_dofs = vec![0];
+
+        let record = run_fixture_repeat(&fixture, &HarnessSettings::default()).unwrap();
+
+        assert_eq!(record.repeat_observations.len(), 0);
+        assert_eq!(record.max_abs_solution_delta, 0.0);
+        assert_eq!(record.max_abs_residual, 0.0);
+        assert_eq!(
+            record.conditioning_observation.matrix_dimension,
+            record.reduced_dofs
+        );
+        assert!(record
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::SingularSystem));
+        assert!(record
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::SparseSolverTbd));
     }
 
     #[test]

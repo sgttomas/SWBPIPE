@@ -152,6 +152,17 @@ pub enum ActiveSetState {
     Sliding,
 }
 
+impl ActiveSetState {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Active => "active",
+            Self::Inactive => "inactive",
+            Self::Sticking => "sticking",
+            Self::Sliding => "sliding",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct TrialSupportState {
     pub support_id: String,
@@ -241,6 +252,8 @@ impl ActiveSetIteration {
 pub enum NonlinearSupportError {
     NonFiniteInput { name: &'static str, value: f64 },
     NegativeInput { name: &'static str, value: f64 },
+    MissingGap { support_id: String },
+    MissingFrictionCoefficient { support_id: String },
     MissingTrialState { support_id: String },
     MissingFrictionData { support_id: String },
 }
@@ -253,6 +266,18 @@ impl fmt::Display for NonlinearSupportError {
             }
             Self::NegativeInput { name, value } => {
                 write!(f, "{name} must be nonnegative, got {value}")
+            }
+            Self::MissingGap { support_id } => {
+                write!(
+                    f,
+                    "missing gap clearance for nonlinear support {support_id}"
+                )
+            }
+            Self::MissingFrictionCoefficient { support_id } => {
+                write!(
+                    f,
+                    "missing friction coefficient for nonlinear support {support_id}"
+                )
             }
             Self::MissingTrialState { support_id } => {
                 write!(f, "missing trial state for nonlinear support {support_id}")
@@ -271,6 +296,24 @@ impl Error for NonlinearSupportError {}
 
 pub fn diagnostic_from_nonlinear_support_error(error: &NonlinearSupportError) -> SolverDiagnostic {
     match error {
+        NonlinearSupportError::MissingGap { support_id } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidRestraint,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::ModelValidation,
+            format!("missing gap clearance for nonlinear support {support_id}"),
+        )
+        .with_affected_ref(support_id.clone())
+        .with_remediation("Provide explicit gap clearance before active-set classification."),
+        NonlinearSupportError::MissingFrictionCoefficient { support_id } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidRestraint,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::ModelValidation,
+            format!("missing friction coefficient for nonlinear support {support_id}"),
+        )
+        .with_affected_ref(support_id.clone())
+        .with_remediation(
+            "Provide an explicit friction coefficient before friction support classification.",
+        ),
         NonlinearSupportError::MissingTrialState { support_id } => SolverDiagnostic::new(
             SolverDiagnosticCode::InvalidRestraint,
             DiagnosticSeverity::Blocking,
@@ -358,7 +401,11 @@ pub fn evaluate_active_set_iteration(
             }
         }
     })? {
-        diagnostics.push(diagnostic);
+        diagnostics.push(with_active_set_context(
+            diagnostic,
+            &changed_supports,
+            &states,
+        ));
     }
 
     Ok(ActiveSetIteration {
@@ -380,7 +427,12 @@ pub fn classify_support_state(
             Ok(state_from_sense(trial.reaction, active_when))
         }
         NonlinearSupportBehavior::Gap { closes_when } => {
-            let gap = support.gap.unwrap_or(0.0);
+            let gap = support
+                .gap
+                .ok_or_else(|| NonlinearSupportError::MissingGap {
+                    support_id: support.support_id.clone(),
+                })?;
+            validate_nonnegative_finite("gap clearance", gap)?;
             let closed = match closes_when {
                 GapDirection::PositiveDisplacement => trial.displacement >= gap,
                 GapDirection::NegativeDisplacement => trial.displacement <= -gap,
@@ -412,7 +464,12 @@ pub fn classify_support_state(
                 return Ok(ActiveSetState::Inactive);
             }
 
-            let coefficient = support.friction_coefficient.unwrap_or(0.0);
+            let coefficient = support.friction_coefficient.ok_or_else(|| {
+                NonlinearSupportError::MissingFrictionCoefficient {
+                    support_id: support.support_id.clone(),
+                }
+            })?;
+            validate_nonnegative_finite("friction coefficient", coefficient)?;
             let limit = coefficient * normal.abs();
             if tangential.abs() <= limit {
                 Ok(ActiveSetState::Sticking)
@@ -421,6 +478,40 @@ pub fn classify_support_state(
             }
         }
     }
+}
+
+fn with_active_set_context(
+    mut diagnostic: SolverDiagnostic,
+    changed_supports: &[String],
+    states: &[SupportStateRecord],
+) -> SolverDiagnostic {
+    if diagnostic.code != SolverDiagnosticCode::NonConvergence {
+        return diagnostic;
+    }
+
+    let changed = if changed_supports.is_empty() {
+        "none".to_string()
+    } else {
+        changed_supports.join(",")
+    };
+    let state_summary = if states.is_empty() {
+        "none".to_string()
+    } else {
+        states
+            .iter()
+            .map(|record| format!("{}={}", record.support_id, record.state.as_str()))
+            .collect::<Vec<_>>()
+            .join(",")
+    };
+
+    diagnostic.message = format!(
+        "{}; active-set changed supports: {}; active-set states: {}",
+        diagnostic.message, changed, state_summary
+    );
+    if !changed_supports.is_empty() {
+        diagnostic.affected_ref = Some(format!("active-set:{changed}"));
+    }
+    diagnostic
 }
 
 pub fn nonconvergence_code(iteration: &ActiveSetIteration) -> Option<SolverDiagnosticCode> {
@@ -511,6 +602,34 @@ mod tests {
     }
 
     #[test]
+    fn gap_support_without_clearance_is_blocking_model_error() {
+        let support = NonlinearSupport {
+            support_id: "gap-missing".to_string(),
+            node_index: 0,
+            dof: FrameDof::Ux,
+            behavior: NonlinearSupportBehavior::Gap {
+                closes_when: GapDirection::PositiveDisplacement,
+            },
+            gap: None,
+            friction_coefficient: None,
+        };
+        let trial = TrialSupportState::new("gap-missing", 0.20, 0.0).unwrap();
+
+        let error = classify_support_state(&support, &trial).unwrap_err();
+
+        assert_eq!(
+            error,
+            NonlinearSupportError::MissingGap {
+                support_id: "gap-missing".to_string()
+            }
+        );
+        let diagnostic = diagnostic_from_nonlinear_support_error(&error);
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::InvalidRestraint);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
+        assert_eq!(diagnostic.affected_ref.as_deref(), Some("gap-missing"));
+    }
+
+    #[test]
     fn lift_off_support_deactivates_when_contact_reaction_is_lost() {
         let support = NonlinearSupport::lift_off(
             "lift-1",
@@ -565,6 +684,75 @@ mod tests {
             classify_support_state(&support, &trial).unwrap(),
             ActiveSetState::Inactive
         );
+    }
+
+    #[test]
+    fn friction_support_negative_contact_reaction_is_inactive() {
+        let support = NonlinearSupport::friction("friction-1", 0, FrameDof::Ux, 0.30).unwrap();
+        let trial = TrialSupportState::new("friction-1", 0.0, 0.0)
+            .unwrap()
+            .with_friction_reactions(-10.0, 99.0)
+            .unwrap();
+
+        assert_eq!(
+            classify_support_state(&support, &trial).unwrap(),
+            ActiveSetState::Inactive
+        );
+    }
+
+    #[test]
+    fn friction_support_without_coefficient_is_blocking_model_error() {
+        let support = NonlinearSupport {
+            support_id: "friction-missing".to_string(),
+            node_index: 0,
+            dof: FrameDof::Ux,
+            behavior: NonlinearSupportBehavior::Friction,
+            gap: None,
+            friction_coefficient: None,
+        };
+        let trial = TrialSupportState::new("friction-missing", 0.0, 0.0)
+            .unwrap()
+            .with_friction_reactions(10.0, 1.0)
+            .unwrap();
+
+        let error = classify_support_state(&support, &trial).unwrap_err();
+
+        assert_eq!(
+            error,
+            NonlinearSupportError::MissingFrictionCoefficient {
+                support_id: "friction-missing".to_string()
+            }
+        );
+        let diagnostic = diagnostic_from_nonlinear_support_error(&error);
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::InvalidRestraint);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
+        assert_eq!(diagnostic.affected_ref.as_deref(), Some("friction-missing"));
+    }
+
+    #[test]
+    fn friction_support_rejects_nonfinite_public_coefficient() {
+        let support = NonlinearSupport {
+            support_id: "friction-nan".to_string(),
+            node_index: 0,
+            dof: FrameDof::Ux,
+            behavior: NonlinearSupportBehavior::Friction,
+            gap: None,
+            friction_coefficient: Some(f64::NAN),
+        };
+        let trial = TrialSupportState::new("friction-nan", 0.0, 0.0)
+            .unwrap()
+            .with_friction_reactions(10.0, 1.0)
+            .unwrap();
+
+        let error = classify_support_state(&support, &trial).unwrap_err();
+
+        match error {
+            NonlinearSupportError::NonFiniteInput { name, value } => {
+                assert_eq!(name, "friction coefficient");
+                assert!(value.is_nan());
+            }
+            other => panic!("unexpected error: {other:?}"),
+        }
     }
 
     #[test]
@@ -656,6 +844,16 @@ mod tests {
             nonconvergence_code(&iteration),
             Some(SolverDiagnosticCode::NonConvergence)
         );
+        assert_eq!(
+            iteration.diagnostics[0].affected_ref.as_deref(),
+            Some("active-set:one-way-1")
+        );
+        assert!(iteration.diagnostics[0]
+            .message
+            .contains("active-set changed supports: one-way-1"));
+        assert!(iteration.diagnostics[0]
+            .message
+            .contains("one-way-1=active"));
     }
 
     #[test]

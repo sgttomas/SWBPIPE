@@ -493,11 +493,17 @@ pub fn apply_user_loads(
                 &mut recovery_hooks,
                 &mut findings,
             ),
-            UserLoadTarget::ElementStation { .. } => findings.push(UserLoadFinding::new(
-                FindingCode::MissingElementGeometry,
-                &load.load_id,
-                "element-station user loads require straight-pipe equivalent load recovery",
-            )),
+            UserLoadTarget::ElementStation {
+                element_index,
+                station_fraction,
+            } => prepare_element_station_user_load_without_geometry(
+                load,
+                *element_index,
+                *station_fraction,
+                quantity,
+                element_count,
+                &mut findings,
+            ),
         }
     }
 
@@ -777,6 +783,14 @@ fn prepare_straight_pipe_distributed_load(
         return;
     }
     if let Some(length) = element_length {
+        if !length.is_finite() || length <= 0.0 {
+            findings.push(UserLoadFinding::new(
+                FindingCode::NonPositiveElementLength,
+                &load.load_id,
+                "element length for straight-pipe equivalent load recovery must be positive and finite",
+            ));
+            return;
+        }
         match pipe.length() {
             Ok(pipe_length) if (pipe_length - length).abs() <= 1.0e-9 => {}
             Ok(_) => {
@@ -1005,6 +1019,61 @@ fn prepare_nodal_user_load(
         dimension: quantity.dimension,
         provenance_ref: load.provenance_ref.clone(),
     });
+}
+
+fn prepare_element_station_user_load_without_geometry(
+    load: &UserLoad,
+    element_index: usize,
+    station_fraction: f64,
+    quantity: UserLoadQuantity,
+    element_count: usize,
+    findings: &mut Vec<UserLoadFinding>,
+) {
+    if element_index >= element_count {
+        findings.push(UserLoadFinding::new(
+            FindingCode::ElementOutOfRange,
+            &load.load_id,
+            format!("element index {element_index} is outside element count {element_count}"),
+        ));
+        return;
+    }
+    if load.kind != UserLoadKind::ConcentratedForce {
+        findings.push(UserLoadFinding::new(
+            FindingCode::UnsupportedTargetForLoadKind,
+            &load.load_id,
+            "element-station targets currently support concentrated force recovery only",
+        ));
+        return;
+    }
+    if !station_fraction.is_finite() || !(0.0..=1.0).contains(&station_fraction) {
+        findings.push(UserLoadFinding::new(
+            FindingCode::InvalidDistributionSpan,
+            &load.load_id,
+            "element-station fraction must satisfy 0 <= station <= 1",
+        ));
+        return;
+    }
+    if load.direction.is_rotational() {
+        findings.push(UserLoadFinding::new(
+            FindingCode::InvalidLoadDirection,
+            &load.load_id,
+            "element-station point forces require a translational direction",
+        ));
+        return;
+    }
+    if quantity.dimension != LoadDimension::Force {
+        findings.push(UserLoadFinding::new(
+            FindingCode::InvalidLoadDimension,
+            &load.load_id,
+            "element-station point force recovery requires force",
+        ));
+        return;
+    }
+    findings.push(UserLoadFinding::new(
+        FindingCode::MissingElementGeometry,
+        &load.load_id,
+        "element-station user loads require straight-pipe equivalent load recovery",
+    ));
 }
 
 fn prepare_element_user_load(
@@ -1532,6 +1601,66 @@ mod tests {
     }
 
     #[test]
+    fn generic_station_targets_validate_before_geometry_gap() {
+        let wrong_element = UserLoad::element_concentrated_force(
+            "station-wrong-element",
+            2,
+            0.5,
+            UserLoadDirection::GlobalY,
+            q(8.0, LoadDimension::Force),
+        );
+        let bad_station = UserLoad::element_concentrated_force(
+            "station-bad-fraction",
+            0,
+            1.25,
+            UserLoadDirection::GlobalY,
+            q(8.0, LoadDimension::Force),
+        );
+        let unsupported_moment = UserLoad {
+            load_id: "station-moment".to_string(),
+            kind: UserLoadKind::ConcentratedMoment,
+            target: Some(UserLoadTarget::ElementStation {
+                element_index: 0,
+                station_fraction: 0.5,
+            }),
+            direction: UserLoadDirection::RotationZ,
+            quantity: Some(q(8.0, LoadDimension::Moment)),
+            provenance_ref: None,
+        };
+        let geometry_gap = UserLoad::element_concentrated_force(
+            "station-needs-pipe",
+            0,
+            0.5,
+            UserLoadDirection::GlobalY,
+            q(8.0, LoadDimension::Force),
+        );
+
+        let prepared = apply_user_loads(
+            2,
+            1,
+            &[wrong_element, bad_station, unsupported_moment, geometry_gap],
+        );
+
+        assert!(prepared.is_blocked());
+        assert_eq!(prepared.findings.len(), 4);
+        assert_eq!(prepared.findings[0].code, FindingCode::ElementOutOfRange);
+        assert_eq!(
+            prepared.findings[1].code,
+            FindingCode::InvalidDistributionSpan
+        );
+        assert_eq!(
+            prepared.findings[2].code,
+            FindingCode::UnsupportedTargetForLoadKind
+        );
+        assert_eq!(
+            prepared.findings[3].code,
+            FindingCode::MissingElementGeometry
+        );
+        assert!(prepared.nodal_loads.is_empty());
+        assert!(prepared.recovery_hooks.is_empty());
+    }
+
+    #[test]
     fn invalid_span_and_length_are_findings() {
         let invalid_span = UserLoad::uniform_distributed(
             "bad-span",
@@ -1663,6 +1792,35 @@ mod tests {
         assert_close(vector[DOF_PER_NODE + UX], 3.0);
         assert_close(vector[RZ], -1.0);
         assert_close(vector[DOF_PER_NODE + RZ], 1.0);
+        assert_close(vector[UY], 0.0);
+        assert_close(vector[DOF_PER_NODE + UY], 0.0);
+    }
+
+    #[test]
+    fn straight_pipe_equivalent_user_loads_transform_partial_span_distribution() {
+        let pipe = straight_pipe_along_global_y();
+        let load = UserLoad::uniform_distributed(
+            "user-line-global-x-partial",
+            0,
+            UserLoadDirection::GlobalX,
+            q(3.0, LoadDimension::ForcePerLength),
+            ElementLoadSpan::new(0.25, 0.75).unwrap(),
+            Some(2.0),
+        );
+
+        let prepared = apply_straight_pipe_equivalent_user_loads(0, &pipe, &[load]);
+        let vector = prepared.global_load_vector(2);
+
+        assert!(!prepared.is_blocked());
+        assert_eq!(prepared.nodal_loads.len(), 4);
+        assert_eq!(
+            prepared.element_distributed_loads[0].equivalent_total,
+            Some(3.0)
+        );
+        assert_close(vector[UX], 1.5);
+        assert_close(vector[RZ], -0.6875);
+        assert_close(vector[DOF_PER_NODE + UX], 1.5);
+        assert_close(vector[DOF_PER_NODE + RZ], 0.6875);
         assert_close(vector[UY], 0.0);
         assert_close(vector[DOF_PER_NODE + UY], 0.0);
     }
@@ -1815,6 +1973,31 @@ mod tests {
     }
 
     #[test]
+    fn straight_pipe_equivalent_user_loads_transform_station_point_force() {
+        let pipe = straight_pipe_along_global_y();
+        let load = UserLoad::element_concentrated_force(
+            "user-point-global-x",
+            0,
+            0.25,
+            UserLoadDirection::GlobalX,
+            q(8.0, LoadDimension::Force),
+        );
+
+        let prepared = apply_straight_pipe_equivalent_user_loads(0, &pipe, &[load]);
+        let vector = prepared.global_load_vector(2);
+
+        assert!(!prepared.is_blocked());
+        assert_eq!(prepared.nodal_loads.len(), 4);
+        assert_close(vector[UX], 6.75);
+        assert_close(vector[RZ], -2.25);
+        assert_close(vector[DOF_PER_NODE + UX], 1.25);
+        assert_close(vector[DOF_PER_NODE + RZ], 0.75);
+        assert!(prepared.nodal_loads.iter().any(|load| {
+            load.trace.load_id == "user-point-global-x" && load.dimension == LoadDimension::Moment
+        }));
+    }
+
+    #[test]
     fn straight_pipe_equivalent_user_loads_reject_invalid_span_and_unsupported_station_moment() {
         let pipe = straight_pipe();
         let invalid_span = UserLoad::uniform_distributed(
@@ -1850,6 +2033,44 @@ mod tests {
             FindingCode::UnsupportedTargetForLoadKind
         );
         assert!(prepared.nodal_loads.is_empty());
+    }
+
+    #[test]
+    fn straight_pipe_equivalent_user_loads_reject_bad_length_and_rotational_distribution() {
+        let pipe = straight_pipe();
+        let bad_length = UserLoad::uniform_distributed(
+            "bad-supplied-length",
+            0,
+            UserLoadDirection::GlobalY,
+            q(1.0, LoadDimension::ForcePerLength),
+            ElementLoadSpan::full(),
+            Some(0.0),
+        );
+        let rotational_distribution = UserLoad::uniform_distributed(
+            "rotational-distribution",
+            0,
+            UserLoadDirection::RotationZ,
+            q(1.0, LoadDimension::ForcePerLength),
+            ElementLoadSpan::full(),
+            Some(2.0),
+        );
+
+        let prepared = apply_straight_pipe_equivalent_user_loads(
+            0,
+            &pipe,
+            &[bad_length, rotational_distribution],
+        );
+
+        assert!(prepared.is_blocked());
+        assert_eq!(prepared.findings.len(), 2);
+        assert_eq!(
+            prepared.findings[0].code,
+            FindingCode::NonPositiveElementLength
+        );
+        assert_eq!(prepared.findings[1].code, FindingCode::InvalidLoadDirection);
+        assert!(prepared.nodal_loads.is_empty());
+        assert!(prepared.element_distributed_loads.is_empty());
+        assert!(prepared.recovery_hooks.is_empty());
     }
 
     #[test]

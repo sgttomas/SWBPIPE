@@ -89,3 +89,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TASK nonlinear edge hardening
+
+- Hardened `core/solver/nonlinear_supports` edge behavior for public-struct callers by rejecting missing gap clearance, missing friction coefficient, and non-finite bypassed friction coefficients during classification instead of silently treating them as zero.
+- Added blocking solver-diagnostic mapping for missing gap and missing friction-coefficient support definitions.
+- Annotated nonlinear nonconvergence diagnostics with changed active-set support IDs and final active-set state summaries.
+- Added focused crate tests for missing gap data, negative contact reaction, missing friction coefficient, non-finite public friction coefficient, and active-set context in nonconvergence diagnostics.
+- Verification passed: `cargo fmt --manifest-path core/solver/nonlinear_supports/Cargo.toml --check`; `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14 tests); `git diff --check`.
+- Boundaries preserved: no global nonlinear solve integration, production tolerance policy, sparse-solver selection, lifecycle edit, DAG edit, dependency-register edit, review-disposition edit, protected standards data, rule/code check, or professional/compliance claim.
+- Remaining `TBD`: global nonlinear solve integration, final result-envelope integration, accepted production residual/tolerance policy, sparse-solver integration, canonical calculation unit basis/conversions, final support coordinate convention, and human disposition for existing review findings.
+
+## 2026-06-04 - TP-PHYS-024 parent fan-in
+
+- WORKING_ITEMS fan-in reviewed the completed parallel TASK slice for `DEL-04-04` together with sibling slices for `DEL-04-05`, `DEL-05-02`, and `DEL-05-05`.
+- Aggregate validation passed after fan-in: `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14 tests), `cargo test --manifest-path core/solver/performance_harness/Cargo.toml` (8 tests), `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` (17 tests), `cargo test --manifest-path core/loads/user_loads/Cargo.toml` (28 tests), each corresponding `cargo fmt --check`, and `git diff --check`.
+- Fan-in found no cross-worker scope drift for this deliverable. Lifecycle, DAG, dependency, review-disposition, release, professional-approval, and code-compliance surfaces remain unchanged.

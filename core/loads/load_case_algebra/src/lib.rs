@@ -179,6 +179,10 @@ impl AlgebraResult {
         provenance_ref: impl Into<String>,
     ) -> Result<Option<BoundaryQuantityRecord>, BoundaryMetadataError> {
         require_result_schema_binding(record.schema_binding)?;
+        record.validate()?;
+        unit.validate()?;
+        let provenance_ref = provenance_ref.into();
+        validate_boundary_text("provenance_ref", &provenance_ref)?;
         match &self.quantity {
             Some(quantity) => quantity
                 .to_boundary_record(record, unit, provenance_ref)
@@ -224,12 +228,22 @@ pub fn evaluate_expression(
     operands: &[AlgebraOperand],
     expression: &AlgebraExpression,
 ) -> AlgebraResult {
-    let operand_by_id: HashMap<&str, &AlgebraOperand> = operands
-        .iter()
-        .map(|operand| (operand.operand_id.as_str(), operand))
-        .collect();
+    let mut operand_by_id: HashMap<&str, &AlgebraOperand> = HashMap::new();
+    let mut seen_operands = HashSet::new();
+    let mut input_findings = Vec::new();
+    for operand in operands {
+        if !seen_operands.insert(operand.operand_id.as_str()) {
+            input_findings.push(AlgebraFinding::new(
+                FindingCode::DuplicateOperand,
+                &operand.operand_id,
+                "operand input contains a duplicate operand identifier",
+            ));
+            continue;
+        }
+        operand_by_id.insert(operand.operand_id.as_str(), operand);
+    }
 
-    match expression {
+    let mut result = match expression {
         AlgebraExpression::LinearCombination { terms } => {
             evaluate_linear_combination(&operand_by_id, terms)
         }
@@ -240,7 +254,12 @@ pub fn evaluate_expression(
         AlgebraExpression::RangeEnvelope { operand_ids, mode } => {
             evaluate_range_envelope(&operand_by_id, operand_ids, *mode)
         }
+    };
+    if !input_findings.is_empty() {
+        result.quantity = None;
+        result.findings.extend(input_findings);
     }
+    result
 }
 
 pub fn evaluate_linear_combination(
@@ -312,28 +331,23 @@ pub fn evaluate_result_state_subtraction(
     minuend_id: &str,
     subtrahend_id: &str,
 ) -> AlgebraResult {
+    let mut findings = Vec::new();
     if minuend_id == subtrahend_id {
-        return finalize_result(
-            AlgebraOperation::ResultStateSubtraction,
-            None,
-            Vec::new(),
-            Vec::new(),
-            vec![AlgebraFinding::new(
-                FindingCode::DuplicateOperand,
-                minuend_id,
-                "subtraction requires two distinct result states",
-            )],
-        );
+        findings.push(AlgebraFinding::new(
+            FindingCode::DuplicateOperand,
+            minuend_id,
+            "subtraction requires two distinct result states",
+        ));
     }
 
-    let mut findings = Vec::new();
     let mut statuses = Vec::new();
     let mut source_operand_ids = Vec::new();
     let minuend = operand_by_id.get(minuend_id).copied();
     let subtrahend = operand_by_id.get(subtrahend_id).copied();
+    let mut missing_checked = HashSet::new();
 
     for operand_id in [minuend_id, subtrahend_id] {
-        if !operand_by_id.contains_key(operand_id) {
+        if missing_checked.insert(operand_id) && !operand_by_id.contains_key(operand_id) {
             findings.push(AlgebraFinding::new(
                 FindingCode::MissingResultState,
                 operand_id,
@@ -392,10 +406,12 @@ pub fn evaluate_range_envelope(
     let mut statuses = Vec::new();
     let mut source_operand_ids = Vec::new();
     let mut dimension = None;
-    let mut selected: Option<AlgebraQuantity> = None;
+    let mut selected: Option<(&str, AlgebraQuantity)> = None;
+    let mut ordered_operand_ids: Vec<&str> = operand_ids.iter().map(String::as_str).collect();
+    ordered_operand_ids.sort_unstable();
 
-    for operand_id in operand_ids {
-        if !seen.insert(operand_id.as_str()) {
+    for operand_id in ordered_operand_ids {
+        if !seen.insert(operand_id) {
             findings.push(AlgebraFinding::new(
                 FindingCode::DuplicateOperand,
                 operand_id,
@@ -403,7 +419,7 @@ pub fn evaluate_range_envelope(
             ));
             continue;
         }
-        let Some(operand) = operand_by_id.get(operand_id.as_str()) else {
+        let Some(operand) = operand_by_id.get(operand_id) else {
             findings.push(AlgebraFinding::new(
                 FindingCode::MissingOperand,
                 operand_id,
@@ -417,26 +433,56 @@ pub fn evaluate_range_envelope(
             continue;
         }
         selected = Some(match selected {
-            Some(current) if prefer_current(current.value, operand.quantity.value, mode) => current,
-            _ => operand.quantity.clone(),
+            Some((current_id, current))
+                if prefer_current(
+                    current_id,
+                    current.value,
+                    operand.operand_id.as_str(),
+                    operand.quantity.value,
+                    mode,
+                ) =>
+            {
+                (current_id, current)
+            }
+            _ => (operand.operand_id.as_str(), operand.quantity.clone()),
         });
     }
 
     finalize_result(
         AlgebraOperation::RangeEnvelope,
-        selected,
+        selected.map(|(_, quantity)| quantity),
         statuses,
         source_operand_ids,
         findings,
     )
 }
 
-fn prefer_current(current: f64, candidate: f64, mode: RangeMode) -> bool {
-    match mode {
-        RangeMode::Min => current <= candidate,
-        RangeMode::Max => current >= candidate,
-        RangeMode::MinAbs => current.abs() <= candidate.abs(),
-        RangeMode::MaxAbs => current.abs() >= candidate.abs(),
+fn prefer_current(
+    current_id: &str,
+    current: f64,
+    candidate_id: &str,
+    candidate: f64,
+    mode: RangeMode,
+) -> bool {
+    let current_is_better = match mode {
+        RangeMode::Min => current < candidate,
+        RangeMode::Max => current > candidate,
+        RangeMode::MinAbs => current.abs() < candidate.abs(),
+        RangeMode::MaxAbs => current.abs() > candidate.abs(),
+    };
+    let candidate_is_better = match mode {
+        RangeMode::Min => candidate < current,
+        RangeMode::Max => candidate > current,
+        RangeMode::MinAbs => candidate.abs() < current.abs(),
+        RangeMode::MaxAbs => candidate.abs() > current.abs(),
+    };
+
+    if current_is_better {
+        true
+    } else if candidate_is_better {
+        false
+    } else {
+        current_id <= candidate_id
     }
 }
 
@@ -467,6 +513,14 @@ fn collect_statuses(
     statuses: &mut Vec<AnalysisStatus>,
     findings: &mut Vec<AlgebraFinding>,
 ) {
+    if operand.statuses.is_empty() {
+        findings.push(AlgebraFinding::new(
+            FindingCode::StatusBoundaryViolation,
+            &operand.operand_id,
+            "algebra operands require explicit analysis status metadata",
+        ));
+    }
+
     for status in &operand.statuses {
         if !automatic_status_allowed(*status) {
             findings.push(AlgebraFinding::new(
@@ -480,6 +534,14 @@ fn collect_statuses(
             statuses.push(*status);
         }
     }
+
+    if operand.statuses.contains(&AnalysisStatus::ModelIncomplete) {
+        findings.push(AlgebraFinding::new(
+            FindingCode::StatusBoundaryViolation,
+            &operand.operand_id,
+            "algebra operands with incomplete model status cannot produce an algebra output",
+        ));
+    }
 }
 
 fn finalize_result(
@@ -492,12 +554,30 @@ fn finalize_result(
     if !statuses.contains(&AnalysisStatus::HumanReviewRequired) {
         statuses.push(AnalysisStatus::HumanReviewRequired);
     }
+    sort_statuses(&mut statuses);
     AlgebraResult {
         operation,
         quantity: if findings.is_empty() { quantity } else { None },
         statuses,
         source_operand_ids,
         findings,
+    }
+}
+
+fn sort_statuses(statuses: &mut Vec<AnalysisStatus>) {
+    statuses.sort_by_key(|status| status_rank(*status));
+    statuses.dedup();
+}
+
+fn status_rank(status: AnalysisStatus) -> u8 {
+    match status {
+        AnalysisStatus::ModelIncomplete => 0,
+        AnalysisStatus::MechanicsSolved => 1,
+        AnalysisStatus::RuleInputsIncomplete => 2,
+        AnalysisStatus::UserRuleChecked => 3,
+        AnalysisStatus::UserRuleFailed => 4,
+        AnalysisStatus::HumanReviewRequired => 5,
+        AnalysisStatus::HumanApprovedForProject => 6,
     }
 }
 
@@ -516,6 +596,13 @@ fn automatic_status_allowed(status: AnalysisStatus) -> bool {
 fn validate_finite(name: &'static str, value: f64) -> Result<(), AlgebraError> {
     if !value.is_finite() {
         return Err(AlgebraError::NonFiniteInput { name, value });
+    }
+    Ok(())
+}
+
+fn validate_boundary_text(field: &'static str, value: &str) -> Result<(), BoundaryMetadataError> {
+    if value.trim().is_empty() || value.trim() == "TBD" {
+        return Err(BoundaryMetadataError::MissingField { field });
     }
     Ok(())
 }
@@ -662,6 +749,57 @@ mod tests {
     }
 
     #[test]
+    fn algebra_result_boundary_rejects_incompatible_unit_dimension() {
+        let operands = vec![operand("sustain", "sustain", 10.0, LoadDimension::Force)];
+        let terms = vec![CombinationTerm::new("sustain", 1.0).unwrap()];
+        let result =
+            evaluate_expression(&operands, &AlgebraExpression::LinearCombination { terms });
+        let moment_unit = QuantityUnitMetadata::new(
+            "N-m",
+            open_pipe_stress_primitive_loads::CanonicalDimension::Moment,
+            "unit-system:si",
+        )
+        .unwrap();
+
+        let err = result
+            .to_result_boundary_record(
+                boundary_ref(CanonicalSchemaBinding::ResultsQuantityResult),
+                moment_unit,
+                "provenance:algebra",
+            )
+            .unwrap_err();
+
+        assert_eq!(
+            err,
+            BoundaryMetadataError::DimensionMismatch {
+                expected: open_pipe_stress_primitive_loads::CanonicalDimension::Force,
+                actual: open_pipe_stress_primitive_loads::CanonicalDimension::Moment,
+            }
+        );
+    }
+
+    #[test]
+    fn blocked_result_export_still_validates_unit_metadata() {
+        let terms = vec![CombinationTerm::new("missing", 1.0).unwrap()];
+        let result = evaluate_expression(&[], &AlgebraExpression::LinearCombination { terms });
+        let bad_unit = QuantityUnitMetadata {
+            unit: "".to_string(),
+            dimension: open_pipe_stress_primitive_loads::CanonicalDimension::Force,
+            unit_system_ref: "unit-system:si".to_string(),
+        };
+
+        let err = result
+            .to_result_boundary_record(
+                boundary_ref(CanonicalSchemaBinding::ResultsQuantityResult),
+                bad_unit,
+                "provenance:algebra",
+            )
+            .unwrap_err();
+
+        assert_eq!(err, BoundaryMetadataError::MissingField { field: "unit" });
+    }
+
+    #[test]
     fn subtraction_requires_distinct_compatible_result_states() {
         let operands = vec![
             operand("hot", "operating", 42.0, LoadDimension::Displacement),
@@ -678,6 +816,27 @@ mod tests {
 
         assert!(!result.is_blocked());
         assert_eq!(result.quantity.unwrap().value, 32.0);
+    }
+
+    #[test]
+    fn subtraction_reports_duplicate_and_missing_state_boundaries() {
+        let result = evaluate_expression(
+            &[],
+            &AlgebraExpression::ResultStateSubtraction {
+                minuend_id: "missing".to_string(),
+                subtrahend_id: "missing".to_string(),
+            },
+        );
+
+        assert!(result.is_blocked());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::DuplicateOperand));
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == FindingCode::MissingResultState));
     }
 
     #[test]
@@ -703,6 +862,27 @@ mod tests {
 
         assert!(!result.is_blocked());
         assert_eq!(result.quantity.unwrap().value, -11.0);
+    }
+
+    #[test]
+    fn range_envelope_ties_are_ordered_by_operand_id() {
+        let operands = vec![
+            operand("zeta", "z", -10.0, LoadDimension::Moment),
+            operand("alpha", "a", 10.0, LoadDimension::Moment),
+        ];
+        let ids = vec!["zeta".to_string(), "alpha".to_string()];
+
+        let result = evaluate_expression(
+            &operands,
+            &AlgebraExpression::RangeEnvelope {
+                operand_ids: ids,
+                mode: RangeMode::MaxAbs,
+            },
+        );
+
+        assert!(!result.is_blocked());
+        assert_eq!(result.source_operand_ids, vec!["alpha", "zeta"]);
+        assert_eq!(result.quantity.unwrap().value, 10.0);
     }
 
     #[test]
@@ -781,6 +961,54 @@ mod tests {
         assert!(result
             .statuses
             .contains(&AnalysisStatus::HumanReviewRequired));
+    }
+
+    #[test]
+    fn missing_status_metadata_blocks_algebra_output() {
+        let operands = vec![AlgebraOperand::new(
+            "case-a",
+            "draft",
+            q(5.0, LoadDimension::Force),
+            Vec::new(),
+        )];
+        let terms = vec![CombinationTerm::new("case-a", 1.0).unwrap()];
+
+        let result =
+            evaluate_expression(&operands, &AlgebraExpression::LinearCombination { terms });
+
+        assert!(result.is_blocked());
+        assert_eq!(result.quantity, None);
+        assert!(result.findings.iter().any(|finding| finding.code
+            == FindingCode::StatusBoundaryViolation
+            && finding.subject_id == "case-a"));
+        assert_eq!(result.statuses, vec![AnalysisStatus::HumanReviewRequired]);
+    }
+
+    #[test]
+    fn model_incomplete_status_blocks_algebra_output() {
+        let operands = vec![AlgebraOperand::new(
+            "incomplete",
+            "draft",
+            q(5.0, LoadDimension::Force),
+            vec![AnalysisStatus::ModelIncomplete],
+        )];
+        let terms = vec![CombinationTerm::new("incomplete", 1.0).unwrap()];
+
+        let result =
+            evaluate_expression(&operands, &AlgebraExpression::LinearCombination { terms });
+
+        assert!(result.is_blocked());
+        assert_eq!(result.quantity, None);
+        assert_eq!(
+            result.statuses,
+            vec![
+                AnalysisStatus::ModelIncomplete,
+                AnalysisStatus::HumanReviewRequired
+            ]
+        );
+        assert!(result.findings.iter().any(|finding| finding.code
+            == FindingCode::StatusBoundaryViolation
+            && finding.subject_id == "incomplete"));
     }
 
     #[test]

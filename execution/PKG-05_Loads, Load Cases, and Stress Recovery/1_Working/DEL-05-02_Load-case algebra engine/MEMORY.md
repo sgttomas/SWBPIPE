@@ -122,3 +122,48 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Preserved unresolved boundaries: general expression grammar/library, final rule-pack evaluator/interface behavior, final result-envelope/persistence integration, dependency maturity for DEL-05-01 and DEL-05-04, low-confidence DEL-06-02 evaluator interface, and release/CI gate policy remain `TBD` or pending as applicable.
 - Validation attempted: `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` failed before running tests because `require_result_schema_binding` in the read-only crate source does not cover the current `CanonicalSchemaBinding::ModelLoadCase` enum variant from `core/loads/primitive_loads/src/lib.rs`.
 - This TASK did not edit `_STATUS.md`, dependency/review artifacts, schemas, repo-level governance files, DAG/coordination files, or core code.
+
+## 2026-06-04 - TASK load-case algebra boundary hardening
+
+- WORKING_ITEMS dispatched a bounded deliverable-local TASK with edits
+  authorized for `core/loads/load_case_algebra/**`, this `MEMORY.md`, and the
+  deliverable `_run_records/` surface only.
+- Hardened `core/loads/load_case_algebra/src/lib.rs` so algebra evaluation
+  records duplicate input operands, preserves missing-result-state findings
+  even when subtraction operands are also duplicate, blocks missing analysis
+  status metadata, blocks `ModelIncomplete` operands from producing algebra
+  output, preserves deterministic analysis-status ordering, validates result
+  boundary record/unit/provenance metadata even for blocked results, and sorts
+  range-envelope source operands with deterministic tie-breaking by operand ID.
+- Added focused crate tests for incompatible/missing status metadata,
+  duplicate-and-missing subtraction boundaries, blocked-result metadata
+  validation, unit/dimension metadata mismatch, and deterministic range
+  envelope tie ordering. The crate now reports 17 passing unit tests.
+- Verification passed:
+  `cargo fmt --manifest-path core/loads/load_case_algebra/Cargo.toml --check`;
+  `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`;
+  `git diff --check`.
+- Preserved boundaries: no public code-specific load combinations or factors,
+  protected standards content, rule-pack evaluator behavior, stress recovery,
+  allowables, SIF/flexibility tables, lifecycle/status changes, dependency or
+  review-disposition edits, release claims, or professional/code-compliance
+  claims were introduced.
+- Remaining TBDs are unchanged: general expression grammar/library, final
+  rule-pack evaluator/interface behavior, final result-envelope/persistence
+  integration, DEL-05-01 and DEL-05-04 dependency maturity, low-confidence
+  DEL-06-02 interface, and project CI/release-gate policy.
+
+## 2026-06-04 - TP-PHYS-024 parent fan-in
+
+- WORKING_ITEMS fan-in reviewed the completed parallel TASK slice for
+  `DEL-05-02` together with sibling slices for `DEL-04-04`, `DEL-04-05`, and
+  `DEL-05-05`.
+- Aggregate validation passed after fan-in:
+  `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14
+  tests), `cargo test --manifest-path core/solver/performance_harness/Cargo.toml`
+  (8 tests), `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`
+  (17 tests), `cargo test --manifest-path core/loads/user_loads/Cargo.toml` (28
+  tests), each corresponding `cargo fmt --check`, and `git diff --check`.
+- Fan-in found no cross-worker scope drift for this deliverable. Lifecycle, DAG,
+  dependency, review-disposition, release, professional-approval, and
+  code-compliance surfaces remain unchanged.

@@ -97,3 +97,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TASK repeatability and conditioning coverage
+
+- Added deterministic harness record coverage in `core/solver/performance_harness` for per-repeat solution-delta/residual observations and reduced-matrix diagonal conditioning observations.
+- Added focused tests confirming conditioning observations are recorded without supplied threshold policy and that under-restrained fixtures record solver diagnostics instead of selecting solver policy.
+- Verification passed:
+  `cargo fmt --manifest-path core/solver/performance_harness/Cargo.toml --check`,
+  `cargo test --manifest-path core/solver/performance_harness/Cargo.toml`
+  (8 tests), and `git diff --check`.
+- Remaining `TBD`: accepted sparse numerical library, release timing/memory/practical-size bands, conditioning and CI threshold policy, hardware-normalized performance methodology, and future sparse-adapter integration.
+- Boundaries preserved: no lifecycle state, DAG, dependency register, review disposition, solver-logic, sparse-library selection, production tolerance policy, protected-content, private-data, code-check, or professional/code-compliance claim changes.
+
+## 2026-06-04 - TP-PHYS-024 parent fan-in
+
+- WORKING_ITEMS fan-in reviewed the completed parallel TASK slice for `DEL-04-05` together with sibling slices for `DEL-04-04`, `DEL-05-02`, and `DEL-05-05`.
+- Aggregate validation passed after fan-in: `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14 tests), `cargo test --manifest-path core/solver/performance_harness/Cargo.toml` (8 tests), `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` (17 tests), `cargo test --manifest-path core/loads/user_loads/Cargo.toml` (28 tests), each corresponding `cargo fmt --check`, and `git diff --check`.
+- Fan-in found no cross-worker scope drift for this deliverable. Lifecycle, DAG, dependency, review-disposition, release, professional-approval, and code-compliance surfaces remain unchanged.

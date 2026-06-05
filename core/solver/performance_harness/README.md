@@ -8,8 +8,8 @@ This crate is the bounded implementation slice for `DEL-04-05`. It provides a de
 - Fixture unit-system and unit identifiers for frame-kernel length, force,
   moment, stress, area, `second_moment_area`, displacement, and rotation
   quantities.
-- Repeat-run regression records for the same fixture, solver version, and harness settings.
-- Matrix size, nonzero-count, residual, repeatability, and condition-ratio observations.
+- Repeat-run regression records for the same fixture, solver version, and harness settings, including per-repeat residual and solution-delta observations.
+- Matrix size, nonzero-count, residual, repeatability, diagonal conditioning observations, and condition-ratio estimates.
 - Integration with solver diagnostics for conditioning classification and unresolved sparse-solver/tolerance-policy `TBD` states.
 
 ## Boundary
@@ -22,4 +22,4 @@ Fixture unit metadata declares the calculation basis for reproducibility only. T
 
 ## Verification
 
-The unit tests cover deterministic repeat-run records, provenance rejection, invalid settings, nonzero-count metrics, conditioning diagnostics, and residual calculation.
+The unit tests cover deterministic repeat-run records, per-repeat observation rows, provenance rejection, invalid settings, nonzero-count metrics, conditioning observations, conditioning diagnostics, solve-failure diagnostic recording, and residual calculation.
