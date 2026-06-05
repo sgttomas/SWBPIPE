@@ -85,3 +85,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Validation evidence: `python3 -m pytest tests/test_rule_pack_schema.py tests/test_units_schema.py tests/test_model_schema.py` passed with 11 tests; `git diff --check` passed.
 - Preserved deferrals: expression grammar/library remains `TBD`, evaluator semantics remain assigned to `DEL-06-02`, checksum/private lifecycle remains assigned to `DEL-06-04`, and encryption defaults/storage container details remain deferred to security/privacy and persistence/private-lifecycle work.
 - No protected/code-specific values, proprietary data, public standards content, or professional/code-compliance claims were added.
+
+## 2026-06-05 - Foundational hardening parent fan-in
+
+- WORKING_ITEMS completed parent fan-in for the approved foundational-hardening
+  worker tranche spanning `DEL-04-01`, `DEL-05-01`, `DEL-05-04`, and
+  `DEL-06-01`.
+- Validation evidence passed: frame-kernel format check, frame-kernel locked
+  test run with 33 tests, primitive-load format check, primitive-load locked
+  test run with 40 tests, and the schema/status/rule-pack pytest suite with 17
+  tests.
+- Fan-in record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_0705_FOUNDATIONAL-HARDENING_FANIN.md`.
+- No lifecycle state, DAG artifact, dependency register, review disposition,
+  release claim, professional approval, code-compliance claim, protected
+  standards data, private data, or new implementation scope was changed by
+  parent fan-in.

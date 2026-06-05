@@ -175,3 +175,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
   allowables, SIF/flexibility data, private data, code-compliance claim,
   lifecycle edit, dependency edit, coordination edit, DAG edit, or
   cross-deliverable edit was introduced by this worker.
+
+## 2026-06-05 - Foundational hardening parent fan-in
+
+- WORKING_ITEMS completed parent fan-in for the approved foundational-hardening
+  worker tranche spanning `DEL-04-01`, `DEL-05-01`, `DEL-05-04`, and
+  `DEL-06-01`.
+- Validation evidence passed: frame-kernel format check, frame-kernel locked
+  test run with 33 tests, primitive-load format check, primitive-load locked
+  test run with 40 tests, and the schema/status/rule-pack pytest suite with 17
+  tests.
+- Fan-in record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_0705_FOUNDATIONAL-HARDENING_FANIN.md`.
+- No lifecycle state, DAG artifact, dependency register, review disposition,
+  release claim, professional approval, code-compliance claim, protected
+  standards data, private data, or new implementation scope was changed by
+  parent fan-in.
