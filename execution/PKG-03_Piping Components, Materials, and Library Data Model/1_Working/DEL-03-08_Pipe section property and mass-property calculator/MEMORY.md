@@ -141,3 +141,48 @@ Remaining TBDs:
 - Accepted schema ownership, private-library record linkage, and dependency satisfaction.
 - Downstream solver, persistence, GUI, report, and result-envelope integration.
 - Human disposition of review findings and lifecycle/release status.
+
+## 2026-06-04 - DEL-03-08 calculator evidence check
+
+Durable TASK evidence:
+- Run record: `execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_run_records/TASK_RUN_2026-06-04_2117.md`.
+- Verified current calculator evidence against `core/section_properties/calculator.py`, `core/section_properties/README.md`, `schemas/section.schema.yaml`, `tests/test_section_properties.py`, `tests/test_component_section_schema.py`, `docs/SPEC.md`, `docs/TYPES.md`, and local `Review_Findings.csv`.
+- Canonical dimension evidence remains aligned: calculator outputs use `length`, `area`, `second_moment_area`, `section_modulus`, `volume_per_length`, and `mass_per_length`; schema and documentation use the same current dimension vocabulary and retain retired-alias avoidance.
+- Provenance evidence remains aligned: calculator `Quantity` values require non-empty provenance, `quantity_from_mapping` rejects schema-like values without provenance, and derived outputs state they were calculated from user-entered dimensions rather than catalog data.
+- Diagnostic evidence remains aligned: blocking diagnostics carry code, class/source/affected-object fields, message, remediation, and provenance, with tested coverage for missing dimensions, missing provenance, mixed units, and invalid geometry.
+- Validation passed: `python3 -m pytest -q tests/test_section_properties.py` returned 8 passed tests.
+
+Human-gated findings:
+- `PKG03-DEL-03-08-PKG02-001`, `PKG03-DEL-03-08-PKG02-002`, and `PKG03-DEL-03-08-PKG02-003` remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD` in local review evidence.
+- No `Review_Findings.csv` row, human disposition field, lifecycle state, dependency register, DAG file, coordination file, aggregate review artifact, schema, code, or test file was edited.
+
+Residual non-claims:
+- This check does not establish lifecycle closure, dependency satisfaction, release readiness, professional reliance, code compliance, certification, sealing, public source-catalog acceptance, fixture-value policy acceptance, private-library linkage, or downstream solver/GUI/report/result-envelope integration.
+
+## 2026-06-04 - DEL-03-08 review-readiness disposition check
+
+Review-readiness result: `READY_FOR_HUMAN_DISPOSITION`.
+
+Durable TASK evidence:
+- Run record: `execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_run_records/TASK_RUN_2026-06-04_2129.md`.
+- Reviewed the three local `Review_Findings.csv` rows without editing them. Current evidence supports human disposition because calculator outputs use the accepted dimension vocabulary, calculator and schema-like quantity inputs require provenance, and calculator blocking diagnostics carry code, class, source, affected object, message, remediation, and provenance.
+- Confirmed the recent local evidence packet and four active deliverable docs remain aligned with `docs/SPEC.md`, `docs/TYPES.md`, `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `schemas/section.schema.yaml`, `schemas/units.schema.yaml`, `schemas/model.schema.yaml`, `core/section_properties/calculator.py`, `core/section_properties/README.md`, and targeted tests.
+- Validation passed: `python3 -m pytest -q tests/test_section_properties.py` returned 8 passed tests; `python3 -m pytest -q tests/test_component_section_schema.py` returned 2 passed tests.
+
+Human-gated findings:
+- `PKG03-DEL-03-08-PKG02-001`, `PKG03-DEL-03-08-PKG02-002`, and `PKG03-DEL-03-08-PKG02-003` remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; this run did not resolve, close, or reclassify them.
+- Historical aggregate resolution files referenced by earlier memory are not populated in this checkout at `execution/_Reconciliation/Reviews/DEV001_FINDING_RESOLUTION_PKG02_GROUNDED_2026-05-16/`; this readiness result relies on local findings, local run records, source, schemas, docs, and fresh targeted test evidence.
+
+Residual non-claims:
+- This readiness check does not establish lifecycle closure, dependency satisfaction, release readiness, professional reliance, code compliance, certification, sealing, source-catalog acceptance, fixture-value policy acceptance, private-library linkage, downstream solver/GUI/report/result-envelope integration, or human disposition.
+
+## 2026-06-05 - Human disposition accepted for selected PKG-02 review findings
+
+- Human Gate A ruling accepted `PKG03-DEL-03-08-PKG02-001`,
+  `PKG03-DEL-03-08-PKG02-002`, and `PKG03-DEL-03-08-PKG02-003` as
+  `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those three rows only.
+- Lifecycle closure, dependency satisfaction, release readiness, professional
+  reliance, code compliance, certification, sealing, source-catalog acceptance,
+  fixture-value policy acceptance, private-library linkage, and downstream
+  solver/GUI/report/result-envelope integration remain unchanged and unclaimed.

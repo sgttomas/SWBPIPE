@@ -81,3 +81,34 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Local `Review_Findings.csv` was not edited; findings remain conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
 - `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, schemas, fixtures, tests, code, DAG, coordination files, and `DEL-03-01` were not edited by this run.
 - Validation: `python3 -m pytest tests/test_library_import_provenance.py` passed `7 passed in 0.02s`; scoped stale-language `rg` across the four active docs returned no matches.
+
+## 2026-06-04 - TASK provenance-checker evidence verification
+
+- Verified current deliverable evidence against `core/library_import/provenance_checker.py`, `core/library_import/README.md`, `tests/test_library_import_provenance.py`, `docs/SPEC.md`, `docs/TYPES.md`, and local `Review_Findings.csv`.
+- Diagnostic-envelope projection evidence remains present: `ImportFinding.to_diagnostic()` emits code, severity, class, source, affected object, message, remediation, and provenance fields; `ImportValidationResult.diagnostics` exposes those mappings; `test_import_findings_map_to_pkg02_diagnostic_envelope` asserts the PKG-02-style mapping.
+- Public/private/quarantine boundary evidence remains present: public imports require accepted public-permissive provenance and review metadata; private imports can remain `PRIVATE_LOCAL_ONLY`; missing or unresolved public rights reject public acceptance; suspected protected content produces `QUARANTINE`; imported numeric values require unit/dimension metadata and value-level provenance.
+- `Review_Findings.csv` was read only. Both local findings remain `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`: diagnostic envelope mapping evidence for `PKG03-DEL-03-07-PKG02-001`, and package-local dependency evidence for `PKG03-DEL-03-07-PKG02-002`.
+- Residual non-claims remain unchanged: no legal/license acceptance, no approved public source catalog, no concrete external import parser or format contract, no engineering reliance authority for invented fixture values, no dependency/lifecycle closure, no professional approval, and no code-compliance claim.
+- Validation: `python3 -m pytest -q tests/test_library_import_provenance.py` passed `7 passed in 0.01s`.
+
+## 2026-06-04 - TASK review-readiness for human disposition
+
+- Review-readiness verdict: `READY_FOR_HUMAN_DISPOSITION` for the existing `Review_Findings.csv` rows only. This is not acceptance, lifecycle closure, dependency closure, release approval, legal acceptance, professional approval, certification, sealing, authentication, or code-compliance approval.
+- Evidence supports human disposition review for `PKG03-DEL-03-07-PKG02-001`: `ImportFinding.to_diagnostic()` and `ImportValidationResult.diagnostics` map import findings to PKG-02-style `class`, `source`, `affected_object`, `remediation`, and `provenance` fields; `test_import_findings_map_to_pkg02_diagnostic_envelope` covers the mapping.
+- Evidence supports human disposition review for `PKG03-DEL-03-07-PKG02-002`: package-local dependency row `DEV-001-STAGE2-DEL-03-07-PKG02-001` records DEL-02-04 diagnostic-envelope compatibility evidence as `SEMANTIC_READY`/`SATISFIED`, while the historical row and aggregate DAG/lifecycle surfaces remain unchanged.
+- Alignment check covered `docs/SPEC.md`, `docs/TYPES.md`, `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, local deliverable artifacts, `core/library_import/provenance_checker.py`, `core/library_import/README.md`, and `tests/test_library_import_provenance.py`. The current evidence remains bounded to already-parsed payload validation, public/private provenance gates, protected-content quarantine, unit metadata, diagnostic-envelope projection, and invented test fixtures.
+- Current targeted validation in this run: `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_library_import_provenance.py` passed `7 passed in 0.01s`.
+- `Review_Findings.csv` was not edited. Both rows remain `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD`. Remaining unresolved items stay `TBD`: concrete external import formats/parser contracts, legal/license policy, accepted public source catalogs, fixture-value engineering reliance authority, dependency/lifecycle closure, professional approval, and code-compliance claims.
+
+## 2026-06-05 - Human disposition accepted for selected PKG-02 review findings
+
+- Human Gate A ruling accepted `PKG03-DEL-03-07-PKG02-001` and
+  `PKG03-DEL-03-07-PKG02-002` as `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those two rows only.
+- The dependency-maturity review finding is dispositioned locally, but broader
+  dependency satisfaction and aggregate lifecycle authority remain outside this
+  pass.
+- Concrete external import formats/parser contracts, legal/license policy,
+  accepted public source catalogs, fixture-value engineering reliance authority,
+  lifecycle closure, professional approval, certification, sealing,
+  authentication, and code-compliance claims remain unchanged and unclaimed.

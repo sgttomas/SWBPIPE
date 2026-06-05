@@ -138,3 +138,88 @@ professional/code-compliance claims were introduced.
 - Reconciled evidence preserves the public/private data boundary: public fixtures remain invented/schema-shape evidence with missing engineering values, explicit completeness findings, diagnostics, provenance metadata, and no protected dimensional tables, code-specific values, proprietary catalog values, private data, or professional/code-compliance claims.
 - Local `Review_Findings.csv` remains untouched. Its findings stay conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; no automatic `RESOLVED` status or lifecycle promotion is implied.
 - Remaining open items include accepted public section/component source catalogs, public fixture value policy, source/license and redistribution disposition, dependency satisfaction, human disposition, lifecycle state, persistence round-trip coverage, concrete import formats, section-property calculation policy, and component editor behavior.
+
+## 2026-06-04 - DEL-03-02 schema evidence verification
+
+- Bounded TASK verification read current deliverable-local truth surfaces plus
+  `schemas/section.schema.yaml`, `schemas/component.schema.yaml`,
+  `fixtures/component/*`, `tests/test_component_section_schema.py`,
+  `docs/SPEC.md`, `docs/TYPES.md`, and local `Review_Findings.csv`.
+- Strict split fixture evidence is current: the legacy combined fixture points
+  to `fixtures/component/invented_section_library_valid.json` and
+  `fixtures/component/invented_component_library_valid.json`; the split
+  fixtures validate as public schema fixtures with missing engineering values,
+  explicit completeness findings, diagnostics, provenance, and
+  `redistribution_status=TBD`.
+- Canonical vocabulary alignment remains supported by evidence:
+  `component.schema.yaml` `ComponentType` exactly equals the canonical
+  `schemas/model.schema.yaml` component enum, while section dimensions and
+  component quantity dimensions remain subsets of the accepted PKG-02 unit
+  dimension vocabulary and exclude retired aliases such as `area_moment` and
+  generic `stiffness`.
+- Requested validation passed:
+  `python3 -m pytest -q tests/test_component_section_schema.py` returned
+  `2 passed in 0.12s`.
+- Local `Review_Findings.csv` still has three findings
+  (`PKG03-DEL-03-02-PKG02-001` through `PKG03-DEL-03-02-PKG02-003`) with
+  `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD`.
+  No review finding fields were changed.
+- Residual non-claims remain: this verification does not resolve human
+  disposition, dependency satisfaction, lifecycle state, public source/catalog
+  policy, redistribution acceptance, release readiness, professional approval,
+  certification, sealing, authentication, or code compliance. No protected
+  standards data, code-specific component values, proprietary catalog values,
+  private data, or schema/test/fixture edits were introduced.
+
+## 2026-06-04 - DEL-03-02 review-readiness disposition assessment
+
+- Bounded TASK review-readiness run read the deliverable-local truth set, local
+  review surfaces, the recent evidence-reconciliation packet, and governing
+  `docs/SPEC.md`, `docs/TYPES.md`, `docs/CONTRACT.md`, and
+  `docs/IP_AND_DATA_BOUNDARY.md` slices.
+- Readiness verdict is `READY_FOR_HUMAN_DISPOSITION` for the three existing
+  `Review_Findings.csv` rows only. The evidence supports human disposition of
+  `PKG03-DEL-03-02-PKG02-001` through `PKG03-DEL-03-02-PKG02-003` because the
+  component enum now matches the canonical model enum, section/component
+  dimensions align with the accepted PKG-02 dimension vocabulary, retired
+  aliases remain excluded, strict split fixtures validate against their schemas,
+  and the legacy combined fixture points to the strict split fixtures.
+- Targeted validation passed without changing schemas, fixtures, tests, review
+  rows, lifecycle files, dependency files, DAG files, coordination files, or
+  aggregate review artifacts:
+  `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_component_section_schema.py`
+  returned `2 passed in 0.11s`.
+- Governance alignment remains scoped and bounded: public fixtures stay
+  invented/schema-shape-only with missing engineering values surfaced through
+  explicit statuses, completeness findings, diagnostics, provenance,
+  redistribution status, and review status. No protected standards data,
+  code-specific component values, proprietary catalog values, private data,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim is introduced.
+- Local conflict `DEL-03-02-CF-001` remains present in `Guidance.md` with human
+  ruling `TBD`. Current `_CONTEXT.md` and `_REFERENCES.md` both point to
+  SOFTWARE_DECOMP revision `0.7`, so the recorded conflict appears stale or
+  superseded by current surfaces, but this TASK run did not adjudicate or edit
+  that conflict row. It should be dispositioned or cleaned up by the authorized
+  metadata/review owner before deliverable closure is claimed.
+- This readiness run does not change `Review_Findings.csv`; all three review
+  rows remain `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` and
+  `HumanDisposition=TBD` pending human action. It also does not resolve
+  lifecycle state, dependency satisfaction, public source/catalog policy,
+  redistribution acceptance, persistence round-trip coverage, import formats,
+  section-property calculation policy, or component editor behavior.
+
+## 2026-06-05 - Human disposition accepted for selected PKG-02 review findings and stale conflict
+
+- Human Gate A ruling accepted `PKG03-DEL-03-02-PKG02-001`,
+  `PKG03-DEL-03-02-PKG02-002`, and `PKG03-DEL-03-02-PKG02-003` as
+  `ACCEPT_AS_IS` / `RESOLVED`.
+- Human Gate B ruling accepted `DEL-03-02-CF-001` as stale/resolved because
+  current `_CONTEXT.md` and `_REFERENCES.md` both cite SOFTWARE_DECOMP revision
+  `0.7`.
+- Local `Review_Findings.csv` and the `Guidance.md` conflict-table human ruling
+  were updated for those accepted matters only.
+- Lifecycle `_STATUS.md`, dependency files, DAG state, `_CONTEXT.md`,
+  `_REFERENCES.md`, schema/code/fixture/test files, release readiness,
+  professional approval, certification, sealing, authentication, and
+  code-compliance claims remain unchanged and unclaimed.

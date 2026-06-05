@@ -125,3 +125,29 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Review findings remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
 - Local lifecycle remains `IN_PROGRESS`.
 - Remaining `TBD` items include public material source catalog, public fixture value policy, temperature interpolation policy, allowable storage policy, dependency satisfaction, protected-content/redistribution review disposition, and human review dispositions.
+
+## 2026-06-04 - TASK material-schema evidence verification
+
+- TASK verified the current material-schema evidence against `schemas/material.schema.yaml`, `fixtures/material/invented_material_library_valid.json`, `tests/test_material_schema.py`, `docs/SPEC.md`, `docs/TYPES.md`, and local `Review_Findings.csv`.
+- Technical evidence observed: `schemas/material.schema.yaml` is JSON Schema 2020-12 strict JSON syntax and defines material-library metadata, material records, property definitions, allowable slots, provenance, redistribution status, completeness findings, diagnostics, and open decisions without schema defaults.
+- PKG-02 vocabulary evidence observed: `MaterialPropertyDimension` uses `density`, `stress`, `temperature`, `temperature_interval`, `thermal_expansion_coefficient`, `specific_heat`, `thermal_conductivity`, `dimensionless`, and `TBD`; retired aliases remain excluded by `tests/test_material_schema.py`.
+- Fixture evidence observed: `fixtures/material/invented_material_library_valid.json` is a `public_schema_fixture` with invented non-engineering content, omitted engineering values, `source_license=TBD`, `redistribution_status=TBD`, an incomplete material record, and blocking `MATERIAL_PROPERTY_MISSING` diagnostics.
+- Validation evidence: `python3 -m pytest -q tests/test_material_schema.py` passed with `2 passed in 0.16s`.
+- Remaining local review findings: `PKG03-DEL-03-01-PKG02-001` and `PKG03-DEL-03-01-PKG02-002` both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; no `Review_Findings.csv` edits were made.
+- Residual non-claims preserved: this verification does not promote lifecycle state, satisfy dependency rows, accept public material values, clear protected-content or redistribution review, certify engineering suitability, assert code compliance, or authorize professional reliance.
+
+## 2026-06-04 - TASK review-readiness for human disposition
+
+- TASK reviewed current DEL-03-01 evidence for human disposition readiness without editing lifecycle state, `Review_Findings.csv`, dependency files, schemas, code, fixtures, or tests.
+- Readiness verdict: `READY_FOR_HUMAN_DISPOSITION` for existing review rows `PKG03-DEL-03-01-PKG02-001` and `PKG03-DEL-03-01-PKG02-002`.
+- Evidence basis: the 2026-06-05 evidence reconciliation packet, active four-document kit, current material schema, invented fixture, material schema test, `docs/SPEC.md`, `docs/TYPES.md`, `docs/CONTRACT.md`, and `docs/IP_AND_DATA_BOUNDARY.md`.
+- Technical support for `PKG03-DEL-03-01-PKG02-001`: `MaterialPropertyDimension` now uses the accepted PKG-02 dimension vocabulary subset and the targeted material schema test excludes retired aliases.
+- Technical support for `PKG03-DEL-03-01-PKG02-002`: dependency maturity is accurately preserved as a human/reconciliation disposition question; local dependency rows still contain `TBD` satisfaction and were not changed.
+- Validation evidence: `PYTHONDONTWRITEBYTECODE=1 python3 -B tests/test_material_schema.py` completed successfully.
+- Remaining gates: `HumanDisposition` remains `TBD`; lifecycle remains `IN_PROGRESS`; dependency satisfaction, protected-content/redistribution review, public material source catalog, public fixture value policy, temperature interpolation policy, and allowable storage policy remain `TBD`.
+
+## 2026-06-05 - Human disposition accepted for selected PKG-02 review findings
+
+- Human Gate A ruling accepted `PKG03-DEL-03-01-PKG02-001` and `PKG03-DEL-03-01-PKG02-002` as `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those two rows only.
+- Dependency satisfaction, lifecycle `_STATUS.md`, DAG state, public material source/catalog authority, protected-content/redistribution review, release readiness, professional approval, certification, sealing, authentication, and code-compliance claims remain unchanged and unclaimed.
