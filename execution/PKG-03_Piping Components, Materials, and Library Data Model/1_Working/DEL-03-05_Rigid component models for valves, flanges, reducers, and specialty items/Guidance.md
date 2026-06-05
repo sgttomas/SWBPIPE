@@ -2,11 +2,11 @@
 
 ## Purpose
 
-This deliverable prepares the evidence frame for implementing rigid and semi-rigid component models without importing protected component data. Its value is to make the later implementation boundary explicit: the software may structure and validate user-supplied component information, but it must not ship hidden catalog knowledge as defaults.
+This deliverable reconciles the implemented rigid and semi-rigid component schema evidence without importing protected component data. Its value is to keep the implementation boundary explicit: the software may structure and validate user-supplied component information, but it must not ship hidden catalog knowledge as defaults.
 
 ## Principles
 
-- Use schema and validation to separate component shape from component data.
+- Use schema and validation to separate implemented component shape from protected component data.
 - Treat dimensions, weights, COGs, and stiffness behavior as project/library inputs with provenance.
 - Prefer explicit `TBD` or diagnostics over plausible defaults.
 - Keep public examples synthetic, minimal, and labeled as examples rather than engineering recommendations.
@@ -14,9 +14,9 @@ This deliverable prepares the evidence frame for implementing rigid and semi-rig
 
 ## Considerations
 
-Reducer, flange, valve, and specialty-item records will likely need different descriptive fields, but this setup pass does not decide the final field taxonomy. Human/project authority must still decide coordinate conventions, stiffness representation, and which fields are mandatory per component family.
+The current component schema and strict fixture implement a base rigid/semi-rigid family contract for `valve`, `flange`, `reducer`, `rigid`, and `specialty`. The implemented base contract includes rigid body length, end-size/reference slots, weight, center of gravity, `linear_stiffness`, `rotational_stiffness`, stiffness behavior reference, and source/manufacturer reference slots. Human/project authority must still decide coordinate conventions, exact solver treatment of stiffness inputs, accepted source catalogs, public fixture-value policy, import formats, review disposition, dependency satisfaction, lifecycle closure, and any stricter per-family profiles.
 
-Public fixture data is especially sensitive. Even common-looking valve, flange, or reducer dimensions and weights may originate from protected standards, catalogs, or vendor sources. Use invented-looking but clearly synthetic examples only when future implementation needs public fixtures, and keep them out of engineering-result claims.
+Public fixture data is especially sensitive. Even common-looking valve, flange, reducer, rigid, or specialty dimensions, weights, COGs, and stiffness values may originate from protected standards, catalogs, or vendor sources. The current invented fixture keeps actual values missing and uses schema-shape-only/private-value policies; any public value example still needs accepted source and redistribution policy.
 
 Preferred vocabulary for downstream work:
 
@@ -30,19 +30,21 @@ Preferred vocabulary for downstream work:
 
 | Choice | Benefit | Risk / mitigation |
 |---|---|---|
-| One shared rigid-component base model | Reduces duplication across valves, flanges, reducers, and specialty items | May hide family-specific validation; use component-family validation profiles |
+| Implemented shared rigid/semi-rigid family contract | Reduces duplication across valves, flanges, reducers, rigid placeholders, and specialty items | May hide family-specific validation; stricter per-family profiles remain `TBD` |
 | Family-specific records | Clearer validation per family | More schema surface; keep common provenance/unit fields consistent |
-| Allow semi-rigid stiffness fields | Supports cases beyond ideal rigid masses | Must avoid default stiffness assumptions; require user/manufacturer provenance |
-| Synthetic public fixtures | Enables tests without protected data | Must be labeled non-authoritative and reviewed for protected-content risk |
+| Split stiffness into `linear_stiffness` and `rotational_stiffness` | Aligns with accepted unit dimensions and addresses the generic-stiffness audit concern technically | Exact solver consumption remains `TBD`; require user/manufacturer provenance |
+| Schema-shape public fixtures | Enables tests without protected data | Must remain non-authoritative and blocked from mechanics use until reviewed values and source policy exist |
 
 ## Examples
 
-- `TBD`: Future fixture value examples must be synthetic or user-supplied with documented rights.
+- Current strict fixture example: `comp.invented.rigid.alpha` contains schema slots for rigid body length, connection reference, weight, COG, `linear_stiffness`, and `rotational_stiffness`, but each actual value remains missing.
+- `TBD`: Public fixture value examples must be synthetic or user-supplied with documented rights and accepted redistribution policy before they can be added.
 - Synthetic public fixtures are acceptable only as validation examples. They must be labeled non-authoritative and must not be used to imply engineering recommendations, code compliance, catalog equivalence, or vendor performance.
-- `ASSUMPTION`: A future implementation may use a common component identity/provenance envelope across component families, because AB-00-04 and OPS-K-DATA-3 both require deterministic, provenance-preserving records.
+- `ASSUMPTION`: The implemented common component identity/provenance envelope remains appropriate across component families because AB-00-04 and OPS-K-DATA-3 require deterministic, provenance-preserving records.
 
 ## Conflict Table (for human ruling)
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| None | No direct conflict found in accessible setup sources. | N/A | N/A | N/A | N/A | TBD |
+| PKG03-DEL-03-05-PKG02-001 | Earlier audit found `specialty` in PKG-03 but not in the PKG-02 canonical component enum. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-001 | `tests/test_component_section_schema.py` verifies `ComponentType` equals the PKG-02 canonical enum. | `Specification.md`; schema evidence interpretation | Treat as technically addressed pending human disposition. | TBD |
+| PKG03-DEL-03-05-PKG02-002 | Earlier audit found generic `stiffness` dimension ambiguous against PKG-02 units. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-002 | `ComponentQuantityDimension` uses `linear_stiffness` and `rotational_stiffness`; tests verify accepted dimensions and retired dimensions are absent. | `Specification.md`; schema evidence interpretation | Treat as technically addressed pending human disposition. | TBD |

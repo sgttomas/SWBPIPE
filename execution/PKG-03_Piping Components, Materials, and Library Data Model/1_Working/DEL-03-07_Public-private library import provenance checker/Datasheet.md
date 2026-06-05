@@ -12,37 +12,41 @@
 | Objectives | OBJ-002; OBJ-004 |
 | Anticipated Artifacts | library import validator; provenance tests |
 | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
-| Status | Draft setup evidence |
+| Status | Implementation evidence reconciled; lifecycle remains governed by `_STATUS.md` |
 
 ## Attributes
 
 | Attribute | Source-grounded value |
 |---|---|
-| Primary function | Validate library import records so source, provenance, license, and redistribution metadata are recorded before component/material data is accepted. |
+| Primary function | Validate already-parsed material, section, and component library payloads so source, provenance, license, contributor/reviewer disposition, redistribution metadata, privacy posture, and unit metadata are checked before import acceptance. |
 | Data boundary | Public component data requires documented provenance and redistribution rights; private library data must not become a bundled public default. |
-| Input format list | TBD. The decomposition states that no external import formats are selected yet. |
+| Input format list | TBD. The implemented checker validates already-parsed payloads and intentionally does not parse external import formats. |
 | Rights determination authority | TBD. The checker can record and flag metadata, but legal acceptance requires human/project review. |
 | Protected-content response | Suspected protected standards or vendor content is quarantined and escalated rather than transformed into public data. |
-| Unit handling | Imported component/material values remain unit-aware where numeric values are present; no unit defaults are introduced here. |
+| Unit handling | Imported component/material numeric values must retain unit and dimension metadata; no unit defaults are introduced by the checker. |
 
 ## Conditions
 
 - Public data contributions are acceptable only when provenance and redistribution status are documented.
 - Import mechanisms must record source, provenance, and license metadata for component and material data.
 - Missing solve-required or rule-check-required values are findings, not silent defaults.
-- Public setup evidence must not include protected standards text, protected tables, vendor data, or invented rights/provenance examples.
+- Public deliverable evidence must not include protected standards text, protected tables, vendor data, or real rights/provenance examples.
 
 ## Construction
 
-The future implementation is expected to contain:
+Reconciled implementation evidence contains:
 
-- a library import validator that checks metadata presence and disposition fields;
-- validation paths for public and private library records;
-- quarantine or rejection signaling for missing provenance, missing redistribution status, or suspected protected content;
-- provenance tests that use invented or placeholder data only;
-- result diagnostics that preserve the public/private boundary and do not make legal conclusions.
+- `core/library_import/provenance_checker.py`, a stdlib-only validator for already-parsed material, section, and component library payloads;
+- `validate_library_import(...)`, returning `ACCEPTED_PUBLIC`, `PRIVATE_LOCAL_ONLY`, `REVIEW_REQUIRED`, `REJECTED`, or `QUARANTINE` outcomes;
+- metadata checks for library-level and record-level provenance fields: source name/location, source license, contributor, contributor certification, redistribution status, and review status;
+- public/private disposition checks that block private-only or unresolved-rights data from public acceptance while permitting eligible private imports to remain local/private;
+- protected-content quarantine signaling for suspected protected or rejected sources;
+- nested numeric value checks that require unit/dimension metadata and value-level provenance;
+- `ImportFinding.to_diagnostic()` and `ImportValidationResult.diagnostics`, which project findings into a PKG-02-style diagnostic envelope with code, severity, class, source, affected object, remediation, and provenance;
+- `core/library_import/README.md`, documenting the boundary that the checker does not parse external formats and does not make legal conclusions;
+- `tests/test_library_import_provenance.py`, covering accepted public imports, public rejection for unresolved rights, private-local handling, missing provenance, protected-content quarantine, unit metadata, and diagnostic-envelope mapping using invented fixtures.
 
-Implementation locations, concrete schemas, external formats, and dependency versions are TBD.
+Remaining unresolved items are concrete external import formats and parser contracts, accepted source catalogs and legal/license policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, human disposition of review findings, and lifecycle closure.
 
 ## References
 

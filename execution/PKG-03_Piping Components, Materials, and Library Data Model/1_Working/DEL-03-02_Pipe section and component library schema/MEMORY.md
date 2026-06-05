@@ -130,3 +130,11 @@ professional/code-compliance claims were introduced.
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - DEL-03-02 evidence reconciliation
+
+- Bounded TASK evidence reconciliation updated only deliverable-local active docs and this memory surface; schemas, fixtures, tests, status, dependency, DAG, coordination, and review-finding files were not edited.
+- Datasheet, Specification, Guidance, and Procedure now describe `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, strict split fixtures, combined legacy fixture pointers, and `tests/test_component_section_schema.py` as implemented evidence rather than absent schema work.
+- Reconciled evidence preserves the public/private data boundary: public fixtures remain invented/schema-shape evidence with missing engineering values, explicit completeness findings, diagnostics, provenance metadata, and no protected dimensional tables, code-specific values, proprietary catalog values, private data, or professional/code-compliance claims.
+- Local `Review_Findings.csv` remains untouched. Its findings stay conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; no automatic `RESOLVED` status or lifecycle promotion is implied.
+- Remaining open items include accepted public section/component source catalogs, public fixture value policy, source/license and redistribution disposition, dependency satisfaction, human disposition, lifecycle state, persistence round-trip coverage, concrete import formats, section-property calculation policy, and component editor behavior.

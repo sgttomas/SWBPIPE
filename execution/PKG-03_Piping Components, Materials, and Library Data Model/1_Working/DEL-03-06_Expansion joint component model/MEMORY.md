@@ -47,8 +47,9 @@
   policy, stiffness degree-of-freedom mapping, hardware taxonomy, concrete
   import formats, solver consumption details, and downstream component-editor
   behavior.
-- State reconciliation: REV05 lifecycle snapshot and current `_STATUS.md`
-  carry `CHECKING` with committed evidence; this TP-RECON-01 pass records
+- State reconciliation: REV05 lifecycle snapshot carried `CHECKING` with
+  committed evidence at that historical point; later lifecycle correction and
+  current `_STATUS.md` preserve `IN_PROGRESS`. This TP-RECON-01 pass records
   history only and does not record an engineering reliance or compliance
   decision.
 
@@ -77,3 +78,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - DEL-03-06 evidence reconciliation
+
+- Reconciled active docs against current implementation evidence in
+  `schemas/component.schema.yaml`,
+  `fixtures/component/invented_component_library_valid.json`, and
+  `tests/test_component_section_schema.py`.
+- Current evidence implements the `expansion_joint` component type,
+  `linear_stiffness`, `rotational_stiffness`, `effective_area`,
+  `movement_limit`, `hardware_flag`/`hardware_reference`, and
+  `manufacturer_reference` schema slots, invented fixture coverage, blocking
+  completeness evidence, and expansion-joint diagnostics.
+- The stale generic-stiffness compatibility concern remains technically
+  addressed pending human disposition because the current schema/test evidence
+  uses accepted `linear_stiffness` and `rotational_stiffness` dimensions rather
+  than a retired or generic stiffness dimension.
+- Preserved unresolved gates: movement-limit classes, hardware taxonomy, public
+  source catalog policy, public fixture-value policy, dependency satisfaction,
+  `Review_Findings.csv` human disposition, and lifecycle closure.
+- No edits were made to `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`,
+  `Review_Findings.csv`, schemas, fixtures, tests, code, DAG files,
+  coordination files, or adjacent deliverables.

@@ -19,7 +19,7 @@ package_id: PKG-03
 | Type | DATA_MODEL_CHANGE | SourcePath: `_CONTEXT.md`; SectionRef: Type |
 | Scope item | SOW-018 | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-018 |
 | Objective | OBJ-004 | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: objective row OBJ-004 |
-| Anticipated artifacts | `schemas/component.schema.yaml`; `schemas/section.schema.yaml` | SourcePath: `_CONTEXT.md`; SectionRef: Anticipated Artifacts |
+| Implemented schema artifacts | `schemas/component.schema.yaml`; `schemas/section.schema.yaml` | SourcePath: `schemas/component.schema.yaml`; SourcePath: `schemas/section.schema.yaml` |
 | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
 | Responsible party | TBD | Not assigned in accessible sources |
 
@@ -34,7 +34,7 @@ package_id: PKG-03
 | Schema baseline | JSON Schema 2020-12 contracts | SourcePath: `_CONTEXT.md`; SectionRef: Architecture Basis Injection |
 | Persistence baseline | Deterministic, versioned, unit-aware, provenance-preserving, schema-governed, migration-aware, and round-trip testable | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
 | Diagnostics baseline | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06 |
-| Exact schema fields | TBD | This setup pass does not implement `schemas/component.schema.yaml` or `schemas/section.schema.yaml` |
+| Schema implementation evidence | Implemented with strict JSON Schema 2020-12 documents, split strict fixtures, combined legacy fixture pointers, and focused schema tests | SourcePath: `schemas/section.schema.yaml`; SourcePath: `schemas/component.schema.yaml`; SourcePath: `fixtures/component/invented_section_library_valid.json`; SourcePath: `fixtures/component/invented_component_library_valid.json`; SourcePath: `fixtures/component/invented_section_component_library_valid.json`; SourcePath: `tests/test_component_section_schema.py` |
 
 ## Conditions
 
@@ -49,15 +49,19 @@ package_id: PKG-03
 
 ## Construction
 
-This setup deliverable should prepare later schema implementation without defining protected values.
+This deliverable now has repository-level schema implementation evidence. This reconciliation records the implemented artifacts without changing schemas, fixtures, tests, lifecycle files, dependency files, or review dispositions.
 
 | Part | Status | Notes |
 |---|---|---|
-| `schemas/section.schema.yaml` | Anticipated, not implemented in this setup pass | Should model section/library records with unit-bearing fields, provenance, redistribution status, completeness/missing-data status, and schema versioning. Exact fields are TBD. |
-| `schemas/component.schema.yaml` | Anticipated, not implemented in this setup pass | Should model component-library records with user-entered dimensions, weights, centers of gravity, source/license metadata, and redistribution status. Exact component-family specialization is handled by later DEL-03 deliverables. |
-| Provenance metadata | Required concept | Must include source/provenance and redistribution status sufficient to distinguish private, public-permissive, unknown, and suspected protected content. Exact enum layout is TBD. |
-| Unit-bearing value model | Required concept | Must align with project unit safety and schema contracts. Exact reusable unit-value reference is TBD. |
-| Protected-content gate hooks | Required concept | Future schema validation and import/review workflows must prevent protected or private values from becoming public defaults. |
+| `schemas/section.schema.yaml` | Implemented evidence | Defines a strict pipe/section library schema with `schema_version`, `section_library`, `section_records`, `dimension_definitions`, `property_definitions`, `completeness_rules`, `diagnostics`, and `open_decisions`; it includes unit-bearing section dimension/property slots, provenance, redistribution status, review status, completeness findings, diagnostics, and open decisions. |
+| `schemas/component.schema.yaml` | Implemented evidence | Defines a strict component library schema with `schema_version`, `component_library`, `component_family_contracts`, `component_records`, `field_definitions`, `completeness_rules`, `diagnostics`, and `open_decisions`; it includes component-family contracts, user-entered field slots, protected-value policies, provenance, redistribution status, review status, completeness findings, diagnostics, and open decisions. |
+| Strict section fixture | Implemented evidence | `fixtures/component/invented_section_library_valid.json` validates as schema-shape evidence and intentionally omits engineering values through `missing` value statuses, incomplete completeness findings, and diagnostics. |
+| Strict component fixture | Implemented evidence | `fixtures/component/invented_component_library_valid.json` validates as schema-shape evidence for bend, branch, rigid, and expansion-joint component records while keeping engineering values absent or private/user-supplied only. |
+| Combined legacy fixture | Implemented pointer evidence | `fixtures/component/invented_section_component_library_valid.json` carries section/component content plus references to the strict split fixtures; strict validation relies on the split fixtures. |
+| Test coverage | Implemented evidence | `tests/test_component_section_schema.py` checks strict schema shape, provenance requirements, redistribution statuses, unit-dimension alignment with PKG-02, component enum equality with the canonical model enum, split fixture validation, and forbidden public-data text. |
+| Provenance metadata | Implemented schema mechanism; policy TBDs remain | Schemas require source/provenance, license, contributor certification, redistribution status, and review status. Accepted public source catalogs, source-license disposition, redistribution acceptance, and public contribution approval remain human/policy decisions. |
+| Unit-bearing value model | Implemented schema mechanism | Schemas define quantity-value slots with magnitude, unit, dimension, value status, and provenance; tests assert accepted dimension vocabulary alignment with `schemas/units.schema.yaml`. |
+| Protected-content gate hooks | Implemented schema/test guardrails; workflow policy TBDs remain | Schemas and fixtures represent protected-suspected/rejected states, protected-value policies, diagnostics, and no-public-value policies. Human review workflow and accepted source policy remain unresolved. |
 | Engineering values | Out of scope | No pipe dimensional table values, component catalog values, allowables, SIFs, flexibility factors, or code-derived values are introduced here. |
 
 ## References
@@ -73,4 +77,3 @@ This setup deliverable should prepare later schema implementation without defini
 - `docs/TYPES.md`, epistemic labels and data provenance labels.
 - `docs/SPEC.md`, sections 1, 3, 10, and 11.
 - `docs/DIRECTIVE.md`, data-boundary and stop-rule basis.
-

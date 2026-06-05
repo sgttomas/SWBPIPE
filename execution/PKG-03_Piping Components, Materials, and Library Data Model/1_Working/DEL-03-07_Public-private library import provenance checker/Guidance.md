@@ -19,7 +19,14 @@ This deliverable exists to connect PKG-03 library data models with the project g
 - SOW-044 requires import mechanisms to record source, provenance, and license metadata for component/material data.
 - OPS-K-IP-3 and OPS-K-GOV-4 make protected-content suspicion a stop-and-escalate condition, not a transformation task.
 - AB-00-07 indicates adapters must validate units, provenance, redistribution, diagnostics, and public/private boundaries.
-- Exact external import formats are still TBD, so this setup evidence should describe validator behavior without committing to parser details.
+- Exact external import formats are still TBD, so this deliverable evidence describes already-parsed payload validation without committing to parser details.
+
+## Current Evidence
+
+- `core/library_import/provenance_checker.py` provides `validate_library_import(...)` for already-parsed material, section, and component library payloads.
+- `ImportValidationResult` reports `ACCEPTED_PUBLIC`, `PRIVATE_LOCAL_ONLY`, `REVIEW_REQUIRED`, `REJECTED`, or `QUARANTINE`.
+- `ImportFinding.to_diagnostic()` projects findings to PKG-02-style diagnostic envelope fields for downstream compatibility evidence.
+- `tests/test_library_import_provenance.py` uses invented fixtures to cover public acceptance, unresolved-rights rejection, private-local handling, missing provenance, protected-content quarantine, unit metadata, and diagnostic-envelope mapping.
 
 ## Trade-offs
 
@@ -31,9 +38,9 @@ This deliverable exists to connect PKG-03 library data models with the project g
 | Public test data | Use invented fixtures. | Prevent protected data from entering the public repository. |
 | Strictness | Conservative by default. | Scope item notes emphasize contributor certification and missing-provenance flags. |
 
-## Examples
+## Examples And Fixtures
 
-No concrete import examples are provided in this setup pass because the brief forbids protected/vendor data examples and external import formats are TBD. Future examples must use invented data and must not imply a real license, real provenance trail, or legal redistribution conclusion unless a human-approved source is cited.
+Concrete external import examples are not provided because protected/vendor data examples are forbidden and external import formats are TBD. Current test payloads are invented fixtures only; fixture values are not engineering reference values and do not establish a real license, provenance trail, accepted source catalog, or redistribution policy.
 
 ## Conflict Table (for human ruling)
 
@@ -41,3 +48,5 @@ No concrete import examples are provided in this setup pass because the brief fo
 |---|---|---|---|
 | DEL-03-07-C1 | Exact license/redistribution disposition vocabulary | Source scope requires metadata and review, but no approved enum names are defined in this deliverable. | TBD |
 | DEL-03-07-C2 | Public acceptance authority | Validator can flag missing/uncertain metadata; legal or maintainer acceptance authority is not defined locally. | TBD |
+| DEL-03-07-C3 | Public source catalog and policy | The checker gates on metadata values, but no approved public source catalog or legal/license policy is defined locally. | TBD |
+| DEL-03-07-C4 | Fixture-value authority | Tests use invented minimal values; no fixture value is approved for engineering reliance. | TBD |

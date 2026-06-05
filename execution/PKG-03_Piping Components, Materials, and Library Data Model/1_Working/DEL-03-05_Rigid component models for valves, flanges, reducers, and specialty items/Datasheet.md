@@ -10,39 +10,39 @@
 | Type | BACKEND_FEATURE_SLICE |
 | Scope item | SOW-009 |
 | Objective | OBJ-004 |
-| Lifecycle state at Pass 1/2 read | OPEN |
+| Lifecycle state read for reconciliation | IN_PROGRESS (`_STATUS.md` read only; no lifecycle edit) |
 
 ## Attributes
 
-This deliverable describes setup evidence for rigid and semi-rigid component model work. The intended component families are valves, flanges, reducers, and specialty items. Per SOW-009, the model must support user-supplied dimensions, weights, and centers of gravity. The sealed brief also adds stiffness behavior as an explicit setup consideration.
+This deliverable describes implemented evidence for rigid and semi-rigid component library schema slots, fixture shape, and validation coverage for valves, flanges, reducers, rigid placeholders, and specialty items. The implementation evidence is `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and the deliverable-local memory/review records.
 
-Required descriptive slots for later implementation are:
+Implemented descriptive slots and retained gaps are:
 
-| Slot | Source / basis | Setup value |
+| Slot | Source / basis | Reconciled value |
 |---|---|---|
-| Component family | SOW-009; Deliverables.csv row DEL-03-05 | Valve, flange, reducer, specialty item |
-| Dimensional inputs | SOW-009 | User-supplied; exact field list TBD |
-| Weight input | SOW-009 | User-supplied; no default weights |
-| Center of gravity input | SOW-009 | User-supplied; coordinate convention TBD |
-| Semi-rigid behavior | _CONTEXT.md description; sealed brief | Stiffness behavior supported; tensor/vector representation TBD |
-| Provenance | OPS-K-DATA-3; OPS-K-IP-2 | Required for component data |
-| Unit handling | OPS-K-UNIT-1; AB-00-04 | Unit-aware and dimensionally checked |
-| Public-data boundary | OPS-K-IP-1..3; OPS-K-DATA-1 | No protected tables, vendor data, or default dimensional data |
+| Component families | SOW-009; `ComponentType`; fixture `contract.component.rigid-semirigid`; test enum checks | `valve`, `flange`, `reducer`, `rigid`, and `specialty` are accepted component types and are covered by the rigid/semi-rigid family contract. |
+| Geometry slots | `ComponentFieldKind`; fixture field definitions; strict fixture tests | `rigid_body_length`, `end_a_size`, `end_b_size`, `connection_end_a_reference`, and `connection_end_b_reference` are schema/fixture-recognized slots. Public fixture values remain schema-shape-only. |
+| Weight input | SOW-009; fixture rigid record; protected-value policy | `weight` is implemented as a required mechanics-solve field kind. Public catalog/vendor weights remain omitted; value policy remains private or public-permissive only after review. |
+| Center of gravity input | SOW-009; fixture rigid record; protected-value policy | `center_of_gravity` is implemented as a required mechanics-solve field kind. Coordinate convention/reference-frame policy remains `TBD`. |
+| Semi-rigid behavior | `ComponentQuantityDimension`; fixture field definitions; review finding resolution evidence | Stiffness is split into `linear_stiffness` and `rotational_stiffness`; generic `stiffness` is not used as a component quantity dimension. Exact solver treatment remains `TBD`. |
+| Provenance and review metadata | OPS-K-DATA-3; OPS-K-IP-2; schema required fields | Component library metadata, records, fields, diagnostics, and fixture slots carry provenance/review status requirements. Human review disposition remains `TBD` where recorded in `Review_Findings.csv`. |
+| Unit handling | OPS-K-UNIT-1; AB-00-04; schema/test evidence | Unit-bearing dimensions include length, force, linear stiffness, and rotational stiffness. Connection/reference slots keep `dimension_id: TBD` where no unit-bearing value is defined. |
+| Public-data boundary | OPS-K-IP-1..3; OPS-K-DATA-1; fixture policies | Public artifacts carry schema shape and invented diagnostics only. Protected tables, vendor data, catalog dimensions, actual weights, COGs, and stiffness values remain excluded. |
 
-Family-specific field taxonomy remains `TBD`. Future implementation must decide which slots are common to all rigid/semi-rigid components and which slots are specific to valves, flanges, reducers, or specialty items.
+The base rigid/semi-rigid field taxonomy is implemented for schema validation and strict fixture coverage. Policy-level source catalogs, public fixture-value acceptance, concrete import formats, exact solver consumption, per-family engineering profiles, dependency satisfaction, human disposition, and lifecycle closure remain `TBD`.
 
 ## Conditions
 
 - Public artifacts must not include proprietary component/vendor data, protected dimensional tables, copied standards content, or invented weights/COGs.
 - User-entered or lawfully imported private data must carry provenance and redistribution status where it can enter a library or reusable fixture.
 - Missing solve-required or model-required values must remain explicit findings or validation diagnostics, never silent defaults.
-- Outputs are draft setup evidence and do not claim certification, compliance, or fitness for professional reliance.
+- Outputs are documentation reconciliation evidence and do not claim certification, compliance, or fitness for professional reliance.
 
 ## Construction
 
-Anticipated artifacts are rigid component models and reducer/flange/valve fixtures. In this setup pass, these are discussed only as deliverable-local evidence targets. No repository-level schema, source, fixture, or implementation file is created.
+Repository-level implementation evidence already exists in the component schema, invented component fixture, and component schema tests. This reconciliation run does not edit those repository-level schema, fixture, source, test, DAG, dependency, status, review CSV, or coordination files.
 
-The future model should preserve the architecture basis stated in the sealed brief: inward dependency direction toward domain contracts, deterministic unit-aware persistence, schema-governed data, diagnostics/result envelopes where validation fails, internal/public API boundary preservation, and layered tests.
+The implemented model evidence preserves the architecture basis stated in the sealed brief: inward dependency direction toward domain contracts, deterministic unit-aware persistence, schema-governed data, diagnostics/result envelopes where validation fails, internal/public API boundary preservation, and layered tests.
 
 ## References
 

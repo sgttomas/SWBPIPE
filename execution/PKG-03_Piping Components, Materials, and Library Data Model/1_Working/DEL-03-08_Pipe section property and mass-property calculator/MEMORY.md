@@ -118,3 +118,26 @@ Durable TASK evidence:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - DEL-03-08 evidence reconciliation
+
+Durable TASK evidence:
+- Run record: `execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_run_records/TASK_RUN_2026-06-05_DEL-03-08_evidence-reconciliation.md`.
+- Reconciled `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` against `core/section_properties/calculator.py`, `core/section_properties/README.md`, `tests/test_section_properties.py`, the invented downstream section-property evidence fixture, and local review/memory evidence.
+- Replaced setup-era anticipated/not-implemented language where implementation evidence exists: the calculator, README, mass-property tests, schema-like quantity mapping, provenance validation, mixed-unit rejection, and diagnostic envelope fields are now reflected as implemented evidence.
+- Preserved human-gated review posture: the three local `Review_Findings.csv` rows remain conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; the CSV was not edited.
+
+Validation:
+- `python3 -m pytest tests/test_section_properties.py` passed: 8 tests passed.
+- Stale-language search over the four active docs found no remaining not-implemented/future/setup placeholders tied to implemented calculator evidence. Remaining matches are intentional `TBD` or human-gated items.
+
+Boundaries preserved:
+- No edits were made to `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, `Review_Findings.csv`, schemas, fixtures, tests, code, DAG/coordination files, or `DEL-03-01`.
+- No lifecycle promotion, dependency satisfaction claim, release claim, professional reliance claim, code-compliance claim, source-catalog acceptance, fixture-policy acceptance, downstream integration approval, or human disposition was introduced.
+
+Remaining TBDs:
+- Approved unit catalog and conversion constants.
+- Public section source catalog and fixture-value policy.
+- Accepted schema ownership, private-library record linkage, and dependency satisfaction.
+- Downstream solver, persistence, GUI, report, and result-envelope integration.
+- Human disposition of review findings and lifecycle/release status.

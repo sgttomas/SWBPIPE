@@ -14,16 +14,30 @@
 
 ## Attributes
 
-The branch connection component model is a data-model slice for branch connection records. It is scoped to fields for:
+The branch connection component model is now evidenced by the strict component
+library schema, invented component fixture, and schema test coverage:
 
-- branch connection geometry;
-- user-entered reinforcement data;
-- user-entered SIF data;
-- user-entered flexibility data;
-- local branch-connection data fields;
-- source, provenance, unit, and redistribution metadata.
+- `schemas/component.schema.yaml` defines branch component field kinds for
+  branch run size, branch header size, connection angle, connection type,
+  reinforcement area, reinforcement reference, branch geometry source
+  reference, user SIF value, and user flexibility-factor value.
+- `fixtures/component/invented_component_library_valid.json` carries a branch
+  component-family contract with geometry field kinds, rule-modifier field
+  kinds, source metadata field kinds, mechanics-interface metadata, and
+  `protected_value_policy: schema_slots_only`.
+- The same fixture carries an invented branch record whose public field slots
+  are intentionally `missing` and provenance-bearing, with schema-shape-only or
+  no-public-code-specific-value policies.
+- `tests/test_component_section_schema.py` asserts branch enum coverage,
+  branch family-contract coverage, branch fixture field coverage, branch
+  completeness diagnostics, component diagnostic `class`/`source` fields, and
+  protected-content denylist coverage.
 
-No protected branch connection tables, SIF tables, flexibility tables, code formulas, dimensional tables, or copied engineering examples are included in this setup evidence. Exact field names, enum values, serialization shape, and validation constraints are `TBD` for the later implementation pass.
+No protected branch connection tables, SIF tables, flexibility tables, code
+formulas, dimensional tables, copied engineering examples, proprietary catalog
+values, or bundled public branch defaults are included. Remaining `TBD` items
+are policy/source decisions rather than absence of the implemented schema
+surface.
 
 ## Conditions
 
@@ -38,15 +52,39 @@ No protected branch connection tables, SIF tables, flexibility tables, code form
 
 ## Construction
 
-The future branch component model should be constructed as a schema-first domain record compatible with the architecture basis:
+The implemented evidence is schema-first and repository-level:
 
-- Rust core/application-services placement where domain behavior belongs;
-- JSON Schema 2020-12 contract exposure where serialized payloads are required;
-- deterministic, unit-aware, provenance-preserving persistence;
-- validation diagnostics that can identify blocking missing data, provenance warnings, and protected-content boundary warnings;
-- tests covering valid/invalid field presence, unit checking, provenance completeness, and no bundled protected data.
+- `schemas/component.schema.yaml` exposes a JSON Schema 2020-12 component
+  library contract with `component_library`, `component_family_contracts`,
+  `component_records`, `field_definitions`, `completeness_rules`,
+  `diagnostics`, and `open_decisions`.
+- Branch dimensional fields use `ComponentQuantityDimension` values that remain
+  constrained to the accepted unit dimension vocabulary exercised by the schema
+  test.
+- Branch diagnostics include `BRANCH_GEOMETRY_INCOMPLETE`,
+  `BRANCH_REINFORCEMENT_DATA_MISSING`, and `BRANCH_RULE_INPUT_MISSING`; the
+  component diagnostic shape requires `class`, `source`, affected reference,
+  message, remediation, and provenance.
+- The invented branch fixture records missing branch run/header/angle,
+  reinforcement reference, user SIF, and user flexibility-factor inputs as
+  blocking completeness evidence instead of silent defaults.
 
-This setup pass does not create implementation code or repo-level schema files.
+This reconciliation records that implementation evidence. It does not edit
+repo-level schema, fixture, test, code, DAG, dependency, review-disposition, or
+lifecycle files.
+
+## Remaining TBDs
+
+- Accepted public branch component source catalogs remain `TBD`.
+- Public branch fixture-value policy remains `TBD`; current public fixture
+  values are schema-shape-only or omitted.
+- Standard-specific branch interpretation, local-check methods, concrete import
+  formats, and GUI behavior remain `TBD`.
+- Dependency satisfaction and lifecycle state remain governed by their existing
+  local files and human/reconciliation process.
+- Review findings remain conceptually
+  `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; the CSV was
+  not edited by this reconciliation.
 
 ## References
 
@@ -57,3 +95,10 @@ This setup pass does not create implementation code or repo-level schema files.
 - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-04.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
 - `docs/CONTRACT.md` invariants listed in this kit.
+- `schemas/component.schema.yaml` current component library schema evidence.
+- `fixtures/component/invented_component_library_valid.json` current invented
+  component fixture evidence.
+- `tests/test_component_section_schema.py` current schema/fixture validation
+  evidence.
+- `MEMORY.md`, `_REVIEW.md`, and `Review_Findings.csv` local reconciliation and
+  review evidence.

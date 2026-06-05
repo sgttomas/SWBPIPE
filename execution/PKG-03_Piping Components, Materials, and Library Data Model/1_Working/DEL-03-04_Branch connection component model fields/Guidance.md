@@ -2,7 +2,12 @@
 
 ## Purpose
 
-This deliverable exists to keep branch connection component data explicit, unit-aware, provenance-bearing, and separated from protected standards content. The model should let users or lawful private libraries supply branch-specific data without the public project embedding protected branch connection, SIF, flexibility, or reinforcement tables.
+This deliverable exists to keep branch connection component data explicit,
+unit-aware, provenance-bearing, and separated from protected standards content.
+The current component schema and invented fixture provide branch schema slots
+and missing-data diagnostics so users or lawful private libraries can supply
+branch-specific data without the public project embedding protected branch
+connection, SIF, flexibility, or reinforcement tables.
 
 ## Principles
 
@@ -11,10 +16,18 @@ This deliverable exists to keep branch connection component data explicit, unit-
 - Prefer explicit `TBD` or diagnostics over inferred defaults.
 - Keep provenance and redistribution status close to the values they qualify.
 - Make dimensional fields unit-aware; do not accept unitless dimensional values unless a later schema deliberately defines a safe representation.
+- Use the implemented branch field names in `schemas/component.schema.yaml` when
+  documenting current schema evidence; reserve `TBD` for unresolved policy,
+  source, lifecycle, dependency, or human-disposition questions.
 
 ## Considerations
 
-The branch connection model may need more local fields than simpler component families. The decomposition notes that branch local checks may require future specialized modules; this setup pass should therefore avoid overfitting a future schema to a specific code method or formula.
+The branch connection model has more local field slots than simpler component
+families. Current evidence covers branch run/header size, connection angle/type,
+reinforcement area/reference, branch geometry source reference, user SIF, and
+user flexibility-factor field kinds. The decomposition still leaves specialized
+branch local-check methods, concrete import formats, and GUI behavior outside
+this reconciliation.
 
 Architecture basis implications:
 
@@ -28,16 +41,31 @@ Architecture basis implications:
 | Topic | Guidance |
 |---|---|
 | Field specificity vs protected content | Capture field categories and user-supplied values; do not encode protected lookup content. |
-| Completeness vs implementation timing | Mark exact field names and specialized local-check needs as `TBD` until the implementation brief authorizes product code. |
-| Public examples vs validation | Use synthetic, non-code, non-engineering fixtures only when later tests need examples, and label them accordingly. |
+| Completeness vs implementation timing | Treat current branch schema field names as implemented evidence; keep specialized local-check needs, source catalogs, import formats, and lifecycle acceptance as `TBD`. |
+| Public examples vs validation | Use the existing invented non-engineering fixture as schema/diagnostic evidence only; do not treat its missing branch values as engineering examples. |
 | User flexibility vs diagnostics | Permit user-supplied branch data, but report missing or unverifiable values explicitly. |
 
 ## Examples
 
-No engineering examples are provided in this setup pass. Future examples, if any, must be invented non-code values with clear non-engineering notices and must not reproduce protected tables, formulas, or code examples.
+The current public fixture is an invented schema fixture, not an engineering
+example. It intentionally omits branch geometry, reinforcement, SIF, and
+flexibility values and emits `BRANCH_RULE_INPUT_MISSING` rather than supplying
+public defaults. Future value-bearing examples, if any, must be invented
+non-code values with clear non-engineering notices or must come from reviewed
+public-permissive/private sources; they must not reproduce protected tables,
+formulas, or code examples.
+
+## Review Posture
+
+Local review findings for unit-dependency satisfaction and component diagnostic
+envelope compatibility remain conceptually
+`TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`. Narrative
+evidence may cite the technical branch schema, fixture, and diagnostic updates,
+but the CSV disposition, dependency register, and lifecycle state require their
+own authorized review process.
 
 ## Conflict Table (for human ruling)
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| None identified | No conflict was detected in the accessible setup sources. | N/A | N/A | N/A | N/A | TBD |
+| None identified | No conflict was detected between the current branch schema/fixture/test evidence and the local review/memory evidence. | `schemas/component.schema.yaml`; fixture; test | `MEMORY.md`; `_REVIEW.md`; `Review_Findings.csv` | N/A | Treat implementation evidence as current while preserving policy, dependency, human-disposition, and lifecycle gates. | TBD |

@@ -11,7 +11,7 @@
 | Scope item | SOW-017 |
 | Objective | OBJ-004 |
 | Anticipated artifacts | `schemas/material.schema.yaml`; material editor fixtures |
-| Current evidence status | Setup evidence only; no product implementation |
+| Current evidence status | Schema, fixture, and test implementation evidence present; deliverable remains `IN_PROGRESS` pending review and dependency disposition. |
 
 ## Attributes
 
@@ -27,24 +27,28 @@
 
 ## Conditions
 
-- The schema may describe slots for temperature-dependent properties and allowables, but this setup pass records no actual engineering values.
-- Any future public fixture must use invented non-engineering data or permissively licensed data with documented rights; exact fixture contents are `TBD`.
+- `schemas/material.schema.yaml` defines structure for temperature-dependent properties and allowables, but it does not provide actual engineering values.
+- `fixtures/material/invented_material_library_valid.json` is a public schema fixture with omitted engineering values, `TBD` source/license disposition, and explicit blocking diagnostics for missing solve-required data.
 - Code-specific values and allowables remain user-supplied or lawfully imported private data, not bundled public defaults.
 - Architecture basis requires JSON Schema 2020-12, deterministic/versioned/provenance-preserving persistence, unit awareness, diagnostics, adapter validation, and protected-content/provenance gates where relevant.
+- Public material source catalog, public fixture value policy, temperature interpolation policy, allowable storage policy, dependency satisfaction, and human review dispositions remain `TBD`.
 
 ## Construction
 
-The future material schema should be evaluated for these descriptive record groups:
+The implemented material schema and fixture evidence cover these record groups:
 
-| Record group | Fields or slots to resolve later |
+| Record group | Implemented evidence and remaining disposition |
 |---|---|
-| Identity | Material record ID, display name, library namespace, version, lifecycle status. Exact naming rules are `TBD`. |
-| Property series | Temperature-indexed property records with explicit units and dimensional category. Specific property set is `TBD`. |
-| Allowable series | Temperature-indexed allowable records with explicit units, source note, public/private marker, and completeness status. Actual values are not part of this deliverable evidence. |
-| Provenance | Source type, source citation pointer, contributor identity or role, review disposition, import path, timestamp/hash basis where approved. Exact fields are `TBD`. |
-| Redistribution | Public/private classification, redistribution rights status, license/reference pointer, quarantine status for suspected protected content. |
-| Completeness flags | Missing required value, missing provenance, missing units, unresolved redistribution status, and private-data warning flags. |
-| Diagnostics | Structured warning/error records compatible with AB-00-06 diagnostics envelope expectations. |
+| Library identity | `MaterialLibrary` requires `library_id`, `name`, `library_scope`, `privacy_class`, `provenance`, and `review_status`. |
+| Material identity | `MaterialRecord` requires `material_id`, `name`, `material_family`, privacy/redistribution fields, properties, allowables, completeness, provenance, and review status. |
+| Property definitions | `MaterialPropertyDefinition` declares property kind, dimension ID, quantity kind, unit requirement, required-for context, public fixture policy, and review status. |
+| Property values | `MaterialPropertyValue` carries property kind, value status, required-for context, provenance, review status, and optional unit-bearing quantity value. |
+| Allowable slots | `MaterialAllowableSlot` records slot metadata, value status, public repository value policy, required-for context, provenance, and review status without supplying protected/code-specific values. |
+| Provenance | `Provenance` requires source name/location/license, contributor, contributor certification, redistribution status, and review status. Fixture source/license disposition remains `TBD`. |
+| Redistribution and privacy | Schema enums record public, private, unknown, rejected, suspected-protected, and `TBD` dispositions. Human acceptance of public material data remains separate. |
+| Completeness flags | `CompletenessRule` and `MaterialCompletenessFinding` record required property kinds, missing behavior, status, and diagnostic code. |
+| Diagnostics | `MaterialDiagnostic` records code, class, severity, source, affected reference, message, remediation, and provenance. The fixture emits `MATERIAL_PROPERTY_MISSING` as a blocking solve diagnostic. |
+| Open decisions | `OpenDecision` preserves unresolved public fixture, source catalog, allowable storage, and interpolation policy topics. |
 
 ## References
 
@@ -53,4 +57,3 @@ The future material schema should be evaluated for these descriptive record grou
 - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
 - execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
-

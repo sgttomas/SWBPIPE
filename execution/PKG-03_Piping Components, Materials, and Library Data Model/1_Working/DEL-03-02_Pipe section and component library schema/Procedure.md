@@ -11,37 +11,39 @@ package_id: PKG-03
 
 ## Purpose
 
-This procedure describes how to produce and later maintain DEL-03-02 setup/schema artifacts without introducing protected tables, proprietary catalog data, invented engineering values, or unsupported compliance claims.
+This procedure describes how to maintain and reconcile DEL-03-02 schema evidence without introducing protected tables, proprietary catalog data, invented engineering values, or unsupported compliance claims.
 
 ## Prerequisites
 
-- Sealed DEL-03-02 context with write scope limited to this deliverable folder for setup evidence.
+- Sealed DEL-03-02 context with write scope limited to the current authorized files.
 - Register rows for DEL-03-02, SOW-018, and ContextBudgetQA row DEL-03-02.
 - Applicable contract invariants from `docs/CONTRACT.md`, especially IP, provenance, unit safety, privacy, governance review, and agent epistemic constraints.
 - Architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
+- Implemented evidence in `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `fixtures/component/invented_section_library_valid.json`, `fixtures/component/invented_component_library_valid.json`, `fixtures/component/invented_section_component_library_valid.json`, and `tests/test_component_section_schema.py`.
 - Human-owned dependency declarations are not tracked in `_DEPENDENCIES.md`; no explicit upstream/downstream list is available.
 
 ## Steps
 
 1. Confirm identity and boundary.
    - Verify deliverable ID `DEL-03-02`, package `PKG-03`, type `DATA_MODEL_CHANGE`, scope item `SOW-018`, and objective `OBJ-004`.
-   - Confirm this setup pass does not edit repo-level schema files.
+   - Confirm whether the active brief allows repository-level schema edits. If not, reconcile documentation evidence only.
 
 2. Gather governing source slices.
-   - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, register rows, decomposition row DEL-03-02, SOW-018, OBJ-004, and applicable contract invariants.
-   - Use only accessible local governance/decomposition sources for setup evidence.
+   - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, register rows, decomposition row DEL-03-02, SOW-018, OBJ-004, and applicable contract invariants when they are in scope.
+   - Read the implemented evidence files named in the prerequisites.
+   - Use only accessible local governance, decomposition, schema, fixture, and test sources for evidence.
 
-3. Define schema intent without values.
-   - Identify future record classes: section library record and component library record.
-   - Record expected concepts: identity, schema version, user-entered dimensions/weights/COG where applicable, unit-bearing values, provenance, redistribution status, completeness status, and diagnostics hooks.
-   - Leave exact field names, enum names, and reusable schema references as `TBD`.
+3. Reconcile schema intent against implemented evidence.
+   - Identify implemented record classes: section library record and component library record.
+   - Record implemented concepts: identity, schema version, user-entered dimensions/weights/COG/stiffness/modifier slots where applicable, unit-bearing values, provenance, redistribution status, review status, completeness status, diagnostics hooks, open decisions, and protected-value policies.
+   - Preserve human-owned policy/source/catalog/fixture-value/dependency/lifecycle/review-disposition items as `TBD`.
 
 4. Apply data-boundary rules.
    - Reject protected standards text, protected dimensional tables, proprietary catalog data, code-derived values, copied formulas, and private project data as public defaults.
    - Mark suspected protected content for quarantine and human review.
 
 5. Map requirements to verification.
-   - For each requirement, identify future schema validation, unit check, provenance gate, protected-content gate, round-trip test, or architecture review.
+   - For each requirement, identify implemented schema validation, unit check, provenance gate, protected-content gate, split-fixture validation, compatibility regression, round-trip test, or architecture review evidence.
    - Use invented/public-safe fixtures only.
 
 6. Perform consistency review.
@@ -53,18 +55,17 @@ This procedure describes how to produce and later maintain DEL-03-02 setup/schem
 
 ## Verification
 
-- The four setup documents exist and retain required sections.
-- No repo-level schema files are edited during this setup pass.
+- The four active documents exist and retain required sections.
+- No repo-level schema files are edited unless the active sealed brief authorizes them.
 - No protected dimensional tables, standards data, proprietary catalog values, or invented engineering values are introduced.
-- Unknown schema fields, enum names, validation severities, and implementation mechanisms remain `TBD`.
+- Unknown policy/source/catalog/fixture-value/dependency/lifecycle/review-disposition items remain `TBD`.
 - Requirements cite accessible sources or are labeled as assumptions.
-- Dependency extraction artifacts validate against Dependencies.csv v3.1.
+- Dependency extraction artifacts and lifecycle state remain unchanged unless explicitly in scope.
 
 ## Records
 
-- `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` record setup evidence.
+- `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` record active deliverable evidence.
 - `_SEMANTIC.md` records the semantic lens generated for this deliverable.
 - `_SEMANTIC_LENSING.md` records warranted enrichment items.
 - `Dependencies.csv` and `_DEPENDENCIES.md` record extracted dependency evidence.
 - `_run_records/TASK_RUN_*.md` records the required sequence, QA checks, missing inputs, and human rulings needed.
-

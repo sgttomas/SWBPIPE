@@ -2,44 +2,46 @@
 
 ## Purpose
 
-Define the setup procedure for producing future implementation evidence for the pipe section property and mass-property calculator without introducing protected data or unapproved repo-level changes.
+Define the procedure for reconciling and maintaining implementation evidence for the pipe section property and mass-property calculator without introducing protected data or unapproved repo-level changes.
 
 ## Prerequisites
 
 | Prerequisite | Status |
 |---|---|
 | Sealed deliverable context for DEL-03-08 | Available in `_CONTEXT.md`. |
-| Unit-system and dimensional-analysis contract | Required input; exact API and accepted dimensions `TBD`. |
-| Pipe section/component library schema contract | Required input for schema hooks; exact fields `TBD`. |
-| Material library provenance model | Required input when density or material data originates from a library; exact fields `TBD`. |
-| Diagnostic/result envelope contract | Required input for warnings/errors; exact codes `TBD`. |
-| Synthetic or cleared fixture policy | Required before adding mass-property tests; fixture values `TBD`. |
+| Unit-system and dimensional-analysis contract | Calculator requires explicit unit/dimension metadata and rejects mixed units; approved conversion API/catalog remains `TBD`. |
+| Pipe section/component library schema contract | Schema-like mapping exists through `quantity_from_mapping`; accepted owner fields and dependency satisfaction remain `TBD`. |
+| Material library provenance model | Calculator quantities require provenance; private-library record linkage remains `TBD`. |
+| Diagnostic/result envelope contract | Calculator diagnostics carry class, source, affected object, and provenance; downstream result-envelope mapping remains `TBD`. |
+| Synthetic or cleared fixture policy | Current tests use invented synthetic values; formal source catalog and fixture-value policy remain `TBD`. |
 
 ## Steps
 
-1. Confirm the task is sealed to DEL-03-08 and that write scope is limited to the authorized deliverable folder or later authorized implementation paths.
-2. Read the accepted unit-system contract and identify required dimensions for length, area, second moment, volume, density, mass, and mass per length. If any dimension is absent, record `TBD`.
-3. Read accepted schema contracts for pipe sections, materials, provenance, and redistribution status. If schema hook names are absent, record `TBD`.
-4. Define calculator inputs as explicit user-entered or lawfully imported values. Do not introduce bundled public dimensional, material, contents, insulation, or corrosion defaults.
-5. Define validation behavior for missing, dimensionally incompatible, non-physical, or unprovenanced inputs. Exact diagnostic codes remain `TBD` until the diagnostic contract is accepted.
-6. Define output shape for section properties and mass properties, preserving units and provenance references where applicable.
-7. Create tests using synthetic or cleared values only. Include negative tests for missing values, incompatible units, and missing provenance where applicable.
-8. Run unit, schema, protected-content, and boundary checks required by the accepted architecture basis.
-9. Record unresolved inputs as `TBD` and route them to the responsible schema/unit/diagnostic/human owner.
+1. Confirm the task is sealed to DEL-03-08 and that write scope is limited to the authorized deliverable folder or separately authorized implementation paths.
+2. Read current implementation evidence in `core/section_properties/calculator.py`, `core/section_properties/README.md`, and `tests/test_section_properties.py`.
+3. Confirm calculator inputs remain explicit user-entered or lawfully imported values. Do not introduce bundled public dimensional, material, contents, insulation, or corrosion defaults.
+4. Confirm validation behavior remains explicit for missing required values, missing provenance, incompatible dimensions, mixed units, non-positive required values, and non-physical geometry.
+5. Confirm output shape preserves magnitude, unit, dimension, and provenance for section properties and mass properties.
+6. Confirm tests use synthetic or cleared values only and do not encode protected/reference-table content.
+7. Run `python3 -m pytest tests/test_section_properties.py` when feasible.
+8. Run a stale-language search over `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; reconcile implementation evidence while preserving unresolved `TBD` items.
+9. Record unresolved policy, source catalog, fixture-value, dependency satisfaction, human disposition, lifecycle, and downstream integration inputs as `TBD` and route them to the responsible schema/unit/diagnostic/human owner.
 
 ## Verification
 
 | Check | Expected result |
 |---|---|
 | Protected data check | No protected pipe tables, material tables, code tables, copied formulas, or proprietary fixtures are introduced. |
-| Unit check | Inputs and outputs are dimensionally validated through accepted unit contracts. |
-| Missing value check | Missing required values produce explicit findings, not defaults. |
-| Provenance check | Library/imported values preserve source and redistribution status. |
+| Unit check | Inputs and outputs carry explicit units/dimensions; mixed units are rejected until conversion support is approved. |
+| Missing value check | Missing required values produce explicit blocking diagnostics, not defaults. |
+| Provenance check | Inputs require provenance and outputs preserve calculated provenance; exact library linkage remains `TBD`. |
+| Review-finding check | Technical evidence remains aligned with `TECHNICALLY_ADDRESSED_PENDING_HUMAN`; `HumanDisposition` remains `TBD` until human action. |
 | Boundary check | Calculator remains outside global solver and rule-pack compliance logic. |
 
 ## Records
 
 - Updated four-document kit in this folder.
-- `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` setup artifacts.
+- `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` historical semantic artifacts.
 - `Dependencies.csv` v3.1 and `_DEPENDENCIES.md`.
-- `_run_records/TASK_RUN_*.md` records for each setup sequence step.
+- `_run_records/TASK_RUN_*.md` records for each TASK sequence step.
+- Current evidence reconciliation run record: `_run_records/TASK_RUN_2026-06-05_DEL-03-08_evidence-reconciliation.md`.

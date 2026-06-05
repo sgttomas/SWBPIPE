@@ -105,3 +105,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Evidence reconciliation for DEL-03-05
+
+- Bounded TASK reconciliation updated only permitted deliverable-local documentation surfaces: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, this `MEMORY.md`, and `_run_records/TASK_RUN_2026-06-05_DEL-03-05_evidence-reconciliation.md`.
+- Evidence reconciled read-only: `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, this memory file, `_REVIEW.md`, and `Review_Findings.csv`.
+- Active docs now distinguish implemented schema/fixture/test evidence from deferred policy and lifecycle gates. Implemented evidence includes rigid/semi-rigid component family contract coverage for `valve`, `flange`, `reducer`, `rigid`, and `specialty`; schema/fixture slots for rigid body length, end references, weight, center of gravity, `linear_stiffness`, and `rotational_stiffness`; provenance/review metadata; public-value guardrails; and blocking diagnostics for incomplete rigid component values.
+- Review finding semantics were preserved without CSV edits: PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 remain conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN`, with `HumanDisposition=TBD`.
+- Unresolved items preserved: accepted public rigid component source catalogs, public fixture-value policy, concrete fixture values, coordinate convention, exact solver treatment of semi-rigid stiffness inputs, concrete import formats, per-family engineering profiles, dependency satisfaction, human disposition, downstream GUI/editor behavior, lifecycle closure, and professional/release acceptance.
+- Boundaries preserved: no `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, `Review_Findings.csv`, schema, fixture, test, code, DAG, coordination-file, or `DEL-03-01` edits.

@@ -116,3 +116,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - TP-DEL-03-01-EVIDENCE-RECONCILIATION
+
+- WORKING_ITEMS reconciled the active four-document kit with current implementation evidence for `schemas/material.schema.yaml`, `fixtures/material/invented_material_library_valid.json`, and `tests/test_material_schema.py`.
+- The reconciliation updated deliverable-local evidence language only. It did not edit schemas, fixtures, tests, `_STATUS.md`, `Review_Findings.csv`, `Dependencies.csv`, `_DEPENDENCIES.md`, DAG files, coordination files, or lifecycle/review dispositions.
+- Validation evidence: `python3 tests/test_material_schema.py` passed.
+- Review findings remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+- Local lifecycle remains `IN_PROGRESS`.
+- Remaining `TBD` items include public material source catalog, public fixture value policy, temperature interpolation policy, allowable storage policy, dependency satisfaction, protected-content/redistribution review disposition, and human review dispositions.

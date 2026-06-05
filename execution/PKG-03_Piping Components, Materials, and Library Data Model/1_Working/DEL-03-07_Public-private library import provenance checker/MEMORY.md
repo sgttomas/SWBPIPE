@@ -72,3 +72,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - TASK evidence reconciliation
+
+- Reconciled `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` against implementation evidence in `core/library_import/provenance_checker.py`, `core/library_import/README.md`, and `tests/test_library_import_provenance.py`.
+- Replaced stale setup/planned-checker wording with current evidence for the stdlib-only checker, public/private outcomes, protected-content quarantine, unit metadata checks, and PKG-02-style diagnostic-envelope projection.
+- Preserved unresolved TBDs for concrete external import formats and parser contracts, legal/license policy, accepted public source catalogs, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, human disposition of local review findings, and lifecycle closure.
+- Local `Review_Findings.csv` was not edited; findings remain conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+- `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, schemas, fixtures, tests, code, DAG, coordination files, and `DEL-03-01` were not edited by this run.
+- Validation: `python3 -m pytest tests/test_library_import_provenance.py` passed `7 passed in 0.02s`; scoped stale-language `rg` across the four active docs returned no matches.

@@ -109,3 +109,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - DEL-03-04 evidence reconciliation
+
+Durable context preserved after bounded TASK reconciliation:
+- Active DEL-03-04 docs were reconciled against current implementation evidence
+  in `schemas/component.schema.yaml`,
+  `fixtures/component/invented_component_library_valid.json`, and
+  `tests/test_component_section_schema.py`.
+- The implemented branch schema surface now cited in the four active docs
+  includes `branch_run_size`, `branch_header_size`,
+  `branch_connection_angle`, `branch_connection_type`,
+  `branch_reinforcement_area`, `branch_reinforcement_reference`,
+  `branch_geometry_source_reference`, `sif_user_value`, and
+  `flexibility_factor_user_value`.
+- The invented component fixture remains schema/diagnostic evidence only:
+  branch public values are missing/schema-shape-only or no-public-code-specific,
+  provenance-bearing, and not engineering examples.
+- Local review findings remain conceptually
+  `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; the CSV was
+  intentionally not edited.
+- Current lifecycle state remains governed by `_STATUS.md` and the latest local
+  authority-refresh evidence. This reconciliation did not promote lifecycle
+  state, dependency satisfaction, review disposition, release status, or any
+  professional/code-compliance claim.
+- Remaining `TBD`s: accepted public branch source catalog, public branch
+  fixture-value policy, standard-specific branch interpretation, concrete branch
+  import formats, specialized local-check methods, dependency satisfaction,
+  human disposition, lifecycle acceptance, and downstream GUI behavior.
