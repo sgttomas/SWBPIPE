@@ -226,3 +226,35 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - DEL-05-05 implemented-evidence documentation alignment
+
+- WORKING_ITEMS dispatched a bounded `DELIVERABLE_TASK` to align
+  deliverable-local docs with current implementation evidence in
+  `core/loads/user_loads/README.md` and `core/loads/user_loads/src/lib.rs`.
+- Updated `Datasheet.md`, `Specification.md`, `Guidance.md`, and
+  `Procedure.md` from setup/future wording to implemented evidence for
+  concentrated nodal forces, concentrated nodal moments, uniform distributed
+  loads, element-station concentrated forces through straight-pipe recovery,
+  valid partial-span distributed loads, oriented straight-pipe global load
+  direction handling, and the primitive axial-effect bridge.
+- Current evidence supersedes older historical open-item wording for
+  straight-pipe oriented-load handling and straight-pipe partial-span
+  distributed-load recovery. Other element families, other distribution
+  shapes, and higher-level model assembly remain outside this deliverable
+  unless separately dispatched.
+- True remaining TBDs: final result-envelope/API/persistence/GUI/CLI/report
+  integration, production tolerance policy, release thresholds, primitive
+  axial-effect provenance beyond `load_id`, public/product-facing examples,
+  and professional reliance.
+- Boundary preserved: no `_STATUS.md`, dependency register, DAG,
+  coordination artifact, schema, repo-level governance file, or core code was
+  intentionally edited; no protected standards data, public default load
+  factors, rule-pack checks, code-compliance claim, or professional reliance
+  claim was introduced.
+- Validation blocker: `cargo test --manifest-path
+  core/loads/user_loads/Cargo.toml` failed because `src/lib.rs` does not
+  cover `CanonicalSchemaBinding::ModelLoadCase` in the
+  `ResultRecoveryHook::to_result_boundary_record` match. Core code was
+  read-only for this task, so remediation requires a separate authorized code
+  change or human ruling.

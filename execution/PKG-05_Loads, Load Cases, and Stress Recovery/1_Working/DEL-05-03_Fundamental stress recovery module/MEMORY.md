@@ -216,3 +216,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - Documentation alignment to implemented stress recovery evidence
+
+- WORKING_ITEMS dispatched a bounded TASK for `DEL-05-03` to align deliverable-local docs with current implemented evidence in `core/loads/stress_recovery/README.md` and `core/loads/stress_recovery/src/lib.rs`.
+- Updated `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` from setup/future wording to current mechanics-only implementation evidence for axial, bending, torsional, pressure membrane, unit metadata, result-boundary, station, station-sweep, and mechanics-only range behavior.
+- Preserved true TBDs for final application-service/result-envelope ownership, production section-property source authority, public report/rule-pack labels and sign conventions, unit conversion catalog, production tolerance policy, release benchmark scope, and professional reliance.
+- Preserved boundaries: no code stress equations, allowables, stress indices, SIF/flexibility data, protected standards content, public pipe tables, rule checks, reporting, GUI behavior, local FEA handoff, release claim, code-compliance claim, or professional approval claim was introduced.
+- This task did not edit `_STATUS.md`, dependency artifacts, review artifacts, schemas, DAG/coordination files, repo-level docs, or core code.

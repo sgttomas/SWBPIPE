@@ -2,7 +2,7 @@
 
 ## Scope
 
-This setup specifies the boundary for a backend load-case algebra deliverable covering unit-aware user-defined combinations and result-state subtraction/ranging. It does not implement an algebra engine, define code-specific combinations, choose an expression grammar/library, bundle protected rule data, or claim code compliance.
+This specification records the bounded implementation evidence for a backend load-case algebra deliverable covering unit-aware user-defined combinations and result-state subtraction/ranging. The implemented crate is `core/loads/load_case_algebra`. It does not define code-specific combinations, choose a general expression grammar/library, bundle protected rule data, execute arbitrary rule-pack code, or claim code compliance.
 
 ## Requirements
 
@@ -20,23 +20,22 @@ This setup specifies the boundary for a backend load-case algebra deliverable co
 
 ## Standards
 
-No external protected standard text is introduced by this setup. Governing local standards are the project invariant catalog, the sealed architecture-basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08, and the decomposition/register rows listed in `_CONTEXT.md`.
+No external protected standard text is introduced by this deliverable. Governing local standards are the project invariant catalog, the sealed architecture-basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08, and the decomposition/register rows listed in `_CONTEXT.md`.
 
 ## Verification
 
 | Requirement | Verification approach |
 |---|---|
-| REQ-05-02-001 | Unit tests for algebraic combination of compatible load/result terms. |
-| REQ-05-02-002 | Negative tests for incompatible dimensions and expected diagnostics. |
-| REQ-05-02-003 | Result-state tests showing subtraction/ranging produces mechanics outputs only. |
-| REQ-05-02-004 | Protected-content/data-boundary review showing no bundled code-specific defaults. |
-| REQ-05-02-005 | Security or evaluator-boundary test showing no arbitrary execution path is required. |
-| REQ-05-02-006 | Missing operand/input tests with explicit findings. |
-| REQ-05-02-007 | Result-envelope inspection for state separation. |
-| REQ-05-02-008 | Diagnostic envelope inspection for provenance-compatible fields. |
-| REQ-05-02-009 | CI or release-gate inclusion of deterministic expression tests. |
+| REQ-05-02-001 | Implemented unit test `linear_combination_sums_compatible_quantities` validates explicit factors over compatible mechanics quantities. |
+| REQ-05-02-002 | Implemented test `dimension_mismatch_blocks_result` verifies incompatible dimensions block the result and emit `FindingCode::DimensionMismatch`. |
+| REQ-05-02-003 | Implemented tests `subtraction_requires_distinct_compatible_result_states` and `range_envelope_selects_extreme_value` verify mechanics-only subtraction and range-envelope behavior. |
+| REQ-05-02-004 | Crate README/source boundary states no bundled design-code combinations, public default factors, protected standards content, or professional/code-compliance claims. |
+| REQ-05-02-005 | Implementation uses explicit `AlgebraExpression` enum variants and does not include a parser, arbitrary execution path, or rule-pack expression evaluator. |
+| REQ-05-02-006 | Implemented tests and finding paths cover missing operands, duplicate operands, missing result states, empty expressions, and non-finite factors as explicit findings or boundary errors. |
+| REQ-05-02-007 | Implemented status propagation preserves mechanics/rule statuses, adds `HumanReviewRequired`, and blocks automatic `HumanApprovedForProject` propagation. |
+| REQ-05-02-008 | Implemented result-boundary tests verify explicit unit metadata, provenance-compatible record fields, result-schema binding, payload/hash references, and rejection of load-record schema binding for result quantities. |
+| REQ-05-02-009 | Targeted crate validation is `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`; project CI/release-gate inclusion remains TBD. |
 
 ## Documentation
 
-Required setup artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`.
-
+Required deliverable-local artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is read-only for this TASK run at `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.

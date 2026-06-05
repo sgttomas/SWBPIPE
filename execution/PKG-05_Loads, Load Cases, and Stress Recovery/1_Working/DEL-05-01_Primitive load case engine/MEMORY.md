@@ -261,3 +261,29 @@
   protected standards data, code-specific combination/default, private data,
   release claim, code-compliance claim, or professional reliance claim was
   changed or introduced by this tranche.
+
+## 2026-06-04 - TASK Doc Evidence Alignment
+
+- Executed bounded WORKING_ITEMS/TASK documentation alignment for `DEL-05-01`
+  with write scope limited to the four deliverable artifacts, this `MEMORY.md`,
+  and deliverable-local `_run_records/**`.
+- Updated `Datasheet.md`, `Specification.md`, `Guidance.md`, and
+  `Procedure.md` to replace stale setup/future-only wording with current
+  evidence from `core/loads/primitive_loads/README.md`, `src/lib.rs`, and the
+  latest deliverable-local run history.
+- Aligned the documents to implemented primitive categories, storage-neutral
+  primitive load-case records, boundary metadata, diagnostic bridge records,
+  lumped equivalent nodal conversion, straight-pipe axial effects, solver
+  load-vector assembly helpers, and the current 35-test evidence surface.
+- Preserved open TBDs for canonical unit conversions, final result-envelope/API
+  integration, production tolerance policy, release thresholds, wind/seismic
+  dynamic treatment, broader property/default sourcing policy, human
+  acceptance, code compliance, and professional reliance.
+- Verification passed:
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` with 35
+  tests passed; scoped `git diff --check` for touched deliverable files passed.
+- No `_STATUS.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, review file, schema
+  file, DAG artifact, repo-level governance file, coordination file, core code,
+  protected standards data, code-specific combination/default, private data,
+  release claim, code-compliance claim, or professional reliance claim was
+  changed or introduced by this TASK.

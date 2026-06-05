@@ -113,3 +113,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - TASK documentation alignment to implementation evidence
+
+- WORKING_ITEMS dispatched a bounded deliverable-local TASK to align DEL-05-02 documents with implemented load-case algebra evidence.
+- Updated `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` to replace setup-only/future wording with evidence from `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
+- Documented the implemented evidence boundary: explicit unit-aware linear combinations, result-state subtraction, range envelopes, deterministic findings, result-boundary metadata, and no bundled code-specific defaults or rule-pack evaluator.
+- Preserved unresolved boundaries: general expression grammar/library, final rule-pack evaluator/interface behavior, final result-envelope/persistence integration, dependency maturity for DEL-05-01 and DEL-05-04, low-confidence DEL-06-02 evaluator interface, and release/CI gate policy remain `TBD` or pending as applicable.
+- Validation attempted: `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` failed before running tests because `require_result_schema_binding` in the read-only crate source does not cover the current `CanonicalSchemaBinding::ModelLoadCase` enum variant from `core/loads/primitive_loads/src/lib.rs`.
+- This TASK did not edit `_STATUS.md`, dependency/review artifacts, schemas, repo-level governance files, DAG/coordination files, or core code.

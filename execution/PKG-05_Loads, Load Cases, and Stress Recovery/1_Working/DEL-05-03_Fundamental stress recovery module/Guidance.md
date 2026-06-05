@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This deliverable exists to isolate fundamental mechanics stress recovery as a bounded solver/load-result feature. It should convert governed mechanical resultants and section properties into unit-aware stress components while leaving code categorization, acceptability, and professional compliance outside the module.
+This deliverable isolates fundamental mechanics stress recovery as a bounded solver/load-result feature. The implemented crate converts governed mechanical resultants, section properties, optional pressure-basis inputs, and straight-pipe station resultants into stress components while leaving code categorization, acceptability, and professional compliance outside the module.
 
 ## Principles
 
@@ -11,10 +11,23 @@ This deliverable exists to isolate fundamental mechanics stress recovery as a bo
 - Prefer explicit `TBD` and explicit diagnostics over silent assumptions when stress recovery inputs are incomplete.
 - Preserve unit and provenance information through stress inputs, intermediate checks, and outputs.
 - Use only synthetic, public-domain, or otherwise cleared hand-calc fixtures.
+- Treat stress ranges as mechanics component deltas only. Do not convert them into fatigue decisions, equivalent stresses, code stress ranges, allowable comparisons, or professional conclusions.
+- Preserve station identity and caller order when recovering station-local stresses or station sweeps.
 
 ## Considerations
 
-The future implementation will likely depend on upstream contracts for section properties, units, solver result envelopes, element force recovery, primitive/load-case outputs, diagnostics, and downstream rule-pack/report consumers. Those contracts are not resolved in this setup pass.
+Implemented evidence is in `core/loads/stress_recovery/README.md` and `core/loads/stress_recovery/src/lib.rs`. The crate recovers:
+
+- axial normal stress from axial force and area;
+- bending normal stress components from y/z bending moments and section moduli;
+- torsional shear stress from torsional moment, torsion radius, and torsion constant;
+- pressure hoop and longitudinal membrane stress from explicit pressure, radius, and wall thickness;
+- station-local stresses from straight-pipe station resultants; and
+- ordered station sweeps and two-state mechanics-only component ranges.
+
+The implementation already validates finite inputs, positive section/pressure geometry properties, unit metadata dimensions for present quantities, station fractions, analysis-status boundaries, and result-boundary metadata. Missing or invalid values produce findings and block recovered outputs where required.
+
+The module still depends on upstream/downstream contracts for production section-property authority, final unit conversions, solver/result-envelope ownership, application-service APIs, persistence, report labels, rule-pack consumers, release benchmarks, and professional reliance policy. Those contracts remain `TBD` unless separately accepted.
 
 Verification should use open mechanics and cleared data. Any educational or hand-check example must avoid copying protected standards examples, tables, allowables, or formula presentations.
 
@@ -25,14 +38,17 @@ Verification should use open mechanics and cleared data. Any educational or hand
 | Mechanics stress vs code stress | Recover fundamental stress components here; keep code equations, categories, and allowables in rule packs or private/user inputs. |
 | Completeness vs data boundary | Record missing section properties, pressure, or force resultants as findings rather than providing public defaults. |
 | Solver result scope vs stress recovery scope | Consume governed mechanical resultants; do not duplicate global solver assembly or element force recovery. |
+| Station recovery vs station generation | Recover station stresses from supplied straight-pipe station resultants; station generation and global solver interpolation belong upstream. |
+| Sweep determinism vs interpretation | Preserve caller order and deterministic IDs in station sweeps; do not infer controlling stress locations or design acceptance. |
+| Range utility vs code meaning | Provide component-wise absolute mechanics deltas only; fatigue, equivalent stress, and code stress range interpretation remain downstream. |
 | Test usefulness vs IP boundary | Use clear hand-calc cases, but keep values invented/cleared and avoid protected standard examples. |
 
 ## Examples
 
-Concrete numerical examples are `TBD`. Future examples must use synthetic or cleared data and must not reproduce protected standards content.
+Concrete public-facing examples remain `TBD`. Existing crate unit tests use synthetic values for implemented behavior. Future examples must use synthetic or cleared data and must not reproduce protected standards content.
 
 ## Conflict Table (for human ruling)
 
 | Conflict ID | Issue | Contenders | Human ruling |
 |---|---|---|---|
-| None | No setup conflict found. | N/A | N/A |
+| None | No conflict found between the mechanics-only deliverable boundary and current implementation evidence. | N/A | N/A |
