@@ -137,3 +137,15 @@ Durable context preserved after bounded TASK reconciliation:
   fixture-value policy, standard-specific branch interpretation, concrete branch
   import formats, specialized local-check methods, dependency satisfaction,
   human disposition, lifecycle acceptance, and downstream GUI behavior.
+
+## 2026-06-05 - Human disposition accepted and CHECKING transition
+
+- Human Gate C ruling accepted `PKG03-DEL-03-04-PKG02-001` and
+  `PKG03-DEL-03-04-PKG02-002` as `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those two rows only.
+- `_STATUS.md` was moved from `IN_PROGRESS` to `CHECKING` by explicit human
+  instruction after the accepted disposition gate.
+- Dependency satisfaction, DAG state, public branch source catalog, public
+  fixture-value policy, release readiness, professional approval,
+  certification, sealing, authentication, and code-compliance claims remain
+  unchanged and unclaimed.

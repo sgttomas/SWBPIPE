@@ -114,3 +114,16 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Review finding semantics were preserved without CSV edits: PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 remain conceptually `TECHNICALLY_ADDRESSED_PENDING_HUMAN`, with `HumanDisposition=TBD`.
 - Unresolved items preserved: accepted public rigid component source catalogs, public fixture-value policy, concrete fixture values, coordinate convention, exact solver treatment of semi-rigid stiffness inputs, concrete import formats, per-family engineering profiles, dependency satisfaction, human disposition, downstream GUI/editor behavior, lifecycle closure, and professional/release acceptance.
 - Boundaries preserved: no `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, `Review_Findings.csv`, schema, fixture, test, code, DAG, coordination-file, or `DEL-03-01` edits.
+
+## 2026-06-05 - Human disposition accepted and CHECKING transition
+
+- Human Gate C ruling accepted `PKG03-DEL-03-05-PKG02-001` and
+  `PKG03-DEL-03-05-PKG02-002` as `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those two rows only.
+- `_STATUS.md` was moved from `IN_PROGRESS` to `CHECKING` by explicit human
+  instruction after the accepted disposition gate.
+- Dependency satisfaction, DAG state, accepted public rigid component source
+  catalogs, public fixture-value policy, solver treatment of semi-rigid
+  stiffness inputs, release readiness, professional approval, certification,
+  sealing, authentication, and code-compliance claims remain unchanged and
+  unclaimed.

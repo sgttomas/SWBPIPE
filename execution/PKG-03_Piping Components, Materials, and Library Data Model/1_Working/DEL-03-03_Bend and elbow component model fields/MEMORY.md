@@ -125,3 +125,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Human disposition accepted and CHECKING transition
+
+- Fresh bounded TASK evidence-reconciliation returned `READY_FOR_HUMAN_DISPOSITION` in `_run_records/TASK_RUN_2026-06-05_DEL-03-03_evidence-reconciliation.md`.
+- Human Gate D ruling accepted `PKG03-DEL-03-03-PKG02-001` through `PKG03-DEL-03-03-PKG02-003` as `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those three rows only.
+- `_STATUS.md` was moved from `IN_PROGRESS` to `CHECKING` by explicit human instruction after the accepted disposition gate.
+- Dependency satisfaction, DAG state, persistence/round-trip closure, release readiness, professional approval, certification, sealing, authentication, and code-compliance claims remain unchanged and unclaimed.
+
+## 2026-06-05 - DEL-03-03 evidence-reconciliation and review-readiness
+
+- TASK evidence-reconciliation reviewed the current component schema, model schema, strict component fixture, combined fixture pointer, focused tests, review files, lifecycle status, memory, and relevant run records.
+- Active deliverable docs were refreshed to distinguish implemented schema/fixture/test evidence from unresolved downstream behavior and human-gated review disposition.
+- Evidence supporting `PKG03-DEL-03-03-PKG02-001`: `schemas/component.schema.yaml` and `schemas/model.schema.yaml` both include `bend` and `elbow`, and `tests/test_component_section_schema.py` asserts component enum equality.
+- Evidence supporting `PKG03-DEL-03-03-PKG02-002`: bend field dimensions validate through the accepted component quantity dimension vocabulary, while dependency satisfaction remains outside this TASK and was not promoted.
+- Evidence supporting `PKG03-DEL-03-03-PKG02-003`: `fixtures/component/invented_component_library_valid.json` is the strict component fixture and is validated against `component.schema.yaml`; the combined fixture points to it through `strict_component_fixture_ref`.
+- `Review_Findings.csv`, `_STATUS.md`, dependency files, schemas, fixtures, tests, code, DAG/coordination files, package aggregate files, and adjacent deliverables were intentionally not changed.
+- Readiness verdict: `READY_FOR_HUMAN_DISPOSITION`.

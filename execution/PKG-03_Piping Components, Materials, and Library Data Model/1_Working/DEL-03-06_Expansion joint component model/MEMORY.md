@@ -100,3 +100,15 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No edits were made to `_STATUS.md`, `_DEPENDENCIES.md`, `Dependencies.csv`,
   `Review_Findings.csv`, schemas, fixtures, tests, code, DAG files,
   coordination files, or adjacent deliverables.
+
+## 2026-06-05 - Human disposition accepted and CHECKING transition
+
+- Human Gate C ruling accepted `PKG03-DEL-03-06-PKG02-001` and
+  `PKG03-DEL-03-06-PKG02-002` as `ACCEPT_AS_IS` / `RESOLVED`.
+- Local `Review_Findings.csv` was updated for those two rows only.
+- `_STATUS.md` was moved from `IN_PROGRESS` to `CHECKING` by explicit human
+  instruction after the accepted disposition gate.
+- Movement-limit classes, hardware taxonomy, public expansion-joint source
+  catalog policy, public fixture-value policy, dependency satisfaction, DAG
+  state, release readiness, professional approval, certification, sealing,
+  authentication, and code-compliance claims remain unchanged and unclaimed.
