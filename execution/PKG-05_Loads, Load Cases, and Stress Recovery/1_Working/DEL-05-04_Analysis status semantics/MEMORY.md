@@ -103,3 +103,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-04 - DEL-05-04 kit alignment to implemented status evidence
+
+- WORKING_ITEMS aligned the deliverable-local four-document kit with already-implemented analysis-status evidence while preserving lifecycle and governance boundaries.
+- Updated local evidence language in `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` so they no longer describe all schema/API/test work as future setup-only scope.
+- Evidence cited includes `schemas/analysis_status.schema.yaml`, `docs/architecture/analysis_status_semantics.md`, `tests/test_analysis_status_schema.py`, `schemas/analysis_boundary.schema.yaml`, `tests/test_analysis_boundary_schema.py`, `schemas/results.schema.yaml`, `tests/test_results_schema.py`, `api/api_boundary_contract.yaml`, and `tests/test_api_boundary_contract.py`.
+- `_STATUS.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `Review_Findings.csv`, aggregate DAG files, schemas, code, and lifecycle/review dispositions were not changed by this tranche.
+- Residual boundaries remain: lifecycle is still `IN_PROGRESS`; result-envelope ownership across downstream deliverables, non-JSON hash canonicalization, and human acceptance workflow ownership/storage/UI remain unresolved or broader-scope integration items.

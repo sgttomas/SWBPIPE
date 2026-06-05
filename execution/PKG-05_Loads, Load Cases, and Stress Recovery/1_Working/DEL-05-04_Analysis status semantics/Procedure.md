@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the setup procedure for producing and later using analysis status semantics without implementing product code in this deliverable folder.
+Define the procedure for maintaining DEL-05-04 analysis status semantics evidence after bounded implementation. Product code remains outside this deliverable folder, but the local kit may cite implemented schemas, code, tests, and downstream consumers as evidence.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Define the setup procedure for producing and later using analysis status semanti
 | Decomposition revision 0.7 and register rows for DEL-05-04, SOW-047, OBJ-005, and OBJ-011. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; registers |
 | Applicable architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08. | `_CONTEXT.md` Architecture Basis Injection |
 | Invariant catalog slices for authority, mechanics/rule separation, missing data, reports, and agent boundaries. | `docs/CONTRACT.md` |
-| Analysis status vocabulary and architecture note. | `docs/TYPES.md`; `docs/architecture/analysis_status_semantics.md` |
+| Analysis status vocabulary, architecture note, schemas, and tests. | `docs/TYPES.md`; `docs/architecture/analysis_status_semantics.md`; `schemas/analysis_status.schema.yaml`; `tests/test_analysis_status_schema.py` |
 
 ## Steps
 
@@ -20,16 +20,16 @@ Define the setup procedure for producing and later using analysis status semanti
 |---|---|---|
 | 1 | Read the sealed context and confirm the deliverable is DEL-05-04 / PKG-05 / SOW-047. | `_CONTEXT.md`; run record |
 | 2 | Read governing vocabulary and invariants for analysis statuses, authority boundaries, missing data, report provenance, and human acceptance records. | `docs/TYPES.md`; `docs/CONTRACT.md`; architecture note |
-| 3 | Draft setup-only four-document evidence for the analysis-status state model. | `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md` |
+| 3 | Maintain the four-document kit as deliverable-local evidence for the analysis-status state model. | `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md` |
 | 4 | Build the semantic matrix lens as question-shaping evidence, not engineering authority. | `_SEMANTIC.md` |
 | 5 | Build the semantic lensing register and capture warranted gaps/questions with `HumanRuling=TBD`. | `_SEMANTIC_LENSING.md` |
 | 6 | Apply only source-supported Pass 3 refinements, preserving unresolved items as `TBD`. | Four documents and run record |
 | 7 | Extract dependency anchors and information-flow constraints conservatively. | `Dependencies.csv`; `_DEPENDENCIES.md` |
-| 8 | Validate dependency schema and keep `_STATUS.md` in a safe non-ISSUED state. | Validation output; `_STATUS.md` |
+| 8 | Validate dependency/schema evidence as needed and keep `_STATUS.md` unchanged unless a human explicitly authorizes a lifecycle gate. | Validation output; `_STATUS.md` |
 
-## Future Implementation Fixture Selection
+## Implementation Evidence Fixture Selection
 
-When a later sealed implementation brief resolves schema/API placement, select tests that demonstrate:
+When maintaining or extending implementation evidence, select tests that demonstrate:
 
 - `MECHANICS_SOLVED` can coexist with `RULE_INPUTS_INCOMPLETE`;
 - missing physical solve inputs emit `MODEL_INCOMPLETE`;
@@ -42,11 +42,11 @@ When a later sealed implementation brief resolves schema/API placement, select t
 | Check | Expected result |
 |---|---|
 | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
-| No product implementation | No schema, API, Rust, TypeScript, GUI, or test implementation files are created in this folder. |
+| Local write boundary | No schema, API, Rust, TypeScript, GUI, or test implementation files are created or edited inside this deliverable-local maintenance tranche. |
 | Status distinction preserved | Mechanics, rule-pack, incomplete-data, and human-acceptance statuses remain distinct. |
 | Human approval boundary preserved | Automatic software approval/compliance claims are absent; human acceptance remains external and `TBD` where unresolved. |
 | Dependency register valid | `Dependencies.csv` conforms to v3.1 required columns and `_DEPENDENCIES.md` counts match. |
-| Lifecycle safe | `_STATUS.md` is `INITIALIZED` or `SEMANTIC_READY`, not `ISSUED`. |
+| Lifecycle safe | `_STATUS.md` remains under human lifecycle authority and is not changed by evidence alignment. |
 
 ## Records
 
@@ -57,3 +57,5 @@ When a later sealed implementation brief resolves schema/API placement, select t
 - `_run_records/TASK_RUN_2026-04-30_1530_dependency-extract.md`
 - `Dependencies.csv`
 - `_DEPENDENCIES.md`
+- `_REVIEW.md`
+- `Review_Findings.csv`

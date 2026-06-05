@@ -14,15 +14,15 @@
 
 ## Attributes
 
-| Attribute | Setup value | Source |
+| Attribute | Evidence value | Source |
 |---|---|---|
 | Primary subject | Explicit result/status semantics that separate mechanics solve state, user rule-pack check state, missing input state, and human acceptance state. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row DEL-05-04 |
 | Mechanics status | `MECHANICS_SOLVED` describes completed numerical mechanics computation for a model snapshot; it is not a code-compliance statement. | `docs/TYPES.md` section 4; `docs/architecture/analysis_status_semantics.md` Usage Rules |
 | Incomplete-data statuses | `MODEL_INCOMPLETE` and `RULE_INPUTS_INCOMPLETE` distinguish solve-required physical data gaps from rule-pack-required user/code data gaps. | `docs/TYPES.md` section 4; OPS-K-DATA-2 |
 | Rule-pack statuses | `USER_RULE_CHECKED` and `USER_RULE_FAILED` describe user-rule-pack evaluation outcomes using user data and rule definitions. | `docs/TYPES.md` section 4; `docs/architecture/analysis_status_semantics.md` Authority Boundary |
 | Human review status | `HUMAN_REVIEW_REQUIRED` is reportable for professional use; `HUMAN_APPROVED_FOR_PROJECT` is human-record-only and not emitted automatically by software. | `docs/TYPES.md` section 4; OPS-K-AUTH-1; OPS-K-AUTH-2 |
-| Result-envelope interface | Status fields belong with schema-first command/query/job result envelopes and diagnostics, preserving mechanics/rule/human distinctions. | AB-00-03; AB-00-06 |
-| Human acceptance workflow | TBD. External human acceptance records and storage/presentation ownership remain outside this setup deliverable. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-007; `docs/architecture/analysis_status_semantics.md` Remaining TBDs |
+| Result-envelope interface | Status fields belong with schema-first command/query/job result envelopes and diagnostics, preserving mechanics/rule/human distinctions. Implemented evidence exists in `schemas/analysis_status.schema.yaml`, `schemas/analysis_boundary.schema.yaml`, `schemas/results.schema.yaml`, `api/api_boundary_contract.yaml`, and downstream result/report/headless surfaces. | AB-00-03; AB-00-06; `tests/test_analysis_status_schema.py`; `tests/test_analysis_boundary_schema.py`; `tests/test_results_schema.py`; `tests/test_api_boundary_contract.py` |
+| Human acceptance workflow | TBD. External human acceptance records and storage/presentation ownership remain outside this deliverable-local kit. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-007; `docs/architecture/analysis_status_semantics.md` Remaining TBDs |
 
 ## Conditions
 
@@ -34,16 +34,16 @@
 
 ## Construction
 
-| Artifact | Description | Setup status |
+| Artifact | Description | Evidence status |
 |---|---|---|
-| Analysis status enum | Enum vocabulary for model incomplete, mechanics solved, rule inputs incomplete, user rule checked/failed, human review required, and human-approved record references. | Setup evidence only; implementation TBD |
-| API/result fields | Result-envelope fields that separate software status from external human acceptance record state. | Setup evidence only; schema location TBD |
-| Diagnostics linkage | Diagnostic class/status wiring for solve blocking, rule-check blocking, provenance, assumptions, and reportable limitations. | Setup evidence only |
-| Tests | Future tests that prove mechanics/rule/human statuses are distinct and no automatic compliance/approval status is emitted. | Required in principle; fixtures TBD |
+| Analysis status enum | Enum vocabulary for model incomplete, mechanics solved, rule inputs incomplete, user rule checked/failed, human review required, and human-approved record references. | Implemented in `schemas/analysis_status.schema.yaml`; automatic status enum excludes `HUMAN_APPROVED_FOR_PROJECT`. |
+| API/result fields | Result-envelope fields that separate software status from external human acceptance record state. | Implemented evidence exists in `schemas/results.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/analysis_run.schema.json`, and `schemas/headless_runner.schema.yaml`; final integration ownership remains broader-deliverable scope. |
+| Diagnostics linkage | Diagnostic class/status wiring for solve blocking, rule-check blocking, provenance, assumptions, and reportable limitations. | Implemented evidence exists in `schemas/analysis_boundary.schema.yaml`, `core/solver/diagnostics/src/lib.rs`, `core/rules/completeness_checker/src/lib.rs`, and report/result export modules. |
+| Tests | Tests prove mechanics/rule/human statuses are distinct and no automatic compliance/approval status is emitted. | Evidence includes `tests/test_analysis_status_schema.py`, `tests/test_analysis_boundary_schema.py`, `tests/test_results_schema.py`, and `tests/test_api_boundary_contract.py`. |
 
 ## Status Vocabulary Register
 
-| Status | Setup meaning | Authority level |
+| Status | Status meaning | Authority level |
 |---|---|---|
 | `MODEL_INCOMPLETE` | Solve-required physical inputs are missing. | Software finding |
 | `MECHANICS_SOLVED` | Numerical mechanics solve completed for a specific snapshot. | Solver result only |
@@ -65,3 +65,11 @@
 - `docs/TYPES.md`
 - `docs/SPEC.md`
 - `docs/architecture/analysis_status_semantics.md`
+- `schemas/analysis_status.schema.yaml`
+- `schemas/analysis_boundary.schema.yaml`
+- `schemas/results.schema.yaml`
+- `api/api_boundary_contract.yaml`
+- `tests/test_analysis_status_schema.py`
+- `tests/test_analysis_boundary_schema.py`
+- `tests/test_results_schema.py`
+- `tests/test_api_boundary_contract.py`
