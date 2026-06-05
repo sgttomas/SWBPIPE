@@ -106,7 +106,7 @@
     },
     "AutomaticAnalysisStatus": {
       "type": "string",
-      "description": "Statuses that software may compute or emit. This enum intentionally excludes human approval, certification, sealing, and code-compliance claims.",
+      "description": "Statuses that software may compute or emit. This enum intentionally excludes human approval, professional acceptance, certification, sealing, and code-compliance claims. Positive user-rule outcomes remain USER_RULE_CHECKED plus rule_check_details; USER_RULE_PASSED is intentionally absent.",
       "enum": [
         "MODEL_INCOMPLETE",
         "MECHANICS_SOLVED",
@@ -263,6 +263,7 @@
         "software_makes_sealing_claim",
         "software_makes_approval_claim",
         "software_makes_authentication_claim",
+        "software_makes_professional_acceptance_claim",
         "reliance_notice"
       ],
       "properties": {
@@ -279,6 +280,9 @@
           "const": false
         },
         "software_makes_authentication_claim": {
+          "const": false
+        },
+        "software_makes_professional_acceptance_claim": {
           "const": false
         },
         "reliance_notice": {
@@ -321,6 +325,54 @@
     "SoftwareStatusRecord": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "primary_status": {
+                "const": "USER_RULE_CHECKED"
+              }
+            },
+            "required": [
+              "primary_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "rule_check_details"
+            ],
+            "properties": {
+              "rule_check_details": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status_set": {
+                "contains": {
+                  "const": "USER_RULE_CHECKED"
+                }
+              }
+            },
+            "required": [
+              "status_set"
+            ]
+          },
+          "then": {
+            "required": [
+              "rule_check_details"
+            ],
+            "properties": {
+              "rule_check_details": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
       "required": [
         "primary_status",
         "status_set",
@@ -370,6 +422,13 @@
           "items": {
             "$ref": "#/$defs/Reference"
           }
+        },
+        "rule_check_details": {
+          "type": "array",
+          "description": "Rule-pack evaluation details for USER_RULE_CHECKED or USER_RULE_FAILED. A checked result with no reported failures is still USER_RULE_CHECKED with details, not USER_RULE_PASSED and not a compliance or professional-acceptance claim.",
+          "items": {
+            "$ref": "#/$defs/UserRuleCheckDetails"
+          }
         }
       }
     },
@@ -399,6 +458,48 @@
         },
         "source_version": {
           "type": "string"
+        }
+      }
+    },
+    "UserRuleCheckDetails": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "User-rule-pack evaluation details. These details record what the user-supplied rule pack reported without converting the report into software approval, code compliance, certification, sealing, or professional acceptance.",
+      "required": [
+        "rule_pack_ref",
+        "evaluation_outcome",
+        "checked_at",
+        "evidence_refs"
+      ],
+      "properties": {
+        "rule_pack_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "evaluation_outcome": {
+          "type": "string",
+          "enum": [
+            "checked_no_failures_reported",
+            "failed",
+            "inputs_incomplete",
+            "TBD"
+          ]
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "diagnostic_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
         }
       }
     }

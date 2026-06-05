@@ -3,6 +3,7 @@
 
 import json
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 
@@ -63,12 +64,56 @@ REQUIRED_TOP_LEVEL = {
 
 REQUIRED_PROVENANCE = {
     "source_name",
+    "source_type",
     "source_location",
     "source_license",
     "contributor",
     "contributor_certification",
     "redistribution_status",
+    "protected_content_review",
     "review_status",
+}
+
+MIN_ITEM_ARRAYS = {
+    "required_inputs",
+    "formula_declarations",
+    "value_slots",
+    "check_definitions",
+    "diagnostics",
+    "open_decisions",
+}
+
+REQUIRED_CHECKSUM = {
+    "algorithm",
+    "canonicalization",
+    "payload_ref",
+    "payload_scope",
+    "verification_status",
+    "value",
+}
+
+REQUIRED_DIAGNOSTIC_POLICY = {
+    "rule_check_blocking",
+    "missing_input",
+    "unit_mismatch",
+    "provenance_gap",
+    "redistribution_gap",
+    "checksum_mismatch",
+    "protected_content_suspected",
+    "evaluator_error",
+}
+
+REQUIRED_PROFESSIONAL_BOUNDARY = {
+    "software_makes_compliance_claim",
+    "software_makes_certification_claim",
+    "software_makes_sealing_claim",
+    "software_makes_approval_claim",
+    "software_makes_authentication_claim",
+    "human_review_required",
+    "human_acceptance_record_software_generated",
+    "external_human_acceptance_ref_allowed",
+    "hash_bound_human_acceptance_required",
+    "reliance_notice",
 }
 
 FORBIDDEN_SCHEMA_TEXT = {
@@ -116,6 +161,8 @@ def check_schema_contract():
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema["additionalProperties"] is False
     assert REQUIRED_TOP_LEVEL <= set(schema["required"])
+    for property_name in MIN_ITEM_ARRAYS:
+        assert schema["properties"][property_name]["minItems"] == 1
 
     metadata = definition(schema, "RulePackMetadata")
     assert {
@@ -137,23 +184,48 @@ def check_schema_contract():
 
     provenance = definition(schema, "ProvenanceRecord")
     assert REQUIRED_PROVENANCE <= set(provenance["required"])
+    assert {
+        "invented_public_example",
+        "user_private_basis",
+        "protected_suspected",
+    } <= set(provenance["properties"]["source_type"]["enum"])
+    assert "completed_no_protected_content" in provenance["properties"][
+        "protected_content_review"
+    ]["enum"]
 
     checksum = definition(schema, "Checksum")
-    assert {"algorithm", "canonicalization", "payload_ref", "value"} <= set(
-        checksum["required"]
-    )
+    assert REQUIRED_CHECKSUM <= set(checksum["required"])
     assert {"JCS", "NONE", "TBD"} <= set(
         checksum["properties"]["canonicalization"]["enum"]
     )
     assert "CALLER_SUPPLIED_JCS_BYTES_UNVERIFIED" in checksum["properties"][
         "canonicalization"
     ]["enum"]
+    assert {
+        "rule_pack_payload",
+        "formula_declaration",
+        "value_slot_declaration",
+        "non_json_asset_manifest",
+        "TBD",
+    } <= set(checksum["properties"]["payload_scope"]["enum"])
+    assert "deferred_to_DEL_06_04" in checksum["properties"][
+        "verification_status"
+    ]["enum"]
+    checksum_set = definition(schema, "ChecksumSet")
+    assert {
+        "rule_pack_checksum",
+        "payload_checksums",
+        "checksum_lifecycle_status",
+        "hash_basis",
+    } <= set(checksum_set["required"])
 
     required_input = definition(schema, "RequiredInput")
     assert {
         "quantity_intent",
         "completeness_status",
         "missing_value_diagnostic",
+        "provenance",
+        "redistribution_status",
         "provenance_required",
         "redistribution_status_required",
     } <= set(required_input["required"])
@@ -169,10 +241,29 @@ def check_schema_contract():
         "symbolic_reference",
         "structured_expression",
     } <= set(formula["properties"]["declaration_form"]["enum"])
+    assert {
+        "declaration_payload",
+        "completeness_status",
+    } <= set(formula["required"])
+    assert formula["properties"]["input_refs"]["minItems"] == 1
     assert "no_protected_text_tables_or_copied_formulas" in formula["properties"][
         "protected_content_policy"
     ]["enum"]
     assert formula["properties"]["output_dimension"]["$ref"] == "#/$defs/QuantityIntent"
+    payload = definition(schema, "FormulaDeclarationPayload")
+    assert {
+        "payload_kind",
+        "payload_summary",
+        "grammar_status",
+        "arbitrary_code_execution_allowed",
+        "protected_content_policy",
+    } <= set(payload["required"])
+    assert payload["properties"]["arbitrary_code_execution_allowed"]["const"] is False
+    assert {
+        "grammar_not_selected",
+        "future_human_approved_grammar_required",
+        "TBD",
+    } <= set(payload["properties"]["grammar_status"]["enum"])
 
     quantity_intent = definition(schema, "QuantityIntent")
     assert {
@@ -189,11 +280,16 @@ def check_schema_contract():
     assert {
         "quantity_intent",
         "value_status",
+        "missing_value_diagnostic",
         "provenance",
         "redistribution_status",
+        "provenance_required",
+        "redistribution_status_required",
         "review_status",
         "completeness_status",
     } <= set(value_slot["required"])
+    assert value_slot["properties"]["provenance_required"]["const"] is True
+    assert value_slot["properties"]["redistribution_status_required"]["const"] is True
 
     check = definition(schema, "CheckDefinition")
     assert {"RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"} <= set(
@@ -205,6 +301,11 @@ def check_schema_contract():
     assert {"acceptability_basis", "result_statuses", "diagnostic_policy"} <= set(
         check["required"]
     )
+    assert "value_slot_refs" in check["required"]
+    assert check["properties"]["required_input_refs"]["minItems"] == 1
+    assert check["properties"]["value_slot_refs"]["minItems"] == 1
+    diagnostic_policy = definition(schema, "DiagnosticPolicy")
+    assert REQUIRED_DIAGNOSTIC_POLICY <= set(diagnostic_policy["required"])
 
     diagnostic_codes = set(definition(schema, "RulePackDiagnosticCode")["enum"])
     assert {
@@ -213,12 +314,25 @@ def check_schema_contract():
         "RULE_UNIT_MISMATCH",
         "RULE_PROVENANCE_WARNING",
         "RULE_REDISTRIBUTION_WARNING",
+        "RULE_CHECKSUM_MISMATCH",
         "RULE_PROTECTED_CONTENT_WARNING",
         "RULE_EVALUATOR_ERROR",
         "RULE_INCOMPLETE_DATA",
+        "RULE_PROFESSIONAL_BOUNDARY_NOTICE",
     } <= diagnostic_codes
+    diagnostic = definition(schema, "RulePackDiagnostic")
+    assert {
+        "diagnostic_class",
+        "blocks_rule_check",
+    } <= set(diagnostic["required"])
+    assert {
+        "rule_check_blocking",
+        "checksum_mismatch",
+        "professional_boundary_notice",
+    } <= set(definition(schema, "RulePackDiagnosticClass")["enum"])
 
     professional_boundary = definition(schema, "ProfessionalBoundary")
+    assert REQUIRED_PROFESSIONAL_BOUNDARY <= set(professional_boundary["required"])
     assert (
         professional_boundary["properties"]["software_makes_compliance_claim"][
             "const"
@@ -232,6 +346,26 @@ def check_schema_contract():
         ]["const"]
         is False
     )
+    assert professional_boundary["properties"]["software_makes_approval_claim"][
+        "const"
+    ] is False
+    assert professional_boundary["properties"][
+        "software_makes_authentication_claim"
+    ]["const"] is False
+    assert professional_boundary["properties"][
+        "hash_bound_human_acceptance_required"
+    ]["const"] is True
+
+    open_decision_topics = set(
+        definition(schema, "OpenDecision")["properties"]["topic"]["enum"]
+    )
+    assert {
+        "expression_grammar",
+        "evaluator_library",
+        "private_encryption_default",
+        "storage_container",
+        "checksum_library",
+    } <= open_decision_topics
 
     all_text = "\n".join(walk_strings(schema))
     for forbidden in FORBIDDEN_SCHEMA_TEXT:
@@ -241,12 +375,69 @@ def check_schema_contract():
 def check_invented_example_shape():
     schema = load_schema()
     example = load_example()
+    for property_name in MIN_ITEM_ARRAYS:
+        assert example[property_name], property_name
     output_dimension = example["formula_declarations"][0]["output_dimension"]
     assert required_at(schema, "QuantityIntent") <= set(output_dimension)
     assert output_dimension["dimension"] == "dimensionless"
     assert output_dimension["unit_ref"] == "ratio"
     assert output_dimension["unit_required"] is True
     assert output_dimension["dimension_check_required"] is True
+
+    for required_input in example["required_inputs"]:
+        assert required_at(schema, "RequiredInput") <= set(required_input)
+        assert required_at(schema, "ProvenanceRecord") <= set(
+            required_input["provenance"]
+        )
+        assert required_input["redistribution_status"] == (
+            required_input["provenance"]["redistribution_status"]
+        )
+
+    formula = example["formula_declarations"][0]
+    assert required_at(schema, "FormulaDeclaration") <= set(formula)
+    assert formula["expression_language"] == "TBD"
+    assert required_at(schema, "FormulaDeclarationPayload") <= set(
+        formula["declaration_payload"]
+    )
+    assert formula["declaration_payload"]["grammar_status"] == "grammar_not_selected"
+    assert formula["declaration_payload"]["arbitrary_code_execution_allowed"] is False
+    assert formula["arbitrary_code_execution_allowed"] is False
+    assert formula["completeness_status"] == "complete"
+
+    value_slot = example["value_slots"][0]
+    assert required_at(schema, "UserSuppliedValueSlot") <= set(value_slot)
+    assert value_slot["provenance_required"] is True
+    assert value_slot["redistribution_status_required"] is True
+
+    check = example["check_definitions"][0]
+    assert check["value_slot_refs"]
+    assert REQUIRED_DIAGNOSTIC_POLICY <= set(check["diagnostic_policy"])
+
+    checksum = example["checksums"]["rule_pack_checksum"]
+    assert REQUIRED_CHECKSUM <= set(checksum)
+    assert checksum["verification_status"] == "deferred_to_DEL_06_04"
+    assert example["checksums"]["checksum_lifecycle_status"] == "deferred_to_DEL_06_04"
+
+    diagnostic = example["diagnostics"][0]
+    assert required_at(schema, "RulePackDiagnostic") <= set(diagnostic)
+    assert diagnostic["diagnostic_class"] == "professional_boundary_notice"
+    assert diagnostic["blocks_rule_check"] is False
+
+    professional_boundary = example["professional_boundary"]
+    assert REQUIRED_PROFESSIONAL_BOUNDARY <= set(professional_boundary)
+    assert professional_boundary["software_makes_approval_claim"] is False
+    assert professional_boundary["software_makes_authentication_claim"] is False
+    assert professional_boundary["hash_bound_human_acceptance_required"] is True
+
+    open_topics = {item["topic"] for item in example["open_decisions"]}
+    assert {
+        "expression_grammar",
+        "evaluator_library",
+        "private_encryption_default",
+        "storage_container",
+        "checksum_library",
+        "result_envelope_integration",
+    } <= open_topics
 
 
 def check_jsonschema_validation():
@@ -266,6 +457,35 @@ def check_jsonschema_validation():
         remaining = len(errors) - 10
         suffix = f"\n... {remaining} more validation errors" if remaining > 0 else ""
         raise AssertionError(f"{EXAMPLE_PATH} failed JSON Schema validation:\n{formatted}{suffix}")
+
+
+def _validator_or_skip(schema):
+    try:
+        from jsonschema import Draft202012Validator
+    except ModuleNotFoundError as exc:
+        _skip_or_note_missing_jsonschema(exc)
+        return None
+
+    Draft202012Validator.check_schema(schema)
+    return Draft202012Validator(schema)
+
+
+def _assert_invalid_instance(validator, instance, expected_path):
+    errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
+    if not errors:
+        raise AssertionError("instance unexpectedly passed JSON Schema validation")
+    paths = {_error_path(error) for error in errors}
+    assert expected_path in paths, paths
+
+
+def _error_path(error):
+    path = "$"
+    for part in error.path:
+        if isinstance(part, int):
+            path += f"[{part}]"
+        else:
+            path += f".{part}"
+    return path
 
 
 def _format_error(error):
@@ -300,6 +520,50 @@ def test_invented_demo_uses_unit_bearing_formula_output_metadata():
 
 def test_invented_demo_validates_against_rule_pack_schema():
     check_jsonschema_validation()
+
+
+def test_schema_rejects_missing_or_unsafe_hardened_fields():
+    schema = load_schema()
+    example = load_example()
+    validator = _validator_or_skip(schema)
+    if validator is None:
+        return
+
+    missing_required_input_provenance = deepcopy(example)
+    del missing_required_input_provenance["required_inputs"][0]["provenance"]
+    _assert_invalid_instance(
+        validator,
+        missing_required_input_provenance,
+        "$.required_inputs[0]",
+    )
+
+    executable_formula = deepcopy(example)
+    executable_formula["formula_declarations"][0][
+        "arbitrary_code_execution_allowed"
+    ] = True
+    _assert_invalid_instance(
+        validator,
+        executable_formula,
+        "$.formula_declarations[0].arbitrary_code_execution_allowed",
+    )
+
+    missing_checksum_scope = deepcopy(example)
+    del missing_checksum_scope["checksums"]["rule_pack_checksum"]["payload_scope"]
+    _assert_invalid_instance(
+        validator,
+        missing_checksum_scope,
+        "$.checksums.rule_pack_checksum",
+    )
+
+    software_approval_claim = deepcopy(example)
+    software_approval_claim["professional_boundary"][
+        "software_makes_approval_claim"
+    ] = True
+    _assert_invalid_instance(
+        validator,
+        software_approval_claim,
+        "$.professional_boundary.software_makes_approval_claim",
+    )
 
 
 def main():

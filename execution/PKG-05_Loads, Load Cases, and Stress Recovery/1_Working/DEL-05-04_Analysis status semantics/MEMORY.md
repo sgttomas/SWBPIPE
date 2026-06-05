@@ -111,3 +111,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Evidence cited includes `schemas/analysis_status.schema.yaml`, `docs/architecture/analysis_status_semantics.md`, `tests/test_analysis_status_schema.py`, `schemas/analysis_boundary.schema.yaml`, `tests/test_analysis_boundary_schema.py`, `schemas/results.schema.yaml`, `tests/test_results_schema.py`, `api/api_boundary_contract.yaml`, and `tests/test_api_boundary_contract.py`.
 - `_STATUS.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `Review_Findings.csv`, aggregate DAG files, schemas, code, and lifecycle/review dispositions were not changed by this tranche.
 - Residual boundaries remain: lifecycle is still `IN_PROGRESS`; result-envelope ownership across downstream deliverables, non-JSON hash canonicalization, and human acceptance workflow ownership/storage/UI remain unresolved or broader-scope integration items.
+
+## 2026-06-05 - DEL-05-04 foundational hardening
+
+- Worker C hardened automatic status separation in `schemas/analysis_status.schema.yaml`, `docs/architecture/analysis_status_semantics.md`, and `tests/test_analysis_status_schema.py`.
+- Current default is preserved: no `USER_RULE_PASSED` automatic status. Positive user-rule outcomes remain `USER_RULE_CHECKED` with `rule_check_details` unless a later human ruling changes the vocabulary.
+- `HUMAN_APPROVED_FOR_PROJECT` remains outside automatic software statuses and is still limited to separate hash-bound human acceptance records.
+- Analysis-status professional-boundary schema now explicitly fixes `software_makes_professional_acceptance_claim` to `false`, alongside compliance, certification, sealing, approval, and authentication false-claim fields.
+- No lifecycle state, review finding disposition, dependency register, aggregate DAG artifact, or human approval record was changed by this hardening tranche.

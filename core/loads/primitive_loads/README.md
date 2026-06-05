@@ -8,14 +8,19 @@ contributions for the current frame/support boundary.
 
 - Weight, pressure, thermal, imposed displacement, hydrotest, wind, seismic,
   and occasional primitive load categories.
+- Stable category and load-dimension metadata helpers for boundary records,
+  load-case mapping, diagnostics, and tests.
 - Storage-neutral primitive load-case records that bind one primitive category
   to canonical model `LoadCase` metadata, provenance, payload, and hash refs.
 - Explicit unit/dimension intent for load magnitudes.
 - Boundary quantity records that carry canonical schema binding, explicit unit
   metadata, provenance reference, JCS payload reference, and payload-hash
-  reference for persistence/result-envelope handoff.
+  reference for persistence/result-envelope handoff. `TBD` dimensions are
+  rejected for concrete quantity metadata; unit conversion constants remain
+  outside this crate.
 - Deterministic findings for missing target references, invalid numeric input,
-  invalid dimensions, and unsupported target/category combinations.
+  missing load or source identifiers, invalid dimensions, and unsupported
+  target/category combinations.
 - Storage-neutral diagnostic records that map primitive-load validation and
   load-case assembly findings to code, class, severity, source, affected
   object, message, remediation, and provenance-reference fields for later
@@ -24,6 +29,8 @@ contributions for the current frame/support boundary.
   later load-case algebra, stress recovery, GUI, and headless execution work.
 - Lumped equivalent nodal conversion for explicit uniform `ForcePerLength`
   element loads when callers supply element span and node connectivity.
+- Equivalent-static mechanics preparation for wind, seismic, and occasional
+  loads only when callers supply an explicit basis/provenance reference.
 
 ## Boundary
 
@@ -54,9 +61,21 @@ spans are reported as findings or construction errors rather than inferred.
 `ForcePerLength` boundary metadata maps to the PKG-02 canonical
 `force_per_length` dimension.
 
+Equivalent-static preparation is limited to wind, seismic, and occasional
+primitive categories as explicit mechanics inputs. The helper validates the
+caller-supplied basis/provenance reference and then reuses the primitive
+mechanics validation path. It does not generate dynamic procedures, response
+parameters, code factors, environmental defaults, or conversion constants.
+
+Solver load-vector assembly sorts accepted contributions by node, global DOF,
+and source ID, sums repeated node/DOF values deterministically, and returns no
+partial vector when any contribution has a missing source ID, invalid node/DOF,
+node/DOF mismatch, non-finite value, or non-finite assembled sum.
+
 ## Verification
 
 The unit tests cover every primitive category, invalid/missing data findings,
 diagnostic-record mapping, deterministic application behavior, boundary
-metadata validation, retired dimension alias rejection, lumped equivalent nodal
-conversion, and preservation of frame/support DOF assumptions.
+metadata validation, retired dimension alias rejection, equivalent-static input
+boundaries, lumped equivalent nodal conversion, deterministic solver load-vector
+assembly, and preservation of frame/support DOF assumptions.

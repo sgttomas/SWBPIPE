@@ -17,12 +17,70 @@ pub const RY: usize = 4;
 pub const RZ: usize = 5;
 
 const AXIS_TOLERANCE: f64 = 1.0e-12;
-const SINGULAR_TOLERANCE: f64 = 1.0e-12;
+// Internal dense verification pivot guard; not the project solver tolerance policy.
+const DENSE_SOLVE_ZERO_PIVOT_GUARD: f64 = 1.0e-12;
 
 pub type Matrix3 = [[f64; 3]; 3];
 pub type Matrix12 = [[f64; ELEMENT_DOF]; ELEMENT_DOF];
 pub type DenseMatrix = Vec<Vec<f64>>;
 pub type DenseVector = Vec<f64>;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FrameDof {
+    Ux,
+    Uy,
+    Uz,
+    Rx,
+    Ry,
+    Rz,
+}
+
+impl FrameDof {
+    pub const fn local_index(self) -> usize {
+        match self {
+            Self::Ux => UX,
+            Self::Uy => UY,
+            Self::Uz => UZ,
+            Self::Rx => RX,
+            Self::Ry => RY,
+            Self::Rz => RZ,
+        }
+    }
+
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Ux => "ux",
+            Self::Uy => "uy",
+            Self::Uz => "uz",
+            Self::Rx => "rx",
+            Self::Ry => "ry",
+            Self::Rz => "rz",
+        }
+    }
+}
+
+pub const NODE_DOF_ORDER: [FrameDof; DOF_PER_NODE] = [
+    FrameDof::Ux,
+    FrameDof::Uy,
+    FrameDof::Uz,
+    FrameDof::Rx,
+    FrameDof::Ry,
+    FrameDof::Rz,
+];
+
+pub const fn node_dof_index(node_index: usize, dof: FrameDof) -> usize {
+    node_index * DOF_PER_NODE + dof.local_index()
+}
+
+pub fn element_dof_map(node_i: usize, node_j: usize) -> [usize; ELEMENT_DOF] {
+    let mut map = [0; ELEMENT_DOF];
+    for local_dof in 0..DOF_PER_NODE {
+        let dof = NODE_DOF_ORDER[local_dof];
+        map[local_dof] = node_dof_index(node_i, dof);
+        map[DOF_PER_NODE + local_dof] = node_dof_index(node_j, dof);
+    }
+    map
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CanonicalDimension {
@@ -100,12 +158,7 @@ pub struct UnitSystemRef {
 
 impl UnitSystemRef {
     pub fn new(unit_system_id: impl Into<String>) -> Option<Self> {
-        let unit_system_id = unit_system_id.into();
-        if is_explicit_id(&unit_system_id) {
-            Some(Self { unit_system_id })
-        } else {
-            None
-        }
+        normalize_explicit_id(unit_system_id).map(|unit_system_id| Self { unit_system_id })
     }
 }
 
@@ -117,12 +170,7 @@ pub struct QuantityUnitMetadata {
 
 impl QuantityUnitMetadata {
     pub fn new(unit_id: impl Into<String>, dimension: CanonicalDimension) -> Option<Self> {
-        let unit_id = unit_id.into();
-        if is_explicit_id(&unit_id) {
-            Some(Self { unit_id, dimension })
-        } else {
-            None
-        }
+        normalize_explicit_id(unit_id).map(|unit_id| Self { unit_id, dimension })
     }
 
     pub fn dimension_id(&self) -> &'static str {
@@ -236,23 +284,24 @@ impl CanonicalModelReference {
         model_role: CanonicalModelRole,
         object_ref: impl Into<String>,
     ) -> Option<Self> {
-        let model_id = model_id.into();
-        let object_ref = object_ref.into();
-        if is_explicit_id(&model_id) && is_explicit_id(&object_ref) {
-            Some(Self {
-                model_id,
-                model_role,
-                object_ref,
-            })
-        } else {
-            None
-        }
+        let model_id = normalize_explicit_id(model_id)?;
+        let object_ref = normalize_explicit_id(object_ref)?;
+        Some(Self {
+            model_id,
+            model_role,
+            object_ref,
+        })
     }
 }
 
-fn is_explicit_id(value: &str) -> bool {
+fn normalize_explicit_id(value: impl Into<String>) -> Option<String> {
+    let value = value.into();
     let trimmed = value.trim();
-    !trimmed.is_empty() && trimmed != "TBD"
+    if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("TBD") {
+        None
+    } else {
+        Some(trimmed.to_owned())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -266,6 +315,9 @@ pub enum FrameKernelError {
         value: f64,
     },
     DegenerateAxis {
+        detail: &'static str,
+    },
+    InvalidOrientation {
         detail: &'static str,
     },
     InvalidNodeIndex {
@@ -312,6 +364,7 @@ impl fmt::Display for FrameKernelError {
                 write!(f, "{name} must be positive, got {value}")
             }
             Self::DegenerateAxis { detail } => write!(f, "degenerate axis definition: {detail}"),
+            Self::InvalidOrientation { detail } => write!(f, "invalid orientation: {detail}"),
             Self::InvalidNodeIndex {
                 node_index,
                 node_count,
@@ -419,6 +472,33 @@ pub struct FrameOrientation {
 }
 
 impl FrameOrientation {
+    pub fn new(local_axes: Matrix3) -> Result<Self, FrameKernelError> {
+        for axis in local_axes {
+            validate_finite_vector("local_axes", axis)?;
+        }
+        validate_unit_axis(local_axes[0])?;
+        validate_unit_axis(local_axes[1])?;
+        validate_unit_axis(local_axes[2])?;
+
+        if dot(local_axes[0], local_axes[1]).abs() > AXIS_TOLERANCE
+            || dot(local_axes[0], local_axes[2]).abs() > AXIS_TOLERANCE
+            || dot(local_axes[1], local_axes[2]).abs() > AXIS_TOLERANCE
+        {
+            return Err(FrameKernelError::InvalidOrientation {
+                detail: "local axes must be mutually orthogonal",
+            });
+        }
+
+        let right_handed_z = cross(local_axes[0], local_axes[1]);
+        if max_abs_component(subtract(right_handed_z, local_axes[2])) > AXIS_TOLERANCE {
+            return Err(FrameKernelError::InvalidOrientation {
+                detail: "local axes must form a right-handed basis",
+            });
+        }
+
+        Ok(Self { local_axes })
+    }
+
     pub fn from_x_axis_and_y_reference(
         local_x_axis: [f64; 3],
         y_reference: [f64; 3],
@@ -430,11 +510,9 @@ impl FrameOrientation {
         let projection = dot(y_reference, x_axis);
         let y_candidate = subtract(y_reference, scale(x_axis, projection));
         let y_axis = normalize(y_candidate, "y reference parallel to local x axis")?;
-        let z_axis = cross(x_axis, y_axis);
+        let z_axis = normalize(cross(x_axis, y_axis), "local z axis")?;
 
-        Ok(Self {
-            local_axes: [x_axis, y_axis, z_axis],
-        })
+        Self::new([x_axis, y_axis, z_axis])
     }
 
     pub fn transformation_matrix(&self) -> Matrix12 {
@@ -743,7 +821,7 @@ pub fn solve_dense(stiffness: &[Vec<f64>], force: &[f64]) -> Result<DenseVector,
             }
         }
 
-        if pivot_value <= SINGULAR_TOLERANCE {
+        if pivot_value <= DENSE_SOLVE_ZERO_PIVOT_GUARD {
             return Err(FrameKernelError::SingularSystem { pivot });
         }
 
@@ -771,7 +849,7 @@ pub fn solve_dense(stiffness: &[Vec<f64>], force: &[f64]) -> Result<DenseVector,
         for (col, value) in matrix[row].iter().enumerate().skip(row + 1) {
             sum -= value * solution[col];
         }
-        if matrix[row][row].abs() <= SINGULAR_TOLERANCE {
+        if matrix[row][row].abs() <= DENSE_SOLVE_ZERO_PIVOT_GUARD {
             return Err(FrameKernelError::SingularSystem { pivot: row });
         }
         solution[row] = sum / matrix[row][row];
@@ -852,15 +930,6 @@ fn copy_rotation_block(matrix: &mut Matrix12, row_offset: usize, col_offset: usi
     }
 }
 
-fn element_dof_map(node_i: usize, node_j: usize) -> [usize; ELEMENT_DOF] {
-    let mut map = [0; ELEMENT_DOF];
-    for local_dof in 0..DOF_PER_NODE {
-        map[local_dof] = node_i * DOF_PER_NODE + local_dof;
-        map[DOF_PER_NODE + local_dof] = node_j * DOF_PER_NODE + local_dof;
-    }
-    map
-}
-
 fn validate_square_matrix(matrix: &[Vec<f64>]) -> Result<usize, FrameKernelError> {
     let rows = matrix.len();
     for row in matrix {
@@ -925,6 +994,15 @@ fn normalize(vector: [f64; 3], detail: &'static str) -> Result<[f64; 3], FrameKe
     Ok(scale(vector, 1.0 / magnitude))
 }
 
+fn validate_unit_axis(axis: [f64; 3]) -> Result<(), FrameKernelError> {
+    if (norm(axis) - 1.0).abs() > AXIS_TOLERANCE {
+        return Err(FrameKernelError::InvalidOrientation {
+            detail: "local axes must be unit length",
+        });
+    }
+    Ok(())
+}
+
 fn norm(vector: [f64; 3]) -> f64 {
     dot(vector, vector).sqrt()
 }
@@ -949,11 +1027,33 @@ fn cross(left: [f64; 3], right: [f64; 3]) -> [f64; 3] {
     ]
 }
 
+fn max_abs_component(vector: [f64; 3]) -> f64 {
+    vector[0].abs().max(vector[1].abs()).max(vector[2].abs())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     const ASSERT_TOLERANCE: f64 = 1.0e-9;
+
+    #[test]
+    fn six_dof_mapping_is_stable_and_node_based() {
+        assert_eq!(
+            NODE_DOF_ORDER.map(|dof| dof.as_str()),
+            ["ux", "uy", "uz", "rx", "ry", "rz"]
+        );
+        assert_eq!(FrameDof::Ux.local_index(), UX);
+        assert_eq!(FrameDof::Uy.local_index(), UY);
+        assert_eq!(FrameDof::Uz.local_index(), UZ);
+        assert_eq!(FrameDof::Rx.local_index(), RX);
+        assert_eq!(FrameDof::Ry.local_index(), RY);
+        assert_eq!(FrameDof::Rz.local_index(), RZ);
+        assert_eq!(node_dof_index(2, FrameDof::Ry), 16);
+
+        let map = element_dof_map(2, 5);
+        assert_eq!(map, [12, 13, 14, 15, 16, 17, 30, 31, 32, 33, 34, 35]);
+    }
 
     #[test]
     fn local_stiffness_contains_standard_terms() {
@@ -993,6 +1093,59 @@ mod tests {
             for col in 0..ELEMENT_DOF {
                 assert_close(global[row][col], local[row][col]);
             }
+        }
+    }
+
+    #[test]
+    fn orientation_constructor_rejects_non_orthonormal_axes() {
+        let non_unit_error =
+            FrameOrientation::new([[2.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]).unwrap_err();
+        assert_eq!(
+            non_unit_error,
+            FrameKernelError::InvalidOrientation {
+                detail: "local axes must be unit length"
+            }
+        );
+
+        let non_orthogonal_error = FrameOrientation::new([
+            [1.0, 0.0, 0.0],
+            [0.7071067811865475, 0.7071067811865475, 0.0],
+            [0.0, 0.0, 1.0],
+        ])
+        .unwrap_err();
+        assert_eq!(
+            non_orthogonal_error,
+            FrameKernelError::InvalidOrientation {
+                detail: "local axes must be mutually orthogonal"
+            }
+        );
+
+        let left_handed_error =
+            FrameOrientation::new([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]])
+                .unwrap_err();
+        assert_eq!(
+            left_handed_error,
+            FrameKernelError::InvalidOrientation {
+                detail: "local axes must form a right-handed basis"
+            }
+        );
+    }
+
+    #[test]
+    fn transformation_matrix_maps_translation_and_rotation_blocks() {
+        let orientation =
+            FrameOrientation::from_x_axis_and_y_reference([0.0, 1.0, 0.0], [0.0, 0.0, 1.0])
+                .unwrap();
+        let transform = orientation.transformation_matrix();
+
+        for block_offset in [0, RX, DOF_PER_NODE, DOF_PER_NODE + RX] {
+            assert_close(transform[block_offset + UX][block_offset + UY], 1.0);
+            assert_close(transform[block_offset + UY][block_offset + UZ], 1.0);
+            assert_close(transform[block_offset + UZ][block_offset + UX], 1.0);
+        }
+        for row in 0..ELEMENT_DOF {
+            let row_abs_sum = transform[row].iter().map(|entry| entry.abs()).sum::<f64>();
+            assert_close(row_abs_sum, 1.0);
         }
     }
 
@@ -1043,6 +1196,23 @@ mod tests {
     }
 
     #[test]
+    fn assembly_uses_stable_dof_map_for_nonzero_node_indices() {
+        let section = FrameSection::new(1000.0, 400.0, 2.0, 1.0, 1.0, 1.0).unwrap();
+        let node_i = FrameNode::new(2, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(0, [2.0, 0.0, 0.0]).unwrap();
+        let element = FrameElement::new(node_i, node_j, section, [0.0, 1.0, 0.0]).unwrap();
+
+        let global = assemble_global_stiffness(3, &[element]).unwrap();
+
+        let node_i_ux = node_dof_index(2, FrameDof::Ux);
+        let node_j_ux = node_dof_index(0, FrameDof::Ux);
+        assert_close(global[node_i_ux][node_i_ux], 1000.0);
+        assert_close(global[node_j_ux][node_j_ux], 1000.0);
+        assert_close(global[node_i_ux][node_j_ux], -1000.0);
+        assert_close(global[node_j_ux][node_i_ux], -1000.0);
+    }
+
+    #[test]
     fn reduction_removes_restrained_dofs() {
         let stiffness = vec![
             vec![10.0, 1.0, 2.0, 3.0],
@@ -1057,6 +1227,24 @@ mod tests {
         assert_eq!(reduced.free_dofs, vec![0, 2]);
         assert_eq!(reduced.force, vec![7.0, 9.0]);
         assert_eq!(reduced.stiffness, vec![vec![10.0, 2.0], vec![2.0, 30.0]]);
+    }
+
+    #[test]
+    fn prescribed_reduction_uses_boundary_dof_order_for_force_adjustment() {
+        let stiffness = vec![
+            vec![10.0, 2.0, 3.0],
+            vec![2.0, 20.0, 4.0],
+            vec![3.0, 4.0, 30.0],
+        ];
+        let force = vec![100.0, 200.0, 300.0];
+
+        let reduced =
+            reduce_system_with_prescribed_displacements(&stiffness, &force, &[2, 0], &[5.0, 1.0])
+                .unwrap();
+
+        assert_eq!(reduced.free_dofs, vec![1]);
+        assert_eq!(reduced.stiffness, vec![vec![20.0]]);
+        assert_close(reduced.force[0], 178.0);
     }
 
     #[test]
@@ -1231,6 +1419,16 @@ mod tests {
     }
 
     #[test]
+    fn dense_solve_uses_internal_zero_pivot_guard() {
+        let stiffness = vec![vec![DENSE_SOLVE_ZERO_PIVOT_GUARD * 0.5]];
+        let force = vec![1.0];
+
+        let error = solve_dense(&stiffness, &force).unwrap_err();
+
+        assert_eq!(error, FrameKernelError::SingularSystem { pivot: 0 });
+    }
+
+    #[test]
     fn degenerate_orientation_is_rejected() {
         let error = FrameOrientation::from_x_axis_and_y_reference([1.0, 0.0, 0.0], [2.0, 0.0, 0.0])
             .unwrap_err();
@@ -1365,6 +1563,55 @@ mod tests {
             "second_moment_area"
         );
         assert_eq!(basis.rotation_unit.dimension_id(), "rotation");
+    }
+
+    #[test]
+    fn frame_unit_basis_rejects_wrong_dimensions() {
+        let basis = FrameKernelUnitBasis::new(
+            UnitSystemRef::new("fixture-unit-system").unwrap(),
+            QuantityUnitMetadata::new("fixture-force", CanonicalDimension::Force).unwrap(),
+            QuantityUnitMetadata::new("fixture-force", CanonicalDimension::Force).unwrap(),
+            QuantityUnitMetadata::new("fixture-moment", CanonicalDimension::Moment).unwrap(),
+            QuantityUnitMetadata::new("fixture-stress", CanonicalDimension::Stress).unwrap(),
+            QuantityUnitMetadata::new("fixture-area", CanonicalDimension::Area).unwrap(),
+            QuantityUnitMetadata::new(
+                "fixture-second-moment-area",
+                CanonicalDimension::SecondMomentArea,
+            )
+            .unwrap(),
+            QuantityUnitMetadata::new("fixture-displacement", CanonicalDimension::Displacement)
+                .unwrap(),
+            QuantityUnitMetadata::new("fixture-rotation", CanonicalDimension::Rotation).unwrap(),
+        );
+
+        assert!(basis.is_none());
+    }
+
+    #[test]
+    fn boundary_metadata_trims_ids_and_rejects_tbd_placeholders() {
+        let unit_ref = UnitSystemRef::new(" fixture-unit-system ").unwrap();
+        assert_eq!(unit_ref.unit_system_id, "fixture-unit-system");
+        assert!(UnitSystemRef::new(" tbd ").is_none());
+
+        let unit =
+            QuantityUnitMetadata::new(" fixture-length ", CanonicalDimension::Length).unwrap();
+        assert_eq!(unit.unit_id, "fixture-length");
+        assert!(QuantityUnitMetadata::new("TBD", CanonicalDimension::Length).is_none());
+
+        let model_ref = CanonicalModelReference::new(
+            " fixture-model ",
+            CanonicalModelRole::AnalyticalSolverModel,
+            " fixture-node-1 ",
+        )
+        .unwrap();
+        assert_eq!(model_ref.model_id, "fixture-model");
+        assert_eq!(model_ref.object_ref, "fixture-node-1");
+        assert!(CanonicalModelReference::new(
+            "fixture-model",
+            CanonicalModelRole::AnalyticalSolverModel,
+            "TBD"
+        )
+        .is_none());
     }
 
     #[test]

@@ -22,6 +22,36 @@ pub enum PrimitiveLoadCategory {
     Occasional,
 }
 
+impl PrimitiveLoadCategory {
+    pub const ALL: [Self; 8] = [
+        Self::Weight,
+        Self::Pressure,
+        Self::Thermal,
+        Self::ImposedDisplacement,
+        Self::Hydrotest,
+        Self::Wind,
+        Self::Seismic,
+        Self::Occasional,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Weight => "weight",
+            Self::Pressure => "pressure",
+            Self::Thermal => "thermal",
+            Self::ImposedDisplacement => "imposed_displacement",
+            Self::Hydrotest => "hydrotest",
+            Self::Wind => "wind",
+            Self::Seismic => "seismic",
+            Self::Occasional => "occasional",
+        }
+    }
+
+    pub fn is_equivalent_static(self) -> bool {
+        matches!(self, Self::Wind | Self::Seismic | Self::Occasional)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoadTarget {
     Node(usize),
@@ -39,6 +69,25 @@ pub enum LoadDimension {
     Acceleration,
     Displacement,
     Rotation,
+}
+
+impl LoadDimension {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Force => "force",
+            Self::Moment => "moment",
+            Self::ForcePerLength => "force_per_length",
+            Self::Pressure => "pressure",
+            Self::TemperatureChange => "temperature_change",
+            Self::Acceleration => "acceleration",
+            Self::Displacement => "displacement",
+            Self::Rotation => "rotation",
+        }
+    }
+
+    pub fn canonical_dimension(self) -> CanonicalDimension {
+        CanonicalDimension::from_load_dimension(self)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -291,6 +340,9 @@ impl QuantityUnitMetadata {
     pub fn validate(&self) -> Result<(), BoundaryMetadataError> {
         validate_boundary_ref("unit", &self.unit)?;
         validate_boundary_ref("unit_system_ref", &self.unit_system_ref)?;
+        if self.dimension == CanonicalDimension::Tbd {
+            return Err(BoundaryMetadataError::MissingField { field: "dimension" });
+        }
         Ok(())
     }
 }
@@ -415,6 +467,25 @@ impl PrimitiveLoadCaseKind {
             Self::Seismic => PrimitiveLoadCategory::Seismic,
             Self::Occasional => PrimitiveLoadCategory::Occasional,
         }
+    }
+
+    pub fn from_primitive_category(category: PrimitiveLoadCategory) -> Self {
+        match category {
+            PrimitiveLoadCategory::Weight => Self::Weight,
+            PrimitiveLoadCategory::Pressure => Self::Pressure,
+            PrimitiveLoadCategory::Thermal => Self::Thermal,
+            PrimitiveLoadCategory::ImposedDisplacement => Self::ImposedDisplacement,
+            PrimitiveLoadCategory::Hydrotest => Self::Hydrotest,
+            PrimitiveLoadCategory::Wind => Self::Wind,
+            PrimitiveLoadCategory::Seismic => Self::Seismic,
+            PrimitiveLoadCategory::Occasional => Self::Occasional,
+        }
+    }
+}
+
+impl PrimitiveLoadCategory {
+    pub fn load_case_kind(self) -> PrimitiveLoadCaseKind {
+        PrimitiveLoadCaseKind::from_primitive_category(self)
     }
 }
 
@@ -604,10 +675,30 @@ impl BoundaryQuantityRecord {
 }
 
 fn validate_boundary_ref(field: &'static str, value: &str) -> Result<(), BoundaryMetadataError> {
-    if value.trim().is_empty() || value.trim() == "TBD" {
+    if boundary_ref_is_missing(value) {
         return Err(BoundaryMetadataError::MissingField { field });
     }
     Ok(())
+}
+
+fn boundary_ref_is_missing(value: &str) -> bool {
+    value.trim().is_empty() || value.trim() == "TBD"
+}
+
+fn primitive_load_affected_object(load_id: &str) -> String {
+    if boundary_ref_is_missing(load_id) {
+        "primitive-load:<missing-load-id>".to_string()
+    } else {
+        format!("primitive-load:{}", load_id.trim())
+    }
+}
+
+fn solver_contribution_affected_object(source_id: &str) -> String {
+    if boundary_ref_is_missing(source_id) {
+        "solver-load-contribution:<missing-source-id>".to_string()
+    } else {
+        format!("solver-load-contribution:{}", source_id.trim())
+    }
 }
 
 fn require_schema_binding(
@@ -622,7 +713,8 @@ fn require_schema_binding(
 
 fn diagnostic_class_for_load_finding(code: FindingCode) -> LoadDiagnosticClass {
     match code {
-        FindingCode::MissingLoadTarget
+        FindingCode::MissingLoadId
+        | FindingCode::MissingLoadTarget
         | FindingCode::MissingLoadMagnitude
         | FindingCode::MissingElementSpan
         | FindingCode::MissingElementProperties
@@ -645,7 +737,8 @@ fn diagnostic_class_for_load_case_assembly_finding(
     code: LoadCaseAssemblyFindingCode,
 ) -> LoadDiagnosticClass {
     match code {
-        LoadCaseAssemblyFindingCode::NodeOutOfRange
+        LoadCaseAssemblyFindingCode::MissingSourceId
+        | LoadCaseAssemblyFindingCode::NodeOutOfRange
         | LoadCaseAssemblyFindingCode::DofOutOfRange
         | LoadCaseAssemblyFindingCode::NodeDofMismatch => LoadDiagnosticClass::LoadAssemblyBlocking,
         LoadCaseAssemblyFindingCode::NonFiniteContribution => {
@@ -656,6 +749,9 @@ fn diagnostic_class_for_load_case_assembly_finding(
 
 fn remediation_for_load_finding(code: FindingCode) -> &'static str {
     match code {
+        FindingCode::MissingLoadId => {
+            "Provide a stable primitive load identifier before validation or diagnostics."
+        }
         FindingCode::MissingLoadTarget => {
             "Provide an explicit node, element, or support target for the primitive load."
         }
@@ -709,6 +805,9 @@ fn remediation_for_load_finding(code: FindingCode) -> &'static str {
 
 fn remediation_for_load_case_assembly_finding(code: LoadCaseAssemblyFindingCode) -> &'static str {
     match code {
+        LoadCaseAssemblyFindingCode::MissingSourceId => {
+            "Provide a stable source identifier for each solver load contribution."
+        }
         LoadCaseAssemblyFindingCode::NodeOutOfRange => {
             "Reference an existing node before solver load-vector assembly."
         }
@@ -739,6 +838,10 @@ impl LoadQuantity {
     pub fn positive(value: f64, dimension: LoadDimension) -> Result<Self, PrimitiveLoadError> {
         validate_positive_finite("load quantity", value)?;
         Ok(Self { value, dimension })
+    }
+
+    pub fn canonical_dimension(self) -> CanonicalDimension {
+        self.dimension.canonical_dimension()
     }
 }
 
@@ -838,6 +941,47 @@ impl PrimitiveLoad {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EquivalentStaticMechanicsBasis {
+    pub basis_ref: String,
+    pub provenance_ref: String,
+}
+
+impl EquivalentStaticMechanicsBasis {
+    pub fn new(
+        basis_ref: impl Into<String>,
+        provenance_ref: impl Into<String>,
+    ) -> Result<Self, BoundaryMetadataError> {
+        let basis = Self {
+            basis_ref: basis_ref.into(),
+            provenance_ref: provenance_ref.into(),
+        };
+        basis.validate()?;
+        Ok(basis)
+    }
+
+    pub fn validate(&self) -> Result<(), BoundaryMetadataError> {
+        validate_boundary_ref("basis_ref", &self.basis_ref)?;
+        validate_boundary_ref("provenance_ref", &self.provenance_ref)?;
+        Ok(())
+    }
+
+    pub fn canonical_field_pairs(&self) -> Vec<(&'static str, String)> {
+        vec![
+            ("basis_ref", self.basis_ref.clone()),
+            ("provenance_ref", self.provenance_ref.clone()),
+        ]
+    }
+
+    pub fn round_trip_key(&self) -> String {
+        self.canonical_field_pairs()
+            .into_iter()
+            .map(|(key, value)| format!("{key}={value}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct NodalLoadContribution {
     pub load_id: String,
@@ -934,6 +1078,7 @@ pub struct ImposedDisplacementContribution {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FindingCode {
+    MissingLoadId,
     MissingLoadTarget,
     MissingLoadMagnitude,
     NodeOutOfRange,
@@ -955,6 +1100,7 @@ pub enum FindingCode {
 impl FindingCode {
     pub fn as_str(self) -> &'static str {
         match self {
+            Self::MissingLoadId => "MissingLoadId",
             Self::MissingLoadTarget => "MissingLoadTarget",
             Self::MissingLoadMagnitude => "MissingLoadMagnitude",
             Self::NodeOutOfRange => "NodeOutOfRange",
@@ -1117,7 +1263,7 @@ impl LoadFinding {
             self.code.as_str(),
             diagnostic_class_for_load_finding(self.code),
             LoadDiagnosticSource::PrimitiveLoadValidation,
-            format!("primitive-load:{}", self.load_id),
+            primitive_load_affected_object(&self.load_id),
             self.message.clone(),
             remediation_for_load_finding(self.code),
             provenance_ref,
@@ -1196,6 +1342,7 @@ impl SolverNodalLoadContribution {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoadCaseAssemblyFindingCode {
+    MissingSourceId,
     NodeOutOfRange,
     DofOutOfRange,
     NonFiniteContribution,
@@ -1205,6 +1352,7 @@ pub enum LoadCaseAssemblyFindingCode {
 impl LoadCaseAssemblyFindingCode {
     pub fn as_str(self) -> &'static str {
         match self {
+            Self::MissingSourceId => "MissingSourceId",
             Self::NodeOutOfRange => "NodeOutOfRange",
             Self::DofOutOfRange => "DofOutOfRange",
             Self::NonFiniteContribution => "NonFiniteContribution",
@@ -1241,7 +1389,7 @@ impl LoadCaseAssemblyFinding {
             self.code.as_str(),
             diagnostic_class_for_load_case_assembly_finding(self.code),
             LoadDiagnosticSource::LoadCaseAssembly,
-            format!("solver-load-contribution:{}", self.source_id),
+            solver_contribution_affected_object(&self.source_id),
             self.message.clone(),
             remediation_for_load_case_assembly_finding(self.code),
             provenance_ref,
@@ -1291,6 +1439,14 @@ pub fn assemble_solver_load_vector(
     let mut findings = Vec::new();
 
     for contribution in sorted {
+        if boundary_ref_is_missing(&contribution.source_id) {
+            findings.push(LoadCaseAssemblyFinding::new(
+                LoadCaseAssemblyFindingCode::MissingSourceId,
+                contribution.source_id,
+                "solver load contribution requires a stable source id",
+            ));
+            continue;
+        }
         if contribution.node_index >= node_count {
             findings.push(LoadCaseAssemblyFinding::new(
                 LoadCaseAssemblyFindingCode::NodeOutOfRange,
@@ -1334,7 +1490,16 @@ pub fn assemble_solver_load_vector(
             ));
             continue;
         }
-        vector[contribution.global_dof] += contribution.value;
+        let assembled_value = vector[contribution.global_dof] + contribution.value;
+        if !assembled_value.is_finite() {
+            findings.push(LoadCaseAssemblyFinding::new(
+                LoadCaseAssemblyFindingCode::NonFiniteContribution,
+                contribution.source_id,
+                "assembled solver load vector value must remain finite",
+            ));
+            continue;
+        }
+        vector[contribution.global_dof] = assembled_value;
         accepted.push(contribution);
     }
 
@@ -1385,6 +1550,14 @@ pub fn prepare_loads(
     let mut findings = Vec::new();
 
     for load in loads {
+        if boundary_ref_is_missing(&load.load_id) {
+            findings.push(LoadFinding::new(
+                FindingCode::MissingLoadId,
+                &load.load_id,
+                "primitive load requires a stable load id",
+            ));
+            continue;
+        }
         let Some(target) = load.target else {
             findings.push(LoadFinding::new(
                 FindingCode::MissingLoadTarget,
@@ -1401,6 +1574,9 @@ pub fn prepare_loads(
             ));
             continue;
         };
+        if finite_load_magnitude(load, magnitude, &mut findings).is_none() {
+            continue;
+        }
 
         match target {
             LoadTarget::Node(node_index) => prepare_node_load(
@@ -1458,6 +1634,46 @@ pub fn prepare_loads(
     }
 }
 
+pub fn prepare_equivalent_static_loads(
+    node_count: usize,
+    element_count: usize,
+    basis: &EquivalentStaticMechanicsBasis,
+    loads: &[PrimitiveLoad],
+) -> Result<LoadApplication, BoundaryMetadataError> {
+    basis.validate()?;
+
+    let mut scoped_loads = Vec::new();
+    let mut findings = Vec::new();
+
+    for load in loads {
+        if boundary_ref_is_missing(&load.load_id) {
+            findings.push(LoadFinding::new(
+                FindingCode::MissingLoadId,
+                &load.load_id,
+                "primitive load requires a stable load id",
+            ));
+            continue;
+        }
+        if !load.category.is_equivalent_static() {
+            findings.push(LoadFinding::new(
+                FindingCode::UnsupportedTargetForCategory,
+                &load.load_id,
+                format!(
+                    "{} is not an equivalent static primitive mechanics category",
+                    load.category.as_str()
+                ),
+            ));
+            continue;
+        }
+        scoped_loads.push(load.clone());
+    }
+
+    let mut application = prepare_loads(node_count, element_count, &scoped_loads);
+    findings.append(&mut application.findings);
+    application.findings = findings;
+    Ok(application)
+}
+
 pub fn prepare_lumped_nodal_loads(
     node_count: usize,
     element_count: usize,
@@ -1468,6 +1684,14 @@ pub fn prepare_lumped_nodal_loads(
     let mut findings = Vec::new();
 
     for load in loads {
+        if boundary_ref_is_missing(&load.load_id) {
+            findings.push(LoadFinding::new(
+                FindingCode::MissingLoadId,
+                &load.load_id,
+                "primitive load requires a stable load id",
+            ));
+            continue;
+        }
         let Some(target) = load.target else {
             findings.push(LoadFinding::new(
                 FindingCode::MissingLoadTarget,
@@ -1482,6 +1706,9 @@ pub fn prepare_lumped_nodal_loads(
                 &load.load_id,
                 "primitive load requires an explicit magnitude",
             ));
+            continue;
+        };
+        let Some(magnitude_value) = finite_load_magnitude(load, magnitude, &mut findings) else {
             continue;
         };
 
@@ -1542,7 +1769,15 @@ pub fn prepare_lumped_nodal_loads(
             continue;
         }
 
-        let half_total = magnitude.value * span.span * 0.5;
+        let half_total = magnitude_value * span.span * 0.5;
+        if !half_total.is_finite() {
+            findings.push(LoadFinding::new(
+                FindingCode::NonFiniteLoadMagnitude,
+                &load.load_id,
+                "lumped equivalent nodal load value must remain finite",
+            ));
+            continue;
+        }
         let dof_index = load.direction.dof_index();
         nodal_loads.push(NodalLoadContribution {
             load_id: load.load_id.clone(),
@@ -1577,6 +1812,14 @@ pub fn prepare_straight_pipe_axial_effects(
     let mut findings = Vec::new();
 
     for load in loads {
+        if boundary_ref_is_missing(&load.load_id) {
+            findings.push(LoadFinding::new(
+                FindingCode::MissingLoadId,
+                &load.load_id,
+                "primitive load requires a stable load id",
+            ));
+            continue;
+        }
         let Some(target) = load.target else {
             findings.push(LoadFinding::new(
                 FindingCode::MissingLoadTarget,
@@ -2206,6 +2449,42 @@ mod tests {
     }
 
     #[test]
+    fn primitive_category_and_dimension_metadata_are_stable() {
+        let category_names = PrimitiveLoadCategory::ALL
+            .map(PrimitiveLoadCategory::as_str)
+            .to_vec();
+        assert_eq!(
+            category_names,
+            vec![
+                "weight",
+                "pressure",
+                "thermal",
+                "imposed_displacement",
+                "hydrotest",
+                "wind",
+                "seismic",
+                "occasional",
+            ]
+        );
+        assert_eq!(
+            PrimitiveLoadCategory::Wind.load_case_kind(),
+            PrimitiveLoadCaseKind::Wind
+        );
+        assert_eq!(
+            PrimitiveLoadCaseKind::from_primitive_category(PrimitiveLoadCategory::Occasional)
+                .schema_load_type(),
+            "user_occasional"
+        );
+        assert!(PrimitiveLoadCategory::Seismic.is_equivalent_static());
+        assert!(!PrimitiveLoadCategory::Weight.is_equivalent_static());
+        assert_eq!(LoadDimension::ForcePerLength.as_str(), "force_per_length");
+        assert_eq!(
+            q(1.0, LoadDimension::Pressure).canonical_dimension(),
+            CanonicalDimension::Pressure
+        );
+    }
+
+    #[test]
     fn canonical_dimension_parser_rejects_retired_aliases() {
         assert_eq!(
             CanonicalDimension::from_schema_value("temperature_interval").unwrap(),
@@ -2246,6 +2525,18 @@ mod tests {
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn quantity_unit_metadata_rejects_unresolved_dimension() {
+        let err =
+            QuantityUnitMetadata::from_schema_values("unit:unresolved", "TBD", "unit-system:si")
+                .unwrap_err();
+
+        assert_eq!(
+            err,
+            BoundaryMetadataError::MissingField { field: "dimension" }
+        );
     }
 
     #[test]
@@ -2569,6 +2860,41 @@ mod tests {
         assert_eq!(assembly.sorted_contributions[2].source_id, "same-dof");
         assert_eq!(assembly.global_load_vector[UX], 2.0);
         assert_eq!(assembly.global_load_vector[DOF_PER_NODE + UY], -5.0);
+    }
+
+    #[test]
+    fn load_case_assembly_requires_source_ids_and_finite_sums() {
+        let missing_source =
+            assemble_solver_load_vector(1, &[SolverNodalLoadContribution::new("TBD", 0, UX, 1.0)]);
+        assert!(missing_source.is_blocked());
+        assert_eq!(
+            missing_source.findings[0].code,
+            LoadCaseAssemblyFindingCode::MissingSourceId
+        );
+        let missing_source_records = diagnostic_records_from_load_case_assembly_findings(
+            &missing_source.findings,
+            "provenance:assembly",
+        )
+        .unwrap();
+        assert_eq!(
+            missing_source_records[0].affected_object,
+            "solver-load-contribution:<missing-source-id>"
+        );
+
+        let overflow = assemble_solver_load_vector(
+            1,
+            &[
+                SolverNodalLoadContribution::new("big-a", 0, UX, f64::MAX),
+                SolverNodalLoadContribution::new("big-b", 0, UX, f64::MAX),
+            ],
+        );
+        assert!(overflow.is_blocked());
+        assert!(overflow.global_load_vector.is_empty());
+        assert!(overflow.sorted_contributions.is_empty());
+        assert_eq!(
+            overflow.findings[0].code,
+            LoadCaseAssemblyFindingCode::NonFiniteContribution
+        );
     }
 
     #[test]
@@ -3117,6 +3443,73 @@ mod tests {
     }
 
     #[test]
+    fn equivalent_static_helper_requires_basis_and_allowed_categories() {
+        let missing_basis =
+            EquivalentStaticMechanicsBasis::new("TBD", "provenance:manual").unwrap_err();
+        assert_eq!(
+            missing_basis,
+            BoundaryMetadataError::MissingField { field: "basis_ref" }
+        );
+
+        let basis = EquivalentStaticMechanicsBasis::new(
+            "equivalent-static-basis:user-input",
+            "provenance:manual",
+        )
+        .unwrap();
+        assert!(basis
+            .round_trip_key()
+            .contains("basis_ref=equivalent-static-basis:user-input"));
+
+        let loads = vec![
+            PrimitiveLoad::nodal_force(
+                "wind-node",
+                PrimitiveLoadCategory::Wind,
+                0,
+                LoadDirection::GlobalY,
+                q(12.0, LoadDimension::Force),
+            ),
+            PrimitiveLoad::uniform_element_load(
+                "seismic-line",
+                PrimitiveLoadCategory::Seismic,
+                0,
+                LoadDirection::GlobalX,
+                q(3.0, LoadDimension::ForcePerLength),
+            ),
+            PrimitiveLoad::uniform_element_load(
+                "pressure-not-static",
+                PrimitiveLoadCategory::Pressure,
+                0,
+                LoadDirection::GlobalX,
+                q(1000.0, LoadDimension::Pressure),
+            ),
+            PrimitiveLoad::uniform_element_load(
+                "wind-acceleration",
+                PrimitiveLoadCategory::Wind,
+                0,
+                LoadDirection::GlobalY,
+                q(0.4, LoadDimension::Acceleration),
+            ),
+        ];
+
+        let prepared = prepare_equivalent_static_loads(2, 1, &basis, &loads).unwrap();
+
+        assert!(prepared.is_blocked());
+        assert_eq!(prepared.nodal_loads.len(), 1);
+        assert_eq!(prepared.element_uniform_loads.len(), 1);
+        assert_eq!(
+            prepared
+                .findings
+                .iter()
+                .map(|finding| finding.code)
+                .collect::<Vec<_>>(),
+            vec![
+                FindingCode::UnsupportedTargetForCategory,
+                FindingCode::InvalidLoadDimension,
+            ]
+        );
+    }
+
+    #[test]
     fn pressure_and_thermal_do_not_prepare_nodal_user_loads() {
         let loads = vec![
             PrimitiveLoad::nodal_force(
@@ -3189,6 +3582,51 @@ mod tests {
         assert!(prepared.is_blocked());
         assert_eq!(prepared.findings[0].code, FindingCode::MissingLoadTarget);
         assert_eq!(prepared.findings[1].code, FindingCode::MissingLoadMagnitude);
+    }
+
+    #[test]
+    fn missing_load_ids_and_nonfinite_public_quantities_are_findings() {
+        let loads = vec![
+            PrimitiveLoad::nodal_force(
+                "TBD",
+                PrimitiveLoadCategory::Wind,
+                0,
+                LoadDirection::GlobalY,
+                q(1.0, LoadDimension::Force),
+            ),
+            PrimitiveLoad {
+                load_id: "nonfinite-public-quantity".to_string(),
+                category: PrimitiveLoadCategory::Wind,
+                target: Some(LoadTarget::Node(0)),
+                direction: LoadDirection::GlobalX,
+                magnitude: Some(LoadQuantity {
+                    value: f64::NAN,
+                    dimension: LoadDimension::Force,
+                }),
+            },
+        ];
+
+        let prepared = prepare_loads(1, 1, &loads);
+        let records =
+            diagnostic_records_from_load_findings(&prepared.findings, "provenance:load-input")
+                .unwrap();
+
+        assert!(prepared.nodal_loads.is_empty());
+        assert_eq!(
+            prepared
+                .findings
+                .iter()
+                .map(|finding| finding.code)
+                .collect::<Vec<_>>(),
+            vec![
+                FindingCode::MissingLoadId,
+                FindingCode::NonFiniteLoadMagnitude
+            ]
+        );
+        assert_eq!(
+            records[0].affected_object,
+            "primitive-load:<missing-load-id>"
+        );
     }
 
     #[test]

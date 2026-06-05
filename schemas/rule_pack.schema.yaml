@@ -37,30 +37,35 @@
     },
     "required_inputs": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/RequiredInput"
       }
     },
     "formula_declarations": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/FormulaDeclaration"
       }
     },
     "value_slots": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/UserSuppliedValueSlot"
       }
     },
     "check_definitions": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/CheckDefinition"
       }
     },
     "diagnostics": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/RulePackDiagnostic"
       }
@@ -76,6 +81,7 @@
     },
     "open_decisions": {
       "type": "array",
+      "minItems": 1,
       "items": {
         "$ref": "#/$defs/OpenDecision"
       }
@@ -100,6 +106,7 @@
         "check_id",
         "name",
         "required_input_refs",
+        "value_slot_refs",
         "formula_ref",
         "acceptability_basis",
         "result_statuses",
@@ -119,6 +126,14 @@
         },
         "required_input_refs": {
           "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "value_slot_refs": {
+          "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/$defs/Reference"
           }
@@ -158,6 +173,8 @@
         "algorithm",
         "canonicalization",
         "payload_ref",
+        "payload_scope",
+        "verification_status",
         "value"
       ],
       "properties": {
@@ -181,6 +198,28 @@
         "payload_ref": {
           "$ref": "#/$defs/Reference"
         },
+        "payload_scope": {
+          "type": "string",
+          "enum": [
+            "rule_pack_payload",
+            "required_input_declaration",
+            "formula_declaration",
+            "value_slot_declaration",
+            "check_definition",
+            "provenance_record",
+            "non_json_asset_manifest",
+            "TBD"
+          ]
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "checksum_lifecycle_pending",
+            "deferred_to_DEL_06_04",
+            "TBD"
+          ]
+        },
         "value": {
           "type": "string",
           "minLength": 1
@@ -193,6 +232,7 @@
       "required": [
         "rule_pack_checksum",
         "payload_checksums",
+        "checksum_lifecycle_status",
         "hash_basis"
       ],
       "properties": {
@@ -204,6 +244,14 @@
           "items": {
             "$ref": "#/$defs/Checksum"
           }
+        },
+        "checksum_lifecycle_status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "deferred_to_DEL_06_04",
+            "TBD"
+          ]
         },
         "hash_basis": {
           "type": "string",
@@ -231,14 +279,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "rule_check_blocking",
         "missing_input",
         "unit_mismatch",
         "provenance_gap",
         "redistribution_gap",
+        "checksum_mismatch",
         "protected_content_suspected",
         "evaluator_error"
       ],
       "properties": {
+        "rule_check_blocking": {
+          "$ref": "#/$defs/RulePackDiagnosticCode"
+        },
         "missing_input": {
           "$ref": "#/$defs/RulePackDiagnosticCode"
         },
@@ -249,6 +302,9 @@
           "$ref": "#/$defs/RulePackDiagnosticCode"
         },
         "redistribution_gap": {
+          "$ref": "#/$defs/RulePackDiagnosticCode"
+        },
+        "checksum_mismatch": {
           "$ref": "#/$defs/RulePackDiagnosticCode"
         },
         "protected_content_suspected": {
@@ -267,11 +323,13 @@
         "formula_kind",
         "declaration_form",
         "expression_language",
+        "declaration_payload",
         "arbitrary_code_execution_allowed",
         "protected_content_policy",
         "input_refs",
         "output_dimension",
         "provenance",
+        "completeness_status",
         "review_status"
       ],
       "properties": {
@@ -321,9 +379,13 @@
         },
         "input_refs": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/$defs/Reference"
           }
+        },
+        "declaration_payload": {
+          "$ref": "#/$defs/FormulaDeclarationPayload"
         },
         "output_dimension": {
           "$ref": "#/$defs/QuantityIntent"
@@ -331,8 +393,58 @@
         "provenance": {
           "$ref": "#/$defs/ProvenanceRecord"
         },
+        "completeness_status": {
+          "$ref": "#/$defs/CompletenessStatus"
+        },
         "review_status": {
           "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "FormulaDeclarationPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payload_kind",
+        "payload_summary",
+        "grammar_status",
+        "arbitrary_code_execution_allowed",
+        "protected_content_policy"
+      ],
+      "properties": {
+        "payload_kind": {
+          "type": "string",
+          "enum": [
+            "declarative_ast",
+            "symbolic_reference",
+            "structured_expression",
+            "TBD"
+          ]
+        },
+        "payload_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "grammar_status": {
+          "type": "string",
+          "enum": [
+            "grammar_not_selected",
+            "future_human_approved_grammar_required",
+            "TBD"
+          ]
+        },
+        "arbitrary_code_execution_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "protected_content_policy": {
+          "type": "string",
+          "enum": [
+            "no_protected_text_tables_or_copied_formulas",
+            "private_user_owned_reference_only",
+            "invented_non_engineering_example_only",
+            "TBD"
+          ]
         }
       }
     },
@@ -360,6 +472,8 @@
             "expression_grammar",
             "evaluator_library",
             "private_storage_path",
+            "private_encryption_default",
+            "storage_container",
             "public_example_policy",
             "checksum_library",
             "api_transport",
@@ -404,9 +518,13 @@
         "software_makes_compliance_claim",
         "software_makes_certification_claim",
         "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
         "human_review_required",
         "human_acceptance_record_software_generated",
-        "external_human_acceptance_ref_allowed"
+        "external_human_acceptance_ref_allowed",
+        "hash_bound_human_acceptance_required",
+        "reliance_notice"
       ],
       "properties": {
         "software_makes_compliance_claim": {
@@ -421,6 +539,14 @@
           "type": "boolean",
           "const": false
         },
+        "software_makes_approval_claim": {
+          "type": "boolean",
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "type": "boolean",
+          "const": false
+        },
         "human_review_required": {
           "type": "boolean",
           "const": true
@@ -432,6 +558,14 @@
         "external_human_acceptance_ref_allowed": {
           "type": "boolean",
           "const": true
+        },
+        "hash_bound_human_acceptance_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "reliance_notice": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -440,17 +574,30 @@
       "additionalProperties": false,
       "required": [
         "source_name",
+        "source_type",
         "source_location",
         "source_license",
         "contributor",
         "contributor_certification",
         "redistribution_status",
+        "protected_content_review",
         "review_status"
       ],
       "properties": {
         "source_name": {
           "type": "string",
           "minLength": 1
+        },
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "invented_public_example",
+            "user_private_basis",
+            "public_permissive_source",
+            "licensed_private_source",
+            "protected_suspected",
+            "TBD"
+          ]
         },
         "source_location": {
           "type": "string",
@@ -470,6 +617,15 @@
         },
         "redistribution_status": {
           "$ref": "#/$defs/RedistributionStatus"
+        },
+        "protected_content_review": {
+          "type": "string",
+          "enum": [
+            "completed_no_protected_content",
+            "required_before_public_use",
+            "quarantined_protected_suspected",
+            "TBD"
+          ]
         },
         "review_status": {
           "$ref": "#/$defs/ReviewStatus"
@@ -587,6 +743,8 @@
         "required_for",
         "completeness_status",
         "missing_value_diagnostic",
+        "provenance",
+        "redistribution_status",
         "provenance_required",
         "redistribution_status_required"
       ],
@@ -626,6 +784,12 @@
         },
         "missing_value_diagnostic": {
           "$ref": "#/$defs/RulePackDiagnosticCode"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceRecord"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
         },
         "provenance_required": {
           "type": "boolean",
@@ -691,7 +855,9 @@
       "required": [
         "diagnostic_id",
         "code",
+        "diagnostic_class",
         "severity",
+        "blocks_rule_check",
         "affected_ref",
         "message",
         "remediation",
@@ -704,6 +870,9 @@
         "code": {
           "$ref": "#/$defs/RulePackDiagnosticCode"
         },
+        "diagnostic_class": {
+          "$ref": "#/$defs/RulePackDiagnosticClass"
+        },
         "severity": {
           "type": "string",
           "enum": [
@@ -712,6 +881,9 @@
             "blocking",
             "TBD"
           ]
+        },
+        "blocks_rule_check": {
+          "type": "boolean"
         },
         "affected_ref": {
           "$ref": "#/$defs/Reference"
@@ -737,9 +909,27 @@
         "RULE_UNIT_MISMATCH",
         "RULE_PROVENANCE_WARNING",
         "RULE_REDISTRIBUTION_WARNING",
+        "RULE_CHECKSUM_MISMATCH",
         "RULE_PROTECTED_CONTENT_WARNING",
         "RULE_EVALUATOR_ERROR",
-        "RULE_INCOMPLETE_DATA"
+        "RULE_INCOMPLETE_DATA",
+        "RULE_PROFESSIONAL_BOUNDARY_NOTICE"
+      ]
+    },
+    "RulePackDiagnosticClass": {
+      "type": "string",
+      "enum": [
+        "rule_check_blocking",
+        "missing_input",
+        "unit_mismatch",
+        "provenance_gap",
+        "redistribution_gap",
+        "checksum_mismatch",
+        "protected_content_suspected",
+        "evaluator_error",
+        "incomplete_data",
+        "professional_boundary_notice",
+        "TBD"
       ]
     },
     "RulePackMetadata": {
@@ -806,8 +996,11 @@
         "quantity_intent",
         "value_status",
         "required_for",
+        "missing_value_diagnostic",
         "provenance",
         "redistribution_status",
+        "provenance_required",
+        "redistribution_status_required",
         "review_status",
         "completeness_status"
       ],
@@ -850,11 +1043,22 @@
             "TBD"
           ]
         },
+        "missing_value_diagnostic": {
+          "$ref": "#/$defs/RulePackDiagnosticCode"
+        },
         "provenance": {
           "$ref": "#/$defs/ProvenanceRecord"
         },
         "redistribution_status": {
           "$ref": "#/$defs/RedistributionStatus"
+        },
+        "provenance_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "redistribution_status_required": {
+          "type": "boolean",
+          "const": true
         },
         "review_status": {
           "$ref": "#/$defs/ReviewStatus"

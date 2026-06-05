@@ -287,3 +287,34 @@
   protected standards data, code-specific combination/default, private data,
   release claim, code-compliance claim, or professional reliance claim was
   changed or introduced by this TASK.
+
+## 2026-06-05 - Foundational Primitive-Load Hardening Worker B
+
+- Executed bounded Worker B for `DEL-05-01` / `PKG-05` with write scope
+  limited to `core/loads/primitive_loads/**`, this `MEMORY.md`, and the
+  deliverable-local `_run_records/**` entry.
+- Hardened `core/loads/primitive_loads` category and dimension metadata with
+  stable primitive category names, category-to-load-case mapping helpers,
+  load-dimension canonical mapping helpers, and explicit rejection of `TBD`
+  dimensions for concrete quantity metadata.
+- Added equivalent-static mechanics preparation for wind, seismic, and
+  occasional primitive categories only when callers supply explicit
+  basis/provenance refs. Dynamic procedures, response parameters, code factors,
+  environmental defaults, and conversion constants remain `TBD` and outside
+  this slice.
+- Added missing load/source identifier diagnostics, safe diagnostic
+  affected-object labels for missing IDs, non-finite primitive magnitude
+  findings across preparation helpers, and non-finite assembled-sum checks in
+  deterministic solver load-vector assembly.
+- Verification passed:
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked`
+  with 40 tests passed. `git diff --check` is recorded in the run record.
+- Remaining TBDs: canonical unit conversions, production tolerance policy,
+  final result-envelope/API integration, release thresholds, wind/seismic
+  dynamic treatment, code-specific factors/defaults, code compliance, and
+  professional reliance.
+- No `_STATUS.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, DAG artifact,
+  schema file, repo-level governance file, load-case algebra behavior,
+  protected standards data, code-specific combination/default, private data,
+  release claim, code-compliance claim, or professional reliance claim was
+  changed or introduced by this Worker B tranche.

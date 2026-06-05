@@ -21,7 +21,7 @@ The software may emit:
 - `MODEL_INCOMPLETE` when solve-required physical inputs are missing.
 - `MECHANICS_SOLVED` when the numerical mechanics solve completed.
 - `RULE_INPUTS_INCOMPLETE` when a model may be solved but rule-pack-required values are missing.
-- `USER_RULE_CHECKED` when a user-defined rule pack has evaluated the result.
+- `USER_RULE_CHECKED` when a user-defined rule pack has evaluated the result, including checked outcomes with no reported rule failures.
 - `USER_RULE_FAILED` when a user-defined rule pack produced a failing result.
 - `HUMAN_REVIEW_REQUIRED` because professional use always requires competent human review.
 
@@ -36,6 +36,8 @@ The software must not emit `HUMAN_APPROVED_FOR_PROJECT` as an automatic status. 
 `RULE_INPUTS_INCOMPLETE` may coexist with `MECHANICS_SOLVED`. It means the rule-pack evaluator lacks required user-supplied code data, owner data, provenance, or private project inputs.
 
 `USER_RULE_CHECKED` means a user-defined rule pack ran against the available result. It is a software computation using user data and rule definitions, not a professional code-compliance statement.
+
+OpenPipeStress does not currently define or emit `USER_RULE_PASSED`. A positive user-rule outcome is represented as `USER_RULE_CHECKED` plus `rule_check_details`, such as rule-pack references, evaluation evidence, and a no-failures-reported detail. Adding a separate passed status requires a later human ruling.
 
 `USER_RULE_FAILED` means a user-defined rule pack returned at least one failing check. The record should preserve rule-pack identity, version, checksum, diagnostics, and affected result references without embedding protected standards text or private rule values in public artifacts.
 
@@ -61,6 +63,7 @@ Every status envelope carries:
 
 - an analysis subject reference;
 - one primary automatic software status and a set of automatic software statuses;
+- rule-check details whenever `USER_RULE_CHECKED` is present;
 - a status stage and basis;
 - source and actor metadata;
 - at least one hash for the payload or evidence basis;
@@ -69,13 +72,15 @@ Every status envelope carries:
 
 The automatic status set intentionally excludes `HUMAN_APPROVED_FOR_PROJECT`. A result can be mechanically solved, rule checked, and still require human review. A human acceptance record can be attached later only as a separate hash-bound record.
 
+Automatic status fields must not contain code-compliance, certification, sealing, approval, authentication, or professional-acceptance claims. Those boundaries are recorded separately as fixed-false professional-boundary fields and, where applicable, external hash-bound human records.
+
 ## Transition Pattern
 
 A typical status progression is:
 
 1. Model validation emits `MODEL_INCOMPLETE` until solve-required data is present.
 2. Solver/stress recovery emits `MECHANICS_SOLVED` after successful mechanics computation.
-3. Rule evaluation emits `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, or `USER_RULE_FAILED` depending on user rule-pack inputs and check outcomes.
+3. Rule evaluation emits `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, or `USER_RULE_FAILED` depending on user rule-pack inputs and check outcomes. A checked outcome with no reported failures stays `USER_RULE_CHECKED` with details.
 4. Report/export surfaces `HUMAN_REVIEW_REQUIRED`.
 5. A separate human workflow may attach a hash-bound `HUMAN_APPROVED_FOR_PROJECT` record.
 
@@ -90,3 +95,4 @@ Status records may identify rule packs, reports, sources, diagnostics, and hashe
 - Exact integration points between this schema and the canonical model/result schema.
 - Exact canonicalization edge cases for non-JSON payload hashes.
 - Human acceptance workflow ownership, storage location, and UI presentation.
+- Any future change from `USER_RULE_CHECKED` details to a separate positive rule-status token requires a human ruling.

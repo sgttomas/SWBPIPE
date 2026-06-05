@@ -148,3 +148,30 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Foundational hardening Worker A
+
+- Executed Worker A for the approved foundational-hardening tranche on
+  `DEL-04-01` / `PKG-04` with write scope limited to
+  `core/solver/frame_kernel/**`, this `MEMORY.md`, and deliverable-local
+  `_run_records/**`.
+- Hardened `core/solver/frame_kernel` by adding explicit public six-DOF mapping
+  helpers (`FrameDof`, `NODE_DOF_ORDER`, `node_dof_index`, and
+  `element_dof_map`), a validated `FrameOrientation::new` constructor,
+  stricter boundary metadata ID normalization, and documentation that the dense
+  zero-pivot guard is internal verification behavior rather than a project
+  tolerance policy.
+- Expanded frame-kernel tests around DOF mapping, transform block mapping,
+  orientation validation, nonzero node-index assembly, prescribed-displacement
+  reduction ordering, singular zero-pivot guard behavior, and metadata
+  boundaries.
+- Verification passed:
+  `cargo test --manifest-path core/solver/frame_kernel/Cargo.toml --locked`
+  with 33 tests passed; `git diff --check` passed.
+- Preserved open TBDs: sparse solver library, solver tolerance policy,
+  canonical unit basis/conversion constants, release thresholds,
+  result-envelope integration, and professional reliance.
+- No sparse solver, tolerance policy, protected standards text/tables,
+  allowables, SIF/flexibility data, private data, code-compliance claim,
+  lifecycle edit, dependency edit, coordination edit, DAG edit, or
+  cross-deliverable edit was introduced by this worker.

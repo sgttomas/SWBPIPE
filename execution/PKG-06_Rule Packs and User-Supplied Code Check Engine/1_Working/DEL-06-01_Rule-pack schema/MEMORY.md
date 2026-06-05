@@ -77,3 +77,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Worker D foundational schema hardening
+
+- Hardened `schemas/rule_pack.schema.yaml` and `examples/rule_packs/invented_demo.yaml` for required-input provenance, redistribution, declarative formula payload descriptors, value-slot completeness, checksum scope/status, diagnostic classes, and professional-boundary no-claim flags.
+- Added focused tests in `tests/test_rule_pack_schema.py`, including negative schema-validation fixtures for missing required-input provenance, executable formula flags, missing checksum payload scope, and software-generated approval claims.
+- Validation evidence: `python3 -m pytest tests/test_rule_pack_schema.py tests/test_units_schema.py tests/test_model_schema.py` passed with 11 tests; `git diff --check` passed.
+- Preserved deferrals: expression grammar/library remains `TBD`, evaluator semantics remain assigned to `DEL-06-02`, checksum/private lifecycle remains assigned to `DEL-06-04`, and encryption defaults/storage container details remain deferred to security/privacy and persistence/private-lifecycle work.
+- No protected/code-specific values, proprietary data, public standards content, or professional/code-compliance claims were added.
