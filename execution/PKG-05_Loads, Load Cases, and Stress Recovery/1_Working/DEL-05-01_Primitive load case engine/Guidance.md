@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This deliverable frames primitive load categories as explicit mechanics inputs for the OpenPipeStress solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.
+This deliverable frames primitive load categories as explicit mechanics inputs for the OpenPipeStress solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, equivalent-static mechanics handling, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.
 
 ## Principles
 
@@ -10,7 +10,7 @@ This deliverable frames primitive load categories as explicit mechanics inputs f
 - Keep primitive category, primitive load, primitive load case, load-case algebra, code combination, and rule-pack evaluation as separate concepts.
 - Preserve unit/dimension intent and provenance references for load quantities, boundary records, load-case records, and diagnostic records.
 - Use explicit findings/errors for missing targets, magnitudes, spans, properties, provenance, invalid dimensions, invalid directions, invalid topology, and non-finite values.
-- Keep wind, seismic, and occasional loads as explicit equivalent mechanics inputs unless a later sealed scope authorizes dynamic methods or lawful procedure generation.
+- Keep wind, seismic, and occasional loads as explicit equivalent mechanics inputs with explicit basis/provenance refs unless a later sealed scope authorizes dynamic methods or lawful procedure generation.
 - Avoid copying or deriving protected standard content, tables, examples, coefficients, jurisdictional factors, or proprietary defaults.
 
 ## Considerations
@@ -22,7 +22,7 @@ This deliverable frames primitive load categories as explicit mechanics inputs f
 | Thermal | Thermal can be carried as element temperature change and interpreted for straight-pipe axial force only with caller-supplied material/section properties; reference temperature and material provenance remain open policy. |
 | Displacement | Imposed displacement is a support-target mechanics input; support/restraint behavior remains an interface with the owning solver/support deliverables. |
 | Hydrotest | Hydrotest is represented as a primitive mechanics category; do not imply hydrotest procedure defaults, code requirements, or test-fluid assumptions without sourced input. |
-| Wind/seismic/occasional | Current implemented behavior is explicit equivalent nodal force/moment or element `ForcePerLength` where supported; acceleration/dynamic placeholders are not treated as dynamic procedure support. |
+| Wind/seismic/occasional | Current implemented behavior is explicit equivalent nodal force/moment or element `ForcePerLength` where supported; `prepare_equivalent_static_loads` requires `EquivalentStaticMechanicsBasis`, and acceleration/dynamic placeholders are not treated as dynamic procedure support. |
 | Load-case records | Use `PrimitiveLoadCaseRecord` as a storage-neutral single-category boundary record. Mixed-category algebra and user-defined combinations remain DEL-05-02. |
 | Boundary metadata | Boundary records should carry schema binding, target/basis refs, JCS payload refs, payload-hash refs, unit metadata, and provenance refs; `TBD` is rejected where a concrete boundary ref is required. |
 | Diagnostics | Diagnostic bridge records preserve local finding codes and local classes for result-envelope handoff; they do not define a shared diagnostic enum or final application API. |
@@ -33,7 +33,7 @@ This deliverable frames primitive load categories as explicit mechanics inputs f
 |---|---|
 | Category coverage vs. behavior breadth | Cover all SOW-013 primitive categories, but only implement bounded mechanics preparation and validation behavior evidenced in `core/loads/primitive_loads`. |
 | Public defaults vs. user-supplied data | Do not bundle protected, jurisdictional, or catalog values; require explicit lawful/user-supplied inputs and provenance references. |
-| Static equivalent inputs vs. dynamic methods | Wind, seismic, and occasional behavior remains equivalent mechanics input in this slice; dynamic procedure generation remains `TBD`. |
+| Static equivalent inputs vs. dynamic methods | Wind, seismic, and occasional behavior remains equivalent mechanics input in this slice with caller-supplied basis/provenance refs; dynamic procedure generation remains `TBD`. |
 | Primitive load case vs. load algebra | The primitive record binds one category and sorted load IDs; mixed cases, load algebra, and combinations belong to DEL-05-02. |
 | Diagnostic bridge vs. final envelope | The crate can produce storage-neutral diagnostic records; final result-envelope/API integration remains downstream. |
 | Axial helper formulas vs. code stress evaluation | Thermal and pressure axial-effect helpers compute mechanics forces from explicit properties only; they are not pressure stress formulas, code checks, or allowables. |

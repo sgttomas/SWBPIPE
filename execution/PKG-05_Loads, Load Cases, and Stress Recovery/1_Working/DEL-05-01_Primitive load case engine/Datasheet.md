@@ -20,7 +20,7 @@
 | Crate scope | Code-neutral primitive load records and deterministic mechanics-boundary preparation for weight, pressure, thermal, imposed displacement, hydrotest, wind, seismic, and occasional categories. |
 | Readme evidence | `core/loads/primitive_loads/README.md` documents implemented categories, storage-neutral primitive load-case records, boundary quantity metadata, diagnostic bridge records, lumping, and exclusions. |
 | Rust API evidence | `core/loads/primitive_loads/src/lib.rs` defines primitive category/type records, load quantities, target/direction records, boundary metadata, load-case records, diagnostic records, preparation helpers, lumping, axial-effect helpers, and solver-vector assembly helpers. |
-| Local memory evidence | `MEMORY.md` records implementation, verification, and preserved boundaries from the original crate implementation through the 2026-06-04 load-case-record and finding-envelope bridge tranches. |
+| Local memory evidence | `MEMORY.md` records implementation, verification, and preserved boundaries from the original crate implementation through the 2026-06-05 foundational hardening tranche and parent fan-in. |
 
 ## Attributes
 
@@ -34,7 +34,7 @@
 | Load-case record boundary | `PrimitiveLoadCaseRecord` binds one primitive category to canonical model `LoadCase` metadata, sorted load IDs, provenance, payload refs, and hash refs. Mixed-category algebra remains downstream DEL-05-02 scope. | `PrimitiveLoadCaseRecord`; `_DEPENDENCIES.md` |
 | Diagnostic bridge | `LoadDiagnosticRecord` maps primitive-load validation and load-case assembly findings to code, class, blocking severity, source, affected object, message, remediation, and provenance ref for later result-envelope transport. | `LoadDiagnosticRecord`; `diagnostic_records_from_load_findings`; `diagnostic_records_from_load_case_assembly_findings` |
 | Missing values | Missing solve-required load targets, magnitudes, spans, properties, or provenance become explicit findings/errors rather than silent defaults. | OPS-K-DATA-2; `FindingCode`; `BoundaryMetadataError` |
-| Dynamic scope | Wind and seismic are represented only as explicit equivalent mechanics loads. Dynamic procedure generation, response spectra, code coefficients, and environmental defaults remain `TBD` and out of this deliverable. | `_CONTEXT.md`; `README.md`; tests in `src/lib.rs` |
+| Dynamic scope | Wind, seismic, and occasional loads are represented only as explicit equivalent mechanics loads; equivalent-static preparation requires caller-supplied basis/provenance refs. Dynamic procedure generation, response spectra, code coefficients, and environmental defaults remain `TBD` and out of this deliverable. | `_CONTEXT.md`; `README.md`; tests in `src/lib.rs` |
 
 ## Primitive Load Category Register
 
@@ -58,6 +58,7 @@
 | Boundary quantity metadata | Implemented by `CanonicalDimension`, `QuantityUnitMetadata`, `BoundaryRecordRef`, and `BoundaryQuantityRecord`. |
 | Primitive load-case records | Implemented by `PrimitiveLoadCaseRecord`; validates model `LoadCase` schema binding, non-empty refs, non-empty unique load IDs, and single-category membership. |
 | Load preparation | Implemented by `prepare_loads` for nodal, element-uniform, and imposed-displacement contributions with deterministic sorting. |
+| Equivalent-static preparation | Implemented by `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads` for wind, seismic, and occasional explicit mechanics loads with caller-supplied basis/provenance refs. |
 | Lumped equivalent nodal conversion | Implemented by `prepare_lumped_nodal_loads` for explicit translational/global `ForcePerLength` element loads with caller-supplied spans/connectivity. |
 | Axial effects | Implemented by `prepare_straight_pipe_axial_effects` for thermal axial force and pressure thrust from caller-supplied properties. |
 | Solver load-vector assembly | Implemented by `assemble_solver_load_vector`; sorts/sums valid nodal contributions and returns findings instead of partial vectors when invalid data exists. |
@@ -68,8 +69,8 @@
 | Evidence | Result |
 |---|---|
 | Historical run records | `MEMORY.md` records successful cargo formatting/testing tranches for primitive implementation, lumping, solver-vector assembly, axial effects, boundary dimension update, load-case records, and diagnostic bridge. |
-| Current crate tests | `src/lib.rs` contains tests for all primitive categories, boundary metadata, retired dimension aliases, load-case records, deterministic sorting, lumping, axial effects, diagnostic records, missing/invalid inputs, and solver-vector assembly findings. |
-| Current required validation | This TASK must rerun `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` and `git diff --check` for touched files before closeout. |
+| Current crate tests | `src/lib.rs` contains 40 tests for all primitive categories, boundary metadata, retired dimension aliases, equivalent-static handling, load-case records, deterministic sorting, lumping, axial effects, diagnostic records, missing/invalid inputs, and solver-vector assembly findings. |
+| Current validation evidence | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked` passed with 40 tests in the 2026-06-05 foundational hardening tranche; doc-alignment closeout should still run diff hygiene for touched files. |
 
 ## Conditions
 

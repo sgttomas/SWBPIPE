@@ -18,7 +18,7 @@ Describe bounded steps for maintaining and verifying the primitive load case eng
 2. Read the deliverable-local truth set before edits: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
 3. Read the implementation evidence in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
 4. Confirm all SOW-013 primitive categories remain represented: weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional.
-5. Confirm primitive mechanics boundaries: nodal, element-uniform, imposed-displacement, lumped equivalent nodal conversion, straight-pipe axial effects, and solver load-vector assembly are documented only to the extent implemented.
+5. Confirm primitive mechanics boundaries: nodal, element-uniform, imposed-displacement, equivalent-static preparation, lumped equivalent nodal conversion, straight-pipe axial effects, and solver load-vector assembly are documented only to the extent implemented.
 6. Preserve the boundary between primitive load definitions/load-case records in DEL-05-01 and mixed-category load-case algebra/user combinations in DEL-05-02.
 7. Preserve the boundary between mechanics solving, diagnostic record transport, rule/compliance evaluation, and human professional judgment.
 8. Keep unknown coefficients, default magnitudes, conversion constants, dynamic treatment, property/default sourcing, production tolerance policy, final API integration, release thresholds, and professional reliance as `TBD` unless supplied by lawful source material and sealed scope.
@@ -35,6 +35,7 @@ Describe bounded steps for maintaining and verifying the primitive load case eng
 | Unit/boundary metadata check | Documents preserve explicit unit/dimension/provenance/hash-ref boundaries and do not claim conversion constants. |
 | Load-case record check | Documents describe single-category primitive load-case records and keep mixed-category algebra in DEL-05-02. |
 | Diagnostic bridge check | Documents describe local diagnostic bridge records without claiming a shared enum or final result-envelope/API implementation. |
+| Equivalent-static check | Documents limit wind, seismic, and occasional equivalent-static handling to explicit mechanics loads with caller-supplied basis/provenance refs and no dynamic procedure generation. |
 | Lumping check | Documents limit lumping to explicit translational/global `ForcePerLength` element loads with caller-supplied spans/connectivity. |
 | Axial-effect check | Documents limit axial effects to thermal and pressure mechanics helpers from caller-supplied properties without code stress/compliance claims. |
 | Test check | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` passes or any failure is recorded with boundaries. |
