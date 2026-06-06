@@ -71,3 +71,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - DEL-16-04 TASK boundary verification
+
+- TASK verification found a concrete gap in the copied-context professional-boundary scanner: enum-style authority tokens such as `CODE_COMPLIANT`, `HUMAN_APPROVED_FOR_PROJECT`, and standalone `APPROVED` were not blocked when embedded in operation/validation/audit context.
+- Patched `core/model_operations/agent_rationale/engine.py` to match underscore/hyphen authority vocabulary forms and added focused regressions in `tests/test_agent_rationale_boundary.py`, including a false-positive guard for lowercase coordination references such as approved DAG authority.
+- Validation evidence after parent fan-in refinement: `python3 -m pytest tests/test_agent_rationale_boundary.py` passed with 8 tests; adjacent PKG-16 slice `python3 -m pytest tests/test_operation_validation_preview.py tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py` passed with 23 tests; `git diff --check` passed.
+- Read-only fixture scan found no prohibited authority-token hits in `fixtures/model_operations`.
+- This records technical verification and a narrow implementation fix only. It does not change lifecycle state, human disposition, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

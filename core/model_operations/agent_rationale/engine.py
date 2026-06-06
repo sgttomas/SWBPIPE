@@ -42,7 +42,7 @@ ENGINE_PROVENANCE = {
 
 PROHIBITED_CLAIM_PATTERNS = {
     "AUTHORITY-COMPLIANCE": re.compile(
-        r"\b(code[-\s]?compliant|complies\s+with\s+code|meets\s+code|code\s+approval)\b",
+        r"\b(code[-_\s]?compliant|code\s+compliance|complies\s+with\s+code|meets\s+code|code\s+approval)\b",
         re.IGNORECASE,
     ),
     "AUTHORITY-CERTIFICATION": re.compile(
@@ -58,7 +58,8 @@ PROHIBITED_CLAIM_PATTERNS = {
         re.IGNORECASE,
     ),
     "AUTHORITY-PROFESSIONAL-APPROVAL": re.compile(
-        r"\b(professional\s+approval|approved\s+by\s+(?:a\s+)?professional|engineer\s+approved)\b",
+        r"\b(professional\s+approval|approved\s+by\s+(?:a\s+)?professional|engineer\s+approved|"
+        r"human[-_\s]+approved[-_\s]+for[-_\s]+project|(?<![A-Za-z])(?-i:APPROVED)(?![A-Za-z]))\b",
         re.IGNORECASE,
     ),
     "AUTHORITY-EXTERNAL-VALIDATION": re.compile(
@@ -66,7 +67,8 @@ PROHIBITED_CLAIM_PATTERNS = {
         re.IGNORECASE,
     ),
     "AUTHORITY-AUTONOMOUS-ACCEPTANCE": re.compile(
-        r"\b(agent[-\s]?accepted|auto[-\s]?approved|autonomous\s+engineering\s+acceptance|accepted\s+engineering\s+state)\b",
+        r"\b(agent[-_\s]?accepted|auto[-_\s]?approved|autonomous\s+engineering\s+acceptance|"
+        r"engineering\s+acceptance|accepted\s+engineering\s+state)\b",
         re.IGNORECASE,
     ),
 }

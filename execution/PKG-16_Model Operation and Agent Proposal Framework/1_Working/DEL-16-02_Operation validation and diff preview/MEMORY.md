@@ -61,3 +61,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - TASK verification addendum
+
+- Verified the current DEL-16-02 validation-preview implementation against the bounded brief for canonical JSON Schema validation, canonical dimension vocabulary blocking, stale current-hash blocking, non-physical accepted-model-role blocking, and preview non-mutation behavior.
+- Evidence run: `python3 -m pytest tests/test_operation_validation_preview.py` passed with 8 tests.
+- Narrow scan confirmed `Draft202012Validator` use, `CANONICAL_DIMENSIONS`, stale hash diagnostics, model-role diagnostics, `accepted_model_state_unchanged`, and `application_status: not_applied` in the implementation/test evidence.
+- No concrete code or test gap was found; `core/model_operations/validation_preview/engine.py` and `tests/test_operation_validation_preview.py` were not edited.
+- Review findings remain technically addressed pending human disposition; this addendum does not change lifecycle state, finding statuses, human dispositions, release readiness, or professional/code-compliance claims.

@@ -258,15 +258,70 @@ def test_prohibited_claims_in_copied_context_are_blocked():
     assert result["rationale"]["status"] == "blocked_by_professional_boundary"
 
 
+def test_enum_style_prohibited_claims_in_copied_context_are_blocked():
+    envelope = operation_envelope()
+    audit, preview = audit_and_preview(envelope)
+    envelope["operation_set"]["operations"][0]["diagnostics"].append(
+        {"message": "Copied operation diagnostic says CODE_COMPLIANT."}
+    )
+    preview["diagnostics"].append({"message": "Copied validation diagnostic says APPROVED."})
+    audit["records"][0]["decision"]["rationale"] = (
+        "Copied audit context says HUMAN_APPROVED_FOR_PROJECT and engineering acceptance."
+    )
+
+    result = record_agent_rationale(
+        envelope,
+        audit_trail=audit,
+        validation_context=preview,
+        source={"source_ref": "agent:invented", "source_channel": "test", "source_kind": "agent"},
+        actor={"actor_type": "agent", "actor_ref": "agent:worker", "actor_role": "proposal_support"},
+        rationale_text="Agent notes the proposal needs user review.",
+        timestamp="2026-05-06T12:10:00Z",
+        accepted_model_state=model_state(),
+    )
+
+    codes = {item["code"] for item in result["diagnostics"]}
+    assert "RATIONALE-AUTHORITY-COMPLIANCE-BLOCKED" in codes
+    assert "RATIONALE-AUTHORITY-PROFESSIONAL-APPROVAL-BLOCKED" in codes
+    assert "RATIONALE-AUTHORITY-AUTONOMOUS-ACCEPTANCE-BLOCKED" in codes
+    assert result["rationale"]["status"] == "blocked_by_professional_boundary"
+
+
+def test_lowercase_approved_coordination_context_is_not_professional_approval():
+    envelope = operation_envelope()
+    audit, preview = audit_and_preview(envelope)
+    preview["diagnostics"].append(
+        {"message": "Copied validation context cites approved DAG coordination authority."}
+    )
+
+    result = record_agent_rationale(
+        envelope,
+        audit_trail=audit,
+        validation_context=preview,
+        source={"source_ref": "agent:invented", "source_channel": "test", "source_kind": "agent"},
+        actor={"actor_type": "agent", "actor_ref": "agent:worker", "actor_role": "proposal_support"},
+        rationale_text="Agent notes the proposal still needs user review.",
+        timestamp="2026-05-06T12:10:00Z",
+        accepted_model_state=model_state(),
+    )
+
+    assert "RATIONALE-AUTHORITY-PROFESSIONAL-APPROVAL-BLOCKED" not in {
+        item["code"] for item in result["diagnostics"]
+    }
+    assert result["rationale"]["status"] == "captured_for_user_review"
+
+
 def test_output_boundary_posture_does_not_make_prohibited_claims():
     result = rationale_record(operation_envelope())
     text = canonical_json(result).lower()
 
     for forbidden in [
+        "code_compliant",
         "code compliant",
         "certified",
         "sealed",
         "authenticated",
+        "human_approved_for_project",
         "professional approval",
         "engineering acceptance",
     ]:
@@ -280,6 +335,8 @@ def main():
     test_missing_context_and_unresolved_assumptions_are_visible()
     test_prohibited_professional_boundary_claims_are_blocked()
     test_prohibited_claims_in_copied_context_are_blocked()
+    test_enum_style_prohibited_claims_in_copied_context_are_blocked()
+    test_lowercase_approved_coordination_context_is_not_professional_approval()
     test_output_boundary_posture_does_not_make_prohibited_claims()
 
 

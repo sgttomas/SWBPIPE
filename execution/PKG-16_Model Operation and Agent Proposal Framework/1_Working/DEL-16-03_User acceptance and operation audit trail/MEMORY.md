@@ -71,3 +71,10 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - TASK verification of acceptance audit predicates
+
+- Generic TASK worker verified `core/model_operations/audit_trail/engine.py` and `tests/test_operation_audit_trail.py` against the DEL-16-03 brief and current authority basis.
+- Focused validation passed: `python3 -m pytest tests/test_operation_audit_trail.py` collected 7 tests and passed 7.
+- Additional read-only accepted-path assertion confirmed accepted records require explicit user acceptance, passed schema/constraint/unit validation, generated diff preview, `not_applied` application status, diff-preview hash binding, current model-state hash binding, matching operation precondition hash, and no accepted-state mutation.
+- No code or test changes were necessary. Durable run evidence is recorded in `_run_records/TASK_RUN_2026-06-06_1633.md`.

@@ -97,3 +97,10 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - TASK verification addendum
+
+- TASK worker verified `schemas/model_operation.schema.json`, `fixtures/model_operations/*`, and `tests/test_model_operation_schema.py` for model-basis hash binding, operation-kind coverage, canonical dimensions, provenance, no direct mutation, and no prohibited authority statuses.
+- Concrete gap found and patched: `force_per_length` from the canonical dimension vocabulary in `docs/TYPES.md` was missing from the model-operation schema enum and matching test list.
+- Focused validation passed after the patch: `python3 tests/test_model_operation_schema.py`, JSON parsing for the schema and operation fixtures, and a read-only evidence check tying `accepted_model_state_hash` to `fixtures/model_operations/invented_accepted_model_state.json`.
+- Existing `Review_Findings.csv` human-disposition values remain `TBD`; no lifecycle, release, professional, certification, sealing, authentication, approval, or code-compliance claim is made.
