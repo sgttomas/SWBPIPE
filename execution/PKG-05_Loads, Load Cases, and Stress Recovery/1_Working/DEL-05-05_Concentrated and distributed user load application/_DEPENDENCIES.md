@@ -77,3 +77,10 @@
 - 2026-05-03: Local register was synchronized from approved `DAG-006` mirror; 8 ACTIVE rows.
 - 2026-05-10: TP-DAG-004 refresh for `RECONCILIATION`; mode `UPDATE`, strictness `CONSERVATIVE`, decomposition path `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; 13 ACTIVE rows, 4 ANCHOR, 9 EXECUTION; warnings: none.
 - 2026-05-16: DEV-001 Stage 2 package-local alignment updated DEL-02-02 unit predecessor evidence and satisfaction for user-load boundary metadata only; no aggregate DAG or lifecycle action.
+
+## 2026-06-05 Blocker Closure Update
+
+- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
+- Dependency closure result: Rows `DAG-002-E0459` and `DAG-002-E0460` were updated to `SATISFIED` using DEL-05-01 and DEL-04-01 current evidence. Downstream row `DEL-05-05-E001` remains visible and non-blocking.
+- Current active-row satisfaction counts after this update: `SATISFIED=12`, `PENDING=0`, `TBD=1`, `UNKNOWN=0`, `NOT_APPLICABLE=0`.
+- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.

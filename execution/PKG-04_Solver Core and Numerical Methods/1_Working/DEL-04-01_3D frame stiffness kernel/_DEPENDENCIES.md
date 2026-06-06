@@ -28,3 +28,10 @@
 - Schema target: dependency register v3.1.
 - Enum validation target: `DependencyClass`, `AnchorType`, `Direction`, `DependencyType`, `TargetType`, `Explicitness`, `RequiredMaturity`, `ProposedMaturity`, `SatisfactionStatus`, `Confidence`, `Origin`, and `Status`.
 - Closeout result: schema and enum validation passed on 2026-05-10.
+
+## 2026-06-05 Blocker Closure Update
+
+- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
+- Dependency closure result: PKG-02 upstream rows `DAG-002-E0429`, `DAG-002-E0430`, and `DAG-002-E0431` were updated to `SATISFIED` from current frame-kernel boundary metadata, unit metadata, model-reference, and mechanics-boundary evidence.
+- Current active-row satisfaction counts after this update: `SATISFIED=8`, `PENDING=0`, `TBD=0`, `UNKNOWN=0`, `NOT_APPLICABLE=0`.
+- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.

@@ -79,3 +79,10 @@
 - This local register is an evidence surface for the assigned deliverable, not an independent project graph authority.
 - `CANDIDATE` is not a valid v3.1 `Status` enum; candidate semantics are preserved in `Notes` and `SatisfactionStatus=TBD`.
 - `PKG-00` architecture-basis rows remain injected context evidence and do not mark `PKG-00` deliverables as `ISSUED`.
+
+## 2026-06-05 Blocker Closure Update
+
+- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
+- Dependency closure result: Rows `DAG-002-E0451` and `DAG-002-E0453` were updated to `SATISFIED`; low-confidence future evaluator-interface row `DAG-002-E0616` was set to `NOT_APPLICABLE` for this review cycle by approved human ruling while preserving the future interface TBD in notes.
+- Current active-row satisfaction counts after this update: `SATISFIED=8`, `PENDING=0`, `TBD=0`, `UNKNOWN=0`, `NOT_APPLICABLE=11`.
+- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.
