@@ -36,7 +36,7 @@ resultants and a full-span local `Y` line load.
 | Element displacement vector for axial effect | all zeros | mixed | TBD |
 | Explicit I-end shear, `V_y,i` | 4.0 | N | force |
 | Explicit I-end bending, `M_z,i` | 8.0 | N-m | moment |
-| Uniform local `Y` load, `q` | -2.0 | N/m | TBD |
+| Uniform local `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Station, `x/L` | 0.5 | ratio | dimensionless |
 
 ## Recovered And Combined Resultants

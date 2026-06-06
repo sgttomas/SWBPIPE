@@ -30,7 +30,7 @@ The pipe is aligned to global `X`, with local `Y` matching global `Y`.
 | Torsion constant, `J` | 1.0 | m^4 | second_moment_area |
 | I-end shear, `V_y,i` | 4.0 | N | force |
 | I-end bending, `M_z,i` | 8.0 | N-m | moment |
-| Uniform local `Y` load, `q` | -2.0 | N/m | TBD |
+| Uniform local `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Load span, `a/L` to `b/L` | 0.25 to 0.75 | ratio | dimensionless |
 | Requested station fractions | 0.75, 0.25, 0.5, 1.0 | ratio | dimensionless |
 

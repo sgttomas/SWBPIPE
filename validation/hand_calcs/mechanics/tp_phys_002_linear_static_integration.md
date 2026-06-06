@@ -37,7 +37,7 @@ Loads and supports:
 | Item | Value | Unit | Canonical dimension |
 |---|---:|---|---|
 | Node `1`, global `X` nodal force | 12.0 | N | force |
-| Element `0`, global `Y` uniform load | -2.0 | N/m | TBD |
+| Element `0`, global `Y` uniform load | -2.0 | N/m | force_per_length |
 | Node `0` anchor | 6 restrained DOFs | count | dimensionless |
 | Node `1`, `Uy` spring stiffness | 40.0 | N/m | linear_stiffness |
 | Node `1`, `Uz` imposed displacement | -0.01 | m | length |

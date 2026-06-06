@@ -36,7 +36,7 @@ fixture local axes are:
 | Second moment about local `Y`, `I_y` | 1.5 | m^4 | second_moment_area |
 | Second moment about local `Z`, `I_z` | 2.0 | m^4 | second_moment_area |
 | Torsion constant, `J` | 1.0 | m^4 | second_moment_area |
-| Uniform local `Y` load, `q` | -2.0 | N/m | TBD |
+| Uniform local `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Point local `Y` force, `P` | -4.0 | N | force |
 | Point station, `a/L` | 0.5 | ratio | dimensionless |
 

@@ -29,7 +29,7 @@ The member is a two-node straight pipe from node `0` at `[0, 0, 0]` to node
 | `I_y` | 1.5 | m^4 | second_moment_area |
 | `I_z` | 2.0 | m^4 | second_moment_area |
 | `J` | 1.0 | m^4 | second_moment_area |
-| Uniform global `X` load, `q` | -2.0 | N/m | TBD |
+| Uniform global `X` load, `q` | -2.0 | N/m | force_per_length |
 | Point global `X` force, `P` | -4.0 | N | force |
 | Point station, `a/L` | 0.5 | ratio | dimensionless |
 | Node `0` support | fixed | count | dimensionless |

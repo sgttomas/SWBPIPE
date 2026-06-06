@@ -32,7 +32,7 @@ The member is a two-node straight pipe aligned to global `X`.
 | `DeltaT` | 75.0 | K | temperature_interval |
 | `p` | 90.0 | Pa | pressure |
 | `A_internal` | 0.1 | m^2 | area |
-| Uniform local/global `Y` load, `q` | -2.0 | N/m | TBD |
+| Uniform local/global `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Span start, `a/L` | 0.25 | ratio | dimensionless |
 | Span end, `b/L` | 0.75 | ratio | dimensionless |
 | Node `0` support | fixed | count | dimensionless |

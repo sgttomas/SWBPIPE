@@ -74,3 +74,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Nonlinear dimension allowlist regression
+
+- Changed files: `validation/benchmarks/nonlinear/src/lib.rs`, `tests/test_nonlinear_support_regression.py`, this `MEMORY.md`, and `_run_records/TASK_RUN_2026-06-06_1538.md`.
+- Added validation-local `force_per_length` support to the nonlinear fixture dimension allowlist and a source-level regression check that confirms the token is present only in the current `CANONICAL_DIMENSIONS` list.
+- Preserved unresolved tolerance policy posture: fixture `tolerance_policy` assignments remain `None`/TBD.
+- Validation in this TASK run: `cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml` passed; `python3 -m pytest -q tests/test_nonlinear_support_regression.py` passed; `git diff --check` passed.
+
+## 2026-06-06 - TP-FORCE-PER-LENGTH Parent Fan-In
+
+- Parent WORKING_ITEMS fan-in for the cross-deliverable force-per-length
+  alignment tranche is recorded in
+  `../DEL-09-01_Mechanics benchmark suite/_run_records/PARENT_FANIN_2026-06-06_1549_TP-FORCE-PER-LENGTH.md`.
+- Parent validation passed: mechanics, stress, and nonlinear benchmark crates;
+  schema/adapter/nonlinear/witness/results pytest suite; focused distributed
+  `N/m` scan; and `git diff --check`.
+- No lifecycle, review-disposition, release, acceptance, protected-content,
+  private-data, professional-approval, or code-compliance surface was changed.

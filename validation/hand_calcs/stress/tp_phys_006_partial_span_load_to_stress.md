@@ -28,7 +28,7 @@ The pipe is aligned to global `X`, with local `Y` matching global `Y`.
 | Second moment about local `Y`, `I_y` | 1.5 | m^4 | second_moment_area |
 | Second moment about local `Z`, `I_z` | 2.0 | m^4 | second_moment_area |
 | Torsion constant, `J` | 1.0 | m^4 | second_moment_area |
-| Uniform local/global `Y` load, `q` | -2.0 | N/m | TBD |
+| Uniform local/global `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Load span, `a/L` to `b/L` | 0.25 to 0.75 | ratio | dimensionless |
 | Station, `x/L` | 0.5 | ratio | dimensionless |
 

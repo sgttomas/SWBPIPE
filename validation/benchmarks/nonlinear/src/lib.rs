@@ -29,6 +29,7 @@ const CANONICAL_DIMENSIONS: &[&str] = &[
     "angle",
     "rotation",
     "force",
+    "force_per_length",
     "moment",
     "pressure",
     "stress",

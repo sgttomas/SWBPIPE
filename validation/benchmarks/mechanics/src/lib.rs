@@ -939,7 +939,7 @@ pub fn straight_pipe_weight_recovery_fixture() -> MechanicsBenchmark {
                 name: "weight_force_per_length",
                 value: weight_force_per_length,
                 unit: "N/m",
-                dimension: "TBD",
+                dimension: "force_per_length",
                 tolerance_policy: None,
             },
             ExpectedValue {
@@ -1021,7 +1021,7 @@ pub fn primitive_load_preparation_fixture() -> MechanicsBenchmark {
                 name: "uniform_weight_force_per_length",
                 value: 1.25,
                 unit: "N/m",
-                dimension: "TBD",
+                dimension: "force_per_length",
                 tolerance_policy: None,
             },
             ExpectedValue {

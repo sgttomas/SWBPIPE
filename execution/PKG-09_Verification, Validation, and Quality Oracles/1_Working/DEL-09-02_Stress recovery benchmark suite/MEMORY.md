@@ -592,3 +592,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Force-per-length canonical dimension alignment
+
+- Added `force_per_length` to validation-local `CANONICAL_DIMENSIONS` in
+  `validation/benchmarks/stress/src/lib.rs`.
+- Updated distributed-load `N/m` canonical dimension labels from `TBD` to
+  `force_per_length` in `validation/hand_calcs/stress/tp_phys_005_oriented_load_to_stress.md`,
+  `validation/hand_calcs/stress/tp_phys_006_partial_span_load_to_stress.md`,
+  `validation/hand_calcs/stress/tp_phys_007_station_sweep_stress.md`, and
+  `validation/hand_calcs/stress/tp_phys_009_combined_axial_bending_to_stress.md`.
+- Preserved mixed displacement-vector and tolerance-policy `TBD` labels.
+- Validation passed: `cargo test --manifest-path validation/benchmarks/stress/Cargo.toml`;
+  `git diff --check`.
+- Local run record: `_run_records/TASK_RUN_2026-06-06_1538.md`.
+
+## 2026-06-06 - TP-FORCE-PER-LENGTH Parent Fan-In
+
+- Parent WORKING_ITEMS fan-in for the cross-deliverable force-per-length
+  alignment tranche is recorded in
+  `../DEL-09-01_Mechanics benchmark suite/_run_records/PARENT_FANIN_2026-06-06_1549_TP-FORCE-PER-LENGTH.md`.
+- Parent validation passed: mechanics, stress, and nonlinear benchmark crates;
+  schema/adapter/nonlinear/witness/results pytest suite; focused distributed
+  `N/m` scan; and `git diff --check`.
+- No lifecycle, review-disposition, release, acceptance, protected-content,
+  private-data, professional-approval, or code-compliance surface was changed.

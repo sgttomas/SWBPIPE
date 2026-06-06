@@ -636,3 +636,32 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Force-Per-Length Dimension Label Cleanup
+
+- Updated distributed force-per-length canonical dimension labels from `TBD`
+  to `force_per_length` in `validation/benchmarks/mechanics/src/lib.rs` and
+  the affected hand-calc notes:
+  `validation/hand_calcs/mechanics/primitive_load_preparation.md`,
+  `validation/hand_calcs/mechanics/tp_phys_002_linear_static_integration.md`,
+  `validation/hand_calcs/mechanics/tp_phys_004_load_to_resultant.md`,
+  `validation/hand_calcs/mechanics/tp_phys_005_oriented_load_to_resultant.md`,
+  `validation/hand_calcs/mechanics/tp_phys_006_partial_span_load_to_resultant.md`,
+  `validation/hand_calcs/mechanics/tp_phys_007_station_sweep_resultants.md`,
+  and
+  `validation/hand_calcs/mechanics/tp_phys_009_combined_load_axial_effects.md`.
+- Preserved tolerance policy entries as `TBD`.
+- Validation passed:
+  `cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml`
+  with 19 tests passed; `git diff --check` passed.
+
+## 2026-06-06 - TP-FORCE-PER-LENGTH Parent Fan-In
+
+- Consolidated the three-worker force-per-length alignment tranche in
+  `_run_records/PARENT_FANIN_2026-06-06_1549_TP-FORCE-PER-LENGTH.md`.
+- Parent validation passed: mechanics, stress, and nonlinear benchmark crates;
+  schema/adapter/nonlinear/witness/results pytest suite; focused distributed
+  `N/m` scan; and `git diff --check`.
+- No `_STATUS.md`, review finding, dependency/DAG/coordination, lifecycle,
+  release, acceptance, protected-content, private-data, professional-approval,
+  or code-compliance surface was changed.

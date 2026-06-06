@@ -19,7 +19,7 @@ uniform weight contribution, and an imposed displacement contribution.
 |---|---:|---|---|
 | Node `1`, global `Y` load A | 8.0 | N | force |
 | Node `1`, global `Y` load B | -3.0 | N | force |
-| Element `0`, global `Z` weight | 1.25 | N/m | TBD |
+| Element `0`, global `Z` weight | 1.25 | N/m | force_per_length |
 | Node `2`, `Uz` imposed displacement | -0.02 | m | length |
 
 ## Expected Values
