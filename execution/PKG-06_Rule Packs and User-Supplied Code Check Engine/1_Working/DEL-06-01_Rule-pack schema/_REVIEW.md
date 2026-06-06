@@ -59,3 +59,13 @@ See `Review_Findings.csv` for the detailed finding.
 ## Audit Boundary
 
 This is an audit-only downstream compatibility record. It does not edit product schemas, code, examples, statuses, dependency registers, memory, DAG files, blocker queues, or primary deliverable artifacts. It does not make release, professional-reliance, acceptance, certification, sealing, approval, or code-compliance claims.
+
+## 2026-06-05 Human Disposition Addendum
+
+The human project authority accepted the technical resolution for
+`PKG06-01-PKG02-001`. `Review_Findings.csv` now records
+`HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`.
+
+This disposition closes the local review-finding gate only. It does not change
+`_STATUS.md`, issue the deliverable, create release readiness, or make any
+professional/code-compliance claim.

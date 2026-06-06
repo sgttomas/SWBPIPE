@@ -92,3 +92,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Human disposition accepted technical resolution
+
+- Human project authority accepted the technical resolution for
+  `PKG06-04-PKG02-001`.
+- `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and
+  `Status=RESOLVED`.
+- This closes the local review-finding gate only; `_STATUS.md`, release
+  readiness, and professional/code-compliance boundaries are unchanged.
+
+## 2026-06-05 - TASK verification for PKG06-04-PKG02-001
+
+- Verified `core/rules/rule_pack_lifecycle` records caller-supplied JCS bytes as `CallerSuppliedJcsBytesUnverified` metadata and states that the crate does not parse or canonicalize JSON or prove JCS canonicalization.
+- `cargo fmt --manifest-path core/rules/rule_pack_lifecycle/Cargo.toml --check` passed.
+- `cargo test --manifest-path core/rules/rule_pack_lifecycle/Cargo.toml --locked` passed with 8 unit tests and 0 doctests.
+- Finding `PKG06-04-PKG02-001` remains technically addressed and ready for human disposition; `HumanDisposition` remains `TBD` pending review.

@@ -112,3 +112,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Human disposition accepted technical resolution
+
+- Human project authority accepted the technical resolution for
+  `PKG06-02-PKG02-001`.
+- `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and
+  `Status=RESOLVED`.
+- This closes the local review-finding gate only; `_STATUS.md`, release
+  readiness, and professional/code-compliance boundaries are unchanged.
+
+## 2026-06-05 - PKG06-02-PKG02-001 verification
+
+- Bounded TASK verification confirmed `core/rules/expression_evaluator` still carries explicit `Quantity` unit metadata (`unit_ref`, `unit_required`, `dimension_check_required`) and still rejects unsafe host-access forms through deterministic findings.
+- `cargo fmt --manifest-path core/rules/expression_evaluator/Cargo.toml --check` passed.
+- `cargo test --manifest-path core/rules/expression_evaluator/Cargo.toml --locked` passed with 17 unit tests and 0 doctests.
+- Finding `PKG06-02-PKG02-001` remains technically addressed and ready for human disposition; no lifecycle/status, dependency, review-finding, source, schema, test, DAG, or coordination files were changed.

@@ -98,6 +98,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Fan-in record:
   `_run_records/WORKING_ITEMS_RUN_2026-06-05_0705_FOUNDATIONAL-HARDENING_FANIN.md`.
 - No lifecycle state, DAG artifact, dependency register, review disposition,
-  release claim, professional approval, code-compliance claim, protected
+  release claim, licensed-engineer approval claim, code-compliance claim, protected
   standards data, private data, or new implementation scope was changed by
   parent fan-in.
+
+## 2026-06-05 - Human disposition accepted technical resolution
+
+- Human project authority accepted the technical resolution for
+  `PKG06-01-PKG02-001`.
+- `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and
+  `Status=RESOLVED`.
+- This closes the local review-finding gate only; `_STATUS.md`, release
+  readiness, and professional/code-compliance boundaries are unchanged.
+
+## 2026-06-05 - PKG06-01-PKG02-001 verification
+
+- Verified `PKG06-01-PKG02-001` remains technically addressed: `FormulaDeclaration.output_dimension` references `QuantityIntent`, the invented demo supplies explicit unit/dimension metadata, and the focused schema tests assert the PKG-02 canonical dimension enum.
+- Validation evidence: `python3 -m pytest tests/test_rule_pack_schema.py tests/test_units_schema.py tests/test_model_schema.py` passed with 11 tests.
+- Finding is ready for human disposition; `Review_Findings.csv` was not edited and `HumanDisposition` remains `TBD`.
