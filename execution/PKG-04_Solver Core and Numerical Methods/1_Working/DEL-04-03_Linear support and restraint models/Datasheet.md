@@ -15,14 +15,16 @@
 
 ## Attributes
 
-| Attribute | Setup value | Source |
+| Attribute | Current value | Source |
 |---|---|---|
 | Covered support families | Anchors, guides, line stops, vertical supports, springs, and imposed displacement boundary data. | `_CONTEXT.md` Description; `docs/_Registers/ScopeLedger.csv` row SOW-011 |
 | Analysis basis | Support behavior is part of the primary 3D centerline/frame global model with six degrees of freedom per node. | `docs/CONTRACT.md` OPS-K-MECH-1; `docs/SPEC.md` section 4.1 |
-| Support object boundary | Support records target model objects, directions, unit-bearing properties, and result hooks. | `docs/TYPES.md` section 8, object `Support` |
-| Linear-only boundary | This deliverable covers linear support/restraint setup. Nonlinear one-way behavior, lift-off, gaps, and friction belong to DEL-04-04 unless explicitly deferred back by human authority. | `execution/_Decomposition/SOFTWARE_DECOMP.md` rows DEL-04-03 and DEL-04-04 |
-| Imposed displacement boundary data | Imposed displacement references are node/support boundary data and must remain unit-aware. | `docs/SPEC.md` sections 3 and 5; `docs/TYPES.md` object `Node` |
-| Default stiffness values | TBD. No invented support stiffness/defaults are introduced in this setup kit. | `docs/CONTRACT.md` OPS-K-AGENT-1; human hard stop |
+| Support implementation surface | `core/solver/linear_supports` implements the bounded mechanics-boundary slice for linear support records, prepared boundary data, and dense-system support application. | `core/solver/linear_supports/README.md`; `core/solver/linear_supports/src/lib.rs` |
+| Frame DOF boundary | `FrameDof` is re-exported from `open_pipe_stress_frame_kernel`; `NodeDof::global_index()` delegates to frame-kernel `node_dof_index`. | `core/solver/linear_supports/src/lib.rs`; `_run_records/TASK_RUN_2026-06-05_0732_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_A.md` |
+| Linear-only boundary | This deliverable covers implemented linear support/restraint behavior. Nonlinear one-way behavior, lift-off, gaps, and friction belong to DEL-04-04 unless explicitly deferred back by human authority. | `execution/_Decomposition/SOFTWARE_DECOMP.md` rows DEL-04-03 and DEL-04-04 |
+| Unit metadata | `SupportQuantity` retains dimension intent and can carry caller-supplied `UnitSystemRef` and `QuantityUnitMetadata`; it validates metadata dimension matches and does not convert or default values. | `core/solver/linear_supports/src/lib.rs`; `core/solver/linear_supports/README.md` |
+| Imposed displacement boundary data | Imposed displacement entries are prepared as prescribed DOFs with explicit displacement or rotation values for the frame-kernel prescribed-displacement boundary. | `core/solver/linear_supports/src/lib.rs` |
+| Default stiffness values | TBD. No invented support stiffness/defaults are introduced by the implementation or this document kit. | `docs/CONTRACT.md` OPS-K-AGENT-1; human hard stop |
 
 ## Conditions
 
@@ -34,13 +36,14 @@
 
 ## Construction
 
-| Construction slot | Setup direction |
+| Construction slot | Current state |
 |---|---|
-| Support model | Define a code-neutral representation for linear translational and rotational restraints, spring-like linear stiffness, rigid restraint intent, and imposed displacement boundary data. Exact API shape is TBD. |
-| DOF mapping | Map support effects to the six node degrees of freedom `Ux`, `Uy`, `Uz`, `Rx`, `Ry`, and `Rz`; coordinate-frame convention is TBD. |
-| Boundary-condition assembly | Preserve solver-layer ownership and inward dependency direction toward domain contracts. Exact numerical assembly implementation is out of this setup task. |
-| Diagnostics | Missing/invalid support data should produce structured diagnostics/result-envelope entries with code, class, severity, source, affected object, message, remediation, and provenance. |
-| Tests | Linear restraint tests should cover deterministic mechanics behavior and unit/dimensional checks using original or permissive fixture data. |
+| Support model | Implemented Rust types cover rigid restraints, springs, and imposed displacement boundary data for the SOW-011 families. The crate remains mechanics-only and linear-only. |
+| DOF mapping | Support effects map to frame-kernel `FrameDof` values `Ux`, `Uy`, `Uz`, `Rx`, `Ry`, and `Rz`; global indices are computed through `node_dof_index`. Support coordinate policy beyond explicit node DOFs remains TBD. |
+| Boundary preparation | `prepare_boundary` produces restrained DOFs, spring entries, imposed displacement entries, and deterministic support findings for missing, invalid, duplicate, or out-of-range support data. |
+| Boundary application | `apply_linear_supports` validates a dense global system through the frame kernel, adds prepared spring stiffness to global stiffness diagonals, and reduces rigid plus imposed displacement DOFs through the frame-kernel prescribed-displacement boundary. Sparse solver integration and final result-envelope integration remain downstream. |
+| Diagnostics | Current crate findings include local support finding code, support ID, and message. AB-00-06 result-envelope mapping remains downstream integration work. |
+| Tests | Current evidence records `cargo test --manifest-path core/solver/linear_supports/Cargo.toml --locked` passing 14 tests, including frame-kernel DOF parity, unit metadata, boundary preparation, and boundary application coverage. |
 
 ## References
 

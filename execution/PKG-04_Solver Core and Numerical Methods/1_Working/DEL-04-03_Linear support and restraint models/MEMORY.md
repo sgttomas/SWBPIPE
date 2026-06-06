@@ -147,3 +147,36 @@ Durable context preserved after PKG-02 grounded finding resolution:
   support behavior, release claim, professional approval, code-compliance
   claim, protected standards content, or private data was changed or
   introduced.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Review Readiness Worker A
+
+- Aligned `Datasheet.md`, `Specification.md`, `Guidance.md`, and
+  `Procedure.md` with current `DEL-04-03` implementation evidence instead of
+  setup/future-implementation wording.
+- Preserved current implemented facts: `FrameDof` re-export from
+  `open_pipe_stress_frame_kernel`, DOF indexing through
+  `node_dof_index`, `SupportQuantity` unit metadata retention,
+  `prepare_boundary`, `apply_linear_supports`, and June 5 evidence of
+  14 passing `linear_supports` tests.
+- Preserved deferrals and boundaries for nonlinear supports, sparse solver
+  integration, final result-envelope integration, support coordinate policy,
+  release claims, professional/code-compliance claims, protected standards
+  content, lifecycle state, review disposition, dependency registers, DAG
+  artifacts, coordination files, and code files.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Review Readiness Fan-In
+
+- WORKING_ITEMS parent fan-in for
+  `TP-DEL-04-03-04-06-REVIEW-READINESS-001` accepted Worker A and Worker B
+  outputs as internally consistent for package-level gate preparation.
+- Package fan-in record:
+  `execution/PKG-04_Solver Core and Numerical Methods/1_Working/_run_records/TASK_RUN_2026-06-05_2226_TP-DEL-04-03-04-06_REVIEW-READINESS_C_FANIN.md`.
+- Validation passed: format checks for `linear_supports`, `diagnostics`, and
+  `frame_kernel`; tests for `linear_supports` (14), `diagnostics` (19),
+  `frame_kernel` (34), and `primitive_loads` (40); `git diff --check`; stale
+  wording scan; and protected/prohibited-claim scan.
+- Recommendation recorded as `READY_FOR_HUMAN_CHECKING_GATE`. This is a gate
+  packet recommendation only; no `_STATUS.md`, review finding disposition,
+  dependency register, DAG artifact, lifecycle transition, release claim,
+  professional approval, code-compliance claim, protected standards content, or
+  private data was changed or introduced.

@@ -179,3 +179,40 @@ Durable context preserved after PKG-02 grounded finding resolution:
   support behavior, release claim, professional approval, code-compliance
   claim, protected standards content, or private data was changed or
   introduced.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Review Readiness Worker B
+
+- Executed document/evidence alignment tranche
+  `TP-DEL-04-03-04-06-REVIEW-READINESS-001` with write scope limited to
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Updated the four-document kit from setup-oriented wording to current
+  `core/solver/diagnostics` implementation facts, including diagnostic
+  envelope fields, provenance/remediation/unit metadata, analysis-boundary
+  status mapping, frame/support/primitive-load mappings,
+  conditioning/nonconvergence diagnostics, sparse/tolerance TBD diagnostics,
+  and June 5 evidence for 19 passing diagnostics tests.
+- Preserved deferrals for sparse solver selection, release tolerance
+  thresholds, nonlinear support warning finalization, final result-envelope
+  integration, release claims, professional approval, and code-compliance
+  claims.
+- No code, `_STATUS.md`, review finding disposition, dependency register, DAG
+  artifact, coordination prompt, protected standards content, or private data
+  was changed or introduced.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Review Readiness Fan-In
+
+- WORKING_ITEMS parent fan-in for
+  `TP-DEL-04-03-04-06-REVIEW-READINESS-001` accepted Worker A and Worker B
+  outputs as internally consistent for package-level gate preparation.
+- Package fan-in record:
+  `execution/PKG-04_Solver Core and Numerical Methods/1_Working/_run_records/TASK_RUN_2026-06-05_2226_TP-DEL-04-03-04-06_REVIEW-READINESS_C_FANIN.md`.
+- Validation passed: format checks for `linear_supports`, `diagnostics`, and
+  `frame_kernel`; tests for `linear_supports` (14), `diagnostics` (19),
+  `frame_kernel` (34), and `primitive_loads` (40); `git diff --check`; stale
+  wording scan; and protected/prohibited-claim scan.
+- Recommendation recorded as `READY_FOR_HUMAN_CHECKING_GATE`. This is a gate
+  packet recommendation only; no `_STATUS.md`, review finding disposition,
+  dependency register, DAG artifact, lifecycle transition, release claim,
+  professional approval, code-compliance claim, protected standards content, or
+  private data was changed or introduced.
