@@ -16,7 +16,7 @@ This crate is the bounded implementation slice for `DEL-04-02`. It adapts explic
 
 This crate does not provide pipe dimension tables, material defaults, code-specific values, stress checks, load combinations, or professional/code-compliance claims. Inputs are mechanics quantities that upstream schemas, unit contracts, provenance checks, and section-property calculations must already govern.
 
-The external solver-facing boundary is represented by `StraightPipeBoundaryMetadata`. It binds the straight-pipe numeric fields to a caller-supplied frame-kernel unit basis, mass-per-length and gravity unit metadata, a `TBD` dimension marker for force-per-length until PKG-02 accepts a more specific vocabulary term, and canonical analytical/source model references. The metadata layer records identifiers only; it does not convert units or supply engineering defaults.
+The external solver-facing boundary is represented by `StraightPipeBoundaryMetadata`. It binds the straight-pipe numeric fields to a caller-supplied frame-kernel unit basis, mass-per-length, gravity, and `force_per_length` unit metadata, plus canonical analytical/source model references. The metadata layer records identifiers only; it does not convert units or supply engineering defaults.
 
 ## Verification
 

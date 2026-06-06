@@ -114,6 +114,7 @@ pub enum CanonicalDimension {
     SecondMomentArea,
     SectionModulus,
     MassPerLength,
+    ForcePerLength,
     VolumePerLength,
     Slope,
     Tbd,
@@ -148,6 +149,7 @@ impl CanonicalDimension {
             Self::SecondMomentArea => "second_moment_area",
             Self::SectionModulus => "section_modulus",
             Self::MassPerLength => "mass_per_length",
+            Self::ForcePerLength => "force_per_length",
             Self::VolumePerLength => "volume_per_length",
             Self::Slope => "slope",
             Self::Tbd => "TBD",
@@ -1622,6 +1624,21 @@ mod tests {
             "TBD"
         )
         .is_none());
+    }
+
+    #[test]
+    fn canonical_dimension_exposes_force_per_length() {
+        let unit = QuantityUnitMetadata::new(
+            "fixture-force-per-length",
+            CanonicalDimension::ForcePerLength,
+        )
+        .unwrap();
+
+        assert_eq!(
+            CanonicalDimension::ForcePerLength.as_str(),
+            "force_per_length"
+        );
+        assert_eq!(unit.dimension_id(), "force_per_length");
     }
 
     #[test]

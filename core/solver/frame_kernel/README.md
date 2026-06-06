@@ -33,6 +33,8 @@ The dense solve path has an internal zero-pivot guard for temporary verification
 
 Solver-facing external boundaries must bind the raw mechanics fields to `FrameKernelUnitBasis` metadata before schema, service, adapter, report, or persistence use. The unit basis carries caller-supplied unit-system and unit identifiers for length, force, moment, stress, area, `second_moment_area`, displacement, and rotation; it performs no unit conversion and supplies no defaults. Optional `CanonicalModelReference` records bind solver object references to PKG-02 model roles without changing the mechanics kernel.
 
+The shared `CanonicalDimension` metadata vocabulary also exposes `force_per_length` for downstream solver/load boundaries that need to label distributed mechanics quantities. The frame kernel records the dimension identifier only; it still does not define a unit catalog, conversion constants, load defaults, or tolerance policy.
+
 ## Non-Compliance Boundary
 
 This crate computes open mechanics quantities only. It does not encode compliance rules, code-specific values, protected standard content, material allowables, SIF/flexibility data, private project data, or engineering approval/certification claims.

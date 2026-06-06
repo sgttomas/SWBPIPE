@@ -321,3 +321,43 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - Force-per-length straight-pipe metadata boundary
+
+- Executed Worker B for `TP-DEL-04-01-04-02-05-03-FORCE-PER-LENGTH-BOUNDARY-001`
+  with write scope limited to `core/solver/straight_pipe/**`, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Changed `StraightPipeBoundaryMetadata` so `weight_force_per_length_unit`
+  requires `CanonicalDimension::ForcePerLength` instead of the prior `TBD`
+  placeholder.
+- Added focused tests proving the accepted `force_per_length` metadata is
+  carried and the old `TBD` dimension is rejected.
+- Updated `core/solver/straight_pipe/README.md` to describe explicit
+  `force_per_length` unit metadata while preserving the no-conversion and
+  no-default boundary.
+- Verification passed:
+  `cargo fmt --manifest-path core/solver/straight_pipe/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/straight_pipe/Cargo.toml --locked`
+  with 33 tests passed.
+- No `_STATUS.md`, review disposition, dependency register, DAG artifact,
+  schema file, repo governance file, lifecycle state, release claim,
+  professional approval, code-compliance claim, protected standards content,
+  private data, unit conversion, load default, or tolerance policy was changed
+  or introduced.
+
+## 2026-06-05 - Force-per-length boundary parent fan-in
+
+- WORKING_ITEMS completed parent fan-in for
+  `TP-DEL-04-01-04-02-05-03-FORCE-PER-LENGTH-BOUNDARY-001` spanning
+  `DEL-04-01`, `DEL-04-02`, and `DEL-05-03`.
+- Validation evidence passed: frame-kernel format check and 34 locked tests;
+  straight-pipe format check and 33 locked tests; stress-recovery format check
+  and 24 locked tests; primitive-load locked tests with 40 tests;
+  product-physics locked tests with 23 tests; `git diff --check`.
+- Fan-in record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_2000_FORCE-PER-LENGTH-BOUNDARY_FANIN.md`.
+- No lifecycle state, review disposition, dependency register, DAG artifact,
+  coordination prompt, schema file, repo governance file, release claim,
+  professional approval, code-compliance claim, protected standards content,
+  private data, conversion constant, load default, or tolerance policy was
+  changed by parent fan-in.

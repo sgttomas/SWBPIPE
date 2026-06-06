@@ -1154,6 +1154,30 @@ mod tests {
     }
 
     #[test]
+    fn stress_recovery_rejects_force_per_length_as_force_resultant_metadata() {
+        let mut units = complete_units();
+        units.resultants.axial_force = Some(unit("N/m", CanonicalDimension::ForcePerLength));
+        units.resultants.bending_moment_y = Some(unit("N/m", CanonicalDimension::ForcePerLength));
+
+        let result = recover_stresses_with_unit_metadata(&complete_input(), &units);
+
+        assert!(result.is_blocked());
+        assert!(result.components.axial_normal.is_none());
+        assert!(result.findings.iter().any(|finding| finding.code
+            == FindingCode::InvalidUnitMetadata
+            && finding.subject_id == "axial_force"
+            && finding
+                .message
+                .contains("requires canonical dimension force, got force_per_length")));
+        assert!(result.findings.iter().any(|finding| finding.code
+            == FindingCode::InvalidUnitMetadata
+            && finding.subject_id == "bending_moment_y"
+            && finding
+                .message
+                .contains("requires canonical dimension moment, got force_per_length")));
+    }
+
+    #[test]
     fn stress_component_boundary_record_carries_result_schema_and_hash_metadata() {
         let result = recover_stresses_with_unit_metadata(&complete_input(), &complete_units());
         let record = result

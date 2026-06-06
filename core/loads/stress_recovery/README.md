@@ -41,6 +41,9 @@ persistence, tolerance, rule-check, and benchmark-publication details remain
 
 The `recover_stresses_with_unit_metadata` boundary checks require unit and
 unit-system references for every present stress input quantity before recovery.
+Force resultants require force or moment dimensions; distributed-load metadata
+such as force-per-length is rejected at this boundary rather than interpreted
+as a stress force resultant.
 Recovered component records can then bind to the canonical model result value
 or schema-first result-envelope quantity surface. This crate records payload
 and hash references for deterministic handoff; it does not compute hashes,
@@ -52,5 +55,6 @@ claims.
 The unit tests cover axial, bending, torsion, pressure membrane components,
 combined normal/shear summaries, mechanics-only stress ranges, element-end
 resultant input construction, missing inputs, invalid numeric values, unit
-metadata validation, result boundary records, non-finite recovered values, and
-analysis-status propagation without human approval or code-compliance claims.
+metadata validation including force-per-length rejection for force resultants,
+result boundary records, non-finite recovered values, and analysis-status
+propagation without human approval or code-compliance claims.

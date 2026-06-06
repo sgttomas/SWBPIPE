@@ -224,3 +224,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Preserved true TBDs for final application-service/result-envelope ownership, production section-property source authority, public report/rule-pack labels and sign conventions, unit conversion catalog, production tolerance policy, release benchmark scope, and professional reliance.
 - Preserved boundaries: no code stress equations, allowables, stress indices, SIF/flexibility data, protected standards content, public pipe tables, rule checks, reporting, GUI behavior, local FEA handoff, release claim, code-compliance claim, or professional approval claim was introduced.
 - This task did not edit `_STATUS.md`, dependency artifacts, review artifacts, schemas, DAG/coordination files, repo-level docs, or core code.
+
+## 2026-06-05 - Force-per-length stress boundary guardrail
+
+- Worker C for the approved Force-Per-Length Boundary Propagation Tranche added an explicit negative stress-recovery test showing `CanonicalDimension::ForcePerLength` metadata is rejected for force-resultant inputs that require `Force` or `Moment`.
+- Updated `core/loads/stress_recovery/README.md` to document that distributed-load metadata is not interpreted as a stress force resultant at this boundary.
+- Created a deliverable-local run record under `_run_records/`.
+- No `_STATUS.md`, review disposition, dependency, DAG, governance, schema, release, code-compliance, or professional approval surface was edited.
+
+## 2026-06-05 - Force-per-length boundary parent fan-in
+
+- WORKING_ITEMS completed parent fan-in for
+  `TP-DEL-04-01-04-02-05-03-FORCE-PER-LENGTH-BOUNDARY-001` spanning
+  `DEL-04-01`, `DEL-04-02`, and `DEL-05-03`.
+- Validation evidence passed: frame-kernel format check and 34 locked tests;
+  straight-pipe format check and 33 locked tests; stress-recovery format check
+  and 24 locked tests; primitive-load locked tests with 40 tests;
+  product-physics locked tests with 23 tests; `git diff --check`.
+- Fan-in record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_2000_FORCE-PER-LENGTH-BOUNDARY_FANIN.md`.
+- No lifecycle state, review disposition, dependency register, DAG artifact,
+  coordination prompt, schema file, repo governance file, release claim,
+  professional approval, code-compliance claim, protected standards content,
+  private data, conversion constant, load default, or tolerance policy was
+  changed by parent fan-in.

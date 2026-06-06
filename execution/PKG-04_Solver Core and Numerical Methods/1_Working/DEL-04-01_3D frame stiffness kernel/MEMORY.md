@@ -211,3 +211,41 @@ Durable context preserved after PKG-02 grounded finding resolution:
   dependency register, DAG artifact, review disposition, release claim,
   professional approval, code-compliance claim, protected standards content,
   or private data was changed or introduced.
+
+## 2026-06-05 - Force-per-length canonical dimension propagation
+
+- Executed Worker A for `TP-DEL-04-01-04-02-05-03-FORCE-PER-LENGTH-BOUNDARY-001`
+  with write scope limited to `core/solver/frame_kernel/**`, this `MEMORY.md`,
+  and deliverable-local `_run_records/**`.
+- Added `CanonicalDimension::ForcePerLength` and mapped it to the accepted
+  canonical dimension identifier `force_per_length` for downstream
+  solver/load metadata boundaries.
+- Updated `core/solver/frame_kernel/README.md` to state that the frame-kernel
+  metadata vocabulary exposes `force_per_length` without defining unit
+  catalogs, conversion constants, load defaults, or tolerance policy.
+- Verification passed:
+  `cargo fmt --manifest-path core/solver/frame_kernel/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/frame_kernel/Cargo.toml --locked`
+  with 34 tests passed.
+- No `_STATUS.md`, review disposition, dependency register, DAG artifact,
+  schema file, repo governance file, lifecycle state, release claim,
+  professional approval, code-compliance claim, protected standards content,
+  private data, unit conversion, load default, or tolerance policy was changed
+  or introduced.
+
+## 2026-06-05 - Force-per-length boundary parent fan-in
+
+- WORKING_ITEMS completed parent fan-in for
+  `TP-DEL-04-01-04-02-05-03-FORCE-PER-LENGTH-BOUNDARY-001` spanning
+  `DEL-04-01`, `DEL-04-02`, and `DEL-05-03`.
+- Validation evidence passed: frame-kernel format check and 34 locked tests;
+  straight-pipe format check and 33 locked tests; stress-recovery format check
+  and 24 locked tests; primitive-load locked tests with 40 tests;
+  product-physics locked tests with 23 tests; `git diff --check`.
+- Fan-in record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-05_2000_FORCE-PER-LENGTH-BOUNDARY_FANIN.md`.
+- No lifecycle state, review disposition, dependency register, DAG artifact,
+  coordination prompt, schema file, repo governance file, release claim,
+  professional approval, code-compliance claim, protected standards content,
+  private data, conversion constant, load default, or tolerance policy was
+  changed by parent fan-in.

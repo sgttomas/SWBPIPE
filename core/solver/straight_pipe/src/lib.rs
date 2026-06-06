@@ -307,7 +307,7 @@ impl StraightPipeBoundaryMetadata {
         self.frame_units.has_expected_dimensions()
             && self.mass_per_length_unit.dimension == CanonicalDimension::MassPerLength
             && self.gravity_unit.dimension == CanonicalDimension::Acceleration
-            && self.weight_force_per_length_unit.dimension == CanonicalDimension::Tbd
+            && self.weight_force_per_length_unit.dimension == CanonicalDimension::ForcePerLength
     }
 }
 
@@ -2290,7 +2290,11 @@ mod tests {
                 .unwrap(),
             QuantityUnitMetadata::new("fixture-acceleration", CanonicalDimension::Acceleration)
                 .unwrap(),
-            QuantityUnitMetadata::new("fixture-force-per-length", CanonicalDimension::Tbd).unwrap(),
+            QuantityUnitMetadata::new(
+                "fixture-force-per-length",
+                CanonicalDimension::ForcePerLength,
+            )
+            .unwrap(),
             CanonicalModelReference::new(
                 "analytical-model",
                 open_pipe_stress_frame_kernel::CanonicalModelRole::AnalyticalSolverModel,
@@ -2315,10 +2319,51 @@ mod tests {
             metadata.mass_per_length_unit.dimension_id(),
             "mass_per_length"
         );
-        assert_eq!(metadata.weight_force_per_length_unit.dimension_id(), "TBD");
+        assert_eq!(
+            metadata.weight_force_per_length_unit.dimension_id(),
+            "force_per_length"
+        );
         assert_eq!(
             metadata.source_model_ref.model_role.as_str(),
             "physical_source_of_truth"
         );
+    }
+
+    #[test]
+    fn straight_pipe_boundary_metadata_rejects_tbd_force_per_length_unit() {
+        let frame_units = FrameKernelUnitBasis::from_unit_ids(
+            "fixture-unit-system",
+            "fixture-length",
+            "fixture-force",
+            "fixture-moment",
+            "fixture-stress",
+            "fixture-area",
+            "fixture-second-moment-area",
+            "fixture-displacement",
+            "fixture-rotation",
+        )
+        .unwrap();
+        let metadata = StraightPipeBoundaryMetadata::new(
+            frame_units,
+            QuantityUnitMetadata::new("fixture-mass-per-length", CanonicalDimension::MassPerLength)
+                .unwrap(),
+            QuantityUnitMetadata::new("fixture-acceleration", CanonicalDimension::Acceleration)
+                .unwrap(),
+            QuantityUnitMetadata::new("fixture-force-per-length", CanonicalDimension::Tbd).unwrap(),
+            CanonicalModelReference::new(
+                "analytical-model",
+                open_pipe_stress_frame_kernel::CanonicalModelRole::AnalyticalSolverModel,
+                "element:pipe-1",
+            )
+            .unwrap(),
+            CanonicalModelReference::new(
+                "physical-model",
+                open_pipe_stress_frame_kernel::CanonicalModelRole::PhysicalSourceOfTruth,
+                "pipe:pipe-1",
+            )
+            .unwrap(),
+        );
+
+        assert!(metadata.is_none());
     }
 }
