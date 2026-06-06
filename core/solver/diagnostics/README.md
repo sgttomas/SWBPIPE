@@ -10,8 +10,9 @@ This crate is the bounded implementation slice for `DEL-04-06`. It provides code
   optional unit metadata.
 - Solver-status mapping to the PKG-02 analysis-boundary mechanics status and
   authority fields.
-- Mapping from `open_pipe_stress_frame_kernel::FrameKernelError` into diagnostic records.
+- Mapping from `open_pipe_stress_frame_kernel::FrameKernelError` into diagnostic records, including invalid frame orientation as blocking model topology.
 - Mapping from linear support findings/application errors and primitive load findings into diagnostic records.
+- Stable affected references for primitive-load missing-ID findings.
 - Basic finite/nonnegative condition-ratio classification for small verification paths.
 - Nonconvergence diagnostics for iterative methods without implementing nonlinear support behavior.
 - Explicit `TBD` diagnostics for sparse-solver adapter selection and tolerance policy.

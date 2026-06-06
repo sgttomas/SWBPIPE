@@ -119,3 +119,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Support Boundary Hardening Worker A
+
+- Executed Worker A for tranche
+  `TP-DEL-04-03-04-06-SUPPORT-BOUNDARY-HARDENING-001` with write scope limited
+  to `core/solver/linear_supports/**`, this `MEMORY.md`, and
+  deliverable-local `_run_records/**`.
+- Re-exported the frame-kernel `FrameDof` through
+  `open_pipe_stress_linear_supports::FrameDof` instead of maintaining a
+  duplicate local enum, preserving the downstream import path while binding
+  support DOF semantics to the upstream frame-kernel boundary.
+- Updated `NodeDof::global_index()` to use
+  `open_pipe_stress_frame_kernel::node_dof_index` and retained a private
+  translational-DOF helper for guide, line-stop, and dimensional validation.
+- Added focused test coverage proving `FrameDof` re-export compatibility and
+  DOF index parity with the frame-kernel `NODE_DOF_ORDER` /
+  `node_dof_index` boundary.
+- Validation passed:
+  `cargo fmt --manifest-path core/solver/linear_supports/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/linear_supports/Cargo.toml --locked`
+  with 14 tests passed; and
+  `cargo test --manifest-path core/solver/frame_kernel/Cargo.toml --locked`
+  with 33 tests passed.
+- No lifecycle state, review finding disposition, dependency register, DAG
+  artifact, coordination prompt, sparse solver, tolerance policy, nonlinear
+  support behavior, release claim, professional approval, code-compliance
+  claim, protected standards content, or private data was changed or
+  introduced.

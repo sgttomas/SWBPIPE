@@ -191,3 +191,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   release claim, professional approval, code-compliance claim, protected
   standards data, private data, or new implementation scope was changed by
   parent fan-in.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Frame DOF Compatibility Shim
+
+- During tranche `TP-DEL-04-03-04-06-SUPPORT-BOUNDARY-HARDENING-001`,
+  `DEL-04-03` re-exported the frame-kernel `FrameDof` as the public support
+  DOF type. Existing downstream callers in primitive-load and product-physics
+  crates used `FrameDof::is_translational()`, so the helper was added to the
+  frame-kernel `FrameDof` boundary rather than patching each downstream caller.
+- Extended the existing frame-kernel six-DOF mapping test to assert
+  translational/rotational classification.
+- Validation passed:
+  `cargo fmt --manifest-path core/solver/frame_kernel/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/frame_kernel/Cargo.toml --locked`
+  with 33 tests passed. Downstream compatibility was also validated by
+  primitive-load and product-physics test runs recorded in the Worker B run
+  record.
+- No solver algorithm, sparse solver, tolerance policy, lifecycle state,
+  dependency register, DAG artifact, review disposition, release claim,
+  professional approval, code-compliance claim, protected standards content,
+  or private data was changed or introduced.

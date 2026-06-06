@@ -149,3 +149,33 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-05 - TP-DEL-04-03-04-06 Support Boundary Hardening Worker B
+
+- Executed Worker B for tranche
+  `TP-DEL-04-03-04-06-SUPPORT-BOUNDARY-HARDENING-001` with write scope limited
+  to `core/solver/diagnostics/**`, this `MEMORY.md`, and deliverable-local
+  `_run_records/**`.
+- Repaired diagnostics compatibility with current upstream APIs by mapping
+  `FrameKernelError::InvalidOrientation` to a blocking model-validation
+  `InvalidModelTopology` diagnostic.
+- Repaired primitive-load finding compatibility by mapping
+  `MissingLoadId` to a blocking model-validation `InvalidModelTopology`
+  diagnostic with stable affected reference `load:<missing-id>` when a load ID
+  is missing or blank.
+- Added focused tests for invalid frame orientation and missing primitive-load
+  IDs while preserving existing support-application and primitive-load
+  diagnostic mappings.
+- Validation passed:
+  `cargo fmt --manifest-path core/solver/diagnostics/Cargo.toml --check`;
+  `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked`
+  with 19 tests passed;
+  `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked`
+  with 40 tests passed;
+  `cargo test --manifest-path core/product_physics/Cargo.toml --locked`
+  with 23 tests passed; and `git diff --check` passed.
+- No lifecycle state, review finding disposition, dependency register, DAG
+  artifact, coordination prompt, sparse solver, tolerance policy, nonlinear
+  support behavior, release claim, professional approval, code-compliance
+  claim, protected standards content, or private data was changed or
+  introduced.

@@ -333,6 +333,12 @@ pub fn diagnostic_from_frame_error(error: &FrameKernelError) -> SolverDiagnostic
             DiagnosticSource::ModelValidation,
             format!("degenerate local axis definition: {detail}"),
         ),
+        FrameKernelError::InvalidOrientation { detail } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidModelTopology,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::ModelValidation,
+            format!("invalid frame orientation: {detail}"),
+        ),
         FrameKernelError::NonFiniteInput { name, value } => SolverDiagnostic::new(
             SolverDiagnosticCode::InvalidNumericInput,
             DiagnosticSeverity::Blocking,
@@ -443,7 +449,7 @@ pub fn diagnostic_from_primitive_load_finding(finding: &LoadFinding) -> SolverDi
         DiagnosticSource::ModelValidation,
         finding.message.clone(),
     )
-    .with_affected_ref(finding.load_id.clone())
+    .with_affected_ref(load_finding_affected_ref(finding))
 }
 
 pub fn classify_condition_ratio(
@@ -619,7 +625,8 @@ fn load_finding_diagnostic_code(code: LoadFindingCode) -> SolverDiagnosticCode {
         | LoadFindingCode::InvalidPhysicalProperty
         | LoadFindingCode::NonFiniteLoadMagnitude
         | LoadFindingCode::NonFiniteAxialEffect => SolverDiagnosticCode::InvalidNumericInput,
-        LoadFindingCode::MissingLoadTarget
+        LoadFindingCode::MissingLoadId
+        | LoadFindingCode::MissingLoadTarget
         | LoadFindingCode::NodeOutOfRange
         | LoadFindingCode::ElementOutOfRange
         | LoadFindingCode::MissingElementSpan
@@ -629,6 +636,14 @@ fn load_finding_diagnostic_code(code: LoadFindingCode) -> SolverDiagnosticCode {
         | LoadFindingCode::UnsupportedTargetForCategory => {
             SolverDiagnosticCode::InvalidModelTopology
         }
+    }
+}
+
+fn load_finding_affected_ref(finding: &LoadFinding) -> String {
+    if finding.code == LoadFindingCode::MissingLoadId || finding.load_id.trim().is_empty() {
+        "load:<missing-id>".to_string()
+    } else {
+        finding.load_id.clone()
     }
 }
 
@@ -678,6 +693,22 @@ mod tests {
         assert_eq!(diagnostic.code, SolverDiagnosticCode::InvalidRestraint);
         assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
         assert_eq!(diagnostic.source, DiagnosticSource::ModelValidation);
+    }
+
+    #[test]
+    fn maps_invalid_orientation_to_blocking_topology_diagnostic() {
+        let diagnostic = diagnostic_from_frame_error(&FrameKernelError::InvalidOrientation {
+            detail: "local axes are not orthonormal",
+        });
+
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::InvalidModelTopology);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
+        assert_eq!(diagnostic.source, DiagnosticSource::ModelValidation);
+        assert_eq!(diagnostic.analysis_boundary_class(), "SOLVE_BLOCKING");
+        assert_eq!(diagnostic.analysis_boundary_source(), "model_validation");
+        assert!(diagnostic
+            .message
+            .contains("local axes are not orthonormal"));
     }
 
     #[test]
@@ -748,6 +779,26 @@ mod tests {
         assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
         assert_eq!(diagnostic.source, DiagnosticSource::ModelValidation);
         assert_eq!(diagnostic.affected_ref.as_deref(), Some("weight-1"));
+    }
+
+    #[test]
+    fn maps_missing_load_id_to_topology_diagnostic_with_stable_reference() {
+        let finding = LoadFinding {
+            code: LoadFindingCode::MissingLoadId,
+            load_id: String::new(),
+            message: "primitive load requires a stable load ID".to_string(),
+        };
+
+        let diagnostic = diagnostic_from_primitive_load_finding(&finding);
+
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::InvalidModelTopology);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
+        assert_eq!(diagnostic.source, DiagnosticSource::ModelValidation);
+        assert_eq!(
+            diagnostic.affected_ref.as_deref(),
+            Some("load:<missing-id>")
+        );
+        assert_eq!(diagnostic.analysis_boundary_class(), "SOLVE_BLOCKING");
     }
 
     #[test]

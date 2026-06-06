@@ -57,6 +57,10 @@ impl FrameDof {
             Self::Rz => "rz",
         }
     }
+
+    pub const fn is_translational(self) -> bool {
+        matches!(self, Self::Ux | Self::Uy | Self::Uz)
+    }
 }
 
 pub const NODE_DOF_ORDER: [FrameDof; DOF_PER_NODE] = [
@@ -1049,6 +1053,12 @@ mod tests {
         assert_eq!(FrameDof::Rx.local_index(), RX);
         assert_eq!(FrameDof::Ry.local_index(), RY);
         assert_eq!(FrameDof::Rz.local_index(), RZ);
+        assert!(FrameDof::Ux.is_translational());
+        assert!(FrameDof::Uy.is_translational());
+        assert!(FrameDof::Uz.is_translational());
+        assert!(!FrameDof::Rx.is_translational());
+        assert!(!FrameDof::Ry.is_translational());
+        assert!(!FrameDof::Rz.is_translational());
         assert_eq!(node_dof_index(2, FrameDof::Ry), 16);
 
         let map = element_dof_map(2, 5);

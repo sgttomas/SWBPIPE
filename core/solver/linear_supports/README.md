@@ -24,6 +24,8 @@ lift-off, one-way, friction, or active-set behavior; that remains assigned to
   than silent defaults.
 - The crate prepares restrained DOFs, linear spring entries, and imposed
   displacement entries.
+- `FrameDof` is re-exported from the frame kernel, and support DOF indices use
+  the frame-kernel `node_dof_index` boundary instead of re-derived offsets.
 - `apply_linear_supports` validates the dense global system through the frame
   kernel, adds prepared spring stiffness to global diagonals, and reduces rigid
   restraints plus imposed displacements through the frame-kernel prescribed

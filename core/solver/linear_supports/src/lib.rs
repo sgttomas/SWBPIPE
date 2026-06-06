@@ -5,22 +5,14 @@
 //! protected standards content, or professional approval.
 
 use open_pipe_stress_frame_kernel::{
-    reduce_system_with_prescribed_displacements, DenseMatrix, DenseVector, FrameKernelError,
-    ReducedSystem, DOF_PER_NODE, RX, RY, RZ, UX, UY, UZ,
+    node_dof_index, reduce_system_with_prescribed_displacements, DenseMatrix, DenseVector,
+    FrameKernelError, ReducedSystem, DOF_PER_NODE,
 };
-pub use open_pipe_stress_frame_kernel::{CanonicalDimension, QuantityUnitMetadata, UnitSystemRef};
+pub use open_pipe_stress_frame_kernel::{
+    CanonicalDimension, FrameDof, QuantityUnitMetadata, UnitSystemRef,
+};
 use std::error::Error;
 use std::fmt;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum FrameDof {
-    Ux,
-    Uy,
-    Uz,
-    Rx,
-    Ry,
-    Rz,
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SupportFamily {
@@ -106,7 +98,7 @@ impl SupportQuantity {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NodeDof {
     pub node_index: usize,
     pub dof: FrameDof,
@@ -118,7 +110,7 @@ impl NodeDof {
     }
 
     pub fn global_index(&self) -> usize {
-        self.node_index * DOF_PER_NODE + self.dof.local_index()
+        node_dof_index(self.node_index, self.dof)
     }
 }
 
@@ -642,21 +634,25 @@ fn add_restrained_dof(
 fn dof_allowed_for_family(family: SupportFamily, dof: FrameDof) -> bool {
     match family {
         SupportFamily::Anchor => true,
-        SupportFamily::Guide => dof.is_translational(),
-        SupportFamily::LineStop => dof.is_translational(),
+        SupportFamily::Guide => dof_is_translational(dof),
+        SupportFamily::LineStop => dof_is_translational(dof),
         SupportFamily::VerticalSupport => dof == FrameDof::Uz,
         SupportFamily::Spring | SupportFamily::ImposedDisplacement => true,
     }
 }
 
 fn dimension_matches_dof(dimension: QuantityDimension, dof: FrameDof, stiffness: bool) -> bool {
-    match (stiffness, dof.is_translational(), dimension) {
+    match (stiffness, dof_is_translational(dof), dimension) {
         (true, true, QuantityDimension::TranslationalStiffness) => true,
         (true, false, QuantityDimension::RotationalStiffness) => true,
         (false, true, QuantityDimension::Displacement) => true,
         (false, false, QuantityDimension::Rotation) => true,
         _ => false,
     }
+}
+
+fn dof_is_translational(dof: FrameDof) -> bool {
+    matches!(dof, FrameDof::Ux | FrameDof::Uy | FrameDof::Uz)
 }
 
 fn validate_finite(name: &'static str, value: f64) -> Result<(), LinearSupportError> {
@@ -674,26 +670,31 @@ fn validate_positive_finite(name: &'static str, value: f64) -> Result<(), Linear
     Ok(())
 }
 
-impl FrameDof {
-    pub fn local_index(self) -> usize {
-        match self {
-            Self::Ux => UX,
-            Self::Uy => UY,
-            Self::Uz => UZ,
-            Self::Rx => RX,
-            Self::Ry => RY,
-            Self::Rz => RZ,
-        }
-    }
-
-    pub fn is_translational(self) -> bool {
-        matches!(self, Self::Ux | Self::Uy | Self::Uz)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use open_pipe_stress_frame_kernel::{RX, RY, RZ, UX, UY, UZ};
+
+    #[test]
+    fn frame_dof_reexport_matches_frame_kernel_boundary() {
+        let dof: open_pipe_stress_frame_kernel::FrameDof = FrameDof::Ry;
+
+        assert_eq!(
+            NodeDof::new(2, FrameDof::Ry).global_index(),
+            open_pipe_stress_frame_kernel::node_dof_index(2, dof)
+        );
+        assert_eq!(
+            open_pipe_stress_frame_kernel::NODE_DOF_ORDER,
+            [
+                FrameDof::Ux,
+                FrameDof::Uy,
+                FrameDof::Uz,
+                FrameDof::Rx,
+                FrameDof::Ry,
+                FrameDof::Rz,
+            ]
+        );
+    }
 
     #[test]
     fn anchor_maps_all_six_node_dofs() {
