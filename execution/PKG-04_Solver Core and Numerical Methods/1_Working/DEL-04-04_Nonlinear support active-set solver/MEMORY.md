@@ -105,3 +105,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - WORKING_ITEMS fan-in reviewed the completed parallel TASK slice for `DEL-04-04` together with sibling slices for `DEL-04-05`, `DEL-05-02`, and `DEL-05-05`.
 - Aggregate validation passed after fan-in: `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14 tests), `cargo test --manifest-path core/solver/performance_harness/Cargo.toml` (8 tests), `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` (17 tests), `cargo test --manifest-path core/loads/user_loads/Cargo.toml` (28 tests), each corresponding `cargo fmt --check`, and `git diff --check`.
 - Fan-in found no cross-worker scope drift for this deliverable. Lifecycle, DAG, dependency, review-disposition, release, professional-approval, and code-compliance surfaces remain unchanged.
+
+## 2026-06-05 - Worker A report-facing active-set record
+
+- Added `ActiveSetReportRecord` and `ActiveSetSupportReportState` to `core/solver/nonlinear_supports` so downstream reporting can inspect iteration, max iterations, tolerance, residual norm, convergence state, per-support state, changed supports, structured diagnostics, assumptions, and limitations without parsing diagnostic text.
+- Preserved the existing `ActiveSetIteration` API and added `ActiveSetIteration::to_report_record` plus `evaluate_active_set_report` as companion conversion/evaluation surfaces.
+- Added focused tests for explicit report-record fields and structured nonconvergence diagnostics; crate README now records the report-facing boundary.
+- Verification passed: `cargo fmt --manifest-path core/solver/nonlinear_supports/Cargo.toml --check`; `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml --locked` (16 tests).
+- Boundaries preserved: no global nonlinear solve integration, production tolerance policy, sparse-solver selection, lifecycle edit, DAG edit, dependency-register edit, review-disposition edit, protected standards data, rule/code check, or professional/compliance claim.
+- Remaining `TBD`: global nonlinear solve integration, final result-envelope integration, accepted production residual/tolerance policy, sparse-solver integration, canonical calculation unit basis/conversions, final support coordinate convention, final constraint strategy, and human disposition for existing review findings.

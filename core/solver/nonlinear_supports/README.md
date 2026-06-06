@@ -7,7 +7,10 @@ friction-limited supports.
 The crate consumes trial displacement and reaction facts from a mechanics solve
 iteration and classifies nonlinear support states as active, inactive, sticking,
 or sliding. It records changed support states, residuals, convergence, and
-nonconvergence diagnostics. It does not assemble or solve the global nonlinear
+nonconvergence diagnostics. `ActiveSetReportRecord` exposes report-facing
+iteration settings, support states, changed supports, diagnostics,
+assumptions, and limitations without requiring downstream reports to parse
+diagnostic text. The crate does not assemble or solve the global nonlinear
 system, select sparse solvers, define release tolerance policy, perform load
 case algebra, run rule-pack checks, or make professional/code-compliance
 claims.
@@ -29,10 +32,14 @@ claims.
   does not convert or default units.
 - Nonconvergence and nonlinear missing-data errors are surfaced through the
   solver diagnostics contract.
+- Report-facing active-set records copy structured diagnostics and explicit
+  assumptions/limitations while preserving the existing solver iteration
+  record.
 
 ## Tests
 
 The unit tests cover one-way activation, gap opening/closing, missing gap data,
 lift-off behavior, friction sticking/sliding/contact-loss/missing-coefficient
 edges, invalid numeric inputs, active-set convergence, and iteration-limit
-nonconvergence diagnostics with active-set context.
+nonconvergence diagnostics with active-set context, plus explicit
+report-record conversion fields.

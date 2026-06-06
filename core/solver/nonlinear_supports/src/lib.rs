@@ -246,6 +246,98 @@ impl ActiveSetIteration {
             )
         })
     }
+
+    pub fn to_report_record(
+        &self,
+        input: &ActiveSetIterationInput,
+    ) -> Result<ActiveSetReportRecord, NonlinearSupportError> {
+        validate_nonnegative_finite("tolerance", input.tolerance)?;
+        Ok(ActiveSetReportRecord {
+            iteration: self.iteration,
+            max_iterations: input.max_iterations,
+            tolerance: input.tolerance,
+            residual_norm: self.residual_norm,
+            converged: self.converged,
+            support_states: self
+                .states
+                .iter()
+                .map(|state| {
+                    ActiveSetSupportReportState::new(
+                        state.support_id.clone(),
+                        state.state,
+                        self.changed_supports.contains(&state.support_id),
+                    )
+                })
+                .collect(),
+            changed_supports: self.changed_supports.clone(),
+            diagnostics: self.diagnostics.clone(),
+            assumptions: active_set_report_assumptions(),
+            limitations: active_set_report_limitations(),
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ActiveSetSupportReportState {
+    pub support_id: String,
+    pub state: ActiveSetState,
+    pub changed: bool,
+}
+
+impl ActiveSetSupportReportState {
+    pub fn new(support_id: impl Into<String>, state: ActiveSetState, changed: bool) -> Self {
+        Self {
+            support_id: support_id.into(),
+            state,
+            changed,
+        }
+    }
+
+    pub fn state_label(&self) -> &'static str {
+        self.state.as_str()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ActiveSetReportRecord {
+    pub iteration: usize,
+    pub max_iterations: usize,
+    pub tolerance: f64,
+    pub residual_norm: f64,
+    pub converged: bool,
+    pub support_states: Vec<ActiveSetSupportReportState>,
+    pub changed_supports: Vec<String>,
+    pub diagnostics: Vec<SolverDiagnostic>,
+    pub assumptions: Vec<String>,
+    pub limitations: Vec<String>,
+}
+
+impl ActiveSetReportRecord {
+    pub fn support_state(&self, support_id: &str) -> Option<&ActiveSetSupportReportState> {
+        self.support_states
+            .iter()
+            .find(|state| state.support_id == support_id)
+    }
+}
+
+pub fn active_set_report_assumptions() -> Vec<String> {
+    vec![
+        "Trial displacement and reaction facts are supplied by an external mechanics solve."
+            .to_string(),
+        "Active-set residual norm is the count of support states changed in this bounded iteration record."
+            .to_string(),
+        "Support sign conventions are those encoded on each nonlinear support behavior.".to_string(),
+    ]
+}
+
+pub fn active_set_report_limitations() -> Vec<String> {
+    vec![
+        "This crate does not assemble or solve the global nonlinear system.".to_string(),
+        "Production tolerance policy, sparse solver selection, final constraint strategy, and result-envelope integration remain outside this bounded crate."
+            .to_string(),
+        "The record is mechanics-reporting evidence only and does not state rule compliance or professional approval."
+            .to_string(),
+    ]
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -416,6 +508,12 @@ pub fn evaluate_active_set_iteration(
         converged: residual_norm <= input.tolerance,
         diagnostics,
     })
+}
+
+pub fn evaluate_active_set_report(
+    input: &ActiveSetIterationInput,
+) -> Result<ActiveSetReportRecord, NonlinearSupportError> {
+    evaluate_active_set_iteration(input)?.to_report_record(input)
 }
 
 pub fn classify_support_state(
@@ -854,6 +952,95 @@ mod tests {
         assert!(iteration.diagnostics[0]
             .message
             .contains("one-way-1=active"));
+    }
+
+    #[test]
+    fn active_set_iteration_converts_to_report_record_with_explicit_fields() {
+        let support = NonlinearSupport::one_way(
+            "one-way-1",
+            0,
+            FrameDof::Uz,
+            ActivationSense::PositiveReaction,
+        );
+        let input = ActiveSetIterationInput {
+            iteration: 1,
+            max_iterations: 5,
+            tolerance: 0.0,
+            supports: vec![support],
+            trial_states: vec![TrialSupportState::new("one-way-1", 0.0, 5.0).unwrap()],
+            prior_states: vec![SupportStateRecord::new(
+                "one-way-1",
+                ActiveSetState::Inactive,
+            )],
+        };
+
+        let iteration = evaluate_active_set_iteration(&input).unwrap();
+        let report = iteration.to_report_record(&input).unwrap();
+        let support_report = report.support_state("one-way-1").unwrap();
+
+        assert_eq!(report.iteration, 1);
+        assert_eq!(report.max_iterations, 5);
+        assert_eq!(report.tolerance, 0.0);
+        assert_eq!(report.residual_norm, 1.0);
+        assert!(!report.converged);
+        assert_eq!(report.changed_supports, vec!["one-way-1".to_string()]);
+        assert_eq!(support_report.state, ActiveSetState::Active);
+        assert_eq!(support_report.state_label(), "active");
+        assert!(support_report.changed);
+        assert_eq!(
+            report.diagnostics[0].code,
+            SolverDiagnosticCode::NonConvergence
+        );
+        assert!(report
+            .assumptions
+            .iter()
+            .any(|assumption| assumption.contains("residual norm")));
+        assert!(report
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("does not assemble")));
+    }
+
+    #[test]
+    fn active_set_report_preserves_nonconvergence_as_structured_diagnostic() {
+        let support = NonlinearSupport::one_way(
+            "one-way-1",
+            0,
+            FrameDof::Uz,
+            ActivationSense::PositiveReaction,
+        );
+        let input = ActiveSetIterationInput {
+            iteration: 3,
+            max_iterations: 3,
+            tolerance: 0.0,
+            supports: vec![support],
+            trial_states: vec![TrialSupportState::new("one-way-1", 0.0, 5.0).unwrap()],
+            prior_states: vec![SupportStateRecord::new(
+                "one-way-1",
+                ActiveSetState::Inactive,
+            )],
+        };
+
+        let report = evaluate_active_set_report(&input).unwrap();
+        let diagnostic = &report.diagnostics[0];
+        let support_report = report.support_state("one-way-1").unwrap();
+
+        assert_eq!(report.iteration, 3);
+        assert_eq!(report.max_iterations, 3);
+        assert_eq!(report.residual_norm, 1.0);
+        assert!(!report.converged);
+        assert_eq!(support_report.state, ActiveSetState::Active);
+        assert!(support_report.changed);
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::NonConvergence);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Failure);
+        assert_eq!(
+            diagnostic.affected_ref.as_deref(),
+            Some("active-set:one-way-1")
+        );
+        assert!(report
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("rule compliance")));
     }
 
     #[test]

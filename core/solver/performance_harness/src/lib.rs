@@ -94,6 +94,39 @@ pub struct HarnessRunRecord {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct HarnessSuiteRunRecord {
+    pub suite_id: String,
+    pub suite_name: String,
+    pub solver_version: String,
+    pub fixture_element_counts: Vec<usize>,
+    pub fixture_records: Vec<HarnessRunRecord>,
+    pub summary: HarnessSuiteSummary,
+    pub assumptions: Vec<String>,
+    pub limitations: Vec<String>,
+    pub provenance_notes: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct HarnessSuiteSummary {
+    pub requested_fixture_count: usize,
+    pub completed_fixture_count: usize,
+    pub total_node_count: usize,
+    pub total_element_count: usize,
+    pub total_dof_count: usize,
+    pub total_reduced_dof_count: usize,
+    pub total_stiffness_nonzero_count: usize,
+    pub total_reduced_stiffness_nonzero_count: usize,
+    pub total_force_nonzero_count: usize,
+    pub total_repeat_observation_count: usize,
+    pub records_with_condition_ratio_count: usize,
+    pub records_with_diagnostics_count: usize,
+    pub diagnostic_count: usize,
+    pub max_reduced_dofs: usize,
+    pub max_abs_solution_delta: f64,
+    pub max_abs_residual: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum HarnessError {
     InvalidSetting {
         name: &'static str,
@@ -148,6 +181,8 @@ impl Default for HarnessSettings {
     }
 }
 
+pub const DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS: [usize; 4] = [1, 2, 4, 8];
+
 pub fn invented_cantilever_chain_fixture(
     element_count: usize,
 ) -> Result<BenchmarkFixture, HarnessError> {
@@ -196,6 +231,32 @@ pub fn invented_cantilever_chain_fixture(
         force,
         restrained_dofs: (0..DOF_PER_NODE).collect(),
     })
+}
+
+pub fn run_default_invented_fixture_suite(
+    settings: &HarnessSettings,
+) -> Result<HarnessSuiteRunRecord, HarnessError> {
+    run_invented_fixture_suite(&DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS, settings)
+}
+
+pub fn run_invented_fixture_suite(
+    fixture_element_counts: &[usize],
+    settings: &HarnessSettings,
+) -> Result<HarnessSuiteRunRecord, HarnessError> {
+    validate_suite_fixture_sizes(fixture_element_counts)?;
+    validate_settings(settings)?;
+
+    let mut fixture_records = Vec::with_capacity(fixture_element_counts.len());
+    for element_count in fixture_element_counts {
+        let fixture = invented_cantilever_chain_fixture(*element_count)?;
+        fixture_records.push(run_fixture_repeat(&fixture, settings)?);
+    }
+
+    Ok(suite_record(
+        fixture_element_counts,
+        settings,
+        fixture_records,
+    ))
 }
 
 pub fn run_fixture_repeat(
@@ -291,6 +352,107 @@ pub fn run_fixture_repeat(
     ))
 }
 
+fn suite_record(
+    fixture_element_counts: &[usize],
+    settings: &HarnessSettings,
+    fixture_records: Vec<HarnessRunRecord>,
+) -> HarnessSuiteRunRecord {
+    let summary = suite_summary(fixture_element_counts.len(), &fixture_records);
+    let suite_size_label = fixture_element_counts
+        .iter()
+        .map(|count| count.to_string())
+        .collect::<Vec<_>>()
+        .join("-");
+    let provenance_notes = fixture_records
+        .iter()
+        .flat_map(|record| record.provenance_notes.iter().cloned())
+        .collect();
+
+    HarnessSuiteRunRecord {
+        suite_id: format!("invented-cantilever-chain-suite-{suite_size_label}"),
+        suite_name: "Invented cantilever-chain deterministic suite".to_string(),
+        solver_version: settings.solver_version.clone(),
+        fixture_element_counts: fixture_element_counts.to_vec(),
+        fixture_records,
+        summary,
+        assumptions: vec![
+            "suite uses only invented cantilever-chain fixtures".to_string(),
+            "suite summary counts aggregate deterministic fixture records without timing thresholds"
+                .to_string(),
+            "single-fixture records remain the authority for per-fixture matrix and diagnostic observations"
+                .to_string(),
+        ],
+        limitations: vec![
+            "fixture sizes are explicit invented coverage points, not approved practical-size bands"
+                .to_string(),
+            "sparse numerical library remains TBD".to_string(),
+            "release timing, memory, conditioning, and CI thresholds remain TBD".to_string(),
+        ],
+        provenance_notes,
+    }
+}
+
+fn suite_summary(
+    requested_fixture_count: usize,
+    fixture_records: &[HarnessRunRecord],
+) -> HarnessSuiteSummary {
+    HarnessSuiteSummary {
+        requested_fixture_count,
+        completed_fixture_count: fixture_records.len(),
+        total_node_count: fixture_records.iter().map(|record| record.node_count).sum(),
+        total_element_count: fixture_records
+            .iter()
+            .map(|record| record.element_count)
+            .sum(),
+        total_dof_count: fixture_records.iter().map(|record| record.total_dofs).sum(),
+        total_reduced_dof_count: fixture_records
+            .iter()
+            .map(|record| record.reduced_dofs)
+            .sum(),
+        total_stiffness_nonzero_count: fixture_records
+            .iter()
+            .map(|record| record.stiffness_nonzero_count)
+            .sum(),
+        total_reduced_stiffness_nonzero_count: fixture_records
+            .iter()
+            .map(|record| record.reduced_stiffness_nonzero_count)
+            .sum(),
+        total_force_nonzero_count: fixture_records
+            .iter()
+            .map(|record| record.force_nonzero_count)
+            .sum(),
+        total_repeat_observation_count: fixture_records
+            .iter()
+            .map(|record| record.repeat_observations.len())
+            .sum(),
+        records_with_condition_ratio_count: fixture_records
+            .iter()
+            .filter(|record| record.condition_ratio_estimate.is_some())
+            .count(),
+        records_with_diagnostics_count: fixture_records
+            .iter()
+            .filter(|record| !record.diagnostics.is_empty())
+            .count(),
+        diagnostic_count: fixture_records
+            .iter()
+            .map(|record| record.diagnostics.len())
+            .sum(),
+        max_reduced_dofs: fixture_records
+            .iter()
+            .map(|record| record.reduced_dofs)
+            .max()
+            .unwrap_or_default(),
+        max_abs_solution_delta: fixture_records
+            .iter()
+            .map(|record| record.max_abs_solution_delta)
+            .fold(0.0, f64::max),
+        max_abs_residual: fixture_records
+            .iter()
+            .map(|record| record.max_abs_residual)
+            .fold(0.0, f64::max),
+    }
+}
+
 fn run_record(
     fixture: &BenchmarkFixture,
     settings: &HarnessSettings,
@@ -361,6 +523,17 @@ fn validate_fixture(fixture: &BenchmarkFixture) -> Result<(), HarnessError> {
         return Err(HarnessError::InvalidSetting {
             name: "fixture.unit_basis",
             detail: "must match frame-kernel canonical dimensions",
+        });
+    }
+
+    Ok(())
+}
+
+fn validate_suite_fixture_sizes(fixture_element_counts: &[usize]) -> Result<(), HarnessError> {
+    if fixture_element_counts.is_empty() {
+        return Err(HarnessError::InvalidSetting {
+            name: "fixture_element_counts",
+            detail: "must contain at least one explicit invented size",
         });
     }
 
@@ -514,6 +687,154 @@ mod tests {
         assert!(record.assumptions.iter().any(|assumption| {
             assumption.contains("unit identifiers declare the calculation basis")
         }));
+    }
+
+    #[test]
+    fn invented_suite_preserves_fixture_records_and_summary_counts() {
+        let settings = HarnessSettings {
+            solver_version: "suite-test-solver".to_string(),
+            repeat_count: 3,
+            ..HarnessSettings::default()
+        };
+        let suite = run_invented_fixture_suite(&[1, 3, 5], &settings).unwrap();
+
+        assert_eq!(suite.suite_id, "invented-cantilever-chain-suite-1-3-5");
+        assert_eq!(suite.solver_version, "suite-test-solver");
+        assert_eq!(suite.fixture_element_counts, vec![1, 3, 5]);
+        assert_eq!(suite.fixture_records.len(), 3);
+        assert_eq!(suite.summary.requested_fixture_count, 3);
+        assert_eq!(suite.summary.completed_fixture_count, 3);
+        assert_eq!(suite.summary.total_element_count, 9);
+        assert_eq!(suite.summary.total_node_count, 12);
+        assert_eq!(suite.summary.total_repeat_observation_count, 9);
+        assert_eq!(suite.summary.records_with_condition_ratio_count, 3);
+        assert_eq!(suite.summary.records_with_diagnostics_count, 3);
+        assert_eq!(
+            suite.summary.diagnostic_count,
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.diagnostics.len())
+                .sum()
+        );
+        assert_eq!(
+            suite.summary.total_stiffness_nonzero_count,
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.stiffness_nonzero_count)
+                .sum()
+        );
+        assert_eq!(
+            suite.summary.total_reduced_stiffness_nonzero_count,
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.reduced_stiffness_nonzero_count)
+                .sum()
+        );
+        assert_eq!(
+            suite.summary.total_force_nonzero_count,
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.force_nonzero_count)
+                .sum()
+        );
+        assert_eq!(
+            suite.summary.max_reduced_dofs,
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.reduced_dofs)
+                .max()
+                .unwrap()
+        );
+        assert_eq!(suite.summary.max_abs_solution_delta, 0.0);
+        assert!(suite.summary.max_abs_residual < 1.0e-6);
+        assert!(suite.assumptions.iter().any(|assumption| {
+            assumption.contains("single-fixture records remain the authority")
+        }));
+        assert!(suite
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("explicit invented coverage points")));
+        assert_eq!(suite.provenance_notes.len(), 3);
+
+        for (record, expected_element_count) in suite.fixture_records.iter().zip([1, 3, 5]) {
+            assert_eq!(
+                record.fixture_id,
+                format!("invented-cantilever-chain-{expected_element_count}")
+            );
+            assert_eq!(record.element_count, expected_element_count);
+            assert_eq!(record.repeat_observations.len(), 3);
+            assert!(record.reduced_stiffness_nonzero_count > 0);
+            assert_eq!(
+                record.conditioning_observation.matrix_dimension,
+                record.reduced_dofs
+            );
+            assert!(record.condition_ratio_estimate.is_some());
+            assert!(!record.diagnostics.is_empty());
+            assert!(!record.assumptions.is_empty());
+            assert!(!record.limitations.is_empty());
+            assert!(!record.provenance_notes.is_empty());
+        }
+    }
+
+    #[test]
+    fn default_invented_suite_uses_declared_fixture_sizes() {
+        let suite = run_default_invented_fixture_suite(&HarnessSettings::default()).unwrap();
+
+        assert_eq!(
+            DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS,
+            [1usize, 2usize, 4usize, 8usize]
+        );
+        assert_eq!(
+            suite.fixture_element_counts,
+            DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS.to_vec()
+        );
+        assert_eq!(
+            suite.summary.requested_fixture_count,
+            DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS.len()
+        );
+        assert_eq!(
+            suite.summary.completed_fixture_count,
+            DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS.len()
+        );
+        assert_eq!(
+            suite
+                .fixture_records
+                .iter()
+                .map(|record| record.element_count)
+                .collect::<Vec<_>>(),
+            DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS.to_vec()
+        );
+    }
+
+    #[test]
+    fn suite_rejects_empty_fixture_size_list() {
+        let error = run_invented_fixture_suite(&[], &HarnessSettings::default()).unwrap_err();
+
+        assert_eq!(
+            error,
+            HarnessError::InvalidSetting {
+                name: "fixture_element_counts",
+                detail: "must contain at least one explicit invented size"
+            }
+        );
+    }
+
+    #[test]
+    fn suite_rejects_zero_element_fixture_size() {
+        let error = run_invented_fixture_suite(&[1, 0], &HarnessSettings::default()).unwrap_err();
+
+        assert_eq!(
+            error,
+            HarnessError::InvalidSetting {
+                name: "element_count",
+                detail: "must be at least one"
+            }
+        );
     }
 
     #[test]

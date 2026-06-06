@@ -114,3 +114,33 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - WORKING_ITEMS fan-in reviewed the completed parallel TASK slice for `DEL-04-05` together with sibling slices for `DEL-04-04`, `DEL-05-02`, and `DEL-05-05`.
 - Aggregate validation passed after fan-in: `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml` (14 tests), `cargo test --manifest-path core/solver/performance_harness/Cargo.toml` (8 tests), `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` (17 tests), `cargo test --manifest-path core/loads/user_loads/Cargo.toml` (28 tests), each corresponding `cargo fmt --check`, and `git diff --check`.
 - Fan-in found no cross-worker scope drift for this deliverable. Lifecycle, DAG, dependency, review-disposition, release, professional-approval, and code-compliance surfaces remain unchanged.
+
+## 2026-06-05 - Worker B deterministic suite-runner coverage
+
+- Added `core/solver/performance_harness` suite-runner coverage over explicit
+  invented cantilever-chain fixture sizes. The suite record preserves the
+  existing per-fixture `HarnessRunRecord` values and adds suite-level counts for
+  requested/completed fixtures, nodes, elements, DOFs, matrix nonzeros,
+  reduced-matrix nonzeros, force nonzeros, repeat observations, conditioning
+  observations, diagnostics, max reduced DOFs, max residual, and max solution
+  delta.
+- Existing single-fixture APIs remain compatible; new APIs are
+  `run_invented_fixture_suite`, `run_default_invented_fixture_suite`, and
+  `DEFAULT_INVENTED_SUITE_ELEMENT_COUNTS`.
+- Focused tests now cover explicit fixture-size suite execution, default suite
+  sizes, suite summary counts, preserved per-fixture assumptions/limitations/
+  provenance/diagnostics, empty suite-size rejection, and zero-element fixture
+  rejection.
+- Verification passed:
+  `cargo fmt --manifest-path core/solver/performance_harness/Cargo.toml --check`
+  and
+  `cargo test --manifest-path core/solver/performance_harness/Cargo.toml --locked`
+  (12 tests, 0 failures).
+- Remaining `TBD`: accepted sparse numerical library, release timing/memory/
+  practical-size bands, conditioning and CI threshold policy,
+  hardware-normalized performance methodology, and future sparse-adapter
+  integration.
+- Boundaries preserved: no lifecycle state, DAG, dependency register, review
+  disposition, solver-logic, sparse-library selection, timing/memory threshold,
+  CI gate, protected-content, private-data, release-readiness, professional-
+  approval, or code-compliance claim changes.
