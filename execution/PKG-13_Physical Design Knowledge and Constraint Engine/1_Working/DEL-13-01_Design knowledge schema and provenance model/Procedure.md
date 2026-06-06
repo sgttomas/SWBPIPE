@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define a conservative procedure for producing and reviewing the future `schemas/design_knowledge.schema.json` artifact and its design knowledge provenance model. This procedure is a setup-stage operating guide, not implementation evidence.
+Define a conservative procedure for maintaining and reviewing the implemented `schemas/design_knowledge.schema.json` artifact and its design knowledge provenance model. This procedure is delivery evidence for the schema/test surface, not runtime GUI, constraint-engine, transform, persistence/API, fixture, release, or professional-approval evidence.
 
 ## Prerequisites
 
@@ -13,8 +13,8 @@ Define a conservative procedure for producing and reviewing the future `schemas/
 | Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved DAG-006 rows as ACTIVE. |
 | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7. |
 | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
-| Implementation brief | Not created in this setup task, by user instruction. |
-| Product schema artifact | TBD; no implementation artifact exists in this deliverable folder at setup time. |
+| Implementation evidence | Present in `RUN_2026-05-04_IMPLEMENTATION.md`, `MEMORY.md`, `schemas/design_knowledge.schema.json`, and `tests/test_design_knowledge_schema.py`. |
+| Product schema artifact | Present at repo root: `schemas/design_knowledge.schema.json`. |
 
 ## Steps
 
@@ -26,9 +26,10 @@ Define a conservative procedure for producing and reviewing the future `schemas/
    - Use `_CONTEXT.md`, `_REFERENCES.md`, the approved local dependency mirror, the decomposition, and cited governing documents.
    - Do not import owner standards, protected code data, private project values, proprietary vendor data, or inaccessible standards text.
 
-3. Draft the design knowledge taxonomy.
+3. Maintain the design knowledge taxonomy.
    - Include the sourced categories: endpoints, line data, routing corridors, no-go volumes, supportable zones, equipment interfaces, access constraints, slope/drain/vent requirements, owner/project metadata, source notes, and assumptions.
-   - Mark exact field names, enum values, coordinate-frame policy, and geometry representation as `TBD` unless later implementation sources resolve them.
+   - Preserve implemented record kinds, required fields, and enums in `schemas/design_knowledge.schema.json`.
+   - Keep coordinate-frame policy, tolerance handling, numeric criteria, GUI behavior, constraint validation, and transform consumption as `TBD` unless a later bounded deliverable resolves them.
 
 4. Draft the provenance model.
    - Include support for source name, source location, source license or redistribution basis, contributor, contributor certification, redistribution status, and review status where public data contribution rules apply.
@@ -48,9 +49,10 @@ Define a conservative procedure for producing and reviewing the future `schemas/
    - Confirm no protected standards text, code-specific tables, proprietary project data, owner standards, private rule-pack data, or copied commercial examples are present.
    - Confirm no automatic professional approval, certification, sealing, authentication, or code-compliance status is introduced.
 
-8. Validate artifacts when implementation exists.
+8. Validate current artifacts.
    - Validate JSON Schema syntax and declared draft/version.
-   - Validate fixtures against the schema when fixtures exist.
+   - Run `python3 tests/test_design_knowledge_schema.py`.
+   - Validate fixtures against the schema only when governed fixtures exist.
    - Run protected-content/private-data checks appropriate to public examples.
    - Run dependency schema validation on local `Dependencies.csv` when present.
 
@@ -60,7 +62,7 @@ Define a conservative procedure for producing and reviewing the future `schemas/
 |---|---|
 | Scope check | DEL-13-01, PKG-13, SOW-067, and OBJ-014 match `_CONTEXT.md` and decomposition. |
 | Four-document consistency | Datasheet, Specification, Guidance, and Procedure use the same category list and boundary terms. |
-| Unsupported details | Unsupported implementation specifics are marked `TBD` or `ASSUMPTION`. |
+| Unsupported details | Unsupported downstream/runtime specifics are marked `TBD` or `ASSUMPTION`. |
 | Public/private boundary | No prohibited protected/private data is introduced. |
 | Professional boundary | No automatic professional or code-compliance authority is introduced. |
 | Dependency mirror | Existing approved DAG-006 rows remain ACTIVE and structurally valid. |
@@ -76,3 +78,6 @@ Define a conservative procedure for producing and reviewing the future `schemas/
 | `_SEMANTIC.md` | Semantic lens generated after initial four-document setup. |
 | `_SEMANTIC_LENSING.md` | Candidate enrichment register generated from semantic lenses and production docs. |
 | `Dependencies.csv` | Approved local DAG-002 mirror/evidence surface; not independently regenerated in conflict with the project rule. |
+| `schemas/design_knowledge.schema.json` | Implemented JSON Schema 2020-12 design knowledge contract at repo root. |
+| `tests/test_design_knowledge_schema.py` | Focused stdlib structural validation for the implemented schema. |
+| `RUN_2026-05-04_IMPLEMENTATION.md` | Deliverable-local implementation evidence note. |

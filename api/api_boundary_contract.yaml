@@ -9,11 +9,21 @@
     "package_id": "PKG-10",
     "scope_item": "SOW-030",
     "objective": "OBJ-009",
+    "decomposition_revision": "0.7",
+    "scope_change_authority": "SCA-004",
     "status": "draft",
     "public_transport_protocol": "TBD",
     "endpoint_syntax": "TBD",
     "openapi_transport_binding": "TBD",
     "external_format_list": "TBD",
+    "export_profile_contract": "TBD",
+    "stable_id_map_contract": "TBD",
+    "loss_report_contract": "TBD",
+    "external_run_evidence_contract": "TBD",
+    "stress_neutral_export_contract": "TBD",
+    "conservative_pcf_export_contract": "TBD",
+    "review_geometry_export_contract": "TBD",
+    "adapter_sdk_contract": "TBD",
     "plugin_runtime": "TBD",
     "plugin_loading_signing_isolation": "TBD",
     "permission_grant_persistence": "TBD",
@@ -21,6 +31,7 @@
     "code_generation_tooling": "TBD",
     "schema_basis": "JSON Schema 2020-12",
     "hash_basis": "Canonical JSON/JCS-compatible hash basis where JSON payloads are hashed",
+    "export_interoperability_authority": "SCA-004 export concepts are admitted only as boundary, registry, and no-bypass concepts in DEL-10-01. Target writers, concrete external formats, runtime invocation, transport, endpoint syntax, permission grant persistence, and code-generation behavior remain TBD or owned by later scoped deliverables.",
     "persistence_boundary": "Persistence access must be mediated by application-service commands, queries, or jobs. Public API, plugin, and adapter surfaces must not expose SQL, raw SQLite handles, table names, or direct store mutation hooks.",
     "protected_content_notice": "Public API artifacts must not embed protected standards text, protected tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data, or private user rule packs."
   },
@@ -55,6 +66,11 @@
         "permission",
         "privacy",
         "checksum",
+        "export_profile",
+        "stable_id_map",
+        "loss_report",
+        "external_run_evidence",
+        "adapter_sdk",
         "validation_test",
         "no_bypass"
       ]
@@ -92,6 +108,14 @@
             "provenance",
             "privacy",
             "checksums",
+            "export_profile",
+            "stable_id_map",
+            "loss_report",
+            "external_run_evidence",
+            "stress_neutral_export",
+            "conservative_pcf_export",
+            "review_geometry_export",
+            "adapter_sdk",
             "validation_test",
             "no_bypass"
           ]
@@ -173,6 +197,72 @@
           "checksum_validation",
           "private_public_marking"
         ]
+      },
+      {
+        "id": "ops.export.profile",
+        "boundary_area": "export_profile",
+        "summary": "Register or select export profile metadata without selecting concrete endpoint syntax, runtime invocation, writer implementation, or permission grant persistence.",
+        "required_guards": [
+          "schema_validation",
+          "unit_validation",
+          "provenance_validation",
+          "privacy_classification",
+          "protected_content_screening",
+          "export_review_gate",
+          "result_envelope"
+        ]
+      },
+      {
+        "id": "ops.export.id_map",
+        "boundary_area": "stable_id_map",
+        "summary": "Create or attach a stable ID map sidecar that preserves canonical model identity when a target export cannot carry canonical IDs directly.",
+        "required_guards": [
+          "schema_validation",
+          "canonical_id_preservation",
+          "target_mapping_trace",
+          "checksum_generation",
+          "diagnostics",
+          "result_envelope"
+        ]
+      },
+      {
+        "id": "ops.export.loss_report",
+        "boundary_area": "loss_report",
+        "summary": "Create or attach an export loss report for exported, omitted, approximated, unsupported, or delegated behavior.",
+        "required_guards": [
+          "unsupported_behavior_classification",
+          "approximation_record",
+          "delegation_record",
+          "diagnostics",
+          "provenance_summary",
+          "result_envelope"
+        ]
+      },
+      {
+        "id": "ops.external_run.record",
+        "boundary_area": "external_run_evidence",
+        "summary": "Record user-owned external-run evidence as non-authoritative regression or handoff evidence without invoking a solver by implication or making validation, compliance, or professional-acceptance claims.",
+        "required_guards": [
+          "user_owned_tool_notice",
+          "license_boundary_notice",
+          "evidence_checksum",
+          "provenance_validation",
+          "diagnostics",
+          "professional_boundary_notice"
+        ]
+      },
+      {
+        "id": "ops.adapter_sdk.register",
+        "boundary_area": "adapter_sdk",
+        "summary": "Register adapter SDK capability metadata without granting runtime loading, transport, signing, isolation, filesystem, network, process, or persistence permissions.",
+        "required_guards": [
+          "manifest_validation",
+          "permission_request_only",
+          "no_runtime_grant",
+          "no_bypass_constraints",
+          "provenance_validation",
+          "result_envelope"
+        ]
       }
     ],
     "queries": [
@@ -195,6 +285,26 @@
         "id": "ops.plugin.permissions.describe",
         "boundary_area": "permissions",
         "summary": "Read requested and granted plugin permissions without granting access."
+      },
+      {
+        "id": "ops.export.profile.describe",
+        "boundary_area": "export_profile",
+        "summary": "Read export profile metadata, target-family declarations, unresolved TBDs, validation posture, and no-bypass constraints."
+      },
+      {
+        "id": "ops.export.id_map.describe",
+        "boundary_area": "stable_id_map",
+        "summary": "Read stable ID map metadata and target mapping diagnostics without exposing private project payloads by default."
+      },
+      {
+        "id": "ops.export.loss_report.describe",
+        "boundary_area": "loss_report",
+        "summary": "Read export loss report metadata and unsupported, approximated, omitted, or delegated behavior summaries."
+      },
+      {
+        "id": "ops.adapter_sdk.capabilities.describe",
+        "boundary_area": "adapter_sdk",
+        "summary": "Read adapter SDK capability metadata and required no-bypass controls without granting plugin runtime access."
       }
     ],
     "jobs": [
@@ -217,7 +327,70 @@
         "id": "ops.validation.job",
         "boundary_area": "validation_test",
         "summary": "Long-running validation-test execution job with explicit fixture provenance, diagnostics, reproducibility metadata, and result envelope."
+      },
+      {
+        "id": "ops.export.stress_neutral.job",
+        "boundary_area": "stress_neutral_export",
+        "summary": "Long-running stress-neutral export job boundary for CSV/JSON review or regression packages; code-compliance, professional-approval, and protected rule-content semantics are not exported."
+      },
+      {
+        "id": "ops.export.pcf.job",
+        "boundary_area": "conservative_pcf_export",
+        "summary": "Long-running conservative PCF export job boundary with explicit unsupported, approximated, omitted, and delegated behavior reporting and no hidden translator defaults."
+      },
+      {
+        "id": "ops.export.review_geometry.job",
+        "boundary_area": "review_geometry_export",
+        "summary": "Long-running GLB/glTF review-geometry export job boundary for visual handoff context only; review geometry is not solver geometry, external validation, or professional acceptance."
       }
+    ]
+  },
+  "x_export_interoperability_registry": {
+    "authority": "SCA-004",
+    "status": "boundary_concepts_only",
+    "scope_boundary": "This registry exposes SCA-004 export-interoperability concepts to DEL-10-01 API/plugin boundaries without implementing target writers, endpoint syntax, public transport, plugin runtime, permission persistence, concrete external-run invocation, or code generation.",
+    "common_concepts": [
+      "export_profile",
+      "stable_id_map",
+      "loss_report",
+      "external_run_evidence",
+      "adapter_sdk"
+    ],
+    "target_families": [
+      {
+        "id": "stress_neutral_export",
+        "deliverable_basis": "DEL-17-06",
+        "boundary_area": "stress_neutral_export",
+        "summary": "Stress-neutral CSV/JSON exports preserve result-envelope status, units, diagnostics, provenance, hashes, and professional-boundary notices without exporting code-compliance semantics."
+      },
+      {
+        "id": "conservative_pcf_export",
+        "deliverable_basis": "DEL-17-07",
+        "boundary_area": "conservative_pcf_export",
+        "summary": "Conservative PCF export is a bounded interoperability target with explicit stable ID mapping and loss reporting; hidden translator defaults are not accepted as boundary behavior."
+      },
+      {
+        "id": "review_geometry_export",
+        "deliverable_basis": "DEL-17-08",
+        "boundary_area": "review_geometry_export",
+        "summary": "GLB/glTF review geometry exports support visual review of geometry and identity context only; they are not solver geometry, validation evidence, or professional acceptance."
+      },
+      {
+        "id": "adapter_sdk",
+        "deliverable_basis": "DEL-17-09",
+        "boundary_area": "adapter_sdk",
+        "summary": "The export adapter SDK surface may expose manifests, target registries, validation plans, and diagnostics, but cannot widen plugin permissions or bypass first-party controls."
+      }
+    ],
+    "deferred_decisions": [
+      "public_transport_protocol",
+      "endpoint_syntax",
+      "plugin_runtime",
+      "plugin_loading_signing_isolation",
+      "permission_grant_persistence",
+      "code_generation_tooling",
+      "concrete_writer_behavior",
+      "external_tool_invocation"
     ]
   },
   "$defs": {
@@ -439,7 +612,15 @@
               "rule_pack_provider",
               "result_export",
               "diagnostic_provider",
-              "validation_hook"
+              "validation_hook",
+              "export_profile_provider",
+              "stable_id_map_provider",
+              "loss_report_provider",
+              "external_run_evidence_provider",
+              "stress_neutral_export",
+              "conservative_pcf_export",
+              "review_geometry_export",
+              "adapter_sdk_provider"
             ]
           }
         },
@@ -488,7 +669,18 @@
               "network_access",
               "filesystem_project_read",
               "filesystem_project_write",
-              "diagnostics_emit"
+              "diagnostics_emit",
+              "read_export_profile",
+              "write_export_profile",
+              "read_stable_id_map",
+              "write_stable_id_map",
+              "read_loss_report",
+              "write_loss_report",
+              "record_external_run_evidence",
+              "use_adapter_sdk",
+              "export_stress_neutral",
+              "export_conservative_pcf",
+              "export_review_geometry"
             ]
           }
         },
@@ -536,7 +728,12 @@
             "IP_BOUNDARY_WARNING",
             "PRIVACY_WARNING",
             "PERMISSION_DENIED",
-            "CHECKSUM_MISMATCH"
+            "CHECKSUM_MISMATCH",
+            "EXPORT_PROFILE_WARNING",
+            "STABLE_ID_MAP_WARNING",
+            "LOSS_REPORT_WARNING",
+            "EXTERNAL_RUN_EVIDENCE_WARNING",
+            "ADAPTER_SDK_WARNING"
           ]
         },
         "severity": {
@@ -558,6 +755,9 @@
             "plugin",
             "report",
             "storage",
+            "export_profile",
+            "external_run_harness",
+            "adapter_sdk",
             "api_boundary"
           ]
         },
@@ -813,7 +1013,13 @@
             "result_payload",
             "rule_pack",
             "plugin_manifest",
+            "export_profile",
+            "stable_id_map",
+            "loss_report",
+            "external_run_evidence",
             "export_payload",
+            "review_geometry_asset",
+            "adapter_sdk_manifest",
             "report",
             "TBD"
           ]
@@ -848,7 +1054,17 @@
           "must_not_claim_code_compliance",
           "must_not_bundle_protected_content",
           "must_not_transmit_private_data_by_default",
-          "must_not_write_private_library_without_permission"
+          "must_not_write_private_library_without_permission",
+          "must_preserve_export_profile_registry",
+          "must_preserve_stable_id_maps",
+          "must_emit_loss_report_for_target_limitations",
+          "must_classify_unsupported_approximated_omitted_or_delegated_behavior",
+          "must_record_external_run_evidence_as_non_authoritative",
+          "must_not_claim_external_solver_validation",
+          "must_not_treat_review_geometry_as_solver_geometry",
+          "must_not_rely_on_hidden_translator_defaults",
+          "must_preserve_stress_neutral_status_boundary",
+          "must_preserve_adapter_sdk_no_bypass_controls"
         ]
       }
     },
@@ -868,6 +1084,8 @@
             "plugin",
             "adapter",
             "test_harness",
+            "external_run_harness",
+            "adapter_sdk",
             "TBD"
           ]
         },

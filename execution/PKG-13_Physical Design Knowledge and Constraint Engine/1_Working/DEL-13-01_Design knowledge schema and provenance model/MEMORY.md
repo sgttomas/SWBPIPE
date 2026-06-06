@@ -95,3 +95,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - TASK stale four-document evidence refresh
+
+- Corrected `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` text that still described the design knowledge schema and tests as absent, future, or `TBD`.
+- Current implementation evidence remains `schemas/design_knowledge.schema.json`, `tests/test_design_knowledge_schema.py`, `RUN_2026-05-04_IMPLEMENTATION.md`, and this memory file. The schema records JSON Schema 2020-12 identity, design knowledge record kinds, provenance/privacy/review fields, unit-aware `Quantity`, diagnostics/assumptions/source notes, and negative professional-boundary flags.
+- Validation evidence for this refresh: `python3 tests/test_design_knowledge_schema.py` passed on 2026-06-06.
+- Deferred scope remains unchanged: GUI authoring behavior, constraint records/validation, physical-to-analytical transform consumption, runtime persistence/API integration, and public example/fixture policy closure remain downstream or `TBD`.
+- No schema/test edits, lifecycle transition, DAG/coordination edit, review-disposition change, blocker-queue update, commit, release claim, or professional/code-compliance claim was made.

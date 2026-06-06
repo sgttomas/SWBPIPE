@@ -155,3 +155,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - SCA-004 API/plugin boundary alignment addendum
+
+- TASK worker aligned repo-level DEL-10-01 API/plugin boundary artifacts with `SOFTWARE_DECOMP.md` revision `0.7` and SCA-004 export-interoperability authority.
+- Updated `api/api_boundary_contract.yaml` to keep strict JSON syntax while adding boundary/registry/no-bypass concepts for export profiles, stable ID maps, loss reports, external-run evidence, stress-neutral exports, conservative PCF, GLB/glTF review geometry, and adapter SDK surfaces.
+- Updated `docs/architecture/plugin_boundary.md` and `tests/test_api_boundary_contract.py` to mirror those concepts and preserve the deny-by-default, no-direct-SQL, no protected/private content, no professional/code-compliance claim boundaries.
+- Public transport protocol, concrete endpoint syntax, plugin runtime/loading/signing/isolation, permission grant persistence, code-generation tooling, concrete writer behavior, external-tool invocation, and target field coverage remain `TBD`.
+- No lifecycle state, DAG/coordination authority, dependency register, review disposition, blocker queue, PKG-08 artifact, commit, release claim, professional approval, certification, sealing, authentication, or code-compliance claim was changed or made by this addendum.

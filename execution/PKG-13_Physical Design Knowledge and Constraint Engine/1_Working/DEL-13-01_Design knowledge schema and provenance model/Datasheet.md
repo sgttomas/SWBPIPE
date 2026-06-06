@@ -35,7 +35,7 @@
 | Protected data exclusion | The deliverable must define schema/provenance slots without embedding owner standards, protected code criteria, proprietary project data, protected dimensional tables, protected standards text, or proprietary vendor data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 exclusions |
 | User-supplied knowledge | Design knowledge remains user/project supplied. Public examples, if later created, must use invented or otherwise cleared data. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/IP_AND_DATA_BOUNDARY.md` section 2 |
 | Provenance need | Public data records require source, location, license or redistribution basis, contributor/certification, redistribution status, and review status. | `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
-| Dependency evidence | Local `Dependencies.csv` preserves DAG-002 mirror/evidence rows with 11 ACTIVE rows; current graph authority is DAG-006, and the local register is not independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
+| Dependency evidence | Local `Dependencies.csv` preserves DAG mirror/evidence, anchor, and package-local reconciliation rows with 14 ACTIVE rows; current graph authority is DAG-006, and the local register is not independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
 | Architecture-basis context | DEL-13-01 has upstream active architecture-basis rows from DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, and DEL-00-08. | `Dependencies.csv` |
 | Domain/governance context | DEL-13-01 has upstream active rows for canonical domain model schema, unit system contract, copyright/protected-data boundary policy, and professional responsibility/product-claims policy. | `Dependencies.csv` |
 
@@ -43,20 +43,20 @@
 
 | Construction item | Status |
 |---|---|
-| `schemas/design_knowledge.schema.json` | TBD. No implementation artifact exists in this deliverable folder at setup time. |
-| Schema identifier, `$id`, `$schema`, and versioning fields | TBD. JSON Schema 2020-12 is the accepted baseline, but exact identifiers are not specified in accessible sources. |
-| Design knowledge record taxonomy | Partially sourced. Scope names categories, but exact object names, enum values, and required/optional fields remain TBD. |
-| Provenance model fields | Partially sourced. Required public-data provenance fields are named in `docs/IP_AND_DATA_BOUNDARY.md`; exact embedding into design knowledge records remains TBD. |
-| Unit-bearing quantity representation | Partially sourced. Unit metadata is required by `docs/SPEC.md`; exact reuse/import of a units schema is a downstream implementation detail and remains TBD. |
-| Validation and tests | TBD. Accessible sources require schema validation, unit checks, provenance checks, private-data controls, and protected-content screening, but this setup pass does not implement tests. |
-| Product code evidence | None. This setup pass creates planning/drafting artifacts only. |
+| `schemas/design_knowledge.schema.json` | Implemented at repo root as a strict JSON-syntax JSON Schema 2020-12 contract for user-supplied design knowledge records. Evidence: `RUN_2026-05-04_IMPLEMENTATION.md`; `MEMORY.md`; `schemas/design_knowledge.schema.json`. |
+| Schema identifier, `$id`, `$schema`, and versioning fields | Implemented. `$schema` is `https://json-schema.org/draft/2020-12/schema`, `$id` is `https://openpipestress.org/schemas/design_knowledge.schema.json`, and `schema_version` is required with a semantic-version pattern. |
+| Design knowledge record taxonomy | Implemented structurally through `EndpointRecord`, `LineDataRecord`, `RoutingCorridorRecord`, `ZoneRecord`, `EquipmentInterfaceRecord`, `RequirementRecord`, and `MetadataRecord`; downstream GUI behavior and constraint execution remain deferred. |
+| Provenance model fields | Implemented through required `Provenance` fields: `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status`, `review_status`, and `privacy_classification`, plus source-note and assumption records. |
+| Unit-bearing quantity representation | Implemented through required `Quantity` fields `value`, `unit`, `dimension`, and `provenance`; the dimension enum matches the accepted PKG-02 vocabulary, including `slope` and excluding retired aliases. Runtime unit conversion/check integration remains downstream. |
+| Validation and tests | Implemented by `tests/test_design_knowledge_schema.py`, a focused stdlib structural test for schema draft, required definitions, category enums, provenance/privacy fields, quantity dimensions, no defaults, and professional-boundary flags. |
+| Product code evidence | Schema/test/documentation evidence exists. No runtime GUI authoring, constraint validation, physical-to-analytical transform consumption, persistence/API integration, or public fixture/example implementation is provided by DEL-13-01. |
 
 ## References
 
 | Reference | Use in this datasheet |
 |---|---|
 | `_CONTEXT.md` | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
-| `_REFERENCES.md` | Reference index and source boundary for this setup pass. |
+| `_REFERENCES.md` | Reference index and source boundary for this deliverable. |
 | `_DEPENDENCIES.md` and `Dependencies.csv` | Approved DAG-002 mirror/evidence surface and active upstream dependency context. |
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-067, OBJ-014, PKG-13 boundary, DEL-13-01 row, OI-013. |
 | `docs/_Registers/Deliverables.csv` | Deliverable row and artifacts. |

@@ -105,3 +105,10 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - SCA-004 export threat-model hardening
+
+- TASK worker updated `docs/security/threat_model.md` for SCA-004 export workflow risks covering target profiles, stable ID maps, loss reports, CAEPIPE MBF/external harness evidence, stress-neutral CSV/JSON, conservative PCF, GLB/glTF review geometry, native JSON export, and export adapter SDK boundaries.
+- Added `tests/test_security_threat_model.py` as a focused stdlib documentation guard for the new coverage and no-bypass/no-overclaim language.
+- Preserved local-first storage, telemetry-off-by-default, no license bypass, no reverse engineering, no proprietary examples, no private-data leakage by default, no direct SQLite bypass, and no professional/code-compliance/security-certification claims.
+- No lifecycle state, dependency register, DAG/coordination authority, review disposition, blocker queue, commit, or PKG-08 file was edited.
