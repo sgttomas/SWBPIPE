@@ -6,7 +6,7 @@
 //! or validate full JCS canonicalization, store private payloads, import
 //! protected standards content, or emit professional/code-compliance claims.
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
 /// Project-local deterministic JSON value used for hash inputs.
 ///
@@ -191,14 +191,19 @@ impl ProfessionalBoundary {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ManifestFindingCode {
     MissingModelHash,
+    MissingInputManifestHash,
     MissingSolverVersion,
+    MissingSolverBuildRef,
     MissingUnitSystem,
     MissingRulePackChecksum,
     MissingRulePackSourceNotice,
     MissingAssetHash,
     MissingAssetProvenance,
+    PrivatePayloadNotRedacted,
     ProtectedContentSuspected,
     DuplicateReference,
+    PayloadKindMismatch,
+    PayloadCanonicalizationMismatch,
     ProfessionalBoundaryViolation,
 }
 
@@ -274,16 +279,46 @@ pub fn hash_asset(payload_ref: impl Into<String>, bytes: &[u8]) -> HashRecord {
     HashRecord::sha256_none(PayloadKind::BinaryAsset, payload_ref, bytes)
 }
 
+pub fn hash_external_artifact(payload_ref: impl Into<String>, bytes: &[u8]) -> HashRecord {
+    HashRecord::sha256_none(PayloadKind::ExternalArtifact, payload_ref, bytes)
+}
+
 pub fn validate_manifest(manifest: &AuditManifest) -> ManifestValidationResult {
     let mut findings = Vec::new();
 
     match &manifest.model_hash {
-        Some(hash) if !hash.is_empty() => {}
+        Some(hash) if !hash.is_empty() => {
+            check_hash_record(
+                hash,
+                PayloadKind::ModelJson,
+                Canonicalization::ProjectLocalDeterministicJson,
+                &hash.payload_ref,
+                &mut findings,
+            );
+        }
         _ => findings.push(ManifestFinding::new(
             ManifestFindingCode::MissingModelHash,
             ManifestFindingSeverity::Blocking,
             &manifest.manifest_id,
             "audit manifest must identify the canonical model payload hash",
+        )),
+    }
+
+    match &manifest.input_manifest_hash {
+        Some(hash) if !hash.is_empty() => {
+            check_hash_record(
+                hash,
+                PayloadKind::InputManifestJson,
+                Canonicalization::ProjectLocalDeterministicJson,
+                &hash.payload_ref,
+                &mut findings,
+            );
+        }
+        _ => findings.push(ManifestFinding::new(
+            ManifestFindingCode::MissingInputManifestHash,
+            ManifestFindingSeverity::Blocking,
+            &manifest.manifest_id,
+            "audit manifest must identify the canonical input-manifest payload hash",
         )),
     }
 
@@ -295,6 +330,21 @@ pub fn validate_manifest(manifest: &AuditManifest) -> ManifestValidationResult {
             ManifestFindingSeverity::Blocking,
             &manifest.manifest_id,
             "solver name and version must be recorded for reproducibility",
+        ));
+    }
+
+    if manifest.solver_version.solver_build_ref.trim().is_empty()
+        || manifest
+            .solver_version
+            .solver_build_ref
+            .trim()
+            .eq_ignore_ascii_case("TBD")
+    {
+        findings.push(ManifestFinding::new(
+            ManifestFindingCode::MissingSolverBuildRef,
+            ManifestFindingSeverity::Warning,
+            &manifest.manifest_id,
+            "solver build reference should be recorded for reproducibility",
         ));
     }
 
@@ -316,38 +366,46 @@ pub fn validate_manifest(manifest: &AuditManifest) -> ManifestValidationResult {
 }
 
 fn check_duplicate_refs(manifest: &AuditManifest, findings: &mut Vec<ManifestFinding>) {
-    let mut refs = HashSet::new();
+    let mut refs: HashMap<&str, &str> = HashMap::new();
 
     if let Some(hash) = &manifest.model_hash {
-        if !refs.insert(hash.payload_ref.as_str()) {
-            findings.push(ManifestFinding::new(
-                ManifestFindingCode::DuplicateReference,
-                ManifestFindingSeverity::Warning,
-                &hash.payload_ref,
-                "manifest hash references should be unique",
-            ));
-        }
+        push_duplicate_ref(&mut refs, findings, &hash.payload_ref, "model_hash");
+    }
+
+    if let Some(hash) = &manifest.input_manifest_hash {
+        push_duplicate_ref(
+            &mut refs,
+            findings,
+            &hash.payload_ref,
+            "input_manifest_hash",
+        );
     }
 
     for rule_pack in &manifest.rule_pack_refs {
-        if !refs.insert(rule_pack.rule_pack_id.as_str()) {
-            findings.push(ManifestFinding::new(
-                ManifestFindingCode::DuplicateReference,
-                ManifestFindingSeverity::Warning,
-                &rule_pack.rule_pack_id,
-                "rule-pack references should be unique",
-            ));
+        push_duplicate_ref(
+            &mut refs,
+            findings,
+            &rule_pack.rule_pack_id,
+            "rule_pack_ref",
+        );
+        if let Some(checksum) = &rule_pack.checksum {
+            if checksum.payload_ref.trim() != rule_pack.rule_pack_id.trim() {
+                push_duplicate_ref(
+                    &mut refs,
+                    findings,
+                    &checksum.payload_ref,
+                    "rule_pack_checksum",
+                );
+            }
         }
     }
 
     for asset in &manifest.assets {
-        if !refs.insert(asset.asset_id.as_str()) {
-            findings.push(ManifestFinding::new(
-                ManifestFindingCode::DuplicateReference,
-                ManifestFindingSeverity::Warning,
-                &asset.asset_id,
-                "asset references should be unique",
-            ));
+        push_duplicate_ref(&mut refs, findings, &asset.asset_id, "asset");
+        if let Some(hash) = &asset.hash {
+            if hash.payload_ref.trim() != asset.asset_id.trim() {
+                push_duplicate_ref(&mut refs, findings, &hash.payload_ref, "asset_hash");
+            }
         }
     }
 }
@@ -355,7 +413,15 @@ fn check_duplicate_refs(manifest: &AuditManifest, findings: &mut Vec<ManifestFin
 fn check_rule_pack_refs(rule_pack_refs: &[RulePackAuditRef], findings: &mut Vec<ManifestFinding>) {
     for rule_pack in rule_pack_refs {
         match &rule_pack.checksum {
-            Some(checksum) if !checksum.is_empty() => {}
+            Some(checksum) if !checksum.is_empty() => {
+                check_hash_record(
+                    checksum,
+                    PayloadKind::RulePackReference,
+                    Canonicalization::ProjectLocalDeterministicJson,
+                    &rule_pack.rule_pack_id,
+                    findings,
+                );
+            }
             _ => findings.push(ManifestFinding::new(
                 ManifestFindingCode::MissingRulePackChecksum,
                 ManifestFindingSeverity::Blocking,
@@ -381,13 +447,46 @@ fn check_rule_pack_refs(rule_pack_refs: &[RulePackAuditRef], findings: &mut Vec<
                 "rule-pack reference is marked as suspected protected content",
             ));
         }
+
+        if matches!(
+            rule_pack.redistribution_status,
+            RedistributionStatus::PrivateOnly
+                | RedistributionStatus::Unknown
+                | RedistributionStatus::Tbd
+        ) && !rule_pack.private_payload_redacted
+        {
+            findings.push(ManifestFinding::new(
+                ManifestFindingCode::PrivatePayloadNotRedacted,
+                ManifestFindingSeverity::Blocking,
+                &rule_pack.rule_pack_id,
+                "private, unknown, or TBD rule-pack payloads must be represented by redacted metadata and checksum references only",
+            ));
+        }
     }
 }
 
 fn check_assets(assets: &[AssetManifestEntry], findings: &mut Vec<ManifestFinding>) {
     for asset in assets {
         match &asset.hash {
-            Some(hash) if !hash.is_empty() => {}
+            Some(hash) if !hash.is_empty() => {
+                let expected_canonicalization = match asset.payload_kind {
+                    PayloadKind::ModelJson
+                    | PayloadKind::InputManifestJson
+                    | PayloadKind::RulePackReference => {
+                        Canonicalization::ProjectLocalDeterministicJson
+                    }
+                    PayloadKind::BinaryAsset | PayloadKind::ExternalArtifact => {
+                        Canonicalization::None
+                    }
+                };
+                check_hash_record(
+                    hash,
+                    asset.payload_kind,
+                    expected_canonicalization,
+                    &asset.asset_id,
+                    findings,
+                );
+            }
             _ => findings.push(ManifestFinding::new(
                 ManifestFindingCode::MissingAssetHash,
                 ManifestFindingSeverity::Blocking,
@@ -405,14 +504,74 @@ fn check_assets(assets: &[AssetManifestEntry], findings: &mut Vec<ManifestFindin
             ));
         }
 
-        if asset.privacy_class == PrivacyClass::PrivateProjectData {
-            findings.push(ManifestFinding::new(
+        match asset.privacy_class {
+            PrivacyClass::PrivateProjectData
+            | PrivacyClass::PrivateRulePackData
+            | PrivacyClass::Redacted => {
+                findings.push(ManifestFinding::new(
+                    ManifestFindingCode::PrivatePayloadNotRedacted,
+                    ManifestFindingSeverity::Warning,
+                    &asset.asset_id,
+                    "private or redacted asset entry must remain metadata-only and must not copy private payload bytes into public artifacts",
+                ));
+            }
+            PrivacyClass::Tbd => findings.push(ManifestFinding::new(
                 ManifestFindingCode::ProtectedContentSuspected,
                 ManifestFindingSeverity::Warning,
                 &asset.asset_id,
-                "private project asset is referenced by metadata only and must not be copied into public artifacts",
-            ));
+                "asset privacy class is TBD and requires review before public use",
+            )),
+            PrivacyClass::PublicMetadata => {}
         }
+    }
+}
+
+fn push_duplicate_ref<'a>(
+    refs: &mut HashMap<&'a str, &'static str>,
+    findings: &mut Vec<ManifestFinding>,
+    subject_id: &'a str,
+    ref_kind: &'static str,
+) {
+    let subject_id = subject_id.trim();
+    if subject_id.is_empty() {
+        return;
+    }
+
+    if let Some(previous_kind) = refs.insert(subject_id, ref_kind) {
+        findings.push(ManifestFinding::new(
+            ManifestFindingCode::DuplicateReference,
+            ManifestFindingSeverity::Warning,
+            subject_id,
+            format!(
+                "manifest reference '{subject_id}' is reused by {previous_kind} and {ref_kind}; references should be unique",
+            ),
+        ));
+    }
+}
+
+fn check_hash_record(
+    hash: &HashRecord,
+    expected_payload_kind: PayloadKind,
+    expected_canonicalization: Canonicalization,
+    subject_id: &str,
+    findings: &mut Vec<ManifestFinding>,
+) {
+    if hash.payload_kind != expected_payload_kind {
+        findings.push(ManifestFinding::new(
+            ManifestFindingCode::PayloadKindMismatch,
+            ManifestFindingSeverity::Blocking,
+            subject_id,
+            "hash record payload kind does not match the manifest slot",
+        ));
+    }
+
+    if hash.canonicalization != expected_canonicalization {
+        findings.push(ManifestFinding::new(
+            ManifestFindingCode::PayloadCanonicalizationMismatch,
+            ManifestFindingSeverity::Blocking,
+            subject_id,
+            "hash record canonicalization does not match the manifest slot",
+        ));
     }
 }
 
@@ -573,7 +732,14 @@ mod tests {
         AuditManifest {
             manifest_id: "manifest-1".to_string(),
             model_hash: Some(model_hash),
-            input_manifest_hash: None,
+            input_manifest_hash: Some(hash_canonical_json(
+                PayloadKind::InputManifestJson,
+                "input-manifest",
+                &CanonicalJson::object([(
+                    "input_manifest_id",
+                    CanonicalJson::String("invented-input-manifest".to_string()),
+                )]),
+            )),
             solver_version: SolverVersionStamp {
                 solver_name: "open_pipe_stress_core".to_string(),
                 solver_version: "0.1.0".to_string(),
@@ -595,7 +761,7 @@ mod tests {
             assets: vec![AssetManifestEntry {
                 asset_id: "binary-asset-1".to_string(),
                 payload_kind: PayloadKind::BinaryAsset,
-                privacy_class: PrivacyClass::Redacted,
+                privacy_class: PrivacyClass::PublicMetadata,
                 hash: Some(hash_asset("binary-asset-1", b"not-json")),
                 provenance: "invented asset bytes".to_string(),
             }],
@@ -633,6 +799,7 @@ mod tests {
     fn records_non_json_asset_hash_separately_from_model_hash() {
         let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
         let asset_hash = hash_asset("asset", b"binary-like content");
+        let external_hash = hash_external_artifact("external", b"external file content");
 
         assert_eq!(
             model_hash.canonicalization,
@@ -640,6 +807,8 @@ mod tests {
         );
         assert_eq!(asset_hash.canonicalization, Canonicalization::None);
         assert_eq!(asset_hash.payload_kind, PayloadKind::BinaryAsset);
+        assert_eq!(external_hash.canonicalization, Canonicalization::None);
+        assert_eq!(external_hash.payload_kind, PayloadKind::ExternalArtifact);
         assert_ne!(model_hash.value, asset_hash.value);
     }
 
@@ -652,14 +821,16 @@ mod tests {
     }
 
     #[test]
-    fn missing_model_hash_solver_version_and_unit_system_are_blocking() {
+    fn missing_core_manifest_evidence_emits_explicit_findings() {
         let mut manifest = valid_manifest(hash_canonical_json(
             PayloadKind::ModelJson,
             "model",
             &model_payload("r1"),
         ));
         manifest.model_hash = None;
+        manifest.input_manifest_hash = None;
         manifest.solver_version.solver_version.clear();
+        manifest.solver_version.solver_build_ref = "TBD".to_string();
         manifest.unit_system_ref.clear();
 
         let result = validate_manifest(&manifest);
@@ -672,7 +843,15 @@ mod tests {
         assert!(result
             .findings
             .iter()
+            .any(|finding| finding.code == ManifestFindingCode::MissingInputManifestHash));
+        assert!(result
+            .findings
+            .iter()
             .any(|finding| finding.code == ManifestFindingCode::MissingSolverVersion));
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == ManifestFindingCode::MissingSolverBuildRef));
         assert!(result
             .findings
             .iter()
@@ -695,6 +874,41 @@ mod tests {
     }
 
     #[test]
+    fn rule_pack_checksum_payload_kind_mismatch_is_blocking() {
+        let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
+        let mut manifest = valid_manifest(model_hash);
+        manifest.rule_pack_refs[0].checksum = Some(hash_asset("invented-rule-pack", b"wrong slot"));
+
+        let result = validate_manifest(&manifest);
+
+        assert!(result.has_blocking_findings());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == ManifestFindingCode::PayloadKindMismatch));
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == ManifestFindingCode::PayloadCanonicalizationMismatch));
+    }
+
+    #[test]
+    fn private_rule_pack_without_redaction_is_blocking() {
+        let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
+        let mut manifest = valid_manifest(model_hash);
+        manifest.rule_pack_refs[0].redistribution_status = RedistributionStatus::PrivateOnly;
+        manifest.rule_pack_refs[0].private_payload_redacted = false;
+
+        let result = validate_manifest(&manifest);
+
+        assert!(result.has_blocking_findings());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == ManifestFindingCode::PrivatePayloadNotRedacted));
+    }
+
+    #[test]
     fn private_asset_metadata_warns_without_copying_payload() {
         let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
         let mut manifest = valid_manifest(model_hash);
@@ -704,9 +918,49 @@ mod tests {
 
         assert!(!result.has_blocking_findings());
         assert!(result.findings.iter().any(|finding| {
-            finding.code == ManifestFindingCode::ProtectedContentSuspected
+            finding.code == ManifestFindingCode::PrivatePayloadNotRedacted
                 && finding.severity == ManifestFindingSeverity::Warning
         }));
+    }
+
+    #[test]
+    fn external_asset_hash_requires_none_canonicalization() {
+        let model_hash = hash_canonical_json(PayloadKind::ModelJson, "model", &model_payload("r1"));
+        let mut manifest = valid_manifest(model_hash);
+        manifest.assets[0] = AssetManifestEntry {
+            asset_id: "external-report-attachment".to_string(),
+            payload_kind: PayloadKind::ExternalArtifact,
+            privacy_class: PrivacyClass::PublicMetadata,
+            hash: Some(hash_external_artifact(
+                "external-report-attachment",
+                b"external bytes",
+            )),
+            provenance: "invented external artifact".to_string(),
+        };
+
+        let result = validate_manifest(&manifest);
+
+        assert!(result.findings.is_empty());
+    }
+
+    #[test]
+    fn duplicate_payload_refs_include_hash_refs() {
+        let model_hash =
+            hash_canonical_json(PayloadKind::ModelJson, "shared-ref", &model_payload("r1"));
+        let mut manifest = valid_manifest(model_hash);
+        manifest.input_manifest_hash = Some(hash_canonical_json(
+            PayloadKind::InputManifestJson,
+            "shared-ref",
+            &CanonicalJson::object([("id", CanonicalJson::String("input".to_string()))]),
+        ));
+
+        let result = validate_manifest(&manifest);
+
+        assert!(!result.has_blocking_findings());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == ManifestFindingCode::DuplicateReference));
     }
 
     #[test]

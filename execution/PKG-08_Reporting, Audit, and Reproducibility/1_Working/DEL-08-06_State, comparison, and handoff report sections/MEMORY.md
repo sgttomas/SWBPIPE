@@ -32,3 +32,21 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - State/comparison/handoff section hardening
+
+- TASK run `TASK_RUN_2026-06-06_1017_DEL-08-06_state-comparison-handoff-hardening` hardened the existing backend section assembler.
+- Changes were limited to `core/reporting/state_comparison_handoff_sections/engine.py`, `tests/test_state_comparison_handoff_report_sections.py`, this memory note, and the deliverable-local run record.
+- The assembler now diagnoses and omits non-software analysis statuses from generated section status lists, adds required-field checks for handoff/export/external-prover metadata, diagnoses attempted external-prover execution as out of scope, redacts private/protected payload-like keys from public contexts, and checks unit/dimension metadata for comparison delta numeric fields.
+- Focused invented fixtures now cover handoff package, export workflow, and external-prover metadata sections.
+- This run did not change lifecycle state, review findings, dependency/DAG records, schemas, specs, report rendering, external prover execution, export implementation, private redaction/export controls, release claims, or professional/code-compliance claims.
+
+## 2026-06-06 - WORKING_ITEMS fan-in validation
+
+- Parent WORKING_ITEMS fan-in for the PKG-08 reporting hardening tranche found
+  the DEL-08-06 changes inside declared scope.
+- Fan-in validation passed: `python3 tests/test_state_comparison_handoff_report_sections.py`,
+  `python3 -m py_compile core/reporting/state_comparison_handoff_sections/engine.py tests/test_state_comparison_handoff_report_sections.py`,
+  and `git diff --check`.
+- Lifecycle state remains `IN_PROGRESS`; no review disposition, dependency,
+  DAG, release, professional-approval, or code-compliance claim was changed.

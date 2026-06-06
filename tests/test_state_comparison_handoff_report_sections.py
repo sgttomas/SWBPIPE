@@ -238,6 +238,66 @@ def handoff_package() -> dict[str, object]:
     }
 
 
+def export_workflow() -> dict[str, object]:
+    return {
+        "export_workflow_id": "export:invented-del-08-06",
+        "source_handoff_package": handoff_package(),
+        "export_payload": {
+            "model_hash": checksum(ref("Model", "model:invented-del-08-06"), "model_hash", "sha256:invented-model"),
+            "units_manifest": {
+                "unit_system_ref": ref("UnitSystem", "units:invented-del-08-06"),
+                "force_unit": "N",
+                "stress_unit": "Pa",
+            },
+            "entity_ids": {"component_ids": ["component:invented-pipe"]},
+            "target_mapping_metadata": {
+                "target_system_kind": "generic_downstream_modeling",
+                "target_mapping_refs": [ref("TargetMapping", "target-map:invented-export")],
+            },
+            "unsupported_target_records": [
+                {
+                    "record_id": "unsupported:invented-export-record",
+                    "status": "not_implemented",
+                    "human_review_required": True,
+                    "private_payload": "private export data must not pass through",
+                }
+            ],
+            "unresolved_assumptions": [],
+            "warnings": [],
+        },
+        "diagnostics": [],
+        "privacy": {
+            "classification": "invented_public_example",
+            "private_payload_embedded": False,
+            "protected_payload_embedded": False,
+        },
+        "professional_boundary": boundary(),
+        "provenance": provenance("Invented export workflow"),
+    }
+
+
+def external_prover_metadata() -> dict[str, object]:
+    return {
+        "metadata_record_id": "external-prover:invented-del-08-06",
+        "handoff_package_refs": [ref("HandoffPackage", "handoff:invented-del-08-06")],
+        "target_mapping_refs": [ref("TargetMapping", "target-map:invented-del-08-06")],
+        "export_workflow_refs": [ref("ExportWorkflow", "export:invented-del-08-06")],
+        "immutable_model_state_refs": [ref("ModelState", "state:invented-del-08-06")],
+        "unsupported_target_flags": [
+            {
+                "flag_id": "unsupported:external-prover-metadata-only",
+                "status": "metadata_only",
+                "human_review_required": True,
+            }
+        ],
+        "assumptions": [],
+        "warnings": [],
+        "diagnostics": [],
+        "professional_boundary": boundary(),
+        "provenance": provenance("Invented external prover metadata"),
+    }
+
+
 def section_kwargs() -> dict[str, object]:
     return {
         "section_set_id": "report-sections:invented-del-08-06",
@@ -245,6 +305,8 @@ def section_kwargs() -> dict[str, object]:
         "analysis_runs": [analysis_run()],
         "analysis_run_comparisons": [analysis_comparison()],
         "handoff_packages": [handoff_package()],
+        "export_workflows": [export_workflow()],
+        "external_prover_metadata": [external_prover_metadata()],
         "source_notes": ["invented public test fixture; no protected standards content"],
     }
 
@@ -261,7 +323,11 @@ def test_sections_are_deterministic_and_represent_all_required_families():
         "model_state_record",
     }
     assert first["sections"]["comparison_sections"][0]["section_kind"] == "analysis_run_comparison"
-    assert first["sections"]["handoff_sections"][0]["section_kind"] == "handoff_package_manifest"
+    assert {item["section_kind"] for item in first["sections"]["handoff_sections"]} == {
+        "export_workflow_record",
+        "external_prover_metadata",
+        "handoff_package_manifest",
+    }
 
 
 def test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_state():
@@ -277,7 +343,21 @@ def test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_stat
         if item["section_kind"] == "analysis_run_record"
     )
     comparison_section = record["sections"]["comparison_sections"][0]
-    handoff_section = record["sections"]["handoff_sections"][0]
+    handoff_section = next(
+        item
+        for item in record["sections"]["handoff_sections"]
+        if item["section_kind"] == "handoff_package_manifest"
+    )
+    export_section = next(
+        item
+        for item in record["sections"]["handoff_sections"]
+        if item["section_kind"] == "export_workflow_record"
+    )
+    external_section = next(
+        item
+        for item in record["sections"]["handoff_sections"]
+        if item["section_kind"] == "external_prover_metadata"
+    )
 
     assert state_section["state_ref"]["ref"] == "state:invented-del-08-06"
     assert state_section["hash_refs"][0]["value"] == "sha256:invented-state"
@@ -291,6 +371,10 @@ def test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_stat
     assert comparison_section["tolerance_profile_refs"] == ["tolerance:invented-review"]
     assert handoff_section["model_hash"]["value"] == "sha256:invented-model"
     assert handoff_section["unsupported_target_flags"][0]["human_review_required"] is True
+    assert export_section["handoff_package_ref"]["ref"] == "handoff:invented-del-08-06"
+    assert export_section["unsupported_target_records"][0]["human_review_required"] is True
+    assert "private_payload" not in export_section["unsupported_target_records"][0]
+    assert external_section["target_mapping_refs"][0] == ref("TargetMapping", "target-map:invented-del-08-06")
 
 
 def test_missing_source_values_become_explicit_findings_and_tbds():
@@ -326,6 +410,48 @@ def test_authority_claims_are_diagnosed_without_copying_claim_text():
     assert "omitted_prohibited_authority_or_reliance_claim" in text
 
 
+def test_disallowed_analysis_status_is_diagnosed_and_not_emitted():
+    kwargs = section_kwargs()
+    kwargs["analysis_runs"] = [analysis_run()]
+    kwargs["analysis_runs"][0]["analysis_run"]["analysis_status"].append("HUMAN_APPROVED_FOR_PROJECT")
+
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    run_section = next(
+        item
+        for item in record["sections"]["state_run_sections"]
+        if item["section_kind"] == "analysis_run_record"
+    )
+    codes = {item["code"] for item in record["diagnostics"]}
+    text = canonical_json(record)
+
+    assert "SCH-ANALYSIS-STATUS-BLOCKED" in codes
+    assert "HUMAN_APPROVED_FOR_PROJECT" not in run_section["analysis_status"]
+    assert "HUMAN_APPROVED_FOR_PROJECT" in text
+
+
+def test_external_prover_execution_claim_is_out_of_scope():
+    kwargs = section_kwargs()
+    kwargs["external_prover_metadata"] = [external_prover_metadata()]
+    kwargs["external_prover_metadata"][0]["external_prover_executed"] = True
+
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    codes = {item["code"] for item in record["diagnostics"]}
+
+    assert "SCH-EXTERNAL-PROVER-EXECUTION-OUT-OF-SCOPE" in codes
+
+
+def test_numeric_comparison_deltas_need_units_and_dimensions():
+    kwargs = section_kwargs()
+    kwargs["analysis_run_comparisons"] = [analysis_comparison()]
+    del kwargs["analysis_run_comparisons"][0]["result_deltas"][0]["dimension"]
+
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    codes = {item["code"] for item in record["diagnostics"]}
+
+    assert "SCH-COMPARISON-DELTA-UNIT-MISSING" in codes
+    assert "SCH-NUMERIC-UNIT-METADATA-MISSING" in codes
+
+
 def test_boundary_flags_cannot_be_flipped_on_section_set():
     record = build_state_comparison_handoff_report_sections(**section_kwargs())
     mutated = deepcopy(record)
@@ -357,6 +483,9 @@ def main():
     test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_state()
     test_missing_source_values_become_explicit_findings_and_tbds()
     test_authority_claims_are_diagnosed_without_copying_claim_text()
+    test_disallowed_analysis_status_is_diagnosed_and_not_emitted()
+    test_external_prover_execution_claim_is_out_of_scope()
+    test_numeric_comparison_deltas_need_units_and_dimensions()
     test_boundary_flags_cannot_be_flipped_on_section_set()
     test_output_boundary_language_does_not_make_prohibited_claims_for_clean_sources()
 

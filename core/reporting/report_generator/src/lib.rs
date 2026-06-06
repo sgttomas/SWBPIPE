@@ -7,7 +7,18 @@
 //! linting, implement redaction/export controls, access host resources, or
 //! emit professional or code-compliance claims.
 
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
+
+const REQUIRED_SECTION_KINDS: [SectionKind; 8] = [
+    SectionKind::ModelInputSummary,
+    SectionKind::LoadCases,
+    SectionKind::Results,
+    SectionKind::WarningsAssumptionsProvenance,
+    SectionKind::AuditManifest,
+    SectionKind::RulePackReferences,
+    SectionKind::Limitations,
+    SectionKind::ProfessionalBoundaryNotice,
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum AnalysisStatus {
@@ -112,6 +123,22 @@ impl Provenance {
             && !self.contributor_certification.trim().is_empty()
             && !self.review_status.trim().is_empty()
     }
+
+    fn has_boundary_gap(&self) -> bool {
+        matches!(
+            self.redistribution_status,
+            RedistributionStatus::Unknown
+                | RedistributionStatus::ProtectedSuspected
+                | RedistributionStatus::Tbd
+        ) || matches!(
+            self.privacy_classification,
+            PrivacyClassification::PrivateProjectData
+                | PrivacyClassification::PrivateRulePackData
+                | PrivacyClassification::PrivateLibraryData
+                | PrivacyClassification::ProtectedSuspected
+        ) || self.review_status.trim().eq_ignore_ascii_case("TBD")
+            || self.review_status.trim().eq_ignore_ascii_case("pending")
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -147,6 +174,17 @@ impl ReferencedEnvelope {
             && self.schema_ref.is_complete()
             && self.checksum.is_complete()
             && self.provenance.is_complete()
+    }
+
+    fn has_boundary_gap(&self) -> bool {
+        self.provenance.has_boundary_gap()
+            || matches!(
+                self.privacy_classification,
+                PrivacyClassification::PrivateProjectData
+                    | PrivacyClassification::PrivateRulePackData
+                    | PrivacyClassification::PrivateLibraryData
+                    | PrivacyClassification::ProtectedSuspected
+            )
     }
 }
 
@@ -211,6 +249,19 @@ impl RulePackRef {
             && !self.source_notice.trim().is_empty()
             && !self.completeness_status.trim().is_empty()
             && self.private_payload_redacted
+    }
+
+    fn has_boundary_gap(&self) -> bool {
+        matches!(
+            self.redistribution_status,
+            RedistributionStatus::Unknown
+                | RedistributionStatus::ProtectedSuspected
+                | RedistributionStatus::Tbd
+        ) || self.completeness_status.trim().eq_ignore_ascii_case("TBD")
+            || self
+                .completeness_status
+                .trim()
+                .eq_ignore_ascii_case("incomplete")
     }
 }
 
@@ -294,6 +345,25 @@ impl Diagnostic {
             provenance: invented_provenance(),
         }
     }
+
+    fn boundary_warning(
+        code: impl Into<String>,
+        affected_object: Reference,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            class: DiagnosticClass::IpBoundaryWarning,
+            severity: DiagnosticSeverity::Warning,
+            source: Reference::new("report_generator", "DEL-08-01"),
+            affected_object,
+            message: message.into(),
+            remediation:
+                "Keep protected-content and private-data review visible before public release or reliance."
+                    .to_string(),
+            provenance: invented_provenance(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -327,6 +397,7 @@ impl RenderedSection {
             && !self.slot_id.trim().is_empty()
             && !self.title.trim().is_empty()
             && !self.content_status.trim().is_empty()
+            && !self.content_status.trim().eq_ignore_ascii_case("TBD")
             && !self.source_refs.is_empty()
             && self.source_refs.iter().all(Reference::is_complete)
     }
@@ -442,6 +513,7 @@ pub fn validate_report(report: &CalculationReport) -> ReportValidation {
         &report.report_section_refs,
         &mut diagnostics,
     );
+    check_reference_boundary_gaps(report, &mut diagnostics);
     if !report
         .rule_pack_refs
         .iter()
@@ -451,6 +523,28 @@ pub fn validate_report(report: &CalculationReport) -> ReportValidation {
             "REPORT-RULE-PACK-REF-UNSAFE",
             Reference::new("report", &report.report_id),
             "rule-pack references must include identity, version, checksum, source notice, status, and redacted private payload posture",
+        ));
+    }
+    for rule_pack in report
+        .rule_pack_refs
+        .iter()
+        .filter(|rule_pack| rule_pack.has_boundary_gap())
+    {
+        diagnostics.push(Diagnostic::boundary_warning(
+            "REPORT-RULE-PACK-BOUNDARY-REVIEW",
+            Reference::new("rule_pack", &rule_pack.rule_pack_id),
+            "rule-pack reference has incomplete, unknown, protected-suspected, or TBD review metadata",
+        ));
+    }
+    if report
+        .diagnostics
+        .iter()
+        .any(|diagnostic| !diagnostic.is_complete())
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-DIAGNOSTIC-INCOMPLETE",
+            Reference::new("report", &report.report_id),
+            "incoming report diagnostics must preserve code, class, severity, source, affected object, message, remediation, and provenance",
         ));
     }
     if !report
@@ -492,6 +586,17 @@ pub fn validate_report(report: &CalculationReport) -> ReportValidation {
     validate_template_slots(report, &mut diagnostics);
 
     ReportValidation { diagnostics }
+}
+
+impl Diagnostic {
+    fn is_complete(&self) -> bool {
+        !self.code.trim().is_empty()
+            && self.source.is_complete()
+            && self.affected_object.is_complete()
+            && !self.message.trim().is_empty()
+            && !self.remediation.trim().is_empty()
+            && self.provenance.is_complete()
+    }
 }
 
 pub fn ordered_sections(report: &CalculationReport) -> Vec<NeutralReportSection> {
@@ -537,9 +642,27 @@ fn check_referenced_envelopes(
     }
 }
 
+fn check_reference_boundary_gaps(report: &CalculationReport, diagnostics: &mut Vec<Diagnostic>) {
+    let refs = report
+        .result_export_refs
+        .iter()
+        .chain(report.audit_manifest_refs.iter())
+        .chain(report.report_section_refs.iter());
+
+    for referenced in refs.filter(|referenced| referenced.has_boundary_gap()) {
+        diagnostics.push(Diagnostic::boundary_warning(
+            "REPORT-REFERENCE-BOUNDARY-REVIEW",
+            referenced.reference.clone(),
+            "referenced report input has private, protected-suspected, unknown, pending, or TBD boundary metadata",
+        ));
+    }
+}
+
 fn validate_template_slots(report: &CalculationReport, diagnostics: &mut Vec<Diagnostic>) {
     let mut slot_ids = HashSet::new();
     let mut required_kinds = HashSet::new();
+    let mut slot_orders = BTreeSet::new();
+    let mut slot_kinds = HashSet::new();
     for slot in &report.template_slots {
         if !slot.is_complete() {
             diagnostics.push(Diagnostic::template_blocking(
@@ -555,6 +678,14 @@ fn validate_template_slots(report: &CalculationReport, diagnostics: &mut Vec<Dia
                 "template slot ids must be unique",
             ));
         }
+        if !slot_orders.insert(slot.ordering_index) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-ORDER-DUPLICATE",
+                Reference::new("template_slot", &slot.slot_id),
+                "template slot ordering indexes must be unique for deterministic report assembly",
+            ));
+        }
+        slot_kinds.insert(slot.section_kind);
         if slot.required {
             required_kinds.insert(slot.section_kind);
         }
@@ -570,6 +701,23 @@ fn validate_template_slots(report: &CalculationReport, diagnostics: &mut Vec<Dia
         .iter()
         .map(|section| section.section_kind)
         .collect();
+
+    for required_kind in REQUIRED_SECTION_KINDS {
+        if !slot_kinds.contains(&required_kind) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-KIND-UNDECLARED",
+                Reference::new("report", &report.report_id),
+                "calculation report template must declare every governed section kind",
+            ));
+        }
+        if !section_kinds.contains(&required_kind) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-SECTION-KIND-UNRENDERED",
+                Reference::new("report", &report.report_id),
+                "calculation report must render every governed section kind, including audit, warnings/provenance, limitations, and professional-boundary notice sections",
+            ));
+        }
+    }
 
     for slot in report.template_slots.iter().filter(|slot| slot.required) {
         if !section_slot_ids.contains(slot.slot_id.as_str()) {
@@ -819,5 +967,97 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == "REPORT-TEMPLATE-SLOT-UNFILLED"));
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-SECTION-KIND-UNRENDERED"));
+    }
+
+    #[test]
+    fn blocks_when_governed_section_kind_is_not_declared() {
+        let mut report = report();
+        report
+            .template_slots
+            .retain(|slot| slot.section_kind != SectionKind::AuditManifest);
+        report
+            .rendered_sections
+            .retain(|section| section.section_kind != SectionKind::AuditManifest);
+
+        let validation = validate_report(&report);
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-TEMPLATE-KIND-UNDECLARED"
+                && diagnostic.class == DiagnosticClass::TemplateBlocking
+        }));
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-SECTION-KIND-UNRENDERED"));
+    }
+
+    #[test]
+    fn blocks_duplicate_template_ordering_indexes() {
+        let mut report = report();
+        report.template_slots[1].ordering_index = report.template_slots[0].ordering_index;
+
+        let validation = validate_report(&report);
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-TEMPLATE-ORDER-DUPLICATE"
+                && diagnostic.class == DiagnosticClass::TemplateBlocking
+        }));
+    }
+
+    #[test]
+    fn blocks_incomplete_incoming_diagnostics() {
+        let mut report = report();
+        report.diagnostics.push(Diagnostic {
+            code: "UPSTREAM-MISSING-DATA".to_string(),
+            class: DiagnosticClass::RuleCheckBlocking,
+            severity: DiagnosticSeverity::Blocking,
+            source: reference("rule_pack", "invented-rule-pack"),
+            affected_object: reference("report", "report-1"),
+            message: String::new(),
+            remediation: "Supply missing user rule-pack inputs.".to_string(),
+            provenance: provenance(),
+        });
+
+        let validation = validate_report(&report);
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-DIAGNOSTIC-INCOMPLETE"));
+    }
+
+    #[test]
+    fn warns_when_referenced_envelopes_carry_boundary_gaps() {
+        let mut report = report();
+        report.audit_manifest_refs[0].privacy_classification =
+            PrivacyClassification::PrivateProjectData;
+        report.audit_manifest_refs[0]
+            .provenance
+            .redistribution_status = RedistributionStatus::Unknown;
+        report.audit_manifest_refs[0].provenance.review_status = "pending".to_string();
+
+        let validation = validate_report(&report);
+        assert!(!validation.is_blocked());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-REFERENCE-BOUNDARY-REVIEW"
+                && diagnostic.class == DiagnosticClass::IpBoundaryWarning
+                && diagnostic.severity == DiagnosticSeverity::Warning
+        }));
+    }
+
+    #[test]
+    fn warns_when_rule_pack_review_state_is_incomplete() {
+        let mut report = report();
+        report.rule_pack_refs[0].redistribution_status = RedistributionStatus::Tbd;
+        report.rule_pack_refs[0].completeness_status = "incomplete".to_string();
+
+        let validation = validate_report(&report);
+        assert!(!validation.is_blocked());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-RULE-PACK-BOUNDARY-REVIEW"
+                && diagnostic.class == DiagnosticClass::IpBoundaryWarning
+                && diagnostic.severity == DiagnosticSeverity::Warning
+        }));
     }
 }

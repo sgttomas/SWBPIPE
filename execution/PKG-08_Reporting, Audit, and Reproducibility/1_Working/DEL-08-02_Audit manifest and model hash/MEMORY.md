@@ -107,3 +107,32 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Audit manifest hardening
+
+- Hardened `core/reporting/audit_manifest` validation for canonical model hash and input-manifest hash evidence, solver version/build stamps, unit-system references, rule-pack checksum references, binary/external asset hashes, duplicate references, privacy/redaction metadata, protected-content risk, and professional-boundary diagnostics.
+- Preserved the current `ProjectLocalDeterministicJson` hash basis with sorted object keys; no full RFC 8785/JCS canonicalizer or conformance claim was added.
+- Added `hash_external_artifact` for non-JSON external artifact references with `Canonicalization::None`.
+- Added payload-kind and canonicalization mismatch diagnostics so rule-pack, model, input-manifest, binary asset, and external artifact hash records cannot silently occupy the wrong manifest slot.
+- Explicit missing-data findings remain blocking where reproducibility evidence is required; solver build reference remains a warning because final release/build stamping policy is downstream.
+- No project persistence integration, private payload storage, encryption/access control, GUI/API/CLI transport, lifecycle/status change, review finding disposition change, release acceptance, or professional/code-compliance claim was made.
+
+### Verification
+
+- `cargo fmt --manifest-path core/reporting/audit_manifest/Cargo.toml` completed.
+- `cargo test --manifest-path core/reporting/audit_manifest/Cargo.toml` passed 13 focused tests.
+
+### Remaining TBDs
+
+- Full JCS/RFC 8785 canonicalization remains deferred unless authorized by the owning persistence/hash contract.
+- Physical project package/container, project persistence adapter, report renderer, API/CLI transport, private storage, encryption/access control, redaction workflow, and final release/build stamp policy remain downstream.
+
+## 2026-06-06 - WORKING_ITEMS fan-in validation
+
+- Parent WORKING_ITEMS fan-in for the PKG-08 reporting hardening tranche found
+  the DEL-08-02 changes inside declared scope.
+- Fan-in validation passed: `cargo test --manifest-path core/reporting/audit_manifest/Cargo.toml`,
+  `cargo fmt --manifest-path core/reporting/audit_manifest/Cargo.toml -- --check`,
+  and `git diff --check`.
+- Lifecycle state remains `IN_PROGRESS`; no review disposition, dependency,
+  DAG, release, professional-approval, or code-compliance claim was changed.

@@ -75,12 +75,74 @@ AUTHORITY_FLAG_NAMES = {
     "software_creates_external_validation_record",
 }
 
+PERMITTED_SOFTWARE_ANALYSIS_STATUSES = {
+    "MODEL_INCOMPLETE",
+    "MECHANICS_SOLVED",
+    "RULE_INPUTS_INCOMPLETE",
+    "USER_RULE_CHECKED",
+    "USER_RULE_FAILED",
+    "HUMAN_REVIEW_REQUIRED",
+}
+
+PRIVATE_PAYLOAD_KEYS = {
+    "payload",
+    "content",
+    "formula",
+    "formulas",
+    "private_payload",
+    "protected_payload",
+    "private_rule_payload",
+    "private_library_payload",
+    "secret",
+    "secrets",
+}
+
+NUMERIC_VALUE_KEYS = {
+    "magnitude",
+    "left_magnitude",
+    "right_magnitude",
+    "left_normalized_magnitude",
+    "right_normalized_magnitude",
+    "normalized_delta",
+    "absolute_normalized_delta",
+}
+
 REQUIRED_MODEL_STATE_FIELDS = (
     "state_id",
     "analysis_status",
     "hashes",
     "warnings",
     "unresolved_assumptions",
+    "professional_boundary",
+    "provenance",
+)
+
+REQUIRED_HANDOFF_MANIFEST_FIELDS = (
+    "package_identity",
+    "model_hash",
+    "units_manifest",
+    "entity_ids",
+    "target_mapping_metadata",
+    "unsupported_behavior_flags",
+    "privacy",
+    "professional_boundary",
+    "provenance",
+)
+
+REQUIRED_EXPORT_WORKFLOW_FIELDS = (
+    "export_workflow_id",
+    "export_payload",
+    "diagnostics",
+    "privacy",
+    "professional_boundary",
+    "provenance",
+)
+
+REQUIRED_EXTERNAL_PROVER_METADATA_FIELDS = (
+    "metadata_record_id",
+    "handoff_package_refs",
+    "target_mapping_refs",
+    "unsupported_target_flags",
     "professional_boundary",
     "provenance",
 )
@@ -204,6 +266,7 @@ def _state_run_sections(
         _missing_required(state, REQUIRED_MODEL_STATE_FIELDS, state_ref, diagnostics)
         _boundary_flags_from_source(state.get("professional_boundary"), state_ref, diagnostics)
         _source_authority_claims(state, state_ref, diagnostics)
+        _analysis_status_findings(state.get("analysis_status"), state_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"state-run:{state_ref['ref']}",
@@ -214,7 +277,7 @@ def _state_run_sections(
                 "diagnostics": _safe_public_context(_list(state.get("warnings"))),
                 "warnings": _safe_public_context(_list(state.get("warnings"))),
                 "assumptions": _safe_public_context(_list(state.get("unresolved_assumptions"))),
-                "analysis_status": sorted(str(item) for item in _list(state.get("analysis_status"))),
+                "analysis_status": _safe_analysis_statuses(state.get("analysis_status")),
                 "unit_context": deepcopy(state.get("unit_system_ref") or state.get("units_manifest")),
                 "solver_context": None,
                 "settings_ref": None,
@@ -231,6 +294,7 @@ def _state_run_sections(
         _missing_required(run, REQUIRED_ANALYSIS_RUN_FIELDS, run_ref, diagnostics)
         _boundary_flags_from_source(run.get("professional_boundary"), run_ref, diagnostics)
         _source_authority_claims(run, run_ref, diagnostics)
+        _analysis_status_findings(run.get("analysis_status"), run_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"state-run:{run_ref['ref']}",
@@ -241,7 +305,7 @@ def _state_run_sections(
                 "diagnostics": _safe_public_context(_list(run.get("diagnostics"))),
                 "warnings": _safe_public_context(_list(run.get("warnings"))),
                 "assumptions": _safe_public_context(_list(run.get("unresolved_assumptions"))),
-                "analysis_status": sorted(str(item) for item in _list(run.get("analysis_status"))),
+                "analysis_status": _safe_analysis_statuses(run.get("analysis_status")),
                 "unit_context": deepcopy(run.get("unit_system_ref")),
                 "solver_context": deepcopy(run.get("solver_version")),
                 "settings_ref": deepcopy(run.get("settings_ref")),
@@ -337,6 +401,8 @@ def _handoff_sections(
         manifest = package.get("handoff_package_manifest", {})
         package_id = _handoff_id(manifest)
         package_ref = _ref("HandoffPackage", package_id)
+        if isinstance(manifest, Mapping):
+            _missing_required(manifest, REQUIRED_HANDOFF_MANIFEST_FIELDS, package_ref, diagnostics)
         _boundary_flags_from_source(manifest.get("professional_boundary"), package_ref, diagnostics)
         _source_authority_claims(manifest, package_ref, diagnostics)
         sections.append(
@@ -364,6 +430,7 @@ def _handoff_sections(
 
     for workflow in export_workflows:
         workflow_ref = _ref("ExportWorkflow", _str(workflow.get("export_workflow_id"), "export:TBD"))
+        _missing_required(workflow, REQUIRED_EXPORT_WORKFLOW_FIELDS, workflow_ref, diagnostics)
         _boundary_flags_from_source(workflow.get("professional_boundary"), workflow_ref, diagnostics)
         _source_authority_claims(workflow, workflow_ref, diagnostics)
         export_payload = workflow.get("export_payload", {})
@@ -391,8 +458,10 @@ def _handoff_sections(
 
     for metadata in external_prover_metadata:
         metadata_ref = _ref("ExternalProverMetadata", _str(metadata.get("metadata_record_id"), "external-prover:TBD"))
+        _missing_required(metadata, REQUIRED_EXTERNAL_PROVER_METADATA_FIELDS, metadata_ref, diagnostics)
         _boundary_flags_from_source(metadata.get("professional_boundary"), metadata_ref, diagnostics)
         _source_authority_claims(metadata, metadata_ref, diagnostics)
+        _external_prover_execution_findings(metadata, metadata_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"handoff:{metadata_ref['ref']}",
@@ -584,6 +653,47 @@ def _source_authority_claims(
             )
 
 
+def _analysis_status_findings(
+    statuses: Any, affected_ref: Mapping[str, str], diagnostics: list[dict[str, Any]]
+) -> None:
+    for status in _list(statuses):
+        if str(status) not in PERMITTED_SOFTWARE_ANALYSIS_STATUSES:
+            diagnostics.append(
+                _diagnostic(
+                    "SCH-ANALYSIS-STATUS-BLOCKED",
+                    "blocking",
+                    "PROFESSIONAL_BOUNDARY",
+                    "Source analysis status is outside the software-emitted status vocabulary.",
+                    "Remove automatic human-acceptance, professional-reliance, or code-compliance statuses from software-generated sections.",
+                    [_affected(affected_ref["object_type"], affected_ref["ref"]), _affected("AnalysisStatus", str(status))],
+                )
+            )
+
+
+def _safe_analysis_statuses(statuses: Any) -> list[str]:
+    return sorted(
+        str(status)
+        for status in _list(statuses)
+        if str(status) in PERMITTED_SOFTWARE_ANALYSIS_STATUSES
+    )
+
+
+def _external_prover_execution_findings(
+    metadata: Mapping[str, Any], affected_ref: Mapping[str, str], diagnostics: list[dict[str, Any]]
+) -> None:
+    if metadata.get("external_prover_executed") is True or metadata.get("execution_performed") is True:
+        diagnostics.append(
+            _diagnostic(
+                "SCH-EXTERNAL-PROVER-EXECUTION-OUT-OF-SCOPE",
+                "blocking",
+                "REPORT_SECTION_BOUNDARY",
+                "External-prover metadata attempted to record in-scope external tool execution.",
+                "Keep DEL-08-06 records metadata-only and route external prover execution to its owning workflow.",
+                [_affected(affected_ref["object_type"], affected_ref["ref"])],
+            )
+        )
+
+
 def _safe_public_context(value: Any) -> Any:
     if isinstance(value, str):
         lower = value.lower()
@@ -591,7 +701,11 @@ def _safe_public_context(value: Any) -> Any:
             return "[omitted_prohibited_authority_or_reliance_claim]"
         return value
     if isinstance(value, Mapping):
-        return {str(key): _safe_public_context(item) for key, item in value.items()}
+        return {
+            str(key): _safe_public_context(item)
+            for key, item in value.items()
+            if str(key) not in PRIVATE_PAYLOAD_KEYS
+        }
     if isinstance(value, list):
         return [_safe_public_context(item) for item in value]
     return deepcopy(value)
@@ -600,12 +714,19 @@ def _safe_public_context(value: Any) -> Any:
 def _numeric_unit_diagnostics(record: Any) -> list[dict[str, Any]]:
     diagnostics: list[dict[str, Any]] = []
     for path, container in _walk_dicts(record):
-        if "magnitude" in container:
-            if not isfinite(container.get("magnitude")) if isinstance(container.get("magnitude"), float) else not isinstance(container.get("magnitude"), (int, float)):
-                diagnostics.append(_unit_diagnostic(path, "Numeric magnitude is not finite."))
-            if _is_missing(container.get("unit")) or _is_missing(container.get("dimension")):
+        numeric_keys = sorted(key for key in NUMERIC_VALUE_KEYS if key in container)
+        if numeric_keys:
+            for key in numeric_keys:
+                if not _finite_number(container.get(key)):
+                    diagnostics.append(_unit_diagnostic(f"{path}.{key}", "Numeric value is not finite."))
+            has_unit = not _is_missing(container.get("unit")) or not _is_missing(container.get("normalized_unit"))
+            if not has_unit or _is_missing(container.get("dimension")):
                 diagnostics.append(_unit_diagnostic(path, "Numeric value lacks unit or dimension metadata."))
     return diagnostics
+
+
+def _finite_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and isfinite(value)
 
 
 def _unit_diagnostic(path: str, message: str) -> dict[str, Any]:
@@ -706,7 +827,7 @@ def _safe_refs(value: Any) -> list[Any]:
     for item in _list(value):
         if isinstance(item, Mapping):
             redacted = deepcopy(dict(item))
-            for private_key in ("payload", "content", "private_payload", "protected_payload"):
+            for private_key in PRIVATE_PAYLOAD_KEYS:
                 redacted.pop(private_key, None)
             refs.append(redacted)
         else:

@@ -102,3 +102,31 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - TASK hardening addendum
+
+- Hardened `core/reporting/report_generator/src/lib.rs` deterministic in-memory
+  report validation for all governed section kinds, duplicate template ordering
+  indexes, incoming diagnostic completeness, result/audit/report-section
+  reference boundary metadata, and rule-pack review/completeness gaps.
+- Added crate-level regression coverage for missing audit/section kinds,
+  duplicate ordering indexes, incomplete diagnostics, private/protected/TBD
+  reference metadata warnings, and incomplete rule-pack review metadata.
+- Preserved existing exclusions: no schema, fixture, GUI, CLI/API, adapter,
+  redaction/export, protected-content linter, release-template, lifecycle,
+  review-disposition, or professional/code-compliance claim changes.
+- Validation run: `python3 tests/test_report_generator_contract.py`,
+  `cargo test --manifest-path core/reporting/report_generator/Cargo.toml`,
+  `cargo fmt --manifest-path core/reporting/report_generator/Cargo.toml -- --check`.
+  `git diff --check` is recorded in the run record after final file updates.
+
+## 2026-06-06 - WORKING_ITEMS fan-in validation
+
+- Parent WORKING_ITEMS fan-in for the PKG-08 reporting hardening tranche found
+  the DEL-08-01 changes inside declared scope.
+- Fan-in validation passed: `python3 tests/test_report_generator_contract.py`,
+  `cargo test --manifest-path core/reporting/report_generator/Cargo.toml`,
+  `cargo fmt --manifest-path core/reporting/report_generator/Cargo.toml -- --check`,
+  and `git diff --check`.
+- Lifecycle state remains `IN_PROGRESS`; no review disposition, dependency,
+  DAG, release, professional-approval, or code-compliance claim was changed.

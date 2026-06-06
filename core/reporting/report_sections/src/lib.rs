@@ -341,6 +341,7 @@ pub fn validate_report_sections(sections: &ReportSections) -> ReportSectionValid
         ));
     }
 
+    check_report_diagnostics(sections, &mut diagnostics);
     check_status_disclosures(sections, &mut diagnostics);
     check_provenance(sections, &mut diagnostics);
     check_user_values(sections, &mut diagnostics);
@@ -364,6 +365,44 @@ pub fn sorted_diagnostics(sections: &ReportSections) -> Vec<&Diagnostic> {
     diagnostics
 }
 
+fn check_report_diagnostics(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
+    for diagnostic in &sections.diagnostics {
+        if diagnostic.code.trim().is_empty()
+            || !diagnostic.source.is_complete()
+            || !diagnostic.affected_object.is_complete()
+            || diagnostic.message.trim().is_empty()
+            || diagnostic.remediation.trim().is_empty()
+            || !diagnostic.provenance.is_complete()
+        {
+            diagnostics.push(Diagnostic::report_blocking(
+                "REPORT_SECTION_DIAGNOSTIC_INCOMPLETE",
+                Reference::new("diagnostic", &diagnostic.code),
+                "report-facing diagnostics must preserve code, class, severity, source, affected object, message, remediation, and provenance",
+            ));
+        }
+
+        if matches!(
+            diagnostic.class,
+            DiagnosticClass::SolveBlocking
+                | DiagnosticClass::RuleCheckBlocking
+                | DiagnosticClass::ReportBlocking
+        ) && diagnostic.severity != Severity::Blocking
+        {
+            diagnostics.push(Diagnostic::report_blocking(
+                "REPORT_SECTION_BLOCKING_DIAGNOSTIC_SEVERITY_MISMATCH",
+                Reference::new("diagnostic", &diagnostic.code),
+                "solve-blocking, rule-check-blocking, and report-blocking diagnostics must remain blocking findings",
+            ));
+        }
+
+        check_provenance_record(
+            &diagnostic.provenance,
+            Reference::new("diagnostic", &diagnostic.code),
+            diagnostics,
+        );
+    }
+}
+
 fn check_status_disclosures(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
     for status in &sections.analysis_status_disclosures {
         if !status.source.is_complete()
@@ -377,28 +416,26 @@ fn check_status_disclosures(sections: &ReportSections, diagnostics: &mut Vec<Dia
                 "analysis status disclosures must include source, affected object, explanation, and human review posture",
             ));
         }
+
+        if status.status == AnalysisStatus::HumanReviewRequired
+            && status.human_acceptance_ref.is_some()
+        {
+            diagnostics.push(Diagnostic::report_blocking(
+                "REPORT_SECTION_HUMAN_REVIEW_MIXED_WITH_ACCEPTANCE",
+                Reference::new("analysis_status", format!("{:?}", status.status)),
+                "human-review-required disclosures must not be converted into human acceptance or approval references",
+            ));
+        }
     }
 }
 
 fn check_provenance(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
     for provenance in &sections.provenance_notes {
-        if !provenance.is_complete() {
-            diagnostics.push(Diagnostic::report_blocking(
-                "REPORT_SECTION_PROVENANCE_INCOMPLETE",
-                Reference::new("provenance", &provenance.source_name),
-                "report provenance notes must include source, license, contributor, certification, redistribution, review, and privacy metadata",
-            ));
-        }
-
-        if provenance.redistribution_status == RedistributionStatus::ProtectedSuspected
-            || provenance.privacy_classification == PrivacyClassification::ProtectedSuspected
-        {
-            diagnostics.push(Diagnostic::report_blocking(
-                "REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED",
-                Reference::new("provenance", &provenance.source_name),
-                "suspected protected content must be reported as a finding and cannot be copied into public report artifacts",
-            ));
-        }
+        check_provenance_record(
+            provenance,
+            Reference::new("provenance", &provenance.source_name),
+            diagnostics,
+        );
     }
 }
 
@@ -417,21 +454,46 @@ fn check_user_values(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
             ));
         }
 
+        check_provenance_record(
+            &value.provenance,
+            Reference::new("user_supplied_value", &value.value_id),
+            diagnostics,
+        );
+
+        if matches!(
+            value.privacy_classification,
+            PrivacyClassification::Tbd | PrivacyClassification::ProtectedSuspected
+        ) {
+            diagnostics.push(Diagnostic::report_blocking(
+                "REPORT_SECTION_USER_VALUE_PRIVACY_UNRESOLVED",
+                Reference::new("user_supplied_value", &value.value_id),
+                "user-supplied values must carry a resolved privacy classification before report use",
+            ));
+        }
+
         if value.required_for.iter().any(|required| {
             matches!(
                 required,
                 RequiredFor::MechanicsSolve | RequiredFor::UserRuleCheck
             )
-        }) && value
-            .quantity
-            .as_ref()
-            .map_or(true, |quantity| !quantity.is_complete())
-        {
-            diagnostics.push(Diagnostic::report_blocking(
-                "REPORT_SECTION_USER_VALUE_QUANTITY_INCOMPLETE",
-                Reference::new("user_supplied_value", &value.value_id),
-                "numeric solve or rule-check values must carry finite magnitude, unit, and dimension metadata",
-            ));
+        }) {
+            match &value.quantity {
+                Some(quantity) if !quantity.is_complete() => {
+                    diagnostics.push(Diagnostic::report_blocking(
+                        "REPORT_SECTION_USER_VALUE_QUANTITY_INCOMPLETE",
+                        Reference::new("user_supplied_value", &value.value_id),
+                        "numeric solve or rule-check values must carry finite magnitude, unit, and dimension metadata",
+                    ));
+                }
+                None if !value.missing_data_finding => {
+                    diagnostics.push(Diagnostic::report_blocking(
+                        "REPORT_SECTION_USER_VALUE_QUANTITY_INCOMPLETE",
+                        Reference::new("user_supplied_value", &value.value_id),
+                        "numeric solve or rule-check values must carry finite magnitude, unit, and dimension metadata or an explicit missing-data finding",
+                    ));
+                }
+                _ => {}
+            }
         }
 
         if value.missing_data_finding && value.review_status == ReviewStatus::Accepted {
@@ -459,6 +521,17 @@ fn check_assumptions(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
                 "assumptions must include owner, source, affected scope, statement, review status, effect, and provenance",
             ));
         }
+
+        check_effect(
+            &assumption.effect,
+            Reference::new("assumption", &assumption.assumption_id),
+            diagnostics,
+        );
+        check_provenance_record(
+            &assumption.provenance,
+            Reference::new("assumption", &assumption.assumption_id),
+            diagnostics,
+        );
     }
 }
 
@@ -476,6 +549,17 @@ fn check_limitations(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic
                 "limitations must include source, affected scope, statement, effect, and provenance",
             ));
         }
+
+        check_effect(
+            &limitation.effect,
+            Reference::new("limitation", &limitation.limitation_id),
+            diagnostics,
+        );
+        check_provenance_record(
+            &limitation.provenance,
+            Reference::new("limitation", &limitation.limitation_id),
+            diagnostics,
+        );
     }
 }
 
@@ -492,6 +576,57 @@ fn check_tbds(sections: &ReportSections, diagnostics: &mut Vec<Diagnostic>) {
                 "unresolved TBDs must include identity, affected scope, description, and review-needed flag",
             ));
         }
+    }
+}
+
+fn check_effect(
+    effect: &ReportEffect,
+    affected_object: Reference,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if !effect.human_review_required {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT_SECTION_EFFECT_HUMAN_REVIEW_MISSING",
+            affected_object,
+            "assumption and limitation effects must preserve human-review-required posture",
+        ));
+    }
+}
+
+fn check_provenance_record(
+    provenance: &Provenance,
+    affected_object: Reference,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if !provenance.is_complete() {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT_SECTION_PROVENANCE_INCOMPLETE",
+            affected_object.clone(),
+            "report provenance records must include source, license, contributor, certification, redistribution, review, and privacy metadata",
+        ));
+    }
+
+    if provenance.redistribution_status == RedistributionStatus::ProtectedSuspected
+        || provenance.privacy_classification == PrivacyClassification::ProtectedSuspected
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED",
+            affected_object.clone(),
+            "suspected protected content must be reported as a finding and cannot be copied into public report artifacts",
+        ));
+    }
+
+    if matches!(
+        provenance.redistribution_status,
+        RedistributionStatus::Unknown | RedistributionStatus::Tbd
+    ) || provenance.review_status == ReviewStatus::Tbd
+        || provenance.privacy_classification == PrivacyClassification::Tbd
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT_SECTION_PROVENANCE_UNRESOLVED",
+            affected_object,
+            "unknown or TBD provenance, redistribution, review, or privacy metadata must remain an explicit unresolved finding",
+        ));
     }
 }
 
@@ -663,6 +798,20 @@ mod tests {
     }
 
     #[test]
+    fn explicit_missing_user_rule_value_is_preserved_as_finding() {
+        let mut sections = sections();
+        sections.user_supplied_values[0].quantity = None;
+        sections.user_supplied_values[0].missing_data_finding = true;
+        sections.user_supplied_values[0].review_status = ReviewStatus::Pending;
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(!validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT_SECTION_USER_VALUE_QUANTITY_INCOMPLETE"
+        }));
+    }
+
+    #[test]
     fn protected_suspected_provenance_is_blocking() {
         let mut sections = sections();
         sections.provenance_notes[0].redistribution_status =
@@ -675,6 +824,88 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| { diagnostic.code == "REPORT_SECTION_PROTECTED_CONTENT_SUSPECTED" }));
+    }
+
+    #[test]
+    fn diagnostic_records_must_preserve_report_facing_fields() {
+        let mut sections = sections();
+        sections.diagnostics[0].message.clear();
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(validation.has_blocking_diagnostics());
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT_SECTION_DIAGNOSTIC_INCOMPLETE"));
+    }
+
+    #[test]
+    fn blocking_diagnostic_class_must_keep_blocking_severity() {
+        let mut sections = sections();
+        sections.diagnostics[0].severity = Severity::Warning;
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(validation.has_blocking_diagnostics());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT_SECTION_BLOCKING_DIAGNOSTIC_SEVERITY_MISMATCH"
+        }));
+    }
+
+    #[test]
+    fn unresolved_provenance_metadata_is_blocking() {
+        let mut sections = sections();
+        sections.provenance_notes[0].privacy_classification = PrivacyClassification::Tbd;
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(validation.has_blocking_diagnostics());
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT_SECTION_PROVENANCE_UNRESOLVED"));
+    }
+
+    #[test]
+    fn user_value_privacy_must_be_resolved() {
+        let mut sections = sections();
+        sections.user_supplied_values[0].privacy_classification = PrivacyClassification::Tbd;
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(validation.has_blocking_diagnostics());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT_SECTION_USER_VALUE_PRIVACY_UNRESOLVED"
+        }));
+    }
+
+    #[test]
+    fn human_review_required_status_must_not_be_acceptance_reference() {
+        let mut sections = sections();
+        sections.analysis_status_disclosures[1].human_acceptance_ref =
+            Some(Reference::new("human_acceptance", "external-review-1"));
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(validation.has_blocking_diagnostics());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT_SECTION_HUMAN_REVIEW_MIXED_WITH_ACCEPTANCE"
+        }));
+    }
+
+    #[test]
+    fn assumption_effects_must_preserve_human_review() {
+        let mut sections = sections();
+        sections.assumptions[0].effect.human_review_required = false;
+
+        let validation = validate_report_sections(&sections);
+
+        assert!(validation.has_blocking_diagnostics());
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "REPORT_SECTION_EFFECT_HUMAN_REVIEW_MISSING" }));
     }
 
     #[test]

@@ -71,3 +71,50 @@ Two findings were recorded:
 ## Audit Boundary
 
 This is an audit-only compatibility aggregation. It does not edit product artifacts, change lifecycle state, promote candidates, approve releases, certify engineering work, assert code compliance, or create professional reliance claims.
+
+---
+
+# Review: DEL-08-02 Audit manifest and model hash
+
+**Review Type:** SELF_CHECK / AGENT_CHECK
+**Reviewer(s):** WORKING_ITEMS_REVIEW_2026-06-06_1025
+**Date Initiated:** 2026-06-06
+**Status:** RECOMMEND_ADVANCE_TO_CHECKING; lifecycle not changed
+
+## Precondition Check
+
+- Lifecycle state: `IN_PROGRESS`, valid for `IN_PROGRESS -> CHECKING` review.
+- Context validity: PASS. Deliverable ID, package ID, scope item `SOW-039`, and objectives `OBJ-007`/`OBJ-012` match local context and registers.
+- Prior findings: two historical PKG-02 compatibility findings remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; neither is CRITICAL or MAJOR.
+
+## Checklist
+
+| ID | Check | Result | Notes |
+|---|---|---|---|
+| AP-001 | Four-document kit and local controls present | PASS | `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, dependencies, memory, review files, and run records are present. |
+| AP-002 | Anticipated audit-manifest/hash implementation evidence present | PASS | `core/reporting/audit_manifest/src/lib.rs`, README, and crate tests exist; run record `TASK_RUN_2026-06-06_1017.md` records this tranche. |
+| AC-001 | DEL-08-02-R1 through R10 addressed | PASS_WITH_DISCLOSURE | Current crate validates model/input-manifest hash evidence, payload-kind/canonicalization slots, solver version/build refs, rule-pack checksums, binary/external assets, duplicate refs, privacy/redaction metadata, and professional boundaries. |
+| AC-002 | Canonicalization claim boundary | PASS_WITH_DISCLOSURE | Implementation is deliberately labeled `ProjectLocalDeterministicJson`; full RFC 8785/JCS conformance remains deferred and is not overclaimed. |
+| OC-001 | OBJ-007 and OBJ-012 supported | PASS | Manifest/hash behavior supports reproducibility and deterministic data flow with explicit warnings for missing evidence. |
+| XD-001 | Cross-document consistency | PASS_WITH_DISCLOSURE | Current memory/run records explain the project-local hash basis while older setup docs retain JCS-compatible future-basis language. |
+| DS-001 | Active dependency register reviewed | PASS_WITH_DISCLOSURE | 10 active execution rows: 8 `SATISFIED`, 2 `UNKNOWN`; unresolved dependency status remains visible. |
+| TB-001 | TBD inventory assessed | PASS_WITH_DISCLOSURE | 6 four-doc `TBD` markers, all canonicalization/container/downstream integration deferrals. |
+| VG-001 | Validation evidence | PASS | Audit-manifest Rust tests, cargo fmt check, and `git diff --check` passed. |
+| BD-001 | Protected/private/professional boundary | PASS | No protected standards data, private payload, release claim, code-compliance claim, or professional approval claim observed. |
+
+## Findings Summary
+
+No new lifecycle-readiness findings were opened. Historical findings remain:
+
+| Severity | Total | Status |
+|---|---:|---|
+| WARNING | 1 | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+| INFO | 1 | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_ADVANCE_TO_CHECKING`
+**Rationale:** checklist populated, validation passed, no CRITICAL or MAJOR findings, historical WARNING/INFO findings are technically addressed pending human disposition, known `TBD`s are explicit deferrals, and boundaries are preserved.
+
+`_STATUS.md` was not edited. Explicit human Gate 5 approval is required before status changes.

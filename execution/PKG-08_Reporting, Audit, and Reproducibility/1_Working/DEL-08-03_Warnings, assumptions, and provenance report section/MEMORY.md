@@ -102,3 +102,30 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - TASK_RUN_2026-06-06_1017 validation hardening
+
+- Bounded TASK implementation hardened `core/reporting/report_sections/src/lib.rs`
+  validation for embedded diagnostics, provenance/privacy metadata, explicit
+  missing-data findings, human-review-required disclosures, and assumption/
+  limitation effects.
+- Missing solve/rule-check user values may remain reportable only when they are
+  explicit missing-data findings and are not marked accepted input.
+- The run preserved no-renderer/no-GUI/no-CLI/no-API/no-redaction-export and no
+  professional/code-compliance-claim boundaries.
+- Validation passed: `cargo fmt --manifest-path core/reporting/report_sections/Cargo.toml`,
+  `cargo test --manifest-path core/reporting/report_sections/Cargo.toml`,
+  `python3 tests/test_report_sections_contract.py`, and `git diff --check`.
+- Durable run record:
+  `_run_records/TASK_RUN_2026-06-06_1017.md`.
+
+## 2026-06-06 - WORKING_ITEMS fan-in validation
+
+- Parent WORKING_ITEMS fan-in for the PKG-08 reporting hardening tranche found
+  the DEL-08-03 changes inside declared scope.
+- Fan-in validation passed: `python3 tests/test_report_sections_contract.py`,
+  `cargo test --manifest-path core/reporting/report_sections/Cargo.toml`,
+  `cargo fmt --manifest-path core/reporting/report_sections/Cargo.toml -- --check`,
+  and `git diff --check`.
+- Lifecycle state remains `IN_PROGRESS`; no review disposition, dependency,
+  DAG, release, professional-approval, or code-compliance claim was changed.

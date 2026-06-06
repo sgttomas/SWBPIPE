@@ -9,12 +9,14 @@ payloads or claiming professional approval.
 - Project-local deterministic JSON value serialization with sorted object keys
   for hash input.
 - SHA-256 hashes for model payloads, manifest entries, rule-pack checksum
-  references, and non-JSON assets.
+  references, binary assets, and external artifact references.
 - Solver version stamp, unit-system reference, payload references, asset
   manifest entries, and rule-pack audit references.
-- Deterministic findings for missing model hash, solver version, unit-system
-  reference, rule-pack checksum/source notice, asset hash, provenance, and
-  professional-boundary violations.
+- Deterministic findings for missing model/input-manifest hashes, solver
+  version/build evidence, unit-system reference, rule-pack checksum/source
+  notice, asset hash, provenance, payload-kind/canonicalization mismatches,
+  duplicate references, private/redacted payload boundaries, protected-content
+  risk, and professional-boundary violations.
 
 ## Boundary
 
@@ -28,6 +30,7 @@ transport, and final result-envelope integration.
 ## Verification
 
 Unit tests cover project-local key-order stability, explicit non-JCS
-canonicalization metadata, hash change on material input changes, non-JSON asset
-hash recording, rule-pack checksum capture, missing manifest findings, private
-payload redaction, and absence of professional or code-compliance statuses.
+canonicalization metadata, hash change on material input changes, binary and
+external asset hash recording, rule-pack checksum capture and slot validation,
+missing manifest findings, duplicate payload references, private payload
+redaction, and absence of professional or code-compliance statuses.

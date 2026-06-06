@@ -61,3 +61,44 @@ No PKG-02 compatibility findings were recorded for this deliverable.
 ## Audit Boundary
 
 This is an audit-only compatibility aggregation. It does not edit product artifacts, change lifecycle state, promote candidates, approve releases, certify engineering work, assert code compliance, or create professional reliance claims.
+
+---
+
+# Review: DEL-08-01 Calculation report generator
+
+**Review Type:** SELF_CHECK / AGENT_CHECK
+**Reviewer(s):** WORKING_ITEMS_REVIEW_2026-06-06_1025
+**Date Initiated:** 2026-06-06
+**Status:** RECOMMEND_ADVANCE_TO_CHECKING; lifecycle not changed
+
+## Precondition Check
+
+- Lifecycle state: `IN_PROGRESS`, valid for `IN_PROGRESS -> CHECKING` review.
+- Context validity: PASS. Deliverable ID, package ID, scope item `SOW-024`, and objective `OBJ-007` match local context and registers.
+- Dirty worktree note: current uncommitted implementation changes are the review subject; unrelated status files were not edited.
+
+## Checklist
+
+| ID | Check | Result | Notes |
+|---|---|---|---|
+| AP-001 | Four-document kit and local controls present | PASS | `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, dependencies, memory, review files, and run records are present. |
+| AP-002 | Anticipated report-generator implementation evidence present | PASS | `core/reporting/report_generator/src/lib.rs` and crate tests exist; run record `TASK_RUN_2026-06-06_1017_report-generator-hardening.md` records this tranche. |
+| AC-001 | R-08-01-001 through R-08-01-010 addressed | PASS_WITH_DISCLOSURE | Current crate validates governed section families, deterministic ordering, diagnostics, rule-pack refs, boundary metadata, and professional-boundary constraints. GUI/API/redaction/layout items remain explicit deferred scope. |
+| OC-001 | OBJ-007 supported | PASS | Report assembly and validation evidence supports reproducible report records suitable for later professional review without making professional claims. |
+| XD-001 | Cross-document consistency | PASS_WITH_DISCLOSURE | Remaining four-doc `TBD`s are explicit future integration/layout/redaction/API decisions, not hidden defaults. |
+| DS-001 | Active dependency register reviewed | PASS_WITH_DISCLOSURE | 14 active execution rows: 7 `SATISFIED`, 7 `TBD`; unresolved upstream integration is carried as visible dependency context. |
+| TB-001 | TBD inventory assessed | PASS_WITH_DISCLOSURE | 5 four-doc `TBD` markers, all broader integration/policy deferrals. |
+| VG-001 | Validation evidence | PASS | Targeted Python contract, Rust crate tests, cargo fmt check, and `git diff --check` passed. |
+| BD-001 | Protected/private/professional boundary | PASS | No protected standards data, private payload, release claim, code-compliance claim, or professional approval claim observed. |
+
+## Findings Summary
+
+No new CRITICAL, MAJOR, MINOR, or OBSERVATION lifecycle-readiness findings were opened in this review pass.
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_ADVANCE_TO_CHECKING`
+**Rationale:** checklist populated, validation passed, no CRITICAL or MAJOR findings, known `TBD`s are explicit downstream deferrals, and boundaries are preserved.
+
+`_STATUS.md` was not edited. Explicit human Gate 5 approval is required before status changes.
