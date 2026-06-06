@@ -93,3 +93,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test discovery evidence addendum
+
+- Parent TASK-PKG07-TESTDISC-001 changed seven adjacent PKG-07 Python test files to add pytest wrapper functions; `tests/test_design_authoring_comparison_workspace.py` for `DEL-07-08` was already pytest-collected.
+- Parent transcript evidence: eight PKG-07 Python test files collected 11 tests and passed 11 tests; seven direct script invocations passed; `npm test --workspace apps/desktop` passed 5 tests in 1 file; `cargo test --manifest-path core/gui/viewport_editor/Cargo.toml` passed 6 tests.
+- DEL-07-08 evidence remains technically supported by the test-discovery change because the deliverable-specific pytest file was already discoverable and included in the passing parent test run.
+- Local `Review_Findings.csv` still has `PKG07-DEL0708-PKG02-001` as `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; this addendum does not change review disposition.
+- This is technical evidence only. It does not change lifecycle state or make acceptance, release, professional, code-compliance, certification, sealing, approval, authentication, or ISSUED claims.
+
+## 2026-06-06 - CHECKING readiness review addendum
+
+- TASK-DEL07-08-CHECKING-READINESS-REVIEW read the deliverable-local truth set, local review files, prior run records, parent PKG-07 test-discovery fan-in, parent human-disposition record, and DEL-07-08 test-discovery evidence record.
+- Current local review state: `Review_Findings.csv` records `PKG07-DEL0708-PKG02-001` with `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`, consistent with the binding 2026-06-06 human disposition.
+- Recommendation recorded in `_REVIEW.md`: `MOVE_TO_CHECKING`.
+- Evidence basis: DEL-07-08 test evidence remained technically supported; parent PKG-07 validation recorded 11 pytest tests passed across the eight PKG-07 files, direct script checks passed for seven adjacent files, desktop npm tests passed, and viewport-editor cargo tests passed.
+- Caveat: this review did not edit `_STATUS.md` or make acceptance, release, professional, code-compliance, certification, sealing, authentication, or `ISSUED` claims.

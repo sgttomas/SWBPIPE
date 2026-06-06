@@ -18,6 +18,31 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("local-project-status").textContent).toContain("telemetry=false");
   });
 
+  it("records viewport editor intents without direct persisted-project mutation", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const intentPanel = screen.getByLabelText("Viewport editor intents");
+
+    expect(within(intentPanel).getByTestId("viewport-intent-empty").textContent).toContain(
+      "do not mutate persisted project data directly"
+    );
+
+    fireEvent.click(within(intentPanel).getByRole("button", { name: /Node intent/i }));
+    fireEvent.click(within(intentPanel).getByRole("button", { name: /Pipe-run intent/i }));
+    fireEvent.click(within(intentPanel).getByRole("button", { name: /Component intent/i }));
+
+    const nodeIntent = within(intentPanel).getByTestId("viewport-intent-create_node");
+    const pipeIntent = within(intentPanel).getByTestId("viewport-intent-connect_pipe_run");
+    const componentIntent = within(intentPanel).getByTestId("viewport-intent-insert_component_symbol");
+
+    for (const intent of [nodeIntent, pipeIntent, componentIntent]) {
+      expect(intent.textContent).toContain("pending_service_validation");
+      expect(intent.textContent).toContain("unit_aware_domain_validation_required");
+      expect(intent.textContent).toContain("does_not_mutate_persisted_project_payload");
+    }
+  });
+
   it("does not claim professional or release acceptance", async () => {
     render(<App />);
 

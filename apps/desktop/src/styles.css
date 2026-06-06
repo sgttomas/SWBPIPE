@@ -270,7 +270,7 @@ button:focus-visible {
 
 .viewport-shell {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .viewport-toolbar {
@@ -306,6 +306,76 @@ button:focus-visible {
   background: #f4f6f4;
   font-size: 13px;
   text-align: center;
+}
+
+.viewport-intents {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid #c8d0cb;
+  background: #fbfcfa;
+}
+
+.viewport-intent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 7px;
+}
+
+.viewport-intent-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.viewport-intent-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  min-height: 30px;
+}
+
+.viewport-intent-list p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #55625e;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.viewport-intent-list article {
+  display: grid;
+  gap: 2px;
+  padding: 7px;
+  border: 1px solid #d9dfdb;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #2d3837;
+}
+
+.viewport-intent-list strong,
+.viewport-intent-list span,
+.viewport-intent-list small {
+  overflow-wrap: anywhere;
+}
+
+.viewport-intent-list strong {
+  font-size: 12px;
+}
+
+.viewport-intent-list span,
+.viewport-intent-list small {
+  color: #5f6c68;
+  font-size: 11px;
 }
 
 .record-list,

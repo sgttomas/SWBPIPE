@@ -66,3 +66,18 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test-discovery evidence addendum
+
+- Consumed parent `TASK-PKG07-TESTDISC-001` transcript for DEL-07-07 test discovery.
+- Parent evidence reports `tests/test_solve_execution_ux.py::test_solve_execution_ux_main` added as the pytest-visible wrapper for this deliverable; eight PKG-07 Python test files collected 11 tests and passed; direct script invocations passed; desktop npm and viewport-editor cargo tests passed in the parent run.
+- This preserves technical support for the existing DEL-07-07 solve-execution UX evidence as discovery/runner evidence only. It does not change lifecycle state, acceptance, release status, professional reliance, certification, sealing, or code-compliance posture.
+- Local `Review_Findings.csv` still carries `PKG07-DEL0707-PKG02-001` as `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+
+## 2026-06-06 - CHECKING-readiness review addendum
+
+- Bounded deliverable-local TASK review rechecked the required DEL-07-07 context, status, references, dependency artifacts, memory, review file, finding register, four-document artifacts, latest local test-discovery evidence, PKG-07 fan-in evidence, and PKG-07 human disposition record.
+- `Review_Findings.csv` now records `PKG07-DEL0707-PKG02-001` with `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`, matching `WORKING_ITEMS_RUN_2026-06-06_PKG07_HUMAN_DISPOSITION.md`.
+- Test-discovery evidence remains supportive: `tests/test_solve_execution_ux.py::test_solve_execution_ux_main` is pytest-visible; parent PKG-07 pytest reports 11/11 passing; direct script checks pass; desktop Vitest reports 5/5 passing; viewport-editor Rust tests report 6/6 passing.
+- Recommendation recorded in `_REVIEW.md` and `_run_records/TASK_RUN_2026-06-06_DEL-07-07_CHECKING_READINESS_REVIEW.md`: `MOVE_TO_CHECKING`.
+- No lifecycle state, dependency/DAG authority, code, schemas, fixtures, tests, four-document artifacts, release status, professional reliance, certification, sealing, approval, `ISSUED` status, or code-compliance posture was changed by this review.

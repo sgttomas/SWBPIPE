@@ -46,5 +46,9 @@ def main():
     assert "professional acceptance" not in canonical_json(record).lower()
 
 
+def test_missing_data_warning_ux_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

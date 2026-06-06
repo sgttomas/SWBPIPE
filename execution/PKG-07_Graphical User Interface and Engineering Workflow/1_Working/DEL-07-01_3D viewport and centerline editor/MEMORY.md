@@ -105,3 +105,77 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test-discovery evidence addendum
+
+- Parent transcript `TASK-PKG07-TESTDISC-001` changed PKG-07 Python tests to add
+  pytest wrapper functions; the `DEL-07-01` wrapper is
+  `tests/test_viewport_editor_contract.py::test_viewport_editor_contract_main`.
+- Parent evidence reported 11 collected and 11 passing pytest tests across the
+  listed PKG-07 files, passing direct script invocations for the wrapper files,
+  passing `npm test --workspace apps/desktop`, and 6 passing
+  `core/gui/viewport_editor` cargo tests.
+- `DEL-07-01` evidence remains technically supported by this discovery change.
+  This addendum records evidence support only; it does not change lifecycle
+  state, review disposition, release status, professional reliance,
+  code-compliance, certification, sealing, approval, or `ISSUED` status.
+- Local `Review_Findings.csv` contained no non-empty finding rows during this
+  worker run. `HumanDisposition=TBD` remains preserved.
+
+## 2026-06-06 - CHECKING-readiness review addendum
+
+- TASK deliverable-local review read the required local surfaces, the latest
+  local test-discovery evidence run, the PKG-07 test-discovery fan-in, and the
+  PKG-07 human-disposition record.
+- Recommendation recorded in `_REVIEW.md` and
+  `_run_records/TASK_RUN_2026-06-06_DEL-07-01_CHECKING_READINESS_REVIEW.md`:
+  `HOLD_IN_PROGRESS`.
+- Basis: the 2026-05-16 compatibility review remains `PASS`, local
+  `Review_Findings.csv` has header only, and June 6 validation evidence remains
+  technically supportive; however `_STATUS.md` still records the 2026-05-11
+  lifecycle correction that reset the deliverable to `IN_PROGRESS` pending
+  further development. The June 6 work was test-discovery/evidence support, not
+  closure of the deferred viewport/editor implementation scope.
+- No lifecycle state, dependency state, review findings, four-document
+  artifacts, schemas, code, fixtures, tests, release status, professional
+  reliance status, certification, sealing, approval, code-compliance status, or
+  `ISSUED` status was changed by this review.
+
+## 2026-06-06 - Viewport closure tranche
+
+- WORKING_ITEMS closure implementation added a bounded frontend viewport
+  editor-intent bridge in `apps/desktop/src/features/viewport/PipeViewport.tsx`.
+  The bridge records create-node, connect-pipe-run, and simple-component-symbol
+  command intents as in-memory `pending_service_validation` records.
+- The new intent bridge does not mutate persisted project payloads directly and
+  preserves `unit_aware_domain_validation_required` for each intent.
+- `apps/desktop/src/App.test.tsx` now verifies the DEL-07-01 desktop viewport
+  intent behavior alongside the existing Three.js viewport smoke evidence.
+- This tranche closes the deferred runtime/product evidence called out in the
+  prior `HOLD_IN_PROGRESS` review for the bounded CHECKING gate: frontend app
+  scaffold/package manifest, Three.js runtime integration, and visible
+  command-intent behavior now have local technical-preview evidence.
+- Remaining product-level items remain downstream or broader-program scope:
+  production application-service transport, physical project container,
+  browser/Playwright rendering checks, exact GUI dependency governance, and
+  adjacent PKG-07 surfaces.
+- Recommendation recorded in `_REVIEW.md` and
+  `_run_records/TASK_RUN_2026-06-06_DEL-07-01_VIEWPORT_CLOSURE.md`:
+  `MOVE_TO_CHECKING_WITH_HUMAN_LIFECYCLE_APPROVAL`.
+- No lifecycle state, DAG authority, dependency authority, release status,
+  professional reliance status, certification, sealing, approval,
+  code-compliance status, protected-content disposition, or `ISSUED` status was
+  changed by this tranche.
+
+## 2026-06-06 - Lifecycle update to CHECKING
+
+- Human project authority instructed: "Change the status to CHECKING".
+- `_STATUS.md` now records `Current State: CHECKING` with `Last Updated:
+  2026-06-06`.
+- Basis is the viewport closure recommendation
+  `MOVE_TO_CHECKING_WITH_HUMAN_LIFECYCLE_APPROVAL` in `_REVIEW.md` and
+  `_run_records/TASK_RUN_2026-06-06_DEL-07-01_VIEWPORT_CLOSURE.md`.
+- This lifecycle update moves the deliverable into review only. It does not
+  issue the deliverable, accept release readiness, certify, seal, authenticate,
+  approve engineering work, make a code-compliance claim, change DAG authority,
+  change dependency authority, or alter protected/private-data disposition.

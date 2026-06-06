@@ -58,3 +58,19 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test-discovery evidence addendum
+
+- Consumed parent `TASK-PKG07-TESTDISC-001` test-discovery transcript.
+- `DEL-07-03` evidence remains technically supported: `tests/test_gui_editors_contract.py::test_gui_editors_contract_main` was collected by pytest, the eight-file PKG-07 pytest run reported 11 passed, direct wrapper-file script invocations passed, `npm test --workspace apps/desktop` passed 5 tests, and `cargo test --manifest-path core/gui/viewport_editor/Cargo.toml` passed 6 tests.
+- Local `Review_Findings.csv` still contains `PKG07-DEL0703-PKG02-001` with `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD`; human disposition remains open.
+- This addendum makes no lifecycle, acceptance, release, professional, code-compliance, certification, sealing, approval, authentication, or `ISSUED` claim.
+
+## 2026-06-06 - CHECKING-readiness review addendum
+
+- Consumed the package human-disposition record `WORKING_ITEMS_RUN_2026-06-06_PKG07_HUMAN_DISPOSITION.md`.
+- Current `Review_Findings.csv` records `PKG07-DEL0703-PKG02-001` as `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`; no review-finding edit was made by this worker.
+- Added `_REVIEW.md` section `2026-06-06 CHECKING Readiness Review` and run record `_run_records/TASK_RUN_2026-06-06_DEL-07-03_CHECKING_READINESS_REVIEW.md`.
+- Recommendation is `MOVE_TO_CHECKING` for formal review readiness only, subject to explicit human Gate 5 lifecycle action. `_STATUS.md` remains unchanged.
+- Six active upstream dependency rows remain `PENDING` in `Dependencies.csv`; they stay visible as CHECKING review inputs and are not closed by this addendum.
+- This addendum makes no release, professional, code-compliance, certification, sealing, authentication, approval, external compatibility, or `ISSUED` claim.

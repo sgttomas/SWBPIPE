@@ -76,5 +76,9 @@ def main():
     assert not completed["diagnostics"]
 
 
+def test_solve_execution_ux_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

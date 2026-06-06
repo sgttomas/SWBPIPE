@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { Box, CirclePlus, GitBranch } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { EntityRef, PreviewModel, Vec3 } from "../../types";
 
@@ -7,8 +8,19 @@ type Props = {
   selection: EntityRef;
 };
 
+type ViewportIntent = {
+  intent_id: string;
+  command_type: "create_node" | "connect_pipe_run" | "insert_component_symbol";
+  target_ref: string;
+  payload_refs: string[];
+  unit_policy: "unit_aware_domain_validation_required";
+  validation_state: "pending_service_validation";
+  mutation_boundary: "does_not_mutate_persisted_project_payload";
+};
+
 export function PipeViewport({ model, selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const [intents, setIntents] = useState<ViewportIntent[]>([]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -86,6 +98,13 @@ export function PipeViewport({ model, selection }: Props) {
     };
   }, [model, selection]);
 
+  function addIntent(commandType: ViewportIntent["command_type"]) {
+    setIntents((current) => [
+      buildIntent(model, commandType, current.length + 1),
+      ...current
+    ].slice(0, 4));
+  }
+
   return (
     <div className="viewport-shell">
       <div className="viewport-toolbar">
@@ -93,8 +112,61 @@ export function PipeViewport({ model, selection }: Props) {
         <span>{selection.id}</span>
       </div>
       <div className="viewport-canvas" ref={hostRef} aria-label="Three.js pipe centerline viewport" />
+      <section className="viewport-intents" aria-label="Viewport editor intents">
+        <div className="viewport-intent-actions">
+          <button type="button" onClick={() => addIntent("create_node")}>
+            <CirclePlus size={15} aria-hidden="true" />
+            Node intent
+          </button>
+          <button type="button" onClick={() => addIntent("connect_pipe_run")}>
+            <GitBranch size={15} aria-hidden="true" />
+            Pipe-run intent
+          </button>
+          <button type="button" onClick={() => addIntent("insert_component_symbol")}>
+            <Box size={15} aria-hidden="true" />
+            Component intent
+          </button>
+        </div>
+        <div className="viewport-intent-list" data-testid="viewport-intent-list">
+          {intents.length === 0 ? (
+            <p data-testid="viewport-intent-empty">
+              Editor gestures create pending service-validation intents; they do not mutate persisted project data directly.
+            </p>
+          ) : (
+            intents.map((intent) => (
+              <article key={intent.intent_id} data-testid={`viewport-intent-${intent.command_type}`}>
+                <strong>{intent.command_type}</strong>
+                <span>{intent.validation_state}</span>
+                <small>{intent.unit_policy}</small>
+                <small>{intent.mutation_boundary}</small>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
     </div>
   );
+}
+
+function buildIntent(model: PreviewModel, commandType: ViewportIntent["command_type"], sequence: number): ViewportIntent {
+  const nodeRefs = model.nodes.slice(0, 2).map((node) => `node:${node.id}`);
+  const firstComponent = model.components[0]?.id ?? "TBD";
+  const payloadRefs =
+    commandType === "connect_pipe_run"
+      ? nodeRefs
+      : commandType === "insert_component_symbol"
+        ? [`component:${firstComponent}`]
+        : ["node:preview-created-by-viewport"];
+
+  return {
+    intent_id: `viewport-intent-${sequence.toString().padStart(3, "0")}`,
+    command_type: commandType,
+    target_ref: `model:${model.project.id}`,
+    payload_refs: payloadRefs,
+    unit_policy: "unit_aware_domain_validation_required",
+    validation_state: "pending_service_validation",
+    mutation_boundary: "does_not_mutate_persisted_project_payload"
+  };
 }
 
 function pipeMesh(from: Vec3, to: Vec3, active: boolean) {

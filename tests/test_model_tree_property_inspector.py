@@ -76,5 +76,9 @@ def main():
         assert term not in text
 
 
+def test_model_tree_property_inspector_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

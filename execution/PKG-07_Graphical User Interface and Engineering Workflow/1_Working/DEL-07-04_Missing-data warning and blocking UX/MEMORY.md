@@ -51,3 +51,17 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test-discovery evidence addendum
+
+- Parent transcript `TASK-PKG07-TESTDISC-001` records that `tests/test_missing_data_warning_ux.py::test_missing_data_warning_ux_main` is now pytest-discoverable.
+- Parent evidence reports 11 collected and 11 passing tests across the listed PKG-07 Python files, passing direct script invocations for the wrapper files, passing desktop workspace tests, and passing viewport editor Rust tests.
+- DEL-07-04 evidence remains technically supported by this test-discovery change; this is not a lifecycle, acceptance, release, professional, code-compliance, certification, sealing, approval, authentication, or `ISSUED` claim.
+- Local `Review_Findings.csv` still has `PKG07-DEL0704-PKG02-001` and `PKG07-DEL0704-PKG02-002` as `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+
+## 2026-06-06 - CHECKING-readiness review addendum
+
+- Deliverable-local CHECKING-readiness review appended to `_REVIEW.md`; run record created at `_run_records/TASK_RUN_2026-06-06_DEL-07-04_CHECKING_READINESS_REVIEW.md`.
+- Recommendation is `MOVE_TO_CHECKING` because `PKG07-DEL0704-PKG02-001` and `PKG07-DEL0704-PKG02-002` now show `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`, and current test-discovery evidence supports the DEL-07-04 pytest wrapper plus PKG-07 validation fan-in.
+- Read-only dependency context: local `Dependencies.csv` still carries May 10 `PENDING` satisfaction labels for `DEL-04-06`, `DEL-05-04`, and `DEL-06-03`; their current local `_STATUS.md` files read `CHECKING`. This review did not edit dependency artifacts or claim dependency closure.
+- No lifecycle state, `_STATUS.md`, dependency register, DAG artifact, code, schema, fixture, test, four-document artifact, release status, professional approval, certification, sealing, authentication, code-compliance status, or `ISSUED` status was changed.

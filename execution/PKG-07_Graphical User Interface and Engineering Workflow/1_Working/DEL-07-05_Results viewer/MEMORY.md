@@ -42,3 +42,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test discovery evidence addendum
+
+- Consumed parent task `TASK-PKG07-TESTDISC-001`, which added pytest wrapper discovery for PKG-07 Python test files; DEL-07-05 is represented by `tests/test_results_viewer_contract.py::test_results_viewer_contract_main`.
+- Parent evidence reported 11 pytest tests collected across eight PKG-07 files, 11 pytest tests passed, direct wrapper invocations passed, `npm test --workspace apps/desktop` passed 1 file / 5 tests, and `cargo test --manifest-path core/gui/viewport_editor/Cargo.toml` passed 6 tests.
+- DEL-07-05 technical evidence remains supported by the test-discovery change; this is a technical evidence note only.
+- Local `Review_Findings.csv` still contains `PKG07-DEL0705-PKG02-001` with `HumanDisposition=TBD` and `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN`; human disposition remains required.
+- No lifecycle, release, professional, code-compliance, certification, sealing, or issued-status claim is made by this addendum.
+
+## 2026-06-06 - CHECKING-readiness review addendum
+
+- Performed bounded Type 2 TASK deliverable-local CHECKING-readiness review for `DEL-07-05`; local lifecycle state was read as `IN_PROGRESS` and not changed.
+- Consumed the local test-discovery evidence run, package test-discovery fan-in, and package human disposition record. The human disposition record accepts `PKG07-DEL0705-PKG02-001` as `ACCEPT_AS_IS`; local `Review_Findings.csv` now records that finding as `RESOLVED`.
+- This addendum supersedes the earlier 2026-06-06 memory note only for human-disposition status; the earlier test-discovery evidence details remain valid.
+- Active predecessor status spot-checks found `DEL-04-06`, `DEL-05-03`, and `DEL-05-04` at `CHECKING`; dependency files were not edited.
+- Recommendation recorded in `_REVIEW.md`: `MOVE_TO_CHECKING`, with lifecycle transition left to a separate authorized step.
+- No release, professional, code-compliance, certification, sealing, or `ISSUED` claim is made by this addendum.

@@ -221,5 +221,9 @@ def main():
         assert forbidden.lower() not in fixture_text.lower()
 
 
+def test_viewport_editor_contract_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

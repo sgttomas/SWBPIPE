@@ -51,3 +51,18 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 test discovery evidence
+
+- Parent `TASK-PKG07-TESTDISC-001` added pytest wrapper discovery for the existing DEL-07-02 Python contract test: `tests/test_model_tree_property_inspector.py::test_model_tree_property_inspector_main`.
+- Parent evidence reports pytest collection across eight PKG-07 Python test files found 11 tests; the same pytest set passed; direct script invocations for the seven wrapper files passed; `npm test --workspace apps/desktop` passed; `cargo test --manifest-path core/gui/viewport_editor/Cargo.toml` passed.
+- Conclusion: DEL-07-02's model-tree/property-inspector evidence remains technically supported at the test-discovery and contract-test level.
+- This addendum does not change lifecycle, acceptance, release, professional, code-compliance, certification, sealing, `ISSUED`, or `HumanDisposition` posture. Local `Review_Findings.csv` contains no non-empty finding rows as read for this task; no human-disposition edits were made, and `HumanDisposition=TBD` remains preserved where applicable.
+
+## 2026-06-06 - CHECKING readiness review
+
+- TASK review worker read the required deliverable-local basis, four documents, latest DEL-07-02 test-discovery evidence, package fan-in, and package human-disposition record.
+- Added a dated CHECKING-readiness section to `_REVIEW.md` and created `_run_records/TASK_RUN_2026-06-06_DEL-07-02_CHECKING_READINESS_REVIEW.md`.
+- Recommendation: `MOVE_TO_CHECKING` for bounded DEL-07-02 local lifecycle consideration. Basis: prior PASS review, no non-empty `Review_Findings.csv` rows, DEL-07-02 wrapper discovery evidence, pytest 11/11, direct scripts passed, desktop Vitest 5/5, viewport Rust tests 6/6, and no DEL-07-02 human-disposition blocker.
+- Remaining upstream `TBD` dependency satisfaction rows remain recorded as future interface/dependency evidence and were not changed or closed by this review.
+- No lifecycle, dependency, finding-disposition, four-document, code, schema, fixture, test, DAG, release, professional, code-compliance, certification, sealing, approval, `ISSUED`, or public-readiness state was changed.

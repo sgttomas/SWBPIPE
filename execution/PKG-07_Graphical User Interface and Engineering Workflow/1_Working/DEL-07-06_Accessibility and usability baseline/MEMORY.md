@@ -46,3 +46,39 @@ and software authority claims.
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - PKG-07 Test Discovery Evidence
+
+Recorded parent `TASK-PKG07-TESTDISC-001` evidence for the PKG-07 pytest wrapper
+discovery change. DEL-07-06 is represented by
+`tests/test_accessibility_usability_baseline.py::test_accessibility_usability_baseline_main`.
+The parent transcript reports 11 collected and 11 passing Python tests across
+the eight-file PKG-07 suite, passing direct wrapper invocations, passing
+`npm test --workspace apps/desktop` results, and passing viewport-editor Cargo
+tests.
+
+The DEL-07-06 evidence remains technically supported by that test-discovery
+change. This addendum records evidence support only; it does not alter local
+lifecycle state, acceptance posture, release posture, professional boundary,
+certification, sealing, or code-compliance status. No local
+`Review_Findings.csv` was found in the DEL-07-06 deliverable folder.
+
+## 2026-06-06 - CHECKING Readiness Review
+
+Performed a deliverable-local TASK review for `DEL-07-06` CHECKING readiness.
+Required reads included the local context, status, references, dependency
+surfaces, memory, four-document artifacts, latest local test-discovery evidence,
+the PKG-07 test-discovery fan-in record, and the PKG-07 human disposition
+record.
+
+Created `_REVIEW.md`, header-only `Review_Findings.csv`, and
+`_run_records/TASK_RUN_2026-06-06_DEL-07-06_CHECKING_READINESS_REVIEW.md`.
+Recommendation is `MOVE_TO_CHECKING`: current lifecycle state is `IN_PROGRESS`,
+active architecture-basis dependencies are satisfied or not applicable, retired
+PKG-07 sibling GUI rows are not local blockers, latest test-discovery evidence
+supports the DEL-07-06 pytest wrapper and package checks, and no DEL-07-06
+local review finding requires disposition.
+
+No lifecycle state was changed. This addendum records readiness-review evidence
+only and does not assert product release, professional approval, accessibility
+certification, sealing, automatic engineering acceptance, or `ISSUED` status.

@@ -261,5 +261,9 @@ def main():
         assert term not in lowered
 
 
+def test_accessibility_usability_baseline_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

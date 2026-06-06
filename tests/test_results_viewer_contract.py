@@ -69,5 +69,9 @@ def main():
     assert "code compliant" not in canonical_json(record).lower()
 
 
+def test_results_viewer_contract_main():
+    main()
+
+
 if __name__ == "__main__":
     main()

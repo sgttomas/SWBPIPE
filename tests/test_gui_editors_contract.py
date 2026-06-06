@@ -79,5 +79,9 @@ def main():
     assert missing_unit["editors"][0]["validation_state"] == "blocked_by_contract_metadata"
 
 
+def test_gui_editors_contract_main():
+    main()
+
+
 if __name__ == "__main__":
     main()
