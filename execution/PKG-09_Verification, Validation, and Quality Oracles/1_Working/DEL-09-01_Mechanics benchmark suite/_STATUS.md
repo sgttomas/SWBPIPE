@@ -1,7 +1,7 @@
 # Status: DEL-09-01 Mechanics benchmark suite
 
-**Current State:** IN_PROGRESS
-**Last Updated:** 2026-05-11
+**Current State:** CHECKING
+**Last Updated:** 2026-06-06
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -11,3 +11,4 @@
 - 2026-05-02 - DEL-09-01 mechanics benchmark implementation completed; lifecycle moved to CHECKING pending review/acceptance.
 - 2026-05-11 - TP-RECON-01 reconciled archived DEV-001 evidence for commit `b34ecd6`; state remains CHECKING with tolerance, release-gate, fixture-policy, and export-integration decisions still `TBD`.
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
+- 2026-06-06 - Human-approved lifecycle transition to CHECKING after `TP-PKG09-READINESS` implementation evidence and `TP-PKG09-READINESS-GATE` SELF_CHECK review recommended `IN_PROGRESS -> CHECKING`. This transition is review/readiness state only; release, professional approval, certification, sealing, code-compliance, final tolerance policy, release thresholds, CI gate policy, and publication scope remain unresolved or separately gated.

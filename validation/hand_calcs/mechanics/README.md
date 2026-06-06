@@ -7,7 +7,9 @@ from elementary open mechanics. They are not protected standards examples,
 commercial software examples, proprietary engineering values, code-specific
 acceptance criteria, or professional approval evidence.
 
-Final release tolerances and CI gate thresholds remain `TBD`.
+Final tolerance policy, release thresholds, CI gate policy, benchmark
+publication scope, external validation claims, and professional reliance remain
+`TBD`.
 
 ## Fixture Unit Basis
 
@@ -33,6 +35,31 @@ These notes use explicit fixture-local unit identifiers only:
 | Distributed force per length | `N/m` | force_per_length |
 
 The project unit catalog and conversion constants remain `TBD`.
+
+## Fixture Inventory
+
+The mechanics benchmark crate source inventory is mirrored here so each fixture
+has an explicit public-original hand-calculation note.
+
+| Fixture ID | Hand-calculation note |
+|---|---|
+| `MECH-CANTILEVER-TIP-FORCE` | `cantilever_tip_force.md` |
+| `MECH-PORTAL-SWAY-ORIGINAL` | `portal_frame_sway.md` |
+| `MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY` | `straight_pipe_weight_recovery.md` |
+| `MECH-SUPPORT-BOUNDARY-MIXED` | `support_boundary_mixed.md` |
+| `MECH-PRIMITIVE-LOAD-PREP` | `primitive_load_preparation.md` |
+| `MECH-TP-PHYS-002-LINEAR-STATIC-INTEGRATION` | `tp_phys_002_linear_static_integration.md` |
+| `MECH-TP-PHYS-004-LOAD-TO-RESULTANT` | `tp_phys_004_load_to_resultant.md` |
+| `MECH-TP-PHYS-005-ORIENTED-LOAD-TO-RESULTANT` | `tp_phys_005_oriented_load_to_resultant.md` |
+| `MECH-TP-PHYS-006-PARTIAL-SPAN-LOAD-TO-RESULTANT` | `tp_phys_006_partial_span_load_to_resultant.md` |
+| `MECH-TP-PHYS-007-STATION-SWEEP-RESULTANTS` | `tp_phys_007_station_sweep_resultants.md` |
+| `MECH-FIXED-FIXED-THERMAL-AXIAL` | `fixed_fixed_thermal_axial.md` |
+| `MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS` | `tp_phys_008_thermal_pressure_axial_effects.md` |
+| `MECH-TP-PHYS-009-COMBINED-LOAD-AXIAL-EFFECTS` | `tp_phys_009_combined_load_axial_effects.md` |
+| `MECH-TP-PHYS-014-CANONICAL-ANALYTICAL-PAYLOAD` | `tp_phys_014_canonical_analytical_payload.md` |
+| `MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE` | `tp_phys_015a_canonical_solve_result_envelope.md` |
+| `MECH-IMPOSED-DISPLACEMENT-SPRING` | `imposed_displacement_spring.md` |
+| `MECH-INCLINED-MEMBER-TRANSFORM` | `inclined_member_transform.md` |
 
 ## Notes
 

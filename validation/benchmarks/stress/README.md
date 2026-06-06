@@ -21,6 +21,18 @@ Fixture values carry explicit unit identifiers in code under
 only: it records units for evidence review and does not define project
 conversion constants or the canonical unit catalog, which remain `TBD`.
 
+## Readiness Boundary
+
+The crate records readiness metadata for unresolved authority items. Final
+tolerance policy, release thresholds, CI gate policy, result-envelope/export
+integration, benchmark publication scope, canonical unit/conversion policy, and
+professional reliance remain `TBD`.
+
+The Rust tests assert that every fixture has public-original provenance,
+fixture-local units, dimensioned expected values, and unresolved tolerance
+policy. They also assert that this README and the hand-calculation README list
+the current fixture inventory.
+
 ## Fixture Families
 
 | Family | Fixture IDs |

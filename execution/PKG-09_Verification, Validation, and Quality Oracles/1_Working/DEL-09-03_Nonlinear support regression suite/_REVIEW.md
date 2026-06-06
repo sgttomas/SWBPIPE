@@ -46,3 +46,58 @@ human disposition remains `TBD`.
 ## Audit Boundary
 
 This is an audit-only review. It does not implement benchmarks, edit product code, promote lifecycle state, certify validation evidence, approve release use, or make professional reliance or code-compliance claims.
+
+---
+
+# SELF_CHECK Readiness Gate: DEL-09-03
+
+## Review Identity
+
+| Field | Value |
+|---|---|
+| PackageID | PKG-09 |
+| DeliverableID | DEL-09-03 |
+| Review type | SELF_CHECK |
+| Review tranche | TP-PKG09-READINESS-GATE |
+| Reviewer | WORKING_ITEMS |
+| Date | 2026-06-06 |
+| Current lifecycle state | IN_PROGRESS |
+| Recommendation | Recommend human-approved transition to CHECKING |
+
+## Preconditions
+
+| Check | Result |
+|---|---|
+| Deliverable ID and package match decomposition | PASS |
+| Current state permits IN_PROGRESS -> CHECKING review | PASS |
+| Current readiness implementation evidence exists | PASS |
+| Existing PKG-02 finding dispositions preserved | PASS - human dispositions remain TBD |
+| Lifecycle transition performed by this review | NO |
+
+## Checklist
+
+| ID | Review item | Source | Result |
+|---|---|---|---|
+| AP-001 | Anticipated artifact `validation/benchmarks/nonlinear` exists and is exercised by tests. | `_CONTEXT.md` Anticipated Artifacts | PASS |
+| AP-002 | Regression test surface exists and checks nonlinear readiness boundaries. | `_CONTEXT.md`; readiness tranche artifacts | PASS |
+| AC-001 | Active-set, gap, friction, lift-off, and non-convergence families are represented. | `Specification.md` REQ-09-03-001 | PASS |
+| AC-002 | Fixture source artifacts are public-original/invented and provenance-note presence is checked. | `Specification.md` REQ-09-03-002/003 | PASS |
+| AC-003 | Diagnostics/result-envelope warning and failure statuses are preserved by tests. | `Specification.md` REQ-09-03-004 | PASS |
+| AC-004 | Case definitions, inputs, expected observations, and fixture-local unit basis are checked. | `Specification.md` REQ-09-03-006 | PASS |
+| AC-005 | Final convergence tolerance, release thresholds, CI/publication policy, external validation claims, and professional reliance remain TBD. | `Specification.md` REQ-09-03-007/008 | PASS |
+| DS-001 | Active upstream/dependency context remains recorded and no DAG/dependency surface was mutated by this tranche. | `Dependencies.csv`; parent fan-in | PASS |
+| RV-001 | Existing `Review_Findings.csv` findings remain technically addressed pending human disposition. | `Review_Findings.csv` | PASS |
+| VT-001 | Parent validation commands passed for mechanics, stress, nonlinear, witness/nonlinear pytest, DAG schema, and diff hygiene. | `PARENT_FANIN_2026-06-06_TP-PKG09-READINESS.md` | PASS |
+
+## Findings
+
+No new `AGENT_CHECK` findings were added by this review. Existing findings
+`PKG09-0903-PKG02-001` and `PKG09-0903-PKG02-002` remain
+`TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+
+## Gate Recommendation
+
+`DEL-09-03` is mechanically ready for a human-approved `IN_PROGRESS ->
+CHECKING` lifecycle transition. This review does not change `_STATUS.md` and
+does not make release, professional, certification, sealing, approval, or
+code-compliance claims.

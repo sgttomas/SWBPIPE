@@ -92,3 +92,40 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `N/m` scan; and `git diff --check`.
 - No lifecycle, review-disposition, release, acceptance, protected-content,
   private-data, professional-approval, or code-compliance surface was changed.
+
+## 2026-06-06 - TP-PKG09-READINESS-DEL-09-03
+
+- Hardened the focused nonlinear readiness pytest surface for fixture-family
+  coverage, one hand-calculation note per public-original fixture, provenance
+  wording, explicit fixture-local unit basis, unresolved tolerance posture, and
+  prohibited protected-content/professional-claim wording.
+- Preserved solver behavior and validation fixture data; this tranche added
+  source-level readiness checks only.
+- Production tolerance policy, release thresholds, CI/publication policy,
+  external validation claims, unit catalog, conversion constants, and
+  professional reliance remain `TBD`.
+- Validation in this TASK run: nonlinear benchmark `cargo fmt --check` passed;
+  nonlinear benchmark `cargo test` passed; focused nonlinear pytest passed.
+
+## 2026-06-06 - TP-PKG09-READINESS Parent Fan-In
+
+- Parent WORKING_ITEMS fan-in for the PKG-09 benchmark readiness tranche is
+  recorded in
+  `../DEL-09-01_Mechanics benchmark suite/_run_records/PARENT_FANIN_2026-06-06_TP-PKG09-READINESS.md`.
+- Parent validation passed: mechanics, stress, and nonlinear benchmark crates;
+  focused nonlinear/witness pytest; DAG-006 dependency schema validation; and
+  `git diff --check`.
+- No lifecycle, review-disposition, release, acceptance, protected-content,
+  private-data, professional-approval, or code-compliance surface was changed.
+
+## 2026-06-06 - TP-PKG09-READINESS-GATE Review
+
+- Appended a `SELF_CHECK` readiness-gate section to `_REVIEW.md` and recorded
+  local review evidence in
+  `_run_records/REVIEW_RUN_2026-06-06_TP-PKG09-READINESS-GATE_DEL-09-03.md`.
+- Parent review fan-in is recorded in
+  `../DEL-09-01_Mechanics benchmark suite/_run_records/PARENT_REVIEW_FANIN_2026-06-06_TP-PKG09-READINESS-GATE.md`.
+- Recommendation: mechanically ready for human-approved `IN_PROGRESS ->
+  CHECKING`; `_STATUS.md` was not changed.
+- Existing findings `PKG09-0903-PKG02-001` and `PKG09-0903-PKG02-002` remain
+  technically addressed pending human disposition.

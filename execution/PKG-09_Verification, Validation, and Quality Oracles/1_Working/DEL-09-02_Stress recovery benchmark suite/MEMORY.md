@@ -617,3 +617,58 @@ Durable context preserved after PKG-02 grounded finding resolution:
   `N/m` scan; and `git diff --check`.
 - No lifecycle, review-disposition, release, acceptance, protected-content,
   private-data, professional-approval, or code-compliance surface was changed.
+
+## 2026-06-06 - Stress benchmark readiness pass
+
+- Executed bounded TASK slice
+  `TP-PKG09-READINESS-DEL-09-02-2026-06-06` for `DEL-09-02` / `PKG-09`.
+- Added crate-level readiness boundary metadata in
+  `validation/benchmarks/stress/src/lib.rs` so final tolerance policy, release
+  thresholds, CI gate policy, result-envelope/export integration, benchmark
+  publication scope, canonical unit/conversion policy, and professional
+  reliance remain explicit `TBD` values.
+- Added focused Rust tests asserting the readiness boundary remains unresolved
+  and that the stress benchmark README plus stress hand-calculation README list
+  the current fixture inventory and fixture-local unit-system reference.
+- Updated `validation/benchmarks/stress/README.md` with a readiness-boundary
+  section.
+- Updated `validation/hand_calcs/stress/README.md` to name the
+  fixture-local unit-system reference and to make formal witness source JSON,
+  generated Markdown, generated MathML, and currency check command visible.
+- Verification passed:
+  `cargo fmt --manifest-path validation/benchmarks/stress/Cargo.toml --check`;
+  `cargo test --manifest-path validation/benchmarks/stress/Cargo.toml` with
+  19 tests passed;
+  `python3 -m pytest -q tests/test_calculation_witness.py` with 9 tests
+  passed;
+  `git diff --check`.
+- No production stress-recovery or solver behavior, lifecycle/status file,
+  dependency register, DAG file, release policy, final tolerance policy,
+  canonical unit/conversion policy, protected-source content, proprietary
+  values, allowables, SIF/flexibility factors, fatigue acceptance criteria, or
+  professional reliance decision was changed or introduced.
+- Local run record:
+  `_run_records/TASK_RUN_2026-06-06_TP-PKG09-READINESS-DEL-09-02.md`.
+
+## 2026-06-06 - TP-PKG09-READINESS Parent Fan-In
+
+- Parent WORKING_ITEMS fan-in for the PKG-09 benchmark readiness tranche is
+  recorded in
+  `../DEL-09-01_Mechanics benchmark suite/_run_records/PARENT_FANIN_2026-06-06_TP-PKG09-READINESS.md`.
+- Parent validation passed: mechanics, stress, and nonlinear benchmark crates;
+  focused nonlinear/witness pytest; DAG-006 dependency schema validation; and
+  `git diff --check`.
+- No lifecycle, review-disposition, release, acceptance, protected-content,
+  private-data, professional-approval, or code-compliance surface was changed.
+
+## 2026-06-06 - TP-PKG09-READINESS-GATE Review
+
+- Appended a `SELF_CHECK` readiness-gate section to `_REVIEW.md` and recorded
+  local review evidence in
+  `_run_records/REVIEW_RUN_2026-06-06_TP-PKG09-READINESS-GATE_DEL-09-02.md`.
+- Parent review fan-in is recorded in
+  `../DEL-09-01_Mechanics benchmark suite/_run_records/PARENT_REVIEW_FANIN_2026-06-06_TP-PKG09-READINESS-GATE.md`.
+- Recommendation: mechanically ready for human-approved `IN_PROGRESS ->
+  CHECKING`; `_STATUS.md` was not changed.
+- Existing finding `PKG09-0902-PKG02-001` remains technically addressed pending
+  human disposition.

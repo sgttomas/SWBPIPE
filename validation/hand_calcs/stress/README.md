@@ -13,7 +13,8 @@ remain `TBD` pending human approval.
 
 ## Fixture Unit Basis
 
-These notes use explicit fixture-local unit identifiers only:
+These notes use explicit fixture-local unit identifiers only under
+`PKG09-STRESS-FIXTURE-UNITS-EXPLICIT-N-M-PA`:
 
 | Quantity family | Unit | Canonical dimension |
 |---|---|---|
@@ -52,6 +53,10 @@ Formal hand-calc witnesses use machine-readable witness JSON as the
 authoritative calculation source. Markdown and MathML renderings are generated
 from that source and checked for deterministic reproducibility.
 
-| Witness | Generated Markdown |
-|---|---|
-| `WITNESS-TP-PHYS-015-SECTION-PROPERTY-STRESS` | [generated/tp_phys_015_section_property_stress_witness.md](generated/tp_phys_015_section_property_stress_witness.md) |
+Generated artifacts are current only when
+`python3 -m pytest -q tests/test_calculation_witness.py` passes. The generated
+Markdown is not authoritative; the witness JSON remains the source artifact.
+
+| Witness | Source JSON | Generated Markdown | Generated MathML |
+|---|---|---|---|
+| `WITNESS-TP-PHYS-015-SECTION-PROPERTY-STRESS` | [../../witness/fixtures/tp_phys_015_section_property_stress_witness.json](../../witness/fixtures/tp_phys_015_section_property_stress_witness.json) | [generated/tp_phys_015_section_property_stress_witness.md](generated/tp_phys_015_section_property_stress_witness.md) | [../../witness/generated/tp_phys_015_section_property_stress_witness.mathml](../../witness/generated/tp_phys_015_section_property_stress_witness.mathml) |

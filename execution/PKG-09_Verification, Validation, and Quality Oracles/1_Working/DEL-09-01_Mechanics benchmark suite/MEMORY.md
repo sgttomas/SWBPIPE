@@ -665,3 +665,51 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No `_STATUS.md`, review finding, dependency/DAG/coordination, lifecycle,
   release, acceptance, protected-content, private-data, professional-approval,
   or code-compliance surface was changed.
+
+## 2026-06-06 - TP-PKG09-READINESS-DEL-09-01 Mechanics Readiness Pass
+
+- Executed sealed TASK brief
+  `TP-PKG09-READINESS-DEL-09-01-2026-06-06` with write scope limited to
+  mechanics benchmark artifacts, mechanics hand-calculation artifacts, this
+  `MEMORY.md`, and deliverable-local `_run_records/**`.
+- Hardened readiness visibility by mirroring the crate fixture inventory in
+  `validation/benchmarks/mechanics/README.md` and adding an explicit
+  fixture-to-hand-calculation inventory table in
+  `validation/hand_calcs/mechanics/README.md`.
+- Added crate readiness metadata/tests that verify fixture IDs are unique,
+  every fixture is listed in the benchmark README, every fixture provenance
+  source is listed in the hand-calculation README, fixture-local unit basis is
+  explicit, provenance remains public-original, tolerance policy remains
+  unresolved, and release/CI/publication/external-validation/professional
+  reliance boundaries remain `TBD`.
+- Verification passed:
+  `cargo fmt --manifest-path validation/benchmarks/mechanics/Cargo.toml --check`;
+  `cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml` with
+  20 tests passed; `git diff --check`.
+- No production solver behavior, `_STATUS.md`, dependency/DAG/coordination,
+  review-disposition, release, acceptance, protected standards example,
+  commercial benchmark file, proprietary engineering value, professional
+  reliance claim, or code-compliance claim was changed or introduced.
+
+## 2026-06-06 - TP-PKG09-READINESS Parent Fan-In
+
+- Parent WORKING_ITEMS fan-in for the PKG-09 benchmark readiness tranche is
+  recorded in
+  `_run_records/PARENT_FANIN_2026-06-06_TP-PKG09-READINESS.md`.
+- Parent validation passed: mechanics, stress, and nonlinear benchmark crates;
+  focused nonlinear/witness pytest; DAG-006 dependency schema validation; and
+  `git diff --check`.
+- No lifecycle, review-disposition, release, acceptance, protected-content,
+  private-data, professional-approval, or code-compliance surface was changed.
+
+## 2026-06-06 - TP-PKG09-READINESS-GATE Review
+
+- Appended a `SELF_CHECK` readiness-gate section to `_REVIEW.md` and recorded
+  local review evidence in
+  `_run_records/REVIEW_RUN_2026-06-06_TP-PKG09-READINESS-GATE_DEL-09-01.md`.
+- Parent review fan-in is recorded in
+  `_run_records/PARENT_REVIEW_FANIN_2026-06-06_TP-PKG09-READINESS-GATE.md`.
+- Recommendation: mechanically ready for human-approved `IN_PROGRESS ->
+  CHECKING`; `_STATUS.md` was not changed.
+- Existing finding `PKG09-0901-PKG02-001` remains technically addressed pending
+  human disposition.

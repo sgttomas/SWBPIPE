@@ -13,6 +13,9 @@ Numerical comparison values here are regression evidence for the current solver
 mechanics. Release thresholds, final tolerance policy, CI gate policy, and
 professional reliance remain `TBD` pending human approval.
 
+External validation claims and benchmark publication scope also remain `TBD`.
+This suite is readiness evidence for invented mechanics fixtures only.
+
 ## Fixture Unit Basis
 
 Fixture values carry explicit unit identifiers in code under
@@ -21,6 +24,9 @@ it records units for evidence review and does not define project conversion
 constants or the canonical unit catalog, which remain `TBD`.
 
 ## Fixture Families
+
+The explicit source inventory is the `fixture_inventory()` list in
+`src/lib.rs`; this table mirrors that inventory for review.
 
 | Family | Fixture IDs |
 |---|---|
@@ -36,3 +42,13 @@ constants or the canonical unit catalog, which remain `TBD`.
 | Stiffness transform | `MECH-INCLINED-MEMBER-TRANSFORM` |
 
 Hand-calculation notes are in `validation/hand_calcs/mechanics/`.
+
+## Readiness Boundary
+
+- Fixture inventory: explicit in `fixture_inventory()` and mirrored above.
+- Fixture-local unit basis: explicit under
+  `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K`.
+- Provenance: each fixture records project-original public provenance.
+- Final tolerance policy, release thresholds, CI gate policy, benchmark
+  publication scope, external validation claims, and professional reliance:
+  `TBD`.

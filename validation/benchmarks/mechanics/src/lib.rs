@@ -47,8 +47,29 @@ use std::collections::BTreeMap;
 
 const INTERNAL_ASSERTION_EPSILON: f64 = 1.0e-9;
 const PKG09_FIXTURE_UNIT_SYSTEM_REF: &str = "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K";
+const BENCHMARK_README: &str = include_str!("../README.md");
+const HAND_CALC_README: &str = include_str!("../../../hand_calcs/mechanics/README.md");
 const TP_PHYS_014_ANALYTICAL_PAYLOAD: &str =
     include_str!("../fixtures/tp_phys_014_canonical_analytical_payload.json");
+const REQUIRED_READINESS_TBD_MARKERS: &[&str] = &[
+    "final tolerance policy",
+    "release thresholds",
+    "CI gate policy",
+    "benchmark publication scope",
+    "external validation claims",
+    "professional reliance",
+];
+const FORBIDDEN_RELIANCE_CLAIM_MARKERS: &[&str] = &[
+    "code compliant",
+    "code-compliant",
+    "complies with code",
+    "approved for professional reliance",
+    "certified for professional reliance",
+    "sealed engineering",
+    "is a protected standards example",
+    "is a commercial benchmark file",
+    "uses proprietary engineering values",
+];
 const CANONICAL_DIMENSIONS: &[&str] = &[
     "dimensionless",
     "length",
@@ -390,6 +411,39 @@ pub fn fixture_inventory() -> Vec<MechanicsBenchmark> {
         imposed_displacement_spring_fixture(),
         inclined_member_transform_fixture(),
     ]
+}
+
+pub fn fixture_inventory_ids() -> Vec<&'static str> {
+    fixture_inventory()
+        .into_iter()
+        .map(|fixture| fixture.fixture_id)
+        .collect()
+}
+
+pub fn readiness_boundaries_are_documented() -> bool {
+    REQUIRED_READINESS_TBD_MARKERS.iter().all(|marker| {
+        contains_normalized_marker(BENCHMARK_README, marker)
+            && contains_normalized_marker(HAND_CALC_README, marker)
+    }) && !contains_forbidden_reliance_claim(BENCHMARK_README)
+        && !contains_forbidden_reliance_claim(HAND_CALC_README)
+}
+
+pub fn contains_forbidden_reliance_claim(text: &str) -> bool {
+    let normalized = text.to_ascii_lowercase();
+    FORBIDDEN_RELIANCE_CLAIM_MARKERS
+        .iter()
+        .any(|marker| normalized.contains(marker))
+}
+
+fn contains_normalized_marker(text: &str, marker: &str) -> bool {
+    normalize_whitespace(text).contains(&normalize_whitespace(marker))
+}
+
+fn normalize_whitespace(text: &str) -> String {
+    text.to_ascii_lowercase()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 pub fn missing_required_families(fixtures: &[MechanicsBenchmark]) -> Vec<BenchmarkFamily> {
@@ -4203,6 +4257,42 @@ mod tests {
             );
             assert!(fixture.tolerance_policy_is_unresolved());
             assert!(fixture.has_dimensioned_expected_values());
+        }
+    }
+
+    #[test]
+    fn readiness_metadata_matches_documented_boundaries() {
+        let fixtures = fixture_inventory();
+        let mut ids = fixture_inventory_ids();
+        ids.sort_unstable();
+        ids.dedup();
+
+        assert_eq!(ids.len(), fixtures.len(), "fixture IDs must be unique");
+        assert!(readiness_boundaries_are_documented());
+
+        for fixture in &fixtures {
+            assert!(
+                BENCHMARK_README.contains(fixture.fixture_id),
+                "{} missing from benchmark README fixture inventory",
+                fixture.fixture_id
+            );
+
+            let hand_calc_note = fixture
+                .provenance
+                .source_location
+                .rsplit('/')
+                .next()
+                .expect("fixture provenance source must include a file name");
+            assert!(
+                HAND_CALC_README.contains(fixture.fixture_id)
+                    && HAND_CALC_README.contains(hand_calc_note),
+                "{} missing hand-calculation README inventory entry for {}",
+                fixture.fixture_id,
+                hand_calc_note
+            );
+            assert_eq!(fixture.unit_basis, FIXTURE_UNIT_BASIS);
+            assert!(fixture.tolerance_policy_is_unresolved());
+            assert!(fixture.provenance.is_publicly_usable());
         }
     }
 

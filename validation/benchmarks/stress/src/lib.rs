@@ -182,6 +182,46 @@ pub struct StressBenchmark {
     pub expected_values: Vec<ExpectedValue>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StressBenchmarkReadinessBoundary {
+    pub final_tolerance_policy: &'static str,
+    pub release_thresholds: &'static str,
+    pub ci_gate_policy: &'static str,
+    pub result_envelope_export_integration: &'static str,
+    pub benchmark_publication_scope: &'static str,
+    pub canonical_unit_conversion_policy: &'static str,
+    pub professional_reliance: &'static str,
+}
+
+impl StressBenchmarkReadinessBoundary {
+    pub fn unresolved_items(&self) -> [&'static str; 7] {
+        [
+            self.final_tolerance_policy,
+            self.release_thresholds,
+            self.ci_gate_policy,
+            self.result_envelope_export_integration,
+            self.benchmark_publication_scope,
+            self.canonical_unit_conversion_policy,
+            self.professional_reliance,
+        ]
+    }
+
+    pub fn remains_tbd(&self) -> bool {
+        self.unresolved_items().iter().all(|item| *item == "TBD")
+    }
+}
+
+pub const STRESS_BENCHMARK_READINESS_BOUNDARY: StressBenchmarkReadinessBoundary =
+    StressBenchmarkReadinessBoundary {
+        final_tolerance_policy: "TBD",
+        release_thresholds: "TBD",
+        ci_gate_policy: "TBD",
+        result_envelope_export_integration: "TBD",
+        benchmark_publication_scope: "TBD",
+        canonical_unit_conversion_policy: "TBD",
+        professional_reliance: "TBD",
+    };
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntegratedStraightPipeStressResult {
     pub end_resultants: PipeEndResultants,
@@ -1472,6 +1512,45 @@ mod tests {
             );
             assert!(fixture.tolerance_policy_is_unresolved());
             assert!(fixture.has_dimensioned_expected_values());
+        }
+    }
+
+    #[test]
+    fn readiness_boundary_keeps_release_authority_unresolved() {
+        assert!(STRESS_BENCHMARK_READINESS_BOUNDARY.remains_tbd());
+    }
+
+    #[test]
+    fn readmes_match_fixture_inventory_and_unit_basis() {
+        let benchmark_readme = include_str!("../README.md");
+        let hand_calc_readme = include_str!("../../../hand_calcs/stress/README.md");
+
+        assert!(benchmark_readme.contains(PKG09_STRESS_FIXTURE_UNIT_SYSTEM_REF));
+        assert!(hand_calc_readme.contains(PKG09_STRESS_FIXTURE_UNIT_SYSTEM_REF));
+
+        for fixture in fixture_inventory() {
+            assert!(
+                benchmark_readme.contains(fixture.fixture_id),
+                "benchmark README missing {}",
+                fixture.fixture_id
+            );
+            assert!(
+                hand_calc_readme.contains(fixture.fixture_id),
+                "hand-calc README missing {}",
+                fixture.fixture_id
+            );
+            assert!(
+                hand_calc_readme.contains(
+                    fixture
+                        .provenance
+                        .source_location
+                        .rsplit('/')
+                        .next()
+                        .expect("fixture source location has a file name")
+                ),
+                "hand-calc README missing source file {}",
+                fixture.provenance.source_location
+            );
         }
     }
 
