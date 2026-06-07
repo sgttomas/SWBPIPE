@@ -16,11 +16,12 @@ DEL-13-02 exists to make physical design constraints explicit, traceable, and re
 
 ## Considerations
 
-- Constraint categories are source-grounded by SOW-068. The exact schema taxonomy, enum names, severity levels, and normalization rules are `TBD`.
-- Design-knowledge associations are source-grounded by SOW-067. Exact reference shapes are `TBD` and should remain compatible with the physical source-of-truth model and DEL-13-01 design knowledge model.
-- Unit-bearing quantities referenced by constraints should not bypass the canonical unit contract. If a constraint needs a length, slope, elevation, clearance, or similar physical quantity, the quantity representation is `TBD` until it is tied to the unit-aware schema basis.
-- Provenance should distinguish known facts from unresolved assumptions or imported claims. The exact provenance submodel is `TBD`.
-- The approved dependency mirror indicates upstream architecture, canonical model, unit, persistence, design knowledge, and professional-boundary context. It is evidence for predecessor context, not authority to reclassify dependencies.
+- Constraint categories are source-grounded by SOW-068 and implemented as `ConstraintKind`: `connectivity`, `clearance`, `no_go_volume`, `support_zone`, `route_conflict`, `slope`, `drain`, `vent`, `access`, `equipment_interface`, `missing_required_data`, and `TBD`.
+- Design-knowledge associations are source-grounded by SOW-067 and represented through typed `Reference` objects plus `design_knowledge_refs`; runtime interpretation of those references remains downstream.
+- Unit-bearing quantities referenced by constraints should not bypass the canonical unit contract. The implemented `Quantity` definition requires `value`, `unit`, `dimension`, and `provenance`, and the test fixes the dimension enum to the accepted PKG-02 vocabulary.
+- Provenance should distinguish known facts from unresolved assumptions or imported claims. The implemented `Provenance` definition requires source, contributor, redistribution, review, and privacy-classification fields.
+- The approved dependency mirror and current DAG-006 coordination basis indicate upstream architecture, canonical model, unit, persistence, design knowledge, and professional-boundary context. They are evidence for predecessor context, not authority to reclassify dependencies.
+- Runtime constraint validation, GUI presentation/blocking behavior, physical-to-analytical transform consumption, and actual public example payload policy remain `TBD`.
 
 ## Trade-offs
 
@@ -28,15 +29,15 @@ DEL-13-02 exists to make physical design constraints explicit, traceable, and re
 |---|---|
 | Category breadth | Include the categories explicitly named by SOW-068; defer additional categories to human-approved scope or later decomposition change. |
 | Example payloads | Prefer no examples until invented/public-permissive examples are reviewed. Do not use real owner/project standards or protected code examples. |
-| Validation detail | Store enough structure for later validation, but avoid encoding DEL-13-03 engine behavior as if already implemented. |
+| Validation detail | Use the implemented diagnostic and validation-status slots, but avoid encoding DEL-13-03 engine behavior as if already implemented. |
 | Professional status | Use diagnostics and review-needed findings; avoid approval/certification/compliance statuses. |
 
 ## Examples
 
-No source-grounded example payload is available in the local references. Example records are `TBD` and must be invented or otherwise cleared for redistribution before inclusion in public artifacts.
+No source-grounded example payload is available in the local references. The schema includes `data_boundary.public_examples_policy = invented_or_cleared_data_only`, but example records and any public example publication policy remain `TBD` and must be invented or otherwise cleared for redistribution before inclusion in public artifacts.
 
 ## Conflict Table (for human ruling)
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| NONE | No direct source conflict detected in the accessible DEL-13-02 context. Missing implementation specifics remain `TBD`. | `_CONTEXT.md`; `_REFERENCES.md`; `Dependencies.csv`; decomposition/register slices | N/A | N/A | N/A | N/A |
+| NONE | No direct source conflict detected in the accessible DEL-13-02 context. Remaining `TBD` items are downstream runtime validation, GUI behavior, transform consumption, and public examples. | `_CONTEXT.md`; `_REFERENCES.md`; `Dependencies.csv`; decomposition/register slices; `schemas/constraint.schema.json`; `tests/test_constraint_schema.py` | N/A | N/A | N/A | N/A |

@@ -488,3 +488,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - PKG-13 stale evidence refresh Worker C
+
+- Refreshed the DEL-13-04 four-document kit against current implementation evidence in `core/model_transform/physical_to_analytical/contract.py`, `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`, `fixtures/domain/invented_physical_source_of_truth_model.json`, `tests/test_physical_to_analytical_transform.py`, and `tests/test_analytical_solver_boundary_adapter.py`.
+- Replaced obsolete `TBD` statements for transform path, internal adapter path, canonical fixture, transform/adapter tests, diagnostic behavior, analytical-model output, object/DTO traceability, and implementation records where current evidence exists.
+- Preserved deferred `TBD` status for final transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries.
+- Removed stale missing reference entries for `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` and `execution/_Coordination/NEXT_INSTANCE_STATE.md`; added current references to `_COORDINATION.md`, `NEXT_INSTANCE_PROMPT.md`, project `AGENTS.md`, `/Users/ryan/ai-env/projects/chirality/agents/AGENT_TASK.md`, upstream DEL-13-02/DEL-13-03 refresh evidence, and transform/adapter/test files.
+- Run evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1138.md`; no lifecycle, review, dependency, schema, core, test, fixture, DAG, or coordination files were intentionally edited by this refresh.

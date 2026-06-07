@@ -47,3 +47,66 @@ See `Review_Findings.csv` for dispositions.
 ## Audit Boundary
 
 Stage 2 technical resolution edited only the package-scoped transform/test/dependency surfaces allowed by DEV-001. It did not edit `_STATUS.md`, `_CONTEXT.md`, DAG files, blocker queues, lifecycle state, candidate records, or release records.
+
+---
+
+# SELF_CHECK Readiness Gate: DEL-13-04
+
+## Review Identity
+
+| Field | Value |
+|---|---|
+| PackageID | PKG-13 |
+| DeliverableID | DEL-13-04 |
+| Review type | SELF_CHECK |
+| Review tranche | PKG13_STALE_EVIDENCE_REFRESH_CHECKING_GATE |
+| Reviewer | REVIEW / WORKING_ITEMS |
+| Date | 2026-06-07 |
+| Current lifecycle state | IN_PROGRESS |
+| Recommendation | Recommend human-approved transition to CHECKING |
+
+## Preconditions
+
+| Check | Result |
+|---|---|
+| Deliverable ID and package match decomposition | PASS |
+| Current state permits IN_PROGRESS -> CHECKING review | PASS |
+| Current evidence-refresh run record exists | PASS - `_run_records/TASK_RUN_2026-06-07_1138.md` |
+| Upstream DEL-13-02 and DEL-13-03 refresh evidence read | PASS |
+| Package fan-in record exists | PASS - `../_run_records/WORKING_ITEMS_RUN_2026-06-07_1145_PKG13_STALE_EVIDENCE_REFRESH_FANIN.md` |
+| Existing PKG-02 finding disposition preserved | PASS - `HumanDisposition=TBD`, status remains `TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+| Lifecycle transition performed by this review | NO |
+
+## Checklist
+
+| ID | Review item | Source | Result |
+|---|---|---|---|
+| AP-001 | Anticipated physical-to-analytical transform contract exists as current evidence. | `_CONTEXT.md`; `core/model_transform/physical_to_analytical/contract.py`; Worker C run record | PASS |
+| AP-002 | Anticipated transform warning tests exist and pass. | `_CONTEXT.md`; `tests/test_physical_to_analytical_transform.py` | PASS |
+| AP-003 | Internal solver-boundary adapter and adapter tests exist as current supporting evidence. | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`; `tests/test_analytical_solver_boundary_adapter.py` | PASS |
+| AP-004 | Four-document kit exists and reflects implemented transform, adapter, fixture, and test evidence. | `Datasheet.md`; `Specification.md`; `Guidance.md`; `Procedure.md` | PASS |
+| AC-001 | Transform derives deterministic analytical solver-model output from schema-shaped physical source models without mutating the source. | `Specification.md`; transform tests | PASS |
+| AC-002 | Transform records deterministic diagnostics and traceability for unsupported, missing, omitted, incomplete, and noncanonical quantity cases. | `Specification.md`; transform tests | PASS |
+| AC-003 | Current adapter evidence maps supported analytical model records to deterministic solver-boundary DTOs and emits diagnostics for unsupported mappings. | `Specification.md`; adapter tests | PASS |
+| AC-004 | Final transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries remain explicit deferred scope. | `Guidance.md`; `Procedure.md` | PASS |
+| XD-001 | Datasheet, Specification, Guidance, and Procedure use consistent transform/adapter/test evidence and deferred-boundary language. | Four-document kit | PASS |
+| DS-001 | Dependency files were not changed by the evidence refresh or this review. | `Dependencies.csv`; `_DEPENDENCIES.md`; fan-in record | PASS |
+| TB-001 | Remaining `TBD` markers were assessed as deferred taxonomy, integration, release, persistence/handoff, coverage, and human-acceptance decisions, not stale implementation absence claims. | Consistency scan; four-document kit | PASS |
+| RV-001 | Existing review findings remain technically addressed pending human disposition; no new AGENT_CHECK finding was added. | `Review_Findings.csv` | PASS |
+| VT-001 | Focused validation passed: transform test, adapter test, combined pytest (`17 passed`), and `git diff --check`. | Worker C and parent fan-in records | PASS |
+
+## Findings
+
+No new `AGENT_CHECK` findings were added by this review. Existing findings
+`PKG13-DEL-13-04-PKG02-001` and `PKG13-DEL-13-04-PKG02-002` remain
+`TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+
+## Gate Recommendation
+
+`DEL-13-04` is mechanically ready for a human-approved `IN_PROGRESS ->
+CHECKING` lifecycle transition. The stale implementation-evidence gap that
+kept transform path, fixtures/tests, traceability, warning/diagnostic behavior,
+analytical output, and implementation records as future work has been closed in
+the deliverable-local documents. This review does not change `_STATUS.md` and
+does not make release, professional, certification, sealing, approval,
+authentication, or code-compliance claims.

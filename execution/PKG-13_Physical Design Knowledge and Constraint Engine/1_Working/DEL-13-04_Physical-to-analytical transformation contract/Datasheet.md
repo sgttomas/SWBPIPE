@@ -1,8 +1,8 @@
 # Datasheet: DEL-13-04 Physical-to-analytical transformation contract
 
 **Generated:** 2026-05-03
-**Status:** Initial draft from four-documents P1/P2
-**Source posture:** Conservative; unsupported particulars are marked `TBD` or `ASSUMPTION`.
+**Status:** Evidence refresh applied 2026-06-07
+**Source posture:** Current implementation evidence is cited where available; unsupported particulars remain marked `TBD` or `ASSUMPTION`.
 
 ## Identification
 
@@ -32,8 +32,14 @@
 | Missing required values | Missing solve-required values are explicit findings, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` missing-data warning classes |
 | Protected-data boundary | Public artifacts must not bundle protected standards data, tables, or proprietary values. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` |
 | Professional boundary | Software must not claim certification, sealing, approval, authentication, or code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
-| Implementation module path | TBD | No source in this deliverable fixes module or file path. |
-| Exact transform-loss taxonomy | TBD | Open issue OI-012 notes that loss classes require technical architecture detail. |
+| Transform implementation path | `core/model_transform/physical_to_analytical/contract.py` | Current implementation evidence and `MEMORY.md` |
+| Internal solver-boundary adapter path | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` | Current implementation evidence and `tests/test_analytical_solver_boundary_adapter.py` |
+| Canonical physical fixture | `fixtures/domain/invented_physical_source_of_truth_model.json` | Current fixture evidence and `tests/test_physical_to_analytical_transform.py` |
+| Focused transform tests | `tests/test_physical_to_analytical_transform.py` | Current transform contract, diagnostic, traceability, and fixture tests |
+| Focused adapter tests | `tests/test_analytical_solver_boundary_adapter.py` | Current internal solver-boundary adapter tests |
+| Current transform result shape | `TransformResult` exposes `analytical_model`, `diagnostics`, `traceability_links`, and `has_blocking_findings`. | `core/model_transform/physical_to_analytical/contract.py` |
+| Current transform settings | Default `TransformSettings` uses `analytical_model_id = ANALYTICAL-DERIVED` and `contract_version = DEL-13-04-0.1`. | `core/model_transform/physical_to_analytical/contract.py` |
+| Exact transform-loss taxonomy | TBD | Implemented `PTA-*` and `ASBA-*` diagnostics are current code/test evidence, not a final release taxonomy. |
 | Exact dependency versions | TBD | `_CONTEXT.md` Architecture Basis Injection "Still TBD". |
 
 ## Conditions
@@ -67,18 +73,23 @@ The local `Dependencies.csv` is an approved DAG-006 mirror/evidence surface. It 
 | PRD v0.2 source availability | Referenced by SOW-066 but not present in `_REFERENCES.md` as a local source; PRD-derived particulars remain `TBD`. |
 | Public data policy | No protected standards text, copied formulas, protected tables, protected examples, proprietary commercial data, or code-specific public defaults. |
 | Solver acceptance policy | Deterministic mechanics tests are required before release; code-compliance acceptance remains outside software authority. |
+| Constraint/provenance upstream | Current DEL-13-02 evidence is `schemas/constraint.schema.json` and `tests/test_constraint_schema.py`; transform consumption beyond copied `constraint_refs` remains broader integration `TBD`. |
+| Constraint-validation upstream | Current DEL-13-03 evidence is `core/constraints/validation/engine.py` and `tests/test_constraint_validation.py`; direct runtime validator invocation by the transform remains `TBD`. |
+| GUI/runtime/API integration | Current transform and adapter are Python implementation/test evidence only; no GUI, runtime command, public API, or external prover workflow is implemented here. These surfaces remain `TBD`. |
+| Persistence/handoff readiness | Current analytical output carries empty `analysis_run_refs`, `comparison_refs`, `handoff_package_refs`, and `external_reference_refs`; persisted package and handoff readiness remain outside this slice and remain `TBD`. |
 
 ## Construction
 
-The deliverable should materialize as a contract plus transform warning tests, as stated in `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`.
+The deliverable has materialized as a provider-neutral Python transform contract, an internal solver-boundary DTO adapter, a canonical invented fixture, and focused tests. These are implementation evidence only; lifecycle acceptance, release thresholds, professional reliance, and code-compliance claims remain outside software authority.
 
 | Construct | Required / expected content | Status |
 |---|---|---|
-| Transform contract | Inputs, outputs, deterministic behavior, traceability, warning/diagnostic behavior, and unsupported-data handling for physical-to-analytical conversion. | Draft scope only; implementation contract file path `TBD`. |
-| Analytical model output | Solver-ready analytical model compatible with upstream frame-kernel, support/restraint, and load semantics. | Target surface identified; exact schema details `TBD` until upstream contracts are read in a sealed implementation task. |
-| Warning records | Deterministic warnings or diagnostics for physical design data that cannot be represented analytically. | Required by SOW-066; warning code taxonomy `TBD`. |
-| Traceability records | Links from physical/source objects to analytical output objects, omissions, assumptions, or warnings. | Required by OBJ-014 context; exact record structure `TBD`. |
-| Tests | Transform warning tests. | Required artifact; exact fixtures and assertions `TBD`. |
+| Transform contract | Inputs, outputs, deterministic behavior, traceability, warning/diagnostic behavior, and unsupported-data handling for physical-to-analytical conversion. | Implemented at `core/model_transform/physical_to_analytical/contract.py`. |
+| Analytical model output | Derived `analytical_solver_model` with `source_model_ref`, centerline/frame arrays for nodes/elements/materials/sections/supports/load cases, diagnostics, assumptions, and traceability links. | Implemented for current schema-shaped records; broader physical-record coverage, runtime result envelopes, persistence, and handoff readiness remain `TBD`. |
+| Warning/diagnostic records | Deterministic `PTA-*` diagnostics for missing source/model role/coordinate data, missing fields, missing or `TBD` unit metadata, noncanonical dimensions, unsupported component/support/element data, and unresolved references. | Implemented for current contract coverage; final transform-loss taxonomy and release thresholds remain `TBD`. |
+| Internal solver-boundary adapter | Deterministic DTO boundary for nodes, straight-pipe connectivity, property bindings, support targets, load-case records/applications, adapter DTO identity/hash/source-chain records, and adapter diagnostics. | Implemented at `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`; not a public API, GUI/runtime path, external prover path, or final solver acceptance record. |
+| Traceability records | Physical-to-analytical `traceability_links` plus adapter DTO `source_chain`, `payload_hash_ref`, `result_trace_anchor`, and `solver_input_trace_anchor` for emitted load applications. | Implemented at object/DTO level; field-level scalar traceability and full runtime result trace-chain production remain `TBD`. |
+| Tests | Transform warning/diagnostic tests and internal adapter tests. | Implemented in `tests/test_physical_to_analytical_transform.py` and `tests/test_analytical_solver_boundary_adapter.py` using invented/public-permissive fixture data. |
 
 ## References
 
@@ -94,3 +105,9 @@ The deliverable should materialize as a contract plus transform warning tests, a
 - `docs/TYPES.md` - model, model role, traceability, diagnostic, and mechanics-boundary registry meanings.
 - `docs/IP_AND_DATA_BOUNDARY.md` - protected-content handling policy.
 - `INIT.md` - project principles and stop rules.
+- `core/model_transform/physical_to_analytical/contract.py` - implemented transform contract.
+- `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` - internal solver-boundary DTO adapter.
+- `fixtures/domain/invented_physical_source_of_truth_model.json` - canonical invented physical source-of-truth fixture.
+- `tests/test_physical_to_analytical_transform.py` - focused transform tests.
+- `tests/test_analytical_solver_boundary_adapter.py` - focused adapter tests.
+- Current DEL-13-02 and DEL-13-03 four-document kits, `MEMORY.md` files, and 2026-06-07 TASK run records - upstream evidence refresh context.

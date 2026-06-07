@@ -63,3 +63,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - PKG-13 stale evidence refresh Worker B
+
+- Refreshed the DEL-13-03 four-document kit against implemented evidence in `core/constraints/validation/engine.py`, `core/constraints/validation/__init__.py`, and `tests/test_constraint_validation.py`.
+- Replaced obsolete `TBD` statements for module path, API boundary, diagnostic record fields, severity values, deterministic comparison basis, validation test path, and invented test fixtures where implementation evidence exists.
+- Preserved deferred `TBD` status for localization, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.
+- Removed stale missing workflow and handoff-state reference entries; added current references to `_COORDINATION.md`, `NEXT_INSTANCE_PROMPT.md`, project `AGENTS.md`, `agents/AGENT_TASK.md`, DEL-13-03 evidence files, and current DEL-13-02 upstream refresh evidence.
+- Run evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1133.md`; no lifecycle, review, dependency, schema, core, or test files were intentionally edited by this refresh.

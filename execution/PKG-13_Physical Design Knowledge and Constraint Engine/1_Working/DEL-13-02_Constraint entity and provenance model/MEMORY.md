@@ -99,3 +99,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - PKG-13 stale evidence refresh Worker A
+
+- Refreshed the DEL-13-02 four-document kit against implemented evidence in `schemas/constraint.schema.json` and `tests/test_constraint_schema.py`.
+- Replaced obsolete `TBD` statements for schema identity, `$schema`, `$id`, required properties, enum spellings, unit quantity shape, provenance shape, data-boundary constants, and professional-boundary constants where implementation evidence exists.
+- Preserved downstream `TBD` status for runtime constraint validation, GUI behavior, physical-to-analytical transform consumption, and actual public example payload policy.
+- Removed stale missing reference entries for `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` and `execution/_Coordination/NEXT_INSTANCE_STATE.md`; added current references to `_COORDINATION.md`, `NEXT_INSTANCE_PROMPT.md`, project `AGENTS.md`, and `agents/AGENT_TASK.md`.
+- Run evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1127.md`; no lifecycle, review, dependency, schema, core, or test files were intentionally edited by this refresh.

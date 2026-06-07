@@ -46,3 +46,64 @@ See `Review_Findings.csv` for disposition.
 ## Audit Boundary
 
 Stage 2 technical resolution edited only the package-scoped validator/test surfaces allowed by DEV-001. It did not edit `_STATUS.md`, `_CONTEXT.md`, DAG files, blocker queues, lifecycle state, candidate records, or release records.
+
+---
+
+# SELF_CHECK Readiness Gate: DEL-13-03
+
+## Review Identity
+
+| Field | Value |
+|---|---|
+| PackageID | PKG-13 |
+| DeliverableID | DEL-13-03 |
+| Review type | SELF_CHECK |
+| Review tranche | PKG13_STALE_EVIDENCE_REFRESH_CHECKING_GATE |
+| Reviewer | REVIEW / WORKING_ITEMS |
+| Date | 2026-06-07 |
+| Current lifecycle state | IN_PROGRESS |
+| Recommendation | Recommend human-approved transition to CHECKING |
+
+## Preconditions
+
+| Check | Result |
+|---|---|
+| Deliverable ID and package match decomposition | PASS |
+| Current state permits IN_PROGRESS -> CHECKING review | PASS |
+| Current evidence-refresh run record exists | PASS - `_run_records/TASK_RUN_2026-06-07_1133.md` |
+| Upstream DEL-13-02 refresh evidence read | PASS |
+| Package fan-in record exists | PASS - `../_run_records/WORKING_ITEMS_RUN_2026-06-07_1145_PKG13_STALE_EVIDENCE_REFRESH_FANIN.md` |
+| Existing PKG-02 finding disposition preserved | PASS - `HumanDisposition=TBD`, status remains `TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+| Lifecycle transition performed by this review | NO |
+
+## Checklist
+
+| ID | Review item | Source | Result |
+|---|---|---|---|
+| AP-001 | Anticipated constraint validation module exists as current evidence. | `_CONTEXT.md`; `core/constraints/validation/engine.py`; Worker B run record | PASS |
+| AP-002 | Anticipated validation diagnostics tests exist and pass. | `_CONTEXT.md`; `tests/test_constraint_validation.py` | PASS |
+| AP-003 | Four-document kit exists and reflects implemented validation/test evidence. | `Datasheet.md`; `Specification.md`; `Guidance.md`; `Procedure.md` | PASS |
+| AC-001 | Validator checks available design knowledge and constraint records for SOW-068 categories where implemented. | `Specification.md`; `core/constraints/validation/engine.py` | PASS |
+| AC-002 | Diagnostics are deterministic and provenance-aware, carrying affected/source references, message, remediation, class, severity, and code fields. | `Specification.md`; `tests/test_constraint_validation.py` | PASS |
+| AC-003 | Missing data, missing units, noncanonical dimensions, provenance gaps, and professional-boundary claim flags are surfaced as diagnostics rather than defaults. | `Specification.md`; `tests/test_constraint_validation.py` | PASS |
+| AC-004 | Full geometric conflict solving, owner criteria/rules, GUI presentation, transform invocation, runtime/result-envelope integration, release readiness, and human acceptance remain explicit deferred scope. | `Guidance.md`; `Procedure.md` | PASS |
+| XD-001 | Datasheet, Specification, Guidance, and Procedure use consistent module/test evidence and deferred-boundary language. | Four-document kit | PASS |
+| DS-001 | Dependency files were not changed by the evidence refresh or this review. | `Dependencies.csv`; `_DEPENDENCIES.md`; fan-in record | PASS |
+| TB-001 | Remaining `TBD` markers were assessed as deferred localization, integration, release, and human-acceptance decisions, not stale module/test absence claims. | Consistency scan; four-document kit | PASS |
+| RV-001 | Existing review finding remains technically addressed pending human disposition; no new AGENT_CHECK finding was added. | `Review_Findings.csv` | PASS |
+| VT-001 | Focused validation passed: `python3 tests/test_constraint_validation.py`, `python3 -m py_compile core/constraints/validation/engine.py tests/test_constraint_validation.py`, and `git diff --check`. | Worker B and parent fan-in records | PASS |
+
+## Findings
+
+No new `AGENT_CHECK` findings were added by this review. Existing finding
+`PKG13-DEL-13-03-PKG02-001` remains
+`TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+
+## Gate Recommendation
+
+`DEL-13-03` is mechanically ready for a human-approved `IN_PROGRESS ->
+CHECKING` lifecycle transition. The stale implementation-evidence gap that
+kept module path, diagnostics, fixture, and test coverage as future work has
+been closed in the deliverable-local documents. This review does not change
+`_STATUS.md` and does not make release, professional, certification, sealing,
+approval, authentication, or code-compliance claims.

@@ -46,3 +46,63 @@ See `Review_Findings.csv` for disposition.
 ## Audit Boundary
 
 Stage 2 technical resolution edited only the package-scoped schema/test surfaces allowed by DEV-001. It did not edit `_STATUS.md`, `_CONTEXT.md`, DAG files, blocker queues, lifecycle state, candidate records, or release records.
+
+---
+
+# SELF_CHECK Readiness Gate: DEL-13-02
+
+## Review Identity
+
+| Field | Value |
+|---|---|
+| PackageID | PKG-13 |
+| DeliverableID | DEL-13-02 |
+| Review type | SELF_CHECK |
+| Review tranche | PKG13_STALE_EVIDENCE_REFRESH_CHECKING_GATE |
+| Reviewer | REVIEW / WORKING_ITEMS |
+| Date | 2026-06-07 |
+| Current lifecycle state | IN_PROGRESS |
+| Recommendation | Recommend human-approved transition to CHECKING |
+
+## Preconditions
+
+| Check | Result |
+|---|---|
+| Deliverable ID and package match decomposition | PASS |
+| Current state permits IN_PROGRESS -> CHECKING review | PASS |
+| Current evidence-refresh run record exists | PASS - `_run_records/TASK_RUN_2026-06-07_1127.md` |
+| Package fan-in record exists | PASS - `../_run_records/WORKING_ITEMS_RUN_2026-06-07_1145_PKG13_STALE_EVIDENCE_REFRESH_FANIN.md` |
+| Existing PKG-02 finding disposition preserved | PASS - `HumanDisposition=TBD`, status remains `TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+| Lifecycle transition performed by this review | NO |
+
+## Checklist
+
+| ID | Review item | Source | Result |
+|---|---|---|---|
+| AP-001 | Anticipated artifact `schemas/constraint.schema.json` exists as current evidence. | `_CONTEXT.md`; `MEMORY.md`; Worker A run record | PASS |
+| AP-002 | Anticipated constraint provenance model is represented through schema `Provenance`, `SourceType`, `AssumptionRecord`, diagnostics, and professional-boundary fields. | `Datasheet.md`; `Specification.md` | PASS |
+| AP-003 | Four-document kit exists and reflects implemented schema/test evidence. | `Datasheet.md`; `Specification.md`; `Guidance.md`; `Procedure.md` | PASS |
+| AC-001 | Constraint records cover connectivity, clearance, no-go/support-zone, route-conflict, slope/drain/vent, access, equipment-interface, and missing-required-data categories. | `Specification.md`; `schemas/constraint.schema.json` | PASS |
+| AC-002 | Constraint records preserve provenance and source type without bundling protected owner, standards, private, proprietary, or code-specific values. | `Specification.md`; `docs/IP_AND_DATA_BOUNDARY.md` | PASS |
+| AC-003 | Unit-bearing parameters use explicit quantity metadata and no silent unit defaults. | `Specification.md`; `tests/test_constraint_schema.py` | PASS |
+| AC-004 | Runtime validation, GUI presentation, transform consumption, and actual public example publication remain explicit deferred scope. | `Guidance.md`; `Procedure.md` | PASS |
+| XD-001 | Datasheet, Specification, Guidance, and Procedure use consistent schema/test evidence and deferred-boundary language. | Four-document kit | PASS |
+| DS-001 | Dependency files were not changed by the evidence refresh or this review. | `Dependencies.csv`; `_DEPENDENCIES.md`; fan-in record | PASS |
+| TB-001 | Remaining `TBD` markers were assessed as deferred downstream/runtime/publication items or allowed schema enum values, not stale implementation absence claims. | Consistency scan; four-document kit | PASS |
+| RV-001 | Existing review finding remains technically addressed pending human disposition; no new AGENT_CHECK finding was added. | `Review_Findings.csv` | PASS |
+| VT-001 | Focused validation passed: `python3 -m json.tool schemas/constraint.schema.json`, `python3 tests/test_constraint_schema.py`, and `git diff --check`. | Worker A and parent fan-in records | PASS |
+
+## Findings
+
+No new `AGENT_CHECK` findings were added by this review. Existing finding
+`PKG13-DEL-13-02-PKG02-001` remains
+`TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+
+## Gate Recommendation
+
+`DEL-13-02` is mechanically ready for a human-approved `IN_PROGRESS ->
+CHECKING` lifecycle transition. The stale implementation-evidence gap that
+kept schema identity, property names, versioning, and validation commands as
+future work has been closed in the deliverable-local documents. This review
+does not change `_STATUS.md` and does not make release, professional,
+certification, sealing, approval, authentication, or code-compliance claims.
