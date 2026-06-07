@@ -1,5 +1,17 @@
 # MEMORY - DEL-15-02 Target mapping and unsupported-behavior contract
 
+## 2026-06-07 - Human-approved CHECKING transition
+
+- Human approved moving DEL-15-02 to `CHECKING` after `REV_PKG-15_2026-06-07_1340` recommended `RECOMMEND_ADVANCE_TO_CHECKING`.
+- `_STATUS.md` was updated to `CHECKING`; this is a review-gate transition only, with no release, professional approval, certification, sealing, authentication, endorsement, or code-compliance claim.
+- Prior package-audit warning and June 7 review findings remain human-owned unless separately dispositioned.
+
+## 2026-06-07 - Post-remediation readiness verification
+
+- Verified `RF-001` and `RF-002` as technically addressed after the June 7 guidance-remediation run: `Guidance.md` now cites the materialized provider-neutral schema, implementation surface, behavior fields/statuses, and tests; OI-015 language is narrowed to keep target-specific mappings, field coverage, taxonomy extensions, package container, and implementation gated by `DEL-17-01` and `DEL-17-02`.
+- Validation passed: `python3 tests/test_target_mapping_contract.py`; `python3 tools/validation/validate_dependencies_schema.py ".../DEL-15-02_Target mapping and unsupported-behavior contract/Dependencies.csv"`; targeted stale-phrase scan with only inspected non-defect hits; `git diff --check`.
+- Boundary preserved: `Review_Findings.csv` remains unchanged with `RF-001` and `RF-002` `HumanDisposition=TBD` and `Status=OPEN`; no lifecycle, dependency, schema, code, test, fixture, or project-level coordination edits were made.
+
 ## 2026-06-07 - PKG-15 handoff review-readiness hardening
 
 - Materialized `schemas/target_mapping.schema.json` as the public JSON Schema 2020-12 contract for the current provider-neutral Python output from `core/handoff/target_mapping/contract.py`.

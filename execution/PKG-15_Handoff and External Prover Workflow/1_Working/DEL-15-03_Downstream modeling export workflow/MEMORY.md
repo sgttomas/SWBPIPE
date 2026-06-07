@@ -7,6 +7,12 @@ created: 2026-05-06
 
 # DEL-15-03 Memory - Downstream Modeling Export Workflow
 
+## 2026-06-07 - Human-approved CHECKING transition
+
+- Human approved moving DEL-15-03 to `CHECKING` after `REV_PKG-15_2026-06-07_1340` recommended `RECOMMEND_ADVANCE_TO_CHECKING`.
+- `_STATUS.md` was updated to `CHECKING`; this is a review-gate transition only, with no release, professional approval, certification, sealing, authentication, endorsement, or code-compliance claim.
+- Prior package-audit warning and June 7 review findings remain human-owned unless separately dispositioned.
+
 ## 2026-06-07 - PKG-15 handoff review-readiness hardening
 
 - Hardened `tests/test_handoff_export_workflow.py` to validate exported handoff-package and target-mapping payloads against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`.
@@ -84,3 +90,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - Post-remediation readiness verification
+
+- Verified `RF-001` and `RF-002` as technically addressed by current `Guidance.md` / OI-015 language and the June 7 remediation evidence.
+- Validation passed: `python3 tests/test_handoff_export_workflow.py`, dependency schema validation for local `Dependencies.csv`, targeted stale-phrase scans, and `git diff --check`.
+- `Review_Findings.csv` was not edited; `HumanDisposition` remains `TBD` and formal review closure remains human-gated.

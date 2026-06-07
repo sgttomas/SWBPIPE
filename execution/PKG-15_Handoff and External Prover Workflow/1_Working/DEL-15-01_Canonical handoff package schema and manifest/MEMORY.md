@@ -1,5 +1,17 @@
 # MEMORY - DEL-15-01 Canonical handoff package schema and manifest
 
+## 2026-06-07 - Human-approved CHECKING transition
+
+- Human approved moving DEL-15-01 to `CHECKING` after `REV_PKG-15_2026-06-07_1340` recommended `RECOMMEND_ADVANCE_TO_CHECKING`.
+- `_STATUS.md` was updated to `CHECKING`; this is a review-gate transition only, with no release, professional approval, certification, sealing, authentication, endorsement, or code-compliance claim.
+- Remaining OI-015 deferrals and human-owned review dispositions remain visible for later review/issue workflows.
+
+## 2026-06-07 - Post-remediation readiness verification
+
+- Verified `RF-001` and `RF-002` as technically addressed by the current guidance/OI-015 wording and the June 7 guidance-remediation run record.
+- Validation passed: handoff package schema test, dependency CSV schema validation, targeted stale-phrase scans, and `git diff --check`.
+- Boundary preserved: `Review_Findings.csv` remains unchanged with `HumanDisposition=TBD` and `Status=OPEN`; no lifecycle, dependency, schema, code, test, fixture, or project-level coordination edits were made.
+
 ## 2026-06-07 - PKG-15 handoff review-readiness hardening
 
 - Added `fixtures/invented_handoff_package.json` as an invented, non-engineering, provenance-labeled valid handoff-package fixture.

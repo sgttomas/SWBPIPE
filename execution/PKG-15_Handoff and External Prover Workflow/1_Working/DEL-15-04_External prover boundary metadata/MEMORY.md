@@ -7,6 +7,19 @@ created: 2026-05-07
 
 # DEL-15-04 Memory - External Prover Boundary Metadata
 
+## 2026-06-07 - Human-approved CHECKING transition
+
+- Human accepted the recommended disposition for blocker `DEL-15-04-PKG02-001`; `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED` for that row.
+- Human approved moving DEL-15-04 to `CHECKING` after `REV_PKG-15_2026-06-07_1340`; `_STATUS.md` was updated to `CHECKING`.
+- This is a review-gate transition only, with no release, professional approval, certification, sealing, authentication, endorsement, or code-compliance claim.
+- `RF-001` remains human-owned unless separately dispositioned, although the technical content was already addressed.
+
+## 2026-06-07 - Post-remediation readiness verification
+
+- `RF-001` is technically addressed: current `Guidance.md` cites the materialized schema/module/test evidence and uses schema-backed metadata field groups instead of setup-era TBD wording.
+- Validation passed: `python3 tests/test_external_prover_boundary_metadata.py`, dependency schema validation for local `Dependencies.csv`, targeted stale-phrase scans, and `git diff --check`.
+- Boundary preserved: no lifecycle, review-disposition, dependency, schema, code, test, fixture, or project-level coordination edits were made; `HumanDisposition` remains `TBD` and `Review_Findings.csv` `Status` remains unchanged.
+
 ## 2026-06-07 - PKG-15 handoff review-readiness hardening
 
 - Materialized `schemas/external_prover_metadata.schema.json` as the public JSON Schema 2020-12 metadata contract matching current `core/handoff/external_prover/` builder output.
