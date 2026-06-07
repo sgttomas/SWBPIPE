@@ -10,11 +10,13 @@ In scope:
 - registry metadata needed to mark privacy, provenance, redistribution status, checksum status, review status, and transmission posture;
 - secret-reference handling for imports or private storage without storing usable secret material in project artifacts, reports, fixtures, or public examples;
 - warning, redaction, quarantine, and deny-by-default behavior at export, report, plugin, adapter, telemetry, and public contribution boundaries.
+- current metadata-only release-guard evidence in `core/security/secret_private_library/`, `docs/security/secret_private_library_handling.md`, and `tests/security/test_secret_private_library_handling.py`.
 
 Out of scope:
 
 - cloud secret management or cloud storage operations unless separately approved;
 - final operating-system credential-store integration details;
+- exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices;
 - legal sufficiency, certification, approval, sealing, endorsement, or professional code-compliance claims;
 - real private libraries, real credentials, real private project data, protected standards text, protected tables, proprietary formulas, material allowables, SIF/flexibility tables, or protected dimensional data.
 
@@ -50,12 +52,12 @@ No protected standards text, tables, figures, or proprietary values are needed t
 | Verification item | Acceptance signal |
 |---|---|
 | Four-document source boundary | No real credentials, private libraries, protected standards text, proprietary source content, or usable credential examples appear in deliverable artifacts. |
-| Registry metadata coverage | Registry design/test fixtures cover privacy classification, provenance, redistribution status, checksum status, credential-reference posture, transmission default, and review/quarantine status. |
-| Secret-reference safety | Tests fail when a project or registry artifact contains secret material instead of an opaque reference or non-sensitive sentinel marker. |
+| Registry metadata coverage | Current helper/test fixtures cover privacy classification, provenance, redistribution status, checksum status, credential-reference posture, transmission default, and review/quarantine status as metadata-only records; exact registry schema/storage placement remains `TBD`. |
+| Secret-reference safety | Current tests fail when a project or registry artifact contains secret material instead of an opaque reference or non-sensitive sentinel marker. |
 | Local-first default | Modeling, solving, rule checking, reporting, and private-library use require no cloud service by default. |
-| Redaction/export path | Exports and reports omit or redact private values by default and provide warning diagnostics before explicit inclusion. |
-| Permission path | Plugin/adapter access to private libraries and secret references is denied without grant. |
-| Diagnostic path | Missing provenance, unknown redistribution, and suspected protected content produce structured diagnostics. |
+| Redaction/export path | June 7 guard evidence aligns with DEL-12-02 redaction/export markers for metadata-only report/shared/downstream release contexts; runtime report/export route integration remains `TBD`. |
+| Permission path | Plugin/adapter access semantics are denied by default in the documented no-bypass control surface; exact permission grant persistence remains `TBD`. |
+| Diagnostic path | Missing provenance, unknown redistribution, suspected protected content, payload markers, cloud/network markers, external secret-manager markers, direct SQL/raw SQLite markers, storage-bypass markers, and concrete path indicators produce structured diagnostics or safe metadata reduction in current focused tests. |
 
 ## Documentation
 
@@ -71,7 +73,11 @@ Required deliverable-local artifacts:
 - `_DEPENDENCIES.md`
 - `_run_records/*` phase records
 
-Implementation-facing artifacts anticipated by the decomposition, but not created as product files in this setup pass:
+Current implementation-facing evidence:
 
-- private library registry;
-- secret handling tests.
+- `core/security/secret_private_library/controls.py` and `__init__.py` provide metadata-only reference classification and release-guard helpers;
+- `docs/security/secret_private_library_handling.md` documents guard behavior and non-authority boundaries;
+- `tests/security/test_secret_private_library_handling.py` provides focused invented-fixture coverage;
+- `_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md` and package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` record passing focused and paired PKG-12 validation.
+
+Remaining implementation details not resolved by this specification include exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices.

@@ -10,6 +10,7 @@
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
 - **Generated:** 2026-05-10
+- **Readiness evidence aligned:** 2026-06-07; four previously TBD upstream rows are now marked `SATISFIED` based on target deliverable status/review/run-record evidence. This alignment does not promote DEL-12-03 lifecycle, issue any dependency closure beyond local readiness evidence, or authorize runtime telemetry.
 
 | Class | Direction | Type | Target | Count |
 |---|---|---|---|---:|
@@ -30,10 +31,19 @@
 | DAG-002-E0372 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 / AB-00-06 | SATISFIED | HIGH |
 | DAG-002-E0373 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-07 / AB-00-07 | SATISFIED | HIGH |
 | DAG-002-E0374 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 / AB-00-08 | SATISFIED | HIGH |
-| DAG-002-E0604 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-12-05 | TBD | HIGH |
-| DAG-002-E0605 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-01-02 | TBD | HIGH |
-| DEL-12-03-E001 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-01-04 | TBD | HIGH |
-| DEL-12-03-E002 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-04 | TBD | HIGH |
+| DAG-002-E0604 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-12-05 | SATISFIED | HIGH |
+| DAG-002-E0605 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-01-02 | SATISFIED | HIGH |
+| DEL-12-03-E001 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-01-04 | SATISFIED | HIGH |
+| DEL-12-03-E002 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-04 | SATISFIED | HIGH |
+
+## 2026-06-07 Readiness Evidence Alignment
+
+| DependencyID | Evidence for current satisfaction | Remaining deferrals |
+|---|---|---|
+| DAG-002-E0604 / DEL-12-05 | DEL-12-05 `_STATUS.md` records `CHECKING` as of 2026-06-06; local `_REVIEW.md` records PASS for threat-model compatibility and no PKG-02 compatibility findings. | Target-specific security controls, release controls, and runtime telemetry decisions remain owning-deliverable or future implementation work. |
+| DAG-002-E0605 / DEL-01-02 | DEL-01-02 `_STATUS.md` records `CHECKING` as of 2026-06-04; formal review records protected-content/data-boundary coverage as PASS/PASS_WITH_WARNINGS with non-blocking external authority deferrals. | External legal/contributor/reviewer authority items remain deferred and do not become legal approval, contribution acceptance, or release approval. |
+| DEL-12-03-E001 / DEL-01-04 | DEL-01-04 `_STATUS.md` records `CHECKING` as of 2026-06-04; formal review records professional-boundary/report-notice coverage and no affirmative prohibited software authority claim. | Jurisdiction-specific wording, legal-review authority, release-label vocabulary, and exact human-acceptance workflow remain non-blocking governance deferrals. |
+| DEL-12-03-E002 / DEL-05-04 | DEL-05-04 `_STATUS.md` records `CHECKING` as of 2026-06-05; lifecycle-readiness review records status-boundary schema/test evidence and no professional/code-compliance claim guards violated. | Result-envelope integration details, non-JSON payload hash canonicalization, and human-acceptance workflow ownership/storage/UI remain future TBDs. |
 
 ## Run Notes
 
@@ -55,14 +65,15 @@
 - RETIRED rows: 0
 - Anchor rows: 2
 - Execution rows: 11
-- Satisfaction: 7 SATISFIED; 4 TBD; 2 NOT_APPLICABLE
+- Satisfaction: 11 SATISFIED; 0 TBD; 2 NOT_APPLICABLE
 - Confidence: 13 HIGH; 0 MEDIUM; 0 LOW
 - Origin: 13 EXTRACTED; 0 DECLARED
 
 ## Downstream Handoff Notes
 
 - RECONCILIATION should treat the normalized DAG-002 rows as retained local evidence only; they do not alter aggregate graph authority.
-- The two newly added execution rows are conservative source-supported upstream dependencies for professional-claims/status semantics; their closure status remains `TBD` because this local refresh does not change target lifecycle state.
+- The two added execution rows for professional-claims/status semantics are now locally `SATISFIED` for DEL-12-03 readiness evidence because target deliverable reviews/status records provide current boundary evidence; this is not lifecycle promotion or human acceptance.
+- Cleared upstream dependency `TBD` rows remain bounded to current evidence only. Runtime telemetry, product config schema/storage, consent UI/CLI, endpoint/vendor/transport, event schema/allowlist, retention, support-bundle workflow, runtime route integration, release controls, legal/professional judgments, and human approval choices remain explicit deferrals.
 - No DAG-003 edge was approved or promoted in this worker run.
 - Architecture-basis rows remain context constraints only; they do not mark PKG-00 deliverables as `ISSUED`.
 
@@ -70,3 +81,4 @@
 
 - 2026-05-03: Local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 9 ACTIVE rows; local mirror only.
 - 2026-05-10: TP-DAG-004 dependency-extract refresh; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition path `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph authority `execution/_DAG/DAG-006`; warnings: enum normalization required for prior DAG mirror rows; legacy ID-format helper rejects current two-digit decomposition IDs; active rows 13; retired rows 0.
+- 2026-06-07: TASK C readiness-evidence alignment updated four upstream rows from `TBD` to `SATISFIED` based on DEL-12-05, DEL-01-02, DEL-01-04, and DEL-05-04 current status/review/run-record evidence. No DAG artifact, lifecycle file, approval record, product code, schema, runtime telemetry surface, or package register was edited.

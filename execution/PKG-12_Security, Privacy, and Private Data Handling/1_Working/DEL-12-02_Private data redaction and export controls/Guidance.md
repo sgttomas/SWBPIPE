@@ -4,7 +4,7 @@
 
 This deliverable keeps OpenPipeStress report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.
 
-The guidance is intentionally setup-level. It defines the redaction/export-control vocabulary and expected future verification without selecting a concrete config schema, UI design, export format, cloud workflow, or legal sufficiency claim.
+The original guidance was setup-level. Current June 7 evidence now includes a concrete schema contract, metadata-only helper, focused invented-fixture tests, and security documentation. This guidance still does not select final persisted profile storage, UI design, CLI/API/public transport behavior, export format, cloud exception workflow, legal review workflow, destructive quarantine movement, or approval workflow.
 
 ## Principles
 
@@ -41,18 +41,22 @@ Reports may safely reference rule-pack ID, version, checksum, and source note wh
 
 ### Manifest Boundary
 
-A redacted export should not become useless for audit. The future implementation should preserve non-sensitive reproducibility evidence such as hashes, versions, redaction profile ID, warning summaries, and provenance summaries while avoiding leakage of the redacted values themselves.
+A redacted export should not become useless for audit. Runtime integration should preserve non-sensitive reproducibility evidence such as hashes, versions, redaction profile ID, warning summaries, and provenance summaries while avoiding leakage of the redacted values themselves.
 
 ### Adapter and Plugin Boundary
 
 Adapters and plugins are export risk multipliers. They should never bypass redaction configuration, provenance checks, unit checks, report controls, diagnostics, or rule-pack sandboxing. A downstream-tool export is still an export boundary, not an exemption.
 
+### Current Evidence Boundary
+
+The current helper is metadata-only. It blocks or redacts explicit storage/privacy markers for payload presence, secret material, cloud/network references, direct SQL/raw SQLite access, storage bypasses, concrete path indicators, and local/private intent. It does not read or write private paths, move quarantine material, store secrets, select storage roots, integrate report/export runtime routes, authorize cloud behavior, or decide legal/security/professional sufficiency.
+
 ## Trade-offs
 
 | Trade-off | Implication |
 |---|---|
-| Redact values vs. preserve review detail | Redaction lowers disclosure risk but can reduce review usefulness. Preserve non-sensitive manifest evidence and make the redaction profile visible. |
-| Warn-only vs. block export | Warn-only preserves user agency but can permit accidental disclosure. Blocking is safer for public/shared contexts with unknown or protected-suspected provenance. |
+| Redact values vs. preserve review detail | Redaction lowers disclosure risk but can reduce review usefulness. Current schema/helper evidence preserves safe metadata classes; full report/export manifest integration remains `TBD`. |
+| Warn-only vs. block export | Warn-only preserves user agency but can permit accidental disclosure. Current metadata hardening blocks high-risk storage/privacy markers while final approval and override workflow remains `TBD`. |
 | Field-level vs. value-level redaction | Field-level redaction is simpler and safer; value-level redaction can retain structure but may leak through labels, units, hashes, or context. |
 | Local private export vs. public template export | Local private exports may need full detail; public templates/examples must remain protected-data-free and invented-data-only. |
 | Rich downstream handoff vs. minimum disclosure | Downstream tools may require detail, but adapters must not become a bypass path for private data or protected content. |
@@ -73,17 +77,21 @@ The following are symbolic examples only:
 
 | Issue ID | Topic | Status | Notes |
 |---|---|---|---|
-| REXC-OI-001 | Redaction config schema | TBD | This setup run records required config slots only; exact JSON Schema and file location remain implementation-level TBD. |
-| REXC-OI-002 | Export context UI and override flow | TBD | Exact GUI controls and user confirmation workflow are not selected here. |
+| REXC-OI-001 | Redaction config schema | PARTIAL / TBD | `schemas/redaction_export_controls.schema.yaml` now exists; persisted profile storage location, migration behavior, and storage roots remain `TBD`. |
+| REXC-OI-002 | Export context UI and override flow | TBD | Exact GUI controls, CLI prompts, user confirmation, and approval workflow are not selected here. |
 | REXC-OI-003 | Public API transport and export formats | TBD | AB-00-07 leaves public transport and concrete import/export formats open. |
-| REXC-OI-004 | Executable export tests | TBD | Future implementation must add tests; this setup run records test expectations only. |
-| REXC-OI-005 | Legal sufficiency of redaction | TBD | This deliverable does not claim that any redaction policy satisfies legal, client, or professional obligations. |
-| REXC-OI-006 | Physical project package/container | TBD | Redaction may depend on project package boundaries, which remain implementation-level TBD. |
+| REXC-OI-004 | Executable export tests | PARTIAL / TBD | Focused helper/schema tests now exist; runtime report/export, GUI/CLI/API, adapter/plugin, and protected-content linter integration tests remain `TBD`. |
+| REXC-OI-005 | Legal sufficiency of redaction | TBD | This deliverable does not claim that any redaction policy satisfies legal, client, security, or professional obligations. |
+| REXC-OI-006 | Physical project package/container | TBD | Redaction may depend on project package boundaries, storage roots, and export staging behavior, which remain implementation-level `TBD`. |
+| REXC-OI-007 | Runtime report/export integration | TBD | The helper/schema evidence exists, but report generator, result export, GUI, CLI, API, adapter, and public template runtime routes are not wired through this control here. |
+| REXC-OI-008 | Quarantine and legal review workflow | TBD | The helper blocks suspected/protected/private metadata but does not perform destructive quarantine movement or legal review routing. |
+| REXC-OI-009 | Cloud exception workflow | TBD | Default posture remains no cloud export or transmission unless separately approved; exception process and controls are not selected here. |
+| REXC-OI-010 | Storage roots and concrete paths | TBD | Concrete path indicators are redacted in focused helper behavior; allowed storage roots and portable project/export package behavior remain `TBD`. |
 
 ## Conflict Table (for human ruling)
 
 | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| REXC-CON-001 | The deliverable catalog anticipates redaction config and export tests, while the sealed setup run is limited to deliverable-local documentation and setup artifacts. | `docs/_Registers/Deliverables.csv` row DEL-12-02 | User TASK brief; `_CONTEXT.md#Anticipated Artifacts` | Specification Requirements; Procedure Future Implementation Procedure | Record config/test expectations now; defer executable config schema and tests to a later implementation task. | TBD |
+| REXC-CON-001 | The deliverable catalog anticipated redaction config and export tests; current evidence now provides a schema and focused helper tests but not full runtime integration. | `docs/_Registers/Deliverables.csv` row DEL-12-02 | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in record | Specification Requirements; Procedure Future Implementation Procedure | Treat schema/focused tests as current evidence; defer runtime integration, UI/CLI/API/adapter routes, and approval workflows. | TBD |
 | REXC-CON-002 | Local private exports may need unredacted values, but shared/public outputs must avoid private/protected disclosure. | `docs/SPEC.md#8. Reporting and audit`; `docs/IP_AND_DATA_BOUNDARY.md#7. Report boundary` | SOW-040; OPS-K-PRIV-1 | Guidance Export Contexts; Specification REXC-REQ-006 | Allow explicit local-private export with warning/audit record; require redaction or block for shared/public contexts. | TBD |
-
+| REXC-CON-003 | Focused helper/schema/tests now exist, but runtime report/export paths and approval workflows are not integrated. | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` | `_STATUS.md` current `IN_PROGRESS`; Specification Documentation deferred items | Specification Verification; Procedure Future Implementation Procedure; Dependencies | Treat current evidence as readiness evidence only; defer lifecycle promotion and runtime integration to owning workflows. | TBD |

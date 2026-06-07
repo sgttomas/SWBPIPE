@@ -90,3 +90,10 @@ Durable context preserved after reconciliation review:
 - Preserved stable `redact_export_payload(...)` and `classify_export_item(...)` signatures; the helper remains metadata-only and mutates only copied export/report representations.
 - Added schema reason codes and focused invented-fixture tests for the new blocking/redaction decisions.
 - Boundaries preserved: no source mutation, no private payload storage behavior, no cloud/network behavior, no direct SQLite/raw SQL behavior, no concrete user paths, no legal clearance, no security certification, and no professional or code-compliance claim.
+
+## 2026-06-07 - Readiness evidence alignment
+
+- TASK B aligned DEL-12-02 production docs, dependency surfaces, review surfaces, and this memory with June 7 evidence from `schemas/redaction_export_controls.schema.yaml`, `core/security/redaction/`, `tests/security/test_redaction_export_controls.py`, `docs/security/redaction_export_controls.md`, `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`, and package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md`.
+- Six prerequisite dependency rows that were previously `TBD` are now marked `SATISFIED` for readiness evidence only, based on cited status/review/run-record evidence from DEL-12-05, DEL-12-01, DEL-08-01, DEL-08-04, DEL-06-04, and DEL-03-07.
+- Remaining deferrals stay explicit: runtime report/export integration, destructive quarantine movement, legal review workflow, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, runtime integration tests, and approval choices.
+- `_STATUS.md`, product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, and other deliverables were not edited by this alignment.

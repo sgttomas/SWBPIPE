@@ -12,7 +12,7 @@
 | Scope Item | SOW-040 |
 | Objective | OBJ-010 |
 | Setup Run Date | 2026-04-30 |
-| Lifecycle Target | SEMANTIC_READY after setup gates pass |
+| Lifecycle State | `_STATUS.md` currently records `IN_PROGRESS`; this evidence alignment does not authorize lifecycle promotion |
 
 ## Attributes
 
@@ -27,9 +27,9 @@
 | Diagnostic class | `IP_BOUNDARY_WARNING` where export/report content may expose private or protected data |
 | Redaction mode vocabulary | `WARN_ONLY`, `REDACT_VALUE`, `REDACT_FIELD`, `BLOCK_EXPORT`, `ALLOW_PRIVATE_EXPORT` |
 | Export context vocabulary | `LOCAL_PRIVATE`, `SHARED_REDACTED`, `PUBLIC_TEMPLATE`, `PUBLIC_EXAMPLE`, `DOWNSTREAM_TOOL` |
-| Config persistence | Future implementation must keep redaction configuration local and project/version aware; exact schema file remains TBD |
-| Export-test status | Test expectations documented only; executable tests are not created by this setup run |
-| Implementation status | Not implemented by this setup run |
+| Config persistence | `schemas/redaction_export_controls.schema.yaml` now records the local-first control profile, field policies, decisions, and findings contract; durable project/profile storage location and storage roots remain `TBD` |
+| Export-test status | Focused invented-fixture tests now exist for schema vocabulary, metadata-only classification, public/shared redaction, local-private intent, source non-mutation, and storage/privacy marker hardening; runtime report/export integration tests remain `TBD` |
+| Implementation status | Metadata-only helper, schema, focused tests, and security documentation now exist as June 7 evidence; runtime report/export integration, destructive quarantine movement, legal review workflow, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, and approval choices remain `TBD` |
 
 ## Conditions
 
@@ -45,44 +45,50 @@
 
 ## Redaction Configuration Contract
 
-This setup run records a documentation-level contract for a future redaction configuration. The exact JSON Schema, field names, and UI controls remain implementation-level TBD.
+This deliverable now has current evidence for a schema-governed redaction/export-control contract in `schemas/redaction_export_controls.schema.yaml` and a metadata-only helper under `core/security/redaction/`. The exact persisted project/profile storage location, UI controls, CLI/API/public transport behavior, external export formats, and approval workflow remain implementation-level `TBD`.
 
 | Proposed Config Slot | Purpose | Default Setup Expectation |
 |---|---|---|
-| `profile_id` | Stable identifier for a redaction/export profile. | Required in future implementation. |
-| `export_context` | Classifies the intended export surface. | Must be one of the configured export context values. |
-| `field_classification_rules` | Maps model/report fields to public, private, protected-suspected, or unknown handling classes. | Must default unknown risky fields to warning or block, not silent inclusion. |
-| `rule_pack_detail_policy` | Controls formula, allowable, interpretation, source-note, and checksum exposure. | Public/shared exports may include identity/version/checksum/source note, not protected formula text. |
-| `material_value_policy` | Controls material properties, allowables, provenance, and redistribution-status exposure. | Public/shared exports redact private/protected values unless rights are documented. |
-| `component_value_policy` | Controls manufacturer/vendor component fields, geometry catalogs, stiffnesses, and private modifiers. | Public/shared exports redact private/vendor-restricted values unless rights are documented. |
-| `project_value_policy` | Controls project-specific loads, owner requirements, coordinates, equipment loads, and design-basis values. | Shared/public exports require explicit user intent and redaction review. |
-| `manifest_policy` | Defines what evidence remains in an export manifest after redaction. | Preserve hashes/provenance/statuses without leaking redacted values. |
-| `override_policy` | Defines whether unredacted private export is allowed. | Allowed only for local private context with explicit user action and warning record. |
-| `diagnostic_policy` | Defines warning classes and blocking findings. | Emit `IP_BOUNDARY_WARNING` and related diagnostics where risk exists. |
-| `template_guard_policy` | Controls public report templates and examples. | Protected standards text/tables/formulas and private examples are prohibited. |
+| `profile_id` | Stable identifier for a redaction/export profile. | Schema slot exists; persisted profile lifecycle remains `TBD`. |
+| `export_context` | Classifies the intended export surface. | Configured context vocabulary exists for public report/example, shared model, downstream tool, and local private export. |
+| `field_classification_rules` | Maps model/report fields to public, private, protected-suspected, or unknown handling classes. | Helper uses explicit metadata only; unknown risky fields produce warning, redaction, or blocking behavior. |
+| `rule_pack_detail_policy` | Controls formula, allowable, interpretation, source-note, and checksum exposure. | Public/shared exports may include safe metadata such as identity/version/checksum/source note, not protected formula text. |
+| `material_value_policy` | Controls material properties, allowables, provenance, and redistribution-status exposure. | Focused tests cover private and unknown material-like metadata redaction; runtime source integration remains `TBD`. |
+| `component_value_policy` | Controls manufacturer/vendor component fields, geometry catalogs, stiffnesses, and private modifiers. | Focused tests cover private component-like metadata redaction; runtime source integration remains `TBD`. |
+| `project_value_policy` | Controls project-specific loads, owner requirements, coordinates, equipment loads, paths, and design-basis values. | Shared/public exports redact private metadata and concrete path indicators; storage roots and runtime export paths remain `TBD`. |
+| `manifest_policy` | Defines what evidence remains in an export manifest after redaction. | Safe metadata such as hashes/checksums/provenance summaries can remain visible; full runtime report/export manifest integration remains `TBD`. |
+| `override_policy` | Defines whether unredacted private export is allowed. | Local-private retention requires explicit local/private intent and emits warnings; approval and user-confirmation workflow remain `TBD`. |
+| `diagnostic_policy` | Defines warning classes and blocking findings. | `IP_BOUNDARY_WARNING`, `PRIVATE_DATA_WARNING`, `PROVENANCE_WARNING`, `STORAGE_BOUNDARY_WARNING`, and professional-boundary findings are represented. |
+| `template_guard_policy` | Controls public report templates and examples. | Guardrail documentation and focused scans exist; protected-content linter/runtime template integration and legal review workflow remain `TBD`. |
 
 ## Export Test Expectations
 
 | Test Expectation | Risk Covered | Setup Status |
 |---|---|---|
-| Redacted public report excludes private rule/material/component values. | Private data leakage. | Deferred executable test. |
-| Public template linter rejects protected code text, copied tables, protected formulas, and proprietary examples. | Protected content leakage. | Deferred executable test. |
-| Local private export can retain private values only with explicit user intent and warning/audit record. | Accidental disclosure. | Deferred executable test. |
-| Redacted export preserves non-sensitive manifest evidence such as hashes, versions, warnings, and provenance summaries. | Reproducibility loss after redaction. | Deferred executable test. |
-| Adapter/plugin export path cannot bypass redaction, units, provenance, sandboxing, or diagnostics. | No-bypass failure. | Deferred executable test. |
-| Redaction never mutates the source project model or private libraries. | Destructive export behavior. | Deferred executable test. |
+| Redacted public report excludes private rule/material/component values. | Private data leakage. | Focused invented-fixture test exists; runtime report/export integration remains `TBD`. |
+| Public template linter rejects protected code text, copied tables, protected formulas, and proprietary examples. | Protected content leakage. | Guardrail scans exist for changed surfaces; protected-content linter and legal-review workflow remain `TBD`. |
+| Local private export can retain private values only with explicit user intent and warning/audit record. | Accidental disclosure. | Focused invented-fixture test exists; final UI/CLI approval flow remains `TBD`. |
+| Redacted export preserves non-sensitive manifest evidence such as hashes, versions, warnings, and provenance summaries. | Reproducibility loss after redaction. | Schema/docs/helper preserve safe metadata classes; full report/export manifest integration remains `TBD`. |
+| Adapter/plugin export path cannot bypass redaction, units, provenance, sandboxing, or diagnostics. | No-bypass failure. | Metadata hardening blocks storage/privacy bypass markers; adapter/plugin runtime routing remains `TBD`. |
+| Redaction never mutates the source project model or private libraries. | Destructive export behavior. | Focused invented-fixture source non-mutation test exists; runtime source-model integration remains `TBD`. |
 
 ## Construction
 
-This setup artifact constructs a documentation-level redaction/export control contract, not a product implementation. The deliverable output is limited to:
+The original setup artifact constructed a documentation-level redaction/export control contract. Later bounded implementation evidence added a metadata-only redaction helper, schema, focused invented-fixture tests, and security documentation. This alignment records that evidence without changing product code or lifecycle state.
+
+Current evidence includes:
 
 - redaction/export-control requirements in `Specification.md`;
 - configuration-slot and export-test expectations in this datasheet;
 - guidance on export contexts, warning behavior, and deferred implementation decisions in `Guidance.md`;
-- setup and future implementation procedure in `Procedure.md`;
+- setup and future integration procedure in `Procedure.md`;
+- schema contract in `schemas/redaction_export_controls.schema.yaml`;
+- metadata-only helper in `core/security/redaction/`;
+- focused tests in `tests/security/test_redaction_export_controls.py`;
+- implementation guidance in `docs/security/redaction_export_controls.md`;
 - semantic matrix/lensing and dependency setup artifacts.
 
-No product source code, JSON Schema file, actual redaction config, executable export test, real project data, private rule pack, protected standards content, secret, credential, cloud operation, or certification/compliance claim is created by this run.
+This run does not create product source code, tests, schemas, real project data, private rule packs, protected standards content, secrets, credentials, cloud operations, destructive quarantine movement, legal sufficiency, security certification, lifecycle acceptance, or professional/code-compliance claims.
 
 ## References
 
@@ -98,4 +104,3 @@ No product source code, JSON Schema file, actual redaction config, executable ex
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-02, SOW-040, OBJ-010, and AB-00 architecture basis. |
 | `docs/_Registers/Deliverables.csv` | Deliverable identity, anticipated artifacts, context/risk notes. |
 | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-040. |
-

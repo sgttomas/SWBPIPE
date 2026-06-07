@@ -4,6 +4,8 @@
 
 This guidance explains how to interpret the telemetry boundary for OpenPipeStress. The product is local-first, public-repository content must avoid protected standards data, and private project/rule/component/material data stays user controlled. Telemetry is therefore not a default feature; it is either absent/no-op or explicitly approved, opt-in, and payload-limited.
 
+As of the June 7 readiness evidence alignment, DEL-12-03 has repo policy documentation, a metadata-only guard helper, and focused tests. That helper evaluates configuration metadata and event-attempt metadata before payload construction. It is not runtime telemetry and does not choose product config storage, consent UI/CLI, endpoint, vendor, transport, retention, support-bundle workflow, or approval records.
+
 ## Principles
 
 | Principle | Guidance |
@@ -17,7 +19,8 @@ This guidance explains how to interpret the telemetry boundary for OpenPipeStres
 
 ## Considerations
 
-- A no-op telemetry module is acceptable for MVP if tests prove that no default outbound behavior exists.
+- A no-op runtime telemetry path is acceptable for MVP if tests prove that no default outbound behavior exists.
+- The current `core/security/telemetry_policy/` helper is an acceptable metadata-only guardrail for default-off behavior. It should stay pre-payload and local unless a later sealed brief authorizes runtime integration.
 - A future opt-in design needs a human-approved allowlist before implementation. Without that approval, event names, endpoint details, vendor choices, and payload fields remain `TBD`.
 - Configuration defaults should fail closed: missing, unset, unknown, or malformed values disable telemetry.
 - Product diagnostics may report that telemetry is disabled or misconfigured, but diagnostic text should not echo private payload content.
@@ -34,15 +37,18 @@ This guidance explains how to interpret the telemetry boundary for OpenPipeStres
 
 ## Examples
 
-Concrete config syntax and event schemas are `TBD` because the implementation surface is not selected in this setup deliverable. The only permitted example behavior at this stage is:
+Concrete product config syntax and runtime event schemas are `TBD` because the implementation surface is not selected in this deliverable. The permitted current example behavior is:
 
 - absent telemetry config means disabled;
+- empty, unknown, unsupported, malformed, or incomplete telemetry metadata means disabled;
 - user has not opted in means disabled;
 - MVP may contain no telemetry implementation;
+- allowlisted low-sensitivity metadata can be evaluated by the helper only after explicit opt-in, approved consent surface metadata, and human-approved allowlist evidence are present;
+- unknown events, unknown fields, private/protected/secret/path/hash/report/professional-claim field classes, and payload-shaped attempts are rejected before payload construction;
 - any future telemetry payload is approved by allowlist and excludes private/protected engineering data.
 
 ## Conflict Table (for human ruling)
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 |---|---|---|---|---|---|---|
-| None | No source conflict identified in this setup pass. | N/A | N/A | N/A | N/A | N/A |
+| None | No source conflict identified in this evidence alignment. | N/A | N/A | N/A | N/A | N/A |

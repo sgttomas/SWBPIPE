@@ -136,3 +136,10 @@ Durable context preserved after reconciliation review:
 - Updated `docs/security/telemetry_policy.md` only to document the metadata-only guard helper and its non-authority boundary.
 - Verification: `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/security/test_telemetry_policy.py` passed with 15 tests; `git diff --check` passed for the Worker B write set.
 - This tranche did not change lifecycle state, dependency registers, approval records, DAG artifacts, coordination prompts, or Worker A local-first storage files.
+
+## 2026-06-07 - DEL-12-03 readiness evidence alignment
+
+- TASK C aligned the local DEL-12-03 kit, dependency summary, review surface, and review findings with June 7 evidence that `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, and `tests/security/test_telemetry_policy.py` now exist.
+- Updated local dependency rows for DEL-12-05, DEL-01-02, DEL-01-04, and DEL-05-04 from `TBD` to `SATISFIED` only where target status/review/run-record evidence supports current readiness; this does not alter DAG authority or lifecycle state.
+- Preserved explicit deferrals for product config schema/storage, consent UI/CLI, endpoint/vendor/transport, event allowlist/schema, retention, support-bundle workflow, runtime telemetry integration, and human/security approval choices.
+- No `_STATUS.md`, product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, or other deliverables were edited.

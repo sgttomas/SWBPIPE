@@ -166,3 +166,21 @@ Durable context preserved after reconciliation review:
   `git diff --check` passed.
 - Concurrent Worker B telemetry changes were present in the working tree during
   closeout and were not modified by this worker.
+
+## 2026-06-07 - Readiness evidence alignment
+
+- TASK A aligned DEL-12-01 production docs, dependency surfaces, review
+  surfaces, and this memory with the June 7 local-first storage evidence:
+  `core/security/local_first_storage/`,
+  `docs/security/local_first_storage_policy.md`,
+  `tests/security/test_local_first_storage_policy.py`,
+  `TASK_RUN_2026-06-07_0140.md`, and package fan-in
+  `WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md`.
+- Five dependency rows that were previously `TBD` are now marked `SATISFIED`
+  for readiness evidence only; notes preserve that lifecycle acceptance,
+  runtime storage behavior, physical package/container mechanics, OS roots,
+  cloud exception workflow, real private paths/secrets, encryption/key
+  management, and approval choices remain deferred.
+- `_STATUS.md`, product code, schemas, tests, DAG artifacts, coordination files,
+  approval records, release files, package registers, and other deliverables
+  were not edited by this alignment.

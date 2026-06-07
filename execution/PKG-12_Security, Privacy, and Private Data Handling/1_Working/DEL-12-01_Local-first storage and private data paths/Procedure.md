@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This procedure describes how to maintain the DEL-12-01 storage-boundary artifact set during setup and how future implementation work should convert it into code or tests without crossing the private-data, protected-data, or cloud-assumption boundaries.
+This procedure describes how to maintain the DEL-12-01 storage-boundary artifact set, align it with implementation evidence, and guide future runtime storage work without crossing the private-data, protected-data, cloud-service-default, secret-handling, or authority-claim boundaries.
 
 ## Prerequisites
 
@@ -13,6 +13,7 @@ This procedure describes how to maintain the DEL-12-01 storage-boundary artifact
 | Architecture basis | AB-00-04 persistence baseline and related AB-00 items injected as constraints, not copied wholesale |
 | Scope boundary | No edits outside this deliverable folder |
 | Protected/private data boundary | No real private values, credentials, protected standards content, or proprietary data introduced |
+| Current metadata-guard evidence | 2026-06-07 run records identify `core/security/local_first_storage/`, `docs/security/local_first_storage_policy.md`, and `tests/security/test_local_first_storage_policy.py` as metadata-only guard evidence |
 
 ## Steps
 
@@ -27,6 +28,7 @@ This procedure describes how to maintain the DEL-12-01 storage-boundary artifact
 | 7 | Apply P3 lensing by surfacing warranted TBDs or gaps in the four documents only when source evidence supports the edit. | Open issues and verification gaps are visible. |
 | 8 | Extract dependency register rows for anchors and explicit execution information flow. | `Dependencies.csv` and `_DEPENDENCIES.md`. |
 | 9 | Run validation checks and update `_STATUS.md` to `SEMANTIC_READY` only if setup gates pass. | Final status and run records. |
+| 10 | For later readiness-evidence alignment, replace stale setup-only language only where run records, product docs, code, or tests prove new evidence exists. | The four documents distinguish current metadata-only guard evidence from deferred runtime storage and approval decisions. |
 
 ## Future Implementation Procedure
 
@@ -35,7 +37,7 @@ When a later implementation task is authorized, it should:
 1. Preserve the symbolic path classes unless a human-approved design decision replaces them.
 2. Select OS-specific roots and/or physical project packaging only through the appropriate architecture or storage deliverable.
 3. Keep private data outside default public repository paths.
-4. Add repo-leakage, path-resolution, serialization round-trip, provenance, migration, and report/export boundary tests.
+4. Preserve the existing metadata-only guard tests and add repo-leakage, path-resolution, serialization round-trip, provenance, migration, and report/export boundary tests for any future runtime storage behavior.
 5. Verify no plugin, adapter, import, export, or private library path bypasses validation, units, provenance, diagnostics, sandboxing, or public/private boundary controls.
 6. Preserve `TBD` or warning status for unresolved storage decisions.
 
@@ -48,12 +50,13 @@ When a later implementation task is authorized, it should:
 | Enum spot checks | Run `python3 tools/validation/validate_enum.py` against dependency enum values used in the register. | Valid enums. |
 | Semantic audit | Confirm `_SEMANTIC.md` contains `Audit: PASS`. | PASS. |
 | Lensing coverage | Count `_SEMANTIC_LENSING.md` lens rows for matrices A, B, C, F, D, X, and E. | 96 rows. |
-| Boundary scan | Search deliverable files for real secrets, hidden cloud defaults, protected standards content, or certification claims. | No disallowed content found. |
-| Lifecycle status | Read `_STATUS.md`. | `Current State: SEMANTIC_READY` only after the checks pass. |
+| June 7 metadata-guard evidence | Confirm `core/security/local_first_storage/`, `docs/security/local_first_storage_policy.md`, `tests/security/test_local_first_storage_policy.py`, `TASK_RUN_2026-06-07_0140.md`, and package fan-in evidence exist. | Present; evidence is metadata-only and side-effect-free. |
+| Boundary scan | Search deliverable files for real secrets, hidden cloud defaults, protected standards content, approval claims, professional claims, code-compliance claims, or security-certification claims. | No disallowed content found. |
+| Lifecycle status | Read `_STATUS.md` without editing it. | This alignment does not promote lifecycle state; later lifecycle transitions require human-gated workflow authority. |
 
 ## Records
 
-The setup run shall leave these records in the deliverable folder:
+The original setup workflow left these records in the deliverable folder:
 
 - four production documents;
 - `_SEMANTIC.md`;
@@ -63,4 +66,10 @@ The setup run shall leave these records in the deliverable folder:
 - `_run_records/*`;
 - `_STATUS.md`.
 
-Do not move any artifact to `ISSUED` during this setup run.
+The 2026-06-07 readiness evidence also cites product-level artifacts outside this deliverable folder:
+
+- `docs/security/local_first_storage_policy.md`;
+- `core/security/local_first_storage/`;
+- `tests/security/test_local_first_storage_policy.py`.
+
+Do not move any artifact to `ISSUED` during setup or readiness-evidence alignment. Do not use this procedure to approve runtime storage, cloud behavior, encryption/key management, real secret storage, professional reliance, code compliance, security certification, or release readiness.

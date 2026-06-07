@@ -1,7 +1,7 @@
 # Status: DEL-12-01 Local-first storage and private data paths
 
-**Current State:** IN_PROGRESS
-**Last Updated:** 2026-05-11
+**Current State:** CHECKING
+**Last Updated:** 2026-06-07
 
 ## History
 
@@ -30,3 +30,4 @@
 - No product source, schema, tests, repo-level docs, storage policy files outside this deliverable, real private paths, real secrets, or cloud storage assumptions were created.
 - Physical project package/container remains `TBD`.
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
+- 2026-06-07 — State set to CHECKING (REVIEW)
