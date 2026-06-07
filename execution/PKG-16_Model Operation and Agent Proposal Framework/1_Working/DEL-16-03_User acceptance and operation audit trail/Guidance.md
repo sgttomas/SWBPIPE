@@ -8,15 +8,17 @@ This deliverable exists to make model-operation acceptance reviewable and reprod
 
 - Route model changes through structured operations. SOW-069 states that GUI and agent edits pass through schema validation, constraint validation, diff preview, and controlled application through the model engine.
 - Preserve review context for accepted operations. SOW-070 identifies operation history, rationale, assumptions, affected entities, and audit metadata as needed for reproducible model-state review.
-- Treat user acceptance as the default gate. `_CONTEXT.md` and OI-016 preserve user acceptance unless a later human-approved decision changes the autonomy level.
+- Treat explicit user acceptance as the current accepted-record gate. The current audit implementation requires `accepted: true`, `decision: accept`, and `actor_type: user`; otherwise the record is held for user acceptance unless it is explicitly rejected.
+- Require nonblocking validation and preview evidence before accepted status. Current accepted records require passed schema, constraint, and unit validation, generated diff preview, `application_status: not_applied`, a hash-bound diff-preview reference, and current accepted-state hash evidence.
+- Keep audit recording separate from operation application. The current module records audit payloads and does not mutate accepted model state.
 - Keep professional authority separate. The project permits computation and audit support, but not certification, sealing, approval, authentication, or automatic code-compliance claims.
 - Prefer explicit TBDs over silent defaults. Unknown schema fields, autonomy details, persistence mechanics, and acceptance criteria remain TBD until supported by a sealed implementation brief or accepted architecture decision.
 
 ## Considerations
 
-The audit trail depends on upstream operation schema and validation/diff preview surfaces recorded in the approved local DAG-002 mirror. The mirror is evidence for sequencing and context only; it is not implementation evidence that the upstream surfaces are present in this folder.
+The audit trail depends on upstream operation schema and validation/diff preview surfaces recorded in the approved local DAG mirror. Current implementation evidence for those surfaces is outside this deliverable folder and read-only for this run: `schemas/model_operation.schema.json`, `core/model_operations/validation_preview/engine.py`, `fixtures/model_operations/invented_operation_set_valid.json`, and `fixtures/model_operations/invented_accepted_model_state.json`.
 
-The audit trail should preserve enough metadata to make later model-state review reproducible, but this setup pass does not define exact storage tables, event IDs, actor identity model, timestamp precision, or hash fields. Those are implementation details and remain TBD.
+The current audit trail preserves enough metadata in returned payloads to make a model-operation acceptance decision reviewable: operation history, affected entities, actor/source metadata, validation outcome, diff-preview reference, accepted model-state reference/hash, rationale, assumptions, audit metadata, deterministic record hashes, top-level audit-trail hash, and visible diagnostics. It does not define storage tables, durable event streams, final actor identity policy, timestamp precision policy, long-term retention, or operation application.
 
 Public fixtures or examples for this deliverable should avoid protected standards data, proprietary project records, and code-specific acceptance criteria unless they have documented public redistribution rights.
 
@@ -25,14 +27,16 @@ Public fixtures or examples for this deliverable should avoid protected standard
 | Topic | Conservative guidance |
 |---|---|
 | Acceptance metadata detail | Capture source-backed minimum fields first; add implementation-specific fields only when the schema or service contract exists. |
-| Rejected-operation retention | Record rejected operations because `_CONTEXT.md` names accepted/rejected operations, but exact retention policy is TBD. |
-| Agent autonomy | Keep user acceptance as the default; do not infer autonomous acceptance from agent proposal capability. |
+| Rejected-operation retention | Current payload records rejected operations without mutating state; durable retention duration and storage remain TBD. |
+| Agent autonomy | Keep explicit user acceptance as the accepted-record gate; do not infer autonomous acceptance from agent proposal capability. |
+| Blocked validation | Treat blocking validation or preview evidence as preventing accepted status; record diagnostics visibly instead of upgrading status. |
+| Accepted-state handling | Treat audit recording as nonmutating; operation application belongs outside this slice until separately resolved. |
 | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording. |
 | Dependency mirror handling | Preserve approved DAG-006 rows as ACTIVE; do not reinterpret the mirror as a fresh extraction result. |
 
 ## Examples
 
-TBD. No source-backed operation audit-log fixture, schema field names, or acceptance workflow examples are present in the accessible source set for this folder.
+Current source-backed examples are the invented operation and accepted-state fixtures under `fixtures/model_operations/`, exercised by `tests/test_operation_audit_trail.py`, `tests/test_operation_validation_preview.py`, and `tests/test_model_operation_schema.py`. They are public invented examples and do not establish protected engineering facts.
 
 ## Conflict Table (for human ruling)
 
@@ -40,4 +44,4 @@ No source conflicts were identified during Pass 1/2 drafting. The following unre
 
 | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 |---|---|---|---|---|---|---|
-| TBD | Exact audit-log schema, persistence mechanism, actor identity model, timestamp precision, and retention policy are not specified in the accessible sources. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | No implementation schema present | Datasheet Conditions; Specification Requirements; Procedure Steps | Future sealed Type 2 implementation brief | TBD |
+| TBD | Durable persistence container, long-term retention policy, final actor identity model beyond `actor_type`/`actor_ref`/`source_role`, timestamp precision policy beyond current fixture evidence, operation application outside this slice, and human review dispositions are not resolved by the current implementation evidence. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `core/model_operations/audit_trail/engine.py`; focused tests | No persistence container, retention policy, final identity policy, timestamp policy, application workflow, or human disposition ruling present | Datasheet Conditions; Specification Documentation; Procedure Records | Future sealed Type 2 implementation brief or human governance ruling | TBD |

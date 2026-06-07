@@ -31,19 +31,21 @@ No DEL-16-02 diff-preview service contract artifact separate from the Python imp
 
 ## PKG-02 Compatibility Verdict
 
-**Technical status: Findings addressed; HumanDisposition remains TBD**
+**Review status: Findings resolved by human disposition on 2026-06-07; no lifecycle transition made**
 
 DEL-16-02 now executes the DEL-16-01 JSON Schema 2020-12 contract before reporting `schema_validation=passed`. Invalid operation envelopes emit blocking schema diagnostics and block preview generation.
 
 The preview path also validates quantity dimensions against the accepted PKG-02 dimension vocabulary and blocks unknown dimension IDs. Model-basis gates now require the editable `physical_source_of_truth` role plus current model-state hash evidence before preview output can be generated.
 
+On 2026-06-07, the human project authority accepted the recommendation to resolve each DEL-16-02 PKG-02 finding as `ACCEPT_AS_IS`. `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED` for all three findings.
+
 ## Findings Summary
 
 | FindingID | Severity | Technical Status | HumanDisposition | Evidence |
 |---|---|---|---|---|
-| PKG16-DEL1602-PKG02-001 | BLOCKER | TECHNICALLY_RESOLVED | TBD | `_schema_diagnostics`; `test_schema_invalid_envelope_cannot_report_schema_passed` |
-| PKG16-DEL1602-PKG02-002 | WARNING | TECHNICALLY_RESOLVED | TBD | `CANONICAL_DIMENSIONS`; `test_unknown_dimension_blocks_unit_validation` |
-| PKG16-DEL1602-PKG02-003 | WARNING | TECHNICALLY_RESOLVED | TBD | `_model_basis_diagnostics`; `test_model_role_and_current_hash_are_required_before_preview` |
+| PKG16-DEL1602-PKG02-001 | BLOCKER | RESOLVED | ACCEPT_AS_IS | `_schema_diagnostics`; `test_schema_invalid_envelope_cannot_report_schema_passed` |
+| PKG16-DEL1602-PKG02-002 | WARNING | RESOLVED | ACCEPT_AS_IS | `CANONICAL_DIMENSIONS`; `test_unknown_dimension_blocks_unit_validation` |
+| PKG16-DEL1602-PKG02-003 | WARNING | RESOLVED | ACCEPT_AS_IS | `_model_basis_diagnostics`; `test_model_role_and_current_hash_are_required_before_preview` |
 
 ## Deferred Or Not Applicable
 
@@ -53,4 +55,4 @@ The preview path also validates quantity dimensions against the accepted PKG-02 
 
 ## Audit Boundary
 
-This review records PKG-02 Stage 2 technical finding-resolution evidence only. It makes no lifecycle transition and makes no release, professional reliance, certification, sealing, approval, code-compliance, or candidate-promotion claim.
+This review records PKG-02 Stage 2 technical finding-resolution evidence and the 2026-06-07 human disposition ruling only. It makes no lifecycle transition and makes no release, professional reliance, certification, sealing, approval, code-compliance, or candidate-promotion claim.

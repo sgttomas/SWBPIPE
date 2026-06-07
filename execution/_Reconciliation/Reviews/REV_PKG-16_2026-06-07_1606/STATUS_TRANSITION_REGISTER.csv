@@ -1,0 +1,5 @@
+DeliverableID,PackageID,FromStatus,ToStatus,DecisionDate,DecisionBasis,Boundary
+DEL-16-01,PKG-16,IN_PROGRESS,CHECKING,2026-06-07,Human-approved PKG-16 Gate 5 transition after review and DEL-16-02 blocker disposition,No release/professional/code-compliance claim
+DEL-16-02,PKG-16,IN_PROGRESS,CHECKING,2026-06-07,Human-approved PKG-16 Gate 5 transition after PKG16-DEL1602-PKG02-001/002/003 resolved,No release/professional/code-compliance claim
+DEL-16-03,PKG-16,IN_PROGRESS,CHECKING,2026-06-07,Human-approved PKG-16 Gate 5 transition after review and DEL-16-02 blocker disposition,No release/professional/code-compliance claim
+DEL-16-04,PKG-16,IN_PROGRESS,CHECKING,2026-06-07,Human-approved PKG-16 Gate 5 transition after review and DEL-16-02 blocker disposition,No release/professional/code-compliance claim

@@ -69,3 +69,17 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Narrow scan confirmed `Draft202012Validator` use, `CANONICAL_DIMENSIONS`, stale hash diagnostics, model-role diagnostics, `accepted_model_state_unchanged`, and `application_status: not_applied` in the implementation/test evidence.
 - No concrete code or test gap was found; `core/model_operations/validation_preview/engine.py` and `tests/test_operation_validation_preview.py` were not edited.
 - Review findings remain technically addressed pending human disposition; this addendum does not change lifecycle state, finding statuses, human dispositions, release readiness, or professional/code-compliance claims.
+
+## 2026-06-07 - TASK evidence-alignment addendum
+
+- Aligned `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` with current implementation evidence from `core/model_operations/validation_preview/engine.py`, `schemas/model_operation.schema.json`, `fixtures/model_operations/invented_operation_set_valid.json`, `fixtures/model_operations/invented_accepted_model_state.json`, `tests/test_operation_validation_preview.py`, and `tests/test_model_operation_schema.py`.
+- Current established facts: validation uses `Draft202012Validator` against the DEL-16-01 JSON Schema; operation preview checks required envelope fields, schema validity, accepted model role/hash, operation model-basis hash, operation required current hashes, direct-mutation signals, canonical dimension vocabulary, unresolved targets, and injected blocking constraint diagnostics; preview output remains deterministic for current fixtures and reports `application_status: not_applied`.
+- Residual TBDs preserved: final DEL-13-03 constraint-engine API, final DEL-14-03/DEL-14-05 diff payload/tolerance contract beyond current fixture-backed rows, persistence/application behavior outside this slice, final cross-package diagnostic/result-envelope mapping, and human dispositions for existing review findings.
+- Boundary controls preserved: no code, schema, fixture, test, dependency, status, review, or lifecycle files were edited; this run does not claim release readiness, human approval, professional approval, certification, sealing, authentication, or code compliance.
+
+## 2026-06-07 - Human disposition of PKG-02 findings
+
+- Human project authority accepted the recommendation to resolve each DEL-16-02 PKG-02 finding.
+- `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED` for `PKG16-DEL1602-PKG02-001`, `PKG16-DEL1602-PKG02-002`, and `PKG16-DEL1602-PKG02-003`.
+- Supporting ruling packet: `execution/_Reconciliation/Reviews/REV_PKG-16_2026-06-06_1648/HUMAN_DISPOSITION_RULING_PACKET_DEL-16-02-PKG02-FINDINGS.md`.
+- No lifecycle transition, release assertion, legal conclusion, professional approval, certification, sealing, authentication, approval, or code-compliance claim is made by this disposition.

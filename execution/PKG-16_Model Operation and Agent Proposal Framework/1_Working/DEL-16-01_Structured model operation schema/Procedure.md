@@ -2,59 +2,71 @@
 
 ## Purpose
 
-Provide a conservative setup procedure for producing and later using the structured model operation schema. This procedure is bounded by available source context and does not implement product code.
+Provide the bounded procedure for maintaining and verifying the structured model operation schema. This procedure records current implementation evidence and preserves downstream ownership boundaries.
 
 ## Prerequisites
 
 | Prerequisite | Source / Status |
 |---|---|
 | Deliverable context and decomposition basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
-| Scope and objective mapping | `docs/_Registers/ScopeLedger.csv` row `SOW-069`; `docs/_Registers/Deliverables.csv` row `DEL-16-01` |
-| Architecture basis constraints | `_CONTEXT.md` "Architecture Basis Injection"; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
-| Approved dependency mirror | `Dependencies.csv`; preserve DAG-002 rows as ACTIVE unless a later approved workflow says otherwise |
-| Exact schema field layout | TBD |
-| Operation granularity and command/patch grammar | TBD |
+| Scope and objective mapping | `_CONTEXT.md` rows `SOW-069` and `OBJ-015`; schema root constants |
+| Architecture basis constraints | `_CONTEXT.md` "Architecture Basis Injection"; JSON Schema 2020-12 and canonical hash-basis notes |
+| Approved dependency mirror | `Dependencies.csv`; preserve active rows unless a later approved workflow says otherwise |
+| Schema artifact | Implemented at `schemas/model_operation.schema.json` |
+| Operation fixture | Implemented at `fixtures/model_operations/invented_operation_set_valid.json` |
+| Accepted model-state fixture | Implemented at `fixtures/model_operations/invented_accepted_model_state.json` |
+| Focused DEL-16-01 validation | `tests/test_model_operation_schema.py` |
+| Adjacent downstream validation evidence | `tests/test_operation_validation_preview.py`; behavior owned by DEL-16-02 |
 
 ## Steps
 
-1. Confirm the operation schema remains scoped to DEL-16-01 and SOW-069.
-2. Use JSON Schema 2020-12 as the public schema/interchange baseline.
-3. Define only structure that is supported by source context: operation identity, operation category, target references, proposal/source metadata, validation/diff/application handoff hooks, diagnostics/provenance hooks, and TBD placeholders where exact fields are not yet authorized.
-4. Cover the declared categories: add, move, modify, delete, reconnect, constraint, load, support, and design-knowledge operations.
-5. Keep operation data separate from direct persisted mutation. Controlled application belongs downstream of schema validation, constraint validation, and diff preview.
-6. Do not embed protected standards text, protected numeric tables, proprietary catalog values, private project data, or invented engineering defaults in public fixtures.
-7. Add fixtures only when they can be kept invented and schema-focused. Mark any missing source decision as TBD.
-8. Cross-check the future schema against canonical model/domain references so the operation schema does not redefine the whole model.
-9. Record unresolved issues for operation granularity, hash binding, exact target-addressing semantics, and agent-autonomy behavior.
+1. Confirm the operation schema remains scoped to DEL-16-01 and SOW-069 by checking root constants for `deliverable_id`, `package_id`, `scope_item`, and `objectives`.
+2. Preserve JSON Schema 2020-12 as the public schema/interchange baseline.
+3. Preserve the schema-first operation envelope: `schema_version`, `deliverable_id`, `package_id`, `scope_item`, `objectives`, `operation_contract_status`, and `operation_set`.
+4. Preserve required operation-set structure: project reference, model reference, `model_basis`, operations, diagnostics, provenance, and professional boundary.
+5. Preserve model-basis hooks for physical source-of-truth model role, accepted model-state reference, and accepted model-state hash.
+6. Preserve operation record structure for operation identity/kind/status/author, target references, preconditions, changes, validation state, diagnostics, diff-preview refs, assumptions, provenance, and professional boundary.
+7. Preserve the declared operation kinds: `add`, `move`, `modify`, `delete`, `reconnect`, `constraint`, `load`, `support`, and `design_knowledge`.
+8. Preserve the declared change kinds: `add_object`, `remove_object`, `set_field`, `move_geometry`, `reconnect`, `update_constraint`, `update_load`, `update_support`, and `attach_design_knowledge`.
+9. Keep operation data separate from direct persisted mutation. The schema contract status must retain `structured_operations_only` and `direct_model_mutation_allowed = false`.
+10. Keep unit-bearing payload behavior explicit: unit metadata required, dimension check required, and missing unit behavior `emit_diagnostic`.
+11. Keep public fixtures invented and schema-focused. Do not embed protected standards text, protected numeric tables, proprietary catalog values, private project data, or engineering defaults.
+12. Keep downstream behavior boundaries explicit: validation/diff preview in DEL-16-02, acceptance/audit trail in DEL-16-03, and agent rationale/professional-boundary workflow in DEL-16-04.
+13. Record unresolved issues for exact persistence granularity, broader hash partitioning, future operation granularity, and human review dispositions.
 
 ## Verification
 
 | Check | Expected Result |
 |---|---|
-| Schema parser check | Future `schemas/model_operation.schema.json` validates as JSON Schema 2020-12. |
-| Category fixture check | Fixtures cover each declared operation category without real engineering values. |
-| Boundary check | Operation records do not claim certification, sealing, approval, authentication, or code compliance. |
-| Mutation-route check | Fixtures demonstrate proposal/controlled-application route rather than direct durable mutation. |
-| Source-fidelity check | Requirements trace to `_CONTEXT.md`, decomposition, registers, governance docs, or the approved local dependency mirror. Unsupported details remain TBD or ASSUMPTION. |
-| Dependency mirror check | Existing DAG-002 mirror rows remain ACTIVE and are not reclassified by this setup pass. |
+| Schema validation check | `python3 tests/test_model_operation_schema.py` exits 0. |
+| Adjacent validation-preview check | `python3 tests/test_operation_validation_preview.py` exits 0; result is downstream behavior evidence only. |
+| Category fixture check | The invented operation fixture covers all declared operation kinds and change kinds. |
+| Boundary check | Operation records do not claim certification, sealing, approval, authentication, professional approval, engineering acceptance, or code compliance. |
+| Mutation-route check | Contract status disallows direct model mutation; adjacent preview behavior does not mutate accepted state. |
+| Source-fidelity check | Requirements trace to `_CONTEXT.md`, decomposition, governance docs, schema, fixtures, tests, or the approved local dependency mirror. Unsupported details remain TBD or ASSUMPTION. |
+| Dependency mirror check | Existing local dependency rows remain ACTIVE and are not reclassified by this procedure. |
 
 ## Records
 
-Records expected from this setup pass:
+Current records for this deliverable/evidence slice:
 
 - `Datasheet.md`
 - `Specification.md`
 - `Guidance.md`
 - `Procedure.md`
-- `_SEMANTIC.md`
-- `_SEMANTIC_LENSING.md`
-- `_STATUS.md` lifecycle history
-- dependency schema validation result
-
-Records expected from a future implementation pass:
-
+- `MEMORY.md`
 - `schemas/model_operation.schema.json`
-- operation fixtures
-- schema validation log
-- protected-content/provenance review evidence
-- unresolved TBD register or issue entries, if authorized by the project workflow
+- `fixtures/model_operations/invented_operation_set_valid.json`
+- `fixtures/model_operations/invented_accepted_model_state.json`
+- `tests/test_model_operation_schema.py`
+- `tests/test_operation_validation_preview.py`
+- `_run_records/TASK_RUN_*.md`
+
+Records not changed by this procedure:
+
+- `_STATUS.md`
+- `_REVIEW.md`
+- `Review_Findings.csv`
+- `Dependencies.csv`
+- `_DEPENDENCIES.md`
+- schemas, fixtures, core code, and tests
