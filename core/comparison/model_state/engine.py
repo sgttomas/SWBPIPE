@@ -112,7 +112,10 @@ def compare_model_states(
         processed_left.add(stable_id)
         processed_right.add(stable_id)
 
-    for mapping_id, left_id, right_id in mapping_pairs:
+    for mapping in mapping_pairs:
+        mapping_id = mapping["mapping_id"]
+        left_id = mapping["left_id"]
+        right_id = mapping["right_id"]
         if left_id in processed_left or right_id in processed_right:
             diagnostics.append(
                 _diagnostic(
@@ -134,6 +137,7 @@ def compare_model_states(
                 right_entities[right_id],
                 match_basis="explicit_mapping",
                 mapping_id=mapping_id,
+                mapping_context=mapping["mapping_context"],
                 settings=settings,
                 diagnostics=diagnostics,
             )
@@ -230,8 +234,8 @@ def _mapping_pairs(
     left_entities: dict[str, dict[str, Any]],
     right_entities: dict[str, dict[str, Any]],
     diagnostics: list[dict[str, Any]],
-) -> tuple[list[tuple[str, str, str]], set[str], set[str], list[dict[str, Any]]]:
-    pairs: list[tuple[str, str, str]] = []
+) -> tuple[list[dict[str, Any]], set[str], set[str], list[dict[str, Any]]]:
+    pairs: list[dict[str, Any]] = []
     mapped_left: set[str] = set()
     mapped_right: set[str] = set()
     unresolved_rows: list[dict[str, Any]] = []
@@ -254,6 +258,7 @@ def _mapping_pairs(
         left_id = _ref_id(mapping.get("left_ref"))
         right_id = _ref_id(mapping.get("right_ref"))
         mapping_id = str(mapping.get("mapping_id", f"mapping:{index:04d}"))
+        mapping_context = _mapping_context(mapping, index)
 
         if status == "unresolved_mapping" or not left_id or not right_id:
             diagnostics.append(
@@ -270,7 +275,16 @@ def _mapping_pairs(
                 mapped_left.add(left_id)
             if right_id:
                 mapped_right.add(right_id)
-            unresolved_rows.append(_unresolved_mapping_row(mapping_id, left_entities.get(left_id), right_entities.get(right_id), left_id, right_id))
+            unresolved_rows.append(
+                _unresolved_mapping_row(
+                    mapping_id,
+                    left_entities.get(left_id),
+                    right_entities.get(right_id),
+                    left_id,
+                    right_id,
+                    mapping_context,
+                )
+            )
             continue
 
         if left_id not in left_entities or right_id not in right_entities:
@@ -289,7 +303,16 @@ def _mapping_pairs(
             )
             mapped_left.add(left_id)
             mapped_right.add(right_id)
-            unresolved_rows.append(_unresolved_mapping_row(mapping_id, left_entities.get(left_id), right_entities.get(right_id), left_id, right_id))
+            unresolved_rows.append(
+                _unresolved_mapping_row(
+                    mapping_id,
+                    left_entities.get(left_id),
+                    right_entities.get(right_id),
+                    left_id,
+                    right_id,
+                    mapping_context,
+                )
+            )
             continue
 
         if status not in {"manual_match", "automatic_match"}:
@@ -305,14 +328,31 @@ def _mapping_pairs(
             )
             mapped_left.add(left_id)
             mapped_right.add(right_id)
-            unresolved_rows.append(_unresolved_mapping_row(mapping_id, left_entities.get(left_id), right_entities.get(right_id), left_id, right_id))
+            unresolved_rows.append(
+                _unresolved_mapping_row(
+                    mapping_id,
+                    left_entities.get(left_id),
+                    right_entities.get(right_id),
+                    left_id,
+                    right_id,
+                    mapping_context,
+                )
+            )
             continue
 
-        pairs.append((mapping_id, left_id, right_id))
+        diagnostics.extend(_mapping_context_diagnostics(mapping, index))
+        pairs.append(
+            {
+                "mapping_id": mapping_id,
+                "left_id": left_id,
+                "right_id": right_id,
+                "mapping_context": mapping_context,
+            }
+        )
         mapped_left.add(left_id)
         mapped_right.add(right_id)
 
-    pairs.sort()
+    pairs.sort(key=lambda item: (item["mapping_id"], item["left_id"], item["right_id"]))
     unresolved_rows.sort(key=_row_sort_key)
     return pairs, mapped_left, mapped_right, unresolved_rows
 
@@ -323,6 +363,7 @@ def _compare_pair(
     *,
     match_basis: str,
     mapping_id: str | None,
+    mapping_context: dict[str, Any] | None = None,
     settings: dict[str, Any],
     diagnostics: list[dict[str, Any]],
 ) -> dict[str, Any]:
@@ -352,6 +393,7 @@ def _compare_pair(
         "left_ref": _entity_ref(left, left_id),
         "right_ref": _entity_ref(right, right_id),
         "changes": changes,
+        **({"mapping_context": deepcopy(mapping_context)} if mapping_context else {}),
     }
 
 
@@ -522,6 +564,7 @@ def _unresolved_mapping_row(
     right: dict[str, Any] | None,
     left_id: str | None,
     right_id: str | None,
+    mapping_context: dict[str, Any],
 ) -> dict[str, Any]:
     return {
         "row_id": _row_id(left_id, right_id, mapping_id),
@@ -531,6 +574,7 @@ def _unresolved_mapping_row(
         "left_ref": _entity_ref(left, left_id) if left_id else None,
         "right_ref": _entity_ref(right, right_id) if right_id else None,
         "changes": [],
+        "mapping_context": deepcopy(mapping_context),
     }
 
 
@@ -577,6 +621,51 @@ def _ref_id(reference: Any) -> str | None:
     if isinstance(reference, str) and reference:
         return reference
     return None
+
+
+def _mapping_context(mapping: dict[str, Any], index: int) -> dict[str, Any]:
+    context = {
+        "mapping_id": str(mapping.get("mapping_id", f"mapping:{index:04d}")),
+        "mapping_kind": str(mapping.get("mapping_kind", "entity")),
+        "mapping_status": str(mapping.get("mapping_status", "TBD")),
+        "left_ref": deepcopy(mapping.get("left_ref", "TBD")),
+        "right_ref": deepcopy(mapping.get("right_ref", "TBD")),
+        "mapping_evidence": deepcopy(_list(mapping.get("mapping_evidence"))),
+        "hash_refs": deepcopy(_list(mapping.get("hash_refs"))),
+        "provenance": deepcopy(mapping.get("provenance", "TBD")),
+    }
+    for optional_key in ("confidence", "review", "affected_refs"):
+        if optional_key in mapping:
+            context[optional_key] = deepcopy(mapping[optional_key])
+    return context
+
+
+def _mapping_context_diagnostics(mapping: dict[str, Any], index: int) -> list[dict[str, Any]]:
+    missing = []
+    if not _list(mapping.get("mapping_evidence")):
+        missing.append("mapping_evidence")
+    if not _list(mapping.get("hash_refs")):
+        missing.append("hash_refs")
+    if not isinstance(mapping.get("provenance"), dict):
+        missing.append("provenance")
+    if not missing:
+        return []
+
+    return [
+        _diagnostic(
+            "MAPPING_CONTEXT_INCOMPLETE",
+            "MAPPING_EVIDENCE_WARNING",
+            "warning",
+            (
+                "A comparable explicit mapping is missing "
+                + ", ".join(missing)
+                + " context expected by the hardened comparison contract."
+            ),
+            "Preserve mapping evidence, hash references, and provenance where available.",
+            [_affected("mapping_record", _mapping_ref(mapping, index))],
+            provenance=mapping.get("provenance") if isinstance(mapping.get("provenance"), dict) else None,
+        )
+    ]
 
 
 def _has_unit_metadata(value: Any) -> bool:
@@ -658,6 +747,10 @@ def _row_sort_key(row: dict[str, Any]) -> tuple[str, str, str, str]:
 
 def _canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def _list(value: Any) -> list[Any]:
+    return value if isinstance(value, list) else []
 
 
 def utc_timestamp() -> str:

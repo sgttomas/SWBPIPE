@@ -38,7 +38,7 @@ def professional_boundary():
     }
 
 
-def state(state_id, entities):
+def state(state_id, entities, *, warnings=None):
     return {
         "model_state": {
             "state_id": state_id,
@@ -77,7 +77,7 @@ def state(state_id, entities):
                     "provenance": provenance(),
                 }
             ],
-            "warnings": [],
+            "warnings": warnings or [],
             "analysis_status": ["MODEL_INCOMPLETE"],
             "hashes": [
                 {
@@ -117,6 +117,46 @@ def by_ref(result):
         right_ref = row["right_ref"]["ref"] if row.get("right_ref") else None
         rows[(left_ref, right_ref)] = row
     return rows
+
+
+def mapping_context():
+    return {
+        "mapping_evidence": [
+            {
+                "evidence_id": "evidence:manual-map",
+                "evidence_kind": "manual_mapping",
+                "source_refs": [{"object_type": "ModelState", "ref": "state:left"}],
+                "stable_id_preservation": "left_and_right_refs_preserved",
+                "manual_review_state": "manual_reviewed",
+                "hash_refs": [
+                    {
+                        "algorithm": "sha256",
+                        "canonicalization": "JCS",
+                        "payload_ref": {"object_type": "ComparisonMapping", "ref": "map:renamed"},
+                        "payload_scope": "mapping_evidence",
+                        "value": "hash-mapping-evidence",
+                    }
+                ],
+                "provenance": provenance(),
+            }
+        ],
+        "hash_refs": [
+            {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {"object_type": "ComparisonMapping", "ref": "map:renamed"},
+                "payload_scope": "mapping_record",
+                "value": "hash-map-renamed",
+            }
+        ],
+        "provenance": provenance(),
+        "confidence": "manual_reviewed",
+        "review": {
+            "review_status": "pending",
+            "reviewer": "OpenPipeStress test",
+            "review_note": "Invented public mapping evidence.",
+        },
+    }
 
 
 def test_stable_id_matching_is_order_independent_and_preserves_metadata():
@@ -191,6 +231,34 @@ def test_added_removed_changed_unchanged_and_explicit_mapping_are_classified():
     rows = by_ref(result)
     assert rows[("entity:left-renamed", "entity:right-renamed")]["match_basis"] == "explicit_mapping"
     assert rows[("entity:changed", "entity:changed")]["changes"][0]["field"] == "value"
+    assert "MAPPING_CONTEXT_INCOMPLETE" in {item["code"] for item in result["diagnostics"]}
+
+
+def test_explicit_mapping_rows_preserve_evidence_hashes_and_provenance_context():
+    left = state("state:left", [entity("entity:left-renamed", value="mapped")])
+    right = state("state:right", [entity("entity:right-renamed", value="mapped")])
+    context = mapping_context()
+    mappings = [
+        {
+            "mapping_id": "map:renamed",
+            "mapping_kind": "entity",
+            "mapping_status": "manual_match",
+            "left_ref": {"object_type": "Entity", "ref": "entity:left-renamed"},
+            "right_ref": {"object_type": "Entity", "ref": "entity:right-renamed"},
+            **context,
+        }
+    ]
+
+    result = compare_model_states(left, right, mappings=mappings)
+
+    row = by_ref(result)[("entity:left-renamed", "entity:right-renamed")]
+    preserved = row["mapping_context"]
+    assert preserved["mapping_id"] == "map:renamed"
+    assert preserved["mapping_evidence"] == context["mapping_evidence"]
+    assert preserved["hash_refs"] == context["hash_refs"]
+    assert preserved["provenance"]["source_name"] == "invented public test fixture"
+    assert preserved["review"]["review_status"] == "pending"
+    assert "MAPPING_CONTEXT_INCOMPLETE" not in {item["code"] for item in result["diagnostics"]}
 
 
 def test_unresolved_mapping_and_unsupported_category_emit_diagnostics():
@@ -217,6 +285,54 @@ def test_unresolved_mapping_and_unsupported_category_emit_diagnostics():
     assert any(item["code"] == "MAPPING_UNRESOLVED" for item in result["diagnostics"])
 
 
+def test_missing_mapping_target_is_unresolved_and_visible():
+    left = state("state:left", [entity("entity:left-only", category="Component")])
+    right = state("state:right", [])
+    mappings = [
+        {
+            "mapping_id": "map:missing-target",
+            "mapping_kind": "entity",
+            "mapping_status": "manual_match",
+            "left_ref": {"object_type": "Entity", "ref": "entity:left-only"},
+            "right_ref": {"object_type": "Entity", "ref": "entity:missing"},
+            **mapping_context(),
+        }
+    ]
+
+    result = compare_model_states(left, right, mappings=mappings)
+
+    assert result["summary"]["unresolved"] == 1
+    assert result["entities"][0]["mapping_context"]["mapping_id"] == "map:missing-target"
+    assert "MAPPING_TARGET_MISSING" in {item["code"] for item in result["diagnostics"]}
+
+
+def test_incompatible_entity_categories_remain_unresolved():
+    left = state("state:left", [entity("entity:left-support", category="Support")])
+    right = state("state:right", [entity("entity:right-load", category="Load")])
+    mappings = [
+        {
+            "mapping_id": "map:category-mismatch",
+            "mapping_kind": "entity",
+            "mapping_status": "manual_match",
+            "left_ref": {"object_type": "Entity", "ref": "entity:left-support"},
+            "right_ref": {"object_type": "Entity", "ref": "entity:right-load"},
+            **mapping_context(),
+        }
+    ]
+
+    result = compare_model_states(
+        left,
+        right,
+        mappings=mappings,
+        settings={"comparable_entity_categories": ["Component"]},
+    )
+
+    row = by_ref(result)[("entity:left-support", "entity:right-load")]
+    assert row["classification"] == "unresolved"
+    assert row["mapping_context"]["mapping_id"] == "map:category-mismatch"
+    assert "UNSUPPORTED_CATEGORY" in {item["code"] for item in result["diagnostics"]}
+
+
 def test_unit_bearing_changes_require_unit_and_dimension_metadata():
     left = state("state:left", [entity("entity:pipe", nominal_size=10)])
     right = state("state:right", [entity("entity:pipe", nominal_size=12)])
@@ -227,6 +343,23 @@ def test_unit_bearing_changes_require_unit_and_dimension_metadata():
     assert result["summary"]["changed"] == 0
     diagnostic = next(item for item in result["diagnostics"] if item["code"] == "MISSING_UNIT_METADATA")
     assert diagnostic["severity"] == "blocking"
+
+
+def test_state_warnings_are_preserved_as_review_evidence():
+    warning = {
+        "code": "STATE-WARNING-INVENTED",
+        "message": "Invented warning attached to compared state.",
+        "provenance": provenance(),
+    }
+
+    result = compare_model_states(
+        state("state:left", [entity("entity:one")], warnings=[warning]),
+        state("state:right", [entity("entity:one")]),
+    )
+
+    diagnostic = next(item for item in result["diagnostics"] if item["code"] == "STATE_WARNING_PRESERVED")
+    assert diagnostic["affected_refs"][0]["affected_ref"]["ref"] == "STATE-WARNING-INVENTED"
+    assert diagnostic["provenance"]["source_name"] == "invented public test fixture"
 
 
 def test_output_boundary_language_does_not_make_prohibited_claims():
@@ -251,8 +384,12 @@ def test_output_boundary_language_does_not_make_prohibited_claims():
 def main():
     test_stable_id_matching_is_order_independent_and_preserves_metadata()
     test_added_removed_changed_unchanged_and_explicit_mapping_are_classified()
+    test_explicit_mapping_rows_preserve_evidence_hashes_and_provenance_context()
     test_unresolved_mapping_and_unsupported_category_emit_diagnostics()
+    test_missing_mapping_target_is_unresolved_and_visible()
+    test_incompatible_entity_categories_remain_unresolved()
     test_unit_bearing_changes_require_unit_and_dimension_metadata()
+    test_state_warnings_are_preserved_as_review_evidence()
     test_output_boundary_language_does_not_make_prohibited_claims()
 
 

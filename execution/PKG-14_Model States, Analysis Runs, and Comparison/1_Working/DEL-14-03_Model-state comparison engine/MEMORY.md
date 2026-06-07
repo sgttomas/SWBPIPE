@@ -64,3 +64,25 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - Model-state comparison evidence hardening
+
+- TASK-style Worker 1 hardened `DEL-14-03` parity with the `DEL-14-05`
+  comparison mapping contract by preserving explicit mapping evidence, hash
+  references, provenance, confidence, review, and affected-ref context on
+  explicit mapping rows.
+- Comparable mapping records that omit mapping evidence, hash references, or
+  provenance now emit a visible `MAPPING_CONTEXT_INCOMPLETE` warning rather
+  than silently losing evidence context.
+- Focused tests now cover preserved mapping context, missing mapping targets,
+  incompatible mapped categories, state-warning preservation, unit-metadata
+  blocking, deterministic output, and prohibited professional/code-compliance
+  wording absence.
+- Validation passed:
+  `python3 -m pytest tests/test_model_state_schema.py tests/test_comparison_contracts.py tests/test_model_state_comparison.py -q`
+  -> `13 passed`.
+- `git diff --check` passed.
+- No tolerance defaults, heuristic mapping policy, report/export layout
+  decision, lifecycle update, review disposition, protected standards content,
+  private/proprietary data, external-validation decision, professional approval,
+  certification, sealing, authentication, or code-compliance claim was added.
