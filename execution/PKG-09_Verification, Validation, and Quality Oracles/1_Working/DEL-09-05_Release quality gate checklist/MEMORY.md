@@ -294,3 +294,14 @@ decisions, or release claims.
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TP-DEL1104-RULEPACK-CHECKSUM-002 / TASK 2
+
+- Generic TASK reran focused invented-example and release-readiness validation against the upstream TASK 1 updated `examples/models/invented/fake_rule_pack_toy_model.json` fixture.
+- `python3 -m pytest -q tests/test_invented_example_models.py` passed with `7 passed in 0.54s`.
+- `python3 tools/release/check_release_readiness.py --profile python --execute` passed under current `DAG-006` authority: DAG dependency schema validation used `execution/_DAG/DAG-006/DependencyEdges.csv`, release-readiness script tests passed with 8 tests, repository Python contract tests passed with 340 tests, and coordination tool tests passed with 3 tests.
+- `git diff --check` passed with no whitespace errors.
+- Optional broader evidence `python3 tools/release/check_release_readiness.py --profile all --execute` passed, including security/privacy tests with 48 tests and all 24 discovered crate-local Cargo test commands.
+- Post-edit changed-file security/privacy validation `python3 -m pytest -q tests/security` passed with 48 tests.
+- `TP_DEL1104_RULEPACK_CHECKSUM_002_RELEASE_READINESS_FANIN.md` records the evidence-only fan-in. The prior DEL-11-04 residual release-readiness blocker `TP-VERIFY-017-RESIDUAL-001` is closed for current evidence, but this does not assert overall release readiness or change human-governed release decisions.
+- No lifecycle state, candidate row, dependency record, review disposition, release record, acceptance record, schema, test, fixture, source-code, CI workflow, release automation, professional claim, certification claim, sealing claim, authentication claim, or code-compliance claim was changed or made by TASK 2.

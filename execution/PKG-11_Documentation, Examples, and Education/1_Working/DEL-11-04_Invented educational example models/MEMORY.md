@@ -77,3 +77,9 @@ Durable context after approved WORKING_ITEMS tranche:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TP-DEL1104-RULEPACK-CHECKSUM-002 / TASK 1
+
+- Generic TASK updated `examples/models/invented/fake_rule_pack_toy_model.json` so `INV_FAKE_RULE_PACK_REF` carries the current public invented rule-pack digest `sha256:92a72dc94226efe46eb04fdad0eceb94ee3488e77c7202861ddf19c793f83374`.
+- The fixture project JCS hash was recomputed after the checksum update using `core.project_persistence.canonical_json`.
+- This was a bounded checksum/hash maintenance update only; no lifecycle state, DAG artifact, dependency register, review disposition, release record, acceptance record, schema, test, professional claim, certification claim, sealing claim, authentication claim, or code-compliance claim was changed or made.
