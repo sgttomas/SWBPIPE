@@ -104,3 +104,35 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TP-PKG12 Local Privacy Guards
+
+- TASK Worker B implemented the metadata-only telemetry policy guard module in
+  `core/security/telemetry_policy/` and added focused tests in
+  `tests/security/test_telemetry_policy.py`.
+- The guard resolves absent, empty, unknown, unsupported, malformed, or
+  incomplete telemetry configuration to disabled, and rejects unallowlisted or
+  forbidden event metadata before payload construction.
+- Evidence records:
+  `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/_run_records/TASK_RUN_2026-06-07_0141.md`
+  and
+  `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/_run_records/WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md`.
+- Parent validation passed:
+  `python3 -m pytest tests/security/test_local_first_storage_policy.py tests/security/test_telemetry_policy.py tests/security/test_redaction_export_controls.py tests/security/test_secret_private_library_handling.py`
+  reported 44 passed; `git diff --check` passed.
+- Focused protected-content/prohibited-claim scan found only boundary and
+  prohibition wording; no lifecycle status, DAG artifact, dependency register,
+  approval record, coordination prompt, telemetry schema, runtime telemetry
+  module, endpoint, vendor, transport, queue, upload job, persistence,
+  professional claim, code-compliance claim, or security-certification claim
+  was introduced.
+
+## 2026-06-07 - TP-PKG12 Local Privacy Guards Worker B
+
+- Implemented the metadata-only telemetry guard helper in `core/security/telemetry_policy/` with `TelemetryConfig`, `TelemetryEventAttempt`, `TelemetryDiagnostic`, `TelemetryDecision`, `TelemetryGuardResult`, `resolve_telemetry_config(...)`, and `guard_telemetry_event(...)`.
+- Guard behavior remains local and pre-payload: absent, empty, unknown, unsupported, or malformed configuration resolves disabled; enabled telemetry requires explicit opt-in, approved consent surface, and human-approved event allowlist evidence.
+- Event attempts are evaluated by event name, field name, and field classification only. Unknown events/fields and private, protected, secret, path, hash, report, or professional-claim classes are rejected before payload construction.
+- No `core/telemetry`, `apps/telemetry`, telemetry schema, endpoint, vendor, network transport, upload queue/job, telemetry persistence, or external service client was added.
+- Updated `docs/security/telemetry_policy.md` only to document the metadata-only guard helper and its non-authority boundary.
+- Verification: `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/security/test_telemetry_policy.py` passed with 15 tests; `git diff --check` passed for the Worker B write set.
+- This tranche did not change lifecycle state, dependency registers, approval records, DAG artifacts, coordination prompts, or Worker A local-first storage files.

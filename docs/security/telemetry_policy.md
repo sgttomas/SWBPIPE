@@ -82,6 +82,24 @@ approve private engineering or code data unless the user explicitly selects a
 specific payload for a specific support or export action under a separate
 approved workflow.
 
+## Metadata-Only Guard Helper
+
+The `core/security/telemetry_policy` module provides a metadata-only telemetry
+guard helper for resolving local telemetry configuration and evaluating event
+attempts before any payload is built. It accepts only telemetry configuration
+metadata, event names, field names, and field classifications; it returns
+diagnostics and a decision before payload construction.
+
+The helper is a local privacy guard and implementation-hardening artifact. It
+does not authorize endpoint, vendor, transport, queue, upload, persistence, or
+telemetry payload construction, and it does not select a consent UI, retention
+policy, support-bundle workflow, cloud service, or professional review state.
+If configuration is absent, empty, unknown, unsupported, or malformed, the
+helper resolves telemetry to disabled. If an event name, field name, or field
+classification is unknown, unapproved, private, protected, secret-like, path-
+like, hash-like, report-like, or a professional/code-compliance claim, the
+helper rejects the attempt before payload construction.
+
 ## Forbidden Payload Fields
 
 Telemetry payloads must not include:

@@ -67,6 +67,27 @@ This policy does not create real private paths, write files, define a product
 configuration schema, or select storage roots. It authorizes the local-only
 storage profile, not a public SQL interface.
 
+## Metadata-Only Storage Guard Helper
+
+The `core.security.local_first_storage` helper provides a deterministic
+metadata-only guard for storage planning records. Its public surface includes
+`StorageRecord`, `StorageDiagnostic`, `StorageDecision`,
+`StorageGuardResult`, `storage_record(...)`,
+`classify_storage_record(...)`, and `guard_storage_records(...)`.
+
+The helper classifies only explicit metadata. It does not read files, write
+files, choose operating-system roots, store project payloads, store secrets,
+open SQLite handles, expose direct SQL, transmit data, authorize cloud or
+network storage, implement encryption, or make security-certification,
+professional, approval, authentication, sealing, or code-compliance claims.
+
+Public-repository and shared contexts block private project, rule-pack,
+material, component, report, diagnostic, cache, and secret storage records by
+default. Local-private retention of private metadata requires explicit user
+intent. Cloud or network storage markers, direct-SQL markers, secret material,
+payload material, and concrete path-like details are blocked or reduced to
+symbolic, safe metadata in guard outputs.
+
 ## Symbolic Path Classes
 
 Until implementation selects concrete roots, storage planning uses symbolic

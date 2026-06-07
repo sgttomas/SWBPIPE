@@ -121,3 +121,48 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TP-PKG12 Local Privacy Guards
+
+- TASK Worker A implemented the metadata-only local-first storage guard module
+  in `core/security/local_first_storage/` and added focused tests in
+  `tests/security/test_local_first_storage_policy.py`.
+- Parent WORKING_ITEMS fan-in tightened `StorageGuardResult.blocked` so result
+  blocking follows per-decision blocking, then added a regression test for
+  private metadata that still targets `PUBLIC_REPOSITORY_CONTENT`.
+- Evidence records:
+  `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/_run_records/TASK_RUN_2026-06-07_0140.md`
+  and
+  `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/_run_records/WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md`.
+- Parent validation passed:
+  `python3 -m pytest tests/security/test_local_first_storage_policy.py tests/security/test_telemetry_policy.py tests/security/test_redaction_export_controls.py tests/security/test_secret_private_library_handling.py`
+  reported 44 passed; `git diff --check` passed.
+- Focused protected-content/prohibited-claim scan found only boundary and
+  prohibition wording; no lifecycle status, DAG artifact, dependency register,
+  approval record, coordination prompt, storage schema, runtime storage module,
+  encryption/secret-storage claim, professional claim, code-compliance claim,
+  or security-certification claim was introduced.
+
+## 2026-06-07 - TP-PKG12 Local Privacy Guards Worker A
+
+- Implemented `core.security.local_first_storage` as a metadata-only storage
+  guard helper for `DEL-12-01`: `StorageRecord`, `StorageDiagnostic`,
+  `StorageDecision`, `StorageGuardResult`, `storage_record(...)`,
+  `classify_storage_record(...)`, and `guard_storage_records(...)`.
+- Guard behavior remains local-first and non-authoritative: it does not choose
+  roots, read/write private data, store payloads or secrets, open direct SQL or
+  raw SQLite handles, transmit data, implement encryption, or make security,
+  professional, approval, sealing, authentication, or code-compliance claims.
+- Focused tests were added in
+  `tests/security/test_local_first_storage_policy.py` for deterministic
+  metadata classification, public/shared blocking of private payloads,
+  explicit local-private user intent, and sanitization/blocking for cloud,
+  network, direct-SQL, secret-material, and concrete-path-like details.
+- Documentation update was limited to
+  `docs/security/local_first_storage_policy.md` to describe the helper and its
+  non-authority boundaries.
+- Verification: `python3 -m pytest
+  tests/security/test_local_first_storage_policy.py` passed with 13 tests;
+  `git diff --check` passed.
+- Concurrent Worker B telemetry changes were present in the working tree during
+  closeout and were not modified by this worker.
