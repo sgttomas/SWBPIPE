@@ -63,3 +63,10 @@ Durable context preserved after reconciliation review:
 - `schemas/comparison_tolerance.schema.json` now requires per-rule unit metadata policy and hash references, and numeric tolerance values are structurally limited to externally governed or project-specific-review-required status paths.
 - `tests/test_comparison_contracts.py` records focused assertions for the hardened schema fields and continues to check that no schema `default` keys define silent numeric tolerances.
 - No governed tolerance values, code-specific acceptance criteria, external validation decision, lifecycle update, review disposition, professional approval, certification, sealing, authentication, or code-compliance claim was added.
+
+## 2026-06-07 - TP-PKG14-Remaining Checking Alignment
+
+- Bounded TASK validation for DEL-14-05 passed: `python3 -m json.tool schemas/comparison_mapping.schema.json`, `python3 -m json.tool schemas/comparison_tolerance.schema.json`, and `python3 -m pytest tests/test_comparison_contracts.py -q` completed successfully.
+- No-silent-tolerance evidence was confirmed: both comparison schemas contain zero `default` keys, and `tests/test_comparison_contracts.py` asserts no schema defaults plus the numeric tolerance status guard.
+- Deliverable-local consistency scan using conservative defaults found no missing core files, no missing four-doc kit files, no identity mismatches, and no candidate unsourced numerics. The `TBD`/`ASSUMPTION` markers are intentional deferred decisions for governed tolerance values, final mapping workflow authority, exact CSV/JSON/report-section layout, downstream engine/export integration, source-safe examples, and dependency satisfaction evidence.
+- `_STATUS.md` was set to `CHECKING` for this bounded transition only. No release, professional-approval, certification, sealing, authentication, or code-compliance claim was made.

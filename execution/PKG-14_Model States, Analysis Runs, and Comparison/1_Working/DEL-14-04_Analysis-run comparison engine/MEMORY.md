@@ -65,3 +65,25 @@ Durable context preserved after reconciliation review:
   decision, hard-coded tolerance value, professional approval claim,
   certification claim, sealing claim, authentication claim, or code-compliance
   claim was introduced.
+
+## 2026-06-07 - TP-PKG14-Remaining Checking Alignment
+
+- Bounded TASK validation confirmed `tests/test_analysis_run_comparison.py`
+  covers deterministic run context preservation, raw versus unit-normalized
+  deltas, explicit conversion-factor requirements, mapping/result diagnostics,
+  carried run diagnostics, settings deltas, and professional-boundary flags.
+- `tests/test_comparison_contracts.py` and current DEL-14-04 evidence cover
+  consumption of DEL-14-05 mapping and tolerance contracts without hard-coded
+  public defaults.
+- Deliverable-local consistency scan passed structural checks with no missing
+  core files, no missing four-document kit files, no identity mismatches, and
+  no candidate unsourced numerics. The reported `TBD`/`ASSUMPTION` markers are
+  non-blocking for CHECKING: they are intentional deferred decisions under
+  OI-014 or architecture/export/default policy, or stale setup-kit placeholders
+  superseded by current implementation/test evidence.
+- Focused validation passed:
+  `python3 -m pytest tests/test_analysis_run_schema.py tests/test_analysis_run_records.py tests/test_comparison_contracts.py tests/test_analysis_run_comparison.py -q`
+  with 18 tests passing.
+- `_STATUS.md` was set to `CHECKING` for this lifecycle-alignment task only.
+  No release, professional approval, certification, sealing, authentication,
+  external-validation, or code-compliance claim was made.

@@ -114,3 +114,25 @@ Durable context preserved after reconciliation review:
   disposition, protected standards content, private/proprietary data,
   professional approval claim, certification claim, sealing claim,
   authentication claim, or code-compliance claim was introduced.
+
+## 2026-06-07 - TP-PKG14-Remaining Checking Alignment
+
+- Bounded TASK validation rechecked `schemas/analysis_run.schema.json` against
+  DEL-14-02/SOW-072 evidence and confirmed the schema parses with
+  `python3 -m json.tool schemas/analysis_run.schema.json`.
+- Focused validation passed:
+  `python3 -m pytest tests/test_analysis_run_schema.py tests/test_analysis_run_records.py -q`
+  (`9 passed`).
+- Evidence in `tests/test_analysis_run_schema.py` and
+  `tests/test_analysis_run_records.py` covers DEL-14-02/SOW-072 identity,
+  model-state binding, solver/settings/unit/load basis, diagnostics, result
+  references, result hashes, reproducibility, private-payload redaction, and
+  professional-boundary rejection checks.
+- Conservative deliverable-local consistency scan reported no missing core
+  files, no missing four-document kit files, no identity mismatches, and no
+  candidate unsourced numerics. The reported `TBD`/`ASSUMPTION` markers were
+  classified as intentional deferred decisions or stale setup-stage wording
+  superseded by current schema/test evidence, not blockers for CHECKING.
+- `_STATUS.md` was moved to `CHECKING` for this bounded alignment only. No
+  release, professional-approval, certification, sealing, authentication, or
+  code-compliance claim was made.
