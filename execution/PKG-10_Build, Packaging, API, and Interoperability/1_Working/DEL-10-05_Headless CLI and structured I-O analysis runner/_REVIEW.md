@@ -52,3 +52,78 @@ This audit did not rerun headless runner tests and did not update lifecycle stat
 ## Audit Boundary
 
 This is an audit-only package-scoped review against PKG-02 foundation contracts. It is not a candidate promotion, lifecycle approval, release claim, certification, sealing, code-compliance claim, professional reliance statement, or product implementation review.
+
+## Human Ruling Evidence Packet - 2026-06-07
+
+Prepared by REVIEW for human disposition support. No `HumanDisposition`,
+finding `Status`, lifecycle state, dependency register, DAG artifact, schema,
+code, fixture, or test file is changed by this evidence packet.
+
+### Ruling HR-DEL1005-001 - Package-Audit Warning Disposition
+
+| Field | Evidence |
+|---|---|
+| Finding | `PKG10-DEL1005-PKG02-W001` in `Review_Findings.csv` |
+| Current finding state | `HumanDisposition=TBD`; `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+| Decision needed | Decide whether the PKG-02 compatibility warning is technically acceptable, needs revision, or should be deferred. |
+| Technical evidence | Package-local dependency rows `DEV-001-STAGE2-DEL-10-05-PKG02-001` and `DEV-001-STAGE2-DEL-10-05-PKG02-003` are active and satisfied for canonical model/source references and authority-status semantics; existing active rows name DEL-02-02 and DEL-02-05. |
+| Current hardening evidence | `schemas/headless_runner.schema.yaml` requires at least one result checksum; `core/runner/headless/src/lib.rs` enforces concrete checksum vocabulary and result-envelope checksum references; `tests/test_headless_runner_contract.py` asserts checksum vocabulary and nonempty result checksums. |
+| Validation evidence | Focused DEL-10-05 worker validation passed `python3 -m pytest -q tests/test_headless_runner_contract.py` and `cargo test --manifest-path core/runner/headless/Cargo.toml`; PKG-10 fan-in passed the five-test focused Python suite with 27 tests total plus release-readiness, DAG dependency schema, headless Cargo, and `git diff --check` checks. |
+
+Recommended human ruling for this finding: `ACCEPT_AS_IS` for technical
+resolution of the PKG-02 compatibility warning. This does not itself authorize
+`CHECKING`, final CLI syntax, package scripts, release, public API transport,
+external adapter formats, or professional/code-compliance claims.
+
+Alternative rulings:
+
+- `REVISE` if the human wants additional evidence for model-reference or
+  authority-status compatibility beyond the package-local dependency rows and
+  headless runner contract tests.
+- `DEFER` if the human wants the technical resolution accepted for now but
+  aggregate DAG promotion or lifecycle decision held separately.
+
+### Ruling HR-DEL1005-002 - Active Dependency `TBD` Rows
+
+| Field | Evidence |
+|---|---|
+| Active `TBD` rows | `DEP-10-05-E003` DEL-08-04, `DEP-10-05-E004` DEL-10-04, `DEP-10-05-E005` DEL-02-02, `DEP-10-05-E006` DEL-02-05, `DEP-10-05-E007` DEL-08-02, `DEP-10-05-E008` DEL-04-06 |
+| Current implementation evidence | The headless runner validates request/result boundaries, result-envelope references, checksum vocabulary, provenance/audit references, privacy, diagnostics, and professional-boundary controls. |
+| Remaining boundary | Final CLI command syntax, package scripts, process invocation behavior, network/filesystem policy expansion, CI provider, release matrix, public API transport, external adapter format list, physical project package/container, GUI/report runtime behavior, and local FEA package structure remain future sealed scope. |
+| Prior triage | `MEMORY.md` classifies result-envelope payload validation and runtime-test expansion as later tranches, and records diagnostic vocabulary as cross-deliverable ruling territory. The 2026-06-07 hardening aligned checksum vocabulary locally to `JCS` / `NONE` / `TBD`. |
+
+Recommended human ruling for movement to `CHECKING`: if the human accepts the
+current headless-runner contract boundary, mark these active `TBD`
+dependencies as acceptable to defer for `CHECKING`, with rationale that they
+represent adjacent result-export, build/release, unit, persistence/hash, audit,
+and solver-diagnostic maturity rather than blockers to reviewing the current
+bounded runner contract.
+
+Alternative ruling:
+
+- `REVISE` / hold if the human requires all high-confidence active upstream
+  dependencies to be `SATISFIED` before `CHECKING`, especially DEL-08-04,
+  DEL-08-02, and DEL-04-06 integration evidence.
+
+### Transition Recommendation
+
+Human disposition received. Current REVIEW recommendation is
+`RECOMMEND_ADVANCE` for `IN_PROGRESS -> CHECKING`, subject to final status-gate
+validation.
+
+### Human Ruling Record - 2026-06-07
+
+| Ruling | Human decision | Evidence update |
+|---|---|---|
+| HR-DEL1005-001 | `ACCEPT_AS_IS` | `Review_Findings.csv` updated to `HumanDisposition=ACCEPT_AS_IS`, `Status=RESOLVED`. |
+| HR-DEL1005-002 | Active dependency `TBD` rows accepted as deferred for `CHECKING` | Deferred because the current bounded runner contract validates request/result boundaries, result-envelope references, checksums, provenance/audit refs, privacy, diagnostics, and professional-boundary controls while final CLI/package/CI/release/runtime expansion remains future sealed scope. |
+
+Validation after ruling:
+
+- `python3 -m pytest -q tests/test_adapter_framework_contract.py tests/test_local_fea_handoff_contract.py tests/test_release_readiness_script.py tests/test_coordination_maintenance.py tests/test_headless_runner_contract.py`
+  passed with 27 tests.
+- `cargo test --manifest-path core/runner/headless/Cargo.toml` passed with 11 tests.
+
+No release, professional/code-compliance, DAG promotion, dependency-register
+mutation, final CLI/API/CI/release decision, or aggregate authority claim is
+implied by this ruling record.

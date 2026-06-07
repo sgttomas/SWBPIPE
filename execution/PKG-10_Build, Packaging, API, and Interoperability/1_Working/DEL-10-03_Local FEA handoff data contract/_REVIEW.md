@@ -52,3 +52,75 @@ This audit did not rerun local FEA tests and did not update lifecycle state, dep
 ## Audit Boundary
 
 This is an audit-only package-scoped review against PKG-02 foundation contracts. It is not a candidate promotion, lifecycle approval, release claim, certification, sealing, code-compliance claim, professional reliance statement, or product implementation review.
+
+## Human Ruling Evidence Packet - 2026-06-07
+
+Prepared by REVIEW for human disposition support. No `HumanDisposition`,
+finding `Status`, lifecycle state, dependency register, DAG artifact, schema,
+guidance, code, or test file is changed by this evidence packet.
+
+### Ruling HR-DEL1003-001 - Package-Audit Warning Disposition
+
+| Field | Evidence |
+|---|---|
+| Finding | `PKG10-DEL1003-PKG02-W001` in `Review_Findings.csv` |
+| Current finding state | `HumanDisposition=TBD`; `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` |
+| Decision needed | Decide whether the PKG-02 compatibility warning is technically acceptable, needs revision, or should be deferred. |
+| Technical evidence | Package-local dependency rows `DEV-001-STAGE2-DEL-10-03-PKG02-001/002/003/005` are active and satisfied for canonical model/source references, unit metadata, authority-status semantics, and persistence/hash assumptions. |
+| Current hardening evidence | `tests/test_local_fea_handoff_contract.py` is now pytest-collected and checks current `SourceRefs`/`Reproducibility` schema names plus guidance labels, human-review boundary language, and solver/mesh/format exclusions. |
+| Validation evidence | Focused DEL-10-03 worker validation passed `python3 -m pytest -q tests/test_local_fea_handoff_contract.py`; PKG-10 fan-in passed the five-test focused Python suite with 27 tests total plus release-readiness, DAG dependency schema, headless Cargo, and `git diff --check` checks. |
+
+Recommended human ruling for this finding: `ACCEPT_AS_IS` for technical
+resolution of the PKG-02 compatibility warning. This does not itself authorize
+`CHECKING`, external FEA execution, target solver selection, mesh generation,
+release, or professional/code-compliance claims.
+
+Alternative rulings:
+
+- `REVISE` if the human wants updated dependency-register prose or additional
+  evidence tying the current schema names to the older package-audit wording.
+- `DEFER` if the human wants the technical resolution accepted for now but
+  aggregate DAG promotion or lifecycle decision held separately.
+
+### Ruling HR-DEL1003-002 - Active Dependency `TBD` Rows
+
+| Field | Evidence |
+|---|---|
+| Active `TBD` rows | `DAG-002-E0561` DEL-10-01, `DAG-002-E0562` DEL-04-01, `DAG-002-E0563` DEL-05-03, `DAG-002-E0564` DEL-01-04, `DAG-002-E0618` DEL-08-04, `TP-DAG-004-DEL-10-03-C0001` DEL-15-01 |
+| Dependency posture | Rows are retained as active dependency visibility; two rows are candidate/non-gating by notes (`DAG-002-E0618`, `TP-DAG-004-DEL-10-03-C0001`). |
+| Deliverable boundary | `_CONTEXT.md` states the envelope is guidance-only with no external FEA implementation. The deliverable preserves target solver, mesh, exchange format, and solver-specific execution semantics as separate decisions. |
+| Current test evidence | The focused contract test asserts guidance language that target solver, mesh, exchange format, and solver-specific execution semantics remain outside DEL-10-03. |
+
+Recommended human ruling for movement to `CHECKING`: if the human accepts the
+current guidance-only/API-contract boundary, mark these active `TBD`
+dependencies as acceptable to defer for `CHECKING`, with rationale that they
+represent downstream/upstream maturity visibility rather than a blocker to
+reviewing the current advisory handoff contract.
+
+Alternative ruling:
+
+- `REVISE` / hold if the human requires all high-confidence upstream
+  dependencies to be `SATISFIED` before `CHECKING`.
+
+### Transition Recommendation
+
+Human disposition received. Current REVIEW recommendation is
+`RECOMMEND_ADVANCE` for `IN_PROGRESS -> CHECKING`, subject to final status-gate
+validation.
+
+### Human Ruling Record - 2026-06-07
+
+| Ruling | Human decision | Evidence update |
+|---|---|---|
+| HR-DEL1003-001 | `ACCEPT_AS_IS` | `Review_Findings.csv` updated to `HumanDisposition=ACCEPT_AS_IS`, `Status=RESOLVED`. |
+| HR-DEL1003-002 | Active dependency `TBD` rows accepted as deferred for `CHECKING` | Deferred because the current deliverable boundary is guidance-only/API-contract; no external FEA solver, mesh generation, exchange-format selection, or solver invocation workflow is implied. |
+
+Validation after ruling:
+
+- `python3 -m pytest -q tests/test_adapter_framework_contract.py tests/test_local_fea_handoff_contract.py tests/test_release_readiness_script.py tests/test_coordination_maintenance.py tests/test_headless_runner_contract.py`
+  passed with 27 tests.
+- `cargo test --manifest-path core/runner/headless/Cargo.toml` passed with 11 tests.
+
+No release, professional/code-compliance, DAG promotion, dependency-register
+mutation, external FEA implementation, or aggregate authority claim is implied
+by this ruling record.

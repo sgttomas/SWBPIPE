@@ -246,8 +246,8 @@ def test_schema_preserves_diagnostics_privacy_result_and_authority_boundaries():
     assert boundary["software_makes_security_certification_claim"]["const"] is False
 
 
-def test_current_authority_fixture_payload_is_format_neutral_and_accepted():
-    fixture = current_authority_fixture()
+def test_invented_fixture_is_format_neutral_and_accepted():
+    fixture = load_json(FIXTURE_PATH)
     result = validate_adapter_declaration(fixture)
 
     assert result.accepted is True
@@ -370,7 +370,7 @@ if __name__ == "__main__":
     test_schema_keeps_runtime_and_format_decisions_tbd()
     test_schema_requires_no_bypass_and_validation_hooks()
     test_schema_preserves_diagnostics_privacy_result_and_authority_boundaries()
-    test_current_authority_fixture_payload_is_format_neutral_and_accepted()
+    test_invented_fixture_is_format_neutral_and_accepted()
     test_concrete_format_selection_is_rejected()
     test_direct_persistence_access_is_rejected()
     test_missing_provenance_blocks_adapter_declaration()
