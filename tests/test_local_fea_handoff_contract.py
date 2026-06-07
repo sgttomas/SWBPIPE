@@ -68,6 +68,14 @@ def load_schema():
         return json.load(schema_file)
 
 
+def load_guidance():
+    return GUIDANCE_PATH.read_text(encoding="utf-8")
+
+
+def normalize_text(value):
+    return " ".join(value.split())
+
+
 def required_at(schema, definition_name):
     return set(schema["$defs"][definition_name]["required"])
 
@@ -88,6 +96,7 @@ def walk_keys(value):
 
 def main():
     schema = load_schema()
+    guidance = load_guidance()
     defs = schema["$defs"]
 
     assert GUIDANCE_PATH.exists()
@@ -96,6 +105,8 @@ def main():
     assert "default" not in set(walk_keys(schema))
     assert REQUIRED_ROOT <= set(schema["required"])
     assert REQUIRED_DEFS <= set(defs)
+    assert "SourceSnapshotRef" not in defs
+    assert "HandoffHashManifest" not in defs
 
     assert schema["properties"]["deliverable_id"]["const"] == "DEL-10-03"
     assert schema["properties"]["package_id"]["const"] == "PKG-10"
@@ -140,6 +151,9 @@ def main():
         "professional_boundary",
         "reproducibility",
     } <= package_required
+    package = defs["HandoffPackage"]["properties"]
+    assert package["source_refs"]["$ref"] == "#/$defs/SourceRefs"
+    assert package["reproducibility"]["$ref"] == "#/$defs/Reproducibility"
 
     source_required = required_at(schema, "SourceRefs")
     assert {
@@ -261,6 +275,24 @@ def main():
 
     checksum = defs["ChecksumRef"]["properties"]
     assert "JCS-compatible-json" in checksum["canonicalization"]["enum"]
+
+    normalized_guidance = normalize_text(guidance)
+    for label in REQUIRED_GUIDANCE_LABELS:
+        assert f"`{label}`" in guidance
+    assert "They do not certify" in normalized_guidance
+    assert "Final engineering reliance remains a human responsibility" in (
+        normalized_guidance
+    )
+    assert "Target solver, mesh, and exchange format remain separate decisions" in (
+        normalized_guidance
+    )
+    assert "solver-specific execution semantics are outside DEL-10-03" in (
+        normalized_guidance
+    )
+
+
+def test_local_fea_handoff_contract():
+    main()
 
 
 if __name__ == "__main__":

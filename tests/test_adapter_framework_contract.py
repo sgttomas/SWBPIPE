@@ -113,6 +113,14 @@ def load_json(path):
         return json.load(handle)
 
 
+def current_authority_fixture():
+    fixture = load_json(FIXTURE_PATH)
+    fixture["adapter_declaration"]["no_bypass_controls"].update(
+        {key: True for key in REQUIRED_NO_BYPASS}
+    )
+    return fixture
+
+
 def required_at(schema, definition_name):
     return set(schema["$defs"][definition_name]["required"])
 
@@ -238,8 +246,8 @@ def test_schema_preserves_diagnostics_privacy_result_and_authority_boundaries():
     assert boundary["software_makes_security_certification_claim"]["const"] is False
 
 
-def test_invented_fixture_is_format_neutral_and_accepted():
-    fixture = load_json(FIXTURE_PATH)
+def test_current_authority_fixture_payload_is_format_neutral_and_accepted():
+    fixture = current_authority_fixture()
     result = validate_adapter_declaration(fixture)
 
     assert result.accepted is True
@@ -252,7 +260,7 @@ def test_invented_fixture_is_format_neutral_and_accepted():
 
 
 def test_concrete_format_selection_is_rejected():
-    fixture = load_json(FIXTURE_PATH)
+    fixture = current_authority_fixture()
     fixture["adapter_declaration"]["format_status"] = "real_format_name"
 
     result = validate_adapter_declaration(fixture)
@@ -263,7 +271,7 @@ def test_concrete_format_selection_is_rejected():
 
 
 def test_direct_persistence_access_is_rejected():
-    fixture = load_json(FIXTURE_PATH)
+    fixture = current_authority_fixture()
     fixture["adapter_declaration"]["persistence_escape_hatch"] = {
         "raw_sqlite_handle": "sqlite://project.db",
         "table_names": ["projects", "model_objects"],
@@ -278,7 +286,7 @@ def test_direct_persistence_access_is_rejected():
 
 
 def test_missing_provenance_blocks_adapter_declaration():
-    fixture = load_json(FIXTURE_PATH)
+    fixture = current_authority_fixture()
     del fixture["adapter_declaration"]["provenance"]["source_license"]
 
     result = validate_adapter_declaration(fixture)
@@ -289,7 +297,7 @@ def test_missing_provenance_blocks_adapter_declaration():
 
 
 def test_protected_suspected_fixture_quarantines():
-    fixture = load_json(FIXTURE_PATH)
+    fixture = current_authority_fixture()
     fixture["adapter_declaration"]["provenance"][
         "redistribution_status"
     ] = "protected_suspected"
@@ -302,9 +310,21 @@ def test_protected_suspected_fixture_quarantines():
 
 
 def test_no_bypass_controls_are_enforced():
-    fixture = load_json(FIXTURE_PATH)
+    fixture = current_authority_fixture()
     fixture["adapter_declaration"]["no_bypass_controls"][
         "must_use_unit_validation"
+    ] = False
+
+    result = validate_adapter_declaration(fixture)
+
+    assert result.accepted is False
+    assert "ADAPTER_NO_BYPASS_CONTROL_DISABLED" in codes(result)
+
+
+def test_application_service_persistence_no_bypass_controls_are_enforced():
+    fixture = current_authority_fixture()
+    fixture["adapter_declaration"]["no_bypass_controls"][
+        "must_route_persistence_through_application_services"
     ] = False
 
     result = validate_adapter_declaration(fixture)
@@ -336,7 +356,7 @@ def test_schema_and_fixture_do_not_contain_forbidden_status_terms():
 
 
 def test_premature_tbd_resolution_is_rejected():
-    fixture = copy.deepcopy(load_json(FIXTURE_PATH))
+    fixture = copy.deepcopy(current_authority_fixture())
     fixture["tbd_decisions"]["public_transport_protocol"] = "http"
 
     result = validate_adapter_declaration(fixture)
@@ -350,11 +370,13 @@ if __name__ == "__main__":
     test_schema_keeps_runtime_and_format_decisions_tbd()
     test_schema_requires_no_bypass_and_validation_hooks()
     test_schema_preserves_diagnostics_privacy_result_and_authority_boundaries()
-    test_invented_fixture_is_format_neutral_and_accepted()
+    test_current_authority_fixture_payload_is_format_neutral_and_accepted()
     test_concrete_format_selection_is_rejected()
+    test_direct_persistence_access_is_rejected()
     test_missing_provenance_blocks_adapter_declaration()
     test_protected_suspected_fixture_quarantines()
     test_no_bypass_controls_are_enforced()
+    test_application_service_persistence_no_bypass_controls_are_enforced()
     test_operation_result_builder_preserves_boundaries()
     test_schema_and_fixture_do_not_contain_forbidden_status_terms()
     test_premature_tbd_resolution_is_rejected()

@@ -163,3 +163,10 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - PKG-10 review-readiness hardening
+
+- TASK hardening aligned `core/adapters/framework/adapter_framework.py` with the schema and SCA-003 persistence boundary by requiring adapter declarations to keep application-service persistence routing, no SQL/raw SQLite exposure, no table-name exposure, and no direct project-store mutation controls set to true.
+- Focused test coverage in `tests/test_adapter_framework_contract.py` now exercises the application-service persistence no-bypass control.
+- The existing invented fixture at `fixtures/adapters/invented/invented_adapter_framework.json` is outside this run's write scope and still lacks those four newer controls. Under the hardened validator it is rejected until a later authorized fixture-refresh task updates it.
+- No lifecycle, review disposition, DAG, dependency, public transport/API, external format, release, code-compliance, or professional-approval claim was changed.

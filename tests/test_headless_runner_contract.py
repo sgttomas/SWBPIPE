@@ -250,12 +250,19 @@ def main():
     assert boundary["software_makes_authentication_claim"]["const"] is False
 
     checksum = defs["ChecksumRef"]["properties"]
+    assert set(checksum["algorithm"]["enum"]) == {"sha256", "sha512", "TBD"}
+    assert set(checksum["canonicalization"]["enum"]) == {"JCS", "NONE", "TBD"}
     assert "JCS" in checksum["canonicalization"]["enum"]
     assert "NONE" in checksum["canonicalization"]["enum"]
+    assert defs["HeadlessRunnerResult"]["properties"]["checksums"]["minItems"] == 1
 
     schema_upper = SCHEMA_PATH.read_text(encoding="utf-8").upper()
     for term in FORBIDDEN_STATUS:
         assert term not in schema_upper
+
+
+def test_headless_runner_contract():
+    main()
 
 
 if __name__ == "__main__":

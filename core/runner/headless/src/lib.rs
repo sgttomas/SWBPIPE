@@ -135,8 +135,8 @@ pub struct ChecksumRef {
 
 impl ChecksumRef {
     fn is_complete(&self) -> bool {
-        !self.algorithm.trim().is_empty()
-            && !self.canonicalization.trim().is_empty()
+        matches!(self.algorithm.trim(), "sha256" | "sha512")
+            && matches!(self.canonicalization.trim(), "JCS" | "NONE")
             && self.payload_ref.is_complete()
             && !self.value.trim().is_empty()
             && !self.value.trim().eq_ignore_ascii_case("TBD")
@@ -495,6 +495,22 @@ pub fn validate_result(result: &RunnerResult) -> RunnerValidation {
         ));
     }
 
+    if result.result_envelope_ref.is_compatible()
+        && !has_result_envelope_checksum(
+            result,
+            result.result_envelope_ref.envelope_ref.ref_id.as_str(),
+        )
+    {
+        diagnostics.push(Diagnostic::runner_blocking(
+            "HEADLESS_RUNNER_RESULT_ENVELOPE_CHECKSUM_MISSING",
+            Reference::new(
+                "result_envelope",
+                result.result_envelope_ref.envelope_ref.ref_id.as_str(),
+            ),
+            "runner result must include a checksum reference for the serialized result envelope",
+        ));
+    }
+
     validate_shared_boundaries(
         "runner_result",
         &result.run_id,
@@ -604,11 +620,7 @@ fn validate_result_envelope_payload(
         ));
     }
 
-    if !result.checksums.iter().any(|checksum| {
-        checksum.payload_ref.ref_type == "result_envelope"
-            && checksum.payload_ref.ref_id == expected_envelope_id
-            && checksum.is_complete()
-    }) {
+    if !has_result_envelope_checksum(result, expected_envelope_id) {
         diagnostics.push(Diagnostic::runner_blocking(
             "HEADLESS_RUNNER_RESULT_ENVELOPE_CHECKSUM_MISSING",
             Reference::new("result_envelope", expected_envelope_id),
@@ -707,7 +719,11 @@ pub fn run_preview_in_memory(
         audit_manifest_ref: Reference::new("audit_manifest", format!("audit-manifest:{run_id}")),
         checksums: vec![
             checksum_ref("runner_request", &request.request_id, &request),
-            checksum_ref("result_envelope", &run_id, &mechanics),
+            checksum_ref(
+                "result_envelope",
+                &format!("result-envelope:{run_id}"),
+                &mechanics,
+            ),
         ],
         diagnostics: Vec::new(),
         privacy: request.privacy,
@@ -719,6 +735,14 @@ pub fn run_preview_in_memory(
         runner_result,
         mechanics_envelope: Some(mechanics),
     }
+}
+
+fn has_result_envelope_checksum(result: &RunnerResult, expected_envelope_id: &str) -> bool {
+    result.checksums.iter().any(|checksum| {
+        checksum.payload_ref.ref_type == "result_envelope"
+            && checksum.payload_ref.ref_id == expected_envelope_id
+            && checksum.is_complete()
+    })
 }
 
 fn validate_shared_boundaries(
@@ -820,6 +844,15 @@ mod tests {
         }
     }
 
+    fn result_envelope_checksum(id: &str) -> ChecksumRef {
+        ChecksumRef {
+            algorithm: "sha256".to_string(),
+            canonicalization: "JCS".to_string(),
+            payload_ref: Reference::new("result_envelope", id),
+            value: format!("{id}-hash"),
+        }
+    }
+
     fn provenance() -> Provenance {
         Provenance {
             source_name: "invented headless runner fixture".to_string(),
@@ -885,7 +918,10 @@ mod tests {
             )),
             result_refs: vec![Reference::new("result", "result:disp:N-100")],
             audit_manifest_ref: Reference::new("audit_manifest", "manifest-1"),
-            checksums: vec![checksum("input-manifest")],
+            checksums: vec![
+                checksum("input-manifest"),
+                result_envelope_checksum("result-envelope-1"),
+            ],
             diagnostics: Vec::new(),
             privacy: PrivacyContext::local_first_public_metadata(),
             provenance: provenance(),
@@ -983,6 +1019,28 @@ mod tests {
     }
 
     #[test]
+    fn result_requires_schema_vocabulary_and_result_envelope_checksum() {
+        let mut result = result();
+        let envelope_checksum = result
+            .checksums
+            .iter_mut()
+            .find(|checksum| checksum.payload_ref.ref_type == "result_envelope")
+            .expect("fixture carries result-envelope checksum");
+        envelope_checksum.algorithm = "blake3".to_string();
+        envelope_checksum.canonicalization = "JCS-compatible-json".to_string();
+
+        let validation = validate_result(&result);
+        let codes: Vec<_> = validation
+            .diagnostics
+            .iter()
+            .map(|diagnostic| diagnostic.code.as_str())
+            .collect();
+
+        assert!(codes.contains(&"HEADLESS_RUNNER_REPRODUCIBILITY_MISSING"));
+        assert!(codes.contains(&"HEADLESS_RUNNER_RESULT_ENVELOPE_CHECKSUM_MISSING"));
+    }
+
+    #[test]
     fn tp_phys_015_result_envelope_payload_validates_when_supplied() {
         let payload: Value = serde_json::from_str(TP_PHYS_015_RESULT_ENVELOPE)
             .expect("TP-PHYS-015 result envelope fixture parses");
@@ -1064,14 +1122,17 @@ mod tests {
             .result_refs
             .iter()
             .any(|reference| reference.ref_id == "result:stress:pipe-P-120:end-j:torsional-shear"));
-        assert!(output
+        let envelope_ref_id = output
             .runner_result
-            .checksums
-            .iter()
-            .any(
-                |checksum| checksum.payload_ref.ref_type == "result_envelope"
-                    && checksum.value.len() == 64
-            ));
+            .result_envelope_ref
+            .envelope_ref
+            .ref_id
+            .as_str();
+        assert!(output.runner_result.checksums.iter().any(|checksum| {
+            checksum.payload_ref.ref_type == "result_envelope"
+                && checksum.payload_ref.ref_id == envelope_ref_id
+                && checksum.value.len() == 64
+        }));
 
         let validation = validate_result(&output.runner_result);
         assert!(!validation.has_blocking_diagnostics(), "{validation:?}");

@@ -70,3 +70,61 @@ def test_python_profiles_use_coordination_maintenance_test():
 
         assert any(command[1:] == expected for command in commands)
         assert all(old_target not in part for command in commands for part in command)
+
+
+def test_all_profile_preserves_current_command_surface():
+    release = load_module()
+    commands = [" ".join(step.command) for step in release.build_plan("all", ROOT)]
+
+    assert any(
+        "validate_dependencies_schema.py execution/_DAG/DAG-006/DependencyEdges.csv"
+        in command
+        for command in commands
+    )
+    assert any("test_release_readiness_script.py" in command for command in commands)
+    assert any(" -m pytest -q tests" in command for command in commands)
+    assert any("test_coordination_maintenance.py" in command for command in commands)
+    assert any("tests/security" in command for command in commands)
+    assert any(
+        command == "cargo test --manifest-path core/runner/headless/Cargo.toml"
+        for command in commands
+    )
+
+
+def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
+    release = load_module()
+
+    def fail_run_steps(*args, **kwargs):
+        raise AssertionError("dry-run must not execute planned checks")
+
+    monkeypatch.setattr(release, "run_steps", fail_run_steps)
+
+    result = release.main(["--profile", "skeleton", "--repo-root", str(ROOT)])
+    captured = capsys.readouterr()
+
+    assert result == 0
+    assert "OpenPipeStress release readiness profile (dry-run)" in captured.out
+    assert "execution/_DAG/DAG-006/DependencyEdges.csv" in captured.out
+    assert "planned checks: 2" in captured.out
+    assert "running:" not in captured.out
+
+
+def test_main_execute_runs_planned_steps(monkeypatch, capsys):
+    release = load_module()
+    executed: list[str] = []
+
+    def fake_run_steps(steps, root):
+        executed.extend(step.name for step in steps)
+        assert root == ROOT
+        return 0
+
+    monkeypatch.setattr(release, "run_steps", fake_run_steps)
+
+    result = release.main(
+        ["--profile", "skeleton", "--execute", "--repo-root", str(ROOT)]
+    )
+    captured = capsys.readouterr()
+
+    assert result == 0
+    assert "OpenPipeStress release readiness profile (execute)" in captured.out
+    assert executed == ["dag dependency schema", "release readiness script tests"]
