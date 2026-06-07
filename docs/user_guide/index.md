@@ -13,11 +13,16 @@ scope_item: SOW-033
 This guide is the initial user-facing structure for OpenPipeStress. It is
 grounded in the current repository surfaces: schema contracts, bounded core
 modules, invented examples, policy documents, and draft workflow contracts.
+Current guide authority is `execution/_Decomposition/SOFTWARE_DECOMP.md`
+revision `0.7` with approved `execution/_DAG/DAG-006/` coordination authority.
 
 OpenPipeStress is decision-support software for open, auditable piping
 mechanics. Users supply project data, private libraries, rule packs, owner
 requirements, protected or licensed design-basis values, and professional
 judgment. Public guide content uses invented examples or placeholders only.
+The project license is `PolyForm-Noncommercial-1.0.0` as selected by the human
+project authority on 2026-06-03; this is a project governance notice, not legal
+advice or an engineering acceptance claim.
 
 ## 1. Current Scope And Authority Boundary
 
@@ -52,9 +57,10 @@ The guide should refer to these current surfaces when explaining behavior:
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer` | These are current contract/support surfaces. A finished Tauri/React/Vite application shell, package manifest, runtime navigation, and screenshots remain `TBD`. |
-| Reports and exports | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. Final styling/layout and public export formats remain `TBD`. |
+| Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. Final styling/layout, preview/export runtime, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
-| Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Adapter transport, external formats, plugin loader behavior, and local FEA package format remain `TBD`. |
+| Export interoperability | `schemas/native_json_export.schema.json`, `schemas/caepipe_mbf_export.schema.json`, `schemas/caepipe_external_run.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, CAEPIPE MBF package foundations, optional user-owned CAEPIPE run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package/evidence surfaces, not release, compatibility, solver-validation, code-compliance, or professional-acceptance claims. |
+| Interop and local analysis | `schemas/adapter_framework.schema.yaml`, `api/api_boundary_contract.yaml`, `schemas/local_fea_handoff.schema.yaml`, `docs/local_analysis/local_fea_handoff_guidance.md`, `core/adapters/framework`, `core/handoff/*` | Public API transport, endpoint syntax, plugin runtime/loading/signing, concrete target field coverage, and local FEA package format remain `TBD`. Adapters cannot bypass units, provenance, privacy, protected-content screening, diagnostics, rule sandboxing, report controls, or human-review boundaries. |
 
 ## 3. Setup And Project Storage
 
@@ -255,9 +261,20 @@ should include only public metadata, invented public examples, or content with
 documented redistribution rights and review disposition. Private values should
 be redacted, omitted, or blocked according to export context and metadata.
 
-Telemetry is off by default. Import/export formats, public API transport,
-redaction workflow details, plugin loader mechanics, and local FEA handoff
-package format remain `TBD` unless a later accepted deliverable resolves them.
+Telemetry is off by default. SCA-004 adds explicit export-family surfaces for
+native JSON packages, CAEPIPE MBF package foundations, optional user-owned
+CAEPIPE run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review
+geometry, stable ID maps, loss reports, and adapter SDK support. These exports
+must remain deterministic, provenance-bearing, privacy-aware, and loss-reporting
+where target limitations exist.
+
+Export evidence must not bundle commercial solvers, bypass licenses, reverse
+engineer protected formats, embed proprietary examples, or claim release
+readiness, target compatibility, solver validation, code compliance, formal
+external validation, or professional acceptance. Public API transport, endpoint
+syntax, target field coverage, source confirmations, plugin loader mechanics,
+redaction workflow details, and local FEA handoff package format remain `TBD`
+unless a later accepted deliverable resolves them.
 
 Local shell/solid FEA is a specialized handoff path, not the default global
 analysis method. Handoff packages should preserve units, provenance, target
@@ -291,12 +308,16 @@ The following remain explicit limitations or open decisions:
 - operating-system storage roots, product/DB migration tooling, and portable
   project export/copy workflow;
 - public API transport, endpoint syntax, adapter formats, and plugin loader;
+- target field coverage, source confirmations, stable-ID carriage, and loss
+  taxonomy for export packages where not already accepted;
 - final report styling/layout, report preview/export runtime, and redaction UX;
 - local FEA handoff package format and external-tool execution behavior;
 - CI provider, coverage thresholds, release signing, and maintainer policy
   details;
-- license and release authority decisions still owned by the human project
-  authority.
+- contributor legal mechanism, maintainer roster/quorum, release authority,
+  legal-review authority, security contact, release-label vocabulary,
+  human-acceptance workflow, and jurisdiction-specific professional-practice
+  wording.
 
 Unknowns must remain `TBD` until resolved by the appropriate accepted
 deliverable or human governance record.
@@ -310,6 +331,7 @@ deliverable or human governance record.
 | User-Supplied Code Data | Licensed or project-specific values, formulas, allowables, SIFs, flexibility factors, load combinations, owner requirements, and interpretations entered by the user. |
 | Centerline Model | A 3D line-element representation of piping centerlines and components for global analysis. |
 | Rule-Pack Check | A user-defined expression or comparison applied to solver outputs and user-supplied inputs. |
+| Export Package | A deterministic, provenance-bearing downstream package or sidecar set with explicit stable ID mapping, loss reporting, privacy metadata, diagnostics, and professional-boundary notices. |
 | Diagnostic | A structured finding for missing data, units, provenance, solver state, rule readiness, IP boundary, privacy, report completeness, or unsupported behavior. |
 | Provenance | Source, license or redistribution status, contributor certification, and review disposition for reliance-affecting data. |
 | Human Acceptance Record | External hash-bound review record, if used. It is not emitted by the solver or rule-pack evaluator. |

@@ -148,3 +148,35 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - DEL-11-01 user guide authority refresh
+
+- TASK-style worker refreshed `docs/user_guide/index.md` against
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, approved
+  `execution/_DAG/DAG-006/`, and current visible docs/schema/core surfaces.
+- The guide now states the current authority basis, records the selected
+  `PolyForm-Noncommercial-1.0.0` project license as governance notice only,
+  and keeps unresolved contributor, maintainer, release, legal-review,
+  security-contact, human-acceptance, and jurisdiction wording as `TBD`.
+- Current-surface refresh added SCA-004 export interoperability language for
+  native JSON export packages, CAEPIPE MBF package foundations, optional
+  user-owned CAEPIPE run evidence, stress-neutral CSV/JSON, conservative PCF,
+  glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces.
+- Boundaries preserved: open mechanics versus user-supplied code/private data;
+  mechanics statuses versus user-rule statuses versus external hash-bound human
+  acceptance; local-first/private data controls; report/export limitations; and
+  explicit `TBD` treatment for unresolved runtime choices.
+- `Review_Findings.csv`, `_REVIEW.md`, `_STATUS.md`, dependencies, DAG,
+  registers, schemas, code, examples, and coordination files were not edited.
+  Existing finding `PKG11-DEL-11-01-PKG02-001` remains
+  `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+- Run record:
+  `_run_records/TASK_RUN_2026-06-07_1712.md`.
+
+Residual gaps:
+- End-user installation/package steps, public API transport, endpoint syntax,
+  plugin loading/signing/isolation, exact target field coverage, source
+  confirmations, local FEA package format, report/export runtime, redaction UX,
+  CI/release thresholds, release signing, maintainer quorum, contributor legal
+  mechanism, legal-review authority, security contact, human-acceptance
+  workflow, and jurisdiction-specific wording remain `TBD`.

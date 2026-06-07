@@ -139,3 +139,25 @@ code compliance, or project-specific professional reliance.
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - DEL-09-04 validation manual authority refresh
+
+- Refreshed `docs/VALIDATION_STRATEGY.md` and
+  `docs/validation_manual/index.md` against `SOFTWARE_DECOMP` revision `0.7`
+  and approved `DAG-006` graph coordination authority.
+- Preserved the separation between mechanics verification, validation
+  evidence, user-rule checks, release quality evidence, and professional
+  reliance. Release quality evidence is framed as input to future governed
+  release decisions, not as release readiness or professional acceptance.
+- Kept final benchmark tolerance policy, public benchmark source acceptance,
+  release-label policy, GUI validation evidence requirements, and validation
+  evidence-bundle storage as explicit `TBD` items.
+- Boundary review found no new protected standards text, proprietary values,
+  private project data, real secrets, legal-clearance claims, professional
+  approval claims, certification/sealing/authentication claims, or automatic
+  code-compliance claims in the refreshed language. Prohibition and boundary
+  terms remain present as reviewed negative controls.
+- Residual gaps remain the same governed TBDs above plus active dependency
+  gaps on validation benchmark evidence (`DEL-09-01`, `DEL-09-02`,
+  `DEL-09-03`), professional-boundary policy finalization (`DEL-01-04`), and
+  release quality gate settlement (`DEL-09-05`).

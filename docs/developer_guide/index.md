@@ -22,28 +22,42 @@ OpenPipeStress keeps three responsibilities separate:
 - professional use remains a human responsibility outside automatic software
   output.
 
+Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
+revision `0.7` and approved `execution/_DAG/DAG-006/`. `DAG-006` is graph
+coordination authority only; it does not dispatch implementation work, move
+lifecycle states, approve deliverables, or create professional, release, or
+code-compliance claims.
+
 ## 1. Governing Artifacts
 
 Read these project artifacts before changing solver or rule-pack behavior:
 
 | Artifact | Use |
 |---|---|
+| [`docs/DIRECTIVE.md`](../DIRECTIVE.md) | Founding intent, stop rules, scope boundaries, local-first/privacy posture, and human-authority limits. |
 | [`docs/CONTRACT.md`](../CONTRACT.md) | Binding invariants for IP, data, units, solver behavior, rule packs, privacy, reports, and agent work. |
 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Public/private content rules, provenance requirements, and quarantine process. |
 | [`docs/SPEC.md`](../SPEC.md) | Current technical architecture, domain objects, unit model, solver and rule-pack boundaries, reports, and V&V posture. |
 | [`docs/TYPES.md`](../TYPES.md) | Canonical vocabulary for domain objects, statuses, diagnostics, rule packs, results, reports, and extension boundaries. |
 | [`docs/VALIDATION_STRATEGY.md`](../VALIDATION_STRATEGY.md) | Benchmark families, release-quality evidence categories, and validation source rules. |
 | [`docs/architecture/code_neutral_analysis_boundary.md`](../architecture/code_neutral_analysis_boundary.md) | Separation between mechanics solve authority, user-rule-check authority, and external human acceptance records. |
+| [`docs/architecture/analysis_status_semantics.md`](../architecture/analysis_status_semantics.md) | Allowed automatic analysis statuses and the external, hash-bound human acceptance boundary. |
+| [`docs/architecture/persistence_contract.md`](../architecture/persistence_contract.md) | Project persistence envelope, SCA-003 local SQLite profile, canonical JSON/JCS hash basis, and application-service persistence boundary. |
 | [`docs/architecture/plugin_boundary.md`](../architecture/plugin_boundary.md) | API/plugin boundary rules, permissions, no-bypass constraints, checksums, and provenance expectations. |
 | [`docs/architecture/extension_domain_contracts.md`](../architecture/extension_domain_contracts.md) | Domain rules for plugins and adapters that touch models, rule packs, diagnostics, reports, or results. |
+| [`docs/security/local_first_storage_policy.md`](../security/local_first_storage_policy.md) | Local-first storage, private path, telemetry-off-by-default, and storage no-bypass policy. |
 
 Unresolved implementation choices remain `TBD` unless a human-approved
 architecture or implementation deliverable records the decision. Current `TBD`
 items include the production sparse solver library, rule expression grammar and
 implementation library, dependency versions, CI thresholds, external transport,
 plugin loading/isolation details, operating-system storage roots, product/DB
-migration mechanics, and portable project export/copy workflow. SCA-003 has
-resolved the MVP storage substrate as a local SQLite-backed project store/index.
+migration rollback semantics, redaction workflow, cloud exception workflow, and
+portable project export/copy workflow. SCA-003 has resolved the MVP storage
+substrate as a local SQLite-backed project store/index. SCA-004 has admitted
+export interoperability as explicit boundary work, but concrete writers,
+runtime invocation, endpoint syntax, target coverage, and permission grant
+mechanics remain governed deliverable work or `TBD`.
 
 ## 2. Architecture Map
 
@@ -62,6 +76,7 @@ GUI / UX Layer
             -> Private Libraries
             -> Import / Export Plugins
             -> Local FEA Handoff
+            -> Headless Runner / Export Packages
             -> Storage / Packaging
 ```
 
@@ -87,14 +102,44 @@ The main surfaces for solver and rule-pack work are:
 - `schemas/rule_pack.schema.yaml` for user-owned rule-pack structure;
 - `schemas/results.schema.yaml` for result envelopes and downstream result
   exports;
+- `schemas/project_persistence.schema.yaml` for versioned persistence envelopes,
+  local SQLite storage profile metadata, migration status, round-trip
+  manifests, and application-service operation records;
+- `schemas/headless_runner.schema.yaml` for headless solve, validation,
+  benchmark, regression, and result-export request/result envelopes;
 - `api/api_boundary_contract.yaml` for command, query, job, and result-envelope
   boundaries;
 - `schemas/plugin_manifest.schema.yaml` and
-  `schemas/adapter_framework.schema.yaml` for governed extension surfaces.
+  `schemas/adapter_framework.schema.yaml` for governed extension surfaces;
+- `schemas/local_fea_handoff.schema.yaml`, `schemas/handoff_package.schema.json`,
+  and `schemas/target_mapping.schema.json` for governed downstream handoff
+  metadata, target mapping, unsupported-behavior records, and professional
+  boundary notices;
+- `schemas/native_json_export.schema.json`,
+  `schemas/stress_neutral_export.schema.json`,
+  `schemas/caepipe_mbf_export.schema.json`,
+  `schemas/caepipe_external_run.schema.json`,
+  `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`,
+  and `schemas/export_adapter_sdk.schema.json` for SCA-004 export package,
+  profile, evidence, and adapter-SDK boundaries.
 
 When a contributor adds a new behavior, the implementation path should preserve
 schema validation first, then units, provenance, privacy classification,
 diagnostics, result envelopes, checksums, and report controls as applicable.
+API, plugin, adapter, runner, and export code must route persistence through
+application-service commands, queries, or jobs. They must not expose SQL, raw
+SQLite handles, table names, direct project-store mutation, or private
+storage-path defaults as public contracts.
+
+Current cross-cutting implementation surfaces include:
+
+| Surface | Contributor expectation |
+|---|---|
+| `core/project_persistence/service.py` | Treat SQLite as the local store/index substrate and canonical JSON/JCS-compatible payload bytes as domain truth. |
+| `core/adapters/framework/adapter_framework.py` | Validate format-neutral adapter declarations for units, provenance, privacy, protected-content screening, result envelopes, and no-bypass controls without selecting real external formats. |
+| `core/runner/headless` | Preserve request/result envelope, privacy, provenance, checksum, diagnostics, progress/cancellation, and professional-boundary controls for headless workflows. |
+| `core/handoff/*` | Keep handoff and export packages provider-neutral, hash/provenance-bound, loss-report-aware, and non-authoritative for professional reliance. |
+| `core/security/*` | Preserve local-first storage, redaction/export, telemetry-off-by-default, secret/private-library, and threat-model boundaries for any touched surface. |
 
 ## 3. Solver Architecture
 
@@ -177,7 +222,10 @@ Existing implementation surfaces include:
 `MECHANICS_SOLVED` means the mechanics result exists for the stated model and
 evidence set. It does not mean a user rule check is complete. `USER_RULE_CHECKED`
 and `USER_RULE_FAILED` are software computations using user-supplied rule-pack
-data. `HUMAN_REVIEW_REQUIRED` remains visible for professional use.
+data. OpenPipeStress does not currently define `USER_RULE_PASSED`; a checked
+outcome with no reported failures remains `USER_RULE_CHECKED` plus details, not
+a compliance result. `HUMAN_REVIEW_REQUIRED` remains visible for professional
+use.
 
 ## 5. Data, Privacy, And Provenance
 
@@ -210,6 +258,13 @@ as suspected or private as appropriate, quarantine it through the approved
 process, and request human review. Do not paraphrase protected tables into
 public examples and do not convert private values into public defaults.
 
+Private project data, private material/component libraries, owner standards,
+private rule packs, generated reports, diagnostics, SQLite stores, sidecar
+indexes, caches, and secrets are user-controlled by default. Public repository
+paths are not default durable storage for those payloads. Telemetry is off by
+default and must not become a storage, synchronization, or support-bundle path
+for private engineering data.
+
 ## 6. Diagnostics And Result Envelopes
 
 Solver, rule-pack, report, and adapter outputs should expose structured
@@ -234,6 +289,13 @@ Reports and exports may reference private rule-pack identity, version, checksum,
 and source notes without exposing private formulas or protected values in public
 templates.
 
+Export and handoff envelopes should also preserve stable model identity, unit
+manifests, privacy/redaction state, target mapping, loss or unsupported-behavior
+records, external-run evidence boundaries, and professional-boundary notices.
+External-run evidence is user-owned regression or handoff evidence only. It is
+not a bundled commercial-solver path, formal validation claim, professional
+acceptance, or code-compliance result.
+
 ## 7. Test Discipline
 
 Solver and rule-pack changes need deterministic evidence before release use.
@@ -247,7 +309,8 @@ The required evidence depends on the touched surface:
 | Nonlinear supports | Active-state traces, convergence or nonconvergence diagnostics, and repeatable unresolved-state reporting. |
 | Rule packs | Required-input checks, unit mismatch tests, unsafe-expression rejection, invented-example tests, checksum/lifecycle checks, and privacy/provenance findings. |
 | Reports and exports | Reproducibility, checksum stability, warning inclusion, privacy filtering, and protected-content lint coverage. |
-| Adapters and plugins | No-bypass tests for schema validation, units, provenance, privacy, protected-content screening, diagnostics, result envelopes, and sandboxed rule-pack access. |
+| Adapters, plugins, and APIs | No-bypass tests for schema validation, units, provenance, privacy, protected-content screening, diagnostics, result envelopes, application-service persistence, and sandboxed rule-pack access. |
+| Headless runners and export/handoff packages | Request/result envelope tests, progress or cancellation diagnostics where applicable, stable-ID/loss-report checks, privacy/redaction checks, external-run evidence boundaries, and professional-boundary assertions. |
 
 Validation fixtures and public examples must be original, public-domain, or
 permissively licensed with review evidence. Mechanics verification and workflow
@@ -264,10 +327,17 @@ Before proposing a solver, rule-pack, report, or adapter change, verify:
 - missing solve-required or rule-check-required values emit diagnostics;
 - provenance, redistribution status, review status, and public/private markers
   are preserved;
+- local SQLite remains an application-service storage/index substrate, not a
+  public API, plugin, adapter, report, or interchange contract;
+- plugins, adapters, APIs, runners, and export workflows do not bypass schema,
+  unit, provenance, privacy, protected-content, diagnostic, persistence,
+  rule-sandbox, report, or human-acceptance controls;
 - rule-pack evaluation remains sandboxed and deterministic;
 - public docs, fixtures, examples, and tests contain no protected standards
   content, proprietary commercial examples, private project data, or real
   secrets;
+- public examples use invented, public-domain, or permissively licensed data
+  with review evidence and do not include public default rule values;
 - unresolved choices are labeled `TBD`;
 - inferred statements are labeled `ASSUMPTION` and proposed future behavior is
   labeled `PROPOSAL`;

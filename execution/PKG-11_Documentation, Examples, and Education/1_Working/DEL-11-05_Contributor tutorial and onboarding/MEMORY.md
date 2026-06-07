@@ -87,3 +87,12 @@ Deferred boundaries preserved:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TASK Workflow Map Refresh
+
+- Created `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` to close the missing workflow-map reference for contributor onboarding. The document is guidance only and explicitly does not replace coordination, decomposition, DAG, lifecycle, review, release, legal, or human-approval authority.
+- Refreshed `docs/contributor_guide/index.md` and narrow onboarding link text in `CONTRIBUTING.md` so new contributors are directed to both the contributor guide and the agentic workflow map before changing files.
+- Preserved the selected project license as `PolyForm-Noncommercial-1.0.0` while keeping the final contributor legal mechanism, maintainer quorum, release authority, legal-review authority, security contact, release-label vocabulary, human-acceptance workflow, jurisdiction-specific professional wording, CI provider/coverage thresholds, and exact dependency versions as `TBD` where current authority has not settled them.
+- Validation evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1711.md`. The requested dependency-schema check returned `VALID` for 11 data rows before final documentation scans.
+- No lifecycle `_STATUS.md`, dependency files, DAG files, decomposition/registers, coordination files, code, schemas, examples, governance templates, release files, or approval records were edited.
+- Residual dependency gap: `Dependencies.csv` still records `SatisfactionStatus: TBD` for the three PKG-01 governance predecessor rows `DAG-002-E0595`, `DAG-002-E0596`, and `DAG-002-E0597`; this run did not have authority to edit dependency state.

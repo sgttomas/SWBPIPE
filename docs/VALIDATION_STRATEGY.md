@@ -18,6 +18,23 @@ refs:
 
 Verification proves that the software solves the stated mechanics problem correctly within declared tolerances. Validation evaluates whether the software workflow is fit for its intended engineering support role. Neither replaces project-specific professional judgment.
 
+This draft is aligned to `execution/_Decomposition/SOFTWARE_DECOMP.md`
+revision `0.7` and approved `execution/_DAG/DAG-006/` graph coordination
+authority. `DAG-006` preserves dependency coordination and does not itself
+authorize lifecycle changes, release labels, professional approval, legal
+clearance, certification, sealing, authentication, or code-compliance claims.
+
+This strategy keeps five evidence surfaces separate:
+
+- mechanics verification: benchmark comparison for open mechanics behavior;
+- validation evidence: workflow fitness, reproducibility, warnings, and
+  limitation evidence;
+- user-rule checks: deterministic computation against user-supplied rule-pack
+  inputs and definitions;
+- release quality evidence: software maturity inputs for future release gates;
+- professional reliance: competent human review outside automatic software
+  authority.
+
 ## 2. Benchmark families
 
 | Family | Examples | Required evidence |
@@ -81,14 +98,25 @@ record exists.
 
 ## 4. Release gate
 
-A release candidate must not be labeled engineering beta unless:
+Release quality evidence is distinct from validation evidence and professional
+reliance. Until the release-label vocabulary and final release policy are
+settled by the human project authority, validation evidence may only be used as
+input to a future release-quality review.
 
-- all required mechanics benchmarks pass;
-- stress-recovery benchmarks pass;
-- rule-pack missing-input tests pass;
-- report reproducibility tests pass;
-- protected-content lint passes for public examples/templates;
-- open risks are listed and accepted by human maintainers.
+A future release-quality review should record, at minimum:
+
+- mechanics benchmark status for affected solver behavior;
+- stress-recovery benchmark status for affected stress/result behavior;
+- nonlinear support regression status where nonlinear behavior is affected;
+- rule-pack missing-input, unit, provenance, and sandbox test status where rule
+  behavior is affected;
+- report reproducibility, checksum, warning, and protected-content lint status
+  where reports, public examples, or templates are affected;
+- known limitations, unresolved risks, and human-maintainer dispositions.
+
+The final benchmark tolerance policy, public benchmark source acceptance
+process, release-label policy, GUI validation evidence requirements, and
+validation evidence-bundle storage format remain `TBD`.
 
 ## 5. Benchmark source rule
 
@@ -112,3 +140,21 @@ rule and must remain limited to open mechanics component comparisons. Stress
 range fixtures are mechanics differences between result states; they are not
 fatigue checks, allowable comparisons, code compliance checks, or professional
 approval records.
+
+The public benchmark source acceptance workflow remains `TBD`. Until it is
+settled, source/provenance records are review evidence only and must not be
+treated as legal clearance or final public benchmark acceptance.
+
+## 6. Evidence-bundle storage
+
+Validation evidence bundles must preserve source artifacts, commands, generated
+outputs, hashes or checksums where applicable, provenance, review disposition,
+known limitations, and unresolved `TBD` items. The long-term storage location,
+package format, retention policy, and release attachment workflow for reviewed
+validation evidence bundles remain `TBD`.
+
+GUI validation evidence is also `TBD` until GUI workflow deliverables provide
+the relevant surfaces. Future GUI evidence should preserve missing-data
+visibility, warning presentation, analysis-status transitions, accessibility or
+usability findings where applicable, and screenshots or automated interaction
+records without making professional-reliance claims.

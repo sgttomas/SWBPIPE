@@ -121,3 +121,12 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - DEL-11-02 Developer Guide Authority Refresh
+
+- TASK-style bounded worker refreshed `docs/developer_guide/index.md` under explicit write scope using `SOFTWARE_DECOMP.md` revision `0.7`, approved `DAG-006`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/SPEC.md`, current architecture notes, current schemas, current `api/api_boundary_contract.yaml`, and visible `core/` solver/rule/API/storage/export/security surfaces.
+- The guide now states the current authority basis, keeps `DAG-006` as coordination authority only, and maps current SCA-003/SCA-004 persistence, API, plugin, adapter, headless-runner, export, and handoff boundaries without claiming implementation completion.
+- Boundary language preserved schema-first domain truth, local SQLite as private application-service storage/index substrate, no direct SQL or raw SQLite plugin/adapter/API access, unit/provenance/privacy diagnostics, sandboxed declarative rule evaluation, public/private data separation, and no software professional/code-compliance claims.
+- No code, schemas, examples, dependency registers, DAG artifacts, review files, lifecycle files, coordination files, approval records, or protected/private data were edited.
+- Residual `TBD` items remain: sparse solver library, rule expression grammar/library, dependency versions, CI and performance thresholds, public transport and endpoint syntax, plugin loading/signing/isolation, permission grant persistence, operating-system storage roots, product/DB migration rollback semantics, redaction workflow, cloud exception workflow, concrete export writer behavior, target coverage, and portable project export/copy workflow.
+- Validation evidence and focused scan results are recorded in `_run_records/TASK_RUN_2026-06-07_1711.md`.

@@ -20,9 +20,13 @@ OpenPipeStress accepts contributions only within the project boundaries in
 `docs/PROFESSIONAL_BOUNDARY.md`.
 
 New contributors should start with the tutorial path in
-`docs/contributor_guide/index.md` before changing files. The tutorial is a
-navigation aid only; the governance documents above, an assigned sealed brief,
-and human project-authority decisions remain controlling when they conflict.
+[`docs/contributor_guide/index.md`](docs/contributor_guide/index.md) and the
+agentic workflow map in
+[`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](docs/AGENTIC_DEVELOPMENT_WORKFLOW.md)
+before changing files. These onboarding documents are navigation aids only;
+the governance documents above, an assigned sealed brief, approved DAG records,
+deliverable-local lifecycle files, review dispositions, and human
+project-authority decisions remain controlling when they conflict.
 
 This workflow is project governance. It is not legal advice, professional
 engineering approval, certification, sealing, standards-body endorsement, or a

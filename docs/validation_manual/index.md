@@ -20,6 +20,12 @@ This manual organizes verification and validation evidence for OpenPipeStress
 software quality. It does not certify a piping model, decide code compliance,
 authenticate a professional judgment, or approve project-specific reliance.
 
+Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
+revision `0.7` and approved `execution/_DAG/DAG-006/` graph coordination
+authority. `DAG-006` supplies active dependency context only; it does not
+settle lifecycle state, release labels, legal clearance, professional approval,
+certification, sealing, authentication, or code-compliance claims.
+
 Use this manual to answer four separate questions:
 
 | Question | Evidence class | Decision owner |
@@ -47,7 +53,8 @@ Manual entries use these states:
 
 Final release thresholds, public benchmark acceptance, release labels, and
 professional reliance wording remain `TBD` unless a human governance record says
-otherwise.
+otherwise. GUI validation evidence requirements and validation evidence-bundle
+storage also remain `TBD`.
 
 ## 3. Manual Section Map
 
@@ -71,11 +78,15 @@ otherwise.
 | Mechanics benchmarks | `validation/benchmarks/mechanics/`, `validation/hand_calcs/mechanics/` | `DRAFT_EVIDENCE`; final public benchmark acceptance and release tolerances are `TBD`. |
 | Stress recovery benchmarks | `validation/benchmarks/stress/`, `validation/hand_calcs/stress/` | `DRAFT_EVIDENCE`; fatigue, allowable, and release-threshold decisions are `TBD`. |
 | Nonlinear support regression | `validation/benchmarks/nonlinear/` | `DRAFT_EVIDENCE`; production release thresholds and external validation claims are `TBD`. |
-| Report protected-content lint | `core/reporting/protected_content_linter/` | Evidence source available for report/public-artifact checks. |
-| Professional boundary | `docs/PROFESSIONAL_BOUNDARY.md` | Governs reliance wording and release-claim limits. |
+| GUI workflow validation | GUI workflow tests, screenshots, and interaction evidence when available | `PLANNED`; required evidence type, coverage, and review criteria are `TBD`. |
+| Report protected-content lint | `core/reporting/protected_content_linter/` | Draft review evidence for report/public-artifact checks; does not provide legal clearance, professional approval, or code-compliance proof. |
+| Release quality evidence | Future `DEL-09-05` release quality gate checklist | `TBD`; this manual may organize evidence inputs but does not settle release labels or release readiness. |
+| Validation evidence bundles | Future evidence package location/format | `TBD`; long-term storage, retention, and release attachment policy are unsettled. |
+| Professional boundary | `docs/PROFESSIONAL_BOUNDARY.md` | Draft policy surface for reliance wording and release-claim limits. |
 
-This inventory is not complete validation. It is the starting index for future
-evidence review and release-quality decisions.
+This inventory is not complete validation, release readiness, legal clearance,
+or professional reliance evidence. It is the starting index for future evidence
+review and release-quality decisions.
 
 ## 5. Section Requirements
 

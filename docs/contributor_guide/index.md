@@ -10,6 +10,8 @@ refs:
   - rel: governed_by
     to: OPS-CONTRIBUTING
   - rel: explains
+    to: OPS-AGENTIC-DEVELOPMENT-WORKFLOW
+  - rel: explains
     to: OPS-COORDINATION
 ---
 
@@ -17,10 +19,12 @@ refs:
 
 This guide is a tutorial path through the existing OpenPipeStress governance
 and deliverable workflow. It does not replace `CONTRIBUTING.md`,
-`docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, or
-`execution/_Coordination/_COORDINATION.md`. If this guide conflicts with an
-assigned sealed brief, a governing document, or a human project-authority
-instruction, stop and surface the conflict instead of guessing.
+`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, `docs/CONTRACT.md`,
+`docs/IP_AND_DATA_BOUNDARY.md`, or `execution/_Coordination/_COORDINATION.md`.
+If this guide conflicts with an assigned sealed brief, a governing document,
+approved DAG authority, deliverable-local lifecycle state, review disposition,
+or a human project-authority instruction, stop and surface the conflict
+instead of guessing.
 
 This guide is project workflow documentation. It is not legal advice,
 professional engineering approval, sealing, standards-body endorsement, or a
@@ -34,13 +38,14 @@ Use this sequence before changing files.
 |---|---|---|
 | 1 | [`INIT.md`](../../INIT.md) | Establish the required reading order and project boundaries. |
 | 2 | [`AGENTS.md`](../../AGENTS.md) | Understand Type 1 routing roles, Type 2 execution roles, and the dispatch rule. |
-| 3 | [`docs/DIRECTIVE.md`](../DIRECTIVE.md) | Review founding intent, product boundaries, and stop rules. |
-| 4 | [`docs/CONTRACT.md`](../CONTRACT.md) | Check invariant IDs for IP, data, governance, privacy, and agent behavior. |
-| 5 | [`docs/TYPES.md`](../TYPES.md) | Confirm package, deliverable, status, and professional-boundary vocabulary. |
-| 6 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Confirm public/private data, provenance, and quarantine rules. |
-| 7 | [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) | Confirm authority intake, work selection, execution discipline, evidence expectations, and review gates. |
-| 8 | [`execution/_Decomposition/SOFTWARE_DECOMP.md`](../../execution/_Decomposition/SOFTWARE_DECOMP.md) and [`docs/_Registers`](../_Registers/) | Confirm the active package/deliverable identity and scope rows. |
-| 9 | Your assigned sealed brief and deliverable folder | Confirm the exact write scope, acceptance criteria, and verification commands. |
+| 3 | [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](../AGENTIC_DEVELOPMENT_WORKFLOW.md) | Map the authority surfaces, Type 1/Type 2 loop, evidence expectations, and stop routes. |
+| 4 | [`docs/DIRECTIVE.md`](../DIRECTIVE.md) | Review founding intent, product boundaries, and stop rules. |
+| 5 | [`docs/CONTRACT.md`](../CONTRACT.md) | Check invariant IDs for IP, data, governance, privacy, and agent behavior. |
+| 6 | [`docs/TYPES.md`](../TYPES.md) | Confirm package, deliverable, status, and professional-boundary vocabulary. |
+| 7 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Confirm public/private data, provenance, and quarantine rules. |
+| 8 | [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) | Confirm authority intake, work selection, execution discipline, evidence expectations, and review gates. |
+| 9 | [`execution/_Decomposition/SOFTWARE_DECOMP.md`](../../execution/_Decomposition/SOFTWARE_DECOMP.md) and [`docs/_Registers`](../_Registers/) | Confirm the active package/deliverable identity and scope rows. |
+| 10 | Your assigned sealed brief and deliverable folder | Confirm the exact write scope, acceptance criteria, and verification commands. |
 
 Do not begin implementation from memory. Work from the current files in the
 repository and the current assignment.
@@ -110,6 +115,12 @@ sequence is:
    `TBD`s, and anything intentionally deferred.
 7. Hand off for review. Type 2 output remains draft work until the appropriate
    human or review gate accepts it.
+
+The workflow map in
+[`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](../AGENTIC_DEVELOPMENT_WORKFLOW.md)
+summarizes this loop. The controlling details remain in the assigned sealed
+brief, the deliverable-local packet, `execution/_Coordination/_COORDINATION.md`,
+approved DAG records, and human project-authority decisions.
 
 Do not silently expand a Type 2 task across package boundaries. If the work
 requires a protected source, a private project file, a legal mechanism decision,
@@ -183,9 +194,11 @@ Route these issues instead of resolving them inside a bounded contribution:
 | License, contributor mechanism, release authority, maintainer quorum, CI provider, or release-label decision | Human project-authority path. |
 | Professional reliance, code interpretation, or project-specific engineering acceptance wording | Professional-boundary review path. |
 
-Preserve existing `TBD`s for license, release authority, CI policy, dependency
-versions, and other human-governed decisions unless the assignment explicitly
-grants authority to change them.
+The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
+Preserve existing `TBD`s for the final contributor legal mechanism, maintainer
+quorum, release authority, CI policy, dependency versions, and other unsettled
+professional or legal decisions unless the assignment explicitly grants
+authority to change them.
 
 ## Contribution Expectations
 
