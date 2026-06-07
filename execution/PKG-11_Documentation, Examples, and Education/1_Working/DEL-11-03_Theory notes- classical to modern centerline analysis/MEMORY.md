@@ -120,3 +120,55 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TASK-11-03-C Fan-In Review
+
+- Tranche summary: TASK-11-03-A refreshed local source/provenance controls in
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, and `_REFERENCES.md`.
+  TASK-11-03-B revised `docs/theory/centerline_analysis.md` with
+  claim-scoped citation support and explicit residual source `TBD`s. TASK-11-03-C
+  reviewed and fanned in those records without editing the product theory note,
+  lifecycle state, DAG files, registers, or coordination files.
+- Changed artifacts in TASK-11-03-C: `_REVIEW.md`, `Review_Findings.csv`,
+  `MEMORY.md`, and `_run_records/TASK_RUN_2026-06-07_1635.md`.
+- Evidence commands/results:
+  - `python3 tools/validation/validate_dependencies_schema.py <ScopePath>/Dependencies.csv`
+    returned `VALID`, 29 columns, and 12 data rows.
+  - `git diff --check -- ...` over the upstream theory/control documents and
+    C review/memory targets passed with no output before C edits.
+  - Run-record presence check found
+    `_run_records/TASK_RUN_2026-06-07_1624.md`,
+    `_run_records/TASK_RUN_2026-06-07_1630.md`, and the C run record.
+  - Local dependency row count was 12; `_DEPENDENCIES.md` retained 12 ACTIVE
+    rows and the same four `TBD` satisfaction rows for `DAG-002-E0586` through
+    `DAG-002-E0589`.
+  - Source-inventory scan found accepted project/NASA/MIT/Engineering Statics
+    source rows plus `TBD-public-history`, `TBD-open-frame-reference`, and
+    `TBD-local-fea-reference`.
+  - Protected-content and professional-claim scan matches were boundary,
+    prohibition, or source-provenance wording only.
+  - External source spot-checks matched the recorded citation-only posture:
+    NASA NTRS public distribution and US-government public-use copyright,
+    MIT OCW CC BY-NC-SA 4.0 terms, and Open Textbook Library CC BY-NC-SA
+    conditions of use. This is review evidence only, not legal clearance.
+- Findings added:
+  - `RF-11-03-C-001` - absent `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
+    reference remains visible.
+  - `RF-11-03-C-002` - absent `tools/validation/check_four_documents.sh`
+    helper remains visible; alternate file-presence checks passed upstream.
+  - `RF-11-03-C-003` - residual public/permissive source `TBD`s remain open.
+- Residual TBDs:
+  - `TBD-public-history` - public/permissive source support for detailed
+    historical piping-flexibility lineage remains open.
+  - `TBD-open-frame-reference` - formula-level 3D frame source support remains
+    open if future prose adds formulas or derivations.
+  - `TBD-local-fea-reference` - practice-specific local shell/solid handoff
+    support remains open if future prose expands beyond boundary-level language.
+  - Local dependency satisfactions for `DAG-002-E0586`, `DAG-002-E0587`,
+    `DAG-002-E0588`, and `DAG-002-E0589` remain `TBD` as documented.
+- Boundaries preserved: no product theory artifact, four-document setup kit,
+  `_STATUS.md`, DAG artifacts, registers, coordination files, solver code,
+  schemas, examples, or `docs/theory/centerline_analysis.md` were edited by
+  TASK-11-03-C. No release readiness, lifecycle closure, issuance, legal
+  clearance, professional acceptance, certification, sealing, authentication,
+  or code-compliance claim is made by this fan-in review.

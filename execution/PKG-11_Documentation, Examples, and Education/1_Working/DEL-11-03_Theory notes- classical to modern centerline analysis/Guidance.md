@@ -9,6 +9,7 @@ This deliverable prepares a bounded theory-note work surface for explaining clas
 - Explain mechanics concepts in plain engineering language, but keep unsupported historical claims and source-specific details as `TBD`.
 - Prefer public/permissive mechanics and numerical-analysis sources for future citations.
 - Treat protected standards as boundaries, not source text for public reproduction.
+- Treat source selection as governed work: unclear sources stay `TBD`, and only accepted public/permissive sources may support final claims.
 - Use centerline/frame language consistently: nodes, line elements, local/global frames, supports, loads, displacements, element forces, and result interpretation.
 - Distinguish practical global flexibility analysis from local shell/solid FEA; neither mode substitutes for professional acceptance.
 - Keep formulas out of the setup draft unless later public/permissive sources and project-specific approval justify them.
@@ -21,14 +22,25 @@ Protected-data risk is the dominant risk for this deliverable. Public prose may 
 
 The phrase "classical flexibility lineage" should be handled conservatively. Until public/permissive historical sources are selected, the note can state the intended coverage but should not make detailed historical claims about named methods, committees, or code evolution.
 
+Source-selection questions for future production:
+
+| Topic | Source need | Current disposition |
+|---|---|---|
+| Classical flexibility lineage | Public/permissive historical or educational source for lineage statements. | `TBD`; do not invent or overstate history. |
+| Centerline/frame explanation | Public/permissive mechanics or structural-analysis source if the final note goes beyond project boundary language. | `TBD`; keep current prose conceptual. |
+| Local shell/solid FEA handoff | Public/permissive source if future prose expands from boundary statement to practice explanation. | `TBD`; keep current use as a boundary concept. |
+| Examples | Invented educational examples only, unless public/permissive source and review support are recorded. | `TBD`; no standards-derived or proprietary examples. |
+
 Terminology mapping for future prose:
 
-| Term | Use in final theory note | Boundary |
-|---|---|---|
-| Classical flexibility analysis | Use for source-supported lineage and conceptual background. | Do not imply adoption of any protected code method unless public evidence and review support it. |
-| Centerline model | Use for the geometry abstraction: a pipe run represented by a connected line with nodes, elements, supports, and loads. | Do not treat this as a complete local stress/FEA model. |
-| 3D frame model | Use for the modern computational implementation idea: line elements with translational and rotational degrees of freedom in global and local frames. | Do not introduce implementation equations or library choices in this documentation deliverable. |
-| Rule check | Use only for user-supplied acceptability evaluation after mechanics results. | Do not present the theory note as a code-compliance guide. |
+| Term | Use in final theory note | Mapping guidance | Boundary |
+|---|---|---|---|
+| Classical flexibility analysis | Use for source-supported lineage and conceptual background. | Treat as the historical/conceptual family of global flexibility thinking, not as an unreviewed import of a protected method. | Do not imply adoption of any protected code method unless public evidence and review support it. |
+| Centerline model | Use for the geometry abstraction: a pipe run represented by a connected line with nodes, elements, supports, and loads. | Present as the model abstraction that connects piping geometry to mechanics inputs. | Do not treat this as a complete local stress/FEA model. |
+| 3D frame model | Use for the modern computational implementation idea: line elements with translational and rotational degrees of freedom in global and local frames. | Present as the computational expression of the centerline model for global mechanics. | Do not introduce implementation equations or library choices in this documentation deliverable. |
+| Rule check | Use only for user-supplied acceptability evaluation after mechanics results. | Keep mechanics evidence, user rule evaluation, and professional acceptance as separate authority domains. | Do not present the theory note as a code-compliance guide. |
+
+Use these terms as a continuity map: classical flexibility language, centerline model language, and 3D frame language describe related levels of abstraction. They are not competing authorities, and none of them authorizes copied standards content, code-specific examples, or professional/code-compliance claims.
 
 ## Trade-offs
 

@@ -24,6 +24,7 @@
 | Code-neutral framing | Mechanics explanation must stay separate from user rule checks and professional approval. | `INIT.md` boundaries 2 and 3; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
 | Unit stance | Any later technical explanation that mentions quantities or dimensions must remain unit-aware and avoid silent defaults. | `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-2` |
 | Current source basis | Governance and decomposition sources only. Public mechanics references for production theory content are `TBD`. | `_REFERENCES.md`; `_CONTEXT.md` |
+| Source inventory status | Source selection remains governed; sources that are not public/permissive, reviewed, and claim-specific remain `TBD` or rejected for public theory-note use. | `_SEMANTIC_LENSING.md` items `B-001`, `C-001`, `F-001`, and `E-001`; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
 
 ## Conditions
 
@@ -32,6 +33,8 @@
 - Classical lineage may be described at a conceptual level until public/permissive mechanics sources are selected and cited.
 - Modern implementation may describe the project direction as a 3D line-element/frame model, but detailed code equations, protected formulas, code tables, and standard-derived examples remain out of scope.
 - Missing citation sources, exact source sections, and any historical claims not supported by accessible public sources remain `TBD`.
+- No source may be upgraded from `TBD` to accepted source support unless its provenance fields, public/permissive basis, protected-content review, and claim scope are recorded.
+- Unclear sources, protected standards, proprietary commercial examples, and unsupported historical claims must not be used as substitutes for public/permissive source evidence.
 
 ## Construction
 
@@ -47,7 +50,7 @@ Expected future content slots for the anticipated theory artifact:
 | Limitations and FEA handoff | Distinguish global centerline analysis from local shell/solid FEA. | Required by `INIT.md` boundary 4 and `OPS-K-MECH-1`. |
 | References and provenance | List only public/permissive sources with license/redistribution status where applicable. | `TBD` until public sources are selected. |
 
-Future source-selection register fields:
+Source provenance minimum fields for future production:
 
 | Field | Purpose | Current disposition |
 |---|---|---|
@@ -55,8 +58,22 @@ Future source-selection register fields:
 | Source location | URL, DOI, local path, or other durable locator. | TBD. |
 | Source section | Exact section, chapter, page, or heading used for a claim. | TBD. |
 | License / redistribution status | Evidence that source can be cited or used in the public repository. | TBD. |
+| Source type | Public-domain, permissive, project-authored, private-only, protected-suspected, or other reviewed category. | TBD. |
+| Claim scope | Which final-note section or claim the source supports. | TBD. |
 | Public/permissive disposition | `ACCEPTED`, `REJECTED`, or `TBD` for public theory-note use. | TBD. |
-| Protected-content review notes | Any concern about standard-derived, proprietary, or restricted content. | TBD. |
+| Review disposition | Pending, accepted, rejected, quarantined, or deferred by human/project review. | TBD. |
+| Protected-content review notes | Any concern about standard-derived, proprietary, private, or restricted content. | TBD. |
+
+Current source inventory/status expectations:
+
+| Source class | Intended use | Current status | Required control before use |
+|---|---|---|---|
+| Project governance and decomposition documents | Scope, boundary, vocabulary, professional-boundary, and source-control requirements. | Available for control-document support. | Cite exact local file and relevant invariant or section. |
+| Public history source for classical flexibility lineage | Historical or lineage statements. | `TBD`. | Public/permissive provenance, claim scope, and protected-content review. |
+| Public mechanics/frame source | General structural-analysis or line-element concept support. | `TBD`. | Public/permissive provenance, claim scope, and no protected formula/table dependency. |
+| Local FEA handoff source | Boundary between global centerline analysis and local shell/solid handoff. | `TBD`. | Public/permissive provenance and boundary-only use. |
+| Protected standards or code-body material | Boundary reference only. | Not accepted as public source text. | Do not quote, paraphrase, table, formula-copy, or derive examples unless a future human-approved legal basis is recorded. |
+| Proprietary commercial examples, benchmark files, or vendor data | Not part of public theory-note support. | Rejected unless rights are documented. | Remain `TBD`, rejected, or quarantined until review records redistribution rights. |
 
 ## References
 
@@ -64,5 +81,7 @@ Future source-selection register fields:
 - `_REFERENCES.md` for currently available governing references.
 - `INIT.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
 - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
+- `docs/IP_AND_DATA_BOUNDARY.md` for public/permissive source provenance fields, protected-content quarantine expectations, and contribution-review controls.
+- `docs/PROFESSIONAL_BOUNDARY.md` for product-claim and professional-reliance boundaries.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
 - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` rows for `DEL-11-03` and `SOW-033`.

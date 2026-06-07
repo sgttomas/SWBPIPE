@@ -8,6 +8,8 @@
 - docs/CONTRACT.md - Invariant catalog.
 - docs/TYPES.md - Identifier, lifecycle, and vocabulary definitions.
 - docs/SPEC.md - Technical and agentic implementation specification.
+- docs/IP_AND_DATA_BOUNDARY.md - Public/private data boundary, provenance fields, and protected-content handling.
+- docs/PROFESSIONAL_BOUNDARY.md - Professional-responsibility and product-claim boundary policy.
 - docs/AGENTIC_DEVELOPMENT_WORKFLOW.md - Type 1/Type 2 execution workflow.
 - agents/AGENT_PREPARATION.md - PREPARATION scaffolding protocol and file schemas.
 
@@ -22,3 +24,5 @@
 
 ## Notes
 - No source material beyond the governing documents and registers is introduced by PREPARATION.
+- Reference gap: `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` is listed above but is absent in the current repository snapshot checked on 2026-06-07. Treat this as a local reference gap, not a blocker for TASK-11-03-A unless a later workflow needs workflow-specific citation text from that file.
+- Public/permissive mechanics, history, and local FEA handoff sources for final theory prose remain `TBD` until selected, reviewed, and recorded with provenance and protected-content disposition.

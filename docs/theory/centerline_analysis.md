@@ -3,6 +3,7 @@ doc_id: OPS-THEORY-CENTERLINE-ANALYSIS
 doc_kind: theory.note
 status: draft
 created: 2026-05-03
+updated: 2026-06-07
 deliverable_id: DEL-11-03
 package_id: PKG-11
 scope_item: SOW-033
@@ -26,25 +27,35 @@ standards text, protected examples, standards tables, material allowables,
 stress-intensification-factor tables, flexibility-factor tables, copied code
 formulas, proprietary vendor data, private owner data, or private rule-pack
 values. Mechanics statements are project-derived unless a source is identified
-in the source notes. External public sources for the detailed history of
-classical piping flexibility practice remain `TBD`.
+in the source notes. Public-source support added for this revision is
+claim-limited: open mechanics and finite-element sources support general
+statics, frame, and FEA context, not code-specific piping practice. External
+public sources for the detailed history of classical piping flexibility
+practice remain `TBD`.
 
 OpenPipeStress outputs are software evidence for review. A mechanics solve,
 user-rule check, report, or agent draft is not professional acceptance for a
 project-specific piping design.
 
-## The Classical Centerline Idea
+## The Centerline Idea
 
-Classical piping flexibility work starts from a practical abstraction: a piping
-system can be represented by its connected centerline, with components,
+For OpenPipeStress, the useful centerline idea is a practical abstraction: a
+piping system can be represented by its connected centerline, with components,
 supports, anchors, loads, and restraints attached to that line. Instead of
-meshing every wall thickness, weld detail, nozzle, lug, shoe, or branch
-reinforcement as a local continuum problem, the global model asks how the
-connected run moves, what reactions develop, and what force and moment
+making every global study a wall-by-wall continuum model, the global model asks
+how the connected run moves, what reactions develop, and what force and moment
 resultants are recovered at engineering stations.
 
-In that lineage, the important modeling move is not a particular software
-implementation. It is the separation between:
+Open educational statics sources support the ordinary mechanics vocabulary used
+here: forces, moments, equilibrium, internal reactions, and internal resultants.
+Public NASA and MIT finite-element sources support the broader structural
+analysis context in which a structure is idealized into connected elements or
+model parts, loads are applied to the model, and displacements or resultants are
+recovered. Those sources do not establish a detailed history of piping
+flexibility practice; that historical lineage remains `TBD-public-history`.
+
+For this note, the important modeling move is not a particular software
+implementation or a protected method. It is the separation between:
 
 - global flexibility of the connected piping network;
 - local component behavior represented through user-supplied section,
@@ -66,6 +77,14 @@ architecture, the primary global analysis model is a connected line-element
 system. Nodes carry translational and rotational degrees of freedom. Elements
 connect nodes, carry local axis definitions, contribute stiffness to a global
 system, and recover local force and moment resultants after solving.
+
+This is a conceptual bridge from the general finite-element/frame context into
+the OpenPipeStress architecture. NASA NTRS material for NASTRAN and MIT OCW
+finite-element course material support the general idea of finite-element
+structural modeling and finite-element procedures. OpenPipeStress-specific
+degree-of-freedom ordering, element contracts, diagnostics, result envelopes,
+and source controls remain governed by the project documents named in the
+source notes.
 
 The current theory vocabulary is:
 
@@ -103,6 +122,11 @@ Thermal growth, imposed displacements, restraint layout, support stiffness,
 weight distribution, and load-case algebra are global effects. A local shell or
 solid mesh can answer a different question in more detail, but it does not
 replace the need to understand the whole line's load path.
+
+The source support for this section is conceptual. It relies on public statics
+and finite-element sources for ordinary mechanics vocabulary and structural
+modeling context, while project governance defines which OpenPipeStress
+results, diagnostics, and provenance records are exposed to users.
 
 ## What The Global Model Does Not Decide
 
@@ -156,6 +180,12 @@ For centerline analysis, useful verification evidence includes:
 - protected-content and provenance review for public examples and report
   templates.
 
+Open educational and public-domain mechanics sources may support the concepts
+behind a fixture family, but they do not authorize copying textbook examples,
+source formulas, tables, or values into public validation files. Public fixtures
+still need original, invented, public-domain, or otherwise permissively cleared
+provenance.
+
 Release-quality tolerances, final solver numerical library choices, and final
 validation gate wording remain governed by future accepted deliverables where
 not already recorded.
@@ -185,6 +215,11 @@ acceptance criteria, and final interpretation remain outside the global solver
 authority unless a future governed integration explicitly implements and
 validates them.
 
+The public sources cited here support local FEA only as a broad finite-element
+analysis context. They do not provide OpenPipeStress acceptance criteria,
+mesh-quality policy, local-model validation, external-solver endorsement, or
+professional approval.
+
 ## Practical Reading Of Results
 
 A centerline result should be read as an answer to a declared model, not as a
@@ -206,34 +241,24 @@ The intended workflow is transparent review, not black-box acceptance.
 
 ## Source Notes
 
-Project-authored sources used for this draft:
+Source inventory status for this draft:
 
-- `docs/CONTRACT.md` - invariant catalog for protected content, mechanics,
-  unit, solver, report, and professional-boundary constraints.
-- `docs/PRD.md` - product vision, non-goals, global line-element model,
-  local-analysis handoff, rule-pack, and analytical-engine requirements.
-- `docs/SPEC.md` - solver core, straight-pipe/frame element, support, load,
-  stress-recovery, rule-pack, and diagnostics architecture notes.
-- `docs/IP_AND_DATA_BOUNDARY.md` - public/private data and protected-content
-  boundaries.
-- `docs/PROFESSIONAL_BOUNDARY.md` - product-claim and professional-reliance
-  boundaries.
-- `docs/VALIDATION_STRATEGY.md` - mechanics verification and validation
-  family separation.
-- `docs/architecture/code_neutral_analysis_boundary.md` - mechanics,
-  user-rule, and human-acceptance authority separation.
-- `docs/architecture/analysis_status_semantics.md` - status vocabulary for
-  mechanics solved, user-rule checked, and human review required.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.5` - package,
-  objective, scope, and architecture-basis context.
+| Source ID | Status | Locator and source section | License / redistribution status | Claim scope | Review notes |
+|---|---|---|---|---|---|
+| `SRC-OPS-GOV` | `ACCEPTED` | `docs/DIRECTIVE.md`; `docs/CONTRACT.md`; `docs/TYPES.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/PROFESSIONAL_BOUNDARY.md`; `docs/VALIDATION_STRATEGY.md`; `docs/architecture/code_neutral_analysis_boundary.md`; `docs/architecture/analysis_status_semantics.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`. | Project-authored repository governance and architecture basis. | OpenPipeStress scope, authority boundaries, source/provenance controls, protected-content exclusions, centerline/frame architecture, rule-pack separation, validation family separation, and professional-boundary wording. | Accepted for project-specific claims only. Does not supply external piping-history evidence. |
+| `SRC-NASA-NTRS-NASTRAN-USER` | `ACCEPTED` | [NASA NTRS, "The NASTRAN user's manual," Document ID `19840013831`](https://ntrs.nasa.gov/citations/19840013831), metadata/abstract. | NTRS marks distribution as public and copyright as "Work of the US Gov. Public Use Permitted." | General finite-element structural-analysis context: structural models can be idealized with connected finite elements/grid points, with loads applied and displacements calculated. | Conceptual support only. No cards, procedures, formulas, examples, tables, or NASTRAN-specific implementation details are copied or adopted. Not used as piping-code history. |
+| `SRC-MIT-OCW-FEA` | `ACCEPTED` | [MIT OCW, "Finite Element Procedures for Solids and Structures"](https://ocw.mit.edu/courses/res-2-002-finite-element-procedures-for-solids-and-structures-spring-2010/), course overview; [MIT OCW Privacy and Terms of Use](https://ocw.mit.edu/pages/privacy-and-terms-of-use/), Creative Commons license section. | MIT OCW states CC BY-NC-SA 4.0 for OCW materials unless otherwise marked. | General finite-element analysis context, assumptions, and linear/nonlinear procedure framing for engineering structures. | Citation support only. No course text, videos, images, formulas, examples, or third-party course media are reused. |
+| `SRC-ENG-STATICS` | `ACCEPTED` | [Open Textbook Library, "Engineering Statics: Open and Interactive"](https://open.umn.edu/opentextbooks/textbooks/1047), book metadata and conditions of use. | Open Textbook Library lists CC BY-NC-SA conditions of use. | General statics vocabulary: forces, vectors, equilibrium, internal reactions, internal forces, and geometrical properties. | Citation support only. No examples, tables, steel-section properties, formulas, or values are copied. |
+| `TBD-public-history` | `TBD` | Public/permissive source for historical development of piping flexibility analysis terminology. | `TBD`. | Historical lineage claims about classical piping flexibility practice. | Do not invent or overstate history. Current prose avoids detailed historical claims. |
+| `TBD-open-frame-reference` | `TBD` | Public/permissive structural-analysis source for formula-level 3D frame element details if future theory prose adds formulas or derivations. | `TBD`. | Formula-level or derivation-level frame theory beyond the conceptual FEA/frame context cited above. | Current prose stays conceptual; no formulas or source examples are introduced. |
+| `TBD-local-fea-reference` | `TBD` | Public/permissive source for local shell/solid handoff practice if future prose expands beyond project boundary language. | `TBD`. | Practice-specific guidance for local FEA handoff beyond the general FEA concept. | Current prose stays at boundary level and does not claim local FEA acceptance or professional adequacy. |
 
-External citation needs:
+Rejected or excluded source classes for this draft:
 
-- `TBD-public-history`: public, redistributable source for the historical
-  development of piping flexibility analysis terminology.
-- `TBD-open-frame-reference`: public or permissively citable structural
-  analysis reference for 3D frame modeling concepts if formula-level theory is
-  added later.
-- `TBD-local-fea-reference`: public or permissively citable source for local
-  shell/solid handoff practice if future notes expand beyond project boundary
-  language.
+- Protected standards text, figures, examples, code formulas, material
+  allowables, SIF/flexibility tables, protected dimensional tables, and
+  code-specific values.
+- Proprietary commercial software examples, vendor benchmark data, private
+  owner data, private rule-pack values, and uncleared manufacturer data.
+- Any source whose license, redistribution status, or protected-content status
+  is unclear enough that it cannot be cited in public documentation.
