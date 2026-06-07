@@ -7,6 +7,13 @@ created: 2026-05-06
 
 # DEL-15-03 Memory - Downstream Modeling Export Workflow
 
+## 2026-06-07 - PKG-15 handoff review-readiness hardening
+
+- Hardened `tests/test_handoff_export_workflow.py` to validate exported handoff-package and target-mapping payloads against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`.
+- Added fixture-provenance assertions for `fixtures/invented_target_fixture.json`; fixture data remains invented public metadata only.
+- Updated deliverable-local docs to cite `core/handoff/exporter/workflow.py`, schema-validation evidence, and the current upstream schema contracts while preserving OI-015 `TBD` boundaries for target list, canonical package container, and target-specific mapping strategy.
+- No target-specific parsers, external solver/prover invocation, commercial result ingestion, lifecycle `_STATUS.md` edits, or human review-disposition changes were added.
+
 Implemented a narrow provider-neutral export workflow in
 `core/handoff/exporter/`. The workflow assembles a deterministic export
 envelope over the existing DEL-15-01 handoff package and DEL-15-02 target
@@ -26,8 +33,6 @@ invented public metadata only.
 
 Unresolved TBDs:
 
-- Full Draft 2020-12 schema validation remains outside this slice; repository
-  tests currently use stdlib structural checks.
 - Physical package container, concrete target format, external solver/prover
   execution, target-specific commercial parser behavior, and comprehensive
   downstream result ingestion remain out of scope.

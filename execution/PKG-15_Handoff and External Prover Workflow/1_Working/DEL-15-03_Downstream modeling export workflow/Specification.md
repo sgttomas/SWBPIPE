@@ -22,7 +22,7 @@ Excluded work:
 
 | ID | Requirement | Source | Verification |
 |---|---|---|---|
-| DEL-15-03-REQ-001 | The workflow shall generate schema-compliant handoff packages. | SOW-074 in `_CONTEXT.md` and `SOFTWARE_DECOMP.md` | Export validation tests against the governing handoff schema once available. |
+| DEL-15-03-REQ-001 | The workflow shall generate schema-compliant handoff packages. | SOW-074 in `_CONTEXT.md` and `SOFTWARE_DECOMP.md` | `tests/test_handoff_export_workflow.py` validates exported handoff packages against `schemas/handoff_package.schema.json`. |
 | DEL-15-03-REQ-002 | The package data surfaced by the workflow shall include or preserve model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, and unsupported-target flags. | SOW-074 in `_CONTEXT.md` and `SOFTWARE_DECOMP.md` | Fixture-based validation that required fields are present or explicitly reported as TBD/unsupported according to upstream schema contracts. |
 | DEL-15-03-REQ-003 | The workflow shall remain generic and shall not implement target-specific commercial-tool parsers in this deliverable. | `_CONTEXT.md#Context Envelope`; `SOFTWARE_DECOMP.md#SOW-074`; OI-015 | Tests or review evidence confirming invented target fixture use and no commercial parser fixture dependency. |
 | DEL-15-03-REQ-004 | The workflow shall preserve unit metadata across the export boundary. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md#Unit system and dimensional analysis` | Schema validation and unit-manifest checks. |
@@ -37,7 +37,7 @@ Excluded work:
 
 | Standard or governing source | Applicability | Status |
 |---|---|---|
-| JSON Schema 2020-12 | Contract basis for schema-backed handoff/package validation. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact schemas TBD/upstream. |
+| JSON Schema 2020-12 | Contract basis for schema-backed handoff/package validation. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; current upstream schemas are `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
 | Canonical JSON/JCS-compatible hash basis | Hash basis where JSON payloads are hashed. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact payload boundaries TBD. |
 | OpenPipeStress invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |
 | IP and Data Boundary Policy | Governs protected-content, private-data, fixture, and provenance handling. | Applicable from `docs/IP_AND_DATA_BOUNDARY.md`. |
@@ -47,7 +47,7 @@ Excluded work:
 
 | Verification item | Evidence expected |
 |---|---|
-| Schema compliance | Validation tests for handoff package output against the upstream schema contract. |
+| Schema compliance | Validation tests for handoff package output against `schemas/handoff_package.schema.json` and target mapping input against `schemas/target_mapping.schema.json`. |
 | Unit manifest preservation | Tests that exported values carry explicit unit metadata or are explicitly dimensionless/TBD according to schema rules. |
 | Hash/provenance preservation | Tests or review evidence for model/package hash fields, provenance fields, and unresolved assumptions. |
 | Unsupported-target behavior | Invented target fixture that exercises unsupported or approximate mapping behavior without using proprietary commercial examples. |
@@ -58,7 +58,7 @@ Excluded work:
 
 Required records for this deliverable are:
 
-- implementation notes identifying the exporter entry point and output contract once implemented;
+- implementation notes identifying `core/handoff/exporter/workflow.py` and the schema-backed output contract;
 - export validation test evidence;
 - invented target fixture provenance and protected-content review status;
 - any unresolved target mapping, package container, hash boundary, or dependency-version TBDs;

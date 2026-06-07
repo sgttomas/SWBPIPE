@@ -1,5 +1,12 @@
 # MEMORY - DEL-15-02 Target mapping and unsupported-behavior contract
 
+## 2026-06-07 - PKG-15 handoff review-readiness hardening
+
+- Materialized `schemas/target_mapping.schema.json` as the public JSON Schema 2020-12 contract for the current provider-neutral Python output from `core/handoff/target_mapping/contract.py`.
+- Hardened `tests/test_target_mapping_contract.py` to validate generated normal and negative contracts with `jsonschema.Draft202012Validator`.
+- Updated deliverable-local docs to cite the materialized schema path, provider-neutral fields, and taxonomy while preserving OI-015 `TBD` boundaries for exact commercial target list, canonical package container, and target-specific mapping strategy.
+- Local `Review_Findings.csv` human dispositions and lifecycle `_STATUS.md` were not changed.
+
 ## 2026-05-06 Implementation Notes
 
 - Implemented `core/handoff/target_mapping/contract.py` as a provider-neutral

@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
-"""Stdlib checks for the canonical handoff package schema."""
+"""Contract checks for the canonical handoff package schema."""
 
 import json
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "handoff_package.schema.json"
+FIXTURE_PATH = (
+    ROOT
+    / "execution"
+    / "PKG-15_Handoff and External Prover Workflow"
+    / "1_Working"
+    / "DEL-15-01_Canonical handoff package schema and manifest"
+    / "fixtures"
+    / "invented_handoff_package.json"
+)
 
 REQUIRED_ROOT = {
     "schema_version",
@@ -81,6 +92,18 @@ FORBIDDEN_SCHEMA_TEXT = {
 def load_schema():
     with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
         return json.load(schema_file)
+
+
+def load_fixture():
+    with FIXTURE_PATH.open(encoding="utf-8") as fixture_file:
+        return json.load(fixture_file)
+
+
+def validate_fixture(schema):
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(load_fixture()), key=lambda item: item.path)
+    assert not errors, [error.message for error in errors]
 
 
 def required_at(schema, definition_name):
@@ -378,6 +401,14 @@ def main():
 
     boundary = defs["ProfessionalBoundary"]["properties"]
     assert boundary["human_review_required"]["const"] is True
+    assert boundary["software_makes_compliance_claim"]["const"] is False
+    assert boundary["software_makes_certification_claim"]["const"] is False
+    assert boundary["software_makes_sealing_claim"]["const"] is False
+    assert boundary["software_makes_approval_claim"]["const"] is False
+    assert boundary["software_makes_authentication_claim"]["const"] is False
+    assert boundary["software_creates_professional_reliance_record"]["const"] is False
+
+    validate_fixture(schema)
     assert boundary["supports_downstream_modeling"]["const"] is True
     assert boundary["supports_downstream_review"]["const"] is True
     assert boundary["software_makes_compliance_claim"]["const"] is False

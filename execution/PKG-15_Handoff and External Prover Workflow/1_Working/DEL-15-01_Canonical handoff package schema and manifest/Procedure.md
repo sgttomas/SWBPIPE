@@ -23,8 +23,8 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/CON
 2. Read the DEL-15-01 decomposition entry and associated SOW-074 / OBJ-017 rows. Record scope as schema/manifest contract work, not runtime export implementation.
 3. List required handoff-package slots from SOW-074: model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, unsupported-target flags, and provenance.
 4. Apply architecture-basis constraints that are explicitly injected into `_CONTEXT.md`: JSON Schema 2020-12 contracts, canonical JSON/JCS-compatible hash basis for JSON payloads, schema-first envelopes, and no-bypass adapter controls.
-5. Mark unsupported implementation details as `TBD`, including exact schema property names, `$id` values, package container, supported target list, target-specific mapping strategy, and executable validation fixtures.
-6. Draft or review the future schema artifact so it preserves references and metadata without copying protected standards text, private project data, private rule-pack payloads, proprietary commercial data, or real secrets.
+5. Treat `schemas/handoff_package.schema.json`, its `$id`, and `fixtures/invented_handoff_package.json` as materialized contract evidence; keep the package container, supported target list, and target-specific mapping strategy as `TBD` under OI-015.
+6. Draft or review schema artifacts and fixtures so they preserve references and metadata without copying protected standards text, private project data, private rule-pack payloads, proprietary commercial data, or real secrets.
 7. Ensure the manifest design includes structured warnings, assumptions, provenance, unit metadata, hashes, and professional-boundary posture.
 8. Verify that target mapping metadata and unsupported-target flags are present as contract surfaces while detailed semantics remain delegated to DEL-15-02.
 9. Check that no field, enum, status, or explanatory text creates automatic professional approval, certification, sealing, authentication, endorsement, or code-compliance claims.
@@ -35,9 +35,9 @@ Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/CON
 | Verification item | Method |
 |---|---|
 | Source grounding | Check each non-trivial requirement against `_CONTEXT.md`, decomposition, registers, local DAG-002 mirror, or governing references. |
-| Schema baseline | Confirm JSON Schema 2020-12 is recorded as the schema baseline; exact schema file validation is TBD until the schema artifact exists. |
+| Schema baseline | Validate `schemas/handoff_package.schema.json` with `jsonschema.Draft202012Validator.check_schema` and validate the invented fixture with `python3 tests/test_handoff_package_schema.py`. |
 | Required slots | Confirm the SOW-074 slots are present as requirements or explicit TBD surfaces. |
-| TBD discipline | Confirm package container, target list, exact field names, and target-specific mappings are not invented. |
+| TBD discipline | Confirm package container, target list, and target-specific mappings are not invented. Schema property names and validation fixture are now materialized evidence. |
 | Data boundary | Check that schema guidance does not embed protected/private/proprietary payloads or examples. |
 | Professional boundary | Check that the contract does not emit automatic approval/compliance/certification statuses. |
 | Dependency mirror preservation | Confirm approved DAG-006 rows remain ACTIVE and are not retired, deleted, or reclassified. |
@@ -54,4 +54,7 @@ Maintain these records in the DEL-15-01 folder for setup:
 - `_SEMANTIC_LENSING.md`
 - existing `_DEPENDENCIES.md`
 - existing `Dependencies.csv`
+- `schemas/handoff_package.schema.json`
+- `tests/test_handoff_package_schema.py`
+- `fixtures/invented_handoff_package.json`
 - final run report with dependency-schema validation result and any dependency-extract conflicts

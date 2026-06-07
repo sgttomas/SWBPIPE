@@ -3,13 +3,17 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
+
+from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+SCHEMA_PATH = ROOT / "schemas" / "target_mapping.schema.json"
 
 from core.handoff.target_mapping import (  # noqa: E402
     build_target_mapping_contract,
@@ -20,6 +24,19 @@ from core.handoff.target_mapping import (  # noqa: E402
 
 def ref(object_type, value):
     return {"object_type": object_type, "ref": value}
+
+
+def load_schema():
+    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
+        return json.load(schema_file)
+
+
+def validate_contract(contract):
+    schema = load_schema()
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(contract), key=lambda item: item.path)
+    assert not errors, [error.message for error in errors]
 
 
 def source_context():
@@ -90,6 +107,7 @@ def test_contract_is_deterministic_and_preserves_handoff_context():
     assert first["source_context"]["units_manifest_ref"]["ref"] == "units:invented"
     assert first["unsupported_behavior_flags"][0]["human_review_required"] is True
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+    validate_contract(first)
 
 
 def test_unit_bearing_mapping_without_unit_metadata_is_blocked():
@@ -106,6 +124,7 @@ def test_unit_bearing_mapping_without_unit_metadata_is_blocked():
     codes = {item["code"] for item in contract["diagnostics"]}
     assert "TM-UNIT-METADATA-MISSING" in codes
     assert any(item["severity"] == "blocking" for item in contract["diagnostics"])
+    validate_contract(contract)
 
 
 def test_missing_context_and_untraceable_behavior_emit_diagnostics():
@@ -121,6 +140,7 @@ def test_missing_context_and_untraceable_behavior_emit_diagnostics():
     codes = {item["code"] for item in diagnostics_for_target_mapping_contract(contract)}
     assert "TM-SOURCE-CONTEXT-FIELD-MISSING" in codes
     assert "TM-AFFECTED-REFS-MISSING" in codes
+    validate_contract(contract)
 
 
 def test_behavior_label_authority_wording_is_blocking_boundary_diagnostic():
@@ -139,6 +159,7 @@ def test_behavior_label_authority_wording_is_blocking_boundary_diagnostic():
     codes = {item["code"] for item in contract["diagnostics"]}
     assert "TM-PROHIBITED-AUTHORITY-TERM" in codes
     assert any(item["severity"] == "blocking" for item in contract["diagnostics"])
+    validate_contract(contract)
 
 
 def test_output_boundary_language_does_not_make_prohibited_claims():

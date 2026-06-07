@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 import sys
 
+from jsonschema import Draft202012Validator
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -29,6 +31,8 @@ FIXTURE_PATH = (
     / "fixtures"
     / "invented_target_fixture.json"
 )
+HANDOFF_SCHEMA_PATH = ROOT / "schemas" / "handoff_package.schema.json"
+TARGET_MAPPING_SCHEMA_PATH = ROOT / "schemas" / "target_mapping.schema.json"
 
 FORBIDDEN_CLAIMS = {
     "code " + "compliant",
@@ -43,6 +47,19 @@ FORBIDDEN_CLAIMS = {
 
 def ref(object_type: str, value: str) -> dict[str, str]:
     return {"object_type": object_type, "ref": value}
+
+
+def load_schema(path: Path) -> dict[str, object]:
+    with path.open(encoding="utf-8") as schema_file:
+        return json.load(schema_file)
+
+
+def validate_with_schema(payload: dict[str, object], path: Path) -> None:
+    schema = load_schema(path)
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(payload), key=lambda item: item.path)
+    assert not errors, [error.message for error in errors]
 
 
 def provenance(source_name: str = "Invented DEL-15-03 fixture") -> dict[str, str]:
@@ -316,12 +333,19 @@ def target_fixture() -> dict[str, object]:
 def test_export_workflow_is_deterministic_and_preserves_required_context():
     package = handoff_package()
     mapping = target_mapping(package)
+    fixture = target_fixture()
+
+    validate_with_schema(package, HANDOFF_SCHEMA_PATH)
+    validate_with_schema(mapping, TARGET_MAPPING_SCHEMA_PATH)
+    assert fixture["provenance"]["redistribution_status"] == "invented_non_engineering_example"
+    assert fixture["provenance"]["privacy_classification"] == "invented_public_example"
+    assert "protected standards data" in " ".join(fixture["notes"])
 
     first = build_handoff_export_workflow(
         export_workflow_id="export:invented-del-15-03",
         handoff_package=package,
         target_mapping_contract=mapping,
-        target_fixture=target_fixture(),
+        target_fixture=fixture,
     )
     second = build_handoff_export_workflow(
         export_workflow_id="export:invented-del-15-03",

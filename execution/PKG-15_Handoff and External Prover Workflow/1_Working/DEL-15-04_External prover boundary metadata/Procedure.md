@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define and check the external-prover boundary metadata deliverable without implementing product code in this setup pass. The procedure describes how a later implementation task should produce external reference fields and boundary validation tests while preserving the professional reliance and data-boundary constraints already present in the sources.
+Define and check the external-prover boundary metadata deliverable. The current review-readiness tranche materializes the external reference schema and boundary validation tests while preserving the professional reliance and data-boundary constraints already present in the sources.
 
 ## Prerequisites
 
@@ -14,14 +14,14 @@ Define and check the external-prover boundary metadata deliverable without imple
 | Status vocabulary and prohibited automatic statuses | `docs/TYPES.md` section 4 |
 | Data and protected-content policy | `docs/IP_AND_DATA_BOUNDARY.md` |
 | Approved local dependency mirror | `_DEPENDENCIES.md`; `Dependencies.csv` |
-| Implementation write scope | TBD; this setup workflow does not authorize product-code edits |
+| Implementation write scope | `schemas/external_prover_metadata.schema.json`; `core/handoff/external_prover/*.py`; `tests/test_external_prover_boundary_metadata.py`; deliverable-local docs and run records |
 
 ## Steps
 
 1. Confirm the implementation task is explicitly scoped to DEL-15-04 and has write authority for the intended schema/tests.
 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `Specification.md`, and the approved local dependency mirror before drafting any schema or tests.
 3. Define only descriptive external-prover metadata categories supported by the sources: names, tags, notes, external references, attachments, and diagnostic comparison/handoff links.
-4. Mark the exact schema path, field names, required/optional cardinality, attachment storage behavior, and external artifact hash treatment as `TBD` until resolved by the implementation task or human ruling.
+4. Use `schemas/external_prover_metadata.schema.json` for schema path, field names, required/optional cardinality, attachment-as-reference behavior, and external artifact checksum references; concrete commercial-tool parser behavior remains out of scope.
 5. Add or update schema fields so that they cannot be interpreted as automatic professional approval, certification, sealing, authentication, code compliance, or formal prover lifecycle state.
 6. If a human acceptance reference is in scope, represent it only as an external, human-owned, reviewed-payload hash-bound record. Do not create it automatically.
 7. Add boundary validation tests for allowed flexible metadata.
@@ -42,12 +42,14 @@ Define and check the external-prover boundary metadata deliverable without imple
 
 ## Records
 
-The following records should result from a future implementation task:
+The following records are materialized evidence for the current implementation task:
 
-- external reference fields or schema changes;
-- boundary validation tests;
+- `schemas/external_prover_metadata.schema.json`;
+- `core/handoff/external_prover/metadata.py`;
+- `core/handoff/external_prover/authority_boundary.py`;
+- `tests/test_external_prover_boundary_metadata.py`;
 - evidence that prohibited status/authority terms are blocked;
 - evidence that public fixtures/examples passed protected-content/private-data review;
-- explicit `TBD` list for unresolved schema path, field names, cardinality, attachment storage, external artifact hashing, and commercial-tool parser behavior.
+- explicit `TBD` list for unresolved concrete external prover tools, target-specific parsers, lifecycle promotion, human acceptance records, certification/compliance decisions, and commercial-tool parser behavior.
 
-This setup pass produces only the four-document kit, semantic lens, semantic lensing register, dependency validation result, and status transitions allowed by the setup skills.
+This tranche does not edit lifecycle `_STATUS.md`, dependency mirrors, or human review dispositions.

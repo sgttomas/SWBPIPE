@@ -25,8 +25,8 @@
 | Professional reliance boundary | Non-authoritative; software output remains decision support until competent human review | `INIT.md` Agent rule; `docs/DIRECTIVE.md` sections 1-3; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 | Public/private data boundary | External artifacts and examples must not introduce protected standards text, proprietary values, private project data, or commercial software examples without permission | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections |
 | Schema basis | JSON Schema 2020-12 contracts and schema-first envelopes are the accepted architecture basis | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 |
-| Concrete schema file path | TBD | Anticipated artifact is `external reference fields`, but no file path is defined in local sources |
-| Exact field names and cardinality | TBD | Sources define allowed metadata categories but not a concrete data model |
+| Concrete schema file path | `schemas/external_prover_metadata.schema.json` | Materialized JSON Schema 2020-12 metadata contract matching the current builder output |
+| Field names and cardinality | Materialized provider-neutral record groups: names, tags, notes, external references, attachments, handoff/package/export links, assumptions, warnings, unsupported target flags, rejected authority claims, diagnostics, provenance, and professional boundary | `schemas/external_prover_metadata.schema.json`; `core/handoff/external_prover/metadata.py` |
 
 ## Conditions
 
@@ -36,7 +36,7 @@
 | Upstream professional-boundary dependency | DEL-01-04 | `Dependencies.csv` row DAG-002-E0818 |
 | Upstream handoff/state dependencies | DEL-15-01, DEL-15-02, DEL-15-03, DEL-14-01 | `Dependencies.csv` rows DAG-002-E0819 through DAG-002-E0822 |
 | Approved DAG mirror status | 12 ACTIVE rows, synchronized from approved DAG-006 | `_DEPENDENCIES.md`; `Dependencies.csv` |
-| Boundary validation tests | Required anticipated artifact, exact tests TBD | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
+| Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
 
 ## Construction
 

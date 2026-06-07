@@ -1,0 +1,418 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-15-01",
+  "package_id": "PKG-15",
+  "scope_item": "SOW-074",
+  "objectives": [
+    "OBJ-017"
+  ],
+  "handoff_contract_status": {
+    "record_contract": "schema_first_canonical_handoff_package_records",
+    "manifest_contract": "schema_first_handoff_manifest_metadata",
+    "model_schema_binding": "schemas/model.schema.yaml",
+    "units_schema_binding": "schemas/units.schema.yaml",
+    "model_state_binding": "schemas/model_state.schema.json",
+    "analysis_run_binding": "schemas/analysis_run.schema.json",
+    "result_export_binding": "schemas/results.schema.yaml",
+    "local_fea_handoff_binding": "schemas/local_fea_handoff.schema.yaml",
+    "audit_hash_binding": "hash_records_follow_audit_manifest_predecessor_semantics",
+    "target_mapping_taxonomy": "reserved_for_DEL-15-02",
+    "physical_package_container": "TBD",
+    "external_prover_status": "not_declared_by_handoff_package",
+    "professional_boundary": "downstream_modeling_and_review_support_only"
+  },
+  "handoff_package_manifest": {
+    "package_identity": {
+      "handoff_package_id": "handoff:invented-del-15-01",
+      "manifest_id": "manifest:invented-del-15-01",
+      "package_schema_version": "0.1.0",
+      "created_at": "2026-06-07T00:00:00Z",
+      "created_by": "OpenPipeStress DEL-15-01 fixture",
+      "package_label": "Invented canonical handoff package",
+      "package_kind": "canonical_handoff_manifest"
+    },
+    "model_basis": {
+      "model_ref": {
+        "object_type": "Model",
+        "ref": "model:invented-del-15-01"
+      },
+      "model_schema": "schemas/model.schema.yaml",
+      "model_kind": "handoff_basis",
+      "basis_state_ref": {
+        "object_type": "ModelState",
+        "ref": "state:invented-del-15-01"
+      },
+      "source_refs": [
+        {
+          "object_type": "Project",
+          "ref": "project:invented-public"
+        }
+      ],
+      "hash_refs": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "Model",
+            "ref": "model:invented-del-15-01"
+          },
+          "payload_scope": "model_hash",
+          "value": "sha256:invented-del-15-01-model"
+        }
+      ],
+      "provenance": {
+        "source_name": "Invented DEL-15-01 model basis",
+        "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_attestation": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_classification": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    "model_hash": {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "Model",
+        "ref": "model:invented-del-15-01"
+      },
+      "payload_scope": "model_hash",
+      "value": "sha256:invented-del-15-01-model"
+    },
+    "units_manifest": {
+      "unit_system_ref": {
+        "object_type": "UnitSystem",
+        "ref": "units:invented-del-15-01"
+      },
+      "units_schema": "schemas/units.schema.yaml",
+      "dimension_basis": "schemas/units.schema.yaml",
+      "coordinate_unit": "m",
+      "force_unit": "N",
+      "moment_unit": "N-m",
+      "displacement_unit": "m",
+      "rotation_unit": "rad",
+      "stress_unit": "Pa",
+      "temperature_unit": "degC",
+      "hash_refs": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "UnitSystem",
+            "ref": "units:invented-del-15-01"
+          },
+          "payload_scope": "units_manifest",
+          "value": "sha256:invented-del-15-01-units"
+        }
+      ],
+      "provenance": {
+        "source_name": "Invented DEL-15-01 units manifest",
+        "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_attestation": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_classification": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    "entity_ids": {
+      "component_ids": [
+        "component:pipe-1"
+      ],
+      "node_ids": [
+        "node:1",
+        "node:2"
+      ],
+      "element_ids": [
+        "element:1"
+      ],
+      "station_ids": [
+        "station:1"
+      ],
+      "load_case_ids": [
+        "load:weight"
+      ],
+      "result_ids": [
+        "result:displacement"
+      ],
+      "model_state_ids": [
+        "state:invented-del-15-01"
+      ],
+      "analysis_run_ids": [
+        "run:invented-reference"
+      ],
+      "mapping_id_refs": [
+        {
+          "object_type": "TargetMapping",
+          "ref": "tm:invented-del-15-01"
+        }
+      ]
+    },
+    "model_state_refs": [
+      {
+        "model_state_ref": {
+          "object_type": "ModelState",
+          "ref": "state:invented-del-15-01"
+        },
+        "model_state_schema": "schemas/model_state.schema.json",
+        "state_kind": "handoff_basis",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "JCS_compatible_json_payload_hash",
+            "payload_ref": {
+              "object_type": "ModelState",
+              "ref": "state:invented-del-15-01"
+            },
+            "payload_scope": "model_state_record",
+            "value": "sha256:invented-del-15-01-state"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "Invented DEL-15-01 model state",
+          "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+          "source_license": "project-invented-test-data",
+          "contributor": "OpenPipeStress",
+          "contributor_attestation": "invented non-engineering fixture",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_classification": "machine_checked",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "analysis_run_refs": [],
+    "result_export_refs": [],
+    "library_refs": [
+      {
+        "library_ref": {
+          "object_type": "Library",
+          "ref": "library:invented-public"
+        },
+        "library_kind": "component",
+        "version": "0.1.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "Library",
+            "ref": "library:invented-public"
+          },
+          "payload_scope": "library_reference_metadata",
+          "value": "sha256:invented-del-15-01-library"
+        },
+        "source_notice": "Invented public fixture metadata only.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_classification": "machine_checked",
+        "privacy_classification": "invented_public_example",
+        "private_payload_redacted": true,
+        "provenance": {
+          "source_name": "Invented DEL-15-01 library ref",
+          "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+          "source_license": "project-invented-test-data",
+          "contributor": "OpenPipeStress",
+          "contributor_attestation": "invented non-engineering fixture",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_classification": "machine_checked",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "rule_pack_refs": [
+      {
+        "rule_pack_id": "rule-pack:invented-public",
+        "version": "0.1.0",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "RulePack",
+            "ref": "rule-pack:invented-public"
+          },
+          "payload_scope": "rule_pack_reference_metadata",
+          "value": "sha256:invented-del-15-01-rule-pack"
+        },
+        "source_notice": "Invented rule-pack metadata only.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_classification": "machine_checked",
+        "privacy_classification": "invented_public_example",
+        "private_payload_redacted": true,
+        "provenance": {
+          "source_name": "Invented DEL-15-01 rule pack ref",
+          "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+          "source_license": "project-invented-test-data",
+          "contributor": "OpenPipeStress",
+          "contributor_attestation": "invented non-engineering fixture",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_classification": "machine_checked",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "Model",
+          "ref": "model:invented-del-15-01"
+        },
+        "payload_scope": "model_hash",
+        "value": "sha256:invented-del-15-01-model"
+      }
+    ],
+    "target_mapping_metadata": {
+      "mapping_schema_status": "reserved_metadata_only",
+      "target_system_kind": "generic_downstream_modeling",
+      "target_mapping_refs": [
+        {
+          "object_type": "TargetMapping",
+          "ref": "tm:invented-del-15-01"
+        }
+      ],
+      "field_mapping_summary": "Invented provider-neutral field mappings.",
+      "unsupported_behavior_refs": [
+        {
+          "object_type": "UnsupportedBehaviorFlag",
+          "ref": "unsupported:external-solver-not-invoked"
+        }
+      ],
+      "approximate_behavior_refs": [
+        {
+          "object_type": "UnsupportedBehaviorFlag",
+          "ref": "approximate:target-field"
+        }
+      ],
+      "detailed_taxonomy_owner": "DEL-15-02",
+      "provenance": {
+        "source_name": "Invented DEL-15-01 target mapping metadata",
+        "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_attestation": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_classification": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    "unsupported_behavior_flags": [
+      {
+        "flag_id": "unsupported:external-solver-not-invoked",
+        "behavior_label": "external_solver_not_invoked",
+        "status": "not_implemented",
+        "target_ref": {
+          "object_type": "ExternalReference",
+          "ref": "target:invented-generic"
+        },
+        "affected_refs": [
+          {
+            "object_type": "AnalysisRun",
+            "ref": "run:invented-reference"
+          }
+        ],
+        "human_review_required": true,
+        "provenance": {
+          "source_name": "Invented DEL-15-01 unsupported flag",
+          "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+          "source_license": "project-invented-test-data",
+          "contributor": "OpenPipeStress",
+          "contributor_attestation": "invented non-engineering fixture",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_classification": "machine_checked",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "unresolved_assumptions": [
+      {
+        "assumption_id": "assumption:invented-review",
+        "statement": "Invented handoff package requires human review before reliance.",
+        "status": "requires_human_review",
+        "affected_refs": [
+          {
+            "object_type": "Model",
+            "ref": "model:invented-del-15-01"
+          }
+        ],
+        "provenance": {
+          "source_name": "Invented DEL-15-01 assumption",
+          "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+          "source_license": "project-invented-test-data",
+          "contributor": "OpenPipeStress",
+          "contributor_attestation": "invented non-engineering fixture",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_classification": "machine_checked",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "warnings": [
+      {
+        "code": "INVENTED-HANDOFF-WARNING",
+        "class": "LOCAL_HANDOFF_WARNING",
+        "severity": "warning",
+        "source": {
+          "object_type": "HandoffPackage",
+          "ref": "handoff:invented-del-15-01"
+        },
+        "affected_object": {
+          "object_type": "Model",
+          "ref": "model:invented-del-15-01"
+        },
+        "message": "Invented handoff warning for downstream review.",
+        "remediation": "Review invented target fixture limitations.",
+        "provenance": {
+          "source_name": "Invented DEL-15-01 warning",
+          "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+          "source_license": "project-invented-test-data",
+          "contributor": "OpenPipeStress",
+          "contributor_attestation": "invented non-engineering fixture",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_classification": "machine_checked",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "diagnostics": [],
+    "privacy": {
+      "classification": "invented_public_example",
+      "local_only": true,
+      "telemetry_allowed": false,
+      "private_payload_embedded": false,
+      "protected_payload_embedded": false,
+      "commercial_tool_payload_embedded": false,
+      "redaction_refs": [
+        {
+          "object_type": "ExternalReference",
+          "ref": "redaction:invented-public"
+        }
+      ]
+    },
+    "redistribution_classification": "invented_non_engineering_example",
+    "review_classification": "machine_checked",
+    "provenance": {
+      "source_name": "Invented DEL-15-01 handoff manifest",
+      "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/fixtures/invented_handoff_package.json",
+      "source_license": "project-invented-test-data",
+      "contributor": "OpenPipeStress",
+      "contributor_attestation": "invented non-engineering fixture",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_classification": "machine_checked",
+      "privacy_classification": "invented_public_example"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "supports_downstream_modeling": true,
+      "supports_downstream_review": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_creates_professional_reliance_record": false
+    }
+  }
+}

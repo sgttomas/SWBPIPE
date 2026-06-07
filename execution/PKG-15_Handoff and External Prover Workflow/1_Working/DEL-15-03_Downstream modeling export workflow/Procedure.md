@@ -18,14 +18,14 @@ Define the conservative procedure for producing and validating the generic downs
 ## Steps
 
 1. Confirm the work remains inside DEL-15-03 and SOW-074. If implementation needs target-specific commercial parsers, commercial examples, professional approval states, or cross-package rewrites, stop and escalate.
-2. Identify the upstream handoff package schema and target-mapping contracts available to the implementation. If they are not implementation-ready, record the missing inputs as TBD rather than inventing schema fields.
+2. Identify the upstream handoff package schema and target-mapping contracts available to the implementation: `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. If later target-specific inputs are not implementation-ready, record the missing inputs as TBD rather than inventing schema fields.
 3. Define the generic exporter boundary: input model/result context, output handoff package envelope, validation result, warnings, unresolved assumptions, target mapping metadata, unsupported-target flags, and hash/provenance handling.
-4. Implement the exporter using the accepted architecture basis applicable to this backend slice. Exact module paths and dependency versions are TBD until implementation starts.
+4. Implement or review the exporter using the accepted architecture basis applicable to this backend slice at `core/handoff/exporter/workflow.py`; package-specific dependency versions remain TBD unless resolved by accepted source material.
 5. Ensure exported payloads preserve unit metadata, entity IDs, references, diagnostics/warnings, assumptions, and hash metadata required by the upstream handoff package contract.
 6. Add unsupported-target handling that records explicit findings or flags when the target fixture lacks a supported mapping. Do not silently drop or coerce unsupported behavior.
 7. Create an invented target fixture. Record fixture provenance and protected-content review status; do not use commercial-tool examples or protected standards-derived examples.
 8. Add export validation tests for schema compliance, unit manifest presence, required identity/reference fields, warnings/assumptions, unsupported-target flags, and professional-boundary wording.
-9. Run applicable validation gates. At setup time, exact commands are TBD; expected gates include schema validation, test suite coverage for the exporter, and protected-content/provenance review.
+9. Run applicable validation gates: `python3 tests/test_handoff_export_workflow.py`, schema validation for exported handoff and mapping inputs, dependency validation, and protected-content/provenance review.
 10. Record unresolved assumptions, upstream contract gaps, unsupported features, and any dependency conflicts in deliverable-local evidence.
 
 ## Verification
@@ -33,7 +33,7 @@ Define the conservative procedure for producing and validating the generic downs
 | Check | Expected result |
 |---|---|
 | Scope check | Work remains a generic handoff export workflow for DEL-15-03. |
-| Schema check | Output validates against the governing handoff package schema once available. |
+| Schema check | Output validates against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
 | Unit check | Unit-bearing exported values carry explicit unit metadata or a documented dimensionless/TBD classification. |
 | Warning/assumption check | Missing data and unsupported target behavior are explicit findings, not silent defaults. |
 | Boundary check | Output does not claim certification, sealing, approval, authentication, professional acceptance, or code compliance. |
@@ -42,10 +42,10 @@ Define the conservative procedure for producing and validating the generic downs
 
 ## Records
 
-- Exporter implementation path: TBD.
-- Export validation test path: TBD.
-- Invented target fixture path and provenance: TBD.
-- Handoff schema version or source: TBD until upstream contract is available.
-- Target mapping taxonomy/source: TBD until upstream contract is available.
+- Exporter implementation path: `core/handoff/exporter/workflow.py`.
+- Export validation test path: `tests/test_handoff_export_workflow.py`.
+- Invented target fixture path and provenance: `fixtures/invented_target_fixture.json`, validated as invented public metadata.
+- Handoff schema version or source: `schemas/handoff_package.schema.json`.
+- Target mapping taxonomy/source: `schemas/target_mapping.schema.json`.
 - Dependency validation evidence: `Dependencies.csv` schema validation output.
-- Boundary review evidence: TBD.
+- Boundary review evidence: focused protected/private/prohibited-authority term scan and exporter tests.

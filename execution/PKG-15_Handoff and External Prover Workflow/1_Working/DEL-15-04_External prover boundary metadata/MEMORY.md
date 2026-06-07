@@ -7,6 +7,13 @@ created: 2026-05-07
 
 # DEL-15-04 Memory - External Prover Boundary Metadata
 
+## 2026-06-07 - PKG-15 handoff review-readiness hardening
+
+- Materialized `schemas/external_prover_metadata.schema.json` as the public JSON Schema 2020-12 metadata contract matching current `core/handoff/external_prover/` builder output.
+- Hardened `tests/test_external_prover_boundary_metadata.py` to validate generated normal and negative records with `jsonschema.Draft202012Validator`.
+- Updated deliverable-local docs to cite the schema path, current field groups, and test evidence while preserving the non-authoritative metadata-only boundary and attachment-as-reference behavior.
+- Local `Review_Findings.csv` human dispositions and lifecycle `_STATUS.md` were not changed.
+
 Implemented a narrow external-prover boundary metadata module in
 `core/handoff/external_prover/`. The module builds deterministic
 non-authoritative metadata records for invented external workflow names, tags,
@@ -27,8 +34,6 @@ create professional reliance state.
 
 Unresolved TBDs:
 
-- Full Draft 2020-12 JSON Schema materialization remains outside this slice;
-  repository tests currently use stdlib structural checks.
 - Concrete external prover tools, target-specific parsers, lifecycle
   promotion, human acceptance records, certification/compliance decisions, and
   commercial result ingestion remain out of scope.

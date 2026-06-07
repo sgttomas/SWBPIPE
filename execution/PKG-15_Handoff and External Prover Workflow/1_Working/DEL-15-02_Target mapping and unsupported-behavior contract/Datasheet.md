@@ -11,7 +11,7 @@
 | Type | API_CONTRACT |
 | Scope coverage | SOW-074 |
 | Objective support | OBJ-017 |
-| Anticipated artifacts | target mapping schema; unsupported behavior taxonomy |
+| Anticipated artifacts | `schemas/target_mapping.schema.json`; provider-neutral unsupported behavior taxonomy |
 | Source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `Dependencies.csv` |
 
 ## Attributes
@@ -42,11 +42,11 @@
 
 | Artifact | Status | Construction notes |
 |---|---|---|
-| Target mapping schema | TBD | Must be schema-first and compatible with the canonical handoff package, but exact file path, schema name, property names, and target enumeration are not established in the accessible source set. |
-| Unsupported behavior taxonomy | TBD | Must expose unsupported-target and approximate behavior flags without silent loss of assumptions; exact taxonomy values are not established in the accessible source set. |
-| Mapping record identity | ASSUMPTION | A mapping record should be traceable to internal entity IDs because SOW-074 explicitly lists entity IDs and target mapping metadata. Exact field names remain TBD. |
-| Unsupported/approximate behavior record | ASSUMPTION | A record should carry a diagnostic or warning reference because SOW-074 explicitly lists warnings and unsupported-target flags. Exact diagnostic codes remain TBD. |
-| Hash and manifest binding | ASSUMPTION | Mapping metadata should bind to the handoff package's model hash and units manifest because SOW-074 lists those contents. Exact binding mechanism remains TBD. |
+| Target mapping schema | MATERIALIZED | `schemas/target_mapping.schema.json` is the JSON Schema 2020-12 provider-neutral contract matching `core/handoff/target_mapping/contract.py`; exact commercial target enumeration remains TBD. |
+| Unsupported behavior taxonomy | MATERIALIZED PROVIDER-NEUTRAL | `unsupported_behavior_flags`, `approximate_behavior_flags`, `SUPPORTED_BEHAVIOR_STATUSES`, and diagnostics expose unsupported and approximate behavior without silent loss of assumptions; target-specific taxonomy extensions remain TBD. |
+| Mapping record identity | MATERIALIZED | Mapping records are traceable through `source_entity_ref`, `target_field_ref`, `mapping_status`, optional unit metadata, and provenance fields. |
+| Unsupported/approximate behavior record | MATERIALIZED | Behavior flags carry `behavior_kind`, `behavior_status`, severity, description, source/target references, diagnostics, and provenance. |
+| Hash and manifest binding | MATERIALIZED | `source_context` binds mapping metadata to package/model/unit/entity/library/rule references while preserving target/container TBDs. |
 
 ## References
 

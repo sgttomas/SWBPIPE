@@ -30,7 +30,8 @@ Define and check the target mapping and unsupported-behavior contract for handof
    - Include target mapping metadata.
    - Include unsupported-target flags.
    - Include approximate behavior disclosure as an explicit ASSUMPTION from the decomposition wording.
-   - Keep exact target names, schema file paths, property names, and taxonomy values as TBD unless accepted source material resolves them.
+   - Use `schemas/target_mapping.schema.json` and `core/handoff/target_mapping/contract.py` for provider-neutral schema path, property names, and taxonomy values.
+   - Keep exact commercial target names and target-specific taxonomy/strategy values as TBD unless accepted source material resolves them.
 
 4. Map upstream handoff context:
    - Treat the canonical handoff package schema and manifest as a required predecessor.
@@ -54,8 +55,8 @@ Define and check the target mapping and unsupported-behavior contract for handof
    - Target list: TBD.
    - Canonical package container: TBD.
    - Target-specific mapping strategy: TBD.
-   - Exact unsupported behavior taxonomy values: TBD.
-   - Exact schema path and property names: TBD.
+   - Target-specific unsupported behavior taxonomy values: TBD.
+   - Provider-neutral schema path and property names: materialized in `schemas/target_mapping.schema.json`.
 
 ## Verification
 
@@ -67,7 +68,7 @@ Define and check the target mapping and unsupported-behavior contract for handof
 | Privacy/IP boundary | Public artifacts do not copy private/protected payloads. |
 | Professional boundary | No field or procedure creates software-generated approval, certification, sealing, authentication, or code-compliance status. |
 | Dependency mirror preservation | All existing approved DAG-006 rows in `Dependencies.csv` remain ACTIVE and unmodified. |
-| Schema validation | `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes if `Dependencies.csv` exists. |
+| Schema validation | `python3 tests/test_target_mapping_contract.py` validates generated normal and negative contracts against `schemas/target_mapping.schema.json`; `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes if `Dependencies.csv` exists. |
 
 ## Records
 
@@ -79,4 +80,7 @@ Define and check the target mapping and unsupported-behavior contract for handof
 - `_SEMANTIC_LENSING.md`
 - `Dependencies.csv`
 - `_DEPENDENCIES.md`
+- `schemas/target_mapping.schema.json`
+- `core/handoff/target_mapping/contract.py`
+- `tests/test_target_mapping_contract.py`
 - final workflow report from this setup run

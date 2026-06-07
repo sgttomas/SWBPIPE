@@ -1,0 +1,799 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/external_prover_metadata.schema.json",
+  "title": "OpenPipeStress External Prover Metadata Schema",
+  "description": "Strict JSON Schema 2020-12 contract for DEL-15-04 non-authoritative external-prover workflow metadata. The schema validates names, tags, notes, external references, attachments, handoff/export links, assumptions, warnings, unsupported target flags, rejected authority claims, diagnostics, provenance, and professional-boundary controls without invoking external tools, ingesting commercial results, or creating professional reliance records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "metadata_record_id",
+    "metadata_contract_status",
+    "names",
+    "tags",
+    "notes",
+    "external_references",
+    "attachments",
+    "handoff_package_refs",
+    "target_mapping_refs",
+    "export_workflow_refs",
+    "immutable_model_state_refs",
+    "assumptions",
+    "warnings",
+    "unsupported_target_flags",
+    "proposed_authority_claims",
+    "diagnostics",
+    "provenance",
+    "professional_boundary"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-15-04"
+    },
+    "package_id": {
+      "const": "PKG-15"
+    },
+    "scope_item": {
+      "const": "SOW-075"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-017",
+          "OBJ-018"
+        ]
+      },
+      "allOf": [
+        {
+          "contains": {
+            "const": "OBJ-017"
+          }
+        },
+        {
+          "contains": {
+            "const": "OBJ-018"
+          }
+        }
+      ]
+    },
+    "metadata_record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "metadata_contract_status": {
+      "const": "non_authoritative_workflow_metadata"
+    },
+    "names": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/NameRecord"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/NoteRecord"
+      }
+    },
+    "external_references": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ExternalReferenceRecord"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AttachmentRecord"
+      }
+    },
+    "handoff_package_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MetadataLink"
+      }
+    },
+    "target_mapping_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MetadataLink"
+      }
+    },
+    "export_workflow_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MetadataLink"
+      }
+    },
+    "immutable_model_state_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MetadataLink"
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AssumptionRecord"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/WarningRecord"
+      }
+    },
+    "unsupported_target_flags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/UnsupportedTargetFlag"
+      }
+    },
+    "proposed_authority_claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RejectedAuthorityClaim"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    }
+  },
+  "$defs": {
+    "AssumptionRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumption_id",
+        "statement",
+        "affected_refs",
+        "provenance"
+      ],
+      "properties": {
+        "assumption_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "AttachmentRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attachment_id",
+        "attachment_kind",
+        "display_name",
+        "uri_or_path_ref",
+        "content_hash",
+        "privacy_classification",
+        "payload_embedded",
+        "related_refs",
+        "provenance"
+      ],
+      "properties": {
+        "attachment_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attachment_kind": {
+          "type": "string",
+          "enum": [
+            "metadata_note",
+            "external_file_reference",
+            "hash_reference",
+            "review_note",
+            "TBD"
+          ]
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "uri_or_path_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "content_hash": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ChecksumLike"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "privacy_classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload_embedded": {
+          "type": "boolean"
+        },
+        "related_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ChecksumLike": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "payload_scope",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "class",
+        "source",
+        "affected_references",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "EXTERNAL_PROVER_METADATA_BOUNDARY",
+            "UNSUPPORTED_BEHAVIOR_WARNING",
+            "AUTHORITY_BOUNDARY",
+            "PRIVACY_WARNING",
+            "TBD"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ExternalReferenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_id",
+        "reference_kind",
+        "display_name",
+        "external_ref",
+        "hash_refs",
+        "related_refs",
+        "provenance"
+      ],
+      "properties": {
+        "reference_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_kind": {
+          "type": "string",
+          "enum": [
+            "external_reference",
+            "handoff_package",
+            "target_mapping",
+            "export_workflow",
+            "model_state",
+            "attachment",
+            "assumption",
+            "warning",
+            "unsupported_target_flag",
+            "TBD"
+          ]
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "external_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChecksumLike"
+          }
+        },
+        "related_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "MetadataLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "link_id",
+        "reference_kind",
+        "ref",
+        "hash_refs",
+        "relationship",
+        "provenance"
+      ],
+      "properties": {
+        "link_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_kind": {
+          "type": "string",
+          "enum": [
+            "handoff_package",
+            "target_mapping",
+            "export_workflow",
+            "model_state",
+            "external_reference",
+            "TBD"
+          ]
+        },
+        "ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChecksumLike"
+          }
+        },
+        "relationship": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "NameRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name_id",
+        "label",
+        "name_kind",
+        "language",
+        "provenance"
+      ],
+      "properties": {
+        "name_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "name_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "NoteRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "note_id",
+        "note_kind",
+        "text",
+        "related_refs",
+        "provenance"
+      ],
+      "properties": {
+        "note_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "related_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "metadata_only",
+        "external_tool_invoked",
+        "commercial_result_payload_ingested",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim",
+        "software_creates_professional_reliance_record",
+        "software_creates_external_validation_record"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "metadata_only": {
+          "const": true
+        },
+        "external_tool_invoked": {
+          "const": false
+        },
+        "commercial_result_payload_ingested": {
+          "const": false
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        },
+        "software_creates_professional_reliance_record": {
+          "const": false
+        },
+        "software_creates_external_validation_record": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "redistribution_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_attestation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_classification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "privacy_classification": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "contributor_certification"
+          ]
+        },
+        {
+          "required": [
+            "contributor_attestation"
+          ]
+        }
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "review_status"
+          ]
+        },
+        {
+          "required": [
+            "review_classification"
+          ]
+        }
+      ]
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "object_type",
+        "ref"
+      ],
+      "properties": {
+        "object_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "RejectedAuthorityClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "claim_kind",
+        "claim_text",
+        "source_ref",
+        "disposition",
+        "provenance"
+      ],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "claim_kind": {
+          "type": "string"
+        },
+        "claim_text": {
+          "type": "string"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "disposition": {
+          "const": "rejected_boundary_claim"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "UnsupportedTargetFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "flag_id",
+        "behavior_label",
+        "status",
+        "target_ref",
+        "affected_refs",
+        "assumption_refs",
+        "warning_refs",
+        "human_review_required",
+        "provenance"
+      ],
+      "properties": {
+        "flag_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "behavior_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "unsupported",
+            "approximate",
+            "requires_human_review",
+            "not_implemented",
+            "TBD"
+          ]
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "assumption_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "warning_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "human_review_required": {
+          "const": true
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "WarningRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "affected_refs",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "affected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    }
+  }
+}

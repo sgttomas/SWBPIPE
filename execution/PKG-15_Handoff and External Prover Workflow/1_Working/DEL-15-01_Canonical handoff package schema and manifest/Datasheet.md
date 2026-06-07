@@ -11,7 +11,7 @@
 | Scope item | SOW-074 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` |
 | Objective | OBJ-017 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#5-objectives` |
 | Anticipated artifacts | `schemas/handoff_package.schema.json`; handoff manifest schema | `_CONTEXT.md` |
-| Lifecycle input state | OPEN at PREPARATION time | `_STATUS.md` |
+| Lifecycle input state | `IN_PROGRESS` at review-readiness intake | `_STATUS.md` |
 
 ## Attributes
 
@@ -25,7 +25,7 @@
 | Target-specific commercial parsers | Deferred / out of this deliverable | SOW-074 notes; `execution/_Decomposition/SOFTWARE_DECOMP.md#11-open-issues` |
 | Canonical package container | TBD | OI-015 in `execution/_Decomposition/SOFTWARE_DECOMP.md#11-open-issues` |
 | Handoff target list | TBD | OI-015 in `execution/_Decomposition/SOFTWARE_DECOMP.md#11-open-issues` |
-| Exact schema property names and `$id` values | TBD | No accessible source defines them for DEL-15-01 |
+| Schema property names and `$id` values | `$id`: `https://openpipestress.org/schemas/handoff_package.schema.json`; root and nested properties are materialized in `schemas/handoff_package.schema.json` | DEL-15-01 implementation evidence |
 
 ## Conditions
 
@@ -39,19 +39,19 @@
 
 ## Construction
 
-The deliverable is a contract-definition unit, not an implementation artifact in this setup pass. Construction evidence currently supports the following schema/manifest slots:
+The deliverable is a contract-definition unit with a materialized JSON Schema and invented validation fixture. Construction evidence currently supports the following schema/manifest slots:
 
 | Slot | Required treatment | Source |
 |---|---|---|
-| Package identity | Include stable package/manifest identity and schema version fields. Exact names TBD. | SOW-074; JSON Schema 2020-12 baseline |
-| Model hash | Represent hash metadata for the model basis. Exact algorithm field names TBD. | SOW-074; AB-00-04 hash basis |
-| Units manifest | Represent explicit units and dimensional intent. Exact unit schema reference TBD. | SOW-074; `docs/SPEC.md#4-unit-system-and-dimensional-analysis` |
-| Entity IDs | Preserve stable model/entity identifiers used by downstream mapping. Exact ID vocabulary TBD. | SOW-074; `docs/TYPES.md#2-stable-identifiers` |
-| Library/rule references | Reference libraries and rule packs by identity/checksum/provenance without copying protected/private payloads. Exact reference schema TBD. | SOW-074; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/SPEC.md#9-reporting-and-audit` |
-| Warnings and unresolved assumptions | Carry structured warnings and assumptions as review evidence. Exact warning schema reference TBD. | SOW-074; `docs/SPEC.md#8-gui-requirements`; `docs/SPEC.md#9-reporting-and-audit` |
+| Package identity | Include stable package identity, schema version, deliverable/package/scope/objective identifiers, and review state fields. | SOW-074; `schemas/handoff_package.schema.json` |
+| Model hash | Represent model basis through the required `model_hash` checksum object, including algorithm, value, canonicalization, and provenance. | SOW-074; AB-00-04 hash basis; `schemas/handoff_package.schema.json` |
+| Units manifest | Represent explicit units through the required `units_manifest` object, including unit system, dimensional basis, entries, diagnostics, and provenance. | SOW-074; `docs/SPEC.md#4-unit-system-and-dimensional-analysis`; `schemas/handoff_package.schema.json` |
+| Entity IDs | Preserve stable model/entity identifiers through required `entity_ids` records with `entity_id`, `entity_kind`, `source_ref`, and optional mapping keys. | SOW-074; `docs/TYPES.md#2-stable-identifiers`; `schemas/handoff_package.schema.json` |
+| Library/rule references | Reference libraries and rule packs through `library_refs` and `rule_pack_refs` identity/checksum/provenance records without copying protected/private payloads. | SOW-074; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/SPEC.md#9-reporting-and-audit`; `schemas/handoff_package.schema.json` |
+| Warnings and unresolved assumptions | Carry structured `warnings`, `unresolved_assumptions`, and `diagnostics` as review evidence with source/provenance fields. | SOW-074; `docs/SPEC.md#8-gui-requirements`; `docs/SPEC.md#9-reporting-and-audit`; `schemas/handoff_package.schema.json` |
 | Target mapping metadata | Reserve a manifest surface for mapping to downstream target fields. Detailed target mapping contract is DEL-15-02. | SOW-074; DEL-15-02 row in decomposition |
 | Unsupported-target flags | Reserve explicit unsupported/approximate target behavior flags. Detailed target contract is DEL-15-02. | SOW-074; OI-015 |
-| Provenance | Preserve source/provenance for reliance-affecting data. Exact provenance object reference TBD. | `docs/DIRECTIVE.md#22-epistemology--what-is-warranted`; `docs/CONTRACT.md#1-invariant-index` |
+| Provenance | Preserve source/provenance for reliance-affecting data through the schema's required `provenance` object and nested reference provenance records. | `docs/DIRECTIVE.md#22-epistemology--what-is-warranted`; `docs/CONTRACT.md#1-invariant-index`; `schemas/handoff_package.schema.json` |
 
 ## References
 

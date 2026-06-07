@@ -35,18 +35,18 @@
 | Exact dependency versions and package-specific implementation choices | TBD per `_CONTEXT.md#Architecture Basis Injection`. |
 | Target-specific commercial stress output parsers | Deferred per `_CONTEXT.md#Context Envelope` and `SOFTWARE_DECOMP.md#SOW-074`. |
 | Professional approval, certification, sealing, or code-compliance claims | Excluded by `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4. |
-| Unit handling | Exports must remain unit-aware; exact units manifest schema is owned by upstream handoff schema work and remains TBD here. |
+| Unit handling | Exports must remain unit-aware and validate against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`; target-specific unit export strategy remains TBD under OI-015. |
 | Private/protected data | Must be excluded unless intentionally supplied with documented rights through a governed path. |
 
 ## Construction
 
 | Construct | Datasheet value |
 |---|---|
-| Primary input contracts | ACTIVE upstream rows in local `Dependencies.csv`, including architecture-basis rows and interop/handoff/security/model-comparison predecessors. |
-| Primary output | Generic handoff exporter capable of producing a schema-compliant handoff package. |
-| Validation evidence | Export validation tests and an invented target fixture. Exact test locations and commands are TBD until implementation begins. |
+| Primary input contracts | ACTIVE upstream rows in local `Dependencies.csv`, plus `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
+| Primary output | Generic handoff exporter at `core/handoff/exporter/workflow.py` capable of producing a schema-compliant handoff package and provider-neutral target mapping record. |
+| Validation evidence | `tests/test_handoff_export_workflow.py` validates exported handoff/mapping inputs against schema contracts and checks `fixtures/invented_target_fixture.json` provenance. |
 | Unsupported target behavior | Must surface unsupported-target flags and warnings; taxonomy and target mapping records are provided by upstream contract work. |
-| Hash handling | Package/model hash behavior must align with the JCS-compatible hash basis when JSON payloads are hashed; exact implementation fields are TBD. |
+| Hash handling | Package/model hash behavior aligns with the JCS-compatible hash basis through schema-validated checksum/reference fields; package container and target-specific hash packaging remain TBD. |
 | Fixture data | Invented target fixture only; no protected commercial-tool examples or proprietary data. |
 
 ## References

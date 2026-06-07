@@ -12,7 +12,7 @@ This deliverable excludes target-specific commercial parser implementation, auto
 |---|---|---|---|
 | DEL-15-02-R001 | The contract shall support target mapping metadata for handoff exports. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` DEL-15-02 | Schema review confirms a target mapping metadata surface exists. |
 | DEL-15-02-R002 | The contract shall support unsupported-target flags. | `_CONTEXT.md` Scope Detail; `docs/_Registers/ScopeLedger.csv` SOW-074 | Schema review confirms unsupported-target flags are representable. |
-| DEL-15-02-R003 | The contract shall support approximate behavior disclosure when target behavior cannot be represented exactly. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-02 row | Schema review confirms approximate behavior can be explicitly represented; exact taxonomy values are TBD. |
+| DEL-15-02-R003 | The contract shall support approximate behavior disclosure when target behavior cannot be represented exactly. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-02 row | `schemas/target_mapping.schema.json` and `SUPPORTED_BEHAVIOR_STATUSES` cover provider-neutral explicit statuses; target-specific taxonomy values remain TBD. |
 | DEL-15-02-R004 | The contract shall preserve unresolved assumptions and warnings in the handoff context. | `_CONTEXT.md` Scope Detail; `docs/_Registers/ScopeLedger.csv` SOW-074 | Contract review traces mapping or unsupported records to warnings and unresolved assumptions where applicable. |
 | DEL-15-02-R005 | The contract shall preserve unit awareness and dimensional-check boundaries for exported values. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/DIRECTIVE.md` Principles | Schema or validation plan includes unit/dimension metadata or diagnostics for unit-bearing mapped values. |
 | DEL-15-02-R006 | The contract shall preserve source, provenance, redistribution/private-public status, and review status for reliance-affecting references where present. | `docs/CONTRACT.md` OPS-K-IP-2; `docs/CONTRACT.md` OPS-K-DATA-3; `docs/TYPES.md` Provenance | Contract review confirms provenance fields or references are available; private payload copying remains prohibited. |
@@ -27,8 +27,8 @@ This deliverable excludes target-specific commercial parser implementation, auto
 
 | Standard or governing basis | Applicability | Status |
 |---|---|---|
-| JSON Schema 2020-12 | The architecture basis identifies JSON Schema 2020-12 contracts for schema-first boundaries. | Applicable; exact schema file path TBD. |
-| Canonical JSON / JCS-compatible hash basis | The architecture basis identifies canonical JSON/JCS-compatible hashing where JSON payloads are hashed. | Applicable to hashed JSON payloads; exact binding fields TBD. |
+| JSON Schema 2020-12 | The architecture basis identifies JSON Schema 2020-12 contracts for schema-first boundaries. | Applicable; schema file path is `schemas/target_mapping.schema.json`. |
+| Canonical JSON / JCS-compatible hash basis | The architecture basis identifies canonical JSON/JCS-compatible hashing where JSON payloads are hashed. | Applicable to hashed JSON payloads; provider-neutral binding fields are in `source_context`, while package container remains TBD. |
 | OpenPipeStress invariant catalog | Governs unit, provenance, data, professional-boundary, report, and privacy constraints. | Applicable via `docs/CONTRACT.md`. |
 | Protected data boundary policy | Governs public/private data handling, protected content, and public export defaults. | Applicable via `docs/IP_AND_DATA_BOUNDARY.md`. |
 | External commercial tool standards | Not established in accessible source material. | TBD; do not infer target-specific clauses or behavior. |
@@ -37,12 +37,12 @@ This deliverable excludes target-specific commercial parser implementation, auto
 
 | Verification ID | Approach | Covers |
 |---|---|---|
-| V-001 | Schema inspection against `DEL-15-02-R001` through `DEL-15-02-R004`. | Target mapping metadata, unsupported-target flags, approximate behavior, warnings, assumptions. |
+| V-001 | Schema inspection plus `python3 tests/test_target_mapping_contract.py` against `DEL-15-02-R001` through `DEL-15-02-R004`. | Target mapping metadata, unsupported-target flags, approximate behavior, warnings, assumptions. |
 | V-002 | Boundary vocabulary review. | No professional approval/status overclaim; no code-compliance claim. |
 | V-003 | Protected-content and privacy review. | No private or protected data copied into public artifacts. |
 | V-004 | Unit/provenance validation plan review. | Unit awareness, dimensional metadata, source/provenance. |
 | V-005 | Dependency mirror check. | Approved DAG-002 predecessor evidence remains ACTIVE and unmodified. |
-| V-006 | TBD review gate. | Exact target list, field names, file paths, and taxonomy values remain TBD unless supported by accepted source material. |
+| V-006 | TBD review gate. | Exact commercial target list, canonical package container, target-specific mapping strategy, and target-specific taxonomy values remain TBD unless supported by accepted source material. |
 
 ## Documentation
 
@@ -52,6 +52,7 @@ Required deliverable documentation artifacts:
 - `Specification.md`
 - `Guidance.md`
 - `Procedure.md`
-- target mapping schema (TBD path)
-- unsupported behavior taxonomy (TBD path)
-- validation evidence for schema, protected-content boundary, and professional-boundary wording (TBD)
+- `schemas/target_mapping.schema.json`
+- `core/handoff/target_mapping/contract.py`
+- `tests/test_target_mapping_contract.py`
+- validation evidence for schema, protected-content boundary, and professional-boundary wording

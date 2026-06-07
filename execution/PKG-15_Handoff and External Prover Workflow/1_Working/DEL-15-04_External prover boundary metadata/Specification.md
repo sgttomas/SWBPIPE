@@ -10,7 +10,7 @@ This deliverable excludes hard-coded professional approval, certification, code-
 
 | ID | Requirement | Source | Verification |
 |---|---|---|---|
-| DEL-15-04-R1 | The data model shall support external-prover workflow metadata. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `_CONTEXT.md` | Boundary validation tests confirm the metadata surface exists. |
+| DEL-15-04-R1 | The data model shall support external-prover workflow metadata. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `_CONTEXT.md` | `tests/test_external_prover_boundary_metadata.py` confirms the metadata surface exists and validates records against `schemas/external_prover_metadata.schema.json`. |
 | DEL-15-04-R2 | The metadata surface shall support flexible names, tags, notes, external references, and attachments. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; SOW-075 note | Schema/review tests check that these categories are representable without requiring a fixed prover lifecycle. |
 | DEL-15-04-R3 | The metadata model shall not force a formal prover-status lifecycle. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 | Negative tests reject or flag hard-coded lifecycle authority when represented as automatic software status. |
 | DEL-15-04-R4 | The metadata model shall not create automatic professional acceptance records. | SOW-075; `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 | Tests verify software-generated metadata cannot assert human acceptance. |
@@ -19,7 +19,7 @@ This deliverable excludes hard-coded professional approval, certification, code-
 | DEL-15-04-R7 | Any external human acceptance reference, if later represented, shall be external, human-actor-owned, and bound to reviewed payload hashes. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 and analysis-status boundary | Tests require external/hash-bound representation and prevent content-change survival without re-review. |
 | DEL-15-04-R8 | Public fixtures, examples, report snippets, and metadata examples shall not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, real secrets, or unauthorized commercial software examples. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections | Protected-content/private-data review or lint evidence is required for public examples. |
 | DEL-15-04-R9 | Metadata records that become public data contributions shall carry source, provenance, license/redistribution status, contributor certification, and review disposition where applicable. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/CONTRACT.md` OPS-K-IP-2 | Schema/review checks confirm required provenance slots or explicit `TBD`. |
-| DEL-15-04-R10 | The deliverable shall align with the accepted architecture basis: schema-first contracts, JSON Schema 2020-12 where applicable, canonical hash basis where JSON payloads are hashed, and result/diagnostic envelope boundaries where relevant. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 | Review confirms no incompatible schema/API/hash assumptions are introduced. |
+| DEL-15-04-R10 | The deliverable shall align with the accepted architecture basis: schema-first contracts, JSON Schema 2020-12 where applicable, canonical hash basis where JSON payloads are hashed, and result/diagnostic envelope boundaries where relevant. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 | Draft 2020-12 schema validation and focused tests confirm no incompatible schema/API/hash assumptions are introduced. |
 
 ## Standards
 
@@ -35,7 +35,7 @@ This deliverable excludes hard-coded professional approval, certification, code-
 
 | Verification Target | Required Evidence |
 |---|---|
-| Required metadata categories are representable | Boundary validation tests or schema review evidence for names, tags, notes, external references, attachments, and relevant handoff/comparison links |
+| Required metadata categories are representable | `python3 tests/test_external_prover_boundary_metadata.py` plus schema review evidence for names, tags, notes, external references, attachments, and relevant handoff/comparison links |
 | Prohibited automatic statuses are blocked | Negative tests for approval, certification, code-compliance, sealing, authentication, professional approval, and formal prover lifecycle labels |
 | Human acceptance remains external and hash-bound | Tests or review evidence showing software metadata cannot create professional acceptance and cannot preserve acceptance across bound-hash changes |
 | Protected/private data is not introduced | Protected-content/private-data review evidence for any fixtures, examples, or sample external references |
@@ -43,9 +43,11 @@ This deliverable excludes hard-coded professional approval, certification, code-
 
 ## Documentation
 
-Expected artifacts from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`:
+Implemented artifacts from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`:
 
-- external reference fields;
-- boundary validation tests.
+- `schemas/external_prover_metadata.schema.json`;
+- `core/handoff/external_prover/metadata.py`;
+- `core/handoff/external_prover/authority_boundary.py`;
+- `tests/test_external_prover_boundary_metadata.py`.
 
-The exact schema filename, field names, validation implementation, fixtures, and test harness remain `TBD` until a later implementation task defines them under explicit write scope.
+Concrete external prover tools, target-specific parsers, lifecycle promotion, human acceptance records, certification/compliance decisions, and commercial result ingestion remain out of scope.

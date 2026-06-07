@@ -4,13 +4,17 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 from pathlib import Path
 import sys
+
+from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+SCHEMA_PATH = ROOT / "schemas" / "external_prover_metadata.schema.json"
 
 from core.handoff.external_prover import (  # noqa: E402
     build_external_prover_metadata,
@@ -32,6 +36,19 @@ FORBIDDEN_OUTPUT_PHRASES = {
 
 def ref(object_type: str, value: str) -> dict[str, str]:
     return {"object_type": object_type, "ref": value}
+
+
+def load_schema() -> dict[str, object]:
+    with SCHEMA_PATH.open(encoding="utf-8") as schema_file:
+        return json.load(schema_file)
+
+
+def validate_record(record: dict[str, object]) -> None:
+    schema = load_schema()
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(record), key=lambda item: item.path)
+    assert not errors, [error.message for error in errors]
 
 
 def provenance(source_name: str = "Invented DEL-15-04 fixture") -> dict[str, str]:
@@ -177,6 +194,7 @@ def test_metadata_is_deterministic_and_preserves_boundary_links():
     assert first["immutable_model_state_refs"][0]["ref"]["ref"] == "state:invented-del-15-04"
     assert first["unsupported_target_flags"][0]["human_review_required"] is True
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+    validate_record(first)
 
 
 def test_proposed_authority_and_lifecycle_claims_are_blocking_diagnostics():
@@ -197,6 +215,7 @@ def test_proposed_authority_and_lifecycle_claims_are_blocking_diagnostics():
     assert "EPM-PROHIBITED-AUTHORITY-TERM" in codes
     assert any(item["severity"] == "blocking" for item in record["diagnostics"])
     assert record["proposed_authority_claims"][0]["disposition"] == "rejected_boundary_claim"
+    validate_record(record)
 
 
 def test_embedded_attachment_payload_is_blocked():
@@ -209,6 +228,7 @@ def test_embedded_attachment_payload_is_blocked():
     codes = {item["code"] for item in record["diagnostics"]}
     assert "EPM-ATTACHMENT-PAYLOAD-EMBEDDED" in codes
     assert any(item["severity"] == "blocking" for item in record["diagnostics"])
+    validate_record(record)
 
 
 def test_boundary_flags_cannot_be_flipped_to_software_authority():
@@ -245,6 +265,7 @@ def test_notes_and_tags_authority_wording_are_blocking_diagnostics():
     assert "EPM-PROHIBITED-AUTHORITY-TERM" in codes
     assert {"tags", "notes"} <= affected
     assert any(item["severity"] == "blocking" for item in record["diagnostics"])
+    validate_record(record)
 
 
 def test_output_boundary_language_does_not_make_prohibited_claims():
