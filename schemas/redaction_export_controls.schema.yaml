@@ -164,7 +164,9 @@
               "redistribution_status",
               "provenance",
               "review_status",
-              "user_intent"
+              "user_intent",
+              "local_private_intent",
+              "storage_privacy_metadata"
             ]
           }
         },
@@ -492,7 +494,13 @@
         "PROTECTED_CONTENT_BLOCKED",
         "MISSING_METADATA_REDACTED",
         "LOCAL_PRIVATE_INTENT_REQUIRED",
-        "PROFESSIONAL_BOUNDARY_BLOCKED"
+        "PROFESSIONAL_BOUNDARY_BLOCKED",
+        "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "SECRET_MATERIAL_BLOCKED",
+        "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+        "DIRECT_SQL_ACCESS_BLOCKED",
+        "STORAGE_BYPASS_BLOCKED",
+        "CONCRETE_PATH_REDACTED"
       ]
     },
     "FindingClass": {
@@ -502,6 +510,7 @@
         "PRIVATE_DATA_WARNING",
         "PROVENANCE_WARNING",
         "PROFESSIONAL_BOUNDARY_WARNING",
+        "STORAGE_BOUNDARY_WARNING",
         "SAFE_METADATA"
       ]
     },

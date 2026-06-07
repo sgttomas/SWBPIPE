@@ -41,6 +41,15 @@ A value-bearing export field should carry:
 - `review_status`;
 - `provenance` where the source is not self-evident public metadata.
 
+The control also consumes explicit storage/privacy indicators when present:
+`contains_payload`, `payload_present`, `secret_material_present`,
+`direct_sql_access`, storage-bypass flags, `cloud_or_network_reference`,
+`concrete_path_present`, symbolic path/locality metadata, and local/private
+intent metadata. These indicators are treated as metadata gates only. They do
+not authorize payload storage, direct SQLite access, raw SQL access, network or
+cloud behavior, concrete user-path disclosure, secret handling, or source-data
+mutation.
+
 Absent, unknown, `TBD`, pending, rejected, or quarantined metadata does not
 silently pass into public/shared exports. It produces warning, redaction, or
 blocking behavior.
@@ -90,12 +99,18 @@ marks them public or invented public examples.
 Findings are machine-readable and include a reason code, finding class,
 severity, affected path, action, message, and remediation. The expected finding
 classes include `IP_BOUNDARY_WARNING`, `PRIVATE_DATA_WARNING`,
-`PROVENANCE_WARNING`, and `PROFESSIONAL_BOUNDARY_WARNING`.
+`PROVENANCE_WARNING`, `STORAGE_BOUNDARY_WARNING`, and
+`PROFESSIONAL_BOUNDARY_WARNING`.
 
 Unknown provenance, unknown redistribution status, missing metadata, rejected
 review status, quarantined review status, suspected protected content, and
 professional-boundary claims are explicit findings. A clean redaction run is
 review evidence only, not a legal or professional clearance.
+
+Storage/privacy hardening adds blocking findings for payload material, explicit
+secret-material flags, cloud or network references, direct SQL or raw SQLite
+access, and storage-bypass metadata. Concrete path indicators are reduced to a
+redacted representation so concrete user paths are not emitted.
 
 ## Source Data
 
@@ -112,6 +127,10 @@ DEL-12-02 should be checked for:
 - redaction of private project, material, component, rule-pack, owner-standard,
   company design-basis, path, and secret-like values in public/shared exports;
 - warnings or redaction for missing provenance and unknown redistribution;
+- blocking or redaction for payload material, secret-material flags,
+  cloud/network references, direct SQL/raw SQLite access, storage bypass
+  markers, and concrete path indicators;
 - explicit local/private intent before retaining private values;
 - no cloud transmission, secret handling, source mutation, protected standards
-  content, non-invented private payloads, or professional-authority assertions.
+  content, non-invented private payloads, concrete user paths, direct
+  SQL/storage bypass, or professional-authority assertions.

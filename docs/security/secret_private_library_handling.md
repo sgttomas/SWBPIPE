@@ -55,7 +55,18 @@ All release contexts block:
 - secret-like material embedded in a reference record;
 - private-library payload data embedded in a reference record;
 - private path payload data embedded in a reference record;
+- generic payload markers, including `contains_payload` and `payload_present`;
+- cloud or network references;
+- external secret-manager assumptions;
+- direct SQL, raw SQLite, table-handle, or connection-string markers;
+- storage-bypass markers that would skip application-service, provenance,
+  redaction, or local-first storage controls;
 - rejected, quarantined, or suspected protected source disposition.
+
+Concrete path indicators are reduced to safe metadata and must not emit direct
+paths in guard manifests or diagnostics. Public, shared-model, and
+downstream-tool contexts additionally block private data whose redistribution
+status remains unknown or `TBD`.
 
 Public and shared release contexts also block private data with unresolved
 redistribution status or unresolved privacy classification. Local/private use
@@ -68,6 +79,8 @@ This control does not:
 
 - select operating-system storage roots;
 - integrate an external secret manager;
+- authorize direct SQL, raw SQLite access, hosted databases, cloud sync, or
+  storage bypasses;
 - finalize encryption or key-management policy;
 - move quarantine material;
 - transmit data to a cloud service;
@@ -89,6 +102,10 @@ DEL-12-04 implementation changes should be checked for:
 - blocking diagnostics for public fixture/export attempts that contain
   secret-like values, private path payloads, private-library payloads, or
   unknown-redistribution private data;
+- blocking diagnostics for payload markers, cloud/network markers, external
+  secret-manager markers, direct SQL/raw SQLite markers, and storage-bypass
+  markers;
+- safe metadata reduction for concrete path indicators;
 - absence of usable credential material, private payloads, protected standards
   content, cloud behavior, external secret-manager behavior, or professional
   authority assertions.

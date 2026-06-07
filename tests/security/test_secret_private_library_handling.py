@@ -155,6 +155,114 @@ def test_public_fixture_rejects_private_payloads_secret_values_and_unknown_right
     assert "FAKE_USER_PRIVATE_LIBRARY_ROOT/invented.ops" not in serialized
 
 
+def test_public_shared_downstream_release_blocks_storage_boundary_markers():
+    unsafe_records = [
+        {
+            "record_kind": "public_metadata",
+            "reference_id": "invented.payload.marker",
+            "label": "Invented payload marker",
+            "storage_locality": "PUBLIC_REPOSITORY_CONTENT",
+            "privacy_classification": "public_metadata",
+            "redistribution_status": "public_permissive",
+            "review_status": "accepted",
+            "source_state": "invented_public",
+            "payload_present": True,
+            "raw_value": "SYNTHETIC_PAYLOAD_SHOULD_NOT_SURVIVE",
+        },
+        {
+            "record_kind": "private_path_reference",
+            "reference_id": "invented.concrete.path",
+            "label": "Invented concrete path marker",
+            "privacy_classification": "path_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_state": "private_user_supplied",
+            "absolute_path": "/tmp/open-pipe-stress/invented-private-library.ops",
+            "concrete_path_present": True,
+        },
+        {
+            "record_kind": "private_library_reference",
+            "reference_id": "invented.cloud.marker",
+            "label": "Invented cloud marker",
+            "privacy_classification": "private_library_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_state": "private_user_supplied",
+            "cloud_or_network_reference": True,
+            "cloud_url": "https://example.invalid/invented-private-library",
+        },
+        {
+            "record_kind": "private_rule_pack",
+            "reference_id": "invented.sql.marker",
+            "label": "Invented SQL marker",
+            "privacy_classification": "private_rule_pack_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_state": "private_user_supplied",
+            "direct_sql_access": True,
+            "sql": "SELECT invented_secret FROM private_rule_pack",
+        },
+        {
+            "record_kind": "private_component_library",
+            "reference_id": "invented.bypass.marker",
+            "label": "Invented storage bypass marker",
+            "privacy_classification": "private_component_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_state": "private_user_supplied",
+            "storage_bypass_requested": True,
+        },
+        {
+            "record_kind": "secret_field_reference",
+            "reference_id": "invented.external.secret.manager",
+            "label": "Invented external secret manager marker",
+            "privacy_classification": "secret_like_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "source_state": "credential_reference",
+            "external_secret_manager_reference": True,
+            "secret_manager": "invented external vault",
+        },
+    ]
+
+    for context in ("public_report", "shared_model", "downstream_tool"):
+        result = guard_reference_release(unsafe_records, release_context=context)
+        serialized = json.dumps(result.as_schema_dict(), sort_keys=True)
+
+        assert result.blocked is True
+        assert "REFERENCE_PAYLOAD_METADATA_ONLY_REQUIRED" in decision_codes(result)
+        assert "CLOUD_OR_NETWORK_REFERENCE_BLOCKED" in decision_codes(result)
+        assert "DIRECT_SQL_ACCESS_BLOCKED" in decision_codes(result)
+        assert "STORAGE_BYPASS_BLOCKED" in decision_codes(result)
+        assert "EXTERNAL_SECRET_MANAGER_BLOCKED" in decision_codes(result)
+        assert "CONCRETE_PATH_REDUCED_TO_SAFE_METADATA" in diagnostic_codes(result)
+        assert "SYNTHETIC_PAYLOAD_SHOULD_NOT_SURVIVE" not in serialized
+        assert "/tmp/open-pipe-stress/invented-private-library.ops" not in serialized
+        assert "https://example.invalid/invented-private-library" not in serialized
+        assert "SELECT invented_secret FROM private_rule_pack" not in serialized
+        assert "invented external vault" not in serialized
+        assert result.summary()["cloud_or_network_block_count"] == 1
+        assert result.summary()["direct_sql_block_count"] == 1
+        assert result.summary()["storage_bypass_block_count"] == 1
+        assert result.summary()["concrete_paths_emitted"] is False
+
+
+def test_concrete_private_path_helper_withholds_path_detail():
+    record = private_path_reference(
+        reference_id="invented.direct.path.helper",
+        path_class="/tmp/open-pipe-stress/direct-private-library.ops",
+        label="Invented direct path helper",
+        source_note="invented direct path descriptor only",
+    )
+    result = guard_reference_release([record], release_context="public_report")
+    serialized = json.dumps(result.as_schema_dict(), sort_keys=True)
+
+    assert result.safe_manifest[0]["value_descriptor"] == "concrete path detail withheld"
+    assert result.safe_manifest[0]["concrete_path_present"] is True
+    assert "CONCRETE_PATH_REDUCED_TO_SAFE_METADATA" in diagnostic_codes(result)
+    assert "/tmp/open-pipe-stress/direct-private-library.ops" not in serialized
+
+
 def test_local_private_intent_required_and_payloads_remain_blocked():
     private_ref = invented_private_library()
     blocked = guard_reference_release(
@@ -240,6 +348,8 @@ if __name__ == "__main__":
     test_private_library_classification_is_deterministic_and_metadata_only()
     test_public_report_keeps_private_reference_metadata_with_warning_only()
     test_public_fixture_rejects_private_payloads_secret_values_and_unknown_rights()
+    test_public_shared_downstream_release_blocks_storage_boundary_markers()
+    test_concrete_private_path_helper_withholds_path_detail()
     test_local_private_intent_required_and_payloads_remain_blocked()
     test_credential_placeholder_uses_fake_key_id_and_descriptor_only()
     test_documentation_and_memory_record_scope_boundaries()

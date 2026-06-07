@@ -89,3 +89,11 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TP-PKG12 Secret/private-library alignment TASK B
+
+- Aligned `core/security/secret_private_library/controls.py` with the updated local-first storage and redaction/export marker set while preserving metadata-only behavior and existing public helper names.
+- Added guard handling for generic payload markers, cloud/network references, external secret-manager markers, direct SQL/raw SQLite markers, storage-bypass markers, and concrete path indicators.
+- Public report, shared-model, downstream-tool, and public-fixture contexts keep payload values, secret material, direct/concrete paths, cloud/network references, SQL/storage-bypass detail, external secret-manager assumptions, and unknown-redistribution private data out of serialized guard results.
+- Concrete path indicators are reduced to safe metadata; no file reads, runtime secret storage, encryption/key-management finalization, cloud/network behavior, direct SQL access, legal clearance, security certification, or professional/code-compliance claims were introduced.
+- Focused tests use invented fixtures only.

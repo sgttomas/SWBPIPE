@@ -79,6 +79,51 @@ SECRET_MATERIAL_KEYS = {
     "api_key",
     "access_key",
     "authorization_header",
+    "private_key",
+    "license_key",
+    "certificate",
+}
+CONCRETE_PATH_DETAIL_KEYS = {
+    "path",
+    "file_path",
+    "absolute_path",
+    "local_path",
+    "repository_path",
+    "db_path",
+    "sqlite_path",
+    "concrete_path",
+    "uri",
+}
+CLOUD_NETWORK_DETAIL_KEYS = {
+    "cloud_url",
+    "remote_url",
+    "network_location",
+    "cloud_bucket",
+    "cloud_sync_target",
+    "hosted_database",
+}
+DIRECT_SQL_DETAIL_KEYS = {
+    "sql",
+    "query",
+    "table",
+    "table_name",
+    "sqlite_handle",
+    "raw_sqlite_handle",
+    "connection_string",
+}
+STORAGE_BYPASS_KEYS = {
+    "storage_bypass",
+    "storage_bypass_requested",
+    "direct_storage_bypass",
+    "application_service_bypass",
+}
+EXTERNAL_SECRET_MANAGER_KEYS = {
+    "external_secret_manager",
+    "external_secret_manager_reference",
+    "secret_manager",
+    "secret_manager_reference",
+    "key_vault",
+    "cloud_secret_manager",
 }
 SECRET_NAME_MARKERS = (
     "secret",
@@ -88,7 +133,23 @@ SECRET_NAME_MARKERS = (
     "api_key",
     "access_key",
     "authorization",
+    "private_key",
 )
+SYMBOLIC_REFERENCE_LOCALITIES = {
+    "PUBLIC_REPOSITORY_CONTENT",
+    "PUBLIC_EXAMPLE_CONTENT",
+    "USER_CHOSEN_PROJECT_PACKAGE",
+    "USER_PRIVATE_LIBRARY_ROOT",
+    "USER_PRIVATE_RULE_PACK_ROOT",
+    "USER_REPORT_OUTPUT_ROOT",
+    "USER_DIAGNOSTIC_BUNDLE_ROOT",
+    "USER_IMPORT_STAGING_ROOT",
+    "USER_EXPORT_STAGING_ROOT",
+    "LOCAL_CACHE_ROOT",
+    "USER_SECRET_REFERENCE",
+    "local_private",
+    "unknown",
+}
 
 
 @dataclass(frozen=True)
@@ -119,26 +180,45 @@ class ReferenceRecord:
     value_descriptor: str = "metadata_reference_only"
     contains_payload: bool = False
     secret_material_present: bool = False
+    concrete_path_present: bool = False
+    cloud_or_network_reference: bool = False
+    external_secret_manager_reference: bool = False
+    direct_sql_access: bool = False
+    storage_bypass_requested: bool = False
     unresolved_tbd: tuple[str, ...] = field(default_factory=tuple)
 
     def metadata_dict(self) -> dict[str, Any]:
         """Return the metadata-only view used by guard manifests."""
 
+        storage_locality = self.storage_locality
+        source_note = self.source_note
+        value_descriptor = self.value_descriptor
+        if self.concrete_path_present:
+            if storage_locality not in SYMBOLIC_REFERENCE_LOCALITIES:
+                storage_locality = "concrete_path_detail_withheld"
+            source_note = _withhold_if_concrete_path(source_note)
+            value_descriptor = _withhold_if_concrete_path(value_descriptor)
+
         return {
             "reference_id": self.reference_id,
             "record_kind": self.record_kind,
             "label": self.label,
-            "storage_locality": self.storage_locality,
+            "storage_locality": storage_locality,
             "privacy_classification": self.privacy_classification,
             "redistribution_status": self.redistribution_status,
             "review_status": self.review_status,
             "source_state": self.source_state,
-            "source_note": self.source_note,
+            "source_note": source_note,
             "checksum": self.checksum,
             "checksum_status": self.checksum_status,
-            "value_descriptor": self.value_descriptor,
+            "value_descriptor": value_descriptor,
             "contains_payload": self.contains_payload,
             "secret_material_present": self.secret_material_present,
+            "concrete_path_present": self.concrete_path_present,
+            "cloud_or_network_reference": self.cloud_or_network_reference,
+            "external_secret_manager_reference": self.external_secret_manager_reference,
+            "direct_sql_access": self.direct_sql_access,
+            "storage_bypass_requested": self.storage_bypass_requested,
             "unresolved_tbd": list(self.unresolved_tbd),
         }
 
@@ -208,6 +288,22 @@ class GuardResult:
                 1 for diagnostic in self.diagnostics if diagnostic.severity == "WARNING"
             ),
             "metadata_only": all(decision.metadata_only for decision in self.decisions),
+            "cloud_or_network_block_count": sum(
+                1
+                for decision in self.decisions
+                if decision.reason_code == "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"
+            ),
+            "direct_sql_block_count": sum(
+                1
+                for decision in self.decisions
+                if decision.reason_code == "DIRECT_SQL_ACCESS_BLOCKED"
+            ),
+            "storage_bypass_block_count": sum(
+                1
+                for decision in self.decisions
+                if decision.reason_code == "STORAGE_BYPASS_BLOCKED"
+            ),
+            "concrete_paths_emitted": False,
             "cloud_transmission_attempted": False,
             "external_secret_manager_used": False,
             "encryption_or_key_management_finalized": False,
@@ -284,6 +380,12 @@ def private_path_reference(
 ) -> ReferenceRecord:
     """Build a symbolic private-path reference record."""
 
+    concrete_path_present = _looks_concrete_path(path_class)
+    value_descriptor = (
+        "concrete path detail withheld"
+        if concrete_path_present
+        else f"symbolic path class only: {path_class}"
+    )
     unresolved = _unresolved_items(
         source_note=source_note,
         redistribution_status=redistribution_status,
@@ -301,8 +403,9 @@ def private_path_reference(
         source_note=source_note,
         checksum=None,
         checksum_status="not_applicable",
-        value_descriptor=f"symbolic path class only: {path_class}",
+        value_descriptor=value_descriptor,
         contains_payload=contains_payload,
+        concrete_path_present=concrete_path_present,
         unresolved_tbd=unresolved,
     )
 
@@ -444,14 +547,53 @@ def _normalize_reference(reference: ReferenceRecord | Mapping[str, Any]) -> Refe
 
     payload_keys_present = bool(PAYLOAD_KEYS & set(key_map))
     secret_keys_present = bool(SECRET_MATERIAL_KEYS & set(key_map))
-    contains_payload = bool(key_map.get("contains_payload", False)) or payload_keys_present
+    concrete_path_present = bool(key_map.get("concrete_path_present", False)) or any(
+        key in key_map and _looks_concrete_path(key_map[key])
+        for key in CONCRETE_PATH_DETAIL_KEYS
+    )
+    cloud_or_network_reference = (
+        bool(key_map.get("cloud_or_network_reference", False))
+        or bool(CLOUD_NETWORK_DETAIL_KEYS & set(key_map))
+    )
+    external_secret_manager_reference = (
+        bool(key_map.get("external_secret_manager_reference", False))
+        or bool(EXTERNAL_SECRET_MANAGER_KEYS & set(key_map))
+    )
+    direct_sql_access = bool(key_map.get("direct_sql_access", False)) or bool(
+        DIRECT_SQL_DETAIL_KEYS & set(key_map)
+    )
+    storage_bypass_requested = any(
+        bool(key_map.get(key, False)) for key in STORAGE_BYPASS_KEYS
+    )
+    contains_payload = (
+        bool(key_map.get("contains_payload", False))
+        or bool(key_map.get("payload_present", False))
+        or payload_keys_present
+    )
     secret_material_present = (
         bool(key_map.get("secret_material_present", False))
         or secret_keys_present
         or _looks_secret_like(record_kind, key_map)
         and payload_keys_present
     )
+    unsafe_detail_present = (
+        contains_payload
+        or secret_material_present
+        or concrete_path_present
+        or cloud_or_network_reference
+        or external_secret_manager_reference
+        or direct_sql_access
+        or storage_bypass_requested
+    )
     unresolved = _tuple_strings(key_map.get("unresolved_tbd", ()))
+    source_note = _string(key_map.get("source_note"), "TBD")
+    value_descriptor = _string(
+        key_map.get("value_descriptor"),
+        "mapping reference normalized without payload copy",
+    )
+    if unsafe_detail_present:
+        source_note = "unsafe reference detail withheld"
+        value_descriptor = "metadata-only normalized reference; unsafe detail withheld"
 
     return ReferenceRecord(
         reference_id=_string(key_map.get("reference_id") or key_map.get("id"), "unknown"),
@@ -462,15 +604,17 @@ def _normalize_reference(reference: ReferenceRecord | Mapping[str, Any]) -> Refe
         redistribution_status=_string(key_map.get("redistribution_status"), "unknown"),
         review_status=_string(key_map.get("review_status"), "unknown"),
         source_state=_string(key_map.get("source_state"), "unknown"),
-        source_note=_string(key_map.get("source_note"), "TBD"),
+        source_note=source_note,
         checksum=_optional_string(key_map.get("checksum")),
         checksum_status=_string(key_map.get("checksum_status"), "TBD"),
-        value_descriptor=_string(
-            key_map.get("value_descriptor"),
-            "mapping reference normalized without payload copy",
-        ),
+        value_descriptor=value_descriptor,
         contains_payload=contains_payload,
         secret_material_present=secret_material_present,
+        concrete_path_present=concrete_path_present,
+        cloud_or_network_reference=cloud_or_network_reference,
+        external_secret_manager_reference=external_secret_manager_reference,
+        direct_sql_access=direct_sql_access,
+        storage_bypass_requested=storage_bypass_requested,
         unresolved_tbd=unresolved
         + _unresolved_items(
             storage_locality=key_map.get("storage_locality"),
@@ -508,6 +652,56 @@ def _classification_diagnostics(record: ReferenceRecord) -> list[GuardDiagnostic
                 "Replace the material with an opaque reference descriptor before storage or export.",
             )
         )
+    if record.cloud_or_network_reference:
+        diagnostics.append(
+            _diagnostic(
+                "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+                "BLOCKING",
+                path,
+                "Cloud or network reference metadata was requested or detected.",
+                "Keep secret/private-library handling local-only unless a later approved workflow authorizes an exception.",
+            )
+        )
+    if record.external_secret_manager_reference:
+        diagnostics.append(
+            _diagnostic(
+                "EXTERNAL_SECRET_MANAGER_BLOCKED",
+                "BLOCKING",
+                path,
+                "External secret-manager metadata was requested or detected.",
+                "Use only opaque local secret-reference metadata until credential-store integration is separately approved.",
+            )
+        )
+    if record.direct_sql_access:
+        diagnostics.append(
+            _diagnostic(
+                "DIRECT_SQL_ACCESS_BLOCKED",
+                "BLOCKING",
+                path,
+                "Direct SQL or raw SQLite interface metadata was requested or detected.",
+                "Use application-service persistence boundaries instead of direct SQL/table access.",
+            )
+        )
+    if record.storage_bypass_requested:
+        diagnostics.append(
+            _diagnostic(
+                "STORAGE_BYPASS_BLOCKED",
+                "BLOCKING",
+                path,
+                "Storage-bypass metadata was requested or detected.",
+                "Route handling through local-first storage, redaction, provenance, and application-service controls.",
+            )
+        )
+    if record.concrete_path_present:
+        diagnostics.append(
+            _diagnostic(
+                "CONCRETE_PATH_REDUCED_TO_SAFE_METADATA",
+                "WARNING",
+                path,
+                "Concrete path-like detail was detected and withheld from the safe metadata representation.",
+                "Use symbolic path classes or opaque local references instead of concrete paths.",
+            )
+        )
     if record.contains_payload and _is_private_library(record):
         diagnostics.append(
             _diagnostic(
@@ -526,6 +720,18 @@ def _classification_diagnostics(record: ReferenceRecord) -> list[GuardDiagnostic
                 path,
                 "Private path payload data is present in a reference record.",
                 "Store only a symbolic path class or opaque local reference.",
+            )
+        )
+    if record.contains_payload and not (
+        _is_private_library(record) or _is_private_path(record)
+    ):
+        diagnostics.append(
+            _diagnostic(
+                "REFERENCE_PAYLOAD_METADATA_ONLY_REQUIRED",
+                "BLOCKING",
+                path,
+                "Payload data is present in a reference record.",
+                "Store only metadata, checksum, source note, review disposition, and opaque reference descriptors.",
             )
         )
     if record.redistribution_status in UNKNOWN_STATUSES:
@@ -641,10 +847,20 @@ def _guard_action(
 ) -> tuple[str, str]:
     if record.secret_material_present:
         return "block_release", "SECRET_MATERIAL_REFERENCE_ONLY_REQUIRED"
+    if record.cloud_or_network_reference:
+        return "block_release", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED"
+    if record.external_secret_manager_reference:
+        return "block_release", "EXTERNAL_SECRET_MANAGER_BLOCKED"
+    if record.direct_sql_access:
+        return "block_release", "DIRECT_SQL_ACCESS_BLOCKED"
+    if record.storage_bypass_requested:
+        return "block_release", "STORAGE_BYPASS_BLOCKED"
     if record.contains_payload and _is_private_library(record):
         return "block_release", "PRIVATE_LIBRARY_PAYLOAD_REFERENCE_ONLY_REQUIRED"
     if record.contains_payload and _is_private_path(record):
         return "block_release", "PRIVATE_PATH_PAYLOAD_REFERENCE_ONLY_REQUIRED"
+    if record.contains_payload:
+        return "block_release", "REFERENCE_PAYLOAD_METADATA_ONLY_REQUIRED"
     if record.review_status in BLOCKING_REVIEW_STATUSES:
         return "block_release", "REVIEW_DISPOSITION_BLOCKED"
     if (
@@ -698,8 +914,14 @@ def _diagnostic(
 def _message_for_reason(reason: str) -> str:
     return {
         "SECRET_MATERIAL_REFERENCE_ONLY_REQUIRED": "Credential or secret-like material is not allowed in reference records.",
+        "CLOUD_OR_NETWORK_REFERENCE_BLOCKED": "Cloud or network references are not allowed in secret/private-library release records.",
+        "EXTERNAL_SECRET_MANAGER_BLOCKED": "External secret-manager assumptions are not allowed in this metadata-only control.",
+        "DIRECT_SQL_ACCESS_BLOCKED": "Direct SQL or raw SQLite access is not allowed in secret/private-library records.",
+        "STORAGE_BYPASS_BLOCKED": "Storage-bypass requests are not allowed in secret/private-library records.",
+        "CONCRETE_PATH_REDUCED_TO_SAFE_METADATA": "Concrete path-like detail was withheld from the safe metadata representation.",
         "PRIVATE_LIBRARY_PAYLOAD_REFERENCE_ONLY_REQUIRED": "Private-library payload data is not allowed in reference records.",
         "PRIVATE_PATH_PAYLOAD_REFERENCE_ONLY_REQUIRED": "Private path payload data is not allowed in reference records.",
+        "REFERENCE_PAYLOAD_METADATA_ONLY_REQUIRED": "Payload data is not allowed in reference records.",
         "REVIEW_DISPOSITION_BLOCKED": "Review disposition blocks release.",
         "PROTECTED_SOURCE_SUSPECTED": "Reference metadata indicates suspected protected source content.",
         "UNKNOWN_REDIS_PRIVATE_DATA_BLOCKED": "Private data with unresolved redistribution status cannot enter a public/shared release.",
@@ -713,8 +935,14 @@ def _message_for_reason(reason: str) -> str:
 def _remediation_for_reason(reason: str) -> str:
     return {
         "SECRET_MATERIAL_REFERENCE_ONLY_REQUIRED": "Use an opaque placeholder descriptor or local credential-reference ID.",
+        "CLOUD_OR_NETWORK_REFERENCE_BLOCKED": "Keep the record local-only and remove cloud or network markers.",
+        "EXTERNAL_SECRET_MANAGER_BLOCKED": "Keep only opaque local secret-reference metadata until a later approved integration exists.",
+        "DIRECT_SQL_ACCESS_BLOCKED": "Route persistence through application-service boundaries instead of SQL/table handles.",
+        "STORAGE_BYPASS_BLOCKED": "Remove bypass metadata and preserve storage/redaction/provenance controls.",
+        "CONCRETE_PATH_REDUCED_TO_SAFE_METADATA": "Use symbolic path classes or opaque local references instead of concrete paths.",
         "PRIVATE_LIBRARY_PAYLOAD_REFERENCE_ONLY_REQUIRED": "Keep library payloads outside the reference manifest.",
         "PRIVATE_PATH_PAYLOAD_REFERENCE_ONLY_REQUIRED": "Use a symbolic path class or opaque local reference only.",
+        "REFERENCE_PAYLOAD_METADATA_ONLY_REQUIRED": "Keep payload values outside the reference manifest.",
         "REVIEW_DISPOSITION_BLOCKED": "Resolve review disposition before release.",
         "PROTECTED_SOURCE_SUSPECTED": "Route metadata for human review and keep it out of public artifacts.",
         "UNKNOWN_REDIS_PRIVATE_DATA_BLOCKED": "Record redistribution status or keep the item out of public/shared release.",
@@ -806,6 +1034,26 @@ def _looks_secret_like(record_kind: str, key_map: Mapping[str, Any]) -> bool:
     return record_kind in SECRET_KINDS or any(
         marker in labels for marker in SECRET_NAME_MARKERS
     )
+
+
+def _looks_concrete_path(value: Any) -> bool:
+    if not isinstance(value, str):
+        return False
+    stripped = value.strip()
+    lowered = stripped.lower()
+    return (
+        stripped.startswith(("/", "~/", "\\\\"))
+        or ":/" in stripped
+        or ":\\" in stripped
+        or lowered.startswith(("file://", "sqlite://"))
+        or lowered.endswith((".sqlite", ".sqlite3", ".db"))
+    )
+
+
+def _withhold_if_concrete_path(value: str) -> str:
+    if _looks_concrete_path(value):
+        return "concrete path detail withheld"
+    return value
 
 
 def _unresolved_items(**values: Any) -> tuple[str, ...]:

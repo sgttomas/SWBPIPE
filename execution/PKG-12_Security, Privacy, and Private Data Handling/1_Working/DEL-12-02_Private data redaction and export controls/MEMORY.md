@@ -32,7 +32,8 @@ Implementation notes:
 - The redaction engine operates on copied export/report representations and
   does not mutate source project data.
 - No cloud service behavior, secret storage, destructive quarantine movement,
-  non-invented private payloads, protected standards content, or professional
+  non-invented private payloads, protected standards content, actual
+  credentials, or professional
   approval behavior was introduced.
 - Tests use invented fixtures only.
 
@@ -82,3 +83,10 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-07 - TP-PKG12 Redaction And Secret Guard Closeout TASK A
+
+- Hardened the local redaction helper so explicit storage/privacy metadata now gates payload markers, secret-material flags, cloud/network references, direct SQL/raw SQLite access, storage-bypass flags, concrete path indicators, and item-level local-private intent.
+- Preserved stable `redact_export_payload(...)` and `classify_export_item(...)` signatures; the helper remains metadata-only and mutates only copied export/report representations.
+- Added schema reason codes and focused invented-fixture tests for the new blocking/redaction decisions.
+- Boundaries preserved: no source mutation, no private payload storage behavior, no cloud/network behavior, no direct SQLite/raw SQL behavior, no concrete user paths, no legal clearance, no security certification, and no professional or code-compliance claim.

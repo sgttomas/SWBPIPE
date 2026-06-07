@@ -10,7 +10,11 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from core.security.redaction import REDACTED_VALUE, redact_export_payload  # noqa: E402
+from core.security.redaction import (  # noqa: E402
+    REDACTED_VALUE,
+    classify_export_item,
+    redact_export_payload,
+)
 
 
 SCHEMA_PATH = ROOT / "schemas" / "redaction_export_controls.schema.yaml"
@@ -217,6 +221,12 @@ def test_schema_vocabularies_cover_required_controls():
         "MISSING_METADATA_REDACTED",
         "LOCAL_PRIVATE_INTENT_REQUIRED",
         "PROFESSIONAL_BOUNDARY_BLOCKED",
+        "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "SECRET_MATERIAL_BLOCKED",
+        "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+        "DIRECT_SQL_ACCESS_BLOCKED",
+        "STORAGE_BYPASS_BLOCKED",
+        "CONCRETE_PATH_REDACTED",
     } <= enum_at(schema, "ReasonCode")
 
     profile = schema["$defs"]["ControlProfile"]["properties"]
@@ -269,6 +279,120 @@ def test_local_private_export_requires_explicit_intent_then_retains_with_warning
     assert "PRIVATE_LOCAL_ALLOWED_WITH_WARNING" in finding_codes(allowed)
     assert allowed.summary()["warning_count"] >= 1
     assert allowed.summary()["cloud_transmission_attempted"] is False
+
+
+def test_storage_privacy_metadata_blocks_or_redacts_unsafe_export_details():
+    payload = {
+        "payload_marker": {
+            "field_id": "storage.payload",
+            "field_class": "export_manifest",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "contains_payload": True,
+            "payload": "PAYLOAD_DETAIL_SHOULD_NOT_SURVIVE",
+            "value": "PAYLOAD_VALUE_SHOULD_NOT_SURVIVE",
+        },
+        "secret_material": {
+            "field_id": "storage.secret",
+            "field_class": "secret_like",
+            "privacy_classification": "secret_like_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "secret_material_present": True,
+            "secret_value": "SECRET_DETAIL_SHOULD_NOT_SURVIVE",
+            "value": "SECRET_VALUE_SHOULD_NOT_SURVIVE",
+        },
+        "cloud_reference": {
+            "field_id": "storage.cloud",
+            "field_class": "export_manifest",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "cloud_or_network_reference": True,
+            "cloud_sync_target": "CLOUD_TARGET_SHOULD_NOT_SURVIVE",
+            "value": "CLOUD_VALUE_SHOULD_NOT_SURVIVE",
+        },
+        "direct_sql": {
+            "field_id": "storage.sql",
+            "field_class": "export_manifest",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "direct_sql_access": True,
+            "table_name": "SQL_TABLE_DETAIL_SHOULD_NOT_SURVIVE",
+            "value": "SQL_VALUE_SHOULD_NOT_SURVIVE",
+        },
+        "storage_bypass": {
+            "field_id": "storage.bypass",
+            "field_class": "export_manifest",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "pending",
+            "storage_bypass_requested": True,
+            "value": "BYPASS_VALUE_SHOULD_NOT_SURVIVE",
+        },
+        "concrete_path": {
+            "field_id": "storage.path",
+            "field_class": "path",
+            "privacy_classification": "path_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "concrete_path_present": True,
+            "file_path": "FAKE_CONCRETE_PATH_SHOULD_NOT_SURVIVE",
+            "value": "PATH_VALUE_SHOULD_NOT_SURVIVE",
+        },
+    }
+
+    result = redact_export_payload(payload, export_context="public_report")
+    serialized_payload = json.dumps(result.payload, sort_keys=True)
+
+    assert result.blocked is True
+    assert {
+        "PAYLOAD_METADATA_ONLY_REQUIRED",
+        "SECRET_MATERIAL_BLOCKED",
+        "CLOUD_OR_NETWORK_REFERENCE_BLOCKED",
+        "DIRECT_SQL_ACCESS_BLOCKED",
+        "STORAGE_BYPASS_BLOCKED",
+        "CONCRETE_PATH_REDACTED",
+    } <= finding_codes(result)
+    assert result.payload["concrete_path"]["value"] == REDACTED_VALUE
+    assert "file_path" not in result.payload["concrete_path"]
+    for leaked in {
+        "PAYLOAD_DETAIL_SHOULD_NOT_SURVIVE",
+        "PAYLOAD_VALUE_SHOULD_NOT_SURVIVE",
+        "SECRET_DETAIL_SHOULD_NOT_SURVIVE",
+        "SECRET_VALUE_SHOULD_NOT_SURVIVE",
+        "CLOUD_TARGET_SHOULD_NOT_SURVIVE",
+        "CLOUD_VALUE_SHOULD_NOT_SURVIVE",
+        "SQL_TABLE_DETAIL_SHOULD_NOT_SURVIVE",
+        "SQL_VALUE_SHOULD_NOT_SURVIVE",
+        "BYPASS_VALUE_SHOULD_NOT_SURVIVE",
+        "FAKE_CONCRETE_PATH_SHOULD_NOT_SURVIVE",
+        "PATH_VALUE_SHOULD_NOT_SURVIVE",
+    }:
+        assert leaked not in serialized_payload
+
+
+def test_local_private_intent_metadata_allows_private_value_with_warning():
+    item = {
+        "field_id": "project.intent",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": "accepted",
+        "local_private_intent": True,
+        "value": "Invented local-only value",
+    }
+
+    result = redact_export_payload({"item": item}, export_context="local_private")
+    decision = classify_export_item(item, export_context="local_private")
+
+    assert result.blocked is False
+    assert result.payload["item"]["value"] == "Invented local-only value"
+    assert "PRIVATE_LOCAL_ALLOWED_WITH_WARNING" in finding_codes(result)
+    assert decision.action == "warning_only"
+    assert decision.reason_code == "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
 
 
 def test_protected_or_professional_boundary_metadata_blocks_export():
