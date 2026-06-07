@@ -508,6 +508,30 @@
     "ToleranceRule": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "tolerance_value"
+            ],
+            "properties": {
+              "tolerance_value": {
+                "type": "number"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "tolerance_value_status": {
+                "enum": [
+                  "externally_governed",
+                  "project_specific_review_required"
+                ]
+              }
+            }
+          }
+        }
+      ],
       "required": [
         "rule_id",
         "result_family",
@@ -517,6 +541,8 @@
         "tolerance_value",
         "tolerance_value_status",
         "normalization_basis",
+        "unit_metadata_policy",
+        "hash_refs",
         "review",
         "provenance"
       ],
@@ -593,11 +619,44 @@
             "TBD"
           ]
         },
+        "unit_metadata_policy": {
+          "$ref": "#/$defs/UnitMetadataPolicy"
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
         "review": {
           "$ref": "#/$defs/ReviewMetadata"
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "UnitMetadataPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension_id_required",
+        "unit_ref_required",
+        "normalized_delta_unit_metadata_required",
+        "missing_unit_metadata_behavior"
+      ],
+      "properties": {
+        "dimension_id_required": {
+          "const": true
+        },
+        "unit_ref_required": {
+          "const": true
+        },
+        "normalized_delta_unit_metadata_required": {
+          "const": true
+        },
+        "missing_unit_metadata_behavior": {
+          "const": "blocking_diagnostic_required"
         }
       }
     }

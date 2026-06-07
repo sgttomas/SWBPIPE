@@ -235,5 +235,9 @@ def main():
         assert forbidden.lower() not in joined_strings
 
 
+def test_model_state_schema_contract():
+    main()
+
+
 if __name__ == "__main__":
     main()

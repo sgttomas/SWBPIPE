@@ -106,3 +106,26 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - State persistence evidence hardening
+
+- Verified `schemas/model_state.schema.json` remains bound to `DEL-14-01`,
+  `PKG-14`, `SOW-071`, and `OBJ-016`, with the existing
+  `schemas/project_persistence.schema.yaml` persistence binding and
+  JCS-compatible JSON payload hash basis.
+- Added pytest-collected schema evidence for
+  `tests/test_model_state_schema.py`.
+- Added project persistence service evidence in
+  `tests/test_project_persistence_service.py`: an invented model-state record
+  validates against `schemas/model_state.schema.json`, embeds in
+  `project.run_history.model_state_records`, receives a deterministic
+  `model_state_record` hash in run history and the top-level persistence hash
+  manifest, round-trips through canonical JSON and local SQLite project-store
+  persistence, and changes its persistence hash when its payload changes.
+- Verification passed:
+  `python3 -m pytest tests/test_model_state_schema.py tests/test_project_persistence_service.py -q`
+  (`16 passed`).
+- No schema change, production persistence-service change, protected standards
+  content, proprietary/private data, professional approval claim,
+  certification claim, sealing claim, authentication claim, or code-compliance
+  claim was introduced.

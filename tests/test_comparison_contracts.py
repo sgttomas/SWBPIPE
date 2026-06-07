@@ -42,6 +42,7 @@ REQUIRED_MAPPING_DEFS = {
     "Id",
     "JsonExportContract",
     "MappingConfidence",
+    "MappingEvidence",
     "MappingRecord",
     "MappingStatus",
     "PrivacyClassification",
@@ -73,6 +74,7 @@ REQUIRED_TOLERANCE_DEFS = {
     "ToleranceContractStatus",
     "ToleranceProfile",
     "ToleranceRule",
+    "UnitMetadataPolicy",
 }
 
 FORBIDDEN_SCHEMA_TEXT = {
@@ -215,10 +217,41 @@ def test_mapping_schema_contract():
         "left_ref",
         "right_ref",
         "affected_refs",
+        "mapping_evidence",
         "confidence",
         "review",
         "provenance",
     } <= mapping_required
+    evidence_required = required_at(schema, "MappingEvidence")
+    assert {
+        "evidence_id",
+        "evidence_kind",
+        "source_refs",
+        "stable_id_preservation",
+        "manual_review_state",
+        "hash_refs",
+        "provenance",
+    } <= evidence_required
+    evidence = defs["MappingEvidence"]["properties"]
+    assert {
+        "stable_id_alignment",
+        "manual_mapping",
+        "unmatched_classification",
+        "ignored_by_scope",
+        "TBD",
+    } <= set(evidence["evidence_kind"]["enum"])
+    assert {
+        "left_and_right_refs_preserved",
+        "source_ref_preserved_for_unmatched",
+        "not_applicable",
+        "TBD",
+    } <= set(evidence["stable_id_preservation"]["enum"])
+    assert {
+        "not_manual",
+        "manual_unreviewed",
+        "manual_reviewed",
+        "TBD",
+    } <= set(evidence["manual_review_state"]["enum"])
     assert {
         "exact_stable_id",
         "manual_reviewed",
@@ -241,10 +274,28 @@ def test_mapping_schema_contract():
         "classification",
         "subject_ref",
         "affected_refs",
+        "hash_refs",
         "review",
         "provenance",
     } <= required_at(schema, "UnmatchedRecord")
 
+    export_required = required_at(schema, "ExportContract")
+    assert {
+        "diagnostics_included",
+        "provenance_included",
+        "assumptions_included",
+        "hash_refs_included",
+        "professional_boundary_notice_included",
+    } <= export_required
+    export = defs["ExportContract"]["properties"]
+    for key in {
+        "diagnostics_included",
+        "provenance_included",
+        "assumptions_included",
+        "hash_refs_included",
+        "professional_boundary_notice_included",
+    }:
+        assert export[key]["const"] is True
     json_export = defs["JsonExportContract"]["properties"]
     for key in {
         "stable_ids_required",
@@ -266,15 +317,42 @@ def test_mapping_schema_contract():
         "unit",
         "dimension",
         "tolerance_profile_ref",
+        "hash_refs",
         "diagnostic_codes",
         "provenance_ref",
         "assumption_ids",
         "professional_boundary_notice",
     } <= csv_columns
+    csv_required_columns = {
+        rule["contains"]["const"]
+        for rule in defs["CsvExportContract"]["properties"]["required_columns"]["allOf"]
+    }
+    assert {
+        "review_row_id",
+        "comparison_id",
+        "mapping_id",
+        "mapping_status",
+        "unmatched_classification",
+        "left_ref",
+        "right_ref",
+        "unit",
+        "dimension",
+        "tolerance_profile_ref",
+        "hash_refs",
+        "provenance_ref",
+        "professional_boundary_notice",
+    } <= csv_required_columns
     assert (
         defs["ReportSectionExportRef"]["properties"]["rendering_status"]["const"]
         == "reserved_reference_only_not_implemented"
     )
+    report_export = defs["ReportSectionExportRef"]["properties"]
+    for key in {
+        "hash_refs_required",
+        "provenance_required",
+        "professional_boundary_notice_required",
+    }:
+        assert report_export[key]["const"] is True
     assert_professional_boundary(schema)
 
 
@@ -337,6 +415,8 @@ def test_tolerance_schema_contract():
         "tolerance_value",
         "tolerance_value_status",
         "normalization_basis",
+        "unit_metadata_policy",
+        "hash_refs",
         "review",
         "provenance",
     } <= rule_required
@@ -351,6 +431,12 @@ def test_tolerance_schema_contract():
         "not_defined",
         "TBD",
     } <= set(defs["ToleranceRule"]["properties"]["tolerance_value_status"]["enum"])
+    numeric_guard = defs["ToleranceRule"]["allOf"][0]
+    assert numeric_guard["if"]["properties"]["tolerance_value"]["type"] == "number"
+    assert {
+        "externally_governed",
+        "project_specific_review_required",
+    } == set(numeric_guard["then"]["properties"]["tolerance_value_status"]["enum"])
     assert {
         "same_unit_required",
         "unit_conversion_required",
@@ -358,6 +444,14 @@ def test_tolerance_schema_contract():
         "not_applicable",
         "TBD",
     } <= set(defs["ToleranceRule"]["properties"]["normalization_basis"]["enum"])
+    unit_policy = defs["UnitMetadataPolicy"]["properties"]
+    assert unit_policy["dimension_id_required"]["const"] is True
+    assert unit_policy["unit_ref_required"]["const"] is True
+    assert unit_policy["normalized_delta_unit_metadata_required"]["const"] is True
+    assert (
+        unit_policy["missing_unit_metadata_behavior"]["const"]
+        == "blocking_diagnostic_required"
+    )
     assert_professional_boundary(schema)
 
 

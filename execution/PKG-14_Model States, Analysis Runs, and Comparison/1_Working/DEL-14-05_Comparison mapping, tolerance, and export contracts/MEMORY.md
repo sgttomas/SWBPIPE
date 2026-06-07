@@ -55,3 +55,11 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Comparison contract evidence hardening
+
+- TASK worker hardened DEL-14-05 schema/test evidence for stable reference preservation, manual mapping evidence, unmatched-record hash references, export hash/provenance/professional-boundary preservation, and tolerance-rule unit metadata policy.
+- `schemas/comparison_mapping.schema.json` now requires mapping evidence records, explicit CSV hash columns, report-section preservation flags, and export-level hash inclusion without implementing comparison engines or report rendering.
+- `schemas/comparison_tolerance.schema.json` now requires per-rule unit metadata policy and hash references, and numeric tolerance values are structurally limited to externally governed or project-specific-review-required status paths.
+- `tests/test_comparison_contracts.py` records focused assertions for the hardened schema fields and continues to check that no schema `default` keys define silent numeric tolerances.
+- No governed tolerance values, code-specific acceptance criteria, external validation decision, lifecycle update, review disposition, professional approval, certification, sealing, authentication, or code-compliance claim was added.

@@ -247,6 +247,49 @@ def test_missing_mapping_and_result_data_are_explicit_findings():
     assert output["has_blocking_findings"]
 
 
+def test_carried_run_diagnostics_are_preserved_as_review_evidence():
+    inputs = fixture_inputs()
+    inputs["left_run"]["analysis_run"]["diagnostics"] = [
+        {
+            "severity": "blocking",
+            "message": "Invented left run diagnostic remains review evidence.",
+            "remediation": "Resolve the left run diagnostic before relying on comparison output.",
+        }
+    ]
+    inputs["right_run"]["analysis_run"]["diagnostics"] = [
+        {
+            "severity": "warning",
+            "message": "Invented right run diagnostic remains review evidence.",
+            "remediation": "Review the right run diagnostic before relying on comparison output.",
+        }
+    ]
+
+    output = comparison_dict(compare_analysis_runs(**inputs))
+    run_diagnostics = [
+        item for item in output["diagnostics"] if item["class"] == "RUN_DIAGNOSTIC"
+    ]
+
+    assert output["has_blocking_findings"] is True
+    assert {item["code"] for item in run_diagnostics} == {
+        "ARC-RUN-DIAGNOSTIC-LEFT",
+        "ARC-RUN-DIAGNOSTIC-RIGHT",
+    }
+    assert {item["severity"] for item in run_diagnostics} == {"blocking", "warning"}
+    assert {
+        tuple((ref["object_type"], ref["ref"]) for ref in item["affected_refs"])
+        for item in run_diagnostics
+    } == {
+        (("AnalysisRun", "RUN-left"),),
+        (("AnalysisRun", "RUN-right"),),
+    }
+    assert {
+        item["message"] for item in run_diagnostics
+    } == {
+        "Invented left run diagnostic remains review evidence.",
+        "Invented right run diagnostic remains review evidence.",
+    }
+
+
 def test_output_does_not_emit_prohibited_professional_claims():
     output = comparison_dict(compare_analysis_runs(**fixture_inputs()))
 
@@ -278,4 +321,5 @@ if __name__ == "__main__":
     test_unit_normalized_delta_and_classification_keep_raw_evidence_separate()
     test_incompatible_or_missing_unit_metadata_produces_diagnostics_not_deltas()
     test_missing_mapping_and_result_data_are_explicit_findings()
+    test_carried_run_diagnostics_are_preserved_as_review_evidence()
     test_output_does_not_emit_prohibited_professional_claims()

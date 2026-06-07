@@ -357,6 +357,73 @@
         "required_columns": {
           "type": "array",
           "minItems": 1,
+          "allOf": [
+            {
+              "contains": {
+                "const": "review_row_id"
+              }
+            },
+            {
+              "contains": {
+                "const": "comparison_id"
+              }
+            },
+            {
+              "contains": {
+                "const": "mapping_id"
+              }
+            },
+            {
+              "contains": {
+                "const": "mapping_status"
+              }
+            },
+            {
+              "contains": {
+                "const": "unmatched_classification"
+              }
+            },
+            {
+              "contains": {
+                "const": "left_ref"
+              }
+            },
+            {
+              "contains": {
+                "const": "right_ref"
+              }
+            },
+            {
+              "contains": {
+                "const": "unit"
+              }
+            },
+            {
+              "contains": {
+                "const": "dimension"
+              }
+            },
+            {
+              "contains": {
+                "const": "tolerance_profile_ref"
+              }
+            },
+            {
+              "contains": {
+                "const": "hash_refs"
+              }
+            },
+            {
+              "contains": {
+                "const": "provenance_ref"
+              }
+            },
+            {
+              "contains": {
+                "const": "professional_boundary_notice"
+              }
+            }
+          ],
           "contains": {
             "const": "mapping_id"
           },
@@ -375,6 +442,7 @@
               "dimension",
               "tolerance_profile_ref",
               "diagnostic_codes",
+              "hash_refs",
               "provenance_ref",
               "assumption_ids",
               "professional_boundary_notice",
@@ -469,6 +537,7 @@
         "diagnostics_included",
         "provenance_included",
         "assumptions_included",
+        "hash_refs_included",
         "professional_boundary_notice_included"
       ],
       "properties": {
@@ -491,6 +560,9 @@
           "const": true
         },
         "assumptions_included": {
+          "const": true
+        },
+        "hash_refs_included": {
           "const": true
         },
         "professional_boundary_notice_included": {
@@ -565,6 +637,7 @@
         "left_ref",
         "right_ref",
         "affected_refs",
+        "mapping_evidence",
         "confidence",
         "review",
         "provenance"
@@ -599,11 +672,75 @@
             "$ref": "#/$defs/AffectedRef"
           }
         },
+        "mapping_evidence": {
+          "$ref": "#/$defs/MappingEvidence"
+        },
         "confidence": {
           "$ref": "#/$defs/MappingConfidence"
         },
         "review": {
           "$ref": "#/$defs/ReviewMetadata"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "MappingEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "evidence_kind",
+        "source_refs",
+        "stable_id_preservation",
+        "manual_review_state",
+        "hash_refs",
+        "provenance"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "evidence_kind": {
+          "type": "string",
+          "enum": [
+            "stable_id_alignment",
+            "manual_mapping",
+            "unmatched_classification",
+            "ignored_by_scope",
+            "TBD"
+          ]
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AffectedRef"
+          }
+        },
+        "stable_id_preservation": {
+          "type": "string",
+          "enum": [
+            "left_and_right_refs_preserved",
+            "source_ref_preserved_for_unmatched",
+            "not_applicable",
+            "TBD"
+          ]
+        },
+        "manual_review_state": {
+          "type": "string",
+          "enum": [
+            "not_manual",
+            "manual_unreviewed",
+            "manual_reviewed",
+            "TBD"
+          ]
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"
@@ -803,7 +940,10 @@
       "required": [
         "section_ref",
         "export_role",
-        "rendering_status"
+        "rendering_status",
+        "hash_refs_required",
+        "provenance_required",
+        "professional_boundary_notice_required"
       ],
       "properties": {
         "section_ref": {
@@ -823,6 +963,15 @@
         },
         "rendering_status": {
           "const": "reserved_reference_only_not_implemented"
+        },
+        "hash_refs_required": {
+          "const": true
+        },
+        "provenance_required": {
+          "const": true
+        },
+        "professional_boundary_notice_required": {
+          "const": true
         }
       }
     },
@@ -923,6 +1072,7 @@
         "classification",
         "subject_ref",
         "affected_refs",
+        "hash_refs",
         "review",
         "provenance"
       ],
@@ -940,6 +1090,12 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/AffectedRef"
+          }
+        },
+        "hash_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
           }
         },
         "review": {

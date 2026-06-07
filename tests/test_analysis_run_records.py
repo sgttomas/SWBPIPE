@@ -8,14 +8,28 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+TESTS_DIR = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
+
+from schema_validation import (  # noqa: E402
+    JsonSchemaDependencyMissing,
+    validate_instance,
+    validate_schema_document,
+)
 
 from core.analysis_runs.records import (
     PHYSICAL_PROJECT_CONTAINER,
     build_preview_analysis_run_envelope,
     canonical_json,
     validate_analysis_run_envelope,
+)
+from core.project_persistence import (  # noqa: E402
+    build_project_persistence_envelope,
+    round_trip_project_envelope,
+    validate_project_persistence_envelope,
 )
 
 
@@ -25,6 +39,18 @@ ANALYSIS_RUN_SCHEMA_PATH = ROOT / "schemas" / "analysis_run.schema.json"
 
 def preview_result():
     return json.loads(PREVIEW_RESULT_PATH.read_text(encoding="utf-8"))
+
+
+def analysis_run_schema():
+    return json.loads(ANALYSIS_RUN_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+def _skip_or_note_missing_jsonschema(exc):
+    if "pytest" in sys.modules:
+        import pytest
+
+        pytest.skip(str(exc))
+    print(f"SKIP: {exc}")
 
 
 def test_preview_result_builds_deterministic_immutable_run_record():
@@ -41,6 +67,69 @@ def test_preview_result_builds_deterministic_immutable_run_record():
     assert "MECHANICS_SOLVED" in run["analysis_status"]
     assert "RULE_INPUTS_INCOMPLETE" in run["analysis_status"]
     assert validate_analysis_run_envelope(first) == []
+
+
+def test_generated_analysis_run_envelope_validates_against_schema():
+    envelope = build_preview_analysis_run_envelope(preview_result())
+    schema = analysis_run_schema()
+
+    try:
+        assert validate_schema_document(schema, schema_label=str(ANALYSIS_RUN_SCHEMA_PATH))
+        assert validate_instance(
+            schema,
+            envelope,
+            schema_label=str(ANALYSIS_RUN_SCHEMA_PATH),
+            instance_label="generated DEL-14-02 analysis run envelope",
+        )
+    except JsonSchemaDependencyMissing as exc:
+        _skip_or_note_missing_jsonschema(exc)
+
+
+def test_generated_run_binds_run_basis_diagnostics_and_boundary_fields():
+    state_ref = {"object_type": "ModelState", "ref": "state:accepted-invented-preview"}
+    settings_ref = {"object_type": "SolverSettings", "ref": "settings:linear-static-review"}
+    unit_ref = {"object_type": "UnitSystem", "ref": "unit-system:invented-si"}
+    load_refs = [
+        {"object_type": "LoadCase", "ref": "load:L-100"},
+        {"object_type": "LoadCombination", "ref": "combination:C-OPER-ALT"},
+    ]
+    build_ref = {"object_type": "ExternalReference", "ref": "build:del-14-02-evidence"}
+
+    envelope = build_preview_analysis_run_envelope(
+        preview_result(),
+        model_state_ref=state_ref,
+        settings_ref=settings_ref,
+        unit_system_ref=unit_ref,
+        load_basis_refs=load_refs,
+        solver_name="open_pipe_stress_preview_solver",
+        solver_version="0.1.0-test",
+        build_ref=build_ref,
+    )
+    run = envelope["analysis_run"]
+
+    assert run["model_state_ref"] == state_ref
+    assert run["settings_ref"] == settings_ref
+    assert run["unit_system_ref"] == unit_ref
+    assert run["load_basis_refs"] == load_refs
+    assert run["solver_version"]["solver_name"] == "open_pipe_stress_preview_solver"
+    assert run["solver_version"]["solver_version"] == "0.1.0-test"
+    assert run["solver_version"]["build_ref"] == build_ref
+    assert run["diagnostics"]
+    assert all(item["code"] and item["provenance"] for item in run["diagnostics"])
+    assert run["result_refs"]
+    assert all(item["hash_refs"] for item in run["result_refs"])
+    assert {item["payload_scope"] for item in run["hashes"]} >= {
+        "analysis_run_record",
+        "result_envelope",
+    }
+    assert run["professional_boundary"] == {
+        "human_review_required": True,
+        "software_makes_compliance_claim": False,
+        "software_makes_certification_claim": False,
+        "software_makes_sealing_claim": False,
+        "software_makes_approval_claim": False,
+        "software_makes_authentication_claim": False,
+    }
 
 
 def test_run_contract_status_uses_sca_003_local_project_store():
@@ -163,6 +252,67 @@ def test_result_mutation_changes_corresponding_result_hash():
         raise AssertionError("axial force ref missing")
 
     assert result_hash(base_run) != result_hash(changed_run)
+
+
+def test_persistence_history_preserves_analysis_run_basis_after_model_change():
+    analysis_run = build_preview_analysis_run_envelope(
+        preview_result(),
+        model_state_ref={"object_type": "ModelState", "ref": "state:original-accepted"},
+        settings_ref={"object_type": "SolverSettings", "ref": "settings:original-solve"},
+        unit_system_ref={"object_type": "UnitSystem", "ref": "unit-system:original-si"},
+        load_basis_refs=[{"object_type": "LoadCase", "ref": "load:L-100"}],
+    )
+    result_envelope_ref = analysis_run["analysis_run"]["reproducibility"]["input_manifest_refs"][0]
+
+    def persisted_project(model_revision):
+        return build_project_persistence_envelope(
+            project_id="project:del-14-02-run-history",
+            project_name="DEL-14-02 invented run-history check",
+            model_payload={
+                "model_id": "model:invented-preview",
+                "revision": model_revision,
+            },
+            model_state_refs=[{"ref_kind": "model_state", "ref": "state:original-accepted"}],
+            analysis_run_records=[analysis_run],
+            result_envelope_refs=[
+                {"ref_kind": "result_envelope", "ref": result_envelope_ref["ref"]}
+            ],
+        )
+
+    original = persisted_project("original")
+    changed_model = persisted_project("later-unrelated-model-edit")
+    round_trip = round_trip_project_envelope(original)
+
+    original_history = original["project"]["run_history"]
+    changed_history = changed_model["project"]["run_history"]
+    restored_history = round_trip["envelope"]["project"]["run_history"]
+
+    assert validate_project_persistence_envelope(original) == []
+    assert round_trip["semantic_equal"] is True
+    assert round_trip["diagnostics"] == []
+    assert original["hash"]["project_payload_hash"]["value"] != changed_model["hash"][
+        "project_payload_hash"
+    ]["value"]
+    assert original_history["analysis_run_records"] == changed_history["analysis_run_records"]
+    assert original_history["hash_manifest"] == changed_history["hash_manifest"]
+    assert restored_history["analysis_run_records"] == original_history[
+        "analysis_run_records"
+    ]
+    persisted_run = restored_history["analysis_run_records"][0]["analysis_run"]
+    assert persisted_run["model_state_ref"] == {
+        "object_type": "ModelState",
+        "ref": "state:original-accepted",
+    }
+    assert persisted_run["settings_ref"]["ref"] == "settings:original-solve"
+    assert persisted_run["unit_system_ref"]["ref"] == "unit-system:original-si"
+    assert persisted_run["load_basis_refs"] == [
+        {"object_type": "LoadCase", "ref": "load:L-100"}
+    ]
+    assert any(
+        item["payload_scope"] == "analysis_run_record"
+        and item["payload_ref"]["ref"] == persisted_run["run_id"]
+        for item in restored_history["hash_manifest"]
+    )
 
 
 def test_validation_blocks_missing_review_boundary_and_result_hashes():

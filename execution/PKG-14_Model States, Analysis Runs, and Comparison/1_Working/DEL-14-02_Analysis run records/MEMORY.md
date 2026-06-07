@@ -95,3 +95,22 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Analysis-run evidence hardening
+
+- TASK worker verified the existing analysis-run schema and builder preserve
+  model-state references, solver/settings/unit/load basis, result references,
+  result hashes, diagnostics, reproducibility metadata, and explicit
+  professional-boundary fields.
+- Added generated-envelope schema validation and persistence-history evidence
+  in `tests/test_analysis_run_records.py`.
+- New persistence evidence records that an analysis-run record remains bound
+  to its original run basis and run-history hash across unrelated model-payload
+  revision changes and canonical JSON round trip.
+- Verification passed:
+  `python3 -m pytest tests/test_analysis_run_schema.py tests/test_analysis_run_records.py -q`
+  (`9 passed`).
+- No schema change, production code change, lifecycle update, review
+  disposition, protected standards content, private/proprietary data,
+  professional approval claim, certification claim, sealing claim,
+  authentication claim, or code-compliance claim was introduced.

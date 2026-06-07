@@ -44,3 +44,24 @@ Durable context preserved after reconciliation review:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Analysis-run comparison evidence hardening
+
+- WORKING_ITEMS completed Wave 2 evidence hardening after the `DEL-14-01`,
+  `DEL-14-02`, and `DEL-14-05` Wave 1 workers returned `SUCCESS`.
+- Added focused regression coverage in `tests/test_analysis_run_comparison.py`
+  proving carried left/right analysis-run diagnostics remain explicit
+  comparison diagnostics with affected run references and blocking/warning
+  severity preserved.
+- Reverified existing comparison behavior: run context is preserved,
+  raw magnitude deltas remain separate from unit-normalized deltas, unit
+  normalization requires caller-supplied conversion factors, missing mappings
+  and result data emit diagnostics, and professional-boundary fields remain
+  explicit and negative.
+- Verification passed:
+  `python3 -m pytest tests/test_analysis_run_schema.py tests/test_analysis_run_records.py tests/test_comparison_contracts.py tests/test_analysis_run_comparison.py -q`.
+- No production engine change, lifecycle update, review disposition,
+  protected standards content, private/proprietary data, external-validation
+  decision, hard-coded tolerance value, professional approval claim,
+  certification claim, sealing claim, authentication claim, or code-compliance
+  claim was introduced.
