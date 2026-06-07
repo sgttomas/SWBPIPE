@@ -23,7 +23,7 @@
 | Required handoff contents in scope | Schema-compliant handoff packages include model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, and unsupported-target flags. | `_CONTEXT.md` Scope Detail; `docs/_Registers/ScopeLedger.csv` SOW-074 |
 | Target-specific commercial parsers | Deferred. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-074 note; `docs/_Registers/ScopeLedger.csv` SOW-074 note |
 | External professional approval state | Excluded from this package. | `_CONTEXT.md` Package Exclusions; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-15 exclusions |
-| Concrete target list | TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
+| Target surfaces | OI-015 names initial export and target surfaces; concrete mappings, target field coverage, target-specific taxonomy extensions, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
 | Canonical package container | TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
 | Target-specific mapping strategy | TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
 

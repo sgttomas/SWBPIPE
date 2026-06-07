@@ -16,7 +16,7 @@ Excluded work:
 - comprehensive commercial-tool result ingestion;
 - formal prover-status lifecycle, automatic professional acceptance record, certification, sealing, approval, authentication, or code-compliance status;
 - protected standards text, tables, examples, formulas, proprietary commercial data, private rule packs, owner standards, or code-specific acceptance criteria;
-- exact target list, canonical package container, external format list, dependency versions, and package-specific implementation choices until separately resolved.
+- canonical package container, concrete mappings, target field coverage, target-specific implementation, dependency versions, and package-specific implementation choices until separately resolved.
 
 ## Requirements
 
@@ -41,7 +41,7 @@ Excluded work:
 | Canonical JSON/JCS-compatible hash basis | Hash basis where JSON payloads are hashed. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact payload boundaries TBD. |
 | OpenPipeStress invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |
 | IP and Data Boundary Policy | Governs protected-content, private-data, fixture, and provenance handling. | Applicable from `docs/IP_AND_DATA_BOUNDARY.md`. |
-| Commercial stress tool formats | Target-specific parsers and commercial examples are out of scope. | Deferred; target list and mapping strategy TBD per OI-015. |
+| Commercial stress tool formats | Target-specific parsers and commercial examples are out of scope. | Deferred; concrete mappings, target field coverage, and target-specific implementation remain gated by OI-015, DEL-17-01, and DEL-17-02. |
 
 ## Verification
 

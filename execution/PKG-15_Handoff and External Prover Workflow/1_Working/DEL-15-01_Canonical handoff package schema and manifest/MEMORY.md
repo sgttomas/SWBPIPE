@@ -4,7 +4,7 @@
 
 - Added `fixtures/invented_handoff_package.json` as an invented, non-engineering, provenance-labeled valid handoff-package fixture.
 - Hardened `tests/test_handoff_package_schema.py` to validate `schemas/handoff_package.schema.json` with `jsonschema.Draft202012Validator` and to validate the invented fixture against the schema.
-- Updated deliverable-local docs to cite the materialized schema `$id`, schema property groups, fixture, and test command while preserving OI-015 `TBD` boundaries for canonical package container, exact handoff target list, and target-specific mapping strategy.
+- Updated deliverable-local docs to cite the materialized schema `$id`, schema property groups, fixture, and test command while preserving OI-015 / DEL-17-01 / DEL-17-02 gates for package container, concrete mappings, target field coverage, and target-specific implementation.
 - No lifecycle `_STATUS.md`, dependency mirror, or review-disposition rows were changed by this tranche.
 
 ## 2026-05-05 Implementation Notes

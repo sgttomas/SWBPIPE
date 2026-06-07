@@ -48,3 +48,86 @@ No PKG-02 compatibility findings were recorded for this deliverable.
 ## Audit Boundary
 
 Audit-only review. No product edits, lifecycle transition, candidate promotion, release claim, professional reliance claim, certification, sealing, approval, or code-compliance claim is made.
+
+---
+
+# Review: DEL-15-01 Canonical handoff package schema and manifest
+
+**Review Type:** SELF_CHECK / AGENT_CHECK
+**Reviewer(s):** REVIEW_2026-06-07_0028
+**Date Initiated:** 2026-06-07
+**Status:** RECOMMEND_HOLD; lifecycle not changed
+**Snapshot:** `execution/_Reconciliation/Reviews/REV_DEL-15-01_2026-06-07_0028`
+
+## Precondition Check
+
+- Lifecycle state: `IN_PROGRESS`, valid for `IN_PROGRESS -> CHECKING` review.
+- Context validity: PASS by local filesystem/context/decomposition/register check. `DEL-15-01`, `PKG-15`, `SOW-074`, and `OBJ-017` match `_CONTEXT.md`, `SOFTWARE_DECOMP.md`, and registers.
+- AUDIT_DECOMP dispatch: SKIP. No callable AUDIT_DECOMP tool was available in this session; bounded local decomposition check was performed instead.
+- Target transition reviewed: `IN_PROGRESS -> CHECKING`; no Gate 5 lifecycle action was authorized.
+
+## Checklist
+
+| ID | Check | Result | Notes |
+|---|---|---|---|
+| AP-001 | Four-document kit and local controls present | PASS | `_CONTEXT.md`, `_STATUS.md`, references, dependencies, memory, review files, and run records are present. |
+| AP-002 | Anticipated schema artifact present | PASS | `schemas/handoff_package.schema.json` exists and is validated. The separate handoff manifest container remains explicit deferred scope. |
+| AC-001 | SOW-074 package slots represented | PASS | Model hash, units manifest, entity IDs, library/rule refs, warnings, assumptions, provenance, target mapping metadata, and unsupported-target flags are represented in the schema and fixture. |
+| AC-002 | Professional/data boundary preserved | PASS | Schema and fixture preserve reference-only/private/protected-payload controls and do not create software authority statuses. |
+| OC-001 | OBJ-017 supported | PASS | Contract evidence supports traceable downstream handoff without automatic professional approval. |
+| XD-001 | Cross-document consistency | FAIL | `Guidance.md` still contains setup-era TBD/example language inconsistent with materialized schema/test/fixture evidence. |
+| XD-002 | Current OI-015 wording reflected | PARTIAL | OI-015 now names initial export/target surfaces; deliverable docs should narrow remaining TBD language to concrete mappings, taxonomy, and field coverage. |
+| DS-001 | Dependency CSV schema valid | PASS | 29 columns and 15 data rows validated. |
+| TB-001 | TBD inventory assessed | PASS_WITH_FINDINGS | Remaining TBDs are mostly explicit deferrals, but stale Guidance/OI-015 wording needs revision. |
+| VG-001 | Focused validation | PASS | `python3 tests/test_handoff_package_schema.py`; `git diff --check`. |
+
+## Findings Summary
+
+| Severity | Total | Resolved | Open | Deferred |
+|---|---:|---:|---:|---:|
+| CRITICAL | 0 | 0 | 0 | 0 |
+| MAJOR | 1 | 0 | 1 | 0 |
+| MINOR | 1 | 0 | 1 | 0 |
+| OBSERVATION | 0 | 0 | 0 | 0 |
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_HOLD`
+**Rationale:** Validation passed and the core contract surface is technically sound, but formal cross-document consistency is not yet clean. Resolve `RF-001` and `RF-002`, or obtain human dispositions, before Gate 5 advancement.
+
+`_STATUS.md` was not edited.
+
+---
+
+# Follow-up Review: DEL-15-01 Guidance Remediation Check
+
+**Review Type:** SELF_CHECK / AGENT_CHECK follow-up
+**Reviewer(s):** REVIEW_2026-06-07_0050
+**Date:** 2026-06-07
+**Status:** TECHNICALLY_ADDRESSED_PENDING_HUMAN_DISPOSITION; lifecycle not changed
+**Snapshot:** `execution/_Reconciliation/Reviews/REV_DEL-15-01_2026-06-07_0050`
+
+## Scope
+
+This follow-up reviewed the WORKING_ITEMS/TASK remediation recorded in `_run_records/TASK_RUN_2026-06-07_DEL-15-01_guidance-remediation.md`. REVIEW did not edit `Review_Findings.csv`, `_STATUS.md`, code, schema, tests, dependency CSVs, or human-disposition fields.
+
+## Finding Recheck
+
+| Finding | Technical recheck | Disposition state |
+|---|---|---|
+| RF-001 | PASS - `Guidance.md` now cites `schemas/handoff_package.schema.json`, `tests/test_handoff_package_schema.py`, and `fixtures/invented_handoff_package.json`; setup-era claims that exact property names and concrete example payloads were unavailable were removed. | `HumanDisposition=TBD`; `Status=OPEN` remains in `Review_Findings.csv`. |
+| RF-002 | PASS - OI-015 wording in `Datasheet.md`, `Specification.md`, `Procedure.md`, and `MEMORY.md` now distinguishes named initial export/target surfaces from gated package container, concrete mapping, target field coverage, target-specific implementation, and unsupported-behavior taxonomy work. | `HumanDisposition=TBD`; `Status=OPEN` remains in `Review_Findings.csv`. |
+
+## Validation
+
+- Focused test: `python3 tests/test_handoff_package_schema.py` - PASS.
+- Dependency schema: `Dependencies.csv` - PASS.
+- Stale-phrase scan over PKG-15 deliverable docs - PASS for requested phrases.
+- `git diff --check -- projects/chirality-piping` - PASS.
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_HOLD_PENDING_HUMAN_DISPOSITION`
+**Rationale:** The content defects identified by `RF-001` and `RF-002` are technically addressed, but REVIEW findings remain open with human dispositions intentionally unset. No lifecycle transition was authorized.

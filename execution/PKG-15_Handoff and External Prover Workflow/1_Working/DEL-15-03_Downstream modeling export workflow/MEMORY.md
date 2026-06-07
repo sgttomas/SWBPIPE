@@ -11,7 +11,7 @@ created: 2026-05-06
 
 - Hardened `tests/test_handoff_export_workflow.py` to validate exported handoff-package and target-mapping payloads against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`.
 - Added fixture-provenance assertions for `fixtures/invented_target_fixture.json`; fixture data remains invented public metadata only.
-- Updated deliverable-local docs to cite `core/handoff/exporter/workflow.py`, schema-validation evidence, and the current upstream schema contracts while preserving OI-015 `TBD` boundaries for target list, canonical package container, and target-specific mapping strategy.
+- Updated deliverable-local docs to cite `core/handoff/exporter/workflow.py`, schema-validation evidence, and the current upstream schema contracts while preserving OI-015 / DEL-17-01 / DEL-17-02 gates for canonical package container, concrete mappings, target field coverage, and target-specific implementation.
 - No target-specific parsers, external solver/prover invocation, commercial result ingestion, lifecycle `_STATUS.md` edits, or human review-disposition changes were added.
 
 Implemented a narrow provider-neutral export workflow in

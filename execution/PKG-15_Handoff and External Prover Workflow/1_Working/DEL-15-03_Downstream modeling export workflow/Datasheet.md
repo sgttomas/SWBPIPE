@@ -31,7 +31,7 @@
 
 | Condition | Status |
 |---|---|
-| Target list, canonical package container, and target-specific mapping strategy | TBD per `SOFTWARE_DECOMP.md#Open issues` OI-015. |
+| Target surfaces, canonical package container, and target-specific implementation | OI-015 names initial export and target surfaces; canonical package container, concrete mappings, target field coverage, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. |
 | Exact dependency versions and package-specific implementation choices | TBD per `_CONTEXT.md#Architecture Basis Injection`. |
 | Target-specific commercial stress output parsers | Deferred per `_CONTEXT.md#Context Envelope` and `SOFTWARE_DECOMP.md#SOW-074`. |
 | Professional approval, certification, sealing, or code-compliance claims | Excluded by `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4. |

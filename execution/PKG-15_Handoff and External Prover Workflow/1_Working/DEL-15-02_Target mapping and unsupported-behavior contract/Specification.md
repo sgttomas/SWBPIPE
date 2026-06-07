@@ -21,7 +21,7 @@ This deliverable excludes target-specific commercial parser implementation, auto
 | DEL-15-02-R009 | The contract shall not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` adapter framework boundary | Vocabulary review confirms status fields are diagnostic/handoff support only and do not imply professional reliance approval. |
 | DEL-15-02-R010 | The contract shall remain compatible with the canonical handoff package schema and manifest predecessor. | `Dependencies.csv` DAG-002-E0805; `_DEPENDENCIES.md` authority boundary | Dependency trace confirms DEL-15-01 predecessor relationship remains visible and ACTIVE in the approved mirror. |
 | DEL-15-02-R011 | The contract shall preserve redaction/export-control boundaries. | `Dependencies.csv` DAG-002-E0808; `docs/IP_AND_DATA_BOUNDARY.md` Private user data | Schema review confirms private data can be excluded or referenced without public disclosure; exact redaction workflow is TBD. |
-| DEL-15-02-R012 | The contract shall keep exact target list, canonical package container, and target-specific mapping strategy as TBD until accepted by the governing workflow. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 | Review confirms no unapproved commercial target list, package container, or strategy has been asserted. |
+| DEL-15-02-R012 | The contract shall keep concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation gated until accepted by the governing workflow. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Review confirms no unapproved target-specific mapping maturity, package container, or implementation strategy has been asserted. |
 
 ## Standards
 
@@ -42,7 +42,7 @@ This deliverable excludes target-specific commercial parser implementation, auto
 | V-003 | Protected-content and privacy review. | No private or protected data copied into public artifacts. |
 | V-004 | Unit/provenance validation plan review. | Unit awareness, dimensional metadata, source/provenance. |
 | V-005 | Dependency mirror check. | Approved DAG-002 predecessor evidence remains ACTIVE and unmodified. |
-| V-006 | TBD review gate. | Exact commercial target list, canonical package container, target-specific mapping strategy, and target-specific taxonomy values remain TBD unless supported by accepted source material. |
+| V-006 | TBD review gate. | Concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation remain gated unless supported by accepted source material. |
 
 ## Documentation
 

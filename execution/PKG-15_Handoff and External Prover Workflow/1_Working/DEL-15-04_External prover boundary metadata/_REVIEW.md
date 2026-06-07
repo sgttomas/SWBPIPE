@@ -56,3 +56,88 @@ See `Review_Findings.csv` for the detailed finding.
 ## Audit Boundary
 
 Audit-only review. No product edits, lifecycle transition, candidate promotion, release claim, professional reliance claim, certification, sealing, approval, or code-compliance claim is made.
+
+---
+
+# Review: DEL-15-04 External prover boundary metadata
+
+**Review Type:** SELF_CHECK / AGENT_CHECK
+**Reviewer(s):** REVIEW_2026-06-07_0028
+**Date Initiated:** 2026-06-07
+**Status:** RECOMMEND_HOLD; lifecycle not changed
+**Snapshot:** `execution/_Reconciliation/Reviews/REV_DEL-15-04_2026-06-07_0028`
+
+## Precondition Check
+
+- Lifecycle state: `IN_PROGRESS`, valid for `IN_PROGRESS -> CHECKING` review.
+- Context validity: PASS by local filesystem/context/decomposition/register check. `DEL-15-04`, `PKG-15`, `SOW-075`, `OBJ-017`, and `OBJ-018` match `_CONTEXT.md`, `SOFTWARE_DECOMP.md`, and registers.
+- AUDIT_DECOMP dispatch: SKIP. No callable AUDIT_DECOMP tool was available in this session; bounded local decomposition check was performed instead.
+- Target transition reviewed: `IN_PROGRESS -> CHECKING`; no Gate 5 lifecycle action was authorized.
+
+## Checklist
+
+| ID | Check | Result | Notes |
+|---|---|---|---|
+| AP-001 | Four-document kit and local controls present | PASS | `_CONTEXT.md`, `_STATUS.md`, references, dependencies, memory, review files, and run records are present. |
+| AP-002 | Anticipated external-reference metadata evidence present | PASS | `schemas/external_prover_metadata.schema.json`, `core/handoff/external_prover/metadata.py`, and focused tests exist. |
+| AC-001 | Flexible metadata categories supported | PASS | Schema and tests cover names, tags, notes, external references, attachments, assumptions, warnings, and handoff/export links. |
+| AC-002 | Authority and attachment boundary preserved | PASS | Generated records reject embedded attachments and software authority claims; metadata remains non-authoritative. |
+| OC-001 | OBJ-017 supported | PASS | Handoff/prover metadata supports review workflows without automatic professional approval. |
+| OC-002 | OBJ-018 supported | PASS | Public/private, provenance, attachment, and professional-boundary controls are explicit. |
+| XD-001 | Cross-document consistency | FAIL | `Guidance.md` still describes schema file/module/test harness and concrete fields as unresolved despite materialized schema/test evidence. |
+| DS-001 | Dependency CSV schema valid | PASS | 29 columns and 15 data rows validated. |
+| TB-001 | TBD inventory assessed | PASS_WITH_FINDINGS | Remaining external-tool/lifecycle/commercial-result TBDs are valid, but stale Guidance wording needs revision. |
+| VG-001 | Focused validation | PASS | `python3 tests/test_external_prover_boundary_metadata.py`; `git diff --check`. |
+
+## Findings Summary
+
+| Severity | Total | Resolved | Open | Deferred |
+|---|---:|---:|---:|---:|
+| CRITICAL | 0 | 0 | 0 | 0 |
+| MAJOR | 1 | 0 | 1 | 0 |
+| MINOR | 0 | 0 | 0 | 0 |
+| OBSERVATION | 0 | 0 | 0 | 0 |
+
+Prior package-audit finding `DEL-15-04-PKG02-001` remains `HumanDisposition=TBD` with technical status `TECHNICALLY_ADDRESSED_PENDING_HUMAN`.
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_HOLD`
+**Rationale:** Validation passed and the metadata-boundary contract is technically sound, but formal cross-document consistency is not clean and a prior blocker-class human disposition remains pending. Resolve `RF-001`, or obtain human disposition, before Gate 5 advancement.
+
+`_STATUS.md` was not edited.
+
+---
+
+# Follow-up Review: DEL-15-04 Guidance Remediation Check
+
+**Review Type:** SELF_CHECK / AGENT_CHECK follow-up
+**Reviewer(s):** REVIEW_2026-06-07_0050
+**Date:** 2026-06-07
+**Status:** TECHNICALLY_ADDRESSED_PENDING_HUMAN_DISPOSITION; lifecycle not changed
+**Snapshot:** `execution/_Reconciliation/Reviews/REV_DEL-15-04_2026-06-07_0050`
+
+## Scope
+
+This follow-up reviewed the WORKING_ITEMS/TASK remediation recorded in `_run_records/TASK_RUN_2026-06-07_DEL-15-04_guidance-remediation.md`. REVIEW did not edit `Review_Findings.csv`, `_STATUS.md`, code, schema, tests, dependency CSVs, or human-disposition fields.
+
+## Finding Recheck
+
+| Finding | Technical recheck | Disposition state |
+|---|---|---|
+| RF-001 | PASS - `Guidance.md` now cites `schemas/external_prover_metadata.schema.json`, `core/handoff/external_prover/metadata.py`, and `tests/test_external_prover_boundary_metadata.py`; category-only examples were replaced with schema-backed field groups while preserving non-authoritative metadata and attachment-as-reference boundaries. | `HumanDisposition=TBD`; `Status=OPEN` remains in `Review_Findings.csv`. |
+| DEL-15-04-PKG02-001 | Prior technical remediation remains supported by current tests; this follow-up made no finding-register disposition change. | `HumanDisposition=TBD`; `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` remains in `Review_Findings.csv`. |
+
+## Validation
+
+- Focused test: `python3 tests/test_external_prover_boundary_metadata.py` - PASS.
+- Dependency schema: `Dependencies.csv` - PASS.
+- Stale-phrase scan over PKG-15 deliverable docs - PASS for requested phrases.
+- `git diff --check -- projects/chirality-piping` - PASS.
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_HOLD_PENDING_HUMAN_DISPOSITION`
+**Rationale:** The content defect identified by `RF-001` is technically addressed, but REVIEW findings and the prior package-audit blocker retain human-owned dispositions. No lifecycle transition was authorized.

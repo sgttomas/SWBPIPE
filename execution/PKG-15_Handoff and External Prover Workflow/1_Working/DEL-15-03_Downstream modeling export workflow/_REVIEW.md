@@ -56,3 +56,90 @@ See `Review_Findings.csv` for the detailed finding.
 ## Audit Boundary
 
 Audit-only review. No product edits, lifecycle transition, candidate promotion, release claim, professional reliance claim, certification, sealing, approval, or code-compliance claim is made.
+
+---
+
+# Review: DEL-15-03 Downstream modeling export workflow
+
+**Review Type:** SELF_CHECK / AGENT_CHECK
+**Reviewer(s):** REVIEW_2026-06-07_0028
+**Date Initiated:** 2026-06-07
+**Status:** RECOMMEND_HOLD; lifecycle not changed
+**Snapshot:** `execution/_Reconciliation/Reviews/REV_DEL-15-03_2026-06-07_0028`
+
+## Precondition Check
+
+- Lifecycle state: `IN_PROGRESS`, valid for `IN_PROGRESS -> CHECKING` review.
+- Context validity: PASS by local filesystem/context/decomposition/register check. `DEL-15-03`, `PKG-15`, `SOW-074`, and `OBJ-017` match `_CONTEXT.md`, `SOFTWARE_DECOMP.md`, and registers.
+- AUDIT_DECOMP dispatch: SKIP. No callable AUDIT_DECOMP tool was available in this session; bounded local decomposition check was performed instead.
+- Target transition reviewed: `IN_PROGRESS -> CHECKING`; no Gate 5 lifecycle action was authorized.
+
+## Checklist
+
+| ID | Check | Result | Notes |
+|---|---|---|---|
+| AP-001 | Four-document kit and local controls present | PASS | `_CONTEXT.md`, `_STATUS.md`, references, dependencies, memory, review files, and run records are present. |
+| AP-002 | Anticipated export workflow evidence present | PASS | `core/handoff/exporter/workflow.py`, `tests/test_handoff_export_workflow.py`, and `fixtures/invented_target_fixture.json` exist. |
+| AC-001 | Exported handoff package is schema-compliant | PASS | Test validates handoff payload against `schemas/handoff_package.schema.json`. |
+| AC-002 | Target-mapping payload is schema-compliant | PASS | Test validates mapping payload against `schemas/target_mapping.schema.json`. |
+| AC-003 | Generic boundary preserved | PASS | No target-specific parser, external solver/prover invocation, or commercial result ingestion was added. |
+| OC-001 | OBJ-017 supported | PASS | Generic export workflow supports traceable downstream handoff without automatic professional approval. |
+| XD-001 | Cross-document consistency | FAIL | `Guidance.md` still describes missing fixture, exporter path, schema fields, and taxonomy as unresolved despite materialized evidence. |
+| XD-002 | Current OI-015 wording reflected | PARTIAL | OI-015 now names initial export/target surfaces; deliverable docs should narrow remaining TBD language to concrete mappings, taxonomy, and field coverage. |
+| DS-001 | Dependency CSV schema valid | PASS | 29 columns and 16 data rows validated. |
+| TB-001 | TBD inventory assessed | PASS_WITH_FINDINGS | Remaining target-specific TBDs are valid, but stale Guidance/OI-015 wording needs revision. |
+| VG-001 | Focused validation | PASS | `python3 tests/test_handoff_export_workflow.py`; `git diff --check`. |
+
+## Findings Summary
+
+| Severity | Total | Resolved | Open | Deferred |
+|---|---:|---:|---:|---:|
+| CRITICAL | 0 | 0 | 0 | 0 |
+| MAJOR | 1 | 0 | 1 | 0 |
+| MINOR | 1 | 0 | 1 | 0 |
+| OBSERVATION | 0 | 0 | 0 | 0 |
+
+Prior package-audit finding `DEL-15-03-PKG02-001` remains `HumanDisposition=TBD` with technical status `TECHNICALLY_ADDRESSED_PENDING_HUMAN`.
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_HOLD`
+**Rationale:** Validation passed and the generic export workflow is technically sound, but formal cross-document consistency is not clean and a prior human disposition remains pending. Resolve `RF-001` and `RF-002`, or obtain human dispositions, before Gate 5 advancement.
+
+`_STATUS.md` was not edited.
+
+---
+
+# Follow-up Review: DEL-15-03 Guidance Remediation Check
+
+**Review Type:** SELF_CHECK / AGENT_CHECK follow-up
+**Reviewer(s):** REVIEW_2026-06-07_0050
+**Date:** 2026-06-07
+**Status:** TECHNICALLY_ADDRESSED_PENDING_HUMAN_DISPOSITION; lifecycle not changed
+**Snapshot:** `execution/_Reconciliation/Reviews/REV_DEL-15-03_2026-06-07_0050`
+
+## Scope
+
+This follow-up reviewed the WORKING_ITEMS/TASK remediation recorded in `_run_records/TASK_RUN_2026-06-07_DEL-15-03_guidance-remediation.md`. REVIEW did not edit `Review_Findings.csv`, `_STATUS.md`, code, schema, tests, dependency CSVs, or human-disposition fields.
+
+## Finding Recheck
+
+| Finding | Technical recheck | Disposition state |
+|---|---|---|
+| RF-001 | PASS - `Guidance.md` now cites `core/handoff/exporter/workflow.py`, `tests/test_handoff_export_workflow.py`, `fixtures/invented_target_fixture.json`, `schemas/handoff_package.schema.json`, and `schemas/target_mapping.schema.json`; stale claims that fixture/exporter/schema inputs were unavailable were removed. | `HumanDisposition=TBD`; `Status=OPEN` remains in `Review_Findings.csv`. |
+| RF-002 | PASS - OI-015 wording in `Datasheet.md`, `Specification.md`, and `MEMORY.md` now distinguishes named initial export/target surfaces from gated container, concrete mappings, target field coverage, target-specific implementation, and commercial format details. | `HumanDisposition=TBD`; `Status=OPEN` remains in `Review_Findings.csv`. |
+| DEL-15-03-PKG02-001 | Prior technical remediation remains supported by current tests; this follow-up made no finding-register disposition change. | `HumanDisposition=TBD`; `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN` remains in `Review_Findings.csv`. |
+
+## Validation
+
+- Focused test: `python3 tests/test_handoff_export_workflow.py` - PASS.
+- Dependency schema: `Dependencies.csv` - PASS.
+- Stale-phrase scan over PKG-15 deliverable docs - PASS for requested phrases.
+- `git diff --check -- projects/chirality-piping` - PASS.
+
+## Transition Readiness
+
+**Target transition:** `IN_PROGRESS -> CHECKING`
+**Recommendation:** `RECOMMEND_HOLD_PENDING_HUMAN_DISPOSITION`
+**Rationale:** The content defects identified by `RF-001` and `RF-002` are technically addressed, but REVIEW findings and the prior package-audit item retain human-owned dispositions. No lifecycle transition was authorized.

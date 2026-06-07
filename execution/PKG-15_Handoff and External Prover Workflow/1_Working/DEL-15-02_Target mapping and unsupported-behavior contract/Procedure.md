@@ -16,7 +16,7 @@ Define and check the target mapping and unsupported-behavior contract for handof
 | Private data redaction and export controls predecessor. | `Dependencies.csv` DAG-002-E0808 | ACTIVE mirror row |
 | Physical-to-analytical transformation predecessor. | `Dependencies.csv` DAG-002-E0809 | ACTIVE mirror row |
 | Comparison mapping, tolerance, and export contracts predecessor. | `Dependencies.csv` DAG-002-E0810 | ACTIVE mirror row |
-| Exact target list, canonical package container, and target-specific mapping strategy. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 | TBD |
+| Concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Gated |
 
 ## Steps
 
@@ -52,10 +52,11 @@ Define and check the target mapping and unsupported-behavior contract for handof
    - Record any conflict with dependency-extract normalization rules rather than rewriting the mirror.
 
 8. Record unresolved decisions:
-   - Target list: TBD.
+   - Initial export and target surfaces: named by OI-015.
    - Canonical package container: TBD.
-   - Target-specific mapping strategy: TBD.
-   - Target-specific unsupported behavior taxonomy values: TBD.
+   - Concrete mappings and target field coverage: gated by DEL-17-01 and DEL-17-02.
+   - Target-specific implementation strategy: gated by DEL-17-01 and DEL-17-02.
+   - Target-specific unsupported behavior taxonomy extensions: gated by DEL-17-01 and DEL-17-02.
    - Provider-neutral schema path and property names: materialized in `schemas/target_mapping.schema.json`.
 
 ## Verification

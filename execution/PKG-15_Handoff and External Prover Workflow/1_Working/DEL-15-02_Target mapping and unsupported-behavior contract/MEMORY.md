@@ -4,7 +4,7 @@
 
 - Materialized `schemas/target_mapping.schema.json` as the public JSON Schema 2020-12 contract for the current provider-neutral Python output from `core/handoff/target_mapping/contract.py`.
 - Hardened `tests/test_target_mapping_contract.py` to validate generated normal and negative contracts with `jsonschema.Draft202012Validator`.
-- Updated deliverable-local docs to cite the materialized schema path, provider-neutral fields, and taxonomy while preserving OI-015 `TBD` boundaries for exact commercial target list, canonical package container, and target-specific mapping strategy.
+- Updated deliverable-local docs to cite the materialized schema path, provider-neutral fields, and taxonomy while preserving OI-015 / DEL-17-01 / DEL-17-02 gates for concrete mappings, target field coverage, canonical package container, target-specific taxonomy extensions, and target-specific implementation.
 - Local `Review_Findings.csv` human dispositions and lifecycle `_STATUS.md` were not changed.
 
 ## 2026-05-06 Implementation Notes
