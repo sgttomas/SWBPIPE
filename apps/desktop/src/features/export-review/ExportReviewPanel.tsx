@@ -154,6 +154,7 @@ function buildExportReviewManifest({
   const validationPreflightReady = true;
   const reportReady = Boolean(result && analysisRun);
   const resultExportReady = Boolean(result && analysisRun);
+  const stressNeutralReady = Boolean(result && analysisRun);
   const headlessRunnerReady = true;
   const adapterFrameworkReady = true;
   const externalProverReady = true;
@@ -219,6 +220,35 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Schema-first local JSON result envelope; non-JSON formats, public transport, and local FEA package formats remain TBD."
+    },
+    {
+      export_id: "stress_neutral_csv_json_package",
+      label: "Stress-neutral CSV/JSON package",
+      document_kind: "openpipestress.technical_preview.stress_neutral_csv_json_package",
+      readiness: stressNeutralReady ? "available" : "pending_mechanics_run",
+      deliverable_refs: ["DEL-17-06", "DEL-08-04", "DEL-14-02", "DEL-14-05", "DEL-17-02"],
+      source_refs: result && run
+        ? [result.run_id, run.model_state_ref.ref, `result-envelope:${result.run_id}`]
+        : [model.project.id],
+      result_ref_count: result?.results.length ?? 0,
+      csv_column_count: 11,
+      stable_id_count: result?.results.length ?? 0,
+      member_roles: ["manifest", "csv_text", "result_rows", "stable_id_map", "loss_report", "validation_report", "diagnostics"],
+      comparison_semantics: "diagnostic_export_only_no_pass_fail",
+      schema_validation_status: "desktop_preview_shape_aligned_not_runtime_json_schema_validated",
+      canonical_package_hash_status: "TBD_browser_preview_does_not_emit_canonical_package_hash",
+      vendor_format_claim: false,
+      solver_input_deck_claim: false,
+      target_compatibility_claim: false,
+      solver_validation_claim: false,
+      code_compliance_claim: false,
+      professional_reliance_claim: false,
+      redaction_action: "classify_and_warn_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Stress-neutral CSV/JSON browser preview; fixed result columns, stable IDs, loss report, and diagnostic-only comparison semantics."
     },
     {
       export_id: "headless_runner_envelope",
@@ -363,9 +393,10 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/report/ReportPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
-        "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx"
+        "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+        "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 6 : 5,
+      target_count: result && run ? 7 : 6,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -417,7 +448,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-08", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-06", "DEL-17-08", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

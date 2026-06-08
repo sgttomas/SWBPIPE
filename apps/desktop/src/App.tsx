@@ -36,6 +36,7 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SolvePanel } from "./features/solve/SolvePanel";
+import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { PipeViewport } from "./features/viewport/PipeViewport";
 import {
   buildAnalysisRunPreview,
@@ -349,6 +350,7 @@ export function App() {
           <RuleCheckPanel model={model} result={result} />
           <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
           <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
+          <StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />
           <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
           <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
           <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />

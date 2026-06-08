@@ -68,8 +68,8 @@ export function ResultExportPanel({
         </p>
       )}
       <small className="report-note">
-        Result export is a local technical-preview JSON envelope only; additional formats, public transport, and local
-        FEA package formats remain TBD.
+        Result export is a local technical-preview JSON envelope; stress-neutral CSV/JSON preview is available after a
+        mechanics run, while public transport and local FEA package formats remain TBD.
       </small>
     </section>
   );
@@ -106,7 +106,7 @@ function buildResultExportPacket({
     objectives: ["OBJ-007", "OBJ-009"],
     export_format_status: {
       baseline_format: "schema_first_json_result_envelope",
-      additional_formats: "TBD",
+      additional_formats: "stress_neutral_csv_json_preview_available",
       public_transport_protocol: "TBD",
       local_fea_package_format: "TBD",
       external_adapter_formats: "TBD"
@@ -168,7 +168,7 @@ function buildResultExportPacket({
         report_consumption: true,
         headless_automation: true,
         governed_downstream_tooling: true,
-        additional_export_formats: "TBD"
+        additional_export_formats: "stress_neutral_csv_json_preview_available"
       }
     }
   };

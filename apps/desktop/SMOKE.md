@@ -944,3 +944,28 @@ parsed report JSON persistence inventory carried `expected_export_count=12`,
 `operation_review_ledger:empty_operation_queue`; Report Content Lint reported
 `targets=6`, `findings=0`, and `blocking=0`. Fresh browser console errors after
 the timestamp marker were absent.
+
+TP-MAC-47 stress-neutral-csv-json-export-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T12:10:39.510Z`. The initial state confirmed the
+Stress-neutral CSV/JSON panel was present but pending a mechanics run, Report
+Content Lint reported `targets=6`, `findings=0`, and `blocking=0`, and Export
+Safety Review reported `7 of 13 local exports ready`.
+
+After running the preview mechanics path, the stress-neutral panel reported
+`available`, `rows=647`, `csv_columns=11`, and `diagnostics=2`. The parsed JSON
+download carried
+`document_kind=openpipestress.technical_preview.stress_neutral_csv_json_package`,
+`DEL-17-06`, `PKG-17`, 647 result rows, 647 stable-ID mappings, 11 CSV columns,
+`validation_status=passed`,
+`schema_validation_status=desktop_preview_shape_aligned_not_runtime_json_schema_validated`,
+`canonical_package_hash_status=TBD_browser_preview_does_not_emit_canonical_package_hash`,
+three loss-report entries, diagnostics `SN-DESKTOP-PREVIEW-HASH-TBD` and
+`SN-DESKTOP-PREVIEW-COMPARISON-TBD`, and false private-payload,
+protected-content, vendor-format, solver-validation, code-compliance, and
+professional-reliance claim flags. The parsed CSV download had header
+`result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status`,
+648 lines including the header, and contained `result:force:pipe-P-120:axial`.
+Export Safety Review reported `12 of 13 local exports ready`, and Report
+Content Lint reported `targets=7`, `findings=0`, and `blocking=0`. Fresh browser
+console errors after the timestamp marker were absent.

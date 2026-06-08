@@ -302,8 +302,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(geometryPacket.professional_validation_claim).toBe(false);
     expect(geometryPacket.target_compatibility_claim).toBe(false);
     expect(geometryPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    const stressNeutral = await screen.findByLabelText("Stress-neutral CSV JSON export");
+    expect(within(stressNeutral).getByTestId("stress-neutral-empty").textContent).toContain(
+      "stress-neutral CSV/JSON package"
+    );
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=5");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=6");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -335,7 +339,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(5);
+    expect(lintPacket.lint_run.summary.target_count).toBe(6);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -363,7 +367,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "7 of 12 local exports ready"
+      "7 of 13 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -808,7 +812,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "12 of 12 local exports ready"
+      "13 of 13 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -825,6 +829,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-record-result_envelope").textContent).toContain(
       "available"
     );
+    expect(
+      within(exportReview).getByTestId("export-review-record-stress_neutral_csv_json_package").textContent
+    ).toContain("available");
     expect(within(exportReview).getByTestId("export-review-record-headless_runner_envelope").textContent).toContain(
       "available"
     );
@@ -865,6 +872,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.deliverable_refs).toContain("DEL-15-04");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-02");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-03");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-17-06");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-08");
     expect(reviewManifest.scope_items).toContain("SOW-040");
     expect(reviewManifest.scope_items).toContain("SOW-050");
@@ -880,12 +888,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.objectives).toContain("OBJ-008");
     expect(reviewManifest.objectives).toContain("OBJ-009");
     expect(reviewManifest.objectives).toContain("OBJ-017");
-    expect(reviewManifest.summary.available_count).toBe(12);
+    expect(reviewManifest.summary.available_count).toBe(13);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
       "project_storage_audit",
       "project_validation_preflight",
       "result_envelope",
+      "stress_neutral_csv_json_package",
       "headless_runner_envelope",
       "adapter_framework_envelope",
       "external_prover_boundary_metadata",
@@ -904,6 +913,27 @@ describe("OpenPipeStress desktop preview", () => {
       reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_validation_preflight")
         .round_trip_status
     ).toBe("semantic_categories_declared");
+    const stressNeutralExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "stress_neutral_csv_json_package"
+    );
+    expect(stressNeutralExport.document_kind).toBe(
+      "openpipestress.technical_preview.stress_neutral_csv_json_package"
+    );
+    expect(stressNeutralExport.deliverable_refs).toContain("DEL-17-06");
+    expect(stressNeutralExport.deliverable_refs).toContain("DEL-08-04");
+    expect(stressNeutralExport.deliverable_refs).toContain("DEL-14-02");
+    expect(stressNeutralExport.result_ref_count).toBe(647);
+    expect(stressNeutralExport.csv_column_count).toBe(11);
+    expect(stressNeutralExport.stable_id_count).toBe(647);
+    expect(stressNeutralExport.member_roles).toContain("loss_report");
+    expect(stressNeutralExport.comparison_semantics).toBe("diagnostic_export_only_no_pass_fail");
+    expect(stressNeutralExport.canonical_package_hash_status).toBe(
+      "TBD_browser_preview_does_not_emit_canonical_package_hash"
+    );
+    expect(stressNeutralExport.vendor_format_claim).toBe(false);
+    expect(stressNeutralExport.solver_validation_claim).toBe(false);
+    expect(stressNeutralExport.code_compliance_claim).toBe(false);
+    expect(stressNeutralExport.professional_reliance_claim).toBe(false);
     const headlessExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "headless_runner_envelope"
     );
@@ -963,7 +993,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
     expect(lintExport.deliverable_refs).toContain("DEL-08-05");
-    expect(lintExport.target_count).toBe(6);
+    expect(lintExport.target_count).toBe(7);
     expect(lintExport.finding_count).toBe(0);
     expect(lintExport.blocking_finding_count).toBe(0);
     expect(lintExport.clean_scan_is_clearance).toBe(false);
@@ -1221,7 +1251,7 @@ describe("OpenPipeStress desktop preview", () => {
       "schema_first_json_result_envelope"
     );
     expect(within(resultExport).getByTestId("result-export-format").textContent).toContain(
-      "additional_formats=TBD"
+      "additional_formats=stress_neutral_csv_json_preview_available"
     );
     expect(within(resultExport).getByTestId("result-export-state-binding").textContent).toContain(
       "project:invented-loop-01"
@@ -1247,7 +1277,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(resultExportPacket.objectives).toContain("OBJ-007");
     expect(resultExportPacket.objectives).toContain("OBJ-009");
     expect(resultExportPacket.export_format_status.baseline_format).toBe("schema_first_json_result_envelope");
-    expect(resultExportPacket.export_format_status.additional_formats).toBe("TBD");
+    expect(resultExportPacket.export_format_status.additional_formats).toBe(
+      "stress_neutral_csv_json_preview_available"
+    );
     expect(resultExportPacket.export_format_status.public_transport_protocol).toBe("TBD");
     expect(resultExportPacket.result_envelope.envelope_id).toBe("result-envelope:run:preview-linear-static-001");
     expect(resultExportPacket.result_envelope.model_ref.ref_id).toBe("project:invented-loop-01");
@@ -1269,12 +1301,100 @@ describe("OpenPipeStress desktop preview", () => {
     expect(resultExportPacket.result_envelope.rule_pack_refs[0].completeness_status).toBe(
       "missing_required_inputs"
     );
-    expect(resultExportPacket.result_envelope.downstream_use.additional_export_formats).toBe("TBD");
+    expect(resultExportPacket.result_envelope.downstream_use.additional_export_formats).toBe(
+      "stress_neutral_csv_json_preview_available"
+    );
     expect(resultExportPacket.result_envelope.professional_boundary.software_makes_compliance_claim).toBe(false);
     expect(resultExportPacket.result_envelope.professional_boundary.software_makes_certification_claim).toBe(false);
     expect(resultExportPacket.result_envelope.professional_boundary.software_makes_sealing_claim).toBe(false);
     expect(resultExportPacket.result_envelope.professional_boundary.software_makes_approval_claim).toBe(false);
     expect(resultExportPacket.result_envelope.professional_boundary.software_makes_authentication_claim).toBe(false);
+    const stressNeutral = await screen.findByLabelText("Stress-neutral CSV JSON export");
+    expect(within(stressNeutral).getByTestId("stress-neutral-summary").textContent).toContain("available");
+    expect(within(stressNeutral).getByTestId("stress-neutral-summary").textContent).toContain("rows=647");
+    expect(within(stressNeutral).getByTestId("stress-neutral-summary").textContent).toContain("csv_columns=11");
+    expect(within(stressNeutral).getByTestId("stress-neutral-format").textContent).toContain(
+      "stress_neutral_csv_json"
+    );
+    expect(within(stressNeutral).getByTestId("stress-neutral-format").textContent).toContain(
+      "ops.stress_neutral.v1"
+    );
+    expect(within(stressNeutral).getByTestId("stress-neutral-state-binding").textContent).toContain(
+      "project:invented-loop-01"
+    );
+    expect(within(stressNeutral).getByTestId("stress-neutral-state-binding").textContent).toContain(
+      "run:preview-linear-static-001"
+    );
+    expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("explicit units");
+    expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("stress");
+    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("members=7");
+    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("stable_ids=647");
+    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("validation=passed");
+    expect(within(stressNeutral).getByTestId("stress-neutral-boundary").textContent).toContain(
+      "vendor_format=false"
+    );
+    expect(within(stressNeutral).getByTestId("stress-neutral-boundary").textContent).toContain(
+      "solver_validation=false"
+    );
+    const stressNeutralHref =
+      within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href") ?? "";
+    const stressNeutralPacket = JSON.parse(decodeURIComponent(stressNeutralHref.split(",", 2)[1]));
+    expect(stressNeutralPacket.document_kind).toBe(
+      "openpipestress.technical_preview.stress_neutral_csv_json_package"
+    );
+    expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
+    expect(stressNeutralPacket.package_id).toBe("PKG-17");
+    expect(stressNeutralPacket.scope_items).toContain("SOW-046");
+    expect(stressNeutralPacket.scope_items).toContain("SOW-074");
+    expect(stressNeutralPacket.objectives).toContain("OBJ-007");
+    expect(stressNeutralPacket.objectives).toContain("OBJ-017");
+    expect(stressNeutralPacket.objectives).toContain("OBJ-018");
+    expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
+    expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
+    expect(stressNeutralPacket.export_profile.csv_columns).toEqual([
+      "result_id",
+      "canonical_ref",
+      "row_kind",
+      "result_family",
+      "load_case_ref",
+      "station_ref",
+      "component_ref",
+      "value",
+      "unit",
+      "dimension",
+      "correlation_status"
+    ]);
+    expect(stressNeutralPacket.result_rows).toHaveLength(647);
+    expect(stressNeutralPacket.stable_id_map).toHaveLength(647);
+    expect(stressNeutralPacket.csv_text.split("\n")[0]).toBe(
+      "result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status"
+    );
+    expect(stressNeutralPacket.csv_text).toContain("result:force:pipe-P-120:axial");
+    expect(stressNeutralPacket.loss_report.entries).toHaveLength(3);
+    expect(stressNeutralPacket.loss_report.entries.map((entry: { category: string }) => entry.category)).toContain(
+      "tbd"
+    );
+    expect(stressNeutralPacket.manifest.package_members).toHaveLength(7);
+    expect(stressNeutralPacket.manifest.canonical_package_hash_status).toBe(
+      "TBD_browser_preview_does_not_emit_canonical_package_hash"
+    );
+    expect(stressNeutralPacket.validation_report.validation_status).toBe("passed");
+    expect(stressNeutralPacket.validation_report.schema_validation_status).toBe(
+      "desktop_preview_shape_aligned_not_runtime_json_schema_validated"
+    );
+    expect(stressNeutralPacket.result_rows.every((row: { unit: string; dimension: string }) => row.unit && row.dimension)).toBe(
+      true
+    );
+    expect(stressNeutralPacket.private_payload_included).toBe(false);
+    expect(stressNeutralPacket.protected_content_included).toBe(false);
+    expect(stressNeutralPacket.vendor_format_claim).toBe(false);
+    expect(stressNeutralPacket.solver_validation_claim).toBe(false);
+    expect(stressNeutralPacket.code_compliance_claim).toBe(false);
+    expect(stressNeutralPacket.professional_reliance_claim).toBe(false);
+    const stressNeutralCsvHref = within(stressNeutral).getByTestId("stress-neutral-csv-link").getAttribute("href") ?? "";
+    expect(decodeURIComponent(stressNeutralCsvHref.split(",", 2)[1]).split("\n")[0]).toBe(
+      "result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status"
+    );
     const headlessRunner = await screen.findByLabelText("Headless runner envelope");
     expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("job=COMPLETED");
     expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("outputs=4");
@@ -1785,7 +1905,7 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_not_persisted"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
-      "11 of 12 local exports ready"
+      "12 of 13 local exports ready"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
@@ -1807,6 +1927,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.deliverable_refs).toContain("DEL-08-03");
     expect(exportPacket.deliverable_refs).toContain("DEL-08-06");
     expect(exportPacket.deliverable_refs).toContain("DEL-15-04");
+    expect(exportPacket.deliverable_refs).toContain("DEL-17-06");
     expect(exportPacket.deliverable_refs).toContain("DEL-17-08");
     expect(exportPacket.deliverable_refs).toContain("DEL-02-05");
     expect(exportPacket.deliverable_refs).toContain("DEL-12-01");
@@ -1842,8 +1963,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
       "semantic_categories_declared"
     );
-    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(12);
-    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(11);
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(13);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(12);
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
       "available"
     );
@@ -1852,6 +1973,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("available");
     expect(
       exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.report_protected_content_lint
+    ).toBe("available");
+    expect(
+      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.stress_neutral_csv_json_package
     ).toBe("available");
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.headless_runner_envelope).toBe(
       "available"
@@ -1874,7 +1998,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=6");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=7");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -1884,8 +2008,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(6);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(6);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(7);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(7);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

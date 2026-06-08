@@ -117,6 +117,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+          "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
           "fixtures/product_preview"
         ],
         private_surface_default: "skip_unless_explicitly_authorized",
@@ -177,6 +178,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Review geometry template records glTF preview geometry, stable IDs, private payload false, protected payload false, visual review only, no solver geometry equivalence claim."
+    ),
+    target(
+      "target:desktop-stress-neutral-template",
+      "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Stress-neutral export template records CSV/JSON preview rows, explicit units and dimensions, stable IDs, private payload false, protected payload false, diagnostic-only comparison semantics, no vendor format, solver validation, code compliance, or professional reliance claim."
     ),
     target(
       "target:invented-preview-fixture",
