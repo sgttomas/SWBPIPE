@@ -24,6 +24,25 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(initialReadiness).getByTestId("readiness-professional").textContent).toContain(
       "human review required"
     );
+    const ruleCheck = await screen.findByLabelText("Rule-check completeness");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("4 review findings");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("rule_check_blocked=true");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain(
+      "mechanics_reviewable=false"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-status").textContent).toContain(
+      "not_performed_user_rule_inputs_missing"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-boundary").textContent).toContain(
+      "silent defaults used=false"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-boundary").textContent).toContain("no compliance claim");
+    expect(within(ruleCheck).getByTestId("rule-check-finding-required-rule-inputs-missing").textContent).toContain(
+      "RULE_CHECK_BLOCKING"
+    );
+    expect(
+      within(ruleCheck).getByTestId("rule-check-finding-component-flexibility-factor-provenance").textContent
+    ).toContain("PROVENANCE_WARNING");
     expect(await screen.findByLabelText("Model tree")).toBeInTheDocument();
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
     const runAudit = await screen.findByLabelText("Run audit");
@@ -466,6 +485,56 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(solvedReadiness).getByTestId("readiness-professional").textContent).toContain(
       "no professional acceptance record"
     );
+    const ruleCheck = await screen.findByLabelText("Rule-check completeness");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("5 review findings");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("rule_check_blocked=true");
+    expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain(
+      "mechanics_reviewable=true"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-status").textContent).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(within(ruleCheck).getByTestId("rule-check-mechanics-status").textContent).toContain("MECHANICS_SOLVED");
+    expect(within(ruleCheck).getByTestId("rule-check-boundary").textContent).toContain(
+      "bundled code values=false"
+    );
+    expect(
+      within(ruleCheck).getByTestId("rule-check-finding-professional-acceptance-not-provided").textContent
+    ).toContain("ASSUMPTION_WARNING");
+    const ruleCheckHref = within(ruleCheck).getByTestId("rule-check-export-link").getAttribute("href") ?? "";
+    const ruleCheckPacket = JSON.parse(decodeURIComponent(ruleCheckHref.split(",", 2)[1]));
+    expect(ruleCheckPacket.document_kind).toBe("openpipestress.technical_preview.rule_completeness_review");
+    expect(ruleCheckPacket.deliverable_refs).toContain("DEL-06-03");
+    expect(ruleCheckPacket.deliverable_refs).toContain("DEL-07-04");
+    expect(ruleCheckPacket.scope_items).toContain("SOW-004");
+    expect(ruleCheckPacket.scope_items).toContain("SOW-022");
+    expect(ruleCheckPacket.run_ref).toBe("run:preview-linear-static-001");
+    expect(ruleCheckPacket.rule_check_status).toBe("RULE_INPUTS_INCOMPLETE");
+    expect(ruleCheckPacket.summary.finding_count).toBe(5);
+    expect(ruleCheckPacket.summary.rule_check_blocked).toBe(true);
+    expect(ruleCheckPacket.summary.mechanics_results_reviewable).toBe(true);
+    expect(ruleCheckPacket.summary.silent_defaults_used).toBe(false);
+    expect(ruleCheckPacket.summary.bundled_code_values_used).toBe(false);
+    expect(ruleCheckPacket.summary.compliance_claim_made).toBe(false);
+    expect(ruleCheckPacket.findings.map((item: { warning_class: string }) => item.warning_class)).toContain(
+      "RULE_CHECK_BLOCKING"
+    );
+    expect(ruleCheckPacket.findings.map((item: { warning_class: string }) => item.warning_class)).toContain(
+      "PROVENANCE_WARNING"
+    );
+    expect(ruleCheckPacket.findings.map((item: { warning_class: string }) => item.warning_class)).toContain(
+      "ASSUMPTION_WARNING"
+    );
+    expect(
+      ruleCheckPacket.findings.every(
+        (item: {
+          protected_content_required: boolean;
+          mechanics_solve_blocking: boolean;
+        }) => item.protected_content_required === false && item.mechanics_solve_blocking === false
+      )
+    ).toBe(true);
+    expect(ruleCheckPacket.private_payload_included).toBe(false);
+    expect(ruleCheckPacket.protected_content_included).toBe(false);
+    expect(ruleCheckPacket.release_or_professional_claim).toBe(false);
+    expect(ruleCheckPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const runAudit = await screen.findByLabelText("Run audit");
     expect(await within(runAudit).findByTestId("run-audit-model-state")).toHaveTextContent(
       "ModelState; state:project:invented-loop-01:preview"

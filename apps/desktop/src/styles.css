@@ -675,6 +675,10 @@ button:focus-visible {
   min-height: 285px;
 }
 
+.rule-check-panel {
+  min-height: 350px;
+}
+
 .run-audit-panel {
   min-height: 210px;
 }

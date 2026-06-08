@@ -23,6 +23,7 @@ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportPanel } from "./features/report/ReportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
+import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { PipeViewport } from "./features/viewport/PipeViewport";
@@ -293,6 +294,7 @@ export function App() {
 
         <aside className="right-rail">
           <SolvePanel model={model} result={result} running={running} onRun={handleRun} />
+          <RuleCheckPanel model={model} result={result} />
           <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
           <ComparisonPanel comparison={comparison} onSelectResult={handleSelectResult} />
           <HandoffPanel

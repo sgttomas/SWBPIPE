@@ -488,3 +488,23 @@ blocking, source-model-mutation disabled, private-data policy
 `no_private_project_data`, and false private-payload, protected-content,
 release/professional-claim, and compliance-claim flags. Fresh browser console
 errors after the timestamp marker were absent.
+
+TP-MAC-32 rule-check-completeness smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at `http://127.0.0.1:5174/`
+with timestamp marker `2026-06-08T04:23:33.773Z`. The run confirmed the new
+Rule-Check Completeness panel initially reported `4 review findings`,
+`rule_check_blocked=true`, and `mechanics_reviewable=false`, with
+`RULE_CHECK_BLOCKING` for missing user/private rule inputs and
+`PROVENANCE_WARNING` for component flexibility-factor provenance. After
+running mechanics preview, the panel reported `5 review findings`,
+`mechanics_reviewable=true`, `RULE_INPUTS_INCOMPLETE`, and
+`MECHANICS_SOLVED`, adding an `ASSUMPTION_WARNING` for missing professional
+acceptance. The parsed local completeness JSON carried
+`document_kind=openpipestress.technical_preview.rule_completeness_review`,
+deliverable refs `DEL-06-03` and `DEL-07-04`, scope items `SOW-004` and
+`SOW-022`, run ref `run:preview-linear-static-001`, warning classes
+`RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, and `ASSUMPTION_WARNING`,
+`silent_defaults_used=false`, `bundled_code_values_used=false`,
+`compliance_claim_made=false`, and false private-payload, protected-content,
+release/professional-claim, and compliance-claim flags. Fresh browser console
+errors after the timestamp marker were absent.
