@@ -238,8 +238,72 @@ describe("OpenPipeStress desktop preview", () => {
     expect(externalPacket.professional_boundary.commercial_result_payload_ingested).toBe(false);
     expect(externalPacket.professional_boundary.software_creates_external_validation_record).toBe(false);
     expect(externalPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    const reviewGeometry = await screen.findByLabelText("Review geometry export");
+    expect(within(reviewGeometry).getByTestId("review-geometry-summary").textContent).toContain("available");
+    expect(within(reviewGeometry).getByTestId("review-geometry-summary").textContent).toContain(
+      "format=glTF_2_0_json_preview"
+    );
+    expect(within(reviewGeometry).getByTestId("review-geometry-summary").textContent).toContain("segments=4");
+    expect(within(reviewGeometry).getByTestId("review-geometry-summary").textContent).toContain("nodes=5");
+    expect(within(reviewGeometry).getByTestId("review-geometry-summary").textContent).toContain("stable_ids=19");
+    expect(within(reviewGeometry).getByTestId("review-geometry-format").textContent).toContain("asset=2.0");
+    expect(within(reviewGeometry).getByTestId("review-geometry-format").textContent).toContain("units=m");
+    expect(within(reviewGeometry).getByTestId("review-geometry-state-binding").textContent).toContain(
+      "not generated"
+    );
+    expect(within(reviewGeometry).getByTestId("review-geometry-state-binding").textContent).toContain("state:TBD");
+    expect(within(reviewGeometry).getByTestId("review-geometry-coverage").textContent).toContain("pipe_segments");
+    expect(within(reviewGeometry).getByTestId("review-geometry-coverage").textContent).toContain("supports");
+    expect(within(reviewGeometry).getByTestId("review-geometry-coverage").textContent).toContain("load_cases");
+    expect(within(reviewGeometry).getByTestId("review-geometry-stable-ids").textContent).toContain("sidecar=required");
+    expect(within(reviewGeometry).getByTestId("review-geometry-boundary").textContent).toContain(
+      "visual_review_geometry_only"
+    );
+    expect(within(reviewGeometry).getByTestId("review-geometry-boundary").textContent).toContain(
+      "solver_geometry_equivalence=false"
+    );
+    const geometryHref =
+      within(reviewGeometry).getByTestId("review-geometry-export-link").getAttribute("href") ?? "";
+    const geometryPacket = JSON.parse(decodeURIComponent(geometryHref.split(",", 2)[1]));
+    expect(geometryPacket.document_kind).toBe("openpipestress.technical_preview.review_geometry_export");
+    expect(geometryPacket.deliverable_id).toBe("DEL-17-08");
+    expect(geometryPacket.package_id).toBe("PKG-17");
+    expect(geometryPacket.scope_items).toContain("SOW-030");
+    expect(geometryPacket.scope_items).toContain("SOW-074");
+    expect(geometryPacket.objectives).toContain("OBJ-009");
+    expect(geometryPacket.objectives).toContain("OBJ-017");
+    expect(geometryPacket.review_geometry_status).toBe("visual_review_geometry_only");
+    expect(geometryPacket.review_geometry_profile.gltf_version_basis).toBe("2.0");
+    expect(geometryPacket.review_geometry_profile.target_artifact).toBe("glTF_2_0_json_preview");
+    expect(geometryPacket.review_geometry_profile.glb_binary_writer_status).toBe("TBD");
+    expect(geometryPacket.geometry_summary.pipe_segment_count).toBe(4);
+    expect(geometryPacket.geometry_summary.stable_id_count).toBe(19);
+    expect(geometryPacket.gltf_asset.asset.version).toBe("2.0");
+    expect(geometryPacket.gltf_asset.meshes[0].primitives[0].mode).toBe(1);
+    expect(geometryPacket.gltf_asset.meshes[1].primitives[0].mode).toBe(0);
+    expect(geometryPacket.gltf_asset.buffers[0].byteLength).toBeGreaterThan(0);
+    expect(geometryPacket.gltf_asset.extras.gltf_boundary).toBe("visual_review_only_not_solver_geometry");
+    expect(geometryPacket.sidecar_id_map.entries).toHaveLength(19);
+    expect(
+      geometryPacket.sidecar_id_map.entries.find((entry: { stable_id: string }) => entry.stable_id === "pipe:P-120")
+        .export_status
+    ).toBe("emitted");
+    expect(
+      geometryPacket.sidecar_id_map.entries.find((entry: { stable_id: string }) => entry.stable_id === "support:S-120")
+        .export_status
+    ).toBe("approximated");
+    expect(
+      geometryPacket.loss_report.entries.find((entry: { loss_id: string }) => entry.loss_id === "loss:glb-and-viewer-behavior-tbd")
+        .category
+    ).toBe("TBD");
+    expect(geometryPacket.private_payload_included).toBe(false);
+    expect(geometryPacket.protected_content_included).toBe(false);
+    expect(geometryPacket.solver_geometry_equivalence_claim).toBe(false);
+    expect(geometryPacket.professional_validation_claim).toBe(false);
+    expect(geometryPacket.target_compatibility_claim).toBe(false);
+    expect(geometryPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=4");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=5");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -271,7 +335,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(4);
+    expect(lintPacket.lint_run.summary.target_count).toBe(5);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -299,7 +363,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "6 of 11 local exports ready"
+      "7 of 12 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -744,7 +808,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "11 of 11 local exports ready"
+      "12 of 12 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -770,6 +834,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(exportReview).getByTestId("export-review-record-external_prover_boundary_metadata").textContent
     ).toContain("available");
+    expect(within(exportReview).getByTestId("export-review-record-review_geometry_export").textContent).toContain(
+      "available"
+    );
     expect(within(exportReview).getByTestId("export-review-record-native_json_package").textContent).toContain(
       "available"
     );
@@ -798,6 +865,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.deliverable_refs).toContain("DEL-15-04");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-02");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-03");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-17-08");
     expect(reviewManifest.scope_items).toContain("SOW-040");
     expect(reviewManifest.scope_items).toContain("SOW-050");
     expect(reviewManifest.scope_items).toContain("SOW-041");
@@ -812,7 +880,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.objectives).toContain("OBJ-008");
     expect(reviewManifest.objectives).toContain("OBJ-009");
     expect(reviewManifest.objectives).toContain("OBJ-017");
-    expect(reviewManifest.summary.available_count).toBe(11);
+    expect(reviewManifest.summary.available_count).toBe(12);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
       "project_storage_audit",
@@ -821,6 +889,7 @@ describe("OpenPipeStress desktop preview", () => {
       "headless_runner_envelope",
       "adapter_framework_envelope",
       "external_prover_boundary_metadata",
+      "review_geometry_export",
       "native_json_package",
       "report_packet",
       "report_protected_content_lint",
@@ -872,12 +941,29 @@ describe("OpenPipeStress desktop preview", () => {
     expect(externalProverExport.external_tool_invoked).toBe(false);
     expect(externalProverExport.commercial_result_payload_ingested).toBe(false);
     expect(externalProverExport.software_creates_external_validation_record).toBe(false);
+    const reviewGeometryExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "review_geometry_export"
+    );
+    expect(reviewGeometryExport.document_kind).toBe("openpipestress.technical_preview.review_geometry_export");
+    expect(reviewGeometryExport.deliverable_refs).toContain("DEL-17-08");
+    expect(reviewGeometryExport.review_geometry_status).toBe("visual_review_geometry_only");
+    expect(reviewGeometryExport.geometry_format).toBe("glTF_2_0_json_preview");
+    expect(reviewGeometryExport.node_count).toBe(5);
+    expect(reviewGeometryExport.pipe_segment_count).toBe(4);
+    expect(reviewGeometryExport.line_primitive_count).toBe(4);
+    expect(reviewGeometryExport.stable_id_count).toBe(19);
+    expect(reviewGeometryExport.sidecar_id_map_required).toBe(true);
+    expect(reviewGeometryExport.glb_binary_writer_status).toBe("TBD");
+    expect(reviewGeometryExport.viewer_compatibility).toBe("TBD");
+    expect(reviewGeometryExport.solver_geometry_equivalence_claim).toBe(false);
+    expect(reviewGeometryExport.professional_validation_claim).toBe(false);
+    expect(reviewGeometryExport.target_compatibility_claim).toBe(false);
     const lintExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "report_protected_content_lint"
     );
     expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
     expect(lintExport.deliverable_refs).toContain("DEL-08-05");
-    expect(lintExport.target_count).toBe(5);
+    expect(lintExport.target_count).toBe(6);
     expect(lintExport.finding_count).toBe(0);
     expect(lintExport.blocking_finding_count).toBe(0);
     expect(lintExport.clean_scan_is_clearance).toBe(false);
@@ -1699,7 +1785,7 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_not_persisted"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
-      "10 of 11 local exports ready"
+      "11 of 12 local exports ready"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
@@ -1721,6 +1807,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.deliverable_refs).toContain("DEL-08-03");
     expect(exportPacket.deliverable_refs).toContain("DEL-08-06");
     expect(exportPacket.deliverable_refs).toContain("DEL-15-04");
+    expect(exportPacket.deliverable_refs).toContain("DEL-17-08");
     expect(exportPacket.deliverable_refs).toContain("DEL-02-05");
     expect(exportPacket.deliverable_refs).toContain("DEL-12-01");
     expect(exportPacket.deliverable_refs).toContain("DEL-12-02");
@@ -1755,8 +1842,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
       "semantic_categories_declared"
     );
-    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(11);
-    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(10);
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(12);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(11);
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
       "available"
     );
@@ -1775,6 +1862,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.external_prover_boundary_metadata
     ).toBe("available");
+    expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.review_geometry_export).toBe(
+      "available"
+    );
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.operation_review_ledger).toBe(
       "empty_operation_queue"
     );
@@ -1784,7 +1874,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=5");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=6");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -1794,8 +1884,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(5);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(5);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(6);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(6);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

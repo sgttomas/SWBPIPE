@@ -909,3 +909,38 @@ JSON persistence inventory carried `expected_export_count=11`,
 `available_count=10`, and `external_prover_boundary_metadata:available`; Report
 Content Lint reported `targets=5`, `findings=0`, and `blocking=0`. Fresh browser
 console errors after the timestamp marker were absent.
+
+TP-MAC-46 review-geometry-export-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-46-1780920002685` with timestamp marker
+`2026-06-08T12:00:02.685Z`. The initial state confirmed the new Review
+Geometry Export panel reported `available`, `format=glTF_2_0_json_preview`,
+`segments=4`, `nodes=5`, and `stable_ids=19`; the parsed review geometry JSON
+carried `document_kind=openpipestress.technical_preview.review_geometry_export`,
+`DEL-17-08`, scope items `SOW-030` and `SOW-074`, objectives `OBJ-009` and
+`OBJ-017`, status `visual_review_geometry_only`, glTF `asset.version=2.0`,
+line primitive mode `1`, point primitive mode `0`, 216 bytes of embedded
+buffer data, 19 sidecar stable-ID rows, `pipe:P-120` as emitted,
+`support:S-120` as approximated, a `TBD` GLB/viewer-behavior loss entry, and
+false private-payload, protected-content, solver-geometry-equivalence,
+professional-validation, and target-compatibility claim flags. Export Safety
+Review initially reported `7 of 12 local exports ready`, with
+`review_geometry_export:available`, and Report Content Lint reported
+`targets=5`, `findings=0`, `blocking=0`.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; the review geometry JSON
+bound to `analysis_run_ref=run:preview-linear-static-001`,
+`model_state_ref=state:project:invented-loop-01:preview`, and
+`result_ref=run:preview-linear-static-001`, while retaining 216 bytes of
+embedded buffer data, 19 stable-ID rows, and false private/protected payload,
+solver-geometry-equivalence, and professional-validation flags. Export Safety
+Review reported `11 of 12 local exports ready`; the parsed manifest carried
+`export_count=12`, `available_count=11`, and an available
+`review_geometry_export` record with source refs `run:preview-linear-static-001`,
+`state:project:invented-loop-01:preview`, and `project:invented-loop-01`. The
+parsed report JSON persistence inventory carried `expected_export_count=12`,
+`available_count=11`, `review_geometry_export:available`, and
+`operation_review_ledger:empty_operation_queue`; Report Content Lint reported
+`targets=6`, `findings=0`, and `blocking=0`. Fresh browser console errors after
+the timestamp marker were absent.

@@ -324,6 +324,7 @@ function reportExportPacket({
       "DEL-08-06",
       "DEL-10-05",
       "DEL-15-04",
+      "DEL-17-08",
       "DEL-02-05",
       "DEL-12-01",
       "DEL-12-02"
@@ -403,6 +404,7 @@ function reportPersistenceEvidence({
     headless_runner_envelope: "available",
     adapter_framework_envelope: "available",
     external_prover_boundary_metadata: "available",
+    review_geometry_export: "available",
     native_json_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     report_packet: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     report_protected_content_lint: "available",

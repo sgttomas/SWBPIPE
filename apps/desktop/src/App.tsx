@@ -32,6 +32,7 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
+import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SolvePanel } from "./features/solve/SolvePanel";
@@ -351,6 +352,7 @@ export function App() {
           <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
           <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
           <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
+          <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
           <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
           <NativePackagePanel
             model={model}

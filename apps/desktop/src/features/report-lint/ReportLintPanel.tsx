@@ -116,6 +116,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+          "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
           "fixtures/product_preview"
         ],
         private_surface_default: "skip_unless_explicitly_authorized",
@@ -169,6 +170,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "External prover boundary template records metadata-only names, tags, references, attachment refs, unsupported target flags, private payload false, and no software authority claim."
+    ),
+    target(
+      "target:desktop-review-geometry-template",
+      "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Review geometry template records glTF preview geometry, stable IDs, private payload false, protected payload false, visual review only, no solver geometry equivalence claim."
     ),
     target(
       "target:invented-preview-fixture",

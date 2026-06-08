@@ -157,6 +157,7 @@ function buildExportReviewManifest({
   const headlessRunnerReady = true;
   const adapterFrameworkReady = true;
   const externalProverReady = true;
+  const reviewGeometryReady = true;
   const nativePackageReady = Boolean(result && analysisRun);
   const handoffReady = Boolean(result && analysisRun);
   const ledgerReady = operationRecordCount > 0;
@@ -291,6 +292,34 @@ function buildExportReviewManifest({
         "Metadata-only external-prover workflow context; no external tool invocation, commercial result ingestion, or software-generated acceptance record."
     },
     {
+      export_id: "review_geometry_export",
+      label: "Review geometry export",
+      document_kind: "openpipestress.technical_preview.review_geometry_export",
+      readiness: reviewGeometryReady ? "available" : "pending_review_geometry_profile",
+      deliverable_refs: ["DEL-17-08", "DEL-17-01", "DEL-17-02", "DEL-15-01", "DEL-15-02", "DEL-15-03"],
+      source_refs: result && run ? [result.run_id, run.model_state_ref.ref, model.project.id] : [model.project.id],
+      review_geometry_status: "visual_review_geometry_only",
+      geometry_format: "glTF_2_0_json_preview",
+      gltf_version_basis: "2.0",
+      node_count: model.nodes.length,
+      pipe_segment_count: model.pipe_segments.length,
+      line_primitive_count: model.pipe_segments.length,
+      stable_id_count: stableEntityCount,
+      transform_policy: "preview_z_up_to_gltf_y_up_rotation_x_minus_90",
+      sidecar_id_map_required: true,
+      glb_binary_writer_status: "TBD",
+      viewer_compatibility: "TBD",
+      solver_geometry_equivalence_claim: false,
+      professional_validation_claim: false,
+      target_compatibility_claim: false,
+      redaction_action: "classify_and_warn_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Local glTF JSON visual-review geometry with stable-ID sidecar metadata; not solver geometry, target compatibility evidence, or professional validation."
+    },
+    {
       export_id: "native_json_package",
       label: "Native JSON package",
       document_kind: "openpipestress.technical_preview.native_json_package_review",
@@ -333,9 +362,10 @@ function buildExportReviewManifest({
         model.project.id,
         "apps/desktop/src/features/report/ReportPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
-        "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx"
+        "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+        "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx"
       ],
-      target_count: result && run ? 5 : 4,
+      target_count: result && run ? 6 : 5,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -387,7 +417,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-08", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
