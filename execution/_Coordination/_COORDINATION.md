@@ -13,7 +13,16 @@ Primary pointers:
 - `docs/SPEC.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
+- `docs/BUILD_AND_RELEASE.md`
+- `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 - `docs/_Registers/*.csv`
+- `package.json`
+- `apps/desktop/package.json`
+- `apps/desktop/SMOKE.md`
+- `apps/desktop/src/**`
+- `apps/desktop/src-tauri/**`
+- `core/product_physics/**`
+- `fixtures/product_preview/**`
 - `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - `execution/_DAG/_LATEST.md`
 - `execution/_DAG/DAG-006/APPROVAL_RECORD.md`
@@ -74,6 +83,24 @@ Review, closeout, or release-readiness intake:
 - Relevant register rows and active DAG context needed to check closure,
   dependency satisfaction, and lifecycle-gate boundaries.
 
+Application integration intake when selecting or implementing a desktop-app
+slice:
+
+- root and desktop package manifests: `package.json`,
+  `apps/desktop/package.json`;
+- desktop UI/runtime surfaces: `apps/desktop/src/**`,
+  `apps/desktop/src-tauri/**`, and `apps/desktop/SMOKE.md`;
+- current mechanics bridge and preview data:
+  `core/product_physics/**` and `fixtures/product_preview/**`;
+- relevant `core/**` modules for the selected app slice;
+- `docs/BUILD_AND_RELEASE.md` and `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` for
+  build, release-evidence, and contributor workflow context.
+
+Read deliverable-local packets only when the selected app slice needs their
+authority, acceptance criteria, unresolved TBDs, review findings, or
+dependency context. Use `DAG-006` to discover those related deliverables, then
+inspect local artifacts directly.
+
 ## State Tracking Rules
 
 Use two layers of state. Do not let handoff prose become substitute authority.
@@ -91,6 +118,11 @@ Authoritative state:
    helper. It lists local `_STATUS.md` values and optional DAG node
    presence/path context; it does not write state and is not a substitute for
    deliverable-local inspection.
+5. The current application implementation state lives in the repository app,
+   core, fixture, test, and build surfaces. App code and test evidence do not
+   replace decomposition truth, DAG authority, deliverable lifecycle state, or
+   human review gates, but they are now the primary ordinary development
+   surface for producing a working desktop application.
 
 Handoff and state discovery:
 
@@ -108,53 +140,90 @@ Handoff and state discovery:
 
 At session closeout, update affected deliverable-local `MEMORY.md` and
 `_run_records/**` and any explicitly approved review/audit evidence surfaces.
-Leave `NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol itself
-changes. Do not create a session-steering coordination state file.
+For application-integration work, update only the app/code/docs/test/evidence
+surfaces authorized by the tranche and any explicitly selected deliverable
+memory or review surfaces. Leave `NEXT_INSTANCE_PROMPT.md` stable unless the
+entry protocol itself changes. Do not create a session-steering coordination
+state file.
 
-## Local Status And DAG-Guided Development Loop
+## Application Integration And Issuance Phase
 
-Use this loop as the default OpenPipeStress development driver until the
-`SOFTWARE_DECOMP` objectives are closed. It is project-specific, but general
-across packages and deliverables. If a human has already approved an
-implementation or review tranche, continue at the execution step; otherwise use
-the selection steps to propose exactly one next bounded tranche.
+The project has moved out of ordinary deliverable-by-deliverable buildout.
+Current local status discovery reports all deliverables as either `CHECKING`
+or `ISSUED`; `DEL-01-01` is the sole currently `ISSUED` deliverable and
+remains the accepted governance baseline unless a human-approved change path
+opens it.
 
-1. **Authority intake.** Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_TASK.md` and the baseline intake documents above. Add execution or review
-   intake documents according to the tranche type. `SOFTWARE_DECOMP` defines what must be built and why. `DAG-006` defines approved active relationships.
-   Deliverable-local files define current deliverable state.
-2. **Status discovery.** Run
+Until all deliverables are `ISSUED`, ordinary development is app-centric:
+produce and harden a working desktop application while using `CHECKING`
+deliverables, `DAG-006`, and the decomposition as mature design authority.
+Formal issuance remains a separate human-gated lifecycle workflow.
+
+### Working Desktop Application Standard
+
+For this phase, a working desktop application is a technical-preview desktop
+app that:
+
+- builds and tests locally through the root/desktop package scripts;
+- loads invented preview project/model/design-knowledge data;
+- exposes local-only project create/open/save controls without cloud, daemon,
+  network, telemetry, or repository-default private-data writes;
+- runs preview mechanics through the accepted app/core boundary and renders
+  results, diagnostics, report context, and review-only agent proposals;
+- shows the professional, release, protected-content, and private-data
+  boundaries visibly;
+- avoids protected standards content, private project data, release-readiness
+  claims, professional approval claims, certification, sealing,
+  authentication, or code-compliance claims.
+
+This standard is not a release gate, legal clearance, professional reliance
+record, or final `ISSUED` lifecycle decision.
+
+## Application Integration And Issuance Loop
+
+Use this loop as the default OpenPipeStress development driver from this point
+until a later coordination update replaces it. If a human has already approved
+an implementation, review, issuance, or release-readiness tranche, continue
+that tranche within its write bounds. Otherwise propose exactly one next
+bounded tranche.
+
+1. **Authority intake.** Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_TASK.md`,
+   the baseline governance documents above, current app intake surfaces needed
+   for the selected slice, `SOFTWARE_DECOMP`, and approved `DAG-006` graph
+   authority.
+2. **Status and git discovery.** Run
    `python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --format table --summary`
    or the same command with `--format csv` when machine-readable output is
    needed. Record `git status --short` before coordination-sensitive planning
-   or execution so evidence is tied to the working-tree state.
-3. **Candidate selection.** For ordinary development, select from deliverables with a status `IN_PROGRESS`.
-   For human-directed formal review or closeout gates, select from `CHECKING`. Treat `SEMANTIC_READY` as
-   architecture/preparation basis unless the human explicitly asks to work that surface.
-4. **Deliverable-local context.** After selecting one deliverable, read its
-   local `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`,
-   `Dependencies.csv` when present, `MEMORY.md`, `_run_records/**`, review
-   files when present, semantic/lensing files when present, the four-document
-   kit, and primary deliverable artifacts before acting.
-5. **DAG-guided related context.** Use `DAG-006/DependencyEdges.csv` and
-   `DAG-006/DeliverableNodes.csv` to discover relevant upstream and downstream
-   deliverables for the selected work. Inspect those related deliverable-local
-   files only as needed for context. DAG rows do not replace local artifact
+   or execution.
+3. **Default candidate selection.** For ordinary development, select an
+   application-integration tranche from current app gaps, failed or
+   insufficient app tests or smoke evidence, missing app-to-core seams, preview
+   workflow gaps, build/package gaps, or validation evidence gaps. Do not
+   require an `IN_PROGRESS` deliverable candidate.
+4. **Issuance candidate selection.** For human-directed lifecycle closeout,
+   select from `CHECKING` deliverables. `ISSUED` deliverables are not
+   work-selection scope except through a human-approved change path.
+5. **Context selection.** Start from the app/code/test surfaces for app
+   integration work. Use `DAG-006/DependencyEdges.csv` and
+   `DAG-006/DeliverableNodes.csv` only to discover related deliverables whose
+   local artifacts need inspection. DAG rows do not replace local artifact
    inspection.
-6. **Bounded execution.** After approval, dispatch a canonical `TASK` agent worker, or several concurrently
-   only where the file sets are disjoint and the write scopes are explicit.
-   Normally use one deliverable or one clearly owned slice per worker. Do not
-   advance lifecycle state unless the human explicitly approves the lifecycle
-   gate.
-7. **Fan-in and validation.** The parent `WORKING_ITEMS` agent fans in worker results, checks
-   for scope drift, runs targeted validation, and runs broader readiness checks
-   only when the tranche affects release or shared integration surface. Record
-   pass, fail, waived, or deferred evidence without overstating acceptance.
-8. **Handoff.** Update affected deliverable-local `MEMORY.md`,
-   `_run_records/**`, and any explicitly approved review/audit evidence
-   surfaces with completed work, residual gaps, and validation state. Leave
-   `NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol itself changes.
-   Do not add next-session development-tranche recommendations to coordination
-   documents.
+6. **Bounded execution.** After approval, dispatch canonical `TASK` workers or
+   work locally inside a sealed tranche. Several workers may run concurrently
+   only when file sets are disjoint and write scopes are explicit. App
+   tranches may cross deliverable boundaries only when the tranche names the
+   app-owned slice and its allowed write targets.
+7. **Fan-in and validation.** Fan in worker results, check for scope drift, and
+   run validation appropriate to the changed app slice. For app integration,
+   expected evidence usually includes `npm test --workspace apps/desktop`,
+   `npm run build --workspace apps/desktop`, applicable Rust/Python checks,
+   and browser/smoke evidence when UI behavior changes.
+8. **Handoff.** Record completed work, residual app gaps, validation state,
+   and boundary review in the touched app/evidence surfaces and any explicitly
+   selected deliverable memory/review files. Do not advance lifecycle state,
+   make release claims, or issue deliverables unless the human explicitly
+   approves that gate.
 
 ## Execution Discipline
 
