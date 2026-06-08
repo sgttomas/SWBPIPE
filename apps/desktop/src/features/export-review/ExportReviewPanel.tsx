@@ -152,6 +152,7 @@ function buildExportReviewManifest({
   const operationRecordCount = editorIntents.length + (proposal ? 1 : 0);
   const storageAuditReady = true;
   const validationPreflightReady = true;
+  const telemetryBoundaryReady = true;
   const editorContractReady = true;
   const missingDataReviewReady = true;
   const buildReadinessReady = true;
@@ -211,6 +212,43 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Local project validation preflight export; records schema/version, migration, and round-trip category evidence."
+    },
+    {
+      export_id: "telemetry_boundary_review",
+      label: "Telemetry boundary review",
+      document_kind: "openpipestress.technical_preview.telemetry_boundary_review",
+      readiness: telemetryBoundaryReady ? "available" : "pending_telemetry_boundary_surface",
+      deliverable_refs: ["DEL-12-03", "DEL-12-01", "DEL-12-02", "DEL-02-04", "DEL-10-02"],
+      source_refs: [
+        model.project.id,
+        "docs/security/telemetry_policy.md",
+        "core/security/telemetry_policy/",
+        "tests/security/test_telemetry_policy.py",
+        "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx"
+      ],
+      config_resolution: "absent_or_preview_config_resolves_disabled",
+      telemetry_enabled: Boolean(storageCapability?.telemetry_enabled),
+      requested_enabled: false,
+      explicit_opt_in: false,
+      allowlist_approved: false,
+      attempted_event_count: 4,
+      allowed_event_count: 0,
+      blocked_event_count: 4,
+      payload_constructed: false,
+      network_transport_initialized: false,
+      endpoint_initialized: false,
+      vendor_initialized: false,
+      upload_queue_initialized: false,
+      telemetry_persistence_initialized: false,
+      no_bypass_surfaces: ["plugins", "adapters", "import_export", "reports", "private_libraries", "cli_runner"],
+      open_decision_count: 6,
+      security_certification_claim: false,
+      redaction_action: "telemetry_metadata_only_no_payload_no_network",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-12-03 desktop telemetry boundary review; telemetry remains disabled/default-off, no payload or network behavior is initialized, and opt-in, consent surface, endpoint, vendor, retention, and allowlist decisions stay TBD."
     },
     {
       export_id: "editor_contract_review",
@@ -658,6 +696,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/report/ReportPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+        "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
         "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
         "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -669,7 +708,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 15 : 14,
+      target_count: result && run ? 16 : 15,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -721,8 +760,8 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
-    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
+    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-037", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-011", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,

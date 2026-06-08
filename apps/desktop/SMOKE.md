@@ -1290,3 +1290,44 @@ the report packet persistence inventory carried `expected_export_count=21`,
 `available_count=20`, and `missing_data_warning_blocking_review:available`;
 and Report Content Lint reported `targets=15`, `findings=0`, and `blocking=0`.
 Captured browser console error entries were absent.
+
+TP-MAC-56 telemetry-boundary-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T10:11:52-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/security/test_telemetry_policy.py`, `git diff --check`, and a
+touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Telemetry Boundary panel reported
+`disabled=true`, `config=absent_or_preview_config_resolves_disabled`,
+`blocked=4`, `payload=false`, and `network=false`. The parsed telemetry JSON
+carried `DEL-12-03`, `PKG-12`, `SOW-037`, `OBJ-010`,
+`document_kind=openpipestress.technical_preview.telemetry_boundary_review`, 4
+attempted events, 0 allowed events, 4 blocked events, explicit opt-in false,
+allowlist approval false, product config schema `TBD`, payload construction
+false, network transport false, endpoint false, vendor false, upload queue
+false, telemetry persistence false, private payload false, protected content
+false, and security-certification claim false. The no-bypass surface list
+included reports, plugins, adapters, import/export, private libraries, CLI, and
+diagnostics.
+
+Export Safety Review initially reported `15 of 22 local exports ready` with
+`telemetry_boundary_review:available`; the export-review record preserved
+telemetry disabled, 4 blocked event attempts, payload construction false,
+network initialization false, endpoint/vendor/persistence false, and no
+security certification claim. Report Content Lint initially reported
+`targets=15`, `findings=0`, and `blocking=0`, with
+`target:desktop-telemetry-boundary-template` present.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. The Telemetry Boundary panel remained
+`disabled=true`, kept 4 blocked event attempts, and kept payload/network false.
+Export Safety Review reported `21 of 22 local exports ready` because no
+operation review record was queued; the report packet persistence inventory
+carried `expected_export_count=22`, `available_count=21`, and
+`telemetry_boundary_review:available`; the report readiness line included
+`telemetry=available`; and Report Content Lint reported `targets=16`,
+`findings=0`, and `blocking=0`. Captured browser console error entries were
+absent.

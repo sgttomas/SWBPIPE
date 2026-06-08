@@ -45,6 +45,7 @@ import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
+import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
 import { PipeViewport } from "./features/viewport/PipeViewport";
 import {
   buildAnalysisRunPreview,
@@ -347,6 +348,7 @@ export function App() {
             projectOperation={projectOperation}
             editorIntents={editorIntents}
           />
+          <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
           <BuildReadinessPanel model={model} />
           <SolvePanel
             analysisRun={analysisRun}

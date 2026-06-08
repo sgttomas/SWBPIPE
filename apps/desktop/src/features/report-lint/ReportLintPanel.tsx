@@ -116,6 +116,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+          "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -179,6 +180,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Build readiness template records provider-neutral local scripts, Tauri preview shell metadata, private payload false, protected payload false, unresolved CI and release decisions, and no release authorization, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-telemetry-boundary-template",
+      "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Telemetry boundary template records disabled default-off configuration, opt-in false, allowlist false, blocked event attempts, payload construction false, network initialization false, endpoint and vendor false, private payload false, protected payload false, and no security certification, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-editor-contract-template",
