@@ -152,6 +152,7 @@ function buildExportReviewManifest({
   const operationRecordCount = editorIntents.length + (proposal ? 1 : 0);
   const storageAuditReady = true;
   const validationPreflightReady = true;
+  const buildReadinessReady = true;
   const reportReady = Boolean(result && analysisRun);
   const resultExportReady = Boolean(result && analysisRun);
   const stressNeutralReady = Boolean(result && analysisRun);
@@ -203,6 +204,38 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Local project validation preflight export; records schema/version, migration, and round-trip category evidence."
+    },
+    {
+      export_id: "build_package_readiness",
+      label: "Build/package readiness",
+      document_kind: "openpipestress.technical_preview.build_package_readiness",
+      readiness: buildReadinessReady ? "available" : "pending_build_readiness_surface",
+      deliverable_refs: ["DEL-10-04", "DEL-10-05", "DEL-12-01", "DEL-12-02"],
+      source_refs: [
+        "package.json",
+        "apps/desktop/package.json",
+        "apps/desktop/src-tauri/tauri.conf.json",
+        "docs/BUILD_AND_RELEASE.md",
+        "tools/release/check_release_readiness.py"
+      ],
+      root_script_count: 4,
+      desktop_script_count: 4,
+      readiness_profile_count: 5,
+      tauri_shell_status: "present",
+      tauri_bundle_active: false,
+      provider_neutral_readiness_tool: true,
+      ci_provider: "TBD",
+      release_matrix: "TBD",
+      signing_status: "TBD",
+      publishing_status: "TBD",
+      release_publication_authorized: false,
+      installer_or_binary_generated: false,
+      redaction_action: "local_build_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Provider-neutral local build/package readiness metadata; no CI provider, installer, signing, publishing, release, or professional claim."
     },
     {
       export_id: "result_envelope",
@@ -392,11 +425,12 @@ function buildExportReviewManifest({
         model.project.id,
         "apps/desktop/src/features/report/ReportPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+        "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 7 : 6,
+      target_count: result && run ? 8 : 7,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -448,7 +482,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-06", "DEL-17-08", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-06", "DEL-17-08", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

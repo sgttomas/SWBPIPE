@@ -969,3 +969,34 @@ professional-reliance claim flags. The parsed CSV download had header
 Export Safety Review reported `12 of 13 local exports ready`, and Report
 Content Lint reported `targets=7`, `findings=0`, and `blocking=0`. Fresh browser
 console errors after the timestamp marker were absent.
+
+TP-MAC-48 build-package-readiness-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T12:19:11.798Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, and
+`python3 tools/release/check_release_readiness.py --profile skeleton --execute`
+before browser smoke.
+
+The initial browser state confirmed the new Build/Package Readiness panel
+reported `available`, `scripts=8`, `tauri=present`, `bundle_active=false`, and
+`diagnostics=4`. The parsed readiness JSON carried
+`document_kind=openpipestress.technical_preview.build_package_readiness`,
+`DEL-10-04`, `PKG-10`, scope item `SOW-032`, root scripts `dev:desktop`,
+`build:desktop`, `test:desktop`, and `generate:product-preview-mechanics`,
+desktop scripts `dev`, `build`, `test`, and `tauri`, Tauri
+`before_build_command=npm run build`, readiness profiles `skeleton`, `python`,
+`security`, `cargo`, and `all`, `browser_panel_runs_tool=false`, unresolved
+`ci_provider=TBD`, `release_matrix=TBD`, and `signing_notarization=TBD`, and
+false network, telemetry, release-publication, installer/binary generation,
+code-compliance, professional-reliance, private-payload, protected-content,
+and release/professional-claim flags. Export Safety Review initially reported
+`8 of 14 local exports ready`, and Report Content Lint reported `targets=7`,
+`findings=0`, and `blocking=0`.
+
+After running the preview mechanics path, the result export reported
+`rows=647`; Build/Package Readiness remained available with `scripts=8`,
+`tauri=present`, and `bundle_active=false`; Export Safety Review reported
+`13 of 14 local exports ready` because no operation review record was queued;
+and Report Content Lint reported `targets=8`, `findings=0`, and `blocking=0`.
+Fresh browser console errors after the timestamp marker were absent.

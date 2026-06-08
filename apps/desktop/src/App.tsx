@@ -12,6 +12,7 @@ import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
+import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
@@ -338,6 +339,7 @@ export function App() {
             projectOperation={projectOperation}
             editorIntents={editorIntents}
           />
+          <BuildReadinessPanel model={model} />
           <SolvePanel
             analysisRun={analysisRun}
             model={model}

@@ -115,6 +115,7 @@ function buildReportLintPacket({
         public_surface_roots: [
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+          "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
           "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
@@ -164,6 +165,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Export review template records local preview exports, private payload false, protected payload false, and no release or professional claim."
+    ),
+    target(
+      "target:desktop-build-readiness-template",
+      "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Build readiness template records provider-neutral local scripts, Tauri preview shell metadata, private payload false, protected payload false, unresolved CI and release decisions, and no release authorization, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-external-prover-template",
