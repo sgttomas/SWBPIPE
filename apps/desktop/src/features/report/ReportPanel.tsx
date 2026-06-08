@@ -337,6 +337,7 @@ function reportExportPacket({
       "DEL-02-05",
       "DEL-12-01",
       "DEL-12-03",
+      "DEL-12-04",
       "DEL-12-02"
     ],
     model_ref: result.model_ref,
@@ -411,6 +412,7 @@ function reportPersistenceEvidence({
     project_storage_audit: "available",
     project_validation_preflight: "available",
     telemetry_boundary_review: "available",
+    secret_private_library_boundary_review: "available",
     editor_contract_review: "available",
     missing_data_warning_blocking_review: "available",
     build_package_readiness: "available",
@@ -493,7 +495,8 @@ function formatExportInventorySummary(evidence: ReturnType<typeof reportPersiste
     `${evidence.export_inventory.available_count} of ${evidence.export_inventory.expected_export_count} local exports ready`,
     `storage=${evidence.export_inventory.readiness_by_export_id.project_storage_audit}`,
     `validation=${evidence.export_inventory.readiness_by_export_id.project_validation_preflight}`,
-    `telemetry=${evidence.export_inventory.readiness_by_export_id.telemetry_boundary_review}`
+    `telemetry=${evidence.export_inventory.readiness_by_export_id.telemetry_boundary_review}`,
+    `secrets=${evidence.export_inventory.readiness_by_export_id.secret_private_library_boundary_review}`
   ].join("; ");
 }
 

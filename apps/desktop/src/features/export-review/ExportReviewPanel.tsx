@@ -153,6 +153,7 @@ function buildExportReviewManifest({
   const storageAuditReady = true;
   const validationPreflightReady = true;
   const telemetryBoundaryReady = true;
+  const secretPrivateLibraryReady = true;
   const editorContractReady = true;
   const missingDataReviewReady = true;
   const buildReadinessReady = true;
@@ -249,6 +250,46 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "DEL-12-03 desktop telemetry boundary review; telemetry remains disabled/default-off, no payload or network behavior is initialized, and opt-in, consent surface, endpoint, vendor, retention, and allowlist decisions stay TBD."
+    },
+    {
+      export_id: "secret_private_library_boundary_review",
+      label: "Secret/private-library boundary review",
+      document_kind: "openpipestress.technical_preview.secret_private_library_boundary_review",
+      readiness: secretPrivateLibraryReady ? "available" : "pending_secret_private_library_surface",
+      deliverable_refs: ["DEL-12-04", "DEL-12-01", "DEL-12-02", "DEL-12-03", "DEL-02-04", "DEL-10-02"],
+      source_refs: [
+        model.project.id,
+        "docs/security/secret_private_library_handling.md",
+        "core/security/secret_private_library/",
+        "tests/security/test_secret_private_library_handling.py",
+        "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx"
+      ],
+      reference_count: 4,
+      private_library_count: 2,
+      private_path_count: 1,
+      credential_reference_count: 1,
+      public_fixture_block_count: 4,
+      public_report_metadata_only_count: 4,
+      local_private_metadata_only_count: 4,
+      exact_secret_provider: "TBD",
+      encrypted_storage_default: "TBD",
+      storage_roots: "TBD",
+      permission_grant_persistence: "TBD",
+      external_secret_manager_behavior: "TBD",
+      direct_sql_access: false,
+      raw_sqlite_handle_allowed: false,
+      storage_bypass_requested: false,
+      cloud_or_network_reference: false,
+      secret_material_present: false,
+      concrete_path_present: false,
+      metadata_only: true,
+      security_certification_claim: false,
+      redaction_action: "secret_private_library_metadata_only_no_payload_no_secret_values",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-12-04 desktop secret/private-library boundary review; private libraries, private paths, and credential references are metadata-only, public fixtures are blocked, public report context is reference-only, and provider, encryption, storage-root, permission, cloud/network, and external secret-manager decisions stay TBD."
     },
     {
       export_id: "editor_contract_review",
@@ -697,6 +738,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
         "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
+        "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
         "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
         "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -708,7 +750,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 16 : 15,
+      target_count: result && run ? 17 : 16,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -760,7 +802,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-037", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-011", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

@@ -43,6 +43,7 @@ import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./feat
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
+import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
@@ -349,6 +350,7 @@ export function App() {
             editorIntents={editorIntents}
           />
           <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
+          <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
           <BuildReadinessPanel model={model} />
           <SolvePanel
             analysisRun={analysisRun}

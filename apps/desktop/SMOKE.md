@@ -1331,3 +1331,43 @@ carried `expected_export_count=22`, `available_count=21`, and
 `telemetry=available`; and Report Content Lint reported `targets=16`,
 `findings=0`, and `blocking=0`. Captured browser console error entries were
 absent.
+
+TP-MAC-57 secret-private-library-boundary-preview smoke passed on 2026-06-08
+America/Edmonton using local Chrome/Playwright against
+`http://127.0.0.1:5175/` with timestamp marker
+`2026-06-08T10:24:39-0600 MDT`. The local validation run for this tranche
+passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/security/test_secret_private_library_handling.py`, browser initial and
+solved-state packet checks, zero browser console errors, `git diff --check`,
+and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Secret & Private Libraries panel
+reported `records=4`, `metadata_only=true`, `public_fixture_blocked=4`,
+`secrets=false`, and `private_payload=false`. The parsed secret/private JSON
+carried `DEL-12-04`, `PKG-12`, `SOW-040`, `SOW-029`, `OBJ-010`,
+`document_kind=openpipestress.technical_preview.secret_private_library_boundary_review`,
+4 references, 2 private library/rule-pack references, 1 symbolic private-path
+reference, 1 credential reference, public fixture block count 4, public report
+metadata-only count 4, local-private metadata-only count 4, secret material
+false, direct SQL false, storage bypass false, private payload false,
+protected content false, exact secret provider `TBD`, encrypted storage
+default `TBD`, and security-certification claim false.
+
+Export Safety Review initially reported `16 of 23 local exports ready` with
+`secret_private_library_boundary_review:available`; Report Content Lint
+initially reported `targets=16`, `findings=0`, and `blocking=0`, with
+`target:desktop-secret-private-library-template` present. The favicon data URL
+prevented the browser from issuing a missing `/favicon.ico` resource error.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. The Secret & Private Libraries panel retained
+the same metadata-only/no-secret boundary. Export Safety Review reported
+`22 of 23 local exports ready` because no operation review record was queued;
+the report packet persistence inventory carried `expected_export_count=23`,
+`available_count=22`, and
+`secret_private_library_boundary_review:available`; the report readiness line
+included `secrets=available`; and Report Content Lint reported `targets=17`,
+`findings=0`, and `blocking=0`. Captured browser console error entries were
+absent.

@@ -117,6 +117,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
           "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
+          "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -187,6 +188,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Telemetry boundary template records disabled default-off configuration, opt-in false, allowlist false, blocked event attempts, payload construction false, network initialization false, endpoint and vendor false, private payload false, protected payload false, and no security certification, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-secret-private-library-template",
+      "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Secret and private-library template records metadata-only private library, private path, and credential references, public fixture blocking, public report reference-only handling, direct SQL false, storage bypass false, network false, private payload false, protected payload false, and no security certification, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-editor-contract-template",
