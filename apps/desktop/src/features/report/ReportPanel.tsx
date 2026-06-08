@@ -322,6 +322,7 @@ function reportExportPacket({
       "DEL-08-03",
       "DEL-08-04",
       "DEL-08-06",
+      "DEL-07-03",
       "DEL-10-03",
       "DEL-10-04",
       "DEL-10-05",
@@ -407,6 +408,7 @@ function reportPersistenceEvidence({
   const readinessByExportId = {
     project_storage_audit: "available",
     project_validation_preflight: "available",
+    editor_contract_review: "available",
     build_package_readiness: "available",
     result_envelope: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     stress_neutral_csv_json_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",

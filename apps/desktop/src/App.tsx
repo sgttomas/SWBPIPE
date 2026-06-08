@@ -18,6 +18,7 @@ import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPa
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
+import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
 import { ExportAdapterSdkPanel } from "./features/export-adapter-sdk/ExportAdapterSdkPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
 import { ExternalProverBoundaryPanel } from "./features/external-prover/ExternalProverBoundaryPanel";
@@ -312,6 +313,7 @@ export function App() {
             queuedIntents={editorIntents}
             selection={selection}
           />
+          <EditorContractPanel editorIntents={editorIntents} model={model} />
         </aside>
 
         <section className="center-stage">

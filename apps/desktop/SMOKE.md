@@ -1199,3 +1199,50 @@ and retained false private/protected payload flags. Report Content Lint reported
 `targets=13`, `findings=0`, and `blocking=0`, with
 `target:desktop-local-fea-handoff-template` present. Captured browser console
 error entries were absent.
+
+TP-MAC-54 editor-contract-review-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T08:40:24-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `python3 tests/test_gui_editors_contract.py`,
+`git diff --check`, and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Editor Contract panel reported
+`available`, `editors=4`, `surfaces=6`, `diagnostics=4`, and
+`private_payload=false`. The surface coverage included material review editors,
+component review editors, load-case and support operation-intent routes,
+rule-pack reference metadata, and private-library reference slots without
+private payload copying. The parsed editor-contract JSON carried `DEL-07-03`,
+`PKG-07`, `SOW-021`, `OBJ-006`,
+`document_kind=openpipestress.technical_preview.editor_contract_review`, 4
+editors, 6 surfaces, 17 fields, 2 ready editors, 2 blocked editors, 4
+diagnostics, and 0 queued intents. The rule-pack reference remained
+`rule-pack:user-supplied:not-loaded` with checksum
+`TBD_private_rule_pack_not_loaded`, private/protected payload redaction, and
+missing required rule inputs. Source-of-truth, privacy, and professional
+boundaries remained false for direct model mutation, accepted-state mutation,
+private payload inclusion, protected content inclusion, release claims,
+code-compliance claims, approval, authentication, certification, and sealing.
+
+Export Safety Review initially reported `13 of 20 local exports ready`, with
+`editor_contract_review:available`, `queued_intent_count=0`, 4 editor records,
+6 editor surfaces, 2 ready editors, 2 blocked editors, 4 diagnostics, private
+library reference-only status, and false direct/accepted model mutation flags.
+Report Content Lint initially reported `targets=13`, `findings=0`, and
+`blocking=0`, with `target:desktop-editor-contract-template` present.
+
+After selecting the invented material row, changing the label through the
+review-only editor intent form, and queueing it, the Editor Contract panel
+reported `queued=1`. The editor-contract JSON carried
+`queued_operation_intent_refs=["op:editor-intent-material:invented-carbon-steel-label"]`,
+while the export-review editor record carried `queued_intent_count=1` and
+source ref `editor-intent-1`. After running the preview mechanics path, the
+solve job reported `state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. Export Safety Review reported `20 of 20 local
+exports ready`; the report packet persistence inventory carried
+`expected_export_count=20`, `available_count=20`, and
+`editor_contract_review:available`; the report editor intent summary carried
+`queued_count=1`, `mutates_accepted_model_state=false`, and
+`direct_model_mutation_allowed=false`; and Report Content Lint reported
+`targets=14`, `findings=0`, and `blocking=0`. Captured browser console error
+entries were absent.

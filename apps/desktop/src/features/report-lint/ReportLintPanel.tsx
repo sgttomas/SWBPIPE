@@ -116,6 +116,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+          "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -177,6 +178,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Build readiness template records provider-neutral local scripts, Tauri preview shell metadata, private payload false, protected payload false, unresolved CI and release decisions, and no release authorization, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-editor-contract-template",
+      "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Editor contract template records material/component/rule-pack reference editor metadata, operation-intent routing, private library references only, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-local-fea-handoff-template",

@@ -152,6 +152,7 @@ function buildExportReviewManifest({
   const operationRecordCount = editorIntents.length + (proposal ? 1 : 0);
   const storageAuditReady = true;
   const validationPreflightReady = true;
+  const editorContractReady = true;
   const buildReadinessReady = true;
   const reportReady = Boolean(result && analysisRun);
   const resultExportReady = Boolean(result && analysisRun);
@@ -209,6 +210,34 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Local project validation preflight export; records schema/version, migration, and round-trip category evidence."
+    },
+    {
+      export_id: "editor_contract_review",
+      label: "Editor contract review",
+      document_kind: "openpipestress.technical_preview.editor_contract_review",
+      readiness: editorContractReady ? "available" : "pending_editor_contract_surface",
+      deliverable_refs: ["DEL-07-03", "DEL-07-02", "DEL-06-03", "DEL-02-02", "DEL-12-02", "DEL-16-01"],
+      source_refs: [
+        model.project.id,
+        "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+        ...editorIntents.map((intent) => intent.queue_id ?? intent.operation_id)
+      ],
+      editor_count: 4,
+      editor_surface_count: 6,
+      queued_intent_count: editorIntents.length,
+      ready_editor_count: 2,
+      blocked_editor_count: 2,
+      diagnostic_count: 4,
+      rule_pack_reference_status: "private_reference_only_missing_required_inputs",
+      private_library_payload_status: "reference_slots_only_no_private_payload",
+      direct_model_mutation_allowed: false,
+      accepted_model_state_mutated: false,
+      redaction_action: "editor_contract_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-07-03 desktop editor contract preview; materials/components/rule-pack references remain review-only command intent context, with private rule packs and private libraries represented by references only."
     },
     {
       export_id: "build_package_readiness",
@@ -594,6 +623,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/report/ReportPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+        "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -603,7 +633,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 13 : 12,
+      target_count: result && run ? 14 : 13,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -655,9 +685,9 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-03"],
-    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
-    objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
+    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
+    objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,
     analysis_run_ref: run?.run_id ?? "not generated",
