@@ -1443,3 +1443,45 @@ packet persistence inventory carried `expected_export_count=25`,
 included `accessibility=available`; and Report Content Lint reported
 `targets=19`, `findings=0`, and `blocking=0`. Captured browser console error
 entries were absent.
+
+TP-MAC-60 design-authoring-workspace-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T11:02:04-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_design_authoring_comparison_workspace.py`, browser initial and
+solved-state packet checks, zero browser console errors, `git diff --check`,
+and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Design-authoring Workspace panel
+reported `knowledge=3`, `states=0`, `runs=0`, `comparisons=0`, and
+`operations=0`. The core-contract line reported `records=2`, `warnings=1`,
+`states=2`, `runs=2`, and `overlays=5`. The parsed workspace JSON carried
+`DEL-07-08`, `PKG-07`, `SOW-076`, `OBJ-015`, `OBJ-016`,
+`document_kind=openpipestress.technical_preview.design_authoring_comparison_workspace`,
+current knowledge record count 3, pending state/run browser, pending
+comparison tables, accepted model mutation false, private payload false,
+protected content false, and no release or professional claim.
+
+Export Safety Review initially reported `19 of 26 local exports ready` with
+`design_authoring_comparison_workspace:available`; Report Content Lint
+initially reported `targets=19`, `findings=0`, and `blocking=0`, with
+`target:desktop-design-workspace-template` present.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. The Design-authoring Workspace panel reported
+`knowledge=3`, `states=1`, `runs=1`, `comparisons=213`, and `operations=0`;
+the current browser line carried `analysis_run=run:preview-linear-static-001`
+and `result_rows=647`; and the parsed workspace JSON reported available
+state/run browsing, available comparison tables, comparison
+`comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT`,
+accepted model mutation false, private payload false, protected content false,
+and no release or professional claim. Export Safety Review reported `25 of 26
+local exports ready` because no operation review record was queued; the report
+packet persistence inventory carried `expected_export_count=26`,
+`available_count=25`, and
+`design_authoring_comparison_workspace:available`; the report readiness line
+included `workspace=available`; and Report Content Lint reported `targets=20`,
+`findings=0`, and `blocking=0`. Captured browser console error entries were
+absent.

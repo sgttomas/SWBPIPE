@@ -122,6 +122,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
+          "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -225,6 +226,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Accessibility baseline template records DEL-07-06 deterministic GUI-contract evidence, target TBD, desktop runtime evaluation not performed, color-only status signaling false, private payload false, protected payload false, and no accessibility conformance, release, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-design-workspace-template",
+      "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Design workspace template records DEL-07-08 design knowledge, constraint warning, state/run, comparison, overlay, and operation-diff review metadata, accepted model mutation false, private payload false, protected payload false, and no acceptance, release, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-local-fea-handoff-template",

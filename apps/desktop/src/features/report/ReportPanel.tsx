@@ -325,6 +325,7 @@ function reportExportPacket({
       "DEL-07-03",
       "DEL-07-04",
       "DEL-07-06",
+      "DEL-07-08",
       "DEL-10-03",
       "DEL-10-04",
       "DEL-10-05",
@@ -419,6 +420,7 @@ function reportPersistenceEvidence({
     editor_contract_review: "available",
     missing_data_warning_blocking_review: "available",
     accessibility_usability_baseline_review: "available",
+    design_authoring_comparison_workspace: "available",
     build_package_readiness: "available",
     result_envelope: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     stress_neutral_csv_json_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",
@@ -502,7 +504,8 @@ function formatExportInventorySummary(evidence: ReturnType<typeof reportPersiste
     `telemetry=${evidence.export_inventory.readiness_by_export_id.telemetry_boundary_review}`,
     `secrets=${evidence.export_inventory.readiness_by_export_id.secret_private_library_boundary_review}`,
     `threats=${evidence.export_inventory.readiness_by_export_id.security_threat_model_review}`,
-    `accessibility=${evidence.export_inventory.readiness_by_export_id.accessibility_usability_baseline_review}`
+    `accessibility=${evidence.export_inventory.readiness_by_export_id.accessibility_usability_baseline_review}`,
+    `workspace=${evidence.export_inventory.readiness_by_export_id.design_authoring_comparison_workspace}`
   ].join("; ");
 }
 

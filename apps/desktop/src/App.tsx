@@ -18,6 +18,7 @@ import { CaepipeExternalHarnessPanel } from "./features/caepipe-external/Caepipe
 import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
+import { DesignWorkspacePanel } from "./features/design-workspace/DesignWorkspacePanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { EditorContractPanel } from "./features/editor-contract/EditorContractPanel";
 import { ExportAdapterSdkPanel } from "./features/export-adapter-sdk/ExportAdapterSdkPanel";
@@ -389,6 +390,16 @@ export function App() {
             proposal={proposal}
             selectedReviewTarget={selectedReviewTarget}
             storageCapability={storageCapability}
+          />
+          <DesignWorkspacePanel
+            model={model}
+            knowledge={knowledge}
+            result={result}
+            analysisRun={analysisRun}
+            comparison={comparison}
+            editorIntents={editorIntents}
+            proposal={proposal}
+            selectedReviewTarget={selectedReviewTarget}
           />
           <ComparisonPanel comparison={comparison} onSelectResult={handleSelectResult} />
           <HandoffPanel
