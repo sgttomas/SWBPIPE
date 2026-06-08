@@ -1078,3 +1078,39 @@ inventory carried `expected_export_count=15`, `available_count=14`, and
 `conservative_pcf_export:available`; Report Content Lint reported `targets=9`,
 `findings=0`, and `blocking=0`. Fresh browser console errors after the
 timestamp marker were absent.
+
+TP-MAC-51 export-adapter-sdk-registry-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T12:49:12.722Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, `git diff --check`, and a touched-file ASCII scan before
+closeout.
+
+The initial browser state confirmed the new Export Adapter SDK panel reported
+`available`, `targets=5`, `capabilities=4`, `validation=boundary_checked`, and
+`diagnostics=0`. The parsed registry JSON carried
+`document_kind=openpipestress.technical_preview.export_adapter_sdk_registry`,
+`DEL-17-09`, `PKG-17`, registry
+`ops.export_adapter_sdk.registry_preview`, `target_count=5`,
+`admitted_support_claim_count=0`, `plugin_runtime=TBD`,
+`permission_taxonomy=TBD`, denied filesystem and network grants, zero
+diagnostics, and false target-compatibility, solver-validation,
+code-compliance, and professional-reliance claim flags. Export Safety Review
+initially reported `11 of 17 local exports ready`, with
+`export_adapter_sdk_registry:available`, and Report Content Lint reported
+`targets=10`, `findings=0`, and `blocking=0`.
+
+After running the preview mechanics path, the Export Adapter SDK registry bound
+to `analysis_run_ref=run:preview-linear-static-001` and
+`model_state_ref=state:project:invented-loop-01:preview` while retaining
+`validation=boundary_checked`, 5 registry targets, 0 admitted support claims,
+0 diagnostics, and the same no-compatibility, no-solver-validation,
+no-code-compliance, and no-professional-reliance boundaries. Export Safety
+Review reported `16 of 17 local exports ready` because no operation review
+record was queued; the parsed export review manifest carried
+`export_count=17`, `available_count=16`, and
+`export_adapter_sdk_registry:available`. The parsed report JSON persistence
+inventory carried `expected_export_count=17`, `available_count=16`, and
+`export_adapter_sdk_registry:available`; Report Content Lint reported
+`targets=11`, `findings=0`, and `blocking=0`. Captured browser console error
+entries were absent.

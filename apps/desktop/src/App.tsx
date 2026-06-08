@@ -17,6 +17,7 @@ import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPa
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
+import { ExportAdapterSdkPanel } from "./features/export-adapter-sdk/ExportAdapterSdkPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
 import { ExternalProverBoundaryPanel } from "./features/external-prover/ExternalProverBoundaryPanel";
 import { HandoffPanel } from "./features/handoff/HandoffPanel";
@@ -361,6 +362,7 @@ export function App() {
           <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
           <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
           <CaepipeMbfExportPanel model={model} result={result} analysisRun={analysisRun} />
+          <ExportAdapterSdkPanel model={model} result={result} analysisRun={analysisRun} />
           <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
           <NativePackagePanel
             model={model}

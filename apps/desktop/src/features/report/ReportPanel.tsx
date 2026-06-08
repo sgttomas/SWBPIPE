@@ -329,6 +329,7 @@ function reportExportPacket({
       "DEL-17-06",
       "DEL-17-07",
       "DEL-17-08",
+      "DEL-17-09",
       "DEL-02-05",
       "DEL-12-01",
       "DEL-12-02"
@@ -413,6 +414,7 @@ function reportPersistenceEvidence({
     review_geometry_export: "available",
     conservative_pcf_export: "available",
     caepipe_mbf_export: "available",
+    export_adapter_sdk_registry: "available",
     native_json_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     report_packet: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     report_protected_content_lint: "available",

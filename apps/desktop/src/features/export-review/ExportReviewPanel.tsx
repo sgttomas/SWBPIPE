@@ -162,6 +162,7 @@ function buildExportReviewManifest({
   const reviewGeometryReady = true;
   const pcfExportReady = true;
   const caepipeMbfExportReady = true;
+  const exportAdapterSdkReady = true;
   const nativePackageReady = Boolean(result && analysisRun);
   const handoffReady = Boolean(result && analysisRun);
   const ledgerReady = operationRecordCount > 0;
@@ -452,6 +453,36 @@ function buildExportReviewManifest({
         "Local CAEPIPE MBF smoke-subset review package with sidecar stable IDs, mandatory loss report, and carried TBDs for target version, record subset, and direct stable-ID carrier."
     },
     {
+      export_id: "export_adapter_sdk_registry",
+      label: "Export adapter SDK registry",
+      document_kind: "openpipestress.technical_preview.export_adapter_sdk_registry",
+      readiness: exportAdapterSdkReady ? "available" : "pending_adapter_sdk_registry",
+      deliverable_refs: ["DEL-17-09", "DEL-17-02", "DEL-17-01", "DEL-02-04", "DEL-10-01", "DEL-10-02"],
+      source_refs: result && run ? [result.run_id, run.model_state_ref.ref, model.project.id] : [model.project.id],
+      registry_id: "ops.export_adapter_sdk.registry_preview",
+      sdk_contract_status: "contract_level_preview",
+      target_registry_count: 5,
+      preview_panel_available_count: 5,
+      capability_count: 4,
+      validation_status: "boundary_checked",
+      schema_validation_status: "desktop_preview_shape_aligned_not_runtime_json_schema_validated",
+      plugin_runtime: "TBD",
+      permission_taxonomy: "TBD",
+      public_transport_protocol: "TBD",
+      source_basis_admitted_target_count: 0,
+      target_support_claim_count: 0,
+      target_compatibility_claim: false,
+      solver_validation_claim: false,
+      code_compliance_claim: false,
+      professional_reliance_claim: false,
+      redaction_action: "local_sdk_registry_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Local export-adapter SDK target registry preview; additional target source-basis admission, plugin runtime, permissions, public transport, and target support remain TBD."
+    },
+    {
       export_id: "native_json_package",
       label: "Native JSON package",
       document_kind: "openpipestress.technical_preview.native_json_package_review",
@@ -499,9 +530,10 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
         "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
         "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+        "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 10 : 9,
+      target_count: result && run ? 11 : 10,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -553,7 +585,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-10-01", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

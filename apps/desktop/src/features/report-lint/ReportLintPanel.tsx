@@ -120,6 +120,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
           "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
           "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+          "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
           "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
           "fixtures/product_preview"
         ],
@@ -202,6 +203,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "CAEPIPE MBF export template records invented ASCII MBF preview text, sidecar stable IDs, mandatory loss report, carried target-version and record-subset TBDs, private payload false, protected payload false, external invocation false, and no target compatibility, solver validation, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-export-adapter-sdk-template",
+      "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Export adapter SDK template records target-registry preview metadata, additional target source-basis admission TBDs, deny-by-default permissions, private payload false, protected payload false, and no support, compatibility, release, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-stress-neutral-template",
