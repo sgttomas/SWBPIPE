@@ -874,3 +874,38 @@ deliverable refs `DEL-10-02`, `DEL-02-04`, `DEL-08-04`, `DEL-12-01`, and
 JSON persistence inventory carried `expected_export_count=10`,
 `available_count=9`, and `adapter_framework_envelope:available`. Fresh
 browser console errors after the timestamp marker were absent.
+
+TP-MAC-45 external-prover-boundary-metadata-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-45-1780919355205` with timestamp marker
+`2026-06-08T11:49:15.202Z`. The initial state confirmed the new External
+Prover Boundary panel reported `available`,
+`metadata=non_authoritative_workflow_metadata`, `refs=1`, and
+`diagnostics=4`; the parsed metadata JSON carried `DEL-15-04`, `SOW-075`,
+objectives `OBJ-017` and `OBJ-018`, tag `run-context-pending`, external ref
+`external:desktop-preview-metadata-only`, `handoff:TBD`, `state:TBD`, one
+attachment reference with `payload_embedded=false`, three unsupported-target
+flags, and false external-tool invocation, commercial-result ingestion,
+software external-validation record, and software compliance claim flags.
+Export Safety Review initially reported `6 of 11 local exports ready`, with
+`external_prover_boundary_metadata:available`, and Report Content Lint reported
+`targets=4`, `findings=0`, `blocking=0`.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; the external-prover
+metadata JSON carried tag `mechanics-context-bound`, handoff ref
+`handoff:project:invented-loop-01:run:preview-linear-static-001`, model-state
+ref `state:project:invented-loop-01:preview`, `sha256` hash references, the
+same three unsupported-target flags, and false external-tool invocation,
+commercial-result ingestion, and software-created professional-reliance record
+flags. Export Safety Review reported `10 of 11 local exports ready`; the parsed
+manifest carried `export_count=11`, `available_count=10`, and an available
+`external_prover_boundary_metadata` export with `DEL-15-04`, `DEL-15-01`,
+`DEL-15-02`, `DEL-15-03`, `DEL-17-05`, one external reference, one attachment,
+three unsupported-target flags, and false private-payload, protected-content,
+release/professional-claim, external-tool invocation, commercial-result
+ingestion, and software external-validation record flags. The parsed report
+JSON persistence inventory carried `expected_export_count=11`,
+`available_count=10`, and `external_prover_boundary_metadata:available`; Report
+Content Lint reported `targets=5`, `findings=0`, and `blocking=0`. Fresh browser
+console errors after the timestamp marker were absent.

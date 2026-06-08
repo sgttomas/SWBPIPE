@@ -16,6 +16,7 @@ import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
+import { ExternalProverBoundaryPanel } from "./features/external-prover/ExternalProverBoundaryPanel";
 import { HandoffPanel } from "./features/handoff/HandoffPanel";
 import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
@@ -349,6 +350,7 @@ export function App() {
           <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
           <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
           <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
+          <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
           <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
           <NativePackagePanel
             model={model}

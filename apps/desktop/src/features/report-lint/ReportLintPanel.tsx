@@ -115,6 +115,7 @@ function buildReportLintPacket({
         public_surface_roots: [
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+          "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "fixtures/product_preview"
         ],
         private_surface_default: "skip_unless_explicitly_authorized",
@@ -161,6 +162,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Export review template records local preview exports, private payload false, protected payload false, and no release or professional claim."
+    ),
+    target(
+      "target:desktop-external-prover-template",
+      "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "External prover boundary template records metadata-only names, tags, references, attachment refs, unsupported target flags, private payload false, and no software authority claim."
     ),
     target(
       "target:invented-preview-fixture",

@@ -156,6 +156,7 @@ function buildExportReviewManifest({
   const resultExportReady = Boolean(result && analysisRun);
   const headlessRunnerReady = true;
   const adapterFrameworkReady = true;
+  const externalProverReady = true;
   const nativePackageReady = Boolean(result && analysisRun);
   const handoffReady = Boolean(result && analysisRun);
   const ledgerReady = operationRecordCount > 0;
@@ -266,6 +267,30 @@ function buildExportReviewManifest({
         "Format-neutral adapter declaration; concrete formats, transport, plugin runtime, filesystem roots, redaction workflow, CI, and release matrix remain TBD."
     },
     {
+      export_id: "external_prover_boundary_metadata",
+      label: "External prover boundary metadata",
+      document_kind: "openpipestress.technical_preview.external_prover_boundary_metadata",
+      readiness: externalProverReady ? "available" : "pending_external_prover_metadata",
+      deliverable_refs: ["DEL-15-04", "DEL-15-01", "DEL-15-02", "DEL-15-03", "DEL-17-05"],
+      source_refs: result && run
+        ? [result.run_id, run.model_state_ref.ref, "external:desktop-preview-metadata-only"]
+        : [model.project.id, "external:desktop-preview-metadata-only"],
+      metadata_contract_status: "non_authoritative_workflow_metadata",
+      external_reference_count: 1,
+      attachment_count: 1,
+      unsupported_target_flag_count: 3,
+      diagnostic_ref_count: diagnostics.length,
+      external_tool_invoked: false,
+      commercial_result_payload_ingested: false,
+      software_creates_external_validation_record: false,
+      redaction_action: "metadata_refs_and_hashes_only_no_payload_ingestion",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Metadata-only external-prover workflow context; no external tool invocation, commercial result ingestion, or software-generated acceptance record."
+    },
+    {
       export_id: "native_json_package",
       label: "Native JSON package",
       document_kind: "openpipestress.technical_preview.native_json_package_review",
@@ -307,9 +332,10 @@ function buildExportReviewManifest({
       source_refs: [
         model.project.id,
         "apps/desktop/src/features/report/ReportPanel.tsx",
-        "apps/desktop/src/features/export-review/ExportReviewPanel.tsx"
+        "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+        "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx"
       ],
-      target_count: result && run ? 4 : 3,
+      target_count: result && run ? 5 : 4,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -361,9 +387,9 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-17-02", "DEL-17-03", "DEL-16-03"],
-    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074"],
-    objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-018"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-16-03"],
+    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
+    objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,
     analysis_run_ref: run?.run_id ?? "not generated",
