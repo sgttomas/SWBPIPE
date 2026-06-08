@@ -63,6 +63,227 @@ under the selected deliverable's `_run_records/`. `ScopePath`,
 `DeliverablePath`, and profile labels do not grant write authority by
 themselves.
 
+## Phase-Aware Coordination
+
+Agentic coordination should change when the dominant project uncertainty
+changes. Deliverables, DAG records, review states, application code, and
+issuance records are not interchangeable work surfaces. Each phase below names
+the normal work unit and the question the coordination loop is trying to
+answer.
+
+| Phase | Dominant question | Normal work unit | Coordination emphasis |
+|---|---|---|---|
+| 1. Intent externalization | What are we trying to define? | Package or deliverable scaffold. | Authority intake, deliverable identity, scope boundaries, acceptance criteria, and open questions. |
+| 2. Dependency resolution | What depends on what? | Dependency edge, blocker, or clarifying deliverable note. | DAG semantics, cycle checks, edge amendments, blockers, and graph validation. |
+| 3. Deliverable maturation | Is this deliverable sufficiently defined and evidenced? | One deliverable or a small dependency-linked set. | Local memory, issue burn-down, acceptance evidence, validation, and bounded improvement. |
+| 4. `CHECKING` transition | Is this ready for formal checking? | Review candidate. | Review packet completeness, residual issue policy, status update authority, and audit trail. |
+| 5. Application integration | What bounded app capability should become real next? | App slice spanning UI, core, fixtures, tests, and evidence as needed. | Working desktop application, app/code/test intake, cross-deliverable context, fan-in, and preview boundary. |
+| 6. App feedback and gap closure | What does the application reveal that documents did not? | App-discovered gap or failed workflow. | Smoke evidence, gap classification, routing to code/schema/fixture/review, and before/after validation. |
+| 7. Issuance | Is this deliverable formally accepted as authoritative? | Human-approved issuance candidate. | Final evidence, immutable records, human gate, frozen `ISSUED` authority, and formal change path. |
+
+The stable heuristic is:
+
+```text
+Externalize intent as deliverables.
+Resolve dependencies into a usable graph.
+Mature deliverables until they are reviewable.
+Move mature deliverables into CHECKING.
+Shift ordinary work from deliverables to product integration.
+Use the working application to expose remaining gaps.
+Issue deliverables through a separate human-gated lifecycle path.
+```
+
+The important transition is from deliverable production to product
+integration. Mature deliverables define intended behavior, but the working
+application tests whether those intentions compose. Once the DAG is coherent
+and deliverables are in `CHECKING`, ordinary work should default to bounded app
+slices. Formal issuance remains separate from ordinary development.
+
+Every agent instance must be able to operate from its local instructions,
+authority surfaces, current state, write scope, validation expectations, and
+handoff rules. It must not require awareness of other instantiations, prior
+sessions, or higher-level recursion.
+
+## Coordination Surface Specs
+
+Use these specs when changing the development loop. In this repository,
+`execution/_Coordination/NEXT_INSTANCE_PROMPT.md` currently performs the
+`NEXT_SESSION_PROMPT.md` role. A separate `NEXT_INSTANCE_STATE.md` is a
+possible future split for compact mutable handoff state, but it must not become
+substitute authority unless the coordination record explicitly adopts it.
+
+### Phase 1: Intent Externalization
+
+`_COORDINATION.md` should define project authority, package and deliverable
+naming rules, allowed scaffolding write scopes, `TASK` brief requirements, and
+the loop for selecting missing or underspecified deliverables. It should require
+purpose, scope, assumptions, acceptance criteria, and open questions for each
+deliverable.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase
+`INTENT_EXTERNALIZATION`, packages and deliverables created or missing,
+incomplete contexts, unresolved project assumptions, the last scaffold check,
+and dirty git state.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session to read authority,
+inspect the deliverable register and missing contexts, select one bounded
+scaffold or enrichment tranche, and avoid dependency closure unless explicitly
+requested.
+
+The init prompt should remain minimal and end with a phase clause like:
+
+```text
+Consider one bounded deliverable-scaffolding or intent-clarification tranche.
+Spawn TASK agents only for independent deliverables with explicit briefs.
+```
+
+### Phase 2: Dependency Resolution
+
+`_COORDINATION.md` should define dependency relation semantics, the source of
+truth for dependency records, edge amendment rules, cycle detection, blocker
+handling, and the criteria for a usable DAG.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase
+`DEPENDENCY_RESOLUTION`, the active DAG identifier, known cycles, missing or
+ambiguous edges, deliverables blocked by dependency issues, the last DAG
+validation result, and open human questions.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session to read the
+deliverable register, dependency records, and DAG artifacts, run dependency
+validation, select one bounded dependency-resolution tranche, and avoid
+maturing deliverables beyond what is needed for graph closure.
+
+The init prompt phase clause should be:
+
+```text
+Consider one bounded dependency-resolution tranche. Spawn TASK agents only for
+separable edge-analysis or deliverable-clarification briefs.
+```
+
+### Phase 3: Deliverable Maturation
+
+`_COORDINATION.md` should define maturity criteria, local memory and run-record
+expectations, acceptance-evidence requirements, DAG-guided work selection, and
+rules for reducing blockers and `TBD`s.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase
+`DELIVERABLE_MATURATION`, the active DAG pointer, ready and blocked
+deliverables, deliverables with high `TBD` or open-issue burden, the last
+completed tranche, and validation evidence.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session to run status and DAG
+discovery, select one bounded deliverable-maturation tranche, prefer
+deliverables whose dependencies are mature enough, spawn `TASK` agents only for
+independent deliverable-local improvements, and record evidence and residual
+blockers.
+
+The init prompt phase clause should be:
+
+```text
+Consider one bounded deliverable-maturation tranche. Spawn TASK agents only for
+explicit deliverable-local scopes with clear acceptance criteria.
+```
+
+### Phase 4: CHECKING Transition
+
+`_COORDINATION.md` should define `CHECKING` entry criteria, review packet
+requirements, allowed residual issues, status-update authority, and review
+evidence expectations.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase
+`CHECKING_TRANSITION`, deliverables eligible for `CHECKING`, deliverables
+already in `CHECKING`, rejected candidates needing remediation, last review
+results, and current status counts.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session to run status
+summary, select review candidates, inspect deliverable-local context, memory,
+evidence, and dependency status, change status only when criteria are met, and
+record review rationale.
+
+The init prompt phase clause should be:
+
+```text
+Consider one bounded review tranche to move mature deliverables toward
+CHECKING. Spawn TASK agents only for separable review or remediation briefs.
+```
+
+### Phase 5: Application Integration
+
+`_COORDINATION.md` should define application integration as the default loop,
+name app/code/test/fixture/build surfaces, state when cross-deliverable work is
+allowed, define the technical-preview boundary, and name validation commands
+for app tranches.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase
+`APPLICATION_INTEGRATION`, current app status, working or failing build and
+test commands, active app gaps, relevant `CHECKING` deliverables used as
+design context, known `ISSUED` deliverables, dirty git state, and any active
+tranche.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session to inspect
+app/build/test surfaces first, use the DAG only to discover related
+deliverable context, select one bounded app-integration tranche, spawn `TASK`
+agents only for separable subscopes with disjoint write scopes, and preserve
+the technical-preview limits.
+
+The init prompt phase clause should be:
+
+```text
+Consider one bounded app-integration tranche toward the working application.
+Spawn TASK agents only for separable subscopes with explicit briefs and
+disjoint write scopes.
+```
+
+### Phase 6: App Feedback And Gap Closure
+
+`_COORDINATION.md` should define the app-driven feedback loop, smoke-test and
+workflow evidence, gap categories, routing rules for each gap type, and the
+conditions under which an app finding reopens deliverable work.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase
+`APP_FEEDBACK_AND_GAP_CLOSURE`, last smoke and test results, known
+app-discovered gaps, gap classification, fixes in progress, deliverables
+affected by app findings, and validation commands still failing.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session to run or inspect
+latest app validation, select one bounded gap-closure tranche, prefer fixes
+that unblock visible workflows, update deliverable review artifacts only when
+the app reveals a real deliverable issue, and record before/after evidence.
+
+The init prompt phase clause should be:
+
+```text
+Consider one bounded app-feedback or gap-closure tranche. Spawn TASK agents
+only when the gap can be split into independent code, fixture, schema, or
+review scopes.
+```
+
+### Phase 7: Issuance
+
+`_COORDINATION.md` should define `ISSUED` criteria, the human approval gate,
+immutable evidence requirements, the change path for already-issued
+deliverables, final review and closure records, and boundary language for
+release, professional, legal, certification, and code-compliance claims.
+
+`NEXT_INSTANCE_STATE.md`, if used, should record phase `ISSUANCE`,
+deliverables in `CHECKING`, deliverables eligible for `ISSUED`, deliverables
+already `ISSUED`, human approvals received or pending, final blockers, and the
+last issuance decision record.
+
+`NEXT_SESSION_PROMPT.md` should instruct the next session not to issue anything
+without human approval, inspect final review packets and evidence, confirm
+dependency closure and app-related findings, update status to `ISSUED` only
+through the approved lifecycle path, and treat `ISSUED` deliverables as frozen
+authority unless a formal change path opens them.
+
+The init prompt phase clause should be:
+
+```text
+Consider one human-approved issuance tranche. Do not select ISSUED
+deliverables for ordinary work; reopen them only through the formal change
+path.
+```
+
 ## Default Development Loop
 
 | Step | Action | Evidence |

@@ -1,0 +1,130 @@
+import { GitCompare } from "lucide-react";
+import type { ComparisonDelta, PreviewComparison } from "../../types";
+
+const MAX_VISIBLE_DELTAS = 4;
+
+export function ComparisonPanel({
+  comparison,
+  onSelectResult
+}: {
+  comparison: PreviewComparison | null;
+  onSelectResult: (resultId: string) => void;
+}) {
+  const visibleDeltas = comparison?.result_deltas.slice(0, MAX_VISIBLE_DELTAS) ?? [];
+  return (
+    <section className="panel comparison-panel" aria-label="Comparison workspace" data-testid="comparison-panel">
+      <div className="panel-title">
+        <GitCompare size={16} aria-hidden="true" />
+        Comparison
+      </div>
+      {comparison ? (
+        <>
+          <div className="comparison-summary" data-testid="comparison-summary">
+            <ComparisonFact label="Reference" value={`${comparison.left.basis_ref.ref}; ${comparison.left.result_count} rows`} />
+            <ComparisonFact label="Target" value={`${comparison.right.basis_ref.ref}; ${comparison.right.result_count} rows`} />
+            <ComparisonFact
+              label="Mapped"
+              value={`${comparison.summary.comparable_result_pairs} comparable pairs; ${comparison.summary.unmatched_left_results} reference-only; ${comparison.summary.unmatched_right_results} target-only`}
+            />
+            <ComparisonFact
+              label="Tolerance"
+              value={`${comparison.summary.tolerance_status}; profile=${comparison.summary.tolerance_profile_ref}`}
+              testId="comparison-tolerance-status"
+            />
+            <ComparisonFact
+              label="Boundary"
+              value={comparisonBoundary(comparison)}
+              testId="comparison-boundary"
+            />
+          </div>
+          <p className="muted" data-testid="comparison-mapping-basis">
+            {comparison.summary.mapping_basis}
+          </p>
+          <div className="comparison-table" data-testid="comparison-delta-table">
+            <div className="comparison-delta-header" aria-hidden="true">
+              <span>Target result</span>
+              <span>Entity</span>
+              <span>Location</span>
+              <span>Delta</span>
+            </div>
+            {visibleDeltas.map((delta) => (
+              <ComparisonRow key={delta.mapping_id} delta={delta} onSelectResult={onSelectResult} />
+            ))}
+          </div>
+          <small className="report-note" data-testid="comparison-diagnostics">
+            {comparison.diagnostics.length} comparison diagnostic{comparison.diagnostics.length === 1 ? "" : "s"}; top{" "}
+            {visibleDeltas.length} deltas shown from {comparison.result_deltas.length} mapped pairs.
+          </small>
+        </>
+      ) : (
+        <p className="muted" data-testid="comparison-empty">
+          Run mechanics preview to populate the local comparison workspace from stable result IDs and explicit source
+          result references.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ComparisonFact({ label, value, testId }: { label: string; value: string; testId?: string }) {
+  return (
+    <div className="comparison-fact" data-testid={testId}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function ComparisonRow({
+  delta,
+  onSelectResult
+}: {
+  delta: ComparisonDelta;
+  onSelectResult: (resultId: string) => void;
+}) {
+  return (
+    <div className="comparison-delta-shell" data-testid={`comparison-row-${safeTestId(delta.right_result_id)}`}>
+      <button
+        className="comparison-delta-row"
+        data-testid={`comparison-select-${safeTestId(delta.right_result_id)}`}
+        onClick={() => onSelectResult(delta.right_result_id)}
+        type="button"
+      >
+        <span>
+          {delta.right_result_id}
+          <small>{delta.classification.replaceAll("_", " ")}</small>
+        </span>
+        <span>{delta.entity_ref}</span>
+        <span>
+        {delta.component}; {delta.location}
+        </span>
+        <span>
+          {formatNumber(delta.raw_delta)} {delta.unit}
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function comparisonBoundary(comparison: PreviewComparison): string {
+  if (
+    comparison.professional_boundary.human_review_required &&
+    !comparison.professional_boundary.software_makes_compliance_claim &&
+    !comparison.professional_boundary.software_makes_certification_claim &&
+    !comparison.professional_boundary.software_makes_sealing_claim &&
+    !comparison.professional_boundary.software_makes_approval_claim &&
+    !comparison.professional_boundary.software_makes_authentication_claim
+  ) {
+    return "review-only comparison; no compliance, certification, sealing, authentication, or approval claim";
+  }
+  return "comparison boundary requires attention";
+}
+
+function formatNumber(value: number): string {
+  if (Math.abs(value) >= 100) return value.toFixed(3).replace(/\.?0+$/, "");
+  return value.toPrecision(6).replace(/\.?0+$/, "");
+}
+
+function safeTestId(value: string): string {
+  return value.replace(/[^a-zA-Z0-9:_-]+/g, "-");
+}

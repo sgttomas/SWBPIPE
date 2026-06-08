@@ -61,6 +61,7 @@ struct LocalProjectSummary {
 struct LocalProjectEnvelope {
     summary: LocalProjectSummary,
     model: Value,
+    editor_intents: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -68,6 +69,14 @@ struct SaveLocalProjectRequest {
     project_id: String,
     project_name: String,
     model: Value,
+    #[serde(default)]
+    editor_intents: Value,
+}
+
+#[derive(Debug, Deserialize)]
+struct SelectedReviewTarget {
+    target_type: String,
+    id: String,
 }
 
 fn app_store_path(app: &AppHandle) -> Result<PathBuf, String> {
@@ -95,6 +104,7 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
                 project_id TEXT PRIMARY KEY,
                 project_name TEXT NOT NULL,
                 model_json TEXT NOT NULL,
+                editor_intents_json TEXT NOT NULL DEFAULT '[]',
                 created_at_unix INTEGER NOT NULL,
                 updated_at_unix INTEGER NOT NULL
             );
@@ -105,7 +115,31 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
             );
             ",
         )
-        .map_err(|error| error.to_string())
+        .map_err(|error| error.to_string())?;
+    ensure_editor_intents_column(connection)
+}
+
+fn ensure_editor_intents_column(connection: &Connection) -> Result<(), String> {
+    let mut statement = connection
+        .prepare("PRAGMA table_info(local_projects)")
+        .map_err(|error| error.to_string())?;
+    let column_names = statement
+        .query_map([], |row| row.get::<_, String>(1))
+        .map_err(|error| error.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    if !column_names
+        .iter()
+        .any(|name| name == "editor_intents_json")
+    {
+        connection
+            .execute(
+                "ALTER TABLE local_projects ADD COLUMN editor_intents_json TEXT NOT NULL DEFAULT '[]'",
+                [],
+            )
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
 }
 
 fn sqlite_compile_options(connection: &Connection) -> Result<Vec<String>, String> {
@@ -165,8 +199,12 @@ fn upsert_project(
     project_id: &str,
     project_name: &str,
     model: &Value,
+    editor_intents: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
+    let editor_intents_json =
+        serde_json::to_string(editor_intents).map_err(|error| error.to_string())?;
+    let search_text = format!("{model_json}\n{editor_intents_json}");
     let now = now_unix_seconds()?;
     let transaction = connection
         .transaction()
@@ -174,14 +212,15 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?4)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?5)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
+                editor_intents_json = excluded.editor_intents_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
-            params![project_id, project_name, model_json, now],
+            params![project_id, project_name, model_json, editor_intents_json, now],
         )
         .map_err(|error| error.to_string())?;
     transaction
@@ -196,7 +235,7 @@ fn upsert_project(
             INSERT INTO local_project_fts (project_id, project_name, model_text)
             VALUES (?1, ?2, ?3)
             ",
-            params![project_id, project_name, model_json],
+            params![project_id, project_name, search_text],
         )
         .map_err(|error| error.to_string())?;
     transaction.commit().map_err(|error| error.to_string())
@@ -205,12 +244,12 @@ fn upsert_project(
 fn load_project(
     connection: &Connection,
     project_id: Option<&str>,
-) -> Result<Option<(String, String, Value)>, String> {
+) -> Result<Option<(String, String, Value, Value)>, String> {
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json
+                SELECT project_id, project_name, model_json, editor_intents_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -220,6 +259,7 @@ fn load_project(
                         row.get::<_, String>(0)?,
                         row.get::<_, String>(1)?,
                         row.get::<_, String>(2)?,
+                        row.get::<_, String>(3)?,
                     ))
                 },
             )
@@ -228,7 +268,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json
+                SELECT project_id, project_name, model_json, editor_intents_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -239,18 +279,28 @@ fn load_project(
                         row.get::<_, String>(0)?,
                         row.get::<_, String>(1)?,
                         row.get::<_, String>(2)?,
+                        row.get::<_, String>(3)?,
                     ))
                 },
             )
             .optional()
             .map_err(|error| error.to_string())?,
     };
-    row.map(|(id, name, model_json)| {
-        serde_json::from_str::<Value>(&model_json)
-            .map(|model| (id, name, model))
-            .map_err(|error| error.to_string())
+    row.map(|(id, name, model_json, editor_intents_json)| {
+        let model =
+            serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
+        let editor_intents = serde_json::from_str::<Value>(&editor_intents_json)
+            .map_err(|error| error.to_string())?;
+        Ok((id, name, model, editor_intents))
     })
     .transpose()
+}
+
+fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
+    match editor_intents {
+        Some(value) if value.is_array() => value,
+        _ => json!([]),
+    }
 }
 
 fn project_summary(
@@ -296,9 +346,10 @@ fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
     .map_err(|error| error.to_string())
 }
 
-#[tauri::command]
-fn sample_agent_proposal() -> Result<Value, String> {
-    let result = run_preview_mechanics(None)?;
+fn build_sample_agent_proposal(
+    result: Value,
+    selected_target: Option<SelectedReviewTarget>,
+) -> Value {
     let diagnostics = result
         .get("diagnostics")
         .and_then(Value::as_array)
@@ -331,17 +382,9 @@ fn sample_agent_proposal() -> Result<Value, String> {
         })
         .unwrap_or("diagnostic:physics:rule-inputs-missing")
         .to_string();
-    let diagnostic_ref = diagnostics
-        .iter()
-        .find(|item| item.get("severity").and_then(Value::as_str) == Some("warning"))
-        .and_then(|item| item.get("id").and_then(Value::as_str))
-        .unwrap_or("diagnostic:physics:rule-inputs-missing");
-    let rationale_ref = if primary_ref.starts_with("result:force:") {
-        primary_ref.as_str()
-    } else {
-        diagnostic_ref
-    }
-    .to_string();
+    let (target_ref, target_kind) = selected_target
+        .map(|target| (target.id, target.target_type.replace('_', " ")))
+        .unwrap_or_else(|| (primary_ref, "computed mechanics".to_string()));
     let proposal = json!({
         "schema_version": "0.1.0",
         "document_kind": "openpipestress.product_preview.agent_proposal",
@@ -352,18 +395,18 @@ fn sample_agent_proposal() -> Result<Value, String> {
             "operation_id": "op:review-computed-diagnostic",
             "operation_kind": "attach_design_knowledge",
             "operation_status": "draft_user_review_required",
-            "affected_entity_ids": [primary_ref],
+            "affected_entity_ids": [target_ref],
             "changes": [
                 {
                     "change_id": "change:add-review-note",
                     "change_kind": "attach_design_knowledge",
-                    "target_ref": primary_ref,
-                    "before": "No computed mechanics force review note attached.",
-                    "after": "Attach review note referencing the current computed preview force, stress, and diagnostic context."
+                    "target_ref": target_ref,
+                    "before": format!("No review note attached for the selected {target_kind} context."),
+                    "after": format!("Attach review note referencing the current computed preview {target_kind} context.")
                 }
             ]
         },
-        "rationale": format!("Generated from current preview mechanics context; primary reference is {rationale_ref}."),
+        "rationale": format!("Generated from current preview mechanics context; selected review reference is {target_ref}. This narrative is review-only and does not mutate accepted model state."),
         "assumptions": [
             "The model is invented and not a project basis.",
             "No protected criteria, allowables, or owner-standard values are available."
@@ -387,11 +430,23 @@ fn sample_agent_proposal() -> Result<Value, String> {
             "software_makes_approval_claim": false
         }
     });
-    Ok(json!({
+    json!({
         "proposal": proposal,
         "application_status": "not_applied",
         "accepted_model_mutated": false
-    }))
+    })
+}
+
+#[tauri::command]
+fn sample_agent_proposal(
+    mechanics_result: Option<Value>,
+    selected_target: Option<SelectedReviewTarget>,
+) -> Result<Value, String> {
+    let result = match mechanics_result {
+        Some(value) => value,
+        None => run_preview_mechanics(None)?,
+    };
+    Ok(build_sample_agent_proposal(result, selected_target))
 }
 
 #[tauri::command]
@@ -414,12 +469,23 @@ fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, Str
 }
 
 #[tauri::command]
-fn create_local_project(app: AppHandle, model: Value) -> Result<LocalProjectEnvelope, String> {
+fn create_local_project(
+    app: AppHandle,
+    model: Value,
+    editor_intents: Option<Value>,
+) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let mut connection = open_project_store(&path)?;
     let project_id = project_id_from_model(&model);
     let project_name = project_name_from_model(&model);
-    upsert_project(&mut connection, &project_id, &project_name, &model)?;
+    let editor_intents = normalized_editor_intents(editor_intents);
+    upsert_project(
+        &mut connection,
+        &project_id,
+        &project_name,
+        &model,
+        &editor_intents,
+    )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             project_id,
@@ -428,6 +494,7 @@ fn create_local_project(app: AppHandle, model: Value) -> Result<LocalProjectEnve
             "Created local SQLite project snapshot without external file copies.".to_string(),
         ),
         model,
+        editor_intents,
     })
 }
 
@@ -439,7 +506,7 @@ fn open_local_project(
     let path = app_store_path(&app)?;
     let connection = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
-        .map(|(id, name, model)| {
+        .map(|(id, name, model, editor_intents)| {
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
                     id,
@@ -448,6 +515,7 @@ fn open_local_project(
                     "Opened local SQLite project snapshot.".to_string(),
                 ),
                 model,
+                editor_intents,
             })
         })
         .transpose()
@@ -465,6 +533,7 @@ fn save_local_project(
         &request.project_id,
         &request.project_name,
         &request.model,
+        &normalized_editor_intents(Some(request.editor_intents.clone())),
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -474,6 +543,7 @@ fn save_local_project(
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
         model: request.model,
+        editor_intents: normalized_editor_intents(Some(request.editor_intents)),
     })
 }
 
@@ -504,18 +574,34 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-            "schema_version": "0.1.0",
-            "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.1.0",
+        "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
                 "name": "Test Local Project"
             }
         });
+        let editor_intents = json!([
+            {
+                "queue_id": "editor-intent-1",
+                "operation_id": "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value",
+                "validation": {
+                    "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                    "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                    "software_makes_compliance_claim": false
+                }
+            }
+        ]);
         upsert_project(
             &mut connection,
             "project:test-local",
             "Test Local Project",
             &model,
+            &editor_intents,
         )
         .expect("project snapshot saves");
 
@@ -525,14 +611,87 @@ mod tests {
         assert_eq!(loaded.0, "project:test-local");
         assert_eq!(loaded.1, "Test Local Project");
         assert_eq!(loaded.2, model);
+        assert_eq!(loaded.3, editor_intents);
+        assert_eq!(
+            loaded.3[0]["validation"]["application_status"],
+            json!("not_applied")
+        );
+        assert_eq!(
+            loaded.3[0]["audit_boundary"]["mutates_accepted_model_state"],
+            json!(false)
+        );
+        assert_eq!(
+            loaded.3[0]["professional_boundary"]["software_makes_compliance_claim"],
+            json!(false)
+        );
 
         let indexed_count: i64 = connection
             .query_row(
                 "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
-                params!["Test"],
+                params!["editor"],
                 |row| row.get(0),
             )
             .expect("fts5 query succeeds");
         assert_eq!(indexed_count, 1);
+    }
+
+    #[test]
+    fn agent_proposal_preserves_selected_review_target_without_mutation_or_claims() {
+        let result = json!({
+            "model_ref": "project:invented-loop-01",
+            "results": [
+                {
+                    "id": "result:force:pipe-P-120:axial",
+                    "kind": "element_local_axial_force"
+                }
+            ],
+            "diagnostics": [
+                {
+                    "id": "diagnostic:physics:high-displacement-review",
+                    "severity": "warning"
+                }
+            ]
+        });
+        let output = build_sample_agent_proposal(
+            result,
+            Some(SelectedReviewTarget {
+                target_type: "diagnostic".to_string(),
+                id: "diagnostic:physics:high-displacement-review".to_string(),
+            }),
+        );
+        let proposal = output.get("proposal").expect("proposal envelope exists");
+        assert_eq!(
+            proposal["operation"]["affected_entity_ids"][0],
+            json!("diagnostic:physics:high-displacement-review")
+        );
+        assert_eq!(
+            proposal["operation"]["changes"][0]["target_ref"],
+            json!("diagnostic:physics:high-displacement-review")
+        );
+        assert_eq!(
+            proposal["operation"]["operation_status"],
+            json!("draft_user_review_required")
+        );
+        assert_eq!(
+            proposal["validation"]["application_status"],
+            json!("not_applied")
+        );
+        assert!(proposal["rationale"]
+            .as_str()
+            .expect("rationale is text")
+            .contains("selected review reference is diagnostic:physics:high-displacement-review"));
+        assert_eq!(output["accepted_model_mutated"], json!(false));
+        assert_eq!(
+            proposal["audit_boundary"]["mutates_accepted_model_state"],
+            json!(false)
+        );
+        assert_eq!(
+            proposal["professional_boundary"]["software_makes_compliance_claim"],
+            json!(false)
+        );
+        assert_eq!(
+            proposal["professional_boundary"]["software_makes_approval_claim"],
+            json!(false)
+        );
     }
 }

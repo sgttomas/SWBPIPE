@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { LocalProjectEnvelope, LocalStorageCapability, PreviewModel } from "../types";
+import type { EditorOperationIntent, LocalProjectEnvelope, LocalStorageCapability, PreviewModel } from "../types";
+
+let browserPreviewSnapshot: LocalProjectEnvelope | null = null;
 
 function hasTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -7,33 +9,51 @@ function hasTauriRuntime(): boolean {
 
 function localOnlyCapability(): LocalStorageCapability {
   return {
-    engine: "SQLite",
+    engine: "Browser memory preview",
     bundled: true,
-    fts5_available: true,
+    fts5_available: false,
     network_required: false,
     daemon_required: false,
     telemetry_enabled: false,
-    path_policy: "app-local user data path; no repository-default writes",
+    path_policy: "browser-session memory fallback; no repository-default writes",
     large_file_policy: "reference external files by path/hash metadata; do not silently copy large files",
-    database_path: "Tauri app-local data path",
-    compile_options: ["ENABLE_FTS5"]
+    database_path: "browser-session memory fallback",
+    compile_options: []
   };
 }
 
-function envelope(model: PreviewModel, message: string): LocalProjectEnvelope {
+function envelope(model: PreviewModel, editorIntents: EditorOperationIntent[], message: string): LocalProjectEnvelope {
+  const snapshot = cloneModel(model);
   return {
     summary: {
-      project_id: model.project.id,
-      project_name: model.project.name,
-      database_path: "Tauri app-local data path",
-      storage_mode: "local_sqlite",
+      project_id: snapshot.project.id,
+      project_name: snapshot.project.name,
+      database_path: "browser-session memory fallback",
+      storage_mode: "browser_memory_preview",
       migration_status: "current",
-      fts_indexed: true,
+      fts_indexed: false,
       copied_external_files: false,
       message
     },
-    model
+    model: snapshot,
+    editor_intents: cloneEditorIntents(editorIntents)
   };
+}
+
+function cloneEnvelope(project: LocalProjectEnvelope): LocalProjectEnvelope {
+  return {
+    summary: { ...project.summary },
+    model: cloneModel(project.model),
+    editor_intents: cloneEditorIntents(project.editor_intents ?? [])
+  };
+}
+
+function cloneModel(model: PreviewModel): PreviewModel {
+  return JSON.parse(JSON.stringify(model)) as PreviewModel;
+}
+
+function cloneEditorIntents(editorIntents: EditorOperationIntent[]): EditorOperationIntent[] {
+  return JSON.parse(JSON.stringify(editorIntents)) as EditorOperationIntent[];
 }
 
 export async function getLocalStorageCapability(): Promise<LocalStorageCapability> {
@@ -41,27 +61,49 @@ export async function getLocalStorageCapability(): Promise<LocalStorageCapabilit
   return invoke<LocalStorageCapability>("get_local_storage_capability");
 }
 
-export async function createLocalProject(model: PreviewModel): Promise<LocalProjectEnvelope> {
+export async function createLocalProject(
+  model: PreviewModel,
+  editorIntents: EditorOperationIntent[] = []
+): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
-    return envelope(model, "Created local test project snapshot without external file copies.");
+    browserPreviewSnapshot = envelope(
+      model,
+      editorIntents,
+      "Created local browser-preview project snapshot without external file copies."
+    );
+    return cloneEnvelope(browserPreviewSnapshot);
   }
-  return invoke<LocalProjectEnvelope>("create_local_project", { model });
+  return invoke<LocalProjectEnvelope>("create_local_project", { model, editorIntents });
 }
 
 export async function openLocalProject(): Promise<LocalProjectEnvelope | null> {
-  if (!hasTauriRuntime()) return null;
+  if (!hasTauriRuntime()) {
+    if (!browserPreviewSnapshot) return null;
+    const opened = cloneEnvelope(browserPreviewSnapshot);
+    opened.summary.message = "Opened local browser-preview project snapshot.";
+    return opened;
+  }
   return invoke<LocalProjectEnvelope | null>("open_local_project", { projectId: null });
 }
 
-export async function saveLocalProject(model: PreviewModel): Promise<LocalProjectEnvelope> {
+export async function saveLocalProject(
+  model: PreviewModel,
+  editorIntents: EditorOperationIntent[] = []
+): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
-    return envelope(model, "Saved local test project snapshot without external file copies.");
+    browserPreviewSnapshot = envelope(
+      model,
+      editorIntents,
+      "Saved local browser-preview project snapshot without external file copies."
+    );
+    return cloneEnvelope(browserPreviewSnapshot);
   }
   return invoke<LocalProjectEnvelope>("save_local_project", {
     request: {
       project_id: model.project.id,
       project_name: model.project.name,
-      model
+      model,
+      editor_intents: editorIntents
     }
   });
 }

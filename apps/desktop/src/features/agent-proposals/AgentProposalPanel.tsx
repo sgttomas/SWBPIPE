@@ -1,4 +1,4 @@
-import { CheckSquare, Wand2 } from "lucide-react";
+import { CheckSquare, ClipboardList, ShieldCheck, Wand2 } from "lucide-react";
 import type { AgentProposal, SelectedReviewTarget } from "../../types";
 
 export function AgentProposalPanel({
@@ -29,10 +29,34 @@ export function AgentProposalPanel({
         <div className="proposal-body" data-testid="proposal-body">
           <h2>{proposal.proposal_id}</h2>
           <p>{proposal.rationale}</p>
+          <section className="proposal-section" aria-label="Operation summary" data-testid="proposal-operation-summary">
+            <h3>
+              <ClipboardList size={14} aria-hidden="true" />
+              Operation
+            </h3>
+            <div className="proposal-meta-grid">
+              <ProposalFact label="Operation" value={proposal.operation.operation_id} />
+              <ProposalFact label="Kind" value={proposal.operation.operation_kind} />
+              <ProposalFact label="Status" value={proposal.operation.operation_status} />
+              <ProposalFact
+                label="Affected entities"
+                value={proposal.operation.affected_entity_ids.join(", ")}
+                testId="proposal-affected-entities"
+              />
+            </div>
+          </section>
           <div className="status-pill">
             <span>Validation</span>
             <strong>{proposal.validation.diff_preview_status}</strong>
           </div>
+          <section className="proposal-section" aria-label="Validation status" data-testid="proposal-validation-status">
+            <h3>Validation Status</h3>
+            <div className="proposal-meta-grid">
+              {Object.entries(proposal.validation).map(([key, value]) => (
+                <ProposalFact key={key} label={formatKey(key)} value={value} />
+              ))}
+            </div>
+          </section>
           <div className="diff-list">
             {proposal.operation.changes.map((change) => (
               <article key={change.change_id}>
@@ -43,6 +67,29 @@ export function AgentProposalPanel({
               </article>
             ))}
           </div>
+          <section className="proposal-section" aria-label="Proposal audit boundary" data-testid="proposal-audit-boundary">
+            <h3>
+              <ShieldCheck size={14} aria-hidden="true" />
+              Audit Boundary
+            </h3>
+            <div className="proposal-flag-grid">
+              {Object.entries(proposal.audit_boundary).map(([key, value]) => (
+                <ProposalFlag key={key} label={formatKey(key)} value={value} />
+              ))}
+            </div>
+          </section>
+          <section
+            className="proposal-section"
+            aria-label="Proposal professional boundary"
+            data-testid="proposal-professional-boundary"
+          >
+            <h3>Professional Boundary</h3>
+            <div className="proposal-flag-grid">
+              {Object.entries(proposal.professional_boundary).map(([key, value]) => (
+                <ProposalFlag key={key} label={formatKey(key)} value={value} />
+              ))}
+            </div>
+          </section>
           <button className="review-action" data-testid="accept-proposal-disabled" disabled type="button" title="Review-only until accepted mutation is implemented">
             <CheckSquare size={16} />
             Accept disabled
@@ -53,4 +100,26 @@ export function AgentProposalPanel({
       )}
     </section>
   );
+}
+
+function ProposalFact({ label, value, testId }: { label: string; value: string; testId?: string }) {
+  return (
+    <div className="proposal-fact" data-testid={testId}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function ProposalFlag({ label, value }: { label: string; value: boolean }) {
+  return (
+    <div className={`proposal-flag ${value ? "true" : "false"}`}>
+      <span>{label}</span>
+      <strong>{String(value)}</strong>
+    </div>
+  );
+}
+
+function formatKey(key: string): string {
+  return key.replaceAll("_", " ");
 }

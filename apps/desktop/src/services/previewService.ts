@@ -6,6 +6,7 @@ import type {
   MechanicsResult,
   ObjectRef,
   PreviewModel,
+  PreviewComparison,
   SelectedReviewTarget
 } from "../types";
 
@@ -135,6 +136,106 @@ export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<
   };
 }
 
+export function buildPreviewComparison({
+  result,
+  analysisRun,
+  leftBasisRef = "load:L-100",
+  rightBasisRef = "combination:C-OPER-ALT"
+}: {
+  result: MechanicsResult;
+  analysisRun: AnalysisRunEnvelope;
+  leftBasisRef?: string;
+  rightBasisRef?: string;
+}): PreviewComparison {
+  const run = analysisRun.analysis_run;
+  const resultIndex = new Map(result.results.map((item) => [item.id, item]));
+  const leftResults = result.results.filter((item) => item.basis_ref?.ref_id === leftBasisRef);
+  const rightResults = result.results.filter((item) => item.basis_ref?.ref_id === rightBasisRef);
+  const matchedLeftIds = new Set<string>();
+  const unmatchedRightRefs: string[] = [];
+  const deltas = rightResults
+    .flatMap((rightResult) => {
+      const leftResultId = rightResult.source_result_refs?.find((sourceRef) => resultIndex.has(sourceRef));
+      if (!leftResultId) {
+        unmatchedRightRefs.push(rightResult.id);
+        return [];
+      }
+      const leftResult = resultIndex.get(leftResultId);
+      if (!leftResult || leftResult.unit !== rightResult.unit) {
+        unmatchedRightRefs.push(rightResult.id);
+        return [];
+      }
+      matchedLeftIds.add(leftResult.id);
+      return [
+        {
+          mapping_id: `mapping:${leftResult.id}->${rightResult.id}`,
+          left_result_id: leftResult.id,
+          right_result_id: rightResult.id,
+          entity_ref: rightResult.entity_ref,
+          result_family: resultFamily(rightResult),
+          component: rightResult.metadata?.component ?? rightResult.kind,
+          location: rightResult.metadata?.location ?? "summary",
+          unit: rightResult.unit,
+          left_value: leftResult.value,
+          right_value: rightResult.value,
+          raw_delta: rightResult.value - leftResult.value,
+          absolute_delta: Math.abs(rightResult.value - leftResult.value),
+          classification: "not_tolerance_checked" as const,
+          classification_basis: "governed_tolerance_profile_TBD_no_default_engineering_threshold"
+        }
+      ];
+    })
+    .sort((left, right) => {
+      const byDelta = right.absolute_delta - left.absolute_delta;
+      return byDelta === 0 ? left.right_result_id.localeCompare(right.right_result_id) : byDelta;
+    });
+  const unmatchedLeftRefs = leftResults.map((item) => item.id).filter((id) => !matchedLeftIds.has(id));
+  const diagnostics = comparisonDiagnostics({ unmatchedLeftRefs, unmatchedRightRefs });
+
+  return {
+    schema_version: "0.1.0",
+    document_kind: "openpipestress.technical_preview.comparison",
+    deliverable_id: "DEL-14-04",
+    package_id: "PKG-14",
+    scope_items: ["SOW-073"],
+    objectives: ["OBJ-016"],
+    comparison_id: `comparison:${result.run_id}:${safeComparisonToken(leftBasisRef)}-to-${safeComparisonToken(rightBasisRef)}`,
+    comparison_kind: "single_run_load_basis_review",
+    left: {
+      label: "Reference load-case result rows",
+      basis_ref: ref("LoadCase", leftBasisRef),
+      model_state_ref: run.model_state_ref,
+      analysis_run_ref: ref("AnalysisRun", run.run_id),
+      result_count: leftResults.length
+    },
+    right: {
+      label: "User-defined combination result rows",
+      basis_ref: ref("Combination", rightBasisRef),
+      model_state_ref: run.model_state_ref,
+      analysis_run_ref: ref("AnalysisRun", run.run_id),
+      result_count: rightResults.length
+    },
+    summary: {
+      comparable_result_pairs: deltas.length,
+      unmatched_left_results: unmatchedLeftRefs.length,
+      unmatched_right_results: unmatchedRightRefs.length,
+      mapping_basis: "stable result IDs plus explicit source_result_refs from the preview mechanics result envelope",
+      tolerance_status: "not_tolerance_checked",
+      tolerance_profile_ref: "TBD"
+    },
+    result_deltas: deltas,
+    diagnostics,
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    }
+  };
+}
+
 function loadBasisRefsFor(result: MechanicsResult): ObjectRef[] {
   const seen = new Set<string>();
   const refs: ObjectRef[] = [];
@@ -150,13 +251,55 @@ function loadBasisRefsFor(result: MechanicsResult): ObjectRef[] {
   return refs;
 }
 
+function comparisonDiagnostics({
+  unmatchedLeftRefs,
+  unmatchedRightRefs
+}: {
+  unmatchedLeftRefs: string[];
+  unmatchedRightRefs: string[];
+}) {
+  const diagnostics = [];
+  if (unmatchedLeftRefs.length > 0) {
+    diagnostics.push({
+      id: "diagnostic:comparison:reference-unmatched",
+      code: "COMPARISON_REFERENCE_ROWS_UNMATCHED",
+      severity: "info" as const,
+      message:
+        "Some reference load-case result rows do not have a matching user-defined combination row in the preview comparison.",
+      source: "apps/desktop/src/services/previewService.ts",
+      affected_refs: unmatchedLeftRefs.slice(0, 12)
+    });
+  }
+  if (unmatchedRightRefs.length > 0) {
+    diagnostics.push({
+      id: "diagnostic:comparison:target-unmatched",
+      code: "COMPARISON_TARGET_ROWS_UNMATCHED",
+      severity: "warning" as const,
+      message:
+        "Some user-defined combination result rows could not be mapped back to source result rows for preview comparison.",
+      source: "apps/desktop/src/services/previewService.ts",
+      affected_refs: unmatchedRightRefs.slice(0, 12)
+    });
+  }
+  return diagnostics;
+}
+
+function safeComparisonToken(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "basis";
+}
+
 export async function loadSampleProposal(
   mechanicsResult?: MechanicsResult | null,
   selectedTarget?: SelectedReviewTarget | null
 ): Promise<AgentProposal> {
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
     try {
-      return (await invoke<{ proposal: AgentProposal }>("sample_agent_proposal")).proposal;
+      return (
+        await invoke<{ proposal: AgentProposal }>("sample_agent_proposal", {
+          mechanicsResult,
+          selectedTarget
+        })
+      ).proposal;
     } catch {
       // Fall through to the local fixture-backed proposal below.
     }

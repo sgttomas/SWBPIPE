@@ -6,11 +6,13 @@ export function defaultSelection(model: PreviewModel): EntityRef {
 
 export function entityLabel(model: PreviewModel, id: string): string {
   const entity =
+    model.materials?.find((item) => item.id === id) ??
     model.nodes.find((item) => item.id === id) ??
     model.pipe_segments.find((item) => item.id === id) ??
     model.supports.find((item) => item.id === id) ??
     model.components.find((item) => item.id === id) ??
-    model.load_cases.find((item) => item.id === id);
+    model.load_cases.find((item) => item.id === id) ??
+    model.combinations?.find((item) => item.id === id);
   return entity?.label ?? id;
 }
 
@@ -22,6 +24,21 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       ["Mechanics", model.analysis_status.mechanics],
       ["Rule check", model.analysis_status.rule_check],
       ["Professional acceptance", model.analysis_status.professional_acceptance]
+    ];
+  }
+  const material = model.materials?.find((item) => item.id === selection.id);
+  if (material) {
+    return [
+      ["ID", material.id],
+      ["Elastic modulus", `${material.elastic_modulus.value} ${material.elastic_modulus.unit}`],
+      ["Shear modulus", `${material.shear_modulus.value} ${material.shear_modulus.unit}`],
+      [
+        "Thermal expansion",
+        material.thermal_expansion_coefficient
+          ? `${material.thermal_expansion_coefficient.value} ${material.thermal_expansion_coefficient.unit}`
+          : "TBD"
+      ],
+      ["Provenance", material.provenance]
     ];
   }
   const node = model.nodes.find((item) => item.id === selection.id);
@@ -63,5 +80,58 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
       ["Provenance", component.provenance]
     ];
   }
+  const loadCase = model.load_cases.find((item) => item.id === selection.id);
+  if (loadCase) {
+    const primitiveLoads = loadCase.primitive_loads ?? [];
+    return [
+      ["ID", loadCase.id],
+      ["Kind", loadCase.kind],
+      ["Status", loadCase.status],
+      ["Load records", primitiveLoads.length.toString()],
+      ["Categories", primitiveLoadCategories(primitiveLoads)],
+      ["Targets", primitiveLoadTargets(primitiveLoads)],
+      ["Provenance", loadCase.provenance]
+    ];
+  }
+  const combination = model.combinations?.find((item) => item.id === selection.id);
+  if (combination) {
+    return [
+      ["ID", combination.id],
+      ["Basis", combination.basis],
+      ["Terms", combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")],
+      ["Provenance", combination.provenance]
+    ];
+  }
   return [["Selection", selection.id]];
+}
+
+function primitiveLoadCategories(loads: Array<Record<string, unknown>>): string {
+  if (loads.length === 0) return "none";
+  return loads.map((load) => stringField(load, "category")).join(", ");
+}
+
+function primitiveLoadTargets(loads: Array<Record<string, unknown>>): string {
+  if (loads.length === 0) return "none";
+  return loads.map(formatPrimitiveLoadTarget).join(", ");
+}
+
+function formatPrimitiveLoadTarget(load: Record<string, unknown>): string {
+  const target = load.target;
+  if (!target || typeof target !== "object" || Array.isArray(target)) return "target:TBD";
+  const record = target as Record<string, unknown>;
+  const targetType = stringField(record, "type");
+  const node = optionalStringField(record, "node");
+  if (node) return `${targetType}:${node}`;
+  const pipe = optionalStringField(record, "pipe");
+  if (pipe) return `${targetType}:${pipe}`;
+  return `${targetType}:TBD`;
+}
+
+function stringField(record: Record<string, unknown>, key: string): string {
+  return optionalStringField(record, key) ?? "TBD";
+}
+
+function optionalStringField(record: Record<string, unknown>, key: string): string | null {
+  const value = record[key];
+  return typeof value === "string" && value.trim() ? value : null;
 }

@@ -237,6 +237,55 @@ export type AnalysisRunEnvelope = {
   };
 };
 
+export type PreviewComparison = {
+  schema_version: string;
+  document_kind: "openpipestress.technical_preview.comparison";
+  deliverable_id: "DEL-14-04";
+  package_id: "PKG-14";
+  scope_items: string[];
+  objectives: string[];
+  comparison_id: string;
+  comparison_kind: "single_run_load_basis_review";
+  left: ComparisonParticipant;
+  right: ComparisonParticipant;
+  summary: {
+    comparable_result_pairs: number;
+    unmatched_left_results: number;
+    unmatched_right_results: number;
+    mapping_basis: string;
+    tolerance_status: "not_tolerance_checked";
+    tolerance_profile_ref: "TBD";
+  };
+  result_deltas: ComparisonDelta[];
+  diagnostics: Diagnostic[];
+  professional_boundary: Record<string, boolean>;
+};
+
+export type ComparisonParticipant = {
+  label: string;
+  basis_ref: ObjectRef;
+  model_state_ref: ObjectRef;
+  analysis_run_ref: ObjectRef;
+  result_count: number;
+};
+
+export type ComparisonDelta = {
+  mapping_id: string;
+  left_result_id: string;
+  right_result_id: string;
+  entity_ref: string;
+  result_family: string;
+  component: string;
+  location: string;
+  unit: string;
+  left_value: number;
+  right_value: number;
+  raw_delta: number;
+  absolute_delta: number;
+  classification: "not_tolerance_checked";
+  classification_basis: string;
+};
+
 export type AgentProposal = {
   schema_version: string;
   document_kind: string;
@@ -260,9 +309,72 @@ export type AgentProposal = {
   professional_boundary: Record<string, boolean>;
 };
 
+export type EditorOperationObjectType =
+  | "Material"
+  | "Node"
+  | "Element"
+  | "Component"
+  | "Support"
+  | "Load"
+  | "Combination";
+
+export type EditorOperationIntent = {
+  queue_id?: string;
+  operation_id: string;
+  operation_kind: "modify";
+  operation_status: "proposed";
+  author_type: "user";
+  target: {
+    object_type: EditorOperationObjectType;
+    ref: string;
+  };
+  change: {
+    change_id: string;
+    change_kind: "set_field" | "update_load" | "update_support";
+    field_label: string;
+    field_path: string;
+    before: string;
+    after: string;
+    unit: string;
+    dimension: string;
+    source_note: string;
+  };
+  validation: {
+    schema_validation: "not_run";
+    constraint_validation: "not_run";
+    unit_validation: "not_run";
+    diff_preview_status: "not_generated";
+    application_status: "not_applied";
+  };
+  audit_boundary: {
+    mutation_route: "structured_operations_only";
+    direct_model_mutation_allowed: false;
+    requires_user_acceptance: true;
+    mutates_accepted_model_state: false;
+  };
+  professional_boundary: {
+    human_review_required: true;
+    software_makes_compliance_claim: false;
+    software_makes_certification_claim: false;
+    software_makes_sealing_claim: false;
+    software_makes_approval_claim: false;
+    software_makes_authentication_claim: false;
+  };
+  rationale: string;
+};
+
 export type EntityRef = {
   id: string;
-  type: "project" | "node" | "pipe" | "support" | "component" | "load" | "diagnostic";
+  type:
+    | "project"
+    | "material"
+    | "node"
+    | "pipe"
+    | "support"
+    | "component"
+    | "load"
+    | "combination"
+    | "diagnostic";
 };
 
 export type LocalStorageCapability = {
@@ -292,4 +404,5 @@ export type LocalProjectSummary = {
 export type LocalProjectEnvelope = {
   summary: LocalProjectSummary;
   model: PreviewModel;
+  editor_intents: EditorOperationIntent[];
 };
