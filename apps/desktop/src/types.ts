@@ -237,6 +237,29 @@ export type AnalysisRunEnvelope = {
   };
 };
 
+export type SolveJobEvent = {
+  event_id: string;
+  state: "not_started" | "queued" | "running" | "cancelling" | "completed" | "failed";
+  message: string;
+  result_available: boolean;
+  diagnostic_count: number;
+  result_row_count: number;
+  analysis_status: string[];
+};
+
+export type SolveJobAuditState = {
+  job_id: string;
+  state: SolveJobEvent["state"];
+  progress_basis: string;
+  percentages_synthesized: false;
+  backend_percent_stream_available: false;
+  cancellation_requested: boolean;
+  cancellation_status: string;
+  backend_cancellation_token: "TBD";
+  events: SolveJobEvent[];
+  error_message: string | null;
+};
+
 export type PreviewComparison = {
   schema_version: string;
   document_kind: "openpipestress.technical_preview.comparison";

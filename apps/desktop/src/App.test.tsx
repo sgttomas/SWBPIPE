@@ -24,6 +24,38 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(initialReadiness).getByTestId("readiness-professional").textContent).toContain(
       "human review required"
     );
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("events=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("result_rows=0");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("cancellation_requested=false");
+    expect(screen.getByTestId("solve-job-progress").textContent).toContain("not_started");
+    expect(screen.getByTestId("solve-job-progress").textContent).toContain(
+      "preview_service_event_state_only_no_percent_stream"
+    );
+    expect(screen.getByTestId("solve-job-progress").textContent).toContain("percentages_synthesized=false");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("token=TBD");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("success_claimed=false");
+    expect(screen.getByTestId("solve-job-binding").textContent).toContain("not generated");
+    expect(screen.getByTestId("solve-job-boundary").textContent).toContain("private payload=false");
+    expect(screen.getByTestId("cancel-mechanics-preview")).toBeDisabled();
+    const solveJobHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
+    const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref.split(",", 2)[1]));
+    expect(solveJobPacket.document_kind).toBe("openpipestress.technical_preview.solve_job_audit");
+    expect(solveJobPacket.deliverable_refs).toContain("DEL-07-07");
+    expect(solveJobPacket.scope_items).toContain("SOW-055");
+    expect(solveJobPacket.summary.job_state).toBe("not_started");
+    expect(solveJobPacket.summary.event_count).toBe(1);
+    expect(solveJobPacket.summary.result_row_count).toBe(0);
+    expect(solveJobPacket.summary.cancellation_requested).toBe(false);
+    expect(solveJobPacket.progress_contract.percentages_synthesized).toBe(false);
+    expect(solveJobPacket.progress_contract.backend_percent_stream_available).toBe(false);
+    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe("TBD");
+    expect(solveJobPacket.cancellation.mutates_solver_process_directly).toBe(false);
+    expect(solveJobPacket.cancellation.cancellation_success_claimed).toBe(false);
+    expect(solveJobPacket.private_payload_included).toBe(false);
+    expect(solveJobPacket.protected_content_included).toBe(false);
+    expect(solveJobPacket.release_or_professional_claim).toBe(false);
+    expect(solveJobPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const ruleCheck = await screen.findByLabelText("Rule-check completeness");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("4 review findings");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("rule_check_blocked=true");
@@ -50,6 +82,98 @@ describe("OpenPipeStress desktop preview", () => {
       "Run mechanics preview to generate immutable model-state and analysis-run audit references"
     );
     expect(runAudit.textContent).toContain("not a release or professional acceptance record");
+    const resultExport = await screen.findByLabelText("Result export audit");
+    expect(within(resultExport).getByTestId("result-export-empty").textContent).toContain(
+      "schema-first local result envelope"
+    );
+    const headlessRunner = await screen.findByLabelText("Headless runner envelope");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("available");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("job=TBD");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("outputs=4");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("result_refs=1");
+    expect(within(headlessRunner).getByTestId("headless-runner-interface").textContent).toContain(
+      "schema_first_headless_runner_contract"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-interface").textContent).toContain("cli=TBD");
+    expect(within(headlessRunner).getByTestId("headless-runner-runtime-tbds").textContent).toContain(
+      "network=TBD"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-boundary").textContent).toContain(
+      "network_required=false"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-boundary").textContent).toContain(
+      "no compliance, certification, sealing, authentication, or approval claim"
+    );
+    const headlessHref = within(headlessRunner).getByTestId("headless-runner-export-link").getAttribute("href") ?? "";
+    const headlessPacket = JSON.parse(decodeURIComponent(headlessHref.split(",", 2)[1]));
+    expect(headlessPacket.deliverable_id).toBe("DEL-10-05");
+    expect(headlessPacket.package_id).toBe("PKG-10");
+    expect(headlessPacket.scope_items).toContain("SOW-054");
+    expect(headlessPacket.scope_items).toContain("SOW-032");
+    expect(headlessPacket.objectives).toContain("OBJ-008");
+    expect(headlessPacket.objectives).toContain("OBJ-009");
+    expect(headlessPacket.objectives).toContain("OBJ-012");
+    expect(headlessPacket.runner_status.interface_kind).toBe("schema_first_headless_runner_contract");
+    expect(headlessPacket.runner_status.physical_project_container.direct_sql_access_allowed).toBe(false);
+    expect(headlessPacket.runner_status.physical_project_container.network_required).toBe(false);
+    expect(headlessPacket.tbd_decisions.final_cli_command_syntax).toBe("TBD");
+    expect(headlessPacket.tbd_decisions.process_invocation).toBe("TBD");
+    expect(headlessPacket.tbd_decisions.network_access).toBe("TBD");
+    expect(headlessPacket.tbd_decisions.filesystem_mutation_policy).toBe("TBD");
+    expect(headlessPacket.request.operation).toBe("solve");
+    expect(headlessPacket.request.requested_outputs).toContain("result_envelope");
+    expect(headlessPacket.request.requested_outputs).toContain("audit_manifest");
+    expect(headlessPacket.request.privacy.local_only).toBe(true);
+    expect(headlessPacket.request.privacy.telemetry_allowed).toBe(false);
+    expect(headlessPacket.result.job.state).toBe("TBD");
+    expect(headlessPacket.result.analysis_status).toContain("MODEL_INCOMPLETE");
+    expect(headlessPacket.result.analysis_status).toContain("HUMAN_REVIEW_REQUIRED");
+    expect(headlessPacket.result.result_envelope_ref.compatibility).toBe("schema_first_json_result_envelope");
+    expect(headlessPacket.result.result_refs).toHaveLength(1);
+    expect(headlessPacket.result.checksums[0].algorithm).toBe("TBD");
+    expect(headlessPacket.result.privacy.local_only).toBe(true);
+    expect(headlessPacket.result.professional_boundary.software_makes_compliance_claim).toBe(false);
+    const reportLint = await screen.findByLabelText("Report content lint");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=3");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
+    expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
+      "explicit_public_surfaces"
+    );
+    expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
+      "skip_unless_explicitly_authorized"
+    );
+    expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
+      "clearance=false"
+    );
+    expect(within(reportLint).getByTestId("report-lint-boundary").textContent).toContain("legal=false");
+    expect(within(reportLint).getByTestId("report-lint-boundary").textContent).toContain(
+      "professional=false"
+    );
+    const lintHref = within(reportLint).getByTestId("report-lint-export-link").getAttribute("href") ?? "";
+    const lintPacket = JSON.parse(decodeURIComponent(lintHref.split(",", 2)[1]));
+    expect(lintPacket.deliverable_id).toBe("DEL-08-05");
+    expect(lintPacket.scope_item).toBe("SOW-043");
+    expect(lintPacket.objectives).toContain("OBJ-002");
+    expect(lintPacket.objectives).toContain("OBJ-007");
+    expect(lintPacket.linter_status.heuristic_only).toBe(true);
+    expect(lintPacket.linter_status.legal_clearance).toBe(false);
+    expect(lintPacket.linter_status.professional_approval).toBe(false);
+    expect(lintPacket.linter_status.ci_release_policy).toBe("TBD");
+    expect(lintPacket.lint_run.configuration.private_surface_default).toBe(
+      "skip_unless_explicitly_authorized"
+    );
+    expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
+      "heuristic_review_evidence_not_legal_or_professional_clearance"
+    );
+    expect(lintPacket.lint_run.summary.target_count).toBe(3);
+    expect(lintPacket.lint_run.summary.finding_count).toBe(0);
+    expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
+    expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
+    const nativePackage = await screen.findByLabelText("Native JSON package");
+    expect(within(nativePackage).getByTestId("native-package-empty").textContent).toContain(
+      "native JSON package review manifest"
+    );
     const comparison = await screen.findByLabelText("Comparison workspace");
     expect(within(comparison).getByTestId("comparison-empty").textContent).toContain(
       "Run mechanics preview to populate the local comparison workspace"
@@ -63,9 +187,14 @@ describe("OpenPipeStress desktop preview", () => {
       "No structured operations are queued for review"
     );
     expect(operationLedger.textContent).toContain("does not apply operations");
+    const diffPreview = await screen.findByLabelText("Operation diff preview");
+    expect(within(diffPreview).getByTestId("diff-preview-empty").textContent).toContain(
+      "No operation diffs are queued"
+    );
+    expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "0 of 3 local exports ready"
+      "4 of 9 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -80,6 +209,108 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("local-project-status").textContent).toContain("network=false");
     expect(screen.getByTestId("local-project-status").textContent).toContain("telemetry=false");
     expect(screen.getByTestId("local-project-status").textContent).toContain("FTS5=false");
+    const storageAudit = await screen.findByLabelText("Project storage audit");
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "operation=not_started"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "pending operations=0"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "accepted_state_mutated=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-capability").textContent).toContain(
+      "Browser memory preview"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-capability").textContent).toContain(
+      "mode=not_persisted_this_session"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
+      "network=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
+      "repository_default_private_write=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
+      "private payload=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
+      "release/professional claim=false"
+    );
+    const storageHref = within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const storagePacket = JSON.parse(decodeURIComponent(storageHref.split(",", 2)[1]));
+    expect(storagePacket.document_kind).toBe("openpipestress.technical_preview.local_project_persistence_audit");
+    expect(storagePacket.deliverable_refs).toContain("DEL-02-05");
+    expect(storagePacket.deliverable_refs).toContain("DEL-12-01");
+    expect(storagePacket.scope_items).toContain("SOW-050");
+    expect(storagePacket.scope_items).toContain("SOW-029");
+    expect(storagePacket.summary.last_operation).toBe("not_started");
+    expect(storagePacket.summary.storage_mode).toBe("not_persisted_this_session");
+    expect(storagePacket.summary.pending_operation_count).toBe(0);
+    expect(storagePacket.summary.accepted_model_state_mutated).toBe(false);
+    expect(storagePacket.summary.network_required).toBe(false);
+    expect(storagePacket.summary.daemon_required).toBe(false);
+    expect(storagePacket.summary.telemetry_enabled).toBe(false);
+    expect(storagePacket.boundary.repository_default_private_write).toBe(false);
+    expect(storagePacket.private_payload_included).toBe(false);
+    expect(storagePacket.protected_content_included).toBe(false);
+    expect(storagePacket.release_or_professional_claim).toBe(false);
+    const projectValidation = await screen.findByLabelText("Project validation preflight");
+    expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
+      "validation=preview_not_persisted"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
+      "version=supported_current_schema"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
+      "migration=not_persisted_this_session"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-schema").textContent).toContain(
+      "schema_version=0.1.0"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-round-trip").textContent).toContain(
+      "6 categories"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "version_check=supported_current_schema"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-boundary").textContent).toContain(
+      "accepted_state_mutated=false"
+    );
+    const validationHref =
+      within(projectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
+    const validationPacket = JSON.parse(decodeURIComponent(validationHref.split(",", 2)[1]));
+    expect(validationPacket.document_kind).toBe("openpipestress.technical_preview.project_validation_preflight");
+    expect(validationPacket.deliverable_refs).toContain("DEL-02-05");
+    expect(validationPacket.deliverable_refs).toContain("DEL-12-01");
+    expect(validationPacket.scope_items).toContain("SOW-041");
+    expect(validationPacket.scope_items).toContain("SOW-029");
+    expect(validationPacket.summary.validation_status).toBe("preview_not_persisted");
+    expect(validationPacket.summary.version_check_status).toBe("supported_current_schema");
+    expect(validationPacket.summary.migration_status).toBe("not_persisted_this_session");
+    expect(validationPacket.summary.round_trip_status).toBe("semantic_categories_declared");
+    expect(validationPacket.round_trip_manifest.category_count).toBe(6);
+    expect(validationPacket.round_trip_manifest.categories.map((category: { category: string }) => category.category)).toContain(
+      "unit_metadata"
+    );
+    expect(validationPacket.service_operations.map((operation: { operation: string }) => operation.operation)).toContain(
+      "validate"
+    );
+    expect(validationPacket.service_operations.map((operation: { operation: string }) => operation.operation)).toContain(
+      "version_check"
+    );
+    expect(validationPacket.service_operations.map((operation: { operation: string }) => operation.operation)).toContain(
+      "migrate"
+    );
+    expect(validationPacket.validation_profile.hash_service_status).toBe(
+      "TBD_canonical_project_hash_service_not_available"
+    );
+    expect(validationPacket.boundary.local_only_project_store).toBe(true);
+    expect(validationPacket.boundary.repository_default_private_write).toBe(false);
+    expect(validationPacket.boundary.accepted_model_state_mutated).toBe(false);
+    expect(validationPacket.private_payload_included).toBe(false);
+    expect(validationPacket.protected_content_included).toBe(false);
+    expect(validationPacket.release_or_professional_claim).toBe(false);
 
     const boundary = screen.getByTestId("preview-boundary-strip");
     expect(within(boundary).getByText("Public data")).toBeInTheDocument();
@@ -324,6 +555,50 @@ describe("OpenPipeStress desktop preview", () => {
     expect(handoffPacket.protected_content_included).toBe(false);
     expect(handoffPacket.release_or_professional_claim).toBe(false);
 
+    const diffPreview = await screen.findByLabelText("Operation diff preview");
+    expect(await within(diffPreview).findByText(/state:project:invented-loop-01:preview/i)).toBeInTheDocument();
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain("1 operations");
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain("1 diff rows");
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain(
+      "accepted_state_mutated=false"
+    );
+    expect(within(diffPreview).getByTestId("diff-preview-validation").textContent).toContain("0 hash-bound rows");
+    expect(within(diffPreview).getByTestId("diff-preview-validation").textContent).toContain("1 held");
+    expect(within(diffPreview).getByTestId("diff-preview-boundary").textContent).toContain(
+      "accepted model mutated=false"
+    );
+    expect(within(diffPreview).getByTestId("diff-preview-boundary").textContent).toContain(
+      "no release or professional claim"
+    );
+    expect(
+      within(diffPreview).getByTestId("diff-preview-record-op-editor-intent-material-invented-carbon-steel-elastic-modulus-value")
+        .textContent
+    ).toContain("200000000000 to 210000000000 Pa");
+    const diffHref = within(diffPreview).getByTestId("diff-preview-export-link").getAttribute("href") ?? "";
+    const diffPacket = JSON.parse(decodeURIComponent(diffHref.split(",", 2)[1]));
+    expect(diffPacket.document_kind).toBe("openpipestress.technical_preview.operation_diff_preview");
+    expect(diffPacket.deliverable_refs).toContain("DEL-16-02");
+    expect(diffPacket.scope_items).toContain("SOW-069");
+    expect(diffPacket.summary.operation_count).toBe(1);
+    expect(diffPacket.summary.diff_row_count).toBe(1);
+    expect(diffPacket.summary.accepted_model_state_mutated).toBe(false);
+    expect(diffPacket.summary.hash_bound_diff_preview_count).toBe(0);
+    expect(diffPacket.summary.local_visual_diff_preview_count).toBe(1);
+    expect(diffPacket.previews[0].record_source).toBe("gui_editor_intent_queue");
+    expect(diffPacket.previews[0].operation_id).toBe(
+      "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
+    );
+    expect(diffPacket.previews[0].application_status).toBe("not_applied");
+    expect(diffPacket.previews[0].accepted_model_state_mutated).toBe(false);
+    expect(diffPacket.previews[0].hash_bound_diff_preview).toBe(false);
+    expect(diffPacket.previews[0].changes[0].field_path).toBe("elastic_modulus.value");
+    expect(diffPacket.previews[0].changes[0].before).toBe("200000000000");
+    expect(diffPacket.previews[0].changes[0].after).toBe("210000000000");
+    expect(diffPacket.private_payload_included).toBe(false);
+    expect(diffPacket.protected_content_included).toBe(false);
+    expect(diffPacket.release_or_professional_claim).toBe(false);
+    expect(diffPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+
     const operationLedger = await screen.findByLabelText("Operation review ledger");
     expect(await within(operationLedger).findByText(/state:project:invented-loop-01:preview/i)).toBeInTheDocument();
     expect(within(operationLedger).getByTestId("operation-ledger-export-summary").textContent).toContain(
@@ -364,7 +639,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "3 of 3 local exports ready"
+      "9 of 9 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -372,7 +647,25 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-boundary").textContent).toContain(
       "no release or professional claim"
     );
+    expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
+      "available"
+    );
+    expect(within(exportReview).getByTestId("export-review-record-project_validation_preflight").textContent).toContain(
+      "available"
+    );
+    expect(within(exportReview).getByTestId("export-review-record-result_envelope").textContent).toContain(
+      "available"
+    );
+    expect(within(exportReview).getByTestId("export-review-record-headless_runner_envelope").textContent).toContain(
+      "available"
+    );
+    expect(within(exportReview).getByTestId("export-review-record-native_json_package").textContent).toContain(
+      "available"
+    );
     expect(within(exportReview).getByTestId("export-review-record-report_packet").textContent).toContain(
+      "available"
+    );
+    expect(within(exportReview).getByTestId("export-review-record-report_protected_content_lint").textContent).toContain(
       "available"
     );
     expect(within(exportReview).getByTestId("export-review-record-handoff_package").textContent).toContain(
@@ -385,17 +678,67 @@ describe("OpenPipeStress desktop preview", () => {
     const reviewManifest = JSON.parse(decodeURIComponent(reviewHref.split(",", 2)[1]));
     expect(reviewManifest.document_kind).toBe("openpipestress.technical_preview.export_review_manifest");
     expect(reviewManifest.deliverable_refs).toContain("DEL-12-02");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-02-05");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-12-01");
     expect(reviewManifest.deliverable_refs).toContain("DEL-08-04");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-08-05");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-10-05");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-17-02");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-03");
     expect(reviewManifest.scope_items).toContain("SOW-040");
+    expect(reviewManifest.scope_items).toContain("SOW-050");
+    expect(reviewManifest.scope_items).toContain("SOW-041");
+    expect(reviewManifest.scope_items).toContain("SOW-029");
     expect(reviewManifest.scope_items).toContain("SOW-046");
-    expect(reviewManifest.summary.available_count).toBe(3);
+    expect(reviewManifest.scope_items).toContain("SOW-043");
+    expect(reviewManifest.scope_items).toContain("SOW-054");
+    expect(reviewManifest.scope_items).toContain("SOW-032");
+    expect(reviewManifest.scope_items).toContain("SOW-030");
+    expect(reviewManifest.objectives).toContain("OBJ-002");
+    expect(reviewManifest.objectives).toContain("OBJ-008");
+    expect(reviewManifest.objectives).toContain("OBJ-009");
+    expect(reviewManifest.summary.available_count).toBe(9);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
+      "project_storage_audit",
+      "project_validation_preflight",
+      "result_envelope",
+      "headless_runner_envelope",
+      "native_json_package",
       "report_packet",
+      "report_protected_content_lint",
       "handoff_package",
       "operation_review_ledger"
     ]);
+    expect(
+      reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .storage_mode
+    ).toBe("not_persisted_this_session");
+    expect(
+      reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_validation_preflight")
+        .round_trip_status
+    ).toBe("semantic_categories_declared");
+    const headlessExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "headless_runner_envelope"
+    );
+    expect(headlessExport.document_kind).toBe("openpipestress.technical_preview.headless_runner_envelope");
+    expect(headlessExport.deliverable_refs).toContain("DEL-10-05");
+    expect(headlessExport.deliverable_refs).toContain("DEL-08-04");
+    expect(headlessExport.result_ref_count).toBe(647);
+    expect(headlessExport.runner_job_state).toBe("COMPLETED");
+    expect(headlessExport.final_cli_command_syntax).toBe("TBD");
+    expect(headlessExport.process_invocation).toBe("TBD");
+    expect(headlessExport.network_access).toBe("TBD");
+    expect(headlessExport.filesystem_mutation_policy).toBe("TBD");
+    const lintExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "report_protected_content_lint"
+    );
+    expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
+    expect(lintExport.deliverable_refs).toContain("DEL-08-05");
+    expect(lintExport.target_count).toBe(4);
+    expect(lintExport.finding_count).toBe(0);
+    expect(lintExport.blocking_finding_count).toBe(0);
+    expect(lintExport.clean_scan_is_clearance).toBe(false);
     expect(
       reviewManifest.exports.every(
         (item: {
@@ -420,6 +763,8 @@ describe("OpenPipeStress desktop preview", () => {
 
     expect(await screen.findByText("OpenPipeStress Technical Preview")).toBeInTheDocument();
     const controls = screen.getByLabelText("Local project controls");
+    const storageAudit = await screen.findByLabelText("Project storage audit");
+    const projectValidation = await screen.findByLabelText("Project validation preflight");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "0 pending operations; applied=false"
     );
@@ -444,12 +789,20 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "1 pending operation; applied=false"
     );
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=create");
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "pending operations=1"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "browser_memory_preview"
+    );
 
     fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
     expect(await screen.findByTestId("local-project-message")).toHaveTextContent("without external file copies");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "1 pending operation; applied=false"
     );
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=save");
 
     fireEvent.click(within(controls).getByRole("button", { name: /Open local/i }));
     expect(await screen.findByTestId("local-project-message")).toHaveTextContent(
@@ -459,6 +812,102 @@ describe("OpenPipeStress desktop preview", () => {
       "1 pending operation; applied=false"
     );
     expect(within(controls).getByText("Invented Utility Loop Preview")).toBeInTheDocument();
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=open");
+    expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
+      "network=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
+      "telemetry=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "copied_external_files=false"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
+      "protected content=false"
+    );
+    const auditHref = within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const auditPacket = JSON.parse(decodeURIComponent(auditHref.split(",", 2)[1]));
+    expect(auditPacket.document_kind).toBe("openpipestress.technical_preview.local_project_persistence_audit");
+    expect(auditPacket.deliverable_refs).toContain("DEL-02-05");
+    expect(auditPacket.deliverable_refs).toContain("DEL-12-02");
+    expect(auditPacket.scope_items).toContain("SOW-050");
+    expect(auditPacket.scope_items).toContain("SOW-040");
+    expect(auditPacket.project_ref).toBe("project:invented-loop-01");
+    expect(auditPacket.summary.last_operation).toBe("open");
+    expect(auditPacket.summary.storage_engine).toBe("Browser memory preview");
+    expect(auditPacket.summary.storage_mode).toBe("browser_memory_preview");
+    expect(auditPacket.summary.pending_operation_count).toBe(1);
+    expect(auditPacket.summary.applied_operation_count).toBe(0);
+    expect(auditPacket.summary.accepted_model_state_mutated).toBe(false);
+    expect(auditPacket.summary.network_required).toBe(false);
+    expect(auditPacket.summary.daemon_required).toBe(false);
+    expect(auditPacket.summary.telemetry_enabled).toBe(false);
+    expect(auditPacket.summary.copied_external_files).toBe(false);
+    expect(auditPacket.project_summary.storage_mode).toBe("browser_memory_preview");
+    expect(auditPacket.project_summary.copied_external_files).toBe(false);
+    expect(auditPacket.editor_intent_refs).toContain(
+      "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
+    );
+    expect(auditPacket.editor_operation_statuses).toContain("not_applied");
+    expect(auditPacket.boundary.local_only_project_store).toBe(true);
+    expect(auditPacket.boundary.repository_default_private_write).toBe(false);
+    expect(auditPacket.boundary.external_file_copy_performed).toBe(false);
+    expect(auditPacket.boundary.accepted_model_state_mutated).toBe(false);
+    expect(auditPacket.private_payload_included).toBe(false);
+    expect(auditPacket.protected_content_included).toBe(false);
+    expect(auditPacket.release_or_professional_claim).toBe(false);
+    expect(auditPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
+      "validation=preview_current"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
+      "migration=current"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "pending operations=1"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-boundary").textContent).toContain(
+      "private/protected payload=false"
+    );
+    const validationHref =
+      within(projectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
+    const validationPacket = JSON.parse(decodeURIComponent(validationHref.split(",", 2)[1]));
+    expect(validationPacket.document_kind).toBe("openpipestress.technical_preview.project_validation_preflight");
+    expect(validationPacket.project_ref).toBe("project:invented-loop-01");
+    expect(validationPacket.summary.validation_status).toBe("preview_current");
+    expect(validationPacket.summary.last_operation).toBe("open");
+    expect(validationPacket.summary.storage_mode).toBe("browser_memory_preview");
+    expect(validationPacket.summary.migration_status).toBe("current");
+    expect(validationPacket.summary.pending_operation_count).toBe(1);
+    expect(validationPacket.summary.accepted_model_state_mutated).toBe(false);
+    expect(validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "validate").operation_status).toBe(
+      "preflight_generated_preview_current"
+    );
+    expect(
+      validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "version_check")
+        .operation_status
+    ).toBe("supported_current_schema");
+    expect(validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "migrate").operation_status).toBe(
+      "not_run_migration_framework_tbd"
+    );
+    expect(
+      validationPacket.round_trip_manifest.categories.find(
+        (category: { category: string }) => category.category === "unit_metadata"
+      ).semantic_equality_status
+    ).toBe("ready_for_preview_round_trip");
+    expect(
+      validationPacket.round_trip_manifest.categories.find(
+        (category: { category: string }) => category.category === "rule_pack_references"
+      ).semantic_equality_status
+    ).toBe("not_present_in_invented_fixture");
+    expect(validationPacket.boundary.local_only_project_store).toBe(true);
+    expect(validationPacket.boundary.repository_default_private_write).toBe(false);
+    expect(validationPacket.boundary.external_file_copy_performed).toBe(false);
+    expect(validationPacket.boundary.accepted_model_state_mutated).toBe(false);
+    expect(validationPacket.private_payload_included).toBe(false);
+    expect(validationPacket.protected_content_included).toBe(false);
+    expect(validationPacket.release_or_professional_claim).toBe(false);
+    expect(validationPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
 
     fireEvent.click(within(tree).getByRole("button", { name: /Invented carbon-steel-like material/i }));
     expect(
@@ -485,6 +934,244 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(solvedReadiness).getByTestId("readiness-professional").textContent).toContain(
       "no professional acceptance record"
     );
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("events=3");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("result_rows=647");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("cancellation_requested=false");
+    expect(screen.getByTestId("solve-job-progress").textContent).toContain("completed");
+    expect(screen.getByTestId("solve-job-progress").textContent).toContain("percentages_synthesized=false");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("enabled=false");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("requested=false");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("success_claimed=false");
+    expect(screen.getByTestId("solve-job-binding").textContent).toContain("state:project:invented-loop-01:preview");
+    expect(screen.getByTestId("solve-job-binding").textContent).toContain("run:preview-linear-static-001");
+    expect(screen.getByTestId("solve-job-binding").textContent).toContain("result rows=647");
+    expect(screen.getByTestId("solve-job-binding").textContent).toContain("hashes=647");
+    expect(screen.getByTestId("solve-job-boundary").textContent).toContain("release/professional claim=false");
+    const solveJobHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
+    const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref.split(",", 2)[1]));
+    expect(solveJobPacket.document_kind).toBe("openpipestress.technical_preview.solve_job_audit");
+    expect(solveJobPacket.deliverable_refs).toContain("DEL-07-07");
+    expect(solveJobPacket.deliverable_refs).toContain("DEL-14-02");
+    expect(solveJobPacket.deliverable_refs).toContain("DEL-04-06");
+    expect(solveJobPacket.scope_items).toContain("SOW-055");
+    expect(solveJobPacket.scope_items).toContain("SOW-072");
+    expect(solveJobPacket.scope_items).toContain("SOW-053");
+    expect(solveJobPacket.summary.job_state).toBe("completed");
+    expect(solveJobPacket.summary.event_count).toBe(3);
+    expect(solveJobPacket.summary.result_row_count).toBe(647);
+    expect(solveJobPacket.summary.diagnostic_count).toBe(7);
+    expect(solveJobPacket.summary.cancellation_requested).toBe(false);
+    expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
+    expect(solveJobPacket.progress_contract.progress_basis).toBe(
+      "preview_service_event_state_only_no_percent_stream"
+    );
+    expect(solveJobPacket.progress_contract.percentages_synthesized).toBe(false);
+    expect(solveJobPacket.progress_contract.backend_percent_stream_available).toBe(false);
+    expect(solveJobPacket.progress_contract.latest_event_state).toBe("completed");
+    expect(solveJobPacket.cancellation.request_control_visible).toBe(true);
+    expect(solveJobPacket.cancellation.request_enabled).toBe(false);
+    expect(solveJobPacket.cancellation.requested).toBe(false);
+    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe("TBD");
+    expect(solveJobPacket.cancellation.mutates_solver_process_directly).toBe(false);
+    expect(solveJobPacket.cancellation.cancellation_success_claimed).toBe(false);
+    expect(solveJobPacket.model_state_ref.ref).toBe("state:project:invented-loop-01:preview");
+    expect(solveJobPacket.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
+    expect(solveJobPacket.run_kind).toBe("mechanics_solve");
+    expect(solveJobPacket.analysis_status).toContain("HUMAN_REVIEW_REQUIRED");
+    expect(solveJobPacket.analysis_status).toContain("MECHANICS_SOLVED");
+    expect(solveJobPacket.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(solveJobPacket.result_hash_count).toBe(647);
+    expect(solveJobPacket.hash_scopes).toContain("analysis_run_record");
+    expect(solveJobPacket.hash_scopes).toContain("result_envelope");
+    const resultExport = await screen.findByLabelText("Result export audit");
+    expect(within(resultExport).getByTestId("result-export-summary").textContent).toContain("available");
+    expect(within(resultExport).getByTestId("result-export-summary").textContent).toContain("rows=647");
+    expect(within(resultExport).getByTestId("result-export-summary").textContent).toContain("sets=1");
+    expect(within(resultExport).getByTestId("result-export-summary").textContent).toContain("diagnostics=7");
+    expect(within(resultExport).getByTestId("result-export-format").textContent).toContain(
+      "schema_first_json_result_envelope"
+    );
+    expect(within(resultExport).getByTestId("result-export-format").textContent).toContain(
+      "additional_formats=TBD"
+    );
+    expect(within(resultExport).getByTestId("result-export-state-binding").textContent).toContain(
+      "project:invented-loop-01"
+    );
+    expect(within(resultExport).getByTestId("result-export-state-binding").textContent).toContain(
+      "run:preview-linear-static-001"
+    );
+    expect(within(resultExport).getByTestId("result-export-units").textContent).toContain("explicit units");
+    expect(within(resultExport).getByTestId("result-export-units").textContent).toContain("length");
+    expect(within(resultExport).getByTestId("result-export-units").textContent).toContain("stress");
+    expect(within(resultExport).getByTestId("result-export-reproducibility").textContent).toContain(
+      "deterministic_ordering=true"
+    );
+    expect(within(resultExport).getByTestId("result-export-reproducibility").textContent).toContain("run_hashes=2");
+    expect(within(resultExport).getByTestId("result-export-boundary").textContent).toContain(
+      "no compliance, certification, sealing, authentication, or approval claim"
+    );
+    const resultExportHref = within(resultExport).getByTestId("result-export-link").getAttribute("href") ?? "";
+    const resultExportPacket = JSON.parse(decodeURIComponent(resultExportHref.split(",", 2)[1]));
+    expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
+    expect(resultExportPacket.package_id).toBe("PKG-08");
+    expect(resultExportPacket.scope_item).toBe("SOW-046");
+    expect(resultExportPacket.objectives).toContain("OBJ-007");
+    expect(resultExportPacket.objectives).toContain("OBJ-009");
+    expect(resultExportPacket.export_format_status.baseline_format).toBe("schema_first_json_result_envelope");
+    expect(resultExportPacket.export_format_status.additional_formats).toBe("TBD");
+    expect(resultExportPacket.export_format_status.public_transport_protocol).toBe("TBD");
+    expect(resultExportPacket.result_envelope.envelope_id).toBe("result-envelope:run:preview-linear-static-001");
+    expect(resultExportPacket.result_envelope.model_ref.ref_id).toBe("project:invented-loop-01");
+    expect(resultExportPacket.result_envelope.run_ref.ref_id).toBe("run:preview-linear-static-001");
+    expect(resultExportPacket.result_envelope.load_basis_refs.length).toBeGreaterThan(0);
+    expect(resultExportPacket.result_envelope.result_sets).toHaveLength(1);
+    expect(resultExportPacket.result_envelope.result_sets[0].set_type).toBe("mechanics");
+    expect(resultExportPacket.result_envelope.result_sets[0].values).toHaveLength(647);
+    expect(resultExportPacket.result_envelope.result_sets[0].values[0].result_id).toBeTruthy();
+    expect(resultExportPacket.result_envelope.result_sets[0].values[0].unit).toBeTruthy();
+    expect(resultExportPacket.result_envelope.result_sets[0].values[0].dimension).toBeTruthy();
+    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(7);
+    expect(resultExportPacket.result_envelope.reproducibility.deterministic_ordering).toBe(true);
+    expect(resultExportPacket.result_envelope.reproducibility.run_hashes).toHaveLength(2);
+    expect(resultExportPacket.result_envelope.analysis_status).toContain("HUMAN_REVIEW_REQUIRED");
+    expect(resultExportPacket.result_envelope.analysis_status).toContain("MECHANICS_SOLVED");
+    expect(resultExportPacket.result_envelope.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(resultExportPacket.result_envelope.rule_pack_refs[0].private_payload_redacted).toBe(true);
+    expect(resultExportPacket.result_envelope.rule_pack_refs[0].completeness_status).toBe(
+      "missing_required_inputs"
+    );
+    expect(resultExportPacket.result_envelope.downstream_use.additional_export_formats).toBe("TBD");
+    expect(resultExportPacket.result_envelope.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(resultExportPacket.result_envelope.professional_boundary.software_makes_certification_claim).toBe(false);
+    expect(resultExportPacket.result_envelope.professional_boundary.software_makes_sealing_claim).toBe(false);
+    expect(resultExportPacket.result_envelope.professional_boundary.software_makes_approval_claim).toBe(false);
+    expect(resultExportPacket.result_envelope.professional_boundary.software_makes_authentication_claim).toBe(false);
+    const headlessRunner = await screen.findByLabelText("Headless runner envelope");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("job=COMPLETED");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("outputs=4");
+    expect(within(headlessRunner).getByTestId("headless-runner-summary").textContent).toContain("result_refs=647");
+    expect(within(headlessRunner).getByTestId("headless-runner-job").textContent).toContain(
+      "job:preview-linear-static:project-invented-loop-01"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-job").textContent).toContain("3/3");
+    expect(within(headlessRunner).getByTestId("headless-runner-result-handoff").textContent).toContain(
+      "schema_first_json_result_envelope"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-result-handoff").textContent).toContain(
+      "audit=audit-manifest:run:preview-linear-static-001:preview"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-result-handoff").textContent).toContain(
+      "checksums=2"
+    );
+    const headlessHref = within(headlessRunner).getByTestId("headless-runner-export-link").getAttribute("href") ?? "";
+    const headlessPacket = JSON.parse(decodeURIComponent(headlessHref.split(",", 2)[1]));
+    expect(headlessPacket.deliverable_id).toBe("DEL-10-05");
+    expect(headlessPacket.scope_items).toContain("SOW-054");
+    expect(headlessPacket.scope_items).toContain("SOW-032");
+    expect(headlessPacket.objectives).toContain("OBJ-012");
+    expect(headlessPacket.request.operation).toBe("solve");
+    expect(headlessPacket.request.load_basis_refs.length).toBeGreaterThan(0);
+    expect(headlessPacket.request.input_manifest_ref.ref_id).toBe("result-envelope:run:preview-linear-static-001");
+    expect(headlessPacket.result.run_id).toBe("run:preview-linear-static-001");
+    expect(headlessPacket.result.job.state).toBe("COMPLETED");
+    expect(headlessPacket.result.job.progress.current_step).toBe(3);
+    expect(headlessPacket.result.job.cancellation.supported).toBe(true);
+    expect(headlessPacket.result.job.cancellation.requested).toBe(false);
+    expect(headlessPacket.result.analysis_status).toContain("HUMAN_REVIEW_REQUIRED");
+    expect(headlessPacket.result.analysis_status).toContain("MECHANICS_SOLVED");
+    expect(headlessPacket.result.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(headlessPacket.result.result_envelope_ref.schema_ref).toBe("schemas/results.schema.yaml");
+    expect(headlessPacket.result.result_envelope_ref.envelope_ref.ref_id).toBe(
+      "result-envelope:run:preview-linear-static-001"
+    );
+    expect(headlessPacket.result.result_refs).toHaveLength(647);
+    expect(headlessPacket.result.audit_manifest_ref.ref_id).toBe("audit-manifest:run:preview-linear-static-001:preview");
+    expect(headlessPacket.result.checksums).toHaveLength(2);
+    expect(headlessPacket.result.diagnostics).toHaveLength(7);
+    expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
+    expect(headlessPacket.result.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(headlessPacket.result.professional_boundary.software_makes_authentication_claim).toBe(false);
+    const nativePackage = await screen.findByLabelText("Native JSON package");
+    expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("ready");
+    expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("members=9");
+    expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("entities=19");
+    expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("results=647");
+    expect(within(nativePackage).getByTestId("native-package-profile").textContent).toContain(
+      "native_open_json_preview"
+    );
+    expect(within(nativePackage).getByTestId("native-package-profile").textContent).toContain(
+      "physical_container=TBD"
+    );
+    expect(within(nativePackage).getByTestId("native-package-members").textContent).toContain("manifest.json");
+    expect(within(nativePackage).getByTestId("native-package-members").textContent).toContain(
+      "maps/stable_id_map.json"
+    );
+    expect(within(nativePackage).getByTestId("native-package-validation").textContent).toContain(
+      "review_manifest_complete"
+    );
+    expect(within(nativePackage).getByTestId("native-package-validation").textContent).toContain("model_hash=TBD");
+    expect(within(nativePackage).getByTestId("native-package-loss-report").textContent).toContain("1 TBD");
+    expect(within(nativePackage).getByTestId("native-package-loss-report").textContent).toContain("1 unsupported");
+    expect(within(nativePackage).getByTestId("native-package-storage").textContent).toContain("network=false");
+    expect(within(nativePackage).getByTestId("native-package-storage").textContent).toContain(
+      "repository_default_private_write=false"
+    );
+    expect(within(nativePackage).getByTestId("native-package-boundary").textContent).toContain(
+      "no private payload, protected content, release claim, compatibility claim, compliance claim, or professional approval claim"
+    );
+    const nativePackageHref = within(nativePackage).getByTestId("native-package-link").getAttribute("href") ?? "";
+    const nativePackagePacket = JSON.parse(decodeURIComponent(nativePackageHref.split(",", 2)[1]));
+    expect(nativePackagePacket.document_kind).toBe("openpipestress.technical_preview.native_json_package_review");
+    expect(nativePackagePacket.deliverable_refs).toContain("DEL-17-02");
+    expect(nativePackagePacket.deliverable_refs).toContain("DEL-17-03");
+    expect(nativePackagePacket.deliverable_refs).toContain("DEL-02-05");
+    expect(nativePackagePacket.deliverable_refs).toContain("DEL-12-01");
+    expect(nativePackagePacket.scope_items).toContain("SOW-030");
+    expect(nativePackagePacket.scope_items).toContain("SOW-074");
+    expect(nativePackagePacket.scope_items).toContain("SOW-050");
+    expect(nativePackagePacket.scope_items).toContain("SOW-029");
+    expect(nativePackagePacket.export_profile.profile_id).toBe("native_open_json_preview");
+    expect(nativePackagePacket.export_profile.physical_project_container).toBe("TBD");
+    expect(nativePackagePacket.export_profile.public_transport_protocol).toBe("TBD");
+    expect(nativePackagePacket.manifest.package_members).toHaveLength(9);
+    expect(nativePackagePacket.manifest.package_members.map((item: { path: string }) => item.path)).toContain(
+      "results/result_envelope_ref.json"
+    );
+    expect(nativePackagePacket.manifest.runtime_timestamp_fields_in_hash_inputs).toBe(false);
+    expect(nativePackagePacket.stable_id_map.entity_ref_count).toBe(19);
+    expect(nativePackagePacket.stable_id_map.result_ref_count).toBe(647);
+    expect(nativePackagePacket.stable_id_map.operation_ref_count).toBe(0);
+    expect(nativePackagePacket.stable_id_map.entity_refs).toContain("project:invented-loop-01");
+    expect(nativePackagePacket.stable_id_map.result_refs).toContain("result:force:pipe-P-120:axial");
+    expect(nativePackagePacket.loss_report.summary.unsupported_count).toBe(1);
+    expect(nativePackagePacket.loss_report.summary.tbd_count).toBe(1);
+    expect(nativePackagePacket.validation_report.package_shape_status).toBe("review_manifest_complete");
+    expect(nativePackagePacket.validation_report.model_hash_status).toBe("TBD_model_hash_not_available");
+    expect(nativePackagePacket.validation_report.package_hash_status).toBe(
+      "TBD_canonical_package_hash_service_not_available"
+    );
+    expect(nativePackagePacket.diagnostics).toHaveLength(7);
+    expect(nativePackagePacket.generation_context.network_required).toBe(false);
+    expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(false);
+    expect(nativePackagePacket.generation_context.repository_default_private_write).toBe(false);
+    expect(nativePackagePacket.run_refs.result_count).toBe(647);
+    expect(nativePackagePacket.run_refs.hash_refs).toHaveLength(2);
+    expect(nativePackagePacket.private_payload_included).toBe(false);
+    expect(nativePackagePacket.protected_content_included).toBe(false);
+    expect(nativePackagePacket.release_or_professional_claim).toBe(false);
+    expect(nativePackagePacket.compatibility_claim_made).toBe(false);
+    expect(nativePackagePacket.code_compliance_claim_made).toBe(false);
+    expect(nativePackagePacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(solveJobPacket.events.map((item: { state: string }) => item.state)).toEqual([
+      "queued",
+      "running",
+      "completed"
+    ]);
+    expect(solveJobPacket.private_payload_included).toBe(false);
+    expect(solveJobPacket.protected_content_included).toBe(false);
+    expect(solveJobPacket.release_or_professional_claim).toBe(false);
+    expect(solveJobPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const ruleCheck = await screen.findByLabelText("Rule-check completeness");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("5 review findings");
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain("rule_check_blocked=true");
@@ -826,6 +1513,24 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(report).getByTestId("report-comparison-summary").textContent).toContain(
       "not_tolerance_checked"
     );
+    expect(within(report).getByTestId("report-project-persistence").textContent).toContain(
+      "storage=not_persisted_this_session"
+    );
+    expect(within(report).getByTestId("report-project-persistence").textContent).toContain(
+      "validation=preview_not_persisted"
+    );
+    expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
+      "8 of 9 local exports ready"
+    );
+    expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
+    expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
+    expect(within(report).getByTestId("report-storage-boundary").textContent).toContain("network=false");
+    expect(within(report).getByTestId("report-storage-boundary").textContent).toContain(
+      "private/protected payload=false"
+    );
+    expect(within(report).getByTestId("report-storage-boundary").textContent).toContain(
+      "accepted_state_mutated=false"
+    );
     expect(within(report).getByTestId("report-export-summary").textContent).toContain("no private payload");
     expect(within(report).getByTestId("report-export-summary").textContent).toContain("9 diagnostics");
     const exportHref = within(report).getByTestId("report-export-link").getAttribute("href") ?? "";
@@ -833,6 +1538,12 @@ describe("OpenPipeStress desktop preview", () => {
     const exportPacket = JSON.parse(decodeURIComponent(exportHref.split(",", 2)[1]));
     expect(exportPacket.document_kind).toBe("openpipestress.technical_preview.report_packet_export");
     expect(exportPacket.export_scope).toBe("local_browser_download_preview");
+    expect(exportPacket.deliverable_refs).toContain("DEL-08-01");
+    expect(exportPacket.deliverable_refs).toContain("DEL-08-03");
+    expect(exportPacket.deliverable_refs).toContain("DEL-08-06");
+    expect(exportPacket.deliverable_refs).toContain("DEL-02-05");
+    expect(exportPacket.deliverable_refs).toContain("DEL-12-01");
+    expect(exportPacket.deliverable_refs).toContain("DEL-12-02");
     expect(exportPacket.selected_result_refs).toContain("result:force:pipe-P-120:axial");
     expect(exportPacket.selected_result_refs).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
     expect(exportPacket.selected_review_target).toEqual({
@@ -847,6 +1558,69 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.diagnostic_summary.by_severity.info).toBe(1);
     expect(exportPacket.load_basis_refs).toContain("combination:C-OPER-ALT");
     expect(exportPacket.hash_refs.envelope_hash_scopes).toContain("result_envelope");
+    expect(exportPacket.persistence_evidence.document_kind).toBe(
+      "openpipestress.technical_preview.report_persistence_export_context"
+    );
+    expect(exportPacket.persistence_evidence.storage_audit.document_kind).toBe(
+      "openpipestress.technical_preview.local_project_persistence_audit"
+    );
+    expect(exportPacket.persistence_evidence.storage_audit.storage_mode).toBe("not_persisted_this_session");
+    expect(exportPacket.persistence_evidence.storage_audit.pending_operation_count).toBe(0);
+    expect(exportPacket.persistence_evidence.validation_preflight.document_kind).toBe(
+      "openpipestress.technical_preview.project_validation_preflight"
+    );
+    expect(exportPacket.persistence_evidence.validation_preflight.validation_status).toBe(
+      "preview_not_persisted"
+    );
+    expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
+      "semantic_categories_declared"
+    );
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(9);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(8);
+    expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
+      "available"
+    );
+    expect(
+      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_validation_preflight
+    ).toBe("available");
+    expect(
+      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.report_protected_content_lint
+    ).toBe("available");
+    expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.headless_runner_envelope).toBe(
+      "available"
+    );
+    expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.operation_review_ledger).toBe(
+      "empty_operation_queue"
+    );
+    expect(exportPacket.persistence_evidence.boundary.network_required).toBe(false);
+    expect(exportPacket.persistence_evidence.boundary.telemetry_enabled).toBe(false);
+    expect(exportPacket.persistence_evidence.boundary.private_payload_included).toBe(false);
+    expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
+    expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
+    const reportLint = await screen.findByLabelText("Report content lint");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=4");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
+    expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
+      "clearance=false"
+    );
+    const reportLintHref = within(reportLint).getByTestId("report-lint-export-link").getAttribute("href") ?? "";
+    const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
+    expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
+    expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(4);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(4);
+    expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
+    expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
+    expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
+    expect(
+      reportLintPacket.lint_run.targets.map((item: { target_id: string }) => item.target_id)
+    ).toContain("target:report-packet-preview-json");
+    expect(
+      reportLintPacket.lint_run.targets.every(
+        (item: { privacy_classification: string }) => item.privacy_classification !== "private_project_data"
+      )
+    ).toBe(true);
     expect(exportPacket.run_audit.model_state_ref.ref).toBe("state:project:invented-loop-01:preview");
     expect(exportPacket.run_audit.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
     expect(exportPacket.run_audit.run_kind).toBe("mechanics_solve");
@@ -1047,6 +1821,91 @@ describe("OpenPipeStress desktop preview", () => {
     });
     expect(ledgerPacket.accepted_model_state_unchanged).toBe(true);
     expect(ledgerPacket.release_or_professional_claim).toBe(false);
+
+    const nativePackageAfterProposal = await screen.findByLabelText("Native JSON package");
+    expect(within(nativePackageAfterProposal).getByTestId("native-package-summary").textContent).toContain(
+      "operations=1"
+    );
+    expect(within(nativePackageAfterProposal).getByTestId("native-package-stable-ids").textContent).toContain(
+      "operations=1"
+    );
+    const nativePackageAfterProposalHref =
+      within(nativePackageAfterProposal).getByTestId("native-package-link").getAttribute("href") ?? "";
+    const nativePackageAfterProposalPacket = JSON.parse(
+      decodeURIComponent(nativePackageAfterProposalHref.split(",", 2)[1])
+    );
+    expect(nativePackageAfterProposalPacket.stable_id_map.operation_ref_count).toBe(1);
+    expect(nativePackageAfterProposalPacket.stable_id_map.operation_refs).toContain(
+      "op:review-computed-diagnostic"
+    );
+    expect(nativePackageAfterProposalPacket.stable_id_map.proposal_refs).toContain(
+      "proposal:physics-diagnostic-review"
+    );
+    expect(nativePackageAfterProposalPacket.operation_review.record_count).toBe(1);
+    expect(nativePackageAfterProposalPacket.operation_review.editor_intent_count).toBe(0);
+    expect(nativePackageAfterProposalPacket.operation_review.proposal_count).toBe(1);
+    expect(nativePackageAfterProposalPacket.operation_review.held_for_user_acceptance_count).toBe(1);
+    expect(nativePackageAfterProposalPacket.operation_review.accepted_count).toBe(0);
+    expect(nativePackageAfterProposalPacket.operation_review.rejected_count).toBe(0);
+    expect(nativePackageAfterProposalPacket.operation_review.operation_refs).toContain(
+      "op:review-computed-diagnostic"
+    );
+    expect(nativePackageAfterProposalPacket.operation_review.proposal_refs).toContain(
+      "proposal:physics-diagnostic-review"
+    );
+    expect(nativePackageAfterProposalPacket.operation_review.selected_review_target).toEqual({
+      target_type: "result",
+      id: "result:stress:pipe-P-120:end-j:torsional-shear"
+    });
+    expect(nativePackageAfterProposalPacket.operation_review.accepted_model_state_mutated).toBe(false);
+    expect(nativePackageAfterProposalPacket.operation_review.operation_application_status).toBe("not_applied");
+    expect(nativePackageAfterProposalPacket.operation_review.audit_boundary.requires_user_acceptance).toBe(true);
+    expect(nativePackageAfterProposalPacket.operation_review.audit_boundary.preview_records_do_not_apply_operations).toBe(
+      true
+    );
+    expect(nativePackageAfterProposalPacket.operation_review.audit_boundary.direct_model_mutation_allowed).toBe(false);
+    expect(nativePackageAfterProposalPacket.validation_report.checks).toContain(
+      "review-only operation refs declared when present"
+    );
+    expect(nativePackageAfterProposalPacket.release_or_professional_claim).toBe(false);
+    expect(nativePackageAfterProposalPacket.professional_boundary.software_makes_approval_claim).toBe(false);
+
+    const diffPreview = await screen.findByLabelText("Operation diff preview");
+    expect(await within(diffPreview).findByTestId("diff-preview-summary")).toHaveTextContent("1 operations");
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain("1 diff rows");
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain(
+      "accepted_state_mutated=false"
+    );
+    expect(within(diffPreview).getByTestId("diff-preview-validation").textContent).toContain("0 hash-bound rows");
+    expect(within(diffPreview).getByTestId("diff-preview-boundary").textContent).toContain(
+      "no release or professional claim"
+    );
+    const proposalDiffRecord = within(diffPreview).getByTestId(
+      "diff-preview-record-op-review-computed-diagnostic"
+    );
+    expect(proposalDiffRecord.textContent).toContain("agent_proposal");
+    expect(proposalDiffRecord.textContent).toContain("generated_from_computed_context");
+    expect(proposalDiffRecord.textContent).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
+    const diffHref = within(diffPreview).getByTestId("diff-preview-export-link").getAttribute("href") ?? "";
+    const diffPacket = JSON.parse(decodeURIComponent(diffHref.split(",", 2)[1]));
+    expect(diffPacket.document_kind).toBe("openpipestress.technical_preview.operation_diff_preview");
+    expect(diffPacket.deliverable_refs).toContain("DEL-16-02");
+    expect(diffPacket.scope_items).toContain("SOW-069");
+    expect(diffPacket.summary.operation_count).toBe(1);
+    expect(diffPacket.summary.diff_row_count).toBe(1);
+    expect(diffPacket.summary.held_for_user_acceptance_count).toBe(1);
+    expect(diffPacket.summary.accepted_model_state_mutated).toBe(false);
+    expect(diffPacket.previews[0].record_source).toBe("agent_proposal");
+    expect(diffPacket.previews[0].operation_id).toBe("op:review-computed-diagnostic");
+    expect(diffPacket.previews[0].diff_preview_status).toBe("generated_from_computed_context");
+    expect(diffPacket.previews[0].application_status).toBe("not_applied");
+    expect(diffPacket.previews[0].accepted_model_state_mutated).toBe(false);
+    expect(diffPacket.previews[0].changes[0].target_ref).toBe(
+      "result:stress:pipe-P-120:end-j:torsional-shear"
+    );
+    expect(diffPacket.private_payload_included).toBe(false);
+    expect(diffPacket.protected_content_included).toBe(false);
+    expect(diffPacket.release_or_professional_claim).toBe(false);
   }, 15000);
 
   it("links selected diagnostics to affected result and model context", async () => {

@@ -10,17 +10,25 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
+import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
 import { HandoffPanel } from "./features/handoff/HandoffPanel";
+import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { ModelTree } from "./features/model-tree/ModelTree";
+import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
+import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
+import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
+import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
+import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
@@ -51,7 +59,8 @@ import type {
   LocalStorageCapability,
   MechanicsResult,
   PreviewModel,
-  SelectedReviewTarget
+  SelectedReviewTarget,
+  SolveJobAuditState
 } from "./types";
 
 export function App() {
@@ -66,6 +75,8 @@ export function App() {
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
   const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
+  const [projectOperation, setProjectOperation] = useState("not_started");
+  const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
   const [running, setRunning] = useState(false);
   const [projectBusy, setProjectBusy] = useState(false);
   const comparison = useMemo(
@@ -92,16 +103,24 @@ export function App() {
   async function handleRun() {
     setRunning(true);
     setAnalysisRun(null);
+    setSolveJob(startSolveJob(model));
     try {
       const output = await runPreviewMechanics(model);
+      const runRecord = await buildAnalysisRunPreview(output);
+      setSolveJob((current) => completeSolveJob(current, output, runRecord));
       setResult(output);
       setSelectedReviewTarget(null);
       setProposal(null);
-      const runRecord = await buildAnalysisRunPreview(output);
       setAnalysisRun(runRecord);
+    } catch (error) {
+      setSolveJob((current) => failSolveJob(current, error));
     } finally {
       setRunning(false);
     }
+  }
+
+  function handleCancelRun() {
+    setSolveJob((current) => requestSolveCancellation(current));
   }
 
   async function handleProposal() {
@@ -126,8 +145,10 @@ export function App() {
       setProjectSummary(created.summary);
       setEditorIntents(created.editor_intents ?? []);
       setProjectMessage(created.summary.message);
+      setProjectOperation("create");
     } catch (error) {
       setProjectMessage(`Create failed: ${String(error)}`);
+      setProjectOperation("create_failed");
     } finally {
       setProjectBusy(false);
     }
@@ -139,6 +160,7 @@ export function App() {
       const opened = await openLocalProject();
       if (!opened) {
         setProjectMessage("No local project snapshot found.");
+        setProjectOperation("open_missing");
         return;
       }
       setModel(opened.model);
@@ -148,10 +170,13 @@ export function App() {
       setProposal(null);
       setEditorIntents(opened.editor_intents ?? []);
       setSelectedReviewTarget(null);
+      setSolveJob(initialSolveJob());
       setProjectSummary(opened.summary);
       setProjectMessage(opened.summary.message);
+      setProjectOperation("open");
     } catch (error) {
       setProjectMessage(`Open failed: ${String(error)}`);
+      setProjectOperation("open_failed");
     } finally {
       setProjectBusy(false);
     }
@@ -165,8 +190,10 @@ export function App() {
       setProjectSummary(saved.summary);
       setEditorIntents(saved.editor_intents ?? []);
       setProjectMessage(saved.summary.message);
+      setProjectOperation("save");
     } catch (error) {
       setProjectMessage(`Save failed: ${String(error)}`);
+      setProjectOperation("save_failed");
     } finally {
       setProjectBusy(false);
     }
@@ -293,9 +320,46 @@ export function App() {
         </section>
 
         <aside className="right-rail">
-          <SolvePanel model={model} result={result} running={running} onRun={handleRun} />
+          <ProjectStorageAuditPanel
+            model={model}
+            storageCapability={storageCapability}
+            projectSummary={projectSummary}
+            projectMessage={projectMessage}
+            projectOperation={projectOperation}
+            editorIntents={editorIntents}
+          />
+          <ProjectValidationPanel
+            model={model}
+            storageCapability={storageCapability}
+            projectSummary={projectSummary}
+            projectOperation={projectOperation}
+            editorIntents={editorIntents}
+          />
+          <SolvePanel
+            analysisRun={analysisRun}
+            model={model}
+            result={result}
+            running={running}
+            solveJob={solveJob}
+            onCancel={handleCancelRun}
+            onRun={handleRun}
+          />
           <RuleCheckPanel model={model} result={result} />
           <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
+          <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
+          <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
+          <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
+          <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
+          <NativePackagePanel
+            model={model}
+            result={result}
+            analysisRun={analysisRun}
+            editorIntents={editorIntents}
+            projectSummary={projectSummary}
+            proposal={proposal}
+            selectedReviewTarget={selectedReviewTarget}
+            storageCapability={storageCapability}
+          />
           <ComparisonPanel comparison={comparison} onSelectResult={handleSelectResult} />
           <HandoffPanel
             model={model}
@@ -320,6 +384,13 @@ export function App() {
             selectedReviewTarget={selectedReviewTarget}
             onLoad={handleProposal}
           />
+          <DiffPreviewPanel
+            model={model}
+            analysisRun={analysisRun}
+            editorIntents={editorIntents}
+            proposal={proposal}
+            selectedReviewTarget={selectedReviewTarget}
+          />
           <OperationLedgerPanel
             model={model}
             analysisRun={analysisRun}
@@ -334,8 +405,11 @@ export function App() {
             analysisRun={analysisRun}
             comparison={comparison}
             editorIntents={editorIntents}
+            projectOperation={projectOperation}
+            projectSummary={projectSummary}
             proposal={proposal}
             selectedReviewTarget={selectedReviewTarget}
+            storageCapability={storageCapability}
           />
           <ReportPanel
             model={model}
@@ -344,8 +418,11 @@ export function App() {
             analysisRun={analysisRun}
             comparison={comparison}
             editorIntents={editorIntents}
+            projectOperation={projectOperation}
+            projectSummary={projectSummary}
             proposal={proposal}
             selectedReviewTarget={selectedReviewTarget}
+            storageCapability={storageCapability}
           />
         </aside>
       </section>
@@ -389,4 +466,138 @@ function storageBadgeLabel(storageCapability: LocalStorageCapability): string {
 function projectReviewContext(editorIntents: EditorOperationIntent[]): string {
   const label = editorIntents.length === 1 ? "operation" : "operations";
   return ` Review context: ${editorIntents.length} pending ${label}; applied=false.`;
+}
+
+function initialSolveJob(): SolveJobAuditState {
+  return {
+    job_id: "job:preview-linear-static:not-started",
+    state: "not_started",
+    progress_basis: "preview_service_event_state_only_no_percent_stream",
+    percentages_synthesized: false,
+    backend_percent_stream_available: false,
+    cancellation_requested: false,
+    cancellation_status: "not_requested",
+    backend_cancellation_token: "TBD",
+    events: [
+      {
+        event_id: "solve-preview-not-started",
+        state: "not_started",
+        message: "Preview mechanics has not been requested in this session.",
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ],
+    error_message: null
+  };
+}
+
+function startSolveJob(model: PreviewModel | null): SolveJobAuditState {
+  const modelRef = model?.project.id ?? "project:unknown";
+  return {
+    job_id: `job:preview-linear-static:${safeJobToken(modelRef)}`,
+    state: "running",
+    progress_basis: "preview_service_event_state_only_no_percent_stream",
+    percentages_synthesized: false,
+    backend_percent_stream_available: false,
+    cancellation_requested: false,
+    cancellation_status: "not_requested",
+    backend_cancellation_token: "TBD",
+    events: [
+      {
+        event_id: "solve-preview-queued",
+        state: "queued",
+        message: "Preview mechanics command queued through the application service boundary.",
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      },
+      {
+        event_id: "solve-preview-running",
+        state: "running",
+        message: "Preview mechanics command is executing; this service path does not stream percentage progress.",
+        result_available: false,
+        diagnostic_count: model?.diagnostics.length ?? 0,
+        result_row_count: 0,
+        analysis_status: model ? [model.analysis_status.mechanics, model.analysis_status.rule_check] : []
+      }
+    ],
+    error_message: null
+  };
+}
+
+function completeSolveJob(
+  current: SolveJobAuditState,
+  result: MechanicsResult,
+  analysisRun: AnalysisRunEnvelope
+): SolveJobAuditState {
+  const cancellationStatus = current.cancellation_requested
+    ? "request_recorded_run_completed_before_backend_cancelled"
+    : "not_requested";
+  return {
+    ...current,
+    state: "completed",
+    cancellation_status: cancellationStatus,
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-completed",
+        state: "completed",
+        message: `Preview mechanics completed with ${result.results.length} result rows bound to ${analysisRun.analysis_run.run_id}.`,
+        result_available: true,
+        diagnostic_count: result.diagnostics.length,
+        result_row_count: result.results.length,
+        analysis_status: analysisRun.analysis_run.analysis_status
+      }
+    ],
+    error_message: null
+  };
+}
+
+function failSolveJob(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
+  return {
+    ...current,
+    state: "failed",
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-failed",
+        state: "failed",
+        message: `Preview mechanics failed: ${String(error)}`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: ["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]
+      }
+    ],
+    error_message: String(error)
+  };
+}
+
+function requestSolveCancellation(current: SolveJobAuditState): SolveJobAuditState {
+  if (current.state !== "running") return current;
+  return {
+    ...current,
+    state: "cancelling",
+    cancellation_requested: true,
+    cancellation_status: "request_recorded_backend_token_tbd",
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-cancel-requested",
+        state: "cancelling",
+        message: "Cancellation request recorded at the UI boundary; backend cancellation token remains TBD.",
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
+function safeJobToken(value: string): string {
+  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }

@@ -508,3 +508,322 @@ deliverable refs `DEL-06-03` and `DEL-07-04`, scope items `SOW-004` and
 `compliance_claim_made=false`, and false private-payload, protected-content,
 release/professional-claim, and compliance-claim flags. Fresh browser console
 errors after the timestamp marker were absent.
+
+TP-MAC-33 operation-diff-preview smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at `http://127.0.0.1:5174/`
+with timestamp marker `2026-06-08T04:28:45.194Z`. The run confirmed the new
+Operation Diff Preview panel initially reported no queued operation diffs and
+explicitly stated that the panel does not apply operations. After selecting
+`material:invented-carbon-steel` and queueing
+`op:editor-intent-material:invented-carbon-steel-elastic_modulus.value`, the
+panel reported `1 operations`, `1 diff rows`, `accepted_state_mutated=false`,
+`0 hash-bound rows`, and `1 held`, with a local before/after row from
+`200000000000` to `210000000000 Pa`. After running mechanics preview, the
+parsed local diff JSON carried
+`document_kind=openpipestress.technical_preview.operation_diff_preview`,
+deliverable ref `DEL-16-02`, scope item `SOW-069`, model-state/run refs
+`state:project:invented-loop-01:preview` and
+`run:preview-linear-static-001`, `operation_count=1`, `diff_row_count=1`,
+`accepted_model_state_mutated=false`, and `hash_bound_diff_preview_count=0`.
+After selecting `result:stress:pipe-P-120:end-j:torsional-shear` and
+generating `proposal:physics-diagnostic-review`, the combined parsed diff JSON
+reported `operation_count=2`, `diff_row_count=2`, `held_for_user_acceptance`
+for both previews, record sources `gui_editor_intent_queue` and
+`agent_proposal`, proposal operation `op:review-computed-diagnostic`,
+`generated_from_computed_context`, `not_applied`, no accepted-state mutation,
+and false private-payload, protected-content, release/professional-claim,
+compliance-claim, certification-claim, sealing-claim, approval-claim, and
+authentication-claim flags. Fresh browser console errors after the timestamp
+marker were absent.
+
+TP-MAC-34 project-storage-audit smoke passed on 2026-06-07 America/Edmonton
+using the in-app browser at `http://127.0.0.1:5174/` with timestamp marker
+`2026-06-08T04:35:39.400Z`. The run confirmed the new Project Storage Audit
+panel initially reported `operation=not_started`, `pending operations=0`,
+`accepted_state_mutated=false`, browser memory preview storage,
+`mode=not_persisted_this_session`, `network=false`, `daemon=false`,
+`telemetry=false`, `repository_default_private_write=false`, no private
+payload, no protected content, and no release/professional claim. The initial
+parsed local storage JSON carried
+`document_kind=openpipestress.technical_preview.local_project_persistence_audit`,
+deliverable refs `DEL-02-05` and `DEL-12-01`, scope item `SOW-050`, no pending
+operations, no accepted-state mutation, no repository-default private write,
+and false private-payload, protected-content, and release/professional-claim
+flags. After selecting `material:invented-carbon-steel` and queueing
+`op:editor-intent-material:invented-carbon-steel-elastic_modulus.value`, the
+toolbar and audit panel reported `1 pending operation; applied=false`. Create
+local, Save local, and Open local then preserved the queued intent and reported
+`operation=open`, `browser_memory_preview`, `copied_external_files=false`, and
+`accepted_state_mutated=false`. The final parsed storage JSON carried
+deliverable refs `DEL-02-05` and `DEL-12-02`, scope items `SOW-050` and
+`SOW-040`, project ref `project:invented-loop-01`, `pending_operation_count=1`,
+`applied_operation_count=0`, no network/daemon/telemetry requirement, the
+queued editor intent with `not_applied` status, `local_only_project_store=true`,
+no repository-default private write, no external file copy, no accepted-state
+mutation, false private-payload, false protected-content,
+false release/professional-claim, false compliance-claim, and false
+authentication-claim flags. Fresh browser console errors after the timestamp
+marker were absent.
+
+TP-MAC-35 solve-job-audit smoke passed on 2026-06-07 America/Edmonton using
+the in-app browser at `http://127.0.0.1:5174/` with timestamp marker
+`2026-06-08T04:42:11.724Z`. The run confirmed the new Solve Job Audit packet
+initially reported `state=not_started`, `events=1`, `result_rows=0`,
+`cancellation_requested=false`, progress basis
+`preview_service_event_state_only_no_percent_stream`,
+`percentages_synthesized=false`, `backend_percent_stream_available=false`,
+`token=TBD`, no direct solver-process mutation, and no cancellation-success
+claim. After running mechanics preview, the panel reported `state=completed`,
+`events=3`, `result_rows=647`, `cancellation_requested=false`,
+`enabled=false`, `token=TBD`, `success_claimed=false`, model-state ref
+`state:project:invented-loop-01:preview`, analysis-run ref
+`run:preview-linear-static-001`, and `hashes=647`. The parsed local solve-job
+JSON carried
+`document_kind=openpipestress.technical_preview.solve_job_audit`, deliverable
+refs `DEL-07-07`, `DEL-14-02`, and `DEL-04-06`, scope items `SOW-055`,
+`SOW-072`, and `SOW-053`, `event_count=3`, `result_row_count=647`,
+`diagnostic_count=7`, event states `queued`, `running`, and `completed`,
+statuses `HUMAN_REVIEW_REQUIRED`, `MECHANICS_SOLVED`, and
+`RULE_INPUTS_INCOMPLETE`, `result_hash_count=647`, hash scopes
+`analysis_run_record` and `result_envelope`, false private-payload, false
+protected-content, false release/professional-claim, false compliance-claim,
+false certification-claim, false sealing-claim, false approval-claim, and
+false authentication-claim flags. Fresh browser console errors after the
+timestamp marker were absent.
+
+TP-MAC-36 result-export-audit smoke passed on 2026-06-07 America/Edmonton
+using the in-app browser at `http://127.0.0.1:5174/` with timestamp marker
+`2026-06-08T04:58:58.888Z`. The run confirmed the new Result Export panel
+initially reported an empty schema-first local result envelope state and the
+Export Safety Review panel reported `0 of 4 local exports ready`. After
+running mechanics preview, the Result Export panel reported `available`,
+`rows=647`, `sets=1`, and `diagnostics=7`, with format
+`schema_first_json_result_envelope`, `additional_formats=TBD`, model/run
+binding to `project:invented-loop-01` and `run:preview-linear-static-001`,
+explicit unit/dimension coverage including `length` and `stress`,
+`deterministic_ordering=true`, and `run_hashes=2`. The parsed local result
+envelope carried `deliverable_id=DEL-08-04`, `package_id=PKG-08`,
+`scope_item=SOW-046`, objectives `OBJ-007` and `OBJ-009`, one `mechanics`
+result set with 647 values, seven diagnostics, nonempty load-basis refs,
+analysis statuses `HUMAN_REVIEW_REQUIRED`, `MECHANICS_SOLVED`, and
+`RULE_INPUTS_INCOMPLETE`, a redacted not-loaded user rule-pack ref with
+`missing_required_inputs`, and `additional_export_formats=TBD` for downstream
+use. The Export Safety Review manifest reported four local export slots and
+three available exports without queued operations, including the available
+`result_envelope` export. False private-payload, protected-content,
+release/professional-claim, compliance-claim, certification-claim,
+sealing-claim, approval-claim, and authentication-claim boundaries were
+preserved. Fresh browser console errors after the timestamp marker were
+absent.
+
+TP-MAC-37 native-json-package smoke passed on 2026-06-07 America/Edmonton
+using the in-app browser at
+`http://127.0.0.1:5173/?smoke=tp-mac-37-1780895252691` with timestamp marker
+`2026-06-08T05:07:32.691Z`. The initial state confirmed the Native JSON
+Package panel reported an empty local review-manifest state and Export Safety
+Review reported `0 of 5 local exports ready`. After running mechanics preview,
+the Native JSON Package panel reported `ready`, `members=9`, `entities=19`,
+`results=647`, and `operations=0`. The visible package profile preserved
+`native_open_json_preview`, `physical_container=TBD`, and
+`public_transport=TBD`; the validation line reported
+`review_manifest_complete`, `deterministic_paths=true`, and
+`model_hash=TBD_model_hash_not_available`; the loss report line reported one
+`TBD` and one unsupported target-specific behavior; and the storage line
+reported `network=false`, `telemetry=false`, and
+`repository_default_private_write=false`. The parsed local package JSON carried
+`document_kind=openpipestress.technical_preview.native_json_package_review`,
+deliverable refs `DEL-17-02`, `DEL-17-03`, `DEL-02-05`, `DEL-12-01`,
+`DEL-08-04`, and `DEL-14-02`, scope items `SOW-030`, `SOW-074`, `SOW-050`,
+`SOW-029`, `SOW-046`, and `SOW-072`, nine package member paths including
+`manifest.json`, `maps/stable_id_map.json`, and
+`results/result_envelope_ref.json`, `runtime_timestamp_fields_in_hash_inputs=false`,
+19 entity refs including `project:invented-loop-01`, 647 result refs including
+`result:force:pipe-P-120:axial`, zero operation refs, seven diagnostics, two
+run hash refs, `TBD_model_hash_not_available`, and
+`TBD_canonical_package_hash_service_not_available`. Export Safety Review
+reported five local export slots and four available exports without queued
+operations, including the available `native_json_package` export. False
+private-payload, protected-content, release/professional-claim,
+compatibility-claim, code-compliance-claim, and software compliance-claim
+boundaries were preserved. Fresh browser console errors after the timestamp
+marker were absent.
+
+TP-MAC-38 native-package-proposal-refs smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5173/?smoke=tp-mac-38-1780895522105` with timestamp marker
+`2026-06-08T05:12:02.105Z`. The run started from the Native JSON Package
+empty state and `0 of 5 local exports ready`, ran mechanics preview, selected
+`result:stress:pipe-P-120:end-j:torsional-shear`, generated the deterministic
+review proposal, and confirmed the Native JSON Package panel updated from
+`operations=0` to `operations=1`. The parsed local native package JSON carried
+`operation_ref_count=1`, operation ref `op:review-computed-diagnostic`,
+proposal ref `proposal:physics-diagnostic-review`, `record_count=1`,
+`editor_intent_count=0`, `proposal_count=1`,
+`held_for_user_acceptance_count=1`, `accepted_count=0`, `rejected_count=0`,
+selected review target `result:stress:pipe-P-120:end-j:torsional-shear`,
+`accepted_model_state_mutated=false`, `operation_application_status=not_applied`,
+`requires_user_acceptance=true`, `preview_records_do_not_apply_operations=true`,
+and `direct_model_mutation_allowed=false`. The native validation checks
+included `review-only operation refs declared when present`. Export Safety
+Review reported `5 of 5 local exports ready`, with the `native_json_package`
+and `operation_review_ledger` exports available and `operation_record_count=1`.
+False private-payload, protected-content, release/professional-claim,
+software compliance-claim, and software approval-claim boundaries were
+preserved. Fresh browser console errors after the timestamp marker were
+absent.
+
+TP-MAC-39 project-validation-preflight smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-39-1780896094525` with timestamp marker
+`2026-06-08T05:21:34.525Z`. The run started from
+`validation=preview_not_persisted`, selected the invented material, queued one
+review-only elastic-modulus editor intent, and completed create, save, and open
+through the local browser-preview project controls. The Project Validation
+Preflight panel then reported `validation=preview_current`,
+`version=supported_current_schema`, `migration=current`, and
+`round_trip=semantic_categories_declared`; its operation line reported
+`validate=preflight_generated_preview_current`,
+`version_check=supported_current_schema`,
+`migrate=not_run_migration_framework_tbd`, and `pending operations=1`. The
+parsed validation JSON carried
+`document_kind=openpipestress.technical_preview.project_validation_preflight`,
+`storage_mode=browser_memory_preview`, `last_operation=open`,
+`pending_operation_count=1`, `accepted_model_state_mutated=false`, six
+round-trip categories, ready preview round-trip status for model content, unit
+metadata, load payloads, and provenance metadata,
+`rule_pack_references:not_present_in_invented_fixture`, and
+`reproducibility_metadata:hash_basis_declared_hash_service_tbd`. Local-only
+storage, no repository-default private writes, no external file copy, no
+network, no telemetry, false private-payload, protected-content,
+release/professional-claim, and software compliance-claim boundaries were
+preserved. Fresh browser console errors after the timestamp marker were absent.
+
+TP-MAC-40 export-review-persistence-inventory smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-40-1780896608564` with timestamp marker
+`2026-06-08T05:30:08.564Z`. The run confirmed Export Safety Review initially
+reported `2 of 7 local exports ready`, with `project_storage_audit` and
+`project_validation_preflight` both available before a mechanics run. After
+running the preview mechanics path, the solve job reported `state=completed`,
+`events=3`, and `result_rows=647`; Export Safety Review then reported
+`6 of 7 local exports ready`. The parsed manifest carried `export_count=7`,
+`available_count=6`, `diagnostics_reviewed=9`, `operation_record_count=0`,
+and export readiness entries for `project_storage_audit:available`,
+`project_validation_preflight:available`, `result_envelope:available`,
+`native_json_package:available`, `report_packet:available`,
+`handoff_package:available`, and
+`operation_review_ledger:empty_operation_queue`. The manifest included
+`DEL-02-05`, `DEL-12-01`, and `DEL-12-02` plus `SOW-050`, `SOW-041`,
+`SOW-029`, and `SOW-040`; the storage audit entry remained
+`last_operation=not_started`, `storage_mode=not_persisted_this_session`, and
+`copied_external_files=false`, while the validation preflight entry remained
+`validation_status=preview_not_persisted`,
+`version_check_status=supported_current_schema`, and
+`round_trip_status=semantic_categories_declared`. False private-payload,
+protected-content, release/professional-claim, and software compliance-claim
+boundaries were preserved. Fresh browser console errors after the timestamp
+marker were absent.
+
+TP-MAC-41 report-persistence-evidence smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-41-1780896920000` with timestamp marker
+`2026-06-08T05:35:20.000Z`. The run loaded the desktop preview with local
+browser-preview storage reporting `network=false`, `daemon=false`, and
+`telemetry=false`, then ran the preview mechanics path. The solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; Export Safety Review
+reported `6 of 7 local exports ready`. The Report Packet panel reported
+`storage=not_persisted_this_session`, `validation=preview_not_persisted`,
+`round_trip=semantic_categories_declared`, `6 of 7 local exports ready`,
+`storage=available`, `validation=available`, `network=false`,
+`telemetry=false`, `private/protected payload=false`, and
+`accepted_state_mutated=false`. The parsed local report JSON carried
+`document_kind=openpipestress.technical_preview.report_packet_export`,
+deliverable refs `DEL-08-01`, `DEL-08-03`, `DEL-08-04`, `DEL-08-06`,
+`DEL-02-05`, `DEL-12-01`, and `DEL-12-02`; its
+`persistence_evidence` carried
+`openpipestress.technical_preview.report_persistence_export_context`,
+`openpipestress.technical_preview.local_project_persistence_audit`,
+`storage_mode=not_persisted_this_session`,
+`openpipestress.technical_preview.project_validation_preflight`,
+`validation_status=preview_not_persisted`,
+`round_trip_status=semantic_categories_declared`, `expected_export_count=7`,
+`available_count=6`, and
+`operation_review_ledger=empty_operation_queue`. False network, telemetry,
+private-payload, protected-content, release/professional-claim, and accepted
+state mutation boundaries were preserved. Fresh browser console errors after
+the timestamp marker were absent.
+
+TP-MAC-42 report-content-lint-preview smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-42-1780897360326` with timestamp marker
+`2026-06-08T05:42:40.326Z`. The initial state confirmed the new Report
+Content Lint panel reported `available`, `targets=3`, `findings=0`,
+`blocking=0`, `explicit_public_surfaces`,
+`private=skip_unless_explicitly_authorized`, `clearance=false`,
+`heuristic_only=true`, `legal=false`, `professional=false`, `ci=TBD`, and
+`redaction=TBD`; Export Safety Review initially reported
+`3 of 8 local exports ready`. The parsed lint JSON carried
+`deliverable_id=DEL-08-05`, `scope_item=SOW-043`, objectives `OBJ-002` and
+`OBJ-007`, `heuristic_only=true`, `legal_clearance=false`,
+`professional_approval=false`, `ci_release_policy=TBD`, `target_count=3`,
+`finding_count=0`, `blocking_finding_count=0`,
+`clean_scan_is_clearance=false`, and
+`private_surface_default=skip_unless_explicitly_authorized`. After running the
+preview mechanics path, the solve job reported `state=completed`, `events=3`,
+and `result_rows=647`; the lint panel reported `targets=4`, `findings=0`,
+and `blocking=0`, with target IDs `target:desktop-report-template`,
+`target:desktop-export-review-template`, `target:invented-preview-fixture`,
+and `target:report-packet-preview-json`, and `private_targets=0`. Export
+Safety Review reported `7 of 8 local exports ready`; the parsed export review
+manifest carried `export_count=8`, `available_count=7`, and an available
+`report_protected_content_lint` export with
+`document_kind=openpipestress.technical_preview.report_protected_content_lint_run`,
+deliverable refs `DEL-08-05`, `DEL-08-01`, `DEL-08-03`, `DEL-08-06`, and
+`DEL-12-02`, `target_count=4`, `finding_count=0`,
+`blocking_finding_count=0`, `clean_scan_is_clearance=false`, and false
+private-payload, protected-content, and release/professional-claim flags. The
+parsed report JSON persistence inventory carried `expected_export_count=8`,
+`available_count=7`, and
+`report_protected_content_lint:available`. Fresh browser console errors after
+the timestamp marker were absent.
+
+TP-MAC-43 headless-runner-envelope-preview smoke passed on 2026-06-07
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-43-1780897981511` with timestamp marker
+`2026-06-08T05:54:35Z`. The initial state confirmed the new Headless Runner
+panel reported `available`, `job=TBD`, `outputs=4`, `result_refs=1`,
+`schema_first_headless_runner_contract`, `cli=TBD`, `scripts=TBD`,
+`process=TBD`, `network=TBD`, `filesystem=TBD`, `network_required=false`,
+`direct_sql=false`, and no compliance, certification, sealing,
+authentication, or approval claim. The parsed runner JSON carried
+`deliverable_id=DEL-10-05`, scope items `SOW-054` and `SOW-032`, objectives
+`OBJ-008`, `OBJ-009`, and `OBJ-012`, `operation=solve`, requested outputs
+`result_envelope`, `audit_manifest`, `diagnostics`, and
+`regression_record`, `job_state=TBD`, analysis statuses `MODEL_INCOMPLETE`
+and `HUMAN_REVIEW_REQUIRED`, one placeholder result ref, one `TBD` checksum,
+`network_required=false`, `direct_sql=false`, `process_invocation=TBD`,
+`telemetry=false`, and `software_makes_compliance_claim=false`. Export Safety
+Review initially reported `4 of 9 local exports ready` with
+`headless_runner_envelope` included in the nine-slot manifest.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; the Headless Runner
+panel reported `job=COMPLETED`, `outputs=4`, `result_refs=647`, job progress
+`3/3`, `cancel=false`, `schema_first_json_result_envelope`,
+`audit=audit-manifest:run:preview-linear-static-001:preview`, and
+`checksums=2`. The parsed runner JSON carried
+`run_id=run:preview-linear-static-001`, `job_state=COMPLETED`, result envelope
+ref `result-envelope:run:preview-linear-static-001`, 647 result refs, two
+checksums, seven diagnostics, analysis statuses `HUMAN_REVIEW_REQUIRED`,
+`MECHANICS_SOLVED`, and `RULE_INPUTS_INCOMPLETE`, `network_required=false`,
+`direct_sql=false`, `process_invocation=TBD`, `telemetry=false`, and false
+compliance/authentication claims. Export Safety Review reported `8 of 9 local
+exports ready`; the parsed export review manifest carried `export_count=9`,
+`available_count=8`, an available `headless_runner_envelope` export with
+`document_kind=openpipestress.technical_preview.headless_runner_envelope`,
+`result_ref_count=647`, `runner_job_state=COMPLETED`, and final CLI/process/
+network/filesystem fields still `TBD`. The parsed report JSON persistence
+inventory carried `expected_export_count=9`, `available_count=8`, and
+`headless_runner_envelope:available`; report lint remained at `targets=4`,
+`findings=0`, `clean_scan_is_clearance=false`. Fresh browser console errors
+after the timestamp marker were absent.

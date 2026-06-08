@@ -699,11 +699,27 @@ button:focus-visible {
   min-height: 300px;
 }
 
+.project-storage-panel {
+  min-height: 260px;
+}
+
+.project-validation-panel {
+  min-height: 310px;
+}
+
+.diff-preview-panel {
+  min-height: 300px;
+}
+
 .operation-ledger-panel {
   min-height: 300px;
 }
 
 .export-review-panel {
+  min-height: 320px;
+}
+
+.native-package-panel {
   min-height: 320px;
 }
 

@@ -5,6 +5,8 @@ import type {
   DesignKnowledge,
   Diagnostic,
   EditorOperationIntent,
+  LocalProjectSummary,
+  LocalStorageCapability,
   MechanicsResult,
   PreviewModel,
   PreviewComparison,
@@ -18,8 +20,11 @@ export function ReportPanel({
   analysisRun,
   comparison,
   editorIntents,
+  projectOperation,
+  projectSummary,
   proposal,
-  selectedReviewTarget
+  selectedReviewTarget,
+  storageCapability
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -27,8 +32,11 @@ export function ReportPanel({
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
   editorIntents: EditorOperationIntent[];
+  projectOperation: string;
+  projectSummary: LocalProjectSummary | null;
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
+  storageCapability: LocalStorageCapability | null;
 }) {
   const resultRefs = result ? selectedResultRefs(result) : [];
   const diagnostics = result ? reportDiagnostics({ model, knowledge, result }) : [];
@@ -37,6 +45,16 @@ export function ReportPanel({
   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
   const envelopeHash = run?.hashes.find((item) => item.payload_scope === "result_envelope");
   const loadBasisRefs = run?.load_basis_refs?.map((item) => item.ref).join(", ") ?? "not generated";
+  const persistenceEvidence = reportPersistenceEvidence({
+    model,
+    result,
+    analysisRun,
+    editorIntents,
+    projectOperation,
+    projectSummary,
+    proposal,
+    storageCapability
+  });
   const exportPacket = result
     ? reportExportPacket({
         model,
@@ -44,6 +62,7 @@ export function ReportPanel({
         analysisRun,
         comparison,
         editorIntents,
+        persistenceEvidence,
         proposal,
         selectedReviewTarget,
         resultRefs,
@@ -113,6 +132,21 @@ export function ReportPanel({
                 testId="report-comparison-summary"
               />
             ) : null}
+            <ReportLine
+              label="Project persistence"
+              value={formatPersistenceSummary(persistenceEvidence)}
+              testId="report-project-persistence"
+            />
+            <ReportLine
+              label="Export readiness"
+              value={formatExportInventorySummary(persistenceEvidence)}
+              testId="report-export-readiness"
+            />
+            <ReportLine
+              label="Storage boundary"
+              value={formatStorageBoundary(persistenceEvidence)}
+              testId="report-storage-boundary"
+            />
             <ReportLine
               label="Editor intents"
               value={formatEditorIntentSummary(editorIntents)}
@@ -260,6 +294,7 @@ function reportExportPacket({
   analysisRun,
   comparison,
   editorIntents,
+  persistenceEvidence,
   proposal,
   selectedReviewTarget,
   resultRefs,
@@ -270,6 +305,7 @@ function reportExportPacket({
   analysisRun: AnalysisRunEnvelope | null;
   comparison: PreviewComparison | null;
   editorIntents: EditorOperationIntent[];
+  persistenceEvidence: ReturnType<typeof reportPersistenceEvidence>;
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
   resultRefs: string[];
@@ -281,6 +317,7 @@ function reportExportPacket({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.report_packet_export",
     export_scope: "local_browser_download_preview",
+    deliverable_refs: ["DEL-08-01", "DEL-08-03", "DEL-08-04", "DEL-08-06", "DEL-10-05", "DEL-02-05", "DEL-12-01", "DEL-12-02"],
     model_ref: result.model_ref,
     project_ref: model.project.id,
     analysis_run_ref: run?.run_id ?? "not generated",
@@ -302,6 +339,7 @@ function reportExportPacket({
     comparison_summary: comparison ? comparisonExportSummary(comparison) : null,
     comparison_top_deltas: comparison?.result_deltas.slice(0, 8) ?? [],
     comparison_professional_boundary: comparison?.professional_boundary ?? null,
+    persistence_evidence: persistenceEvidence,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     editor_intent_summary: editorIntentExportSummary(editorIntents),
     editor_operation_intents: editorIntents.map(editorIntentExport),
@@ -320,6 +358,117 @@ function reportExportPacket({
     protected_content_included: false,
     release_or_professional_claim: false
   };
+}
+
+function reportPersistenceEvidence({
+  model,
+  result,
+  analysisRun,
+  editorIntents,
+  projectOperation,
+  projectSummary,
+  proposal,
+  storageCapability
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  editorIntents: EditorOperationIntent[];
+  projectOperation: string;
+  projectSummary: LocalProjectSummary | null;
+  proposal: AgentProposal | null;
+  storageCapability: LocalStorageCapability | null;
+}) {
+  const run = analysisRun?.analysis_run;
+  const operationRecordCount = editorIntents.length + (proposal ? 1 : 0);
+  const mechanicsExportsReady = Boolean(result && run);
+  const storageMode = projectSummary?.storage_mode ?? "not_persisted_this_session";
+  const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
+  const versionCheckStatus =
+    model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
+  const readinessByExportId = {
+    project_storage_audit: "available",
+    project_validation_preflight: "available",
+    result_envelope: mechanicsExportsReady ? "available" : "pending_mechanics_run",
+    headless_runner_envelope: "available",
+    native_json_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",
+    report_packet: mechanicsExportsReady ? "available" : "pending_mechanics_run",
+    report_protected_content_lint: "available",
+    handoff_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",
+    operation_review_ledger: operationRecordCount > 0 ? "available" : "empty_operation_queue"
+  };
+  const availableCount = Object.values(readinessByExportId).filter((value) => value === "available").length;
+
+  return {
+    schema_version: "0.1.0",
+    document_kind: "openpipestress.technical_preview.report_persistence_export_context",
+    source_export_manifest_ref: "openpipestress.technical_preview.export_review_manifest",
+    storage_audit: {
+      document_kind: "openpipestress.technical_preview.local_project_persistence_audit",
+      deliverable_refs: ["DEL-02-05", "DEL-12-01", "DEL-12-02"],
+      project_ref: model.project.id,
+      persisted_project_ref: projectSummary?.project_id ?? "not_persisted_this_session",
+      last_operation: projectOperation,
+      storage_engine: storageCapability?.engine ?? "storage_check_pending",
+      storage_mode: storageMode,
+      pending_operation_count: editorIntents.length,
+      copied_external_files: Boolean(projectSummary?.copied_external_files),
+      accepted_model_state_mutated: false
+    },
+    validation_preflight: {
+      document_kind: "openpipestress.technical_preview.project_validation_preflight",
+      deliverable_refs: ["DEL-02-05", "DEL-12-01"],
+      validation_status: validationStatus,
+      version_check_status: versionCheckStatus,
+      migration_status: projectSummary?.migration_status ?? "not_persisted_this_session",
+      round_trip_status: "semantic_categories_declared",
+      accepted_model_state_mutated: false
+    },
+    export_inventory: {
+      expected_export_count: Object.keys(readinessByExportId).length,
+      available_count: availableCount,
+      readiness_by_export_id: readinessByExportId,
+      operation_record_count: operationRecordCount
+    },
+    boundary: {
+      export_scope: "local_browser_download_preview",
+      local_only_project_store: true,
+      repository_default_private_write: false,
+      external_file_copy_performed: Boolean(projectSummary?.copied_external_files),
+      network_required: Boolean(storageCapability?.network_required),
+      daemon_required: Boolean(storageCapability?.daemon_required),
+      telemetry_enabled: Boolean(storageCapability?.telemetry_enabled),
+      accepted_model_state_mutated: false,
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false
+    }
+  };
+}
+
+function formatPersistenceSummary(evidence: ReturnType<typeof reportPersistenceEvidence>): string {
+  return [
+    `storage=${evidence.storage_audit.storage_mode}`,
+    `validation=${evidence.validation_preflight.validation_status}`,
+    `round_trip=${evidence.validation_preflight.round_trip_status}`
+  ].join("; ");
+}
+
+function formatExportInventorySummary(evidence: ReturnType<typeof reportPersistenceEvidence>): string {
+  return [
+    `${evidence.export_inventory.available_count} of ${evidence.export_inventory.expected_export_count} local exports ready`,
+    `storage=${evidence.export_inventory.readiness_by_export_id.project_storage_audit}`,
+    `validation=${evidence.export_inventory.readiness_by_export_id.project_validation_preflight}`
+  ].join("; ");
+}
+
+function formatStorageBoundary(evidence: ReturnType<typeof reportPersistenceEvidence>): string {
+  return [
+    `network=${String(evidence.boundary.network_required)}`,
+    `telemetry=${String(evidence.boundary.telemetry_enabled)}`,
+    `private/protected payload=false`,
+    `accepted_state_mutated=${String(evidence.boundary.accepted_model_state_mutated)}`
+  ].join("; ");
 }
 
 function runAuditExport({

@@ -1,19 +1,26 @@
-import { AlertTriangle, Play, ShieldCheck } from "lucide-react";
-import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
+import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 
 export function SolvePanel({
+  analysisRun,
   model,
   result,
   running,
+  solveJob,
+  onCancel,
   onRun
 }: {
+  analysisRun: AnalysisRunEnvelope | null;
   model: PreviewModel;
   result: MechanicsResult | null;
   running: boolean;
+  solveJob: SolveJobAuditState;
+  onCancel: () => void;
   onRun: () => void;
 }) {
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
   const readinessItems = readinessSummary({ model, result, diagnostics });
+  const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running });
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
       <div className="panel-title">Execution</div>
@@ -27,9 +34,40 @@ export function SolvePanel({
           <ReadinessRow key={item.id} item={item} />
         ))}
       </section>
+      <div className="report-actions">
+        <a
+          className="report-export-link"
+          data-testid="solve-job-export-link"
+          download={`openpipestress-preview-solve-job-${safeFileToken(model.project.id)}.json`}
+          href={jsonDataHref(packet)}
+        >
+          <Download size={14} aria-hidden="true" />
+          Solve job JSON
+        </a>
+        <span data-testid="solve-job-summary">
+          state={packet.summary.job_state}; events={packet.summary.event_count}; result_rows=
+          {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
+        </span>
+      </div>
+      <div className="report-list solve-job-list" data-testid="solve-job-audit">
+        <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
+        <SolveLine label="Cancellation" value={cancellationSummary(packet)} testId="solve-job-cancellation" />
+        <SolveLine label="Result binding" value={resultBinding(packet)} testId="solve-job-binding" />
+        <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
+      </div>
       <button className="primary-action" data-testid="run-mechanics-preview" onClick={onRun} disabled={running} type="button">
         <Play size={16} />
         {running ? "Running preview" : "Run mechanics preview"}
+      </button>
+      <button
+        className="secondary-action"
+        data-testid="cancel-mechanics-preview"
+        disabled={!running}
+        onClick={onCancel}
+        type="button"
+      >
+        <Square size={15} aria-hidden="true" />
+        Cancel preview
       </button>
     </section>
   );
@@ -134,4 +172,133 @@ function formatStatus(value: string): string {
 
 function plural(label: string, count: number): string {
   return count === 1 ? label : `${label}s`;
+}
+
+function SolveLine({ label, value, testId }: { label: string; value: string; testId: string }) {
+  return (
+    <div className="report-line" data-testid={testId}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function buildSolveJobPacket({
+  model,
+  result,
+  analysisRun,
+  solveJob,
+  running
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  solveJob: SolveJobAuditState;
+  running: boolean;
+}) {
+  const run = analysisRun?.analysis_run;
+  const resultRowCount = result?.results.length ?? 0;
+  const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
+  return {
+    schema_version: "0.1.0",
+    document_kind: "openpipestress.technical_preview.solve_job_audit",
+    export_scope: "local_browser_download_preview",
+    deliverable_refs: ["DEL-07-07", "DEL-14-02", "DEL-04-06"],
+    scope_items: ["SOW-055", "SOW-072", "SOW-053"],
+    objectives: ["OBJ-006", "OBJ-007", "OBJ-016"],
+    project_ref: model.project.id,
+    job_id: solveJob.job_id,
+    summary: {
+      job_state: solveJob.state,
+      event_count: solveJob.events.length,
+      result_row_count: resultRowCount,
+      diagnostic_count: diagnosticsFor(model, result).length,
+      cancellation_requested: solveJob.cancellation_requested,
+      cancellation_status: solveJob.cancellation_status,
+      running
+    },
+    progress_contract: {
+      progress_basis: solveJob.progress_basis,
+      percentages_synthesized: solveJob.percentages_synthesized,
+      backend_percent_stream_available: solveJob.backend_percent_stream_available,
+      latest_event_state: solveJob.events[solveJob.events.length - 1]?.state ?? "not_started"
+    },
+    cancellation: {
+      request_control_visible: true,
+      request_enabled: running,
+      requested: solveJob.cancellation_requested,
+      status: solveJob.cancellation_status,
+      backend_cancellation_token: solveJob.backend_cancellation_token,
+      mutates_solver_process_directly: false,
+      cancellation_success_claimed: false
+    },
+    model_state_ref: run?.model_state_ref ?? null,
+    analysis_run_ref: run ? { object_type: "AnalysisRun", ref: run.run_id } : null,
+    run_kind: run?.run_kind ?? "not_started",
+    analysis_status: run?.analysis_status ?? [],
+    result_hash_count: resultHashCount,
+    hash_scopes: run?.hashes.map((item) => item.payload_scope) ?? [],
+    input_manifest_refs: run?.reproducibility.input_manifest_refs ?? [],
+    events: solveJob.events,
+    diagnostics: diagnosticsFor(model, result),
+    error_message: solveJob.error_message,
+    data_boundary: model.data_boundary,
+    private_payload_included: false,
+    protected_content_included: false,
+    release_or_professional_claim: false,
+    professional_boundary: professionalBoundary()
+  };
+}
+
+function diagnosticsFor(model: PreviewModel, result: MechanicsResult | null): Diagnostic[] {
+  return [...model.diagnostics, ...(result?.diagnostics ?? [])];
+}
+
+function progressSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  return `${packet.progress_contract.latest_event_state}; ${packet.progress_contract.progress_basis}; percentages_synthesized=${String(
+    packet.progress_contract.percentages_synthesized
+  )}`;
+}
+
+function cancellationSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  return [
+    `control_visible=${String(packet.cancellation.request_control_visible)}`,
+    `enabled=${String(packet.cancellation.request_enabled)}`,
+    `requested=${String(packet.cancellation.requested)}`,
+    `token=${packet.cancellation.backend_cancellation_token}`,
+    `success_claimed=${String(packet.cancellation.cancellation_success_claimed)}`
+  ].join("; ");
+}
+
+function resultBinding(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  if (!packet.analysis_run_ref || !packet.model_state_ref) return "not generated; result rows=0; hashes=0";
+  return `${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}; result rows=${packet.summary.result_row_count}; hashes=${packet.result_hash_count}`;
+}
+
+function boundarySummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  return [
+    `private payload=${String(packet.private_payload_included)}`,
+    `protected content=${String(packet.protected_content_included)}`,
+    `release/professional claim=${String(packet.release_or_professional_claim)}`,
+    "human review required"
+  ].join("; ");
+}
+
+function professionalBoundary() {
+  return {
+    human_review_required: true,
+    software_makes_compliance_claim: false,
+    software_makes_certification_claim: false,
+    software_makes_sealing_claim: false,
+    software_makes_approval_claim: false,
+    software_makes_authentication_claim: false
+  };
+}
+
+function jsonDataHref(payload: unknown): string {
+  return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
+}
+
+function safeFileToken(value: string): string {
+  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
