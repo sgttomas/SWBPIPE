@@ -162,6 +162,7 @@ function buildExportReviewManifest({
   const reviewGeometryReady = true;
   const pcfExportReady = true;
   const caepipeMbfExportReady = true;
+  const caepipeExternalRunReady = true;
   const exportAdapterSdkReady = true;
   const nativePackageReady = Boolean(result && analysisRun);
   const handoffReady = Boolean(result && analysisRun);
@@ -453,6 +454,37 @@ function buildExportReviewManifest({
         "Local CAEPIPE MBF smoke-subset review package with sidecar stable IDs, mandatory loss report, and carried TBDs for target version, record subset, and direct stable-ID carrier."
     },
     {
+      export_id: "caepipe_external_run_evidence",
+      label: "CAEPIPE external-run evidence",
+      document_kind: "openpipestress.technical_preview.caepipe_external_run_package",
+      readiness: caepipeExternalRunReady ? "available" : "pending_caepipe_external_run_boundary",
+      deliverable_refs: ["DEL-17-05", "DEL-17-04", "DEL-17-02", "DEL-17-01", "DEL-15-04"],
+      source_refs: result && run
+        ? [result.run_id, run.model_state_ref.ref, "caepipe-mbf:desktop-preview-del-17-04", model.project.id]
+        : ["caepipe-mbf:desktop-preview-del-17-04", model.project.id],
+      package_status: "parser_only_evidence",
+      mbf_package_ref: "caepipe-mbf:desktop-preview-del-17-04",
+      executable_path_state: "absent",
+      invocation_profile: "TBD-17-05-invocation-profile",
+      external_tool_invoked: false,
+      parser_status: "parsed_parser_only_fixture",
+      parser_row_count: 3,
+      parser_section_count: 2,
+      parser_correlation_status: "canonical_id_map",
+      validation_status: "boundary_checked",
+      schema_validation_status: "desktop_preview_shape_aligned_not_runtime_json_schema_validated",
+      caepipe_compatibility_claim: false,
+      solver_validation_claim: false,
+      code_compliance_claim: false,
+      professional_reliance_claim: false,
+      redaction_action: "parser_only_public_fixture_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Local CAEPIPE external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD."
+    },
+    {
       export_id: "export_adapter_sdk_registry",
       label: "Export adapter SDK registry",
       document_kind: "openpipestress.technical_preview.export_adapter_sdk_registry",
@@ -530,10 +562,11 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
         "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
         "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+        "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 11 : 10,
+      target_count: result && run ? 12 : 11,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -585,7 +618,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-10-01", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-10-01", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

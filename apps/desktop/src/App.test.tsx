@@ -430,6 +430,79 @@ describe("OpenPipeStress desktop preview", () => {
     expect(caepipeMbfPacket.professional_reliance_claim).toBe(false);
     const caepipeMbfTextHref = within(caepipeMbfExport).getByTestId("caepipe-mbf-text-link").getAttribute("href") ?? "";
     expect(decodeURIComponent(caepipeMbfTextHref.split(",", 2)[1])).toContain("LOAD_CASES");
+    const caepipeExternal = await screen.findByLabelText("CAEPIPE external harness");
+    expect(within(caepipeExternal).getByTestId("caepipe-external-summary").textContent).toContain("available");
+    expect(within(caepipeExternal).getByTestId("caepipe-external-summary").textContent).toContain(
+      "status=parser_only_evidence"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-summary").textContent).toContain("rows=3");
+    expect(within(caepipeExternal).getByTestId("caepipe-external-summary").textContent).toContain("sections=2");
+    expect(within(caepipeExternal).getByTestId("caepipe-external-summary").textContent).toContain(
+      "external_invoked=false"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-harness").textContent).toContain(
+      "config=absent"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-harness").textContent).toContain(
+      "TBD-17-05-invocation-profile"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-state-binding").textContent).toContain(
+      "del-17-04"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-state-binding").textContent).toContain(
+      "not generated"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-parser").textContent).toContain(
+      "parsed_parser_only_fixture"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-parser").textContent).toContain(
+      "correlation=canonical_id_map"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-boundary").textContent).toContain(
+      "compatibility=false"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-boundary").textContent).toContain(
+      "code_compliance=false"
+    );
+    const caepipeExternalHref =
+      within(caepipeExternal).getByTestId("caepipe-external-export-link").getAttribute("href") ?? "";
+    const caepipeExternalPacket = JSON.parse(decodeURIComponent(caepipeExternalHref.split(",", 2)[1]));
+    expect(caepipeExternalPacket.document_kind).toBe(
+      "openpipestress.technical_preview.caepipe_external_run_package"
+    );
+    expect(caepipeExternalPacket.deliverable_id).toBe("DEL-17-05");
+    expect(caepipeExternalPacket.package_id).toBe("PKG-17");
+    expect(caepipeExternalPacket.scope_items).toContain("SOW-030");
+    expect(caepipeExternalPacket.scope_items).toContain("SOW-046");
+    expect(caepipeExternalPacket.scope_items).toContain("SOW-075");
+    expect(caepipeExternalPacket.package_status).toBe("parser_only_evidence");
+    expect(caepipeExternalPacket.mbf_package_ref.ref).toContain("del-17-04");
+    expect(caepipeExternalPacket.executable_config.configured_path_state).toBe("absent");
+    expect(caepipeExternalPacket.executable_config.license_responsibility_acknowledged).toBe(false);
+    expect(caepipeExternalPacket.executable_config.environment_responsibility_acknowledged).toBe(false);
+    expect(caepipeExternalPacket.command_profile.profile_id).toBe("TBD-17-05-invocation-profile");
+    expect(caepipeExternalPacket.execution_result.attempted).toBe(false);
+    expect(caepipeExternalPacket.parser_coverage).toHaveLength(2);
+    expect(caepipeExternalPacket.parsed_csv.row_count).toBe(3);
+    expect(
+      caepipeExternalPacket.parsed_csv.rows.map((row: { correlation_status: string }) => row.correlation_status)
+    ).toEqual(["canonical_id_map", "canonical_id_map", "canonical_id_map"]);
+    expect(caepipeExternalPacket.csv_text).toContain("NODE_DISPLACEMENTS");
+    expect(caepipeExternalPacket.csv_text).toContain("ELEMENT_FORCES");
+    expect(caepipeExternalPacket.validation_report.validation_status).toBe("boundary_checked");
+    expect(caepipeExternalPacket.validation_report.checks.map((item: { check_id: string }) => item.check_id)).toContain(
+      "external_execution_not_attempted"
+    );
+    expect(caepipeExternalPacket.diagnostics).toHaveLength(0);
+    expect(caepipeExternalPacket.private_payload_included).toBe(false);
+    expect(caepipeExternalPacket.protected_content_included).toBe(false);
+    expect(caepipeExternalPacket.caepipe_compatibility_claim).toBe(false);
+    expect(caepipeExternalPacket.solver_validation_claim).toBe(false);
+    expect(caepipeExternalPacket.code_compliance_claim).toBe(false);
+    expect(caepipeExternalPacket.professional_reliance_claim).toBe(false);
+    const caepipeExternalCsvHref =
+      within(caepipeExternal).getByTestId("caepipe-external-csv-link").getAttribute("href") ?? "";
+    expect(decodeURIComponent(caepipeExternalCsvHref.split(",", 2)[1])).toContain("section,stable_id,target_id");
     const exportAdapterSdk = await screen.findByLabelText("Export adapter SDK");
     expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary").textContent).toContain("available");
     expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary").textContent).toContain("targets=5");
@@ -556,7 +629,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(buildReadinessPacket.boundary.code_compliance_claim).toBe(false);
     expect(buildReadinessPacket.boundary.professional_reliance_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=10");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=11");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -588,7 +661,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(10);
+    expect(lintPacket.lint_run.summary.target_count).toBe(11);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -616,7 +689,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "11 of 17 local exports ready"
+      "12 of 18 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -1061,7 +1134,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "17 of 17 local exports ready"
+      "18 of 18 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -1103,6 +1176,9 @@ describe("OpenPipeStress desktop preview", () => {
       "available"
     );
     expect(
+      within(exportReview).getByTestId("export-review-record-caepipe_external_run_evidence").textContent
+    ).toContain("available");
+    expect(
       within(exportReview).getByTestId("export-review-record-export_adapter_sdk_registry").textContent
     ).toContain("available");
     expect(within(exportReview).getByTestId("export-review-record-native_json_package").textContent).toContain(
@@ -1137,6 +1213,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-02");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-03");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-04");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-17-05");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-06");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-07");
     expect(reviewManifest.deliverable_refs).toContain("DEL-17-08");
@@ -1155,7 +1232,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.objectives).toContain("OBJ-008");
     expect(reviewManifest.objectives).toContain("OBJ-009");
     expect(reviewManifest.objectives).toContain("OBJ-017");
-    expect(reviewManifest.summary.available_count).toBe(17);
+    expect(reviewManifest.summary.available_count).toBe(18);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
       "project_storage_audit",
@@ -1169,6 +1246,7 @@ describe("OpenPipeStress desktop preview", () => {
       "review_geometry_export",
       "conservative_pcf_export",
       "caepipe_mbf_export",
+      "caepipe_external_run_evidence",
       "export_adapter_sdk_registry",
       "native_json_package",
       "report_packet",
@@ -1320,6 +1398,28 @@ describe("OpenPipeStress desktop preview", () => {
     expect(caepipeMbfExportRecord.solver_validation_claim).toBe(false);
     expect(caepipeMbfExportRecord.code_compliance_claim).toBe(false);
     expect(caepipeMbfExportRecord.professional_reliance_claim).toBe(false);
+    const caepipeExternalRecord = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "caepipe_external_run_evidence"
+    );
+    expect(caepipeExternalRecord.document_kind).toBe(
+      "openpipestress.technical_preview.caepipe_external_run_package"
+    );
+    expect(caepipeExternalRecord.deliverable_refs).toContain("DEL-17-05");
+    expect(caepipeExternalRecord.deliverable_refs).toContain("DEL-17-04");
+    expect(caepipeExternalRecord.package_status).toBe("parser_only_evidence");
+    expect(caepipeExternalRecord.mbf_package_ref).toContain("del-17-04");
+    expect(caepipeExternalRecord.executable_path_state).toBe("absent");
+    expect(caepipeExternalRecord.invocation_profile).toBe("TBD-17-05-invocation-profile");
+    expect(caepipeExternalRecord.external_tool_invoked).toBe(false);
+    expect(caepipeExternalRecord.parser_status).toBe("parsed_parser_only_fixture");
+    expect(caepipeExternalRecord.parser_row_count).toBe(3);
+    expect(caepipeExternalRecord.parser_section_count).toBe(2);
+    expect(caepipeExternalRecord.parser_correlation_status).toBe("canonical_id_map");
+    expect(caepipeExternalRecord.validation_status).toBe("boundary_checked");
+    expect(caepipeExternalRecord.caepipe_compatibility_claim).toBe(false);
+    expect(caepipeExternalRecord.solver_validation_claim).toBe(false);
+    expect(caepipeExternalRecord.code_compliance_claim).toBe(false);
+    expect(caepipeExternalRecord.professional_reliance_claim).toBe(false);
     const exportAdapterSdkRecord = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "export_adapter_sdk_registry"
     );
@@ -1350,7 +1450,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
     expect(lintExport.deliverable_refs).toContain("DEL-08-05");
-    expect(lintExport.target_count).toBe(11);
+    expect(lintExport.target_count).toBe(12);
     expect(lintExport.finding_count).toBe(0);
     expect(lintExport.blocking_finding_count).toBe(0);
     expect(lintExport.clean_scan_is_clearance).toBe(false);
@@ -2262,7 +2362,7 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_not_persisted"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
-      "16 of 17 local exports ready"
+      "17 of 18 local exports ready"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
@@ -2322,8 +2422,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
       "semantic_categories_declared"
     );
-    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(17);
-    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(16);
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(18);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(17);
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
       "available"
     );
@@ -2357,6 +2457,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.caepipe_mbf_export).toBe(
       "available"
     );
+    expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.caepipe_external_run_evidence).toBe(
+      "available"
+    );
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.export_adapter_sdk_registry).toBe(
       "available"
     );
@@ -2369,7 +2472,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=11");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=12");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -2379,8 +2482,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(11);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(11);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(12);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(12);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

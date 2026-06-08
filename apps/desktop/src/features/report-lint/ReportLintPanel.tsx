@@ -120,6 +120,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
           "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
           "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+          "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
           "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
           "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
           "fixtures/product_preview"
@@ -203,6 +204,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "CAEPIPE MBF export template records invented ASCII MBF preview text, sidecar stable IDs, mandatory loss report, carried target-version and record-subset TBDs, private payload false, protected payload false, external invocation false, and no target compatibility, solver validation, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-caepipe-external-template",
+      "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "CAEPIPE external harness template records parser-only invented CSV rows, absent executable configuration, external invocation false, user-owned live execution TBDs, private payload false, protected payload false, and no CAEPIPE compatibility, solver validation, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-export-adapter-sdk-template",

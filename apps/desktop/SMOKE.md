@@ -1114,3 +1114,42 @@ inventory carried `expected_export_count=17`, `available_count=16`, and
 `export_adapter_sdk_registry:available`; Report Content Lint reported
 `targets=11`, `findings=0`, and `blocking=0`. Captured browser console error
 entries were absent.
+
+TP-MAC-52 caepipe-external-harness-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T12:58:19.278Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, `python3 tests/test_caepipe_external_run_package.py`,
+`git diff --check`, and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new CAEPIPE External Harness panel
+reported `available`, `status=parser_only_evidence`, `rows=3`, `sections=2`,
+`external_invoked=false`, and `diagnostics=0`. The parsed harness JSON carried
+`document_kind=openpipestress.technical_preview.caepipe_external_run_package`,
+`DEL-17-05`, `PKG-17`, MBF reference
+`caepipe-mbf:desktop-preview-del-17-04:project-invented-loop-01`, absent
+executable configuration, false license and environment acknowledgements,
+`invocation=TBD-17-05-invocation-profile`, `mode=parser_only_not_invoked`,
+`attempted=false`, 2 parser coverage sections, 3 parsed CSV rows, 0 diagnostics,
+`validation_status=boundary_checked`, and false CAEPIPE-compatibility,
+solver-validation, code-compliance, professional-reliance, private-payload, and
+protected-content claim flags. The CSV download contained
+`NODE_DISPLACEMENTS`, `ELEMENT_FORCES`, and canonical ID map correlation rows.
+Export Safety Review initially reported `12 of 18 local exports ready`, and
+Report Content Lint reported `targets=11`, `findings=0`, and `blocking=0`.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; the CAEPIPE external
+harness bound to `analysis_run_ref=run:preview-linear-static-001` and
+`model_state_ref=state:project:invented-loop-01:preview` while retaining
+`status=parser_only_evidence`, `external_invoked=false`, and 0 diagnostics.
+Export Safety Review reported `17 of 18 local exports ready` because no
+operation review record was queued; the parsed export review manifest carried
+`available_count=17`, `DEL-17-05`, and
+`caepipe_external_run_evidence:available` with parser row count 3, parser
+section count 2, canonical ID map correlation, and false compatibility and
+code-compliance claim flags. The parsed report JSON persistence inventory
+carried `expected_export_count=18`, `available_count=17`, and
+`caepipe_external_run_evidence:available`; the operation review ledger remained
+empty; Report Content Lint reported `targets=12`, `findings=0`, and
+`blocking=0`. Captured browser console error entries were absent.
