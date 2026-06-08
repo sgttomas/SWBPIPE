@@ -86,7 +86,9 @@ export function ProjectValidationPanel({
             "version_check"
           )}; migrate=${operationStatus(packet.service_operations, "migrate")}; pending operations=${
             packet.summary.pending_operation_count
-          }; proposals=${packet.summary.proposal_operation_count}`}
+          }; proposals=${packet.summary.proposal_operation_count}; persisted proposals=${
+            packet.summary.persisted_proposal_count
+          }`}
           testId="project-validation-operations"
         />
         <ValidationLine
@@ -163,6 +165,7 @@ function buildProjectValidationPacket({
       pending_operation_count: pendingOperationCount,
       editor_intent_count: editorIntents.length,
       proposal_operation_count: proposalCount,
+      persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       accepted_model_state_mutated: false,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       network_required: Boolean(storageCapability?.network_required),

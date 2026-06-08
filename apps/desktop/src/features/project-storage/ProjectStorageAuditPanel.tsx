@@ -75,7 +75,9 @@ export function ProjectStorageAuditPanel({
           label="Project snapshot"
           value={`${packet.project_summary?.project_id ?? model.project.id}; ${
             packet.project_summary?.storage_mode ?? "not_persisted_this_session"
-          }; copied_external_files=${String(packet.summary.copied_external_files)}`}
+          }; persisted_proposals=${packet.summary.persisted_proposal_count}; copied_external_files=${String(
+            packet.summary.copied_external_files
+          )}`}
           testId="project-storage-snapshot"
         />
         <StorageLine
@@ -146,6 +148,7 @@ function buildProjectStorageAuditPacket({
       pending_operation_count: pendingOperationCount,
       editor_intent_count: editorIntents.length,
       proposal_operation_count: proposalCount,
+      persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       applied_operation_count: 0,
       accepted_model_state_mutated: false,
       network_required: Boolean(storageCapability?.network_required),

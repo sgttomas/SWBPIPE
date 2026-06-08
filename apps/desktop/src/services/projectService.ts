@@ -1,5 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { EditorOperationIntent, LocalProjectEnvelope, LocalStorageCapability, PreviewModel } from "../types";
+import type {
+  AgentProposal,
+  EditorOperationIntent,
+  LocalProjectEnvelope,
+  LocalStorageCapability,
+  PreviewModel
+} from "../types";
 
 let browserPreviewSnapshot: LocalProjectEnvelope | null = null;
 
@@ -22,7 +28,12 @@ function localOnlyCapability(): LocalStorageCapability {
   };
 }
 
-function envelope(model: PreviewModel, editorIntents: EditorOperationIntent[], message: string): LocalProjectEnvelope {
+function envelope(
+  model: PreviewModel,
+  editorIntents: EditorOperationIntent[],
+  proposal: AgentProposal | null,
+  message: string
+): LocalProjectEnvelope {
   const snapshot = cloneModel(model);
   return {
     summary: {
@@ -33,10 +44,12 @@ function envelope(model: PreviewModel, editorIntents: EditorOperationIntent[], m
       migration_status: "current",
       fts_indexed: false,
       copied_external_files: false,
+      proposal_count: proposal ? 1 : 0,
       message
     },
     model: snapshot,
-    editor_intents: cloneEditorIntents(editorIntents)
+    editor_intents: cloneEditorIntents(editorIntents),
+    proposal: cloneProposal(proposal)
   };
 }
 
@@ -44,7 +57,8 @@ function cloneEnvelope(project: LocalProjectEnvelope): LocalProjectEnvelope {
   return {
     summary: { ...project.summary },
     model: cloneModel(project.model),
-    editor_intents: cloneEditorIntents(project.editor_intents ?? [])
+    editor_intents: cloneEditorIntents(project.editor_intents ?? []),
+    proposal: cloneProposal(project.proposal)
   };
 }
 
@@ -56,6 +70,11 @@ function cloneEditorIntents(editorIntents: EditorOperationIntent[]): EditorOpera
   return JSON.parse(JSON.stringify(editorIntents)) as EditorOperationIntent[];
 }
 
+function cloneProposal(proposal: AgentProposal | null | undefined): AgentProposal | null {
+  if (!proposal) return null;
+  return JSON.parse(JSON.stringify(proposal)) as AgentProposal;
+}
+
 export async function getLocalStorageCapability(): Promise<LocalStorageCapability> {
   if (!hasTauriRuntime()) return localOnlyCapability();
   return invoke<LocalStorageCapability>("get_local_storage_capability");
@@ -63,17 +82,19 @@ export async function getLocalStorageCapability(): Promise<LocalStorageCapabilit
 
 export async function createLocalProject(
   model: PreviewModel,
-  editorIntents: EditorOperationIntent[] = []
+  editorIntents: EditorOperationIntent[] = [],
+  proposal: AgentProposal | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
       model,
       editorIntents,
+      proposal,
       "Created local browser-preview project snapshot without external file copies."
     );
     return cloneEnvelope(browserPreviewSnapshot);
   }
-  return invoke<LocalProjectEnvelope>("create_local_project", { model, editorIntents });
+  return invoke<LocalProjectEnvelope>("create_local_project", { model, editorIntents, proposal });
 }
 
 export async function openLocalProject(): Promise<LocalProjectEnvelope | null> {
@@ -88,12 +109,14 @@ export async function openLocalProject(): Promise<LocalProjectEnvelope | null> {
 
 export async function saveLocalProject(
   model: PreviewModel,
-  editorIntents: EditorOperationIntent[] = []
+  editorIntents: EditorOperationIntent[] = [],
+  proposal: AgentProposal | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
       model,
       editorIntents,
+      proposal,
       "Saved local browser-preview project snapshot without external file copies."
     );
     return cloneEnvelope(browserPreviewSnapshot);
@@ -103,7 +126,8 @@ export async function saveLocalProject(
       project_id: model.project.id,
       project_name: model.project.name,
       model,
-      editor_intents: editorIntents
+      editor_intents: editorIntents,
+      proposal
     }
   });
 }

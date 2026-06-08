@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { App } from "./App";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-64");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-65");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2432,6 +2432,151 @@ describe("OpenPipeStress desktop preview", () => {
       within(screen.getByLabelText("Editor operation intent")).getByTestId("editor-intent-queue").textContent
     ).toContain("editor-intent-1");
   });
+
+  it("round trips review-only proposal operations through local save and open", async () => {
+    render(<App />);
+
+    const runButton = await screen.findByRole("button", { name: /Run mechanics preview/i });
+    fireEvent.click(runButton);
+
+    expect(await screen.findByTestId("result-group-displacement", {}, { timeout: 10000 })).toBeInTheDocument();
+    const results = await screen.findByLabelText("Results");
+    fireEvent.change(within(results).getByTestId("result-filter-input"), {
+      target: { value: "torsional-shear" }
+    });
+    fireEvent.click(within(results).getByTestId("result-row-result:stress:pipe-P-120:end-j:torsional-shear"));
+
+    fireEvent.click(screen.getByRole("button", { name: /Generate review proposal/i }));
+    const proposalPanel = await screen.findByLabelText("Agentic proposal");
+    expect(await within(proposalPanel).findByText("proposal:physics-diagnostic-review")).toBeInTheDocument();
+    expect(within(proposalPanel).getByTestId("proposal-operation-summary").textContent).toContain(
+      "op:review-computed-diagnostic"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain(
+      "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
+    );
+
+    const controls = screen.getByLabelText("Local project controls");
+    fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+        "Saved local browser-preview project snapshot without external file copies."
+      )
+    );
+
+    const storageAudit = await screen.findByLabelText("Project storage audit");
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=save");
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "pending operations=1"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_proposals=1"
+    );
+    const savedStorageHref =
+      within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const savedStoragePacket = JSON.parse(decodeURIComponent(savedStorageHref.split(",", 2)[1]));
+    expect(savedStoragePacket.summary.pending_operation_count).toBe(1);
+    expect(savedStoragePacket.summary.proposal_operation_count).toBe(1);
+    expect(savedStoragePacket.summary.persisted_proposal_count).toBe(1);
+    expect(savedStoragePacket.project_summary.proposal_count).toBe(1);
+    expect(savedStoragePacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+
+    const projectValidation = await screen.findByLabelText("Project validation preflight");
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "persisted proposals=1"
+    );
+    const savedValidationHref =
+      within(projectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
+    const savedValidationPacket = JSON.parse(decodeURIComponent(savedValidationHref.split(",", 2)[1]));
+    expect(savedValidationPacket.summary.pending_operation_count).toBe(1);
+    expect(savedValidationPacket.summary.proposal_operation_count).toBe(1);
+    expect(savedValidationPacket.summary.persisted_proposal_count).toBe(1);
+    expect(savedValidationPacket.project_summary.proposal_count).toBe(1);
+    expect(savedValidationPacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+
+    fireEvent.click(within(controls).getByRole("button", { name: /Open local/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+        "Opened local browser-preview project snapshot."
+      )
+    );
+
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain(
+      "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
+    );
+    expect(await within(proposalPanel).findByText("proposal:physics-diagnostic-review")).toBeInTheDocument();
+    expect(within(proposalPanel).getByTestId("proposal-affected-entities").textContent).toContain(
+      "result:stress:pipe-P-120:end-j:torsional-shear"
+    );
+
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=open");
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "pending operations=1"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_proposals=1"
+    );
+    const openedStorageHref =
+      within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const openedStoragePacket = JSON.parse(decodeURIComponent(openedStorageHref.split(",", 2)[1]));
+    expect(openedStoragePacket.summary.last_operation).toBe("open");
+    expect(openedStoragePacket.summary.proposal_operation_count).toBe(1);
+    expect(openedStoragePacket.summary.persisted_proposal_count).toBe(1);
+    expect(openedStoragePacket.project_summary.proposal_count).toBe(1);
+    expect(openedStoragePacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+    expect(openedStoragePacket.review_operation_statuses).toContain("not_applied");
+
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "pending operations=1"
+    );
+    const openedValidationHref =
+      within(projectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
+    const openedValidationPacket = JSON.parse(decodeURIComponent(openedValidationHref.split(",", 2)[1]));
+    expect(openedValidationPacket.summary.last_operation).toBe("open");
+    expect(openedValidationPacket.summary.proposal_operation_count).toBe(1);
+    expect(openedValidationPacket.summary.persisted_proposal_count).toBe(1);
+    expect(openedValidationPacket.project_summary.proposal_count).toBe(1);
+    expect(openedValidationPacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+
+    const operationLedger = await screen.findByLabelText("Operation review ledger");
+    expect(await within(operationLedger).findByTestId("operation-ledger-export-summary")).toHaveTextContent(
+      "1 review record"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-state-binding").textContent).toContain(
+      "not generated"
+    );
+    expect(
+      within(operationLedger).getByTestId("operation-ledger-record-op-review-computed-diagnostic").textContent
+    ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
+
+    const exportReview = await screen.findByLabelText("Export safety review");
+    const openedReviewHref = within(exportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
+    const openedReviewManifest = JSON.parse(decodeURIComponent(openedReviewHref.split(",", 2)[1]));
+    expect(openedReviewManifest.summary.operation_record_count).toBe(1);
+    expect(
+      openedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .proposal_operation_count
+    ).toBe(1);
+    expect(
+      openedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .persisted_proposal_count
+    ).toBe(1);
+    expect(
+      openedReviewManifest.exports.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).proposal_operation_count
+    ).toBe(1);
+    expect(
+      openedReviewManifest.exports.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).persisted_proposal_count
+    ).toBe(1);
+    expect(
+      openedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
+        .readiness
+    ).toBe("available");
+  }, 10000);
 
   it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
     render(<App />);

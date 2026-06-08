@@ -1678,3 +1678,44 @@ Validation Preflight returned to `pending_operation_count=0` and
 `proposal_operation_count=0`, proposal refs were empty, and Export Safety
 Review reported `operation_review_ledger:empty_operation_queue`. Captured
 browser console error entries were absent.
+
+TP-MAC-65 proposal-local-project-roundtrip smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T11:57:00-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `cargo test --manifest-path
+apps/desktop/src-tauri/Cargo.toml`, `PYTHONDONTWRITEBYTECODE=1 python3 -m
+pytest tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py`, and direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`
+before closeout.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-65`. After running preview mechanics,
+selecting `result:stress:pipe-P-120:end-j:torsional-shear`, generating
+`proposal:physics-diagnostic-review`, and choosing `Save local`, the local
+project review context reported `1 pending operation; applied=false;
+editor_intents=0; agent_proposals=1`. Project Storage Audit reported
+`operation=save`, `pending operations=1`, `proposals=1`, and snapshot
+`persisted_proposals=1`; its JSON carried `pending_operation_count=1`,
+`proposal_operation_count=1`, `persisted_proposal_count=1`,
+`project_summary.proposal_count=1`, and proposal ref
+`proposal:physics-diagnostic-review`. Project Validation Preflight carried the
+same proposal and persisted-proposal counts, and Export Safety Review reported
+`operation_record_count=1`.
+
+After choosing `Open local`, the proposal body still rendered
+`proposal:physics-diagnostic-review`, the affected entity remained
+`result:stress:pipe-P-120:end-j:torsional-shear`, and the mechanics job state
+returned to `state=not_started` without clearing the pending proposal. The
+local project review context still reported `1 pending operation; applied=false;
+editor_intents=0; agent_proposals=1`. Project Storage Audit reported
+`operation=open`, `pending operations=1`, `proposals=1`, and
+`persisted_proposals=1`; Project Validation Preflight reported
+`pending operations=1`, `proposals=1`, and `persisted proposals=1`. The
+Operation Review Ledger reported `1 review record` with state binding
+`not generated`, and Export Safety Review kept `operation_record_count=1`
+with `project_storage_audit`, `project_validation_preflight`, and
+`operation_review_ledger` all carrying the expected proposal/persisted counts
+or available readiness. Captured browser console error entries were absent.

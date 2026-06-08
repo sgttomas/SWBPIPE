@@ -428,6 +428,7 @@ export type LocalProjectSummary = {
   migration_status: "current" | string;
   fts_indexed: boolean;
   copied_external_files: boolean;
+  proposal_count: number;
   message: string;
 };
 
@@ -435,4 +436,5 @@ export type LocalProjectEnvelope = {
   summary: LocalProjectSummary;
   model: PreviewModel;
   editor_intents: EditorOperationIntent[];
+  proposal: AgentProposal | null;
 };

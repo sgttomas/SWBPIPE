@@ -54,6 +54,7 @@ struct LocalProjectSummary {
     migration_status: &'static str,
     fts_indexed: bool,
     copied_external_files: bool,
+    proposal_count: usize,
     message: String,
 }
 
@@ -62,6 +63,7 @@ struct LocalProjectEnvelope {
     summary: LocalProjectSummary,
     model: Value,
     editor_intents: Value,
+    proposal: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -71,6 +73,8 @@ struct SaveLocalProjectRequest {
     model: Value,
     #[serde(default)]
     editor_intents: Value,
+    #[serde(default)]
+    proposal: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -105,6 +109,7 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
                 project_name TEXT NOT NULL,
                 model_json TEXT NOT NULL,
                 editor_intents_json TEXT NOT NULL DEFAULT '[]',
+                proposal_json TEXT NOT NULL DEFAULT 'null',
                 created_at_unix INTEGER NOT NULL,
                 updated_at_unix INTEGER NOT NULL
             );
@@ -116,10 +121,23 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
             ",
         )
         .map_err(|error| error.to_string())?;
-    ensure_editor_intents_column(connection)
+    ensure_column(
+        connection,
+        "editor_intents_json",
+        "ALTER TABLE local_projects ADD COLUMN editor_intents_json TEXT NOT NULL DEFAULT '[]'",
+    )?;
+    ensure_column(
+        connection,
+        "proposal_json",
+        "ALTER TABLE local_projects ADD COLUMN proposal_json TEXT NOT NULL DEFAULT 'null'",
+    )
 }
 
-fn ensure_editor_intents_column(connection: &Connection) -> Result<(), String> {
+fn ensure_column(
+    connection: &Connection,
+    column_name: &str,
+    alter_sql: &str,
+) -> Result<(), String> {
     let mut statement = connection
         .prepare("PRAGMA table_info(local_projects)")
         .map_err(|error| error.to_string())?;
@@ -128,15 +146,9 @@ fn ensure_editor_intents_column(connection: &Connection) -> Result<(), String> {
         .map_err(|error| error.to_string())?
         .collect::<Result<Vec<_>, _>>()
         .map_err(|error| error.to_string())?;
-    if !column_names
-        .iter()
-        .any(|name| name == "editor_intents_json")
-    {
+    if !column_names.iter().any(|name| name == column_name) {
         connection
-            .execute(
-                "ALTER TABLE local_projects ADD COLUMN editor_intents_json TEXT NOT NULL DEFAULT '[]'",
-                [],
-            )
+            .execute(alter_sql, [])
             .map_err(|error| error.to_string())?;
     }
     Ok(())
@@ -200,11 +212,13 @@ fn upsert_project(
     project_name: &str,
     model: &Value,
     editor_intents: &Value,
+    proposal: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
         serde_json::to_string(editor_intents).map_err(|error| error.to_string())?;
-    let search_text = format!("{model_json}\n{editor_intents_json}");
+    let proposal_json = serde_json::to_string(proposal).map_err(|error| error.to_string())?;
+    let search_text = format!("{model_json}\n{editor_intents_json}\n{proposal_json}");
     let now = now_unix_seconds()?;
     let transaction = connection
         .transaction()
@@ -212,15 +226,23 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?5)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
                 editor_intents_json = excluded.editor_intents_json,
+                proposal_json = excluded.proposal_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
-            params![project_id, project_name, model_json, editor_intents_json, now],
+            params![
+                project_id,
+                project_name,
+                model_json,
+                editor_intents_json,
+                proposal_json,
+                now
+            ],
         )
         .map_err(|error| error.to_string())?;
     transaction
@@ -244,12 +266,12 @@ fn upsert_project(
 fn load_project(
     connection: &Connection,
     project_id: Option<&str>,
-) -> Result<Option<(String, String, Value, Value)>, String> {
+) -> Result<Option<(String, String, Value, Value, Value)>, String> {
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -260,6 +282,7 @@ fn load_project(
                         row.get::<_, String>(1)?,
                         row.get::<_, String>(2)?,
                         row.get::<_, String>(3)?,
+                        row.get::<_, String>(4)?,
                     ))
                 },
             )
@@ -268,7 +291,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -280,19 +303,24 @@ fn load_project(
                         row.get::<_, String>(1)?,
                         row.get::<_, String>(2)?,
                         row.get::<_, String>(3)?,
+                        row.get::<_, String>(4)?,
                     ))
                 },
             )
             .optional()
             .map_err(|error| error.to_string())?,
     };
-    row.map(|(id, name, model_json, editor_intents_json)| {
-        let model =
-            serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
-        let editor_intents = serde_json::from_str::<Value>(&editor_intents_json)
-            .map_err(|error| error.to_string())?;
-        Ok((id, name, model, editor_intents))
-    })
+    row.map(
+        |(id, name, model_json, editor_intents_json, proposal_json)| {
+            let model =
+                serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
+            let editor_intents = serde_json::from_str::<Value>(&editor_intents_json)
+                .map_err(|error| error.to_string())?;
+            let proposal =
+                serde_json::from_str::<Value>(&proposal_json).map_err(|error| error.to_string())?;
+            Ok((id, name, model, editor_intents, proposal))
+        },
+    )
     .transpose()
 }
 
@@ -303,10 +331,26 @@ fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
     }
 }
 
+fn normalized_proposal(proposal: Option<Value>) -> Value {
+    match proposal {
+        Some(value) if value.is_object() => value,
+        _ => Value::Null,
+    }
+}
+
+fn proposal_count(proposal: &Value) -> usize {
+    if proposal.is_object() {
+        1
+    } else {
+        0
+    }
+}
+
 fn project_summary(
     project_id: String,
     project_name: String,
     database_path: PathBuf,
+    proposal: &Value,
     message: String,
 ) -> LocalProjectSummary {
     LocalProjectSummary {
@@ -317,6 +361,7 @@ fn project_summary(
         migration_status: "current",
         fts_indexed: true,
         copied_external_files: false,
+        proposal_count: proposal_count(proposal),
         message,
     }
 }
@@ -473,28 +518,33 @@ fn create_local_project(
     app: AppHandle,
     model: Value,
     editor_intents: Option<Value>,
+    proposal: Option<Value>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let mut connection = open_project_store(&path)?;
     let project_id = project_id_from_model(&model);
     let project_name = project_name_from_model(&model);
     let editor_intents = normalized_editor_intents(editor_intents);
+    let proposal = normalized_proposal(proposal);
     upsert_project(
         &mut connection,
         &project_id,
         &project_name,
         &model,
         &editor_intents,
+        &proposal,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             project_id,
             project_name,
             path,
+            &proposal,
             "Created local SQLite project snapshot without external file copies.".to_string(),
         ),
         model,
         editor_intents,
+        proposal,
     })
 }
 
@@ -506,16 +556,18 @@ fn open_local_project(
     let path = app_store_path(&app)?;
     let connection = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
-        .map(|(id, name, model, editor_intents)| {
+        .map(|(id, name, model, editor_intents, proposal)| {
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
                     id,
                     name,
                     path.clone(),
+                    &proposal,
                     "Opened local SQLite project snapshot.".to_string(),
                 ),
                 model,
                 editor_intents,
+                proposal,
             })
         })
         .transpose()
@@ -528,22 +580,27 @@ fn save_local_project(
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let mut connection = open_project_store(&path)?;
+    let editor_intents = normalized_editor_intents(Some(request.editor_intents));
+    let proposal = normalized_proposal(Some(request.proposal));
     upsert_project(
         &mut connection,
         &request.project_id,
         &request.project_name,
         &request.model,
-        &normalized_editor_intents(Some(request.editor_intents.clone())),
+        &editor_intents,
+        &proposal,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
             request.project_id,
             request.project_name,
             path,
+            &proposal,
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
         model: request.model,
-        editor_intents: normalized_editor_intents(Some(request.editor_intents)),
+        editor_intents,
+        proposal,
     })
 }
 
@@ -596,12 +653,29 @@ mod tests {
                 }
             }
         ]);
+        let proposal = json!({
+            "proposal_id": "proposal:physics-diagnostic-review",
+            "operation": {
+                "operation_id": "op:review-computed-diagnostic",
+                "operation_status": "draft_user_review_required"
+            },
+            "validation": {
+                "application_status": "not_applied"
+            },
+            "audit_boundary": {
+                "mutates_accepted_model_state": false
+            },
+            "professional_boundary": {
+                "software_makes_compliance_claim": false
+            }
+        });
         upsert_project(
             &mut connection,
             "project:test-local",
             "Test Local Project",
             &model,
             &editor_intents,
+            &proposal,
         )
         .expect("project snapshot saves");
 
@@ -612,6 +686,7 @@ mod tests {
         assert_eq!(loaded.1, "Test Local Project");
         assert_eq!(loaded.2, model);
         assert_eq!(loaded.3, editor_intents);
+        assert_eq!(loaded.4, proposal);
         assert_eq!(
             loaded.3[0]["validation"]["application_status"],
             json!("not_applied")
@@ -624,6 +699,18 @@ mod tests {
             loaded.3[0]["professional_boundary"]["software_makes_compliance_claim"],
             json!(false)
         );
+        assert_eq!(
+            loaded.4["operation"]["operation_id"],
+            json!("op:review-computed-diagnostic")
+        );
+        assert_eq!(
+            loaded.4["validation"]["application_status"],
+            json!("not_applied")
+        );
+        assert_eq!(
+            loaded.4["audit_boundary"]["mutates_accepted_model_state"],
+            json!(false)
+        );
 
         let indexed_count: i64 = connection
             .query_row(
@@ -633,6 +720,14 @@ mod tests {
             )
             .expect("fts5 query succeeds");
         assert_eq!(indexed_count, 1);
+        let proposal_indexed_count: i64 = connection
+            .query_row(
+                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
+                params!["review"],
+                |row| row.get(0),
+            )
+            .expect("fts5 proposal query succeeds");
+        assert_eq!(proposal_indexed_count, 1);
     }
 
     #[test]
