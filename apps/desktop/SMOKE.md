@@ -1823,3 +1823,38 @@ carried it on both the `project_storage_audit` and
 `result:stress:pipe-P-120:end-j:torsional-shear`. Private payload, protected
 content, release, and professional-claim flags stayed false where checked.
 Captured browser console error entries were absent.
+
+TP-MAC-69 native-package-persisted-review-context smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-69-1780943398019` with timestamp marker
+`2026-06-08T18:29:57.988Z`. The local validation run for this tranche passed
+focused `npm test --workspace apps/desktop -- --run App.test.tsx -t "round
+trips review-only proposal operations through local save and open|renders the
+engineering workspace from invented local fixtures"`, full
+`npm test --workspace apps/desktop`, `npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`,
+`PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py
+tests/security/test_local_first_storage_policy.py`, and direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-69`. After running preview mechanics,
+selecting `result:stress:pipe-P-120:end-j:torsional-shear`, generating
+`proposal:physics-diagnostic-review`, and choosing `Save local`, the Native
+JSON Package panel reported `ready`, `members=9`, `entities=19`,
+`results=647`, and `operations=1`. Its visible persisted review-context line
+reported `editor_intents=0`, `proposals=1`, `selected_targets=1`, and
+`selected_ref=result: result:stress:pipe-P-120:end-j:torsional-shear`. The
+parsed native package JSON carried the same persisted review-context fields in
+`source_project.storage_summary`, `operation_review.persisted_review_context`,
+and `generation_context`, and included the validation check `persisted local
+project review-context summary carried when available`. The package preserved
+`selected_review_target` as the selected stress result, kept
+`accepted_model_state_mutated=false`, `network_required=false`,
+`telemetry_enabled=false`, and retained false private-payload,
+protected-content, release/professional-claim, code-compliance-claim, and
+software-approval-claim flags. Captured browser console error entries after
+the timestamp marker were absent.

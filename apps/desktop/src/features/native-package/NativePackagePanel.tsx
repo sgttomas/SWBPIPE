@@ -108,6 +108,11 @@ export function NativePackagePanel({
               testId="native-package-storage"
             />
             <PackageLine
+              label="Persisted review context"
+              value={`editor_intents=${packet.source_project.storage_summary.editor_intent_count}; proposals=${packet.source_project.storage_summary.proposal_count}; selected_targets=${packet.source_project.storage_summary.selected_review_target_count}; selected_ref=${packet.source_project.storage_summary.selected_review_target_ref}`}
+              testId="native-package-persisted-review-context"
+            />
+            <PackageLine
               label="Boundary"
               value={nativePackageBoundary(packet)}
               testId="native-package-boundary"
@@ -207,12 +212,20 @@ export function buildNativePackageReview({
         ? {
             storage_mode: projectSummary.storage_mode,
             migration_status: projectSummary.migration_status,
-            copied_external_files: projectSummary.copied_external_files
+            copied_external_files: projectSummary.copied_external_files,
+            editor_intent_count: projectSummary.editor_intent_count,
+            proposal_count: projectSummary.proposal_count,
+            selected_review_target_count: projectSummary.selected_review_target_count,
+            selected_review_target_ref: projectSummary.selected_review_target_ref
           }
         : {
             storage_mode: "not_persisted_this_session",
             migration_status: "TBD",
-            copied_external_files: false
+            copied_external_files: false,
+            editor_intent_count: 0,
+            proposal_count: 0,
+            selected_review_target_count: 0,
+            selected_review_target_ref: "not_selected"
           }
     },
     manifest: {
@@ -247,6 +260,12 @@ export function buildNativePackageReview({
       record_count: operationRefs.length,
       editor_intent_count: editorIntents.length,
       proposal_count: proposal ? 1 : 0,
+      persisted_review_context: {
+        editor_intent_count: projectSummary?.editor_intent_count ?? 0,
+        proposal_count: projectSummary?.proposal_count ?? 0,
+        selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
+        selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected"
+      },
       held_for_user_acceptance_count: operationRefs.length,
       accepted_count: 0,
       rejected_count: 0,
@@ -310,6 +329,7 @@ export function buildNativePackageReview({
         "package member paths declared",
         "stable entity/result/operation refs declared",
         "review-only operation refs declared when present",
+        "persisted local project review-context summary carried when available",
         "loss report uses exported/omitted/approximated/delegated/unsupported/tbd categories",
         "analysis run hash refs carried when available",
         "private/protected/release/professional claim flags are false"
@@ -325,6 +345,10 @@ export function buildNativePackageReview({
       telemetry_enabled: storageCapability?.telemetry_enabled ?? false,
       fts5_available: storageCapability?.fts5_available ?? false,
       external_file_copy: projectSummary?.copied_external_files ?? false,
+      persisted_editor_intent_count: projectSummary?.editor_intent_count ?? 0,
+      persisted_proposal_count: projectSummary?.proposal_count ?? 0,
+      persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
+      persisted_selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected",
       repository_default_private_write: false,
       runtime_timestamp_omitted: true
     },
