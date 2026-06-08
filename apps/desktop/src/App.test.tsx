@@ -197,6 +197,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterPacket.operation_result.privacy.telemetry_allowed).toBe(false);
     expect(adapterPacket.operation_result.professional_boundary.software_makes_compliance_claim).toBe(false);
     expect(adapterPacket.operation_result.professional_boundary.software_makes_security_certification_claim).toBe(false);
+    const localFea = await screen.findByLabelText("Local FEA handoff");
+    expect(within(localFea).getByTestId("local-fea-empty").textContent).toContain("target-neutral local shell/solid FEA");
+    expect(localFea.textContent).toContain("no mesh");
+    expect(localFea.textContent).toContain("external solver");
     const externalProver = await screen.findByLabelText("External prover boundary metadata");
     expect(within(externalProver).getByTestId("external-prover-summary").textContent).toContain("available");
     expect(within(externalProver).getByTestId("external-prover-summary").textContent).toContain(
@@ -629,7 +633,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(buildReadinessPacket.boundary.code_compliance_claim).toBe(false);
     expect(buildReadinessPacket.boundary.professional_reliance_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=11");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=12");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -661,7 +665,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(11);
+    expect(lintPacket.lint_run.summary.target_count).toBe(12);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -689,7 +693,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "12 of 18 local exports ready"
+      "12 of 19 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -1134,7 +1138,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "18 of 18 local exports ready"
+      "19 of 19 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -1161,6 +1165,9 @@ describe("OpenPipeStress desktop preview", () => {
       "available"
     );
     expect(within(exportReview).getByTestId("export-review-record-adapter_framework_envelope").textContent).toContain(
+      "available"
+    );
+    expect(within(exportReview).getByTestId("export-review-record-local_fea_handoff_package").textContent).toContain(
       "available"
     );
     expect(
@@ -1207,6 +1214,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.deliverable_refs).toContain("DEL-02-04");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-01");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-02");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-10-03");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-04");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-05");
     expect(reviewManifest.deliverable_refs).toContain("DEL-15-04");
@@ -1227,12 +1235,14 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.scope_items).toContain("SOW-054");
     expect(reviewManifest.scope_items).toContain("SOW-032");
     expect(reviewManifest.scope_items).toContain("SOW-030");
+    expect(reviewManifest.scope_items).toContain("SOW-031");
+    expect(reviewManifest.scope_items).toContain("SOW-049");
     expect(reviewManifest.scope_items).toContain("SOW-075");
     expect(reviewManifest.objectives).toContain("OBJ-002");
     expect(reviewManifest.objectives).toContain("OBJ-008");
     expect(reviewManifest.objectives).toContain("OBJ-009");
     expect(reviewManifest.objectives).toContain("OBJ-017");
-    expect(reviewManifest.summary.available_count).toBe(18);
+    expect(reviewManifest.summary.available_count).toBe(19);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
       "project_storage_audit",
@@ -1242,6 +1252,7 @@ describe("OpenPipeStress desktop preview", () => {
       "stress_neutral_csv_json_package",
       "headless_runner_envelope",
       "adapter_framework_envelope",
+      "local_fea_handoff_package",
       "external_prover_boundary_metadata",
       "review_geometry_export",
       "conservative_pcf_export",
@@ -1323,6 +1334,28 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterExport.external_format_list).toBe("TBD");
     expect(adapterExport.public_transport_protocol).toBe("TBD");
     expect(adapterExport.plugin_runtime).toBe("TBD");
+    const localFeaExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "local_fea_handoff_package"
+    );
+    expect(localFeaExport.document_kind).toBe("openpipestress.technical_preview.local_fea_handoff_package");
+    expect(localFeaExport.deliverable_refs).toContain("DEL-10-03");
+    expect(localFeaExport.contract_kind).toBe("schema_first_local_fea_handoff_contract");
+    expect(localFeaExport.global_analysis_role).toBe("primary_global_centerline_frame_model");
+    expect(localFeaExport.local_analysis_role).toBe("optional_specialized_shell_solid_handoff");
+    expect(localFeaExport.package_kind).toBe("local_shell_solid_fea_handoff");
+    expect(localFeaExport.selected_region_basis).toBe("diagnostic_suggested");
+    expect(localFeaExport.guidance_label_count).toBe(4);
+    expect(localFeaExport.unsupported_behavior_flag_count).toBe(5);
+    expect(localFeaExport.diagnostic_count).toBe(4);
+    expect(localFeaExport.selected_result_ref_count).toBe(5);
+    expect(localFeaExport.concrete_export_format).toBe("TBD");
+    expect(localFeaExport.target_solver_adapter).toBe("TBD");
+    expect(localFeaExport.mesh_generation).toBe("TBD");
+    expect(localFeaExport.external_solver_invocation).toBe("TBD");
+    expect(localFeaExport.transfer_method_label).toBe("result_reference_only");
+    expect(localFeaExport.human_review_required).toBe(true);
+    expect(localFeaExport.software_makes_compliance_claim).toBe(false);
+    expect(localFeaExport.software_makes_approval_claim).toBe(false);
     const externalProverExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "external_prover_boundary_metadata"
     );
@@ -1450,7 +1483,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
     expect(lintExport.deliverable_refs).toContain("DEL-08-05");
-    expect(lintExport.target_count).toBe(12);
+    expect(lintExport.target_count).toBe(13);
     expect(lintExport.finding_count).toBe(0);
     expect(lintExport.blocking_finding_count).toBe(0);
     expect(lintExport.clean_scan_is_clearance).toBe(false);
@@ -1934,6 +1967,74 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterPacket.operation_result.privacy.local_first).toBe(true);
     expect(adapterPacket.operation_result.privacy.private_payload_redacted).toBe(true);
     expect(adapterPacket.operation_result.professional_boundary.software_makes_security_certification_claim).toBe(false);
+    const localFea = await screen.findByLabelText("Local FEA handoff");
+    expect(within(localFea).getByTestId("local-fea-summary").textContent).toContain("available");
+    expect(within(localFea).getByTestId("local-fea-summary").textContent).toContain("labels=4");
+    expect(within(localFea).getByTestId("local-fea-summary").textContent).toContain("flags=5");
+    expect(within(localFea).getByTestId("local-fea-summary").textContent).toContain("diagnostics=4");
+    expect(within(localFea).getByTestId("local-fea-contract").textContent).toContain(
+      "schema_first_local_fea_handoff_contract"
+    );
+    expect(within(localFea).getByTestId("local-fea-contract").textContent).toContain("format=TBD");
+    expect(within(localFea).getByTestId("local-fea-state-binding").textContent).toContain(
+      "state:project:invented-loop-01:preview"
+    );
+    expect(within(localFea).getByTestId("local-fea-state-binding").textContent).toContain(
+      "result-envelope:run:preview-linear-static-001"
+    );
+    expect(within(localFea).getByTestId("local-fea-region").textContent).toContain("basis=diagnostic_suggested");
+    expect(within(localFea).getByTestId("local-fea-region").textContent).toContain("elements=2");
+    expect(within(localFea).getByTestId("local-fea-transfer").textContent).toContain(
+      "method=result_reference_only"
+    );
+    expect(within(localFea).getByTestId("local-fea-transfer").textContent).toContain("loads=3");
+    expect(within(localFea).getByTestId("local-fea-unsupported").textContent).toContain(
+      "mesh_generation_not_performed"
+    );
+    expect(within(localFea).getByTestId("local-fea-unsupported").textContent).toContain(
+      "external_solver_not_invoked"
+    );
+    expect(within(localFea).getByTestId("local-fea-boundary").textContent).toContain("human_review=true");
+    expect(within(localFea).getByTestId("local-fea-boundary").textContent).toContain("compliance=false");
+    const localFeaHref = within(localFea).getByTestId("local-fea-export-link").getAttribute("href") ?? "";
+    const localFeaPacket = JSON.parse(decodeURIComponent(localFeaHref.split(",", 2)[1]));
+    expect(localFeaPacket.deliverable_id).toBe("DEL-10-03");
+    expect(localFeaPacket.package_id).toBe("PKG-10");
+    expect(localFeaPacket.scope_items).toContain("SOW-031");
+    expect(localFeaPacket.scope_items).toContain("SOW-049");
+    expect(localFeaPacket.objective).toBe("OBJ-009");
+    expect(localFeaPacket.contract_status.global_analysis_role).toBe("primary_global_centerline_frame_model");
+    expect(localFeaPacket.contract_status.local_analysis_role).toBe("optional_specialized_shell_solid_handoff");
+    expect(localFeaPacket.contract_status.concrete_export_format).toBe("TBD");
+    expect(localFeaPacket.contract_status.mesh_generation).toBe("TBD");
+    expect(localFeaPacket.contract_status.external_solver_invocation).toBe("TBD");
+    expect(localFeaPacket.contract_status.professional_decision).toBe("human_review_required");
+    expect(localFeaPacket.handoff_package.package_kind).toBe("local_shell_solid_fea_handoff");
+    expect(localFeaPacket.handoff_package.source_refs.global_model_kind).toBe("centerline_frame_global_analysis");
+    expect(localFeaPacket.handoff_package.local_region.selection_basis).toBe("diagnostic_suggested");
+    expect(localFeaPacket.handoff_package.local_region.selected_entity_ids.element_ids).toContain("pipe:P-120");
+    expect(localFeaPacket.handoff_package.local_region.selected_entity_ids.element_ids).toContain("pipe:P-130");
+    expect(localFeaPacket.handoff_package.entity_ids.result_ids).toContain("result:force:pipe-P-120:axial");
+    expect(localFeaPacket.handoff_package.entity_ids.result_ids).toContain(
+      "result:stress:pipe-P-120:end-j:torsional-shear"
+    );
+    expect(localFeaPacket.handoff_package.units_manifest.dimension_basis).toBe("schemas/units.schema.yaml");
+    expect(localFeaPacket.handoff_package.transfer_basis.transfer_method_label).toBe("result_reference_only");
+    expect(localFeaPacket.handoff_package.guidance_assessment.labels).toContain("human_review_required");
+    expect(localFeaPacket.handoff_package.guidance_assessment.labels).toContain(
+      "global_to_local_transfer_inputs_incomplete"
+    );
+    expect(localFeaPacket.handoff_package.unsupported_behavior_flags.map((item: { behavior_label: string }) => item.behavior_label)).toContain(
+      "target_format_not_selected"
+    );
+    expect(localFeaPacket.handoff_package.diagnostics.map((item: { code: string }) => item.code)).toContain(
+      "LOCAL-FEA-EXTERNAL-SOLVER-NOT-INVOKED"
+    );
+    expect(localFeaPacket.handoff_package.privacy.local_only).toBe(true);
+    expect(localFeaPacket.handoff_package.privacy.telemetry_allowed).toBe(false);
+    expect(localFeaPacket.handoff_package.privacy.private_payload_embedded).toBe(false);
+    expect(localFeaPacket.handoff_package.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(localFeaPacket.handoff_package.professional_boundary.software_makes_authentication_claim).toBe(false);
     const nativePackage = await screen.findByLabelText("Native JSON package");
     expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("ready");
     expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("members=9");
@@ -2362,7 +2463,7 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_not_persisted"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
-      "17 of 18 local exports ready"
+      "18 of 19 local exports ready"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
@@ -2422,8 +2523,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
       "semantic_categories_declared"
     );
-    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(18);
-    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(17);
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(19);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(18);
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
       "available"
     );
@@ -2443,6 +2544,9 @@ describe("OpenPipeStress desktop preview", () => {
       "available"
     );
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.adapter_framework_envelope).toBe(
+      "available"
+    );
+    expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.local_fea_handoff_package).toBe(
       "available"
     );
     expect(
@@ -2472,7 +2576,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=12");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=13");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -2482,8 +2586,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(12);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(12);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(13);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(13);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

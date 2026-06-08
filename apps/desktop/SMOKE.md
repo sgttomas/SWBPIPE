@@ -1153,3 +1153,49 @@ carried `expected_export_count=18`, `available_count=17`, and
 `caepipe_external_run_evidence:available`; the operation review ledger remained
 empty; Report Content Lint reported `targets=12`, `findings=0`, and
 `blocking=0`. Captured browser console error entries were absent.
+
+TP-MAC-53 local-fea-handoff-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T13:14:15.629Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, `python3 tests/test_local_fea_handoff_contract.py`,
+`git diff --check`, and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Local FEA Handoff panel remained
+pending until a mechanics run, with target-neutral local shell/solid FEA
+wording and explicit advisory/TBD framing. Export Safety Review initially
+reported `12 of 19 local exports ready`; the parsed local FEA export-review
+record was `pending_mechanics_run`, carried `DEL-10-03`, `SOW-031`, and
+`SOW-049`, and retained `concrete_export_format=TBD`,
+`target_solver_adapter=TBD`, `mesh_generation=TBD`, and
+`external_solver_invocation=TBD`. Report Content Lint reported `targets=12`,
+`findings=0`, and `blocking=0`.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. The Local FEA Handoff panel reported
+`available`, `labels=4`, `flags=5`, `diagnostics=4`, `mesh=false`, and
+`solver=false`, bound to `state:project:invented-loop-01:preview` and
+`result-envelope:run:preview-linear-static-001`, selected
+`pipe:P-120` and `pipe:P-130` by `diagnostic_suggested`, and used
+`transfer_method_label=result_reference_only` with 3 load references. The
+parsed handoff JSON carried `DEL-10-03`, `PKG-10`, `OBJ-009`, `SOW-031`,
+`SOW-049`, `package_kind=local_shell_solid_fea_handoff`,
+`global_model_kind=centerline_frame_global_analysis`, 5 result IDs, 4 guidance
+labels, 5 unsupported behavior flags including
+`mesh_generation_not_performed`, `target_format_not_selected`, and
+`external_solver_not_invoked`, and 4 diagnostics including
+`LOCAL-FEA-EXTERNAL-SOLVER-NOT-INVOKED`. Privacy and professional boundaries
+remained false for telemetry, private payload embedding, compliance,
+certification, sealing, approval, and authentication claims, with human review
+required.
+
+Export Safety Review reported `18 of 19 local exports ready` because no
+operation review record was queued, with `local_fea_handoff_package:available`
+and 19 total export records. The report UI readiness line reported
+`18 of 19 local exports ready`, `storage=available`, and
+`validation=available`, while the report packet download included `DEL-10-03`
+and retained false private/protected payload flags. Report Content Lint reported
+`targets=13`, `findings=0`, and `blocking=0`, with
+`target:desktop-local-fea-handoff-template` present. Captured browser console
+error entries were absent.

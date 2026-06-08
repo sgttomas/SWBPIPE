@@ -116,6 +116,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+          "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
           "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
@@ -176,6 +177,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Build readiness template records provider-neutral local scripts, Tauri preview shell metadata, private payload false, protected payload false, unresolved CI and release decisions, and no release authorization, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-local-fea-handoff-template",
+      "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Local FEA handoff template records target-neutral selected-region metadata, result-reference transfer basis, mesh not generated, external solver not invoked, target format TBD, private payload false, protected payload false, and no approval, authentication, certification, sealing, or code-compliance claim."
     ),
     target(
       "target:desktop-external-prover-template",

@@ -24,6 +24,7 @@ import { ExternalProverBoundaryPanel } from "./features/external-prover/External
 import { HandoffPanel } from "./features/handoff/HandoffPanel";
 import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
@@ -359,6 +360,7 @@ export function App() {
           <StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />
           <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
           <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
+          <LocalFeaHandoffPanel model={model} result={result} analysisRun={analysisRun} />
           <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
           <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
           <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />

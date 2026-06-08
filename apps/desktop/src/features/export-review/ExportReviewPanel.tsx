@@ -158,6 +158,7 @@ function buildExportReviewManifest({
   const stressNeutralReady = Boolean(result && analysisRun);
   const headlessRunnerReady = true;
   const adapterFrameworkReady = true;
+  const localFeaHandoffReady = Boolean(result && analysisRun);
   const externalProverReady = true;
   const reviewGeometryReady = true;
   const pcfExportReady = true;
@@ -333,6 +334,41 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Format-neutral adapter declaration; concrete formats, transport, plugin runtime, filesystem roots, redaction workflow, CI, and release matrix remain TBD."
+    },
+    {
+      export_id: "local_fea_handoff_package",
+      label: "Local FEA handoff package",
+      document_kind: "openpipestress.technical_preview.local_fea_handoff_package",
+      readiness: localFeaHandoffReady ? "available" : "pending_mechanics_run",
+      deliverable_refs: ["DEL-10-03", "DEL-10-02", "DEL-08-04", "DEL-14-02", "DEL-15-01"],
+      source_refs: result && run ? [result.run_id, run.model_state_ref.ref, `result-envelope:${result.run_id}`] : [model.project.id],
+      contract_kind: "schema_first_local_fea_handoff_contract",
+      global_analysis_role: "primary_global_centerline_frame_model",
+      local_analysis_role: "optional_specialized_shell_solid_handoff",
+      package_kind: "local_shell_solid_fea_handoff",
+      selected_region_basis: "diagnostic_suggested",
+      guidance_label_count: result && run ? 4 : 0,
+      unsupported_behavior_flag_count: result && run ? 5 : 0,
+      diagnostic_count: result && run ? 4 : 0,
+      selected_result_ref_count: result && run ? 5 : 0,
+      concrete_export_format: "TBD",
+      target_solver_adapter: "TBD",
+      mesh_generation: "TBD",
+      external_solver_invocation: "TBD",
+      transfer_method_label: result && run ? "result_reference_only" : "TBD",
+      redaction_required_before_public_export: true,
+      human_review_required: true,
+      software_makes_approval_claim: false,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_authentication_claim: false,
+      redaction_action: "local_fea_handoff_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Target-neutral local shell/solid FEA handoff preview; selected region and transfer references are review context only, with mesh, target format, adapter, and external solver invocation remaining TBD."
     },
     {
       export_id: "external_prover_boundary_metadata",
@@ -558,6 +594,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/report/ReportPanel.tsx",
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
+        "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
         "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
@@ -566,7 +603,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 12 : 11,
+      target_count: result && run ? 13 : 12,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -618,8 +655,8 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-10-01", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-03"],
-    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-03"],
+    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,
