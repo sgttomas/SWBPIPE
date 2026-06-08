@@ -431,6 +431,7 @@ export type LocalProjectSummary = {
   editor_intent_count: number;
   proposal_count: number;
   selected_review_target_count: number;
+  selected_review_target_ref: string;
   message: string;
 };
 

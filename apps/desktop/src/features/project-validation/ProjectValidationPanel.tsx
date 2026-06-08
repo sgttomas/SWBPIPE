@@ -92,6 +92,8 @@ export function ProjectValidationPanel({
             packet.summary.persisted_proposal_count
           }; persisted review targets=${
             packet.summary.persisted_selected_review_target_count
+          }; persisted review target ref=${
+            packet.summary.persisted_selected_review_target_ref
           }`}
           testId="project-validation-operations"
         />
@@ -172,6 +174,7 @@ function buildProjectValidationPacket({
       proposal_operation_count: proposalCount,
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
+      persisted_selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected",
       accepted_model_state_mutated: false,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       network_required: Boolean(storageCapability?.network_required),

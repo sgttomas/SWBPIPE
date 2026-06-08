@@ -1785,3 +1785,41 @@ text reported `persisted editor intents=1`; its JSON carried the same
 `project_validation_preflight` records. Re-selecting the material after open
 showed the restored `editor-intent-1` queue entry. Captured browser console
 error entries were absent.
+
+TP-MAC-68 persisted-selected-review-target-ref-local-roundtrip smoke passed on
+2026-06-08 America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/` with timestamp marker `2026-06-08T12:23:50-0600 MDT`.
+The local validation run for this tranche passed focused
+`npm test --workspace apps/desktop -- --run App.test.tsx -t "round trips
+review-only proposal operations through local save and open"`, full
+`npm test --workspace apps/desktop`, `npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`,
+`PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py
+tests/security/test_local_first_storage_policy.py`, and direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`
+before browser smoke.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-68`. After running preview mechanics,
+selecting `result:stress:pipe-P-120:end-j:torsional-shear`, generating
+`proposal:physics-diagnostic-review`, and choosing `Save local`, Project
+Storage Audit and Project Validation Preflight visible text both carried
+`result: result:stress:pipe-P-120:end-j:torsional-shear` as the persisted
+selected review target ref. Their JSON packets carried
+`persisted_selected_review_target_count=1`; both
+`persisted_selected_review_target_ref` and
+`project_summary.selected_review_target_ref` equaled
+`result: result:stress:pipe-P-120:end-j:torsional-shear`. The saved report
+packet persistence evidence carried the same target ref on both the storage
+audit and validation preflight records. After choosing `Open local`, Project
+Storage Audit and Project Validation Preflight still reported `operation=open`
+and the same persisted selected-review-target ref, and Export Safety Review
+carried it on both the `project_storage_audit` and
+`project_validation_preflight` records while the restored
+`selected_review_target` object retained
+`result:stress:pipe-P-120:end-j:torsional-shear`. Private payload, protected
+content, release, and professional-claim flags stayed false where checked.
+Captured browser console error entries were absent.

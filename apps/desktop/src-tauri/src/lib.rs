@@ -57,6 +57,7 @@ struct LocalProjectSummary {
     editor_intent_count: usize,
     proposal_count: usize,
     selected_review_target_count: usize,
+    selected_review_target_ref: String,
     message: String,
 }
 
@@ -402,6 +403,21 @@ fn selected_review_target_count(selected_review_target: &Value) -> usize {
     }
 }
 
+fn selected_review_target_ref(selected_review_target: &Value) -> String {
+    let Some(target) = selected_review_target.as_object() else {
+        return "not_selected".to_string();
+    };
+    let target_type = target
+        .get("target_type")
+        .and_then(Value::as_str)
+        .unwrap_or("unknown");
+    let id = target
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("unknown");
+    format!("{target_type}: {id}")
+}
+
 fn project_summary(
     project_id: String,
     project_name: String,
@@ -422,6 +438,7 @@ fn project_summary(
         editor_intent_count: editor_intent_count(editor_intents),
         proposal_count: proposal_count(proposal),
         selected_review_target_count: selected_review_target_count(selected_review_target),
+        selected_review_target_ref: selected_review_target_ref(selected_review_target),
         message,
     }
 }
@@ -810,6 +827,10 @@ mod tests {
         assert_eq!(summary.editor_intent_count, 1);
         assert_eq!(summary.proposal_count, 1);
         assert_eq!(summary.selected_review_target_count, 1);
+        assert_eq!(
+            summary.selected_review_target_ref,
+            "result: result:stress:pipe-P-120:end-j:torsional-shear"
+        );
 
         let indexed_count: i64 = connection
             .query_row(

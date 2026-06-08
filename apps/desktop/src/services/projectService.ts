@@ -49,6 +49,7 @@ function envelope(
       editor_intent_count: editorIntents.length,
       proposal_count: proposal ? 1 : 0,
       selected_review_target_count: selectedReviewTarget ? 1 : 0,
+      selected_review_target_ref: selectedReviewTargetRef(selectedReviewTarget),
       message
     },
     model: snapshot,
@@ -86,6 +87,11 @@ function cloneSelectedReviewTarget(
 ): SelectedReviewTarget | null {
   if (!selectedReviewTarget) return null;
   return JSON.parse(JSON.stringify(selectedReviewTarget)) as SelectedReviewTarget;
+}
+
+function selectedReviewTargetRef(selectedReviewTarget: SelectedReviewTarget | null): string {
+  if (!selectedReviewTarget) return "not_selected";
+  return `${selectedReviewTarget.target_type}: ${selectedReviewTarget.id}`;
 }
 
 export async function getLocalStorageCapability(): Promise<LocalStorageCapability> {
