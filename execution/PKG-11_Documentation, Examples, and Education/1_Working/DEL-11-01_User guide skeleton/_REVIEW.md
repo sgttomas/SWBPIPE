@@ -11,7 +11,7 @@
 | TaskProfile | PACKAGE_AUDIT |
 | ReviewerID | TASK_PACKAGE_AUDIT_PKG11 |
 | Date | 2026-05-16 |
-| Verdict | TECHNICALLY_ADDRESSED_PENDING_HUMAN |
+| Verdict | RESOLVED |
 
 ## Inputs Read
 
@@ -49,7 +49,7 @@ Overall verdict: WARNING.
 |---|---|---|
 | DEL-02-01 canonical model/schema and physical source-of-truth role | PASS | The guide points users to schema-first project/model surfaces and describes project records, units, provenance, rule-pack references, diagnostics, and hashes. It does not create a competing model source of truth. |
 | DEL-02-02 explicit unit metadata and no silent unit defaults | PASS | The guide says unit systems and unit-bearing quantities are required and that missing or incompatible units are findings, not defaults. |
-| DEL-02-03 mechanics/rule/human authority separation | TECHNICALLY_ADDRESSED_PENDING_HUMAN | Section 7 now includes `HUMAN_APPROVED_FOR_PROJECT`, scoped only to an external human acceptance record bound to exact reviewed hashes and scope. The guide states this is not emitted by solver/rule-pack software and is not software approval, certification, sealing, authentication, or code-compliance determination. |
+| DEL-02-03 mechanics/rule/human authority separation | RESOLVED | Section 7 now includes `HUMAN_APPROVED_FOR_PROJECT`, scoped only to an external human acceptance record bound to exact reviewed hashes and scope. The guide states this is not emitted by solver/rule-pack software and is not software approval, certification, sealing, authentication, or code-compliance determination. Human ruling on 2026-06-07 accepted the technically addressed finding as-is. |
 | DEL-02-04 plugin/adapter no-bypass constraints where applicable | PASS | The guide states durable edits and adapter/export paths must not bypass schema, unit, provenance, privacy, diagnostic, report, or human-review controls. |
 | DEL-02-05 persistence/hash/provenance/round-trip assumptions where applicable | PASS | The guide discusses project storage, manifests, hashes, rule-pack checksums, provenance, and hash-bound human review invalidation. Project package/container details remain explicit `TBD`. |
 
@@ -60,7 +60,7 @@ Overall verdict: WARNING.
 | INFO | 0 |
 | WARNING | 1 |
 
-Technical status: `TECHNICALLY_ADDRESSED_PENDING_HUMAN`; human disposition remains `TBD`.
+Technical status: `RESOLVED`; human disposition is `ACCEPT_AS_IS` by human ruling on 2026-06-07.
 | BLOCKER | 0 |
 
 See `Review_Findings.csv` for the recorded warning and technical disposition.
@@ -75,8 +75,36 @@ See `Review_Findings.csv` for the recorded warning and technical disposition.
 
 - Updated `docs/user_guide/index.md` Section 7 to include `HUMAN_APPROVED_FOR_PROJECT` in the status table with the accepted PKG-02 external hash-bound human acceptance boundary.
 - Added `tests/test_user_guide_status_wording.py` to check that the user-guide wording names the external hash-bound status without implying software approval/certification/sealing/authentication/code-compliance authority.
-- Finding `PKG11-DEL-11-01-PKG02-001` remains visible in `Review_Findings.csv` with `HumanDisposition=TBD` and `Status=TECHNICALLY_ADDRESSED_PENDING_HUMAN`.
+- Finding `PKG11-DEL-11-01-PKG02-001` remains visible in `Review_Findings.csv` with `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`.
 
 ## Audit Boundary
 
 This is an audit-only downstream compatibility review against PKG-02 foundation contracts. It does not approve, issue, certify, seal, promote, release, or modify DEL-11-01 product content. Human disposition remains required for any finding closure or lifecycle action.
+
+## 2026-06-07 SELF_CHECK Checking Readiness Review
+
+**Review type:** SELF_CHECK
+**Reviewer:** WORKING_ITEMS/REVIEW mechanical pass
+**Target transition:** IN_PROGRESS -> CHECKING
+**Status:** ADVANCED_TO_CHECKING by human-approved lifecycle action on 2026-06-07
+
+### Gate Summary
+
+| Check | Result |
+|---|---|
+| Current lifecycle state | IN_PROGRESS |
+| Core deliverable packet | PASS: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, `MEMORY.md`, four-document kit, semantic artifacts, review files, and run records are present. |
+| Dependency register | PASS: `Dependencies.csv` validates with 20 rows; execution dependencies are `SATISFIED` and anchor rows are `NOT_APPLICABLE`. |
+| Findings | PASS: one legacy package-audit warning was accepted as-is by human ruling on 2026-06-07 and is now `RESOLVED`. |
+| TBD inventory | ACCEPTABLE FOR CHECKING: remaining TBDs are user-guide/runtime/governance deferrals already explicit in the deliverable packet. |
+| Boundary scan | PASS: review found no lifecycle, release, legal/professional approval, certification, sealing, authentication, or code-compliance claim. |
+
+### Recommendation
+
+`RECOMMEND_ADVANCE` to `CHECKING`.
+
+Rationale: the user guide skeleton has complete local review surfaces,
+validated dependencies, and no blocking findings. The prior technically
+addressed legacy warning has been accepted as-is by human ruling. Advancing to
+`CHECKING` would not approve any lifecycle, release, professional, legal, or
+code-compliance claim.

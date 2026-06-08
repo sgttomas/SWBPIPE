@@ -46,7 +46,16 @@ Execute and review the deliverable-local setup workflow for the theory notes wit
 
 ## Verification
 
-- `tools/validation/check_four_documents.sh <deliverable-folder>` passes.
+- Explicit four-document file-presence check passes using ordinary shell tests:
+
+  ```sh
+  deliverable_folder="execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis"
+  test -f "$deliverable_folder/Datasheet.md"
+  test -f "$deliverable_folder/Specification.md"
+  test -f "$deliverable_folder/Guidance.md"
+  test -f "$deliverable_folder/Procedure.md"
+  ```
+
 - `python3 tools/validation/validate_dependencies_schema.py <deliverable-folder>/Dependencies.csv` passes.
 - Enum validation passes for dependency enum values used in `Dependencies.csv`.
 - Content review finds no protected standards text, examples, formulas, tables, proprietary values, or compliance/certification claims.

@@ -81,19 +81,19 @@ Reviewed TASK-11-03-A and TASK-11-03-B outputs for the completed DEL-11-03 theor
 | Source provenance | PASS with open source TBDs | TASK-11-03-A promoted source-provenance controls into `Datasheet.md`, `Specification.md`, `Guidance.md`, and `_REFERENCES.md`. TASK-11-03-B added a claim-scoped source inventory to `docs/theory/centerline_analysis.md` for project governance, NASA NTRS, MIT OCW, and Open Textbook Library sources. External source spot-checks matched the recorded public/license posture for citation-only use. |
 | Protected-content boundary | PASS | Scans over the changed control documents and theory note matched boundary/prohibition language only. No copied standards text, standards examples, tables, code formulas, material allowables, SIF/flexibility tables, proprietary examples, private owner data, or private rule-pack values were identified. |
 | Professional/code-compliance boundary | PASS | The reviewed text preserves mechanics/result, user-rule, and human professional-review separation. Matches for approval, certification, sealing, authentication, code compliance, and professional reliance are negative boundary statements rather than claims. |
-| Local dependency consistency | PASS with open dependency TBDs | `Dependencies.csv` validates as v3.1 with 29 columns and 12 data rows. `_DEPENDENCIES.md` records 12 ACTIVE rows and the same four `TBD` satisfaction rows for `DAG-002-E0586` through `DAG-002-E0589`. |
+| Local dependency consistency | PASS after 2026-06-07 refresh | `Dependencies.csv` validates as v3.1 with 29 columns and 12 data rows. `_DEPENDENCIES.md` records 12 ACTIVE rows, 9 `SATISFIED` execution rows, and 3 `NOT_APPLICABLE` anchor rows against DAG-006 and upstream local `_STATUS.md` / `MEMORY.md` evidence. |
 | Run record presence | PASS | `_run_records/TASK_RUN_2026-06-07_1624.md` and `_run_records/TASK_RUN_2026-06-07_1630.md` are present and record `run-status: SUCCESS`. TASK-11-03-C run record was created separately for this review. |
-| Residual `TBD`s | OPEN / NON-BLOCKING FOR FAN-IN | `TBD-public-history`, `TBD-open-frame-reference`, and `TBD-local-fea-reference` remain explicit in the theory note and memory. Four local dependency rows also remain `TBD` as previously documented. |
+| Residual `TBD`s | OPEN / NON-BLOCKING FOR FAN-IN | `TBD-public-history`, `TBD-open-frame-reference`, and `TBD-local-fea-reference` remain explicit in the theory note and memory. Local dependency satisfaction no longer carries open `TBD` rows after the 2026-06-07 refresh. |
 
 ### Findings
 
 No blocking fan-in issue was found. This review does not change lifecycle state and does not approve, issue, release, certify, seal, authenticate, provide legal clearance, provide professional acceptance, or declare code compliance.
 
-Three low-severity findings were added to `Review_Findings.csv` with `HumanDisposition=TBD` and `Status=OPEN`:
+Three low-severity findings were added to `Review_Findings.csv`; the 2026-06-07 human ruling accepted the two technically addressed environment findings as-is and deferred the source-support finding:
 
-- `RF-11-03-C-001` - absent `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` reference remains visible.
-- `RF-11-03-C-002` - absent `tools/validation/check_four_documents.sh` helper remains visible; alternate file-presence checks passed upstream.
-- `RF-11-03-C-003` - residual public/permissive source `TBD`s remain open and bounded.
+- `RF-11-03-C-001` - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` now exists and `_REFERENCES.md` now records the current file-presence status.
+- `RF-11-03-C-002` - `tools/validation/check_four_documents.sh` remains absent, but `Procedure.md` now uses explicit shell file-presence checks instead of the missing helper.
+- `RF-11-03-C-003` - residual public/permissive source `TBD`s are deferred for future source-selection work.
 
 ## 2026-06-07 REVIEW SELF_CHECK Readiness Pass
 
@@ -173,16 +173,16 @@ Three low-severity findings were added to `Review_Findings.csv` with `HumanDispo
 | DS-003 | `DAG-002-E0341` | DEL-00-06 / AB-00-06 | SATISFIED | Architecture-basis constraint available as local evidence. |
 | DS-004 | `DAG-002-E0342` | DEL-00-07 / AB-00-07 | SATISFIED | Architecture-basis constraint available as local evidence. |
 | DS-005 | `DAG-002-E0343` | DEL-00-08 / AB-00-08 | SATISFIED | Architecture-basis constraint available as local evidence. |
-| DS-006 | `DAG-002-E0586` | DEL-04-01 | TBD | Conservative prerequisite remains open; not blocking for documentation CHECKING recommendation. |
-| DS-007 | `DAG-002-E0587` | DEL-04-02 | TBD | Conservative prerequisite remains open; not blocking for documentation CHECKING recommendation. |
-| DS-008 | `DAG-002-E0588` | DEL-09-01 | TBD | Conservative prerequisite remains open; not blocking for documentation CHECKING recommendation. |
-| DS-009 | `DAG-002-E0589` | DEL-01-02 | TBD | Protected-content policy constraint remains visible; current content follows the boundary. |
+| DS-006 | `DAG-002-E0586` | DEL-04-01 | SATISFIED | Current 2026-06-07 dependency refresh cites upstream local `_STATUS.md` current state `CHECKING` and `MEMORY.md` current-authority/readiness evidence. |
+| DS-007 | `DAG-002-E0587` | DEL-04-02 | SATISFIED | Current 2026-06-07 dependency refresh cites upstream local `_STATUS.md` current state `CHECKING` and `MEMORY.md` current-authority/readiness evidence. |
+| DS-008 | `DAG-002-E0588` | DEL-09-01 | SATISFIED | Current 2026-06-07 dependency refresh cites upstream local `_STATUS.md` current state `CHECKING` and `MEMORY.md` current-authority/validation evidence. |
+| DS-009 | `DAG-002-E0589` | DEL-01-02 | SATISFIED | Current 2026-06-07 dependency refresh cites upstream local `_STATUS.md` current state `CHECKING` and `MEMORY.md` protected-data policy evidence; DEL-11-03 source-selection TBDs remain separate. |
 
 #### TBD Inventory
 
 | ID | Check | Result | Notes |
 |---|---|---|---|
-| TB-001 | Remaining TBDs assessed | 57 `TBD` markers | Review treats these as bounded source/dependency/future-scope TBDs, not hidden content gaps for CHECKING. |
+| TB-001 | Remaining TBDs assessed | Present | Review treats remaining `TBD` markers as bounded source and future-scope TBDs, not hidden content gaps for CHECKING. Local dependency rows no longer carry open satisfaction `TBD`s after the 2026-06-07 refresh. |
 
 ### Findings Summary
 
@@ -190,14 +190,14 @@ Three low-severity findings were added to `Review_Findings.csv` with `HumanDispo
 |---|---:|---:|---:|---:|
 | CRITICAL | 0 | 0 | 0 | 0 |
 | MAJOR | 0 | 0 | 0 | 0 |
-| MINOR | 3 | 0 | 3 | 0 |
+| MINOR | 3 | 2 | 0 | 1 |
 | OBSERVATION | 0 | 0 | 0 | 0 |
 
-Open MINOR findings:
+Current MINOR findings:
 
-- `RF-11-03-C-001` - missing `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`.
-- `RF-11-03-C-002` - missing `tools/validation/check_four_documents.sh`.
-- `RF-11-03-C-003` - residual public/permissive source `TBD`s.
+- `RF-11-03-C-001` - `RESOLVED`; human ruling accepted the technically addressed finding as-is.
+- `RF-11-03-C-002` - `RESOLVED`; human ruling accepted the technically addressed finding as-is.
+- `RF-11-03-C-003` - `DEFERRED`; future public/permissive source-selection work must record claim scope, license or redistribution status, and protected-content review.
 
 ### Transition Readiness
 
@@ -205,4 +205,33 @@ Open MINOR findings:
 
 **Recommendation:** RECOMMEND_ADVANCE.
 
-**Rationale:** The CHECKING-gate preconditions are met for this deliverable: current lifecycle state is IN_PROGRESS, the checklist is populated, all expected artifacts are present, dependency schema validation passes, no CRITICAL or MAJOR findings are open, and the three open findings are MINOR/TBD-disposition items that are visible and bounded. The recommendation does not change lifecycle state, issue the deliverable, resolve human dispositions, provide legal clearance, or make professional/code-compliance claims.
+**Rationale:** The CHECKING-gate preconditions are met for this deliverable: current lifecycle state is IN_PROGRESS, the checklist is populated, all expected artifacts are present, dependency schema validation passes, no CRITICAL or MAJOR findings are open, and the current MINOR finding state is two resolved rows plus one deferred source-support row. The recommendation does not change lifecycle state, issue the deliverable, provide legal clearance, or make professional/code-compliance claims.
+
+## 2026-06-07 WORKING_ITEMS Batch Review Confirmation
+
+**Review type:** SELF_CHECK
+**Reviewer:** WORKING_ITEMS/REVIEW mechanical pass
+**Target transition:** IN_PROGRESS -> CHECKING
+**Status:** ADVANCED_TO_CHECKING by human-approved lifecycle action on 2026-06-07
+
+### Gate Summary
+
+| Check | Result |
+|---|---|
+| Current lifecycle state | IN_PROGRESS |
+| Core deliverable packet | PASS: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, `MEMORY.md`, four-document kit, semantic artifacts, review files, and run records are present. |
+| Dependency register | PASS: `Dependencies.csv` validates with 12 rows; execution dependencies are `SATISFIED` and anchor rows are `NOT_APPLICABLE`. |
+| Findings | PASS WITH DEFERRED MINOR: two findings are `RESOLVED`; one MINOR source-support finding is `DEFERRED`; no CRITICAL or MAJOR findings are open. |
+| TBD inventory | ACCEPTABLE FOR CHECKING: source-support TBDs remain explicit and bounded; they do not support stronger theory claims. |
+| Boundary scan | PASS: review found no lifecycle, release, legal/professional approval, certification, sealing, authentication, or code-compliance claim. |
+
+### Recommendation
+
+`RECOMMEND_ADVANCE` to `CHECKING`.
+
+Rationale: the theory note packet now has current reference/procedure cleanup,
+validated dependencies, and only non-blocking MINOR findings. The two
+technically addressed findings have been accepted as-is, and the source-support
+finding has been deferred for future source-selection work. Advancing to
+`CHECKING` would preserve that deferral and would not create legal clearance,
+release approval, or professional/code-compliance authority.

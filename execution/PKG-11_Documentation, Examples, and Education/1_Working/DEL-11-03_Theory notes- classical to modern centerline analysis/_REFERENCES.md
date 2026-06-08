@@ -24,5 +24,5 @@
 
 ## Notes
 - No source material beyond the governing documents and registers is introduced by PREPARATION.
-- Reference gap: `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` is listed above but is absent in the current repository snapshot checked on 2026-06-07. Treat this as a local reference gap, not a blocker for TASK-11-03-A unless a later workflow needs workflow-specific citation text from that file.
+- Reference status: `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` exists in the current repository snapshot checked during 2026-06-07 fan-in. Treat it as a workflow-map reference, not as a substitute for coordination, decomposition, DAG, lifecycle, review, or human-approval authority.
 - Public/permissive mechanics, history, and local FEA handoff sources for final theory prose remain `TBD` until selected, reviewed, and recorded with provenance and protected-content disposition.

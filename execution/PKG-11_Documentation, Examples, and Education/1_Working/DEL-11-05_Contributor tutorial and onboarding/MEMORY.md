@@ -96,3 +96,26 @@ Deferred boundaries preserved:
 - Validation evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1711.md`. The requested dependency-schema check returned `VALID` for 11 data rows before final documentation scans.
 - No lifecycle `_STATUS.md`, dependency files, DAG files, decomposition/registers, coordination files, code, schemas, examples, governance templates, release files, or approval records were edited.
 - Residual dependency gap: `Dependencies.csv` still records `SatisfactionStatus: TBD` for the three PKG-01 governance predecessor rows `DAG-002-E0595`, `DAG-002-E0596`, and `DAG-002-E0597`; this run did not have authority to edit dependency state.
+
+## 2026-06-07 - TASK Dependency Evidence Refresh
+
+- Refreshed deliverable-local dependency evidence only in `Dependencies.csv` and `_DEPENDENCIES.md` for `DAG-002-E0595`, `DAG-002-E0596`, and `DAG-002-E0597`.
+- Evidence checked: current `DAG-006` active rows `DAG-004-R0643`, `DAG-004-R0644`, and `DAG-004-R0645`; upstream local `_STATUS.md` and `MEMORY.md` for `DEL-01-01`, `DEL-01-02`, and `DEL-01-03`.
+- Marked the three predecessor rows `SATISFIED` because `DEL-01-01` is locally `ISSUED`, while `DEL-01-02` and `DEL-01-03` are locally `CHECKING`; each upstream status history records prior `SEMANTIC_READY`, meeting or exceeding this deliverable's `RequiredMaturity`.
+- Validation planned for the run record: dependency schema validation, `git diff --check` over changed files, and focused protected-content/private-data/overclaim scans.
+- Warnings and residual TBDs: this is local dependency evidence only and does not edit aggregate `DAG-006`, lifecycle state, review files, governance artifacts, release records, legal/professional approval records, or upstream governance decisions. Contributor legal mechanism, reviewer/legal-review authority, maintainer authority, release authority, and related human-governed choices remain `TBD` upstream.
+- Run record: `_run_records/TASK_RUN_2026-06-07_1733.md`.
+
+## 2026-06-07 - Checking consistency sweep fan-in
+
+- TASK worker ran `deliverable-consistency` with conservative focus on
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+- Run record:
+  `_run_records/TASK_RUN_2026-06-07_1812_DEL-11-05_consistency.md`.
+- Result: no material consistency findings. Three scanner `TBD` marker hits
+  were reviewed as intentional governed boundary language: prefer `TBD` over
+  invention, quarantine protected examples, and avoid unsourced policy, legal,
+  or engineering claims.
+- No lifecycle, dependency, review-register, DAG, coordination, release,
+  legal-clearance, professional-approval, certification, sealing,
+  authentication, or code-compliance surface was edited or claimed.

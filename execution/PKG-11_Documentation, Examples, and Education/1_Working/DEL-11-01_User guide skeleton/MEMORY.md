@@ -180,3 +180,44 @@ Residual gaps:
   CI/release thresholds, release signing, maintainer quorum, contributor legal
   mechanism, legal-review authority, security contact, human-acceptance
   workflow, and jurisdiction-specific wording remain `TBD`.
+
+## 2026-06-07 - DEL-11-01 dependency evidence refresh
+
+- TASK-style worker refreshed `Dependencies.csv` and `_DEPENDENCIES.md` against
+  approved `execution/_DAG/DAG-006/` plus upstream deliverable-local
+  `_STATUS.md` and `MEMORY.md` evidence.
+- Changed files in this deliverable: `Dependencies.csv`, `_DEPENDENCIES.md`,
+  `MEMORY.md`, and `_run_records/TASK_RUN_2026-06-07_1732.md`.
+- Evidence basis: all 17 active DAG-006 upstream execution targets for
+  `DEL-11-01` currently record `_STATUS.md` `Current State: CHECKING` with
+  prior `SEMANTIC_READY` history; supporting upstream `MEMORY.md` entries were
+  reviewed for current-authority refresh, hardening/fan-in, readiness, or
+  human-approved CHECKING-transition evidence.
+- Dependency result: the twelve previously `TBD` active execution rows now
+  record `SatisfactionStatus=SATISFIED`; the five previously satisfied
+  architecture-basis rows received refreshed DAG/status/memory evidence notes;
+  the three anchor rows remain `NOT_APPLICABLE`.
+- Validation: `python3 tools/validation/validate_dependencies_schema.py
+  ".../DEL-11-01_User guide skeleton/Dependencies.csv"` passed with 29 columns
+  and 20 data rows before closeout.
+- Warning: `Review_Findings.csv` was read only. Finding
+  `PKG11-DEL-11-01-PKG02-001` remains
+  `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`; no
+  explicit human ruling was found or applied.
+- Residual TBDs: no dependency-register `TBD` rows remain, but review
+  disposition, lifecycle transition, release readiness, legal clearance,
+  professional approval, certification, sealing, authentication, and
+  code-compliance authority remain outside this task.
+
+## 2026-06-07 - Checking consistency sweep fan-in
+
+- TASK worker ran `deliverable-consistency` with conservative focus on
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+- Run record:
+  `_run_records/TASK_RUN_2026-06-07_1812_DEL-11-01_consistency.md`.
+- Result: no material consistency findings. Scanner `TBD` and `ASSUMPTION`
+  marker hits were reviewed as governed deferrals or conflict-table
+  placeholders, not defects.
+- No lifecycle, dependency, review-register, DAG, coordination, release,
+  legal-clearance, professional-approval, certification, sealing,
+  authentication, or code-compliance surface was edited or claimed.

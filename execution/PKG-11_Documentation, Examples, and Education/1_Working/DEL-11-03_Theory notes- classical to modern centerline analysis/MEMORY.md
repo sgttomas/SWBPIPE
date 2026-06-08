@@ -139,9 +139,10 @@ Durable context preserved after reconciliation review:
   - Run-record presence check found
     `_run_records/TASK_RUN_2026-06-07_1624.md`,
     `_run_records/TASK_RUN_2026-06-07_1630.md`, and the C run record.
-  - Local dependency row count was 12; `_DEPENDENCIES.md` retained 12 ACTIVE
-    rows and the same four `TBD` satisfaction rows for `DAG-002-E0586` through
-    `DAG-002-E0589`.
+  - Local dependency row count was 12; at fan-in time `_DEPENDENCIES.md`
+    retained 12 ACTIVE rows and four `TBD` satisfaction rows for
+    `DAG-002-E0586` through `DAG-002-E0589`. The later 2026-06-07 dependency
+    refresh below supersedes that local satisfaction state.
   - Source-inventory scan found accepted project/NASA/MIT/Engineering Statics
     source rows plus `TBD-public-history`, `TBD-open-frame-reference`, and
     `TBD-local-fea-reference`.
@@ -151,12 +152,15 @@ Durable context preserved after reconciliation review:
     NASA NTRS public distribution and US-government public-use copyright,
     MIT OCW CC BY-NC-SA 4.0 terms, and Open Textbook Library CC BY-NC-SA
     conditions of use. This is review evidence only, not legal clearance.
-- Findings added:
-  - `RF-11-03-C-001` - absent `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
-    reference remains visible.
-  - `RF-11-03-C-002` - absent `tools/validation/check_four_documents.sh`
-    helper remains visible; alternate file-presence checks passed upstream.
-  - `RF-11-03-C-003` - residual public/permissive source `TBD`s remain open.
+- Findings current disposition after later 2026-06-07 refresh:
+  - `RF-11-03-C-001` - `TECHNICALLY_ADDRESSED_PENDING_HUMAN` because
+    `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` now exists and `_REFERENCES.md`
+    now records the current file-presence status.
+  - `RF-11-03-C-002` - `TECHNICALLY_ADDRESSED_PENDING_HUMAN` because
+    `Procedure.md` now uses explicit file-presence checks and no longer
+    references the absent helper.
+  - `RF-11-03-C-003` - `OPEN`; residual public/permissive source `TBD`s remain
+    unresolved.
 - Residual TBDs:
   - `TBD-public-history` - public/permissive source support for detailed
     historical piping-flexibility lineage remains open.
@@ -165,10 +169,73 @@ Durable context preserved after reconciliation review:
   - `TBD-local-fea-reference` - practice-specific local shell/solid handoff
     support remains open if future prose expands beyond boundary-level language.
   - Local dependency satisfactions for `DAG-002-E0586`, `DAG-002-E0587`,
-    `DAG-002-E0588`, and `DAG-002-E0589` remain `TBD` as documented.
+    `DAG-002-E0588`, and `DAG-002-E0589` are no longer `TBD` after the later
+    2026-06-07 dependency refresh; source-content `TBD`s above remain open.
 - Boundaries preserved: no product theory artifact, four-document setup kit,
   `_STATUS.md`, DAG artifacts, registers, coordination files, solver code,
   schemas, examples, or `docs/theory/centerline_analysis.md` were edited by
   TASK-11-03-C. No release readiness, lifecycle closure, issuance, legal
   clearance, professional acceptance, certification, sealing, authentication,
   or code-compliance claim is made by this fan-in review.
+
+## 2026-06-07 - TASK_RUN_DEL-11-03_2026-06-07_1732 dependency and stale-finding refresh
+
+- Changed files: `Dependencies.csv`, `_DEPENDENCIES.md`, `Procedure.md`,
+  `Review_Findings.csv`, `_REVIEW.md`, `MEMORY.md`, and
+  `_run_records/TASK_RUN_2026-06-07_1732.md`.
+- Dependency evidence: DAG-006 active rows `DAG-004-R0616` through
+  `DAG-004-R0624` were cross-checked against upstream deliverable-local
+  `_STATUS.md` and `MEMORY.md`. All nine execution dependencies now have
+  `SatisfactionStatus=SATISFIED` because upstream current state is `CHECKING`,
+  which meets or exceeds `RequiredMaturity=SEMANTIC_READY`, with local memory
+  evidence for current authority or later readiness. Anchor rows remain
+  `NOT_APPLICABLE`.
+- Finding cleanup:
+  - `RF-11-03-C-001` set to `TECHNICALLY_ADDRESSED_PENDING_HUMAN`;
+    `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` exists and `_REFERENCES.md` now
+    records the current file-presence status.
+  - `RF-11-03-C-002` set to `TECHNICALLY_ADDRESSED_PENDING_HUMAN`; `Procedure.md`
+    no longer references `tools/validation/check_four_documents.sh` and instead
+    records explicit shell `test -f` checks for the four setup documents.
+  - `RF-11-03-C-003` remains `OPEN`; `TBD-public-history`,
+    `TBD-open-frame-reference`, and `TBD-local-fea-reference` remain unresolved.
+- Validation: dependency schema validation passed; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
+  exists; `tools/validation/check_four_documents.sh` remains absent; `Procedure.md`
+  no longer references the absent helper; scoped `git diff --check` passed for
+  changed files; focused scans found only boundary/prohibition/TBD wording.
+- Boundaries preserved: no `_STATUS.md`, DAG, register, coordination, source
+  code, schema, product theory document, release, legal, professional,
+  certification, sealing, authentication, or code-compliance artifact was
+  edited or claimed.
+
+## 2026-06-07 - WORKING_ITEMS fan-in reference cleanup
+
+- Fan-in corrected the remaining `_REFERENCES.md` note for
+  `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`; the file exists and the reference
+  note now records current file-presence status.
+- Updated `Review_Findings.csv`, `_DEPENDENCIES.md`, and `_REVIEW.md` wording
+  for `RF-11-03-C-001` to match the corrected reference note.
+  `HumanDisposition` remains `TBD`.
+- No lifecycle, DAG, register, coordination, product theory, source code,
+  schema, release, legal/professional approval, certification, sealing,
+  authentication, or code-compliance surface was edited.
+
+## 2026-06-07 - Checking consistency sweep fan-in
+
+- TASK worker ran `deliverable-consistency` with conservative focus on
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`, plus
+  the approved special check of `docs/theory/centerline_analysis.md`,
+  `_REFERENCES.md`, and `Review_Findings.csv` for `RF-11-03-C-003`.
+- Run record:
+  `_run_records/TASK_RUN_2026-06-07_1812_DEL-11-03_consistency.md`.
+- Result: no material consistency findings. Forty-three scanner `TBD` marker
+  hits were reviewed as intentional governed deferrals tied to
+  public/permissive source selection, provenance, protected-content review, or
+  human/project review.
+- `RF-11-03-C-003` remains explicitly deferred: `TBD-public-history`,
+  `TBD-open-frame-reference`, and `TBD-local-fea-reference` remain visible and
+  bounded pending future authorized source-selection work.
+- No lifecycle, dependency, review-register, DAG, coordination, product
+  theory, source code, schema, release, legal-clearance,
+  professional-approval, certification, sealing, authentication, or
+  code-compliance surface was edited or claimed.

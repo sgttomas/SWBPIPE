@@ -130,3 +130,25 @@ Durable context preserved after reconciliation review:
 - No code, schemas, examples, dependency registers, DAG artifacts, review files, lifecycle files, coordination files, approval records, or protected/private data were edited.
 - Residual `TBD` items remain: sparse solver library, rule expression grammar/library, dependency versions, CI and performance thresholds, public transport and endpoint syntax, plugin loading/signing/isolation, permission grant persistence, operating-system storage roots, product/DB migration rollback semantics, redaction workflow, cloud exception workflow, concrete export writer behavior, target coverage, and portable project export/copy workflow.
 - Validation evidence and focused scan results are recorded in `_run_records/TASK_RUN_2026-06-07_1711.md`.
+
+## 2026-06-07 - DEL-11-02 Dependency Evidence Refresh
+
+- TASK-style bounded worker refreshed only `Dependencies.csv`, `_DEPENDENCIES.md`, this `MEMORY.md`, and run record `_run_records/TASK_RUN_2026-06-07_1732.md`.
+- Evidence basis: `execution/_DAG/DAG-006/DependencyEdges.csv` rows `DAG-004-R0605` through `DAG-004-R0615`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`; upstream deliverable-local `_STATUS.md` and `MEMORY.md` evidence for `DEL-00-01`, `DEL-00-02`, `DEL-00-06`, `DEL-00-07`, `DEL-00-08`, `DEL-01-02`, `DEL-02-01`, `DEL-02-02`, `DEL-04-01`, `DEL-06-01`, and `DEL-10-01`; and `SOFTWARE_DECOMP.md` revision `0.7` rows for `DEL-11-02`, `SOW-033`, `OBJ-001`, and `OBJ-002`.
+- Replaced stale local `DAG-002-*` mirror row IDs with the current `DAG-006` active row IDs and moved the six governance/schema/units/solver/rule-pack/API-plugin predecessor rows from `UNKNOWN` to `SATISFIED` because their cited upstream local statuses are currently `CHECKING`, meeting the `SEMANTIC_READY` required maturity.
+- Preserved the four local anchor rows as derivative traceability evidence only, refreshed `LastSeen` to 2026-06-07, and made no aggregate DAG, lifecycle, review, coordination, source-code, schema, product-doc, release, legal, or professional-approval edits.
+- Validation: `python3 tools/validation/validate_dependencies_schema.py "<ScopePath>/Dependencies.csv"` passed after the CSV refresh; final whitespace and focused protected/private/overclaim scans are recorded in the run record.
+- Warnings and residual `TBD`s: upstream governance/legal authority, unit catalog/conversion/tolerance choices, solver sparse/tolerance/release thresholds, rule expression/evaluator/private lifecycle decisions, and API/plugin transport/loading/signing/export details remain unresolved for later gates. This refresh does not make release-readiness, legal-clearance, professional-approval, certification, sealing, authentication, or code-compliance claims.
+
+## 2026-06-07 - Checking consistency sweep fan-in
+
+- TASK worker ran `deliverable-consistency` with conservative focus on
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+- Run record:
+  `_run_records/TASK_RUN_2026-06-07_1812_DEL-11-02_consistency.md`.
+- Result: no material consistency findings. Scanner `TBD` and `ASSUMPTION`
+  marker hits were reviewed as intentional governed deferrals or label
+  guidance, not defects.
+- No lifecycle, dependency, review-register, DAG, coordination, release,
+  legal-clearance, professional-approval, certification, sealing,
+  authentication, or code-compliance surface was edited or claimed.

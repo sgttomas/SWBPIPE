@@ -161,3 +161,39 @@ code compliance, or project-specific professional reliance.
   gaps on validation benchmark evidence (`DEL-09-01`, `DEL-09-02`,
   `DEL-09-03`), professional-boundary policy finalization (`DEL-01-04`), and
   release quality gate settlement (`DEL-09-05`).
+
+## 2026-06-07 - DAG-006 dependency evidence refresh
+
+- Changed files: `Dependencies.csv`, `_DEPENDENCIES.md`, this `MEMORY.md`,
+  and `_run_records/TASK_RUN_2026-06-07_1732.md`.
+- Refreshed the three validation-benchmark rows, professional-boundary row,
+  and release-gate handoff row against approved `DAG-006` active rows
+  `DAG-004-R0514` through `DAG-004-R0517` and `DAG-004-R0527`.
+- Cited target deliverable-local `_STATUS.md` and `MEMORY.md` evidence:
+  `DEL-09-01`, `DEL-09-02`, `DEL-09-03`, `DEL-01-04`, and `DEL-09-05`
+  currently report `CHECKING`, which meets row `RequiredMaturity =
+  SEMANTIC_READY`.
+- Marked only dependency or handoff maturity `SATISFIED`. This refresh does
+  not create release readiness, legal clearance, professional reliance,
+  certification, sealing, authentication, or code-compliance evidence.
+- Preserved residual `TBD`s: benchmark tolerance policy, public benchmark
+  source acceptance, release-label vocabulary and release policy, GUI
+  validation evidence, validation evidence-bundle storage, CI/release
+  thresholds, human-acceptance workflow, and final professional/legal review
+  decisions.
+- Validation: `python3 tools/validation/validate_dependencies_schema.py
+  "<ScopePath>/Dependencies.csv"` passed before closeout scans. Final scoped
+  whitespace and boundary scans are recorded in the TASK run record.
+
+## 2026-06-07 - Checking consistency sweep fan-in
+
+- TASK worker ran `deliverable-consistency` with conservative focus on
+  `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+- Run record:
+  `_run_records/TASK_RUN_2026-06-07_1812_DEL-09-04_consistency.md`.
+- Result: no material consistency findings. Seven scanner `TBD` marker hits
+  were reviewed as intentional governed deferrals or boundary controls, not
+  defects.
+- No lifecycle, dependency, review-register, DAG, coordination, release,
+  legal-clearance, professional-approval, certification, sealing,
+  authentication, or code-compliance surface was edited or claimed.

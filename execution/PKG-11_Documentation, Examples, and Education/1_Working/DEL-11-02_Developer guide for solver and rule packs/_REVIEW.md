@@ -66,3 +66,30 @@ No PKG-02 compatibility findings were recorded.
 ## Audit Boundary
 
 This is an audit-only downstream compatibility review against PKG-02 foundation contracts. It does not approve, issue, certify, seal, promote, release, or modify DEL-11-02 product content. Human disposition remains required for any lifecycle action.
+
+## 2026-06-07 SELF_CHECK Checking Readiness Review
+
+**Review type:** SELF_CHECK
+**Reviewer:** WORKING_ITEMS/REVIEW mechanical pass
+**Target transition:** IN_PROGRESS -> CHECKING
+**Status:** ADVANCED_TO_CHECKING by human-approved lifecycle action on 2026-06-07
+
+### Gate Summary
+
+| Check | Result |
+|---|---|
+| Current lifecycle state | IN_PROGRESS |
+| Core deliverable packet | PASS: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, `MEMORY.md`, four-document kit, semantic artifacts, review files, and run records are present. |
+| Dependency register | PASS: `Dependencies.csv` validates with 15 rows; all rows are `SATISFIED`. |
+| Findings | PASS: `Review_Findings.csv` has no findings. |
+| TBD inventory | ACCEPTABLE FOR CHECKING: remaining TBDs are upstream implementation/governance/runtime choices already explicit in the deliverable packet. |
+| Boundary scan | PASS: review found no lifecycle, release, legal/professional approval, certification, sealing, authentication, or code-compliance claim. |
+
+### Recommendation
+
+`RECOMMEND_ADVANCE` to `CHECKING`.
+
+Rationale: the developer guide has complete local review surfaces, validated
+dependencies, and no review findings. Remaining sparse-solver, rule-evaluator,
+API/plugin, CI, and governance decisions are explicitly deferred and do not
+block checking of the current guide skeleton.

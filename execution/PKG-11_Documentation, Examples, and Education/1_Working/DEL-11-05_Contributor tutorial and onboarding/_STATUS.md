@@ -1,7 +1,7 @@
 # Status: DEL-11-05 Contributor tutorial and onboarding
 
-**Current State:** IN_PROGRESS
-**Last Updated:** 2026-05-11
+**Current State:** CHECKING
+**Last Updated:** 2026-06-07
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -12,3 +12,4 @@
 - 2026-05-09 - Evidence promoted to COMMITTED by CHANGE-managed Tranche M promotion using implementation commit bfb3931.
 - 2026-05-11 - TP-RECON-01 reconciled archived Tranche M/bfb3931 implementation evidence into deliverable history; CHECKING retained with downstream authority items later-gated.
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
+- 2026-06-07 - State moved to CHECKING by explicit human instruction after `REV_TP-INPROGRESS-CHECKING-READINESS_2026-06-07_1750` recommended advancement and the review gate found no blocking findings. This is lifecycle review status only and does not approve release use, legal clearance, professional reliance, certification, sealing, authentication, or code compliance.

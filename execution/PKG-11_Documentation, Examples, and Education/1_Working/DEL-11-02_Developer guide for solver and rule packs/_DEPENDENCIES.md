@@ -1,66 +1,71 @@
-# Dependencies: DEL-11-02 Developer guide for solver and rule packs
+# Dependencies: DEL-11-02 Developer Guide For Solver And Rule Packs
 
 ## Generated Dependency Register
-- **Status:** TP-DAG-004_LOCAL_REFRESH
-- **Prior Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
-- **Approved graph authority:** `execution/_DAG/DAG-006/`
+
+- **Status:** DAG-006_LOCAL_EVIDENCE_REFRESH
+- **Graph Authority:** `execution/_DAG/DAG-006/`
+- **Graph Approval Record:** `execution/_DAG/DAG-006/APPROVAL_RECORD.md`
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 15 total; 15 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Refreshed:** 2026-05-11
+- **Refreshed:** 2026-06-07
 
 ## Authority Boundary
-- Aggregate `DAG-002` remains the approved sequencing and blocker-computation authority within its approval boundary.
-- `DAG-003` remains preliminary and was not read as approval authority, promoted, or modified by this run.
-- This local register is a refreshed deliverable-local evidence surface for later RECONCILIATION, not an independent graph approval.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval. No candidate rows were introduced for DEL-11-02 in this run.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+
+- `DAG-006` is the approved graph coordination authority for active edge rows.
+- This deliverable-local register is derivative evidence for downstream reconciliation and task planning; it is not an independent graph approval, lifecycle transition, release-readiness claim, or Type 2 dispatch authorization.
+- `DAG-006` approval removed lifecycle metadata from DAG node artifacts. Upstream maturity checks here therefore cite deliverable-local `_STATUS.md` and `MEMORY.md` evidence.
+- `CANDIDATE` rows remain non-gating unless later promoted by explicit human/CHANGE approval. No candidate rows were added for `DEL-11-02`.
+- Architecture-basis rows remain context/coordination evidence only; they do not mark `PKG-00` deliverables as `ISSUED`.
 
 ## Extracted Dependency Register
 
 | Count | Meaning |
 |---:|---|
-| 11 | Preserved active DAG-002 mirror execution rows |
-| 4 | Added active local anchor rows from explicit DEL-11-02 identifiers |
+| 11 | Current `DAG-006` ACTIVE execution rows touching `DEL-11-02` |
+| 4 | Active local anchor rows from explicit `DEL-11-02` identifiers |
 | 0 | Retired rows |
 | 0 | Candidate rows |
 
-| DependencyID | Class | Anchor/Type | Direction | Target | Status | Origin |
-|---|---|---|---|---|---|---|
-| DAG-002-E0334 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-01 Architecture decision record baseline | ACTIVE | CONTEXT |
-| DAG-002-E0335 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-02 Repository and module boundary architecture | ACTIVE | CONTEXT |
-| DAG-002-E0336 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-06 Diagnostics, warning, and result-envelope contract | ACTIVE | CONTEXT |
-| DAG-002-E0337 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-07 API boundary and adapter contract map | ACTIVE | CONTEXT |
-| DAG-002-E0338 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-08 Layered software test and acceptance strategy | ACTIVE | CONTEXT |
-| DAG-002-E0580 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-02-01 Canonical domain model schema | ACTIVE | DECOMPOSITION |
-| DAG-002-E0581 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-02-02 Unit system and dimensional-analysis core contract | ACTIVE | DECOMPOSITION |
-| DAG-002-E0582 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-04-01 3D frame stiffness kernel | ACTIVE | DECOMPOSITION |
-| DAG-002-E0583 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-06-01 Rule-pack schema | ACTIVE | DECOMPOSITION |
-| DAG-002-E0584 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-10-01 Public API and plugin boundary | ACTIVE | DECOMPOSITION |
-| DAG-002-E0585 | EXECUTION | GOVERNANCE_PREDECESSOR | UPSTREAM | DEL-01-02 Copyright and protected-data boundary policy | ACTIVE | DECOMPOSITION |
-| DEP-011-02-001 | ANCHOR | IMPLEMENTS_NODE | UPSTREAM | PKG-11 Documentation, Examples, and Education | ACTIVE | EXTRACTED |
-| DEP-011-02-002 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | SOW-033 | ACTIVE | EXTRACTED |
-| DEP-011-02-003 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OBJ-001 | ACTIVE | EXTRACTED |
-| DEP-011-02-004 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OBJ-002 | ACTIVE | EXTRACTED |
+| DependencyID | Class | Anchor/Type | Direction | Target | Required | Current Evidence | Satisfaction |
+|---|---|---|---|---|---|---|---|
+| DAG-004-R0605 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-01 Architecture decision record baseline | SEMANTIC_READY | `_STATUS.md` records `CHECKING` after prior `SEMANTIC_READY` | SATISFIED |
+| DAG-004-R0606 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-02 Repository and module boundary architecture | SEMANTIC_READY | `_STATUS.md` records `CHECKING` after prior `SEMANTIC_READY` | SATISFIED |
+| DAG-004-R0607 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-06 Diagnostics, warning, and result-envelope contract | SEMANTIC_READY | `_STATUS.md` records `CHECKING` after prior `SEMANTIC_READY` | SATISFIED |
+| DAG-004-R0608 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-07 API boundary and adapter contract map | SEMANTIC_READY | `_STATUS.md` records `CHECKING` after prior `SEMANTIC_READY` | SATISFIED |
+| DAG-004-R0609 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-08 Layered software test and acceptance strategy | SEMANTIC_READY | `_STATUS.md` records `CHECKING` after prior `SEMANTIC_READY` | SATISFIED |
+| DAG-004-R0610 | EXECUTION | GOVERNANCE_PREDECESSOR | UPSTREAM | DEL-01-02 Copyright and protected-data boundary policy | SEMANTIC_READY | `_STATUS.md` records `CHECKING`; `MEMORY.md` records current protected-data boundary evidence and deferred governance/legal TBDs | SATISFIED |
+| DAG-004-R0611 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-02-01 Canonical domain model schema | SEMANTIC_READY | `_STATUS.md` records `CHECKING`; `MEMORY.md` records current schema/test evidence and downstream ownership TBDs | SATISFIED |
+| DAG-004-R0612 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-02-02 Unit system and dimensional-analysis core contract | SEMANTIC_READY | `_STATUS.md` records `CHECKING`; `MEMORY.md` records unit-schema/test evidence and unit-system TBDs | SATISFIED |
+| DAG-004-R0613 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-04-01 3D frame stiffness kernel | SEMANTIC_READY | `_STATUS.md` records `CHECKING`; `MEMORY.md` records frame-kernel validation and solver TBDs | SATISFIED |
+| DAG-004-R0614 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-06-01 Rule-pack schema | SEMANTIC_READY | `_STATUS.md` records `CHECKING`; `MEMORY.md` records rule-pack schema/test evidence and rule-engine TBDs | SATISFIED |
+| DAG-004-R0615 | EXECUTION | DOCS_PREDECESSOR | UPSTREAM | DEL-10-01 Public API and plugin boundary | SEMANTIC_READY | `_STATUS.md` records `CHECKING`; `MEMORY.md` records API/plugin boundary alignment and transport/plugin/export TBDs | SATISFIED |
+| DEP-011-02-001 | ANCHOR | IMPLEMENTS_NODE | UPSTREAM | PKG-11 Documentation, Examples, and Education | SEMANTIC_READY | Datasheet/context identity validated against `SOFTWARE_DECOMP.md` revision 0.7 | SATISFIED |
+| DEP-011-02-002 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | SOW-033 | SEMANTIC_READY | Datasheet/context scope trace validated against `SOFTWARE_DECOMP.md` revision 0.7 | SATISFIED |
+| DEP-011-02-003 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OBJ-001 | SEMANTIC_READY | Datasheet/context objective trace validated against `SOFTWARE_DECOMP.md` revision 0.7 | SATISFIED |
+| DEP-011-02-004 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OBJ-002 | SEMANTIC_READY | Datasheet/context objective trace validated against `SOFTWARE_DECOMP.md` revision 0.7 | SATISFIED |
 
-## Run Notes
-- Mode: `UPDATE`.
-- Strictness: `CONSERVATIVE`.
-- Consumer context: `RECONCILIATION`.
-- Run root: `/Users/ryan/ai-env/projects/chirality-piping/execution`.
-- Decomposition path: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for label validation.
-- Approved graph authority used for prior mirror context: `execution/_DAG/DAG-006/`.
-- Preliminary graph boundary: `execution/_DAG/DAG-006/` was not promoted or edited.
-- Anchor doc: `Datasheet.md`.
-- Execution docs reviewed: `_CONTEXT.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`.
-- Existing DAG-002 execution rows were preserved because they remain valid approved graph-authority mirror evidence for this deliverable.
-- Added one `IMPLEMENTS_NODE` anchor to `PKG-11` and three `TRACES_TO_REQUIREMENT` anchors to `SOW-033`, `OBJ-001`, and `OBJ-002`.
-- [WARNING] ENUM_TOOL_SCOPE: `tools/validation/validate_enum.py` does not include approved DAG-002 local values such as `ARCHITECTURE_BASIS`, `DOCS_PREDECESSOR`, `GOVERNANCE_PREDECESSOR`, `CONTEXT`, `DECOMPOSITION`, `INFERRED_DIRECT`, `UNKNOWN`, or `CANDIDATE`. Those rows were preserved under DAG-002 authority; the four newly extracted anchor rows use canonical enum values accepted by the tool where applicable.
-- No protected standards content, private data, engineering default values, or professional approval claims were added.
+## Satisfaction Refresh Notes
+
+- Replaced stale local `DAG-002-*` mirror row IDs with current `DAG-006` active edge rows `DAG-004-R0605` through `DAG-004-R0615`.
+- Updated the six task-targeted predecessor rows for governance, schema, units, solver, rule-pack, and API/plugin evidence from `UNKNOWN` to `SATISFIED` only after checking upstream local `_STATUS.md` and `MEMORY.md` evidence.
+- Set the 11 current DAG execution rows to `ProposedMaturity=CHECKING` because the cited upstream local statuses are currently `CHECKING`, which meets or exceeds the `SEMANTIC_READY` required maturity for this dependency evidence.
+- Preserved the four local anchor rows and refreshed their `LastSeen` dates against `SOFTWARE_DECOMP.md` revision 0.7.
+
+## Residual TBDs And Warnings
+
+- Governance: contributor/legal mechanism, reviewer/legal-review authority, maintainer roster/quorum, release authority, and related human-governance details remain `TBD` upstream.
+- Units: conversion constants, unit catalog, tolerance policy, canonical calculation basis, and special-quantity semantics remain `TBD` upstream.
+- Solver: sparse solver library, production tolerance policy, release thresholds, and final result-envelope integration remain `TBD` upstream.
+- Rule packs: expression grammar/library, evaluator semantics, private lifecycle, checksum/storage details, and invented public examples remain downstream or `TBD`.
+- API/plugin: public transport, endpoint syntax, plugin loading/signing/isolation, permission persistence, concrete writer behavior, and target field coverage remain `TBD`.
+- These residual TBDs do not block the local dependency rows at `RequiredMaturity=SEMANTIC_READY`, but they remain relevant for later implementation, review, validation, and release gates.
 
 ## Run History
-- 2026-04-30 1215: Initial dependency extraction run; local register later synchronized from DAG-002.
-- 2026-05-03: Local dependency register synchronized from approved `DAG-006` mirror; 11 ACTIVE execution rows.
-- 2026-05-11: TP-DAG-004 dependency surface refresh for RECONCILIATION. Mode `UPDATE`, strictness `CONSERVATIVE`, decomposition located, DAG-002 authority preserved, 15 ACTIVE rows total: 11 EXECUTION and 4 ANCHOR.
+
+- 2026-04-30 1215: Initial dependency extraction run; local register later synchronized from early DAG evidence.
+- 2026-05-11: TP-DAG-004 dependency surface refresh for reconciliation; 15 ACTIVE rows total.
+- 2026-06-04: Authority refresh aligned local surfaces with `SOFTWARE_DECOMP.md` revision 0.7 and approved `DAG-006`.
+- 2026-06-07: TASK evidence refresh replaced stale DAG mirror IDs with current `DAG-006` rows and updated predecessor satisfaction from current upstream local status/memory evidence.
 
 ## Lifecycle Summary
 
@@ -72,8 +77,9 @@
 
 | SatisfactionStatus | Count |
 |---|---:|
-| SATISFIED | 9 |
-| UNKNOWN | 6 |
+| SATISFIED | 15 |
+| TBD | 0 |
+| UNKNOWN | 0 |
 
 | DependencyClass | Count |
 |---|---:|
@@ -81,6 +87,7 @@
 | ANCHOR | 4 |
 
 ## Downstream Handoff Notes
-- RECONCILIATION should treat the four `DEP-011-02-*` rows as local traceability anchors, not DAG sequencing edges.
-- RECONCILIATION should use approved `DAG-006` as current graph authority; retained `DAG-002-*` rows remain local historical evidence only.
-- The preserved DAG-002 mirror rows contain project-specific dependency types and origins that exceed the current narrow enum validator; this is a tooling/schema-alignment warning, not a local data rewrite request.
+
+- Downstream reconciliation should treat this package as derivative local evidence based on accepted `DAG-006` rows plus cited upstream local status/memory evidence.
+- The four `DEP-011-02-*` rows are local traceability anchors, not DAG sequencing edges.
+- No lifecycle state, review disposition, release-readiness status, legal clearance, professional approval, certification, sealing, authentication, or code-compliance claim is made by this refresh.
