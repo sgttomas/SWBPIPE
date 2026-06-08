@@ -153,6 +153,7 @@ function buildExportReviewManifest({
   const storageAuditReady = true;
   const validationPreflightReady = true;
   const editorContractReady = true;
+  const missingDataReviewReady = true;
   const buildReadinessReady = true;
   const reportReady = Boolean(result && analysisRun);
   const resultExportReady = Boolean(result && analysisRun);
@@ -238,6 +239,40 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "DEL-07-03 desktop editor contract preview; materials/components/rule-pack references remain review-only command intent context, with private rule packs and private libraries represented by references only."
+    },
+    {
+      export_id: "missing_data_warning_blocking_review",
+      label: "Missing-data warning/blocking review",
+      document_kind: "openpipestress.technical_preview.missing_data_warning_blocking_review",
+      readiness: missingDataReviewReady ? "available" : "pending_missing_data_warning_surface",
+      deliverable_refs: ["DEL-07-04", "DEL-07-07", "DEL-06-03", "DEL-05-04", "DEL-04-06", "DEL-02-03", "DEL-12-02"],
+      source_refs: [
+        model.project.id,
+        "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+        ...diagnostics.map((item) => item.id ?? item.code)
+      ],
+      warning_class_count: 6,
+      active_warning_count: 5,
+      solve_blocking_count: 0,
+      rule_check_blocking_count: 2,
+      provenance_warning_count: 2,
+      assumption_warning_count: 1,
+      nonlinear_warning_count: 0,
+      ip_boundary_warning_count: 0,
+      mechanics_solve_blocked: false,
+      rule_check_blocked: true,
+      mechanics_results_reviewable: Boolean(result && run),
+      mechanics_results_qualified_by_rule_inputs: Boolean(result && run),
+      silent_defaults_used: false,
+      auto_fill_missing_data: false,
+      assistive_text_fields_available: true,
+      color_only_signaling_allowed: false,
+      redaction_action: "missing_data_warning_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-07-04 desktop missing-data warning review; solve-required and rule-check-required data stay distinct, missing values are not auto-filled, and warning meaning is exported as text metadata."
     },
     {
       export_id: "build_package_readiness",
@@ -624,6 +659,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
         "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+        "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -633,7 +669,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 14 : 13,
+      target_count: result && run ? 15 : 14,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -685,9 +721,9 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
-    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
-    objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
+    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
+    objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-011", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,
     analysis_run_ref: run?.run_id ?? "not generated",

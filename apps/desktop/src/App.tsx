@@ -26,6 +26,7 @@ import { HandoffPanel } from "./features/handoff/HandoffPanel";
 import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
+import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
@@ -356,6 +357,7 @@ export function App() {
             onCancel={handleCancelRun}
             onRun={handleRun}
           />
+          <MissingDataBlockingPanel model={model} result={result} />
           <RuleCheckPanel model={model} result={result} />
           <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
           <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />

@@ -1246,3 +1246,47 @@ exports ready`; the report packet persistence inventory carried
 `direct_model_mutation_allowed=false`; and Report Content Lint reported
 `targets=14`, `findings=0`, and `blocking=0`. Captured browser console error
 entries were absent.
+
+TP-MAC-55 missing-data-blocking-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T08:51:04-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `python3 tests/test_missing_data_warning_ux.py`,
+`git diff --check`, and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Missing Data Blocking panel
+reported `available`, `classes=6`, `active=5`, `solve_blocked=false`,
+`rule_blocked=true`, and `private_payload=false`. Class coverage included
+`SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`,
+`ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING`; the
+inactive preview classes remained available rather than hidden. The status
+separation line preserved `mechanics=ready_for_preview_diagnostics`,
+`rule_check=not_performed_user_rule_inputs_missing`, and
+`mechanics_reviewable=false`. The parsed warning JSON carried `DEL-07-04`,
+`PKG-07`, `SOW-022`, `OBJ-006`, `OBJ-011`, 6 warning classes, 5 active warning
+records, 0 solve-blocking records, 2 rule-check-blocking records, explicit
+GUI and local warning-class status maps, text fields for class, severity,
+affected refs, message, and remediation, and `color_only=false`.
+
+The initial warning packet and export-review record retained
+`silent_defaults_used=false`, `auto_fill_missing_data=false`,
+`direct_model_mutation_allowed=false`, `accepted_model_state_mutated=false`,
+`private_payload_included=false`, `protected_content_included=false`, and no
+release, professional, approval, authentication, certification, sealing, or
+code-compliance claim. Export Safety Review initially reported `14 of 21 local
+exports ready` with `missing_data_warning_blocking_review:available`; Report
+Content Lint initially reported `targets=14`, `findings=0`, and `blocking=0`,
+with `target:desktop-missing-data-template` present.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. The Missing Data Blocking panel preserved 5
+active warning records and updated status separation to
+`mechanics=MECHANICS_SOLVED`, `rule_check=RULE_INPUTS_INCOMPLETE`,
+`mechanics_reviewable=true`, and `mechanics_qualified=true`, keeping
+`solve=0` and `rule=2` in the blocking summary. Export Safety Review reported
+`20 of 21 local exports ready` because no operation review record was queued;
+the report packet persistence inventory carried `expected_export_count=21`,
+`available_count=20`, and `missing_data_warning_blocking_review:available`;
+and Report Content Lint reported `targets=15`, `findings=0`, and `blocking=0`.
+Captured browser console error entries were absent.

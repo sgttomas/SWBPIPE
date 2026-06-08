@@ -698,8 +698,73 @@ describe("OpenPipeStress desktop preview", () => {
     expect(editorContractPacket.protected_content_included).toBe(false);
     expect(editorContractPacket.release_or_professional_claim).toBe(false);
     expect(editorContractPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    const missingData = await screen.findByLabelText("Missing-data blocking review");
+    expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("classes=6");
+    expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("active=5");
+    expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("solve_blocked=false");
+    expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("rule_blocked=true");
+    expect(within(missingData).getByTestId("missing-data-class-coverage").textContent).toContain(
+      "SOLVE_BLOCKING:available_no_active_preview_item"
+    );
+    expect(within(missingData).getByTestId("missing-data-class-coverage").textContent).toContain(
+      "RULE_CHECK_BLOCKING:active"
+    );
+    expect(within(missingData).getByTestId("missing-data-class-coverage").textContent).toContain(
+      "IP_BOUNDARY_WARNING:available_no_active_preview_item"
+    );
+    expect(within(missingData).getByTestId("missing-data-status-separation").textContent).toContain(
+      "mechanics=ready_for_preview_diagnostics"
+    );
+    expect(within(missingData).getByTestId("missing-data-status-separation").textContent).toContain(
+      "mechanics_reviewable=false"
+    );
+    expect(within(missingData).getByTestId("missing-data-blocking").textContent).toContain("solve=0");
+    expect(within(missingData).getByTestId("missing-data-blocking").textContent).toContain("rule=2");
+    expect(within(missingData).getByTestId("missing-data-assistive").textContent).toContain(
+      "class,severity,affected_refs,message,remediation"
+    );
+    expect(within(missingData).getByTestId("missing-data-assistive").textContent).toContain("color_only=false");
+    expect(within(missingData).getByTestId("missing-data-boundary").textContent).toContain(
+      "silent_defaults=false"
+    );
+    expect(within(missingData).getByTestId("missing-data-boundary").textContent).toContain(
+      "auto_fill=false"
+    );
+    expect(within(missingData).getByTestId("missing-data-warning-rule-check-required-inputs").textContent).toContain(
+      "RULE_CHECK_BLOCKING"
+    );
+    const missingDataHref = within(missingData).getByTestId("missing-data-export-link").getAttribute("href") ?? "";
+    const missingDataPacket = JSON.parse(decodeURIComponent(missingDataHref.split(",", 2)[1]));
+    expect(missingDataPacket.document_kind).toBe(
+      "openpipestress.technical_preview.missing_data_warning_blocking_review"
+    );
+    expect(missingDataPacket.deliverable_id).toBe("DEL-07-04");
+    expect(missingDataPacket.package_id).toBe("PKG-07");
+    expect(missingDataPacket.scope_item).toBe("SOW-022");
+    expect(missingDataPacket.objectives).toContain("OBJ-011");
+    expect(missingDataPacket.summary.warning_class_count).toBe(6);
+    expect(missingDataPacket.summary.active_warning_count).toBe(5);
+    expect(missingDataPacket.summary.solve_blocking_count).toBe(0);
+    expect(missingDataPacket.summary.rule_check_blocking_count).toBe(2);
+    expect(missingDataPacket.summary.mechanics_solve_blocked).toBe(false);
+    expect(missingDataPacket.summary.rule_check_blocked).toBe(true);
+    expect(missingDataPacket.summary.mechanics_results_reviewable).toBe(false);
+    expect(missingDataPacket.summary.silent_defaults_used).toBe(false);
+    expect(missingDataPacket.auto_fill_missing_data).toBe(false);
+    expect(
+      missingDataPacket.class_inventory.map((item: { warning_class: string }) => item.warning_class)
+    ).toContain("NONLINEAR_WARNING");
+    expect(missingDataPacket.analysis_boundary_contract.gui_warning_class_status_map.SOLVE_BLOCKING).toContain(
+      "MODEL_INCOMPLETE"
+    );
+    expect(missingDataPacket.assistive_contract.color_only_signaling_allowed).toBe(false);
+    expect(missingDataPacket.source_of_truth_boundary.direct_model_mutation_allowed).toBe(false);
+    expect(missingDataPacket.private_payload_included).toBe(false);
+    expect(missingDataPacket.protected_content_included).toBe(false);
+    expect(missingDataPacket.release_or_professional_claim).toBe(false);
+    expect(missingDataPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=13");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=14");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -731,7 +796,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(13);
+    expect(lintPacket.lint_run.summary.target_count).toBe(14);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -759,7 +824,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "13 of 20 local exports ready"
+      "14 of 21 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -1204,7 +1269,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "20 of 20 local exports ready"
+      "21 of 21 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -1221,6 +1286,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-record-editor_contract_review").textContent).toContain(
       "available"
     );
+    expect(
+      within(exportReview).getByTestId("export-review-record-missing_data_warning_blocking_review").textContent
+    ).toContain("available");
     expect(within(exportReview).getByTestId("export-review-record-build_package_readiness").textContent).toContain(
       "available"
     );
@@ -1283,6 +1351,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.deliverable_refs).toContain("DEL-02-04");
     expect(reviewManifest.deliverable_refs).toContain("DEL-07-02");
     expect(reviewManifest.deliverable_refs).toContain("DEL-07-03");
+    expect(reviewManifest.deliverable_refs).toContain("DEL-07-04");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-01");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-02");
     expect(reviewManifest.deliverable_refs).toContain("DEL-10-03");
@@ -1306,21 +1375,24 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.scope_items).toContain("SOW-054");
     expect(reviewManifest.scope_items).toContain("SOW-032");
     expect(reviewManifest.scope_items).toContain("SOW-021");
+    expect(reviewManifest.scope_items).toContain("SOW-022");
     expect(reviewManifest.scope_items).toContain("SOW-030");
     expect(reviewManifest.scope_items).toContain("SOW-031");
     expect(reviewManifest.scope_items).toContain("SOW-049");
     expect(reviewManifest.scope_items).toContain("SOW-075");
     expect(reviewManifest.objectives).toContain("OBJ-002");
     expect(reviewManifest.objectives).toContain("OBJ-006");
+    expect(reviewManifest.objectives).toContain("OBJ-011");
     expect(reviewManifest.objectives).toContain("OBJ-008");
     expect(reviewManifest.objectives).toContain("OBJ-009");
     expect(reviewManifest.objectives).toContain("OBJ-017");
-    expect(reviewManifest.summary.available_count).toBe(20);
+    expect(reviewManifest.summary.available_count).toBe(21);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
       "project_storage_audit",
       "project_validation_preflight",
       "editor_contract_review",
+      "missing_data_warning_blocking_review",
       "build_package_readiness",
       "result_envelope",
       "stress_neutral_csv_json_package",
@@ -1367,6 +1439,25 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(editorContractExport.direct_model_mutation_allowed).toBe(false);
     expect(editorContractExport.accepted_model_state_mutated).toBe(false);
+    const missingDataExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "missing_data_warning_blocking_review"
+    );
+    expect(missingDataExport.document_kind).toBe(
+      "openpipestress.technical_preview.missing_data_warning_blocking_review"
+    );
+    expect(missingDataExport.deliverable_refs).toContain("DEL-07-04");
+    expect(missingDataExport.warning_class_count).toBe(6);
+    expect(missingDataExport.active_warning_count).toBe(5);
+    expect(missingDataExport.solve_blocking_count).toBe(0);
+    expect(missingDataExport.rule_check_blocking_count).toBe(2);
+    expect(missingDataExport.mechanics_solve_blocked).toBe(false);
+    expect(missingDataExport.rule_check_blocked).toBe(true);
+    expect(missingDataExport.mechanics_results_reviewable).toBe(true);
+    expect(missingDataExport.mechanics_results_qualified_by_rule_inputs).toBe(true);
+    expect(missingDataExport.silent_defaults_used).toBe(false);
+    expect(missingDataExport.auto_fill_missing_data).toBe(false);
+    expect(missingDataExport.assistive_text_fields_available).toBe(true);
+    expect(missingDataExport.color_only_signaling_allowed).toBe(false);
     const buildReadinessExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "build_package_readiness"
     );
@@ -1577,7 +1668,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
     expect(lintExport.deliverable_refs).toContain("DEL-08-05");
-    expect(lintExport.target_count).toBe(14);
+    expect(lintExport.target_count).toBe(15);
     expect(lintExport.finding_count).toBe(0);
     expect(lintExport.blocking_finding_count).toBe(0);
     expect(lintExport.clean_scan_is_clearance).toBe(false);
@@ -2557,7 +2648,7 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_not_persisted"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
-      "19 of 20 local exports ready"
+      "20 of 21 local exports ready"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
@@ -2577,6 +2668,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.export_scope).toBe("local_browser_download_preview");
     expect(exportPacket.deliverable_refs).toContain("DEL-08-01");
     expect(exportPacket.deliverable_refs).toContain("DEL-07-03");
+    expect(exportPacket.deliverable_refs).toContain("DEL-07-04");
     expect(exportPacket.deliverable_refs).toContain("DEL-08-03");
     expect(exportPacket.deliverable_refs).toContain("DEL-08-06");
     expect(exportPacket.deliverable_refs).toContain("DEL-10-04");
@@ -2618,8 +2710,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
       "semantic_categories_declared"
     );
-    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(20);
-    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(19);
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(21);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(20);
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
       "available"
     );
@@ -2629,6 +2721,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.editor_contract_review).toBe(
       "available"
     );
+    expect(
+      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.missing_data_warning_blocking_review
+    ).toBe("available");
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.build_package_readiness).toBe(
       "available"
     );
@@ -2674,7 +2769,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=14");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=15");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -2684,8 +2779,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(14);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(14);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(15);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(15);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

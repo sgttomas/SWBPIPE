@@ -117,6 +117,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+          "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -185,6 +186,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Editor contract template records material/component/rule-pack reference editor metadata, operation-intent routing, private library references only, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-missing-data-template",
+      "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Missing-data warning template records solve-required versus rule-check-required warning classes, text remediation fields, silent defaults false, auto-fill false, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-local-fea-handoff-template",
