@@ -118,6 +118,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+          "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
           "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
           "fixtures/product_preview"
         ],
@@ -186,6 +187,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Review geometry template records glTF preview geometry, stable IDs, private payload false, protected payload false, visual review only, no solver geometry equivalence claim."
+    ),
+    target(
+      "target:desktop-pcf-export-template",
+      "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Conservative PCF export template records ASCII PCF preview text, stable ID sidecar, mandatory loss report, private payload false, protected payload false, target profile TBD, and no target compatibility, solver validation, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-stress-neutral-template",

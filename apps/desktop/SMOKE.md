@@ -1000,3 +1000,42 @@ After running the preview mechanics path, the result export reported
 `13 of 14 local exports ready` because no operation review record was queued;
 and Report Content Lint reported `targets=8`, `findings=0`, and `blocking=0`.
 Fresh browser console errors after the timestamp marker were absent.
+
+TP-MAC-49 conservative-pcf-export-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T12:28:39.901Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, and `python3 tests/test_pcf_export_package.py` before browser
+smoke.
+
+The initial browser state confirmed the new Conservative PCF Export panel
+reported `available`, `segments=4`, `nodes=5`,
+`validation=blocked_missing_explicit_pcf_target_fields`, and `losses=6`.
+The parsed PCF package JSON carried
+`document_kind=openpipestress.technical_preview.conservative_pcf_export_package`,
+`DEL-17-07`, profile `ops.pcf.conservative_subset`, `target_family=pcf`,
+`target_profile_version_basis=TBD`, 5 nodes, 4 pipe segments, 4 sidecar
+stable-ID entries, all six loss categories (`exported`, `omitted`,
+`approximated`, `delegated`, `unsupported`, and `tbd`), diagnostics
+`PCF-NOMINAL-SIZE-TBD`, `PCF-SUPPORT-SEMANTICS-UNSUPPORTED`,
+`PCF-COMPONENT-COVERAGE-APPROXIMATED`, and `PCF-TARGET-PROFILE-TBD`, and false
+private-payload, protected-content, target-compatibility, solver-validation,
+code-compliance, and professional-reliance claim flags. The parsed PCF text
+download contained `COMPONENT-IDENTIFIER OPS-PIPE-P-120`,
+`TBD_SOURCE_REQUIRED`, and terminal `END-ISOGEN`. Export Safety Review initially
+reported `9 of 15 local exports ready`, and Report Content Lint reported
+`targets=8`, `findings=0`, and `blocking=0`.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; the PCF package bound to
+`analysis_run_ref=run:preview-linear-static-001` and
+`model_state_ref=state:project:invented-loop-01:preview` while retaining
+`validation=blocked_missing_explicit_pcf_target_fields`, 4 stable-ID entries,
+and 6 loss entries. Export Safety Review reported `14 of 15 local exports
+ready` because no operation review record was queued; the parsed export review
+manifest carried `export_count=15`, `available_count=14`, and
+`conservative_pcf_export:available`. The parsed report JSON persistence
+inventory carried `expected_export_count=15`, `available_count=14`, and
+`conservative_pcf_export:available`; Report Content Lint reported `targets=9`,
+`findings=0`, and `blocking=0`. Fresh browser console errors after the
+timestamp marker were absent.

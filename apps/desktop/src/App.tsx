@@ -25,6 +25,7 @@ import { defaultSelection } from "./features/model-workspace/modelView";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
+import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
@@ -357,6 +358,7 @@ export function App() {
           <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
           <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
           <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
+          <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
           <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
           <NativePackagePanel
             model={model}

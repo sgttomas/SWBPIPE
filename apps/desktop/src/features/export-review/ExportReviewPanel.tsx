@@ -160,6 +160,7 @@ function buildExportReviewManifest({
   const adapterFrameworkReady = true;
   const externalProverReady = true;
   const reviewGeometryReady = true;
+  const pcfExportReady = true;
   const nativePackageReady = Boolean(result && analysisRun);
   const handoffReady = Boolean(result && analysisRun);
   const ledgerReady = operationRecordCount > 0;
@@ -383,6 +384,38 @@ function buildExportReviewManifest({
         "Local glTF JSON visual-review geometry with stable-ID sidecar metadata; not solver geometry, target compatibility evidence, or professional validation."
     },
     {
+      export_id: "conservative_pcf_export",
+      label: "Conservative PCF export",
+      document_kind: "openpipestress.technical_preview.conservative_pcf_export_package",
+      readiness: pcfExportReady ? "available" : "pending_pcf_profile_review",
+      deliverable_refs: ["DEL-17-07", "DEL-17-01", "DEL-17-02", "DEL-03-02", "DEL-13-04", "DEL-15-02"],
+      source_refs: result && run ? [result.run_id, run.model_state_ref.ref, model.project.id] : [model.project.id],
+      target_family: "pcf",
+      profile_id: "ops.pcf.conservative_subset",
+      target_profile_version_basis: "TBD",
+      package_status: "conservative_pcf_export_foundation",
+      payload_kind: "conservative_pcf_pipe_subset",
+      node_count: model.nodes.length,
+      pipe_segment_count: model.pipe_segments.length,
+      stable_id_count: model.pipe_segments.length,
+      loss_category_count: 6,
+      validation_status: "blocked_missing_explicit_pcf_target_fields",
+      schema_validation_status: "desktop_preview_shape_aligned_not_runtime_json_schema_validated",
+      canonical_package_hash_status: "TBD_browser_preview_does_not_emit_canonical_package_hash",
+      support_restraint_policy: "unsupported_or_tbd_until_source_confirmed",
+      translator_default_policy: "hidden_defaults_blocked_or_loss_reported",
+      target_compatibility_claim: false,
+      solver_validation_claim: false,
+      code_compliance_claim: false,
+      professional_reliance_claim: false,
+      redaction_action: "classify_and_warn_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Local conservative PCF review package with sidecar stable IDs, mandatory loss report, and blocking TBDs for target profile and nominal size."
+    },
+    {
       export_id: "native_json_package",
       label: "Native JSON package",
       document_kind: "openpipestress.technical_preview.native_json_package_review",
@@ -428,9 +461,10 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+        "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 8 : 7,
+      target_count: result && run ? 9 : 8,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -482,7 +516,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-06", "DEL-17-08", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-10-02", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-024", "SOW-030", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
