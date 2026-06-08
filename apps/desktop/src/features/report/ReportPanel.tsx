@@ -457,7 +457,9 @@ function reportPersistenceEvidence({
       last_operation: projectOperation,
       storage_engine: storageCapability?.engine ?? "storage_check_pending",
       storage_mode: storageMode,
-      pending_operation_count: editorIntents.length,
+      pending_operation_count: operationRecordCount,
+      editor_intent_count: editorIntents.length,
+      proposal_operation_count: proposal ? 1 : 0,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       accepted_model_state_mutated: false
     },

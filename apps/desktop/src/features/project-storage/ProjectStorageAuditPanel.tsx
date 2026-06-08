@@ -1,5 +1,11 @@
 import { Download, HardDrive } from "lucide-react";
-import type { EditorOperationIntent, LocalProjectSummary, LocalStorageCapability, PreviewModel } from "../../types";
+import type {
+  AgentProposal,
+  EditorOperationIntent,
+  LocalProjectSummary,
+  LocalStorageCapability,
+  PreviewModel
+} from "../../types";
 
 export function ProjectStorageAuditPanel({
   model,
@@ -7,7 +13,8 @@ export function ProjectStorageAuditPanel({
   projectSummary,
   projectMessage,
   projectOperation,
-  editorIntents
+  editorIntents,
+  proposal
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -15,6 +22,7 @@ export function ProjectStorageAuditPanel({
   projectMessage: string;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
+  proposal: AgentProposal | null;
 }) {
   const packet = buildProjectStorageAuditPacket({
     model,
@@ -22,7 +30,8 @@ export function ProjectStorageAuditPanel({
     projectSummary,
     projectMessage,
     projectOperation,
-    editorIntents
+    editorIntents,
+    proposal
   });
 
   return (
@@ -43,7 +52,8 @@ export function ProjectStorageAuditPanel({
         </a>
         <span data-testid="project-storage-summary">
           operation={packet.summary.last_operation}; pending operations={packet.summary.pending_operation_count};
-          accepted_state_mutated={String(packet.summary.accepted_model_state_mutated)}
+          proposals={packet.summary.proposal_operation_count}; accepted_state_mutated=
+          {String(packet.summary.accepted_model_state_mutated)}
         </span>
       </div>
       <div className="report-list" data-testid="project-storage-body">
@@ -97,7 +107,8 @@ function buildProjectStorageAuditPacket({
   projectSummary,
   projectMessage,
   projectOperation,
-  editorIntents
+  editorIntents,
+  proposal
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -105,9 +116,16 @@ function buildProjectStorageAuditPacket({
   projectMessage: string;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
+  proposal: AgentProposal | null;
 }) {
   const storageEngine = storageCapability?.engine ?? "storage_check_pending";
   const storageMode = projectSummary?.storage_mode ?? "not_persisted_this_session";
+  const proposalCount = proposal ? 1 : 0;
+  const pendingOperationCount = editorIntents.length + proposalCount;
+  const reviewOperationStatuses = unique([
+    ...editorIntents.map((intent) => intent.validation.application_status),
+    ...(proposal ? [proposal.validation.application_status] : [])
+  ]);
 
   return {
     schema_version: "0.1.0",
@@ -125,7 +143,9 @@ function buildProjectStorageAuditPacket({
       migration_status: projectSummary?.migration_status ?? "not_applicable",
       fts5_available: Boolean(storageCapability?.fts5_available),
       fts_indexed: Boolean(projectSummary?.fts_indexed),
-      pending_operation_count: editorIntents.length,
+      pending_operation_count: pendingOperationCount,
+      editor_intent_count: editorIntents.length,
+      proposal_operation_count: proposalCount,
       applied_operation_count: 0,
       accepted_model_state_mutated: false,
       network_required: Boolean(storageCapability?.network_required),
@@ -137,7 +157,9 @@ function buildProjectStorageAuditPacket({
     project_summary: projectSummary,
     project_message: projectMessage,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
+    proposal_refs: proposal ? [proposal.proposal_id] : [],
     editor_operation_statuses: unique(editorIntents.map((intent) => intent.validation.application_status)),
+    review_operation_statuses: reviewOperationStatuses,
     boundary: {
       local_only_project_store: true,
       repository_default_private_write: false,

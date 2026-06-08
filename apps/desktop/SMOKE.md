@@ -1638,3 +1638,43 @@ report export carried `proposal_ref=not generated` and
 reported `operation_record_count=0` with
 `operation_review_ledger:empty_operation_queue`. Captured browser console
 error entries were absent.
+
+TP-MAC-64 unified-review-operation-count-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T11:46:50-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py`, direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`,
+browser unified review-operation count checks, zero browser console errors,
+`git diff --check`, and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-64`. The local project review context
+reported `0 pending operations; applied=false; editor_intents=0;
+agent_proposals=0`, and both Project Storage Audit and Project Validation
+Preflight JSON reported `pending_operation_count=0` and
+`proposal_operation_count=0`.
+
+After running the preview mechanics path, filtering to
+`result:stress:pipe-P-120:end-j:torsional-shear`, and generating the
+review-only proposal, the local project review context reported
+`1 pending operation; applied=false; editor_intents=0; agent_proposals=1`.
+Project Storage Audit reported `pending operations=1` and `proposals=1`, with
+JSON `editor_intent_count=0`, `proposal_operation_count=1`, and proposal ref
+`proposal:physics-diagnostic-review`. Project Validation Preflight reported
+the same pending/proposal split. The report packet persistence evidence carried
+`pending_operation_count=1` and `proposal_operation_count=1`, and Export Safety
+Review reported `operation_record_count=1` while its `project_storage_audit`
+and `project_validation_preflight` records each carried one pending proposal
+operation.
+
+After choosing `Clear pending operations`, the proposal body was removed, the
+local project review context returned to `0 pending operations; applied=false;
+editor_intents=0; agent_proposals=0`, Project Storage Audit and Project
+Validation Preflight returned to `pending_operation_count=0` and
+`proposal_operation_count=0`, proposal refs were empty, and Export Safety
+Review reported `operation_review_ledger:empty_operation_queue`. Captured
+browser console error entries were absent.

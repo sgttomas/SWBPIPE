@@ -275,7 +275,7 @@ export function App() {
               : " Checking local storage."}
           </span>
           <span data-testid="local-project-message"> {projectMessage}</span>
-          <span data-testid="local-project-review-context"> {projectReviewContext(editorIntents)}</span>
+          <span data-testid="local-project-review-context"> {projectReviewContext(editorIntents, proposal)}</span>
         </div>
         <div className="project-toolbar-actions">
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
@@ -355,6 +355,7 @@ export function App() {
             projectMessage={projectMessage}
             projectOperation={projectOperation}
             editorIntents={editorIntents}
+            proposal={proposal}
           />
           <ProjectValidationPanel
             model={model}
@@ -362,6 +363,7 @@ export function App() {
             projectSummary={projectSummary}
             projectOperation={projectOperation}
             editorIntents={editorIntents}
+            proposal={proposal}
           />
           <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
           <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
@@ -517,9 +519,11 @@ function storageBadgeLabel(storageCapability: LocalStorageCapability): string {
   return "Local store";
 }
 
-function projectReviewContext(editorIntents: EditorOperationIntent[]): string {
-  const label = editorIntents.length === 1 ? "operation" : "operations";
-  return ` Review context: ${editorIntents.length} pending ${label}; applied=false.`;
+function projectReviewContext(editorIntents: EditorOperationIntent[], proposal: AgentProposal | null): string {
+  const proposalCount = proposal ? 1 : 0;
+  const total = editorIntents.length + proposalCount;
+  const label = total === 1 ? "operation" : "operations";
+  return ` Review context: ${total} pending ${label}; applied=false; editor_intents=${editorIntents.length}; agent_proposals=${proposalCount}.`;
 }
 
 function initialSolveJob(): SolveJobAuditState {

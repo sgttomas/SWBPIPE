@@ -1,5 +1,11 @@
 import { ClipboardCheck, Download } from "lucide-react";
-import type { EditorOperationIntent, LocalProjectSummary, LocalStorageCapability, PreviewModel } from "../../types";
+import type {
+  AgentProposal,
+  EditorOperationIntent,
+  LocalProjectSummary,
+  LocalStorageCapability,
+  PreviewModel
+} from "../../types";
 
 type RoundTripCategory = {
   category: string;
@@ -15,20 +21,23 @@ export function ProjectValidationPanel({
   storageCapability,
   projectSummary,
   projectOperation,
-  editorIntents
+  editorIntents,
+  proposal
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
+  proposal: AgentProposal | null;
 }) {
   const packet = buildProjectValidationPacket({
     model,
     storageCapability,
     projectSummary,
     projectOperation,
-    editorIntents
+    editorIntents,
+    proposal
   });
 
   return (
@@ -77,7 +86,7 @@ export function ProjectValidationPanel({
             "version_check"
           )}; migrate=${operationStatus(packet.service_operations, "migrate")}; pending operations=${
             packet.summary.pending_operation_count
-          }`}
+          }; proposals=${packet.summary.proposal_operation_count}`}
           testId="project-validation-operations"
         />
         <ValidationLine
@@ -112,18 +121,26 @@ function buildProjectValidationPacket({
   storageCapability,
   projectSummary,
   projectOperation,
-  editorIntents
+  editorIntents,
+  proposal
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
+  proposal: AgentProposal | null;
 }) {
   const categories = buildRoundTripCategories(model);
   const migrationStatus = projectSummary?.migration_status ?? "not_persisted_this_session";
   const versionCheckStatus = model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
   const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
+  const proposalCount = proposal ? 1 : 0;
+  const pendingOperationCount = editorIntents.length + proposalCount;
+  const reviewOperationStatuses = unique([
+    ...editorIntents.map((intent) => intent.validation.application_status),
+    ...(proposal ? [proposal.validation.application_status] : [])
+  ]);
 
   return {
     schema_version: "0.1.0",
@@ -143,7 +160,9 @@ function buildProjectValidationPacket({
       document_kind: model.document_kind,
       storage_mode: projectSummary?.storage_mode ?? "not_persisted_this_session",
       last_operation: projectOperation,
-      pending_operation_count: editorIntents.length,
+      pending_operation_count: pendingOperationCount,
+      editor_intent_count: editorIntents.length,
+      proposal_operation_count: proposalCount,
       accepted_model_state_mutated: false,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       network_required: Boolean(storageCapability?.network_required),
@@ -172,7 +191,9 @@ function buildProjectValidationPacket({
     storage_capability: storageCapability,
     project_summary: projectSummary,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
+    proposal_refs: proposal ? [proposal.proposal_id] : [],
     editor_operation_statuses: unique(editorIntents.map((intent) => intent.validation.application_status)),
+    review_operation_statuses: reviewOperationStatuses,
     boundary: {
       local_only_project_store: true,
       repository_default_private_write: false,

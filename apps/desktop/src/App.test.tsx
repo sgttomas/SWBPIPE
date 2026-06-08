@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-63");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-64");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -3596,6 +3596,44 @@ describe("OpenPipeStress desktop preview", () => {
     expect(proposalExportPacket.proposal_operation.professional_boundary.human_review_required).toBe(true);
     expect(proposalExportPacket.proposal_operation.professional_boundary.software_makes_compliance_claim).toBe(false);
     expect(proposalExportPacket.proposal_operation.professional_boundary.software_makes_approval_claim).toBe(false);
+    expect(proposalExportPacket.persistence_evidence.storage_audit.pending_operation_count).toBe(1);
+    expect(proposalExportPacket.persistence_evidence.storage_audit.editor_intent_count).toBe(0);
+    expect(proposalExportPacket.persistence_evidence.storage_audit.proposal_operation_count).toBe(1);
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain(
+      "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
+    );
+
+    const proposalStorageAudit = await screen.findByLabelText("Project storage audit");
+    expect(within(proposalStorageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "pending operations=1"
+    );
+    expect(within(proposalStorageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "proposals=1"
+    );
+    const proposalStorageHref =
+      within(proposalStorageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const proposalStoragePacket = JSON.parse(decodeURIComponent(proposalStorageHref.split(",", 2)[1]));
+    expect(proposalStoragePacket.summary.pending_operation_count).toBe(1);
+    expect(proposalStoragePacket.summary.editor_intent_count).toBe(0);
+    expect(proposalStoragePacket.summary.proposal_operation_count).toBe(1);
+    expect(proposalStoragePacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+    expect(proposalStoragePacket.review_operation_statuses).toContain("not_applied");
+
+    const proposalProjectValidation = await screen.findByLabelText("Project validation preflight");
+    expect(within(proposalProjectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "pending operations=1"
+    );
+    expect(within(proposalProjectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "proposals=1"
+    );
+    const proposalValidationHref =
+      within(proposalProjectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
+    const proposalValidationPacket = JSON.parse(decodeURIComponent(proposalValidationHref.split(",", 2)[1]));
+    expect(proposalValidationPacket.summary.pending_operation_count).toBe(1);
+    expect(proposalValidationPacket.summary.editor_intent_count).toBe(0);
+    expect(proposalValidationPacket.summary.proposal_operation_count).toBe(1);
+    expect(proposalValidationPacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+    expect(proposalValidationPacket.review_operation_statuses).toContain("not_applied");
 
     const operationLedger = await screen.findByLabelText("Operation review ledger");
     expect(await within(operationLedger).findByTestId("operation-ledger-export-summary")).toHaveTextContent(
@@ -3719,8 +3757,34 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPacket.protected_content_included).toBe(false);
     expect(diffPacket.release_or_professional_claim).toBe(false);
 
+    const proposalExportReview = await screen.findByLabelText("Export safety review");
+    const proposalReviewHref = within(proposalExportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
+    const proposalReviewManifest = JSON.parse(decodeURIComponent(proposalReviewHref.split(",", 2)[1]));
+    expect(proposalReviewManifest.summary.operation_record_count).toBe(1);
+    expect(
+      proposalReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .pending_operation_count
+    ).toBe(1);
+    expect(
+      proposalReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .proposal_operation_count
+    ).toBe(1);
+    expect(
+      proposalReviewManifest.exports.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).pending_operation_count
+    ).toBe(1);
+    expect(
+      proposalReviewManifest.exports.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).proposal_operation_count
+    ).toBe(1);
+
     fireEvent.click(within(operationLedger).getByTestId("clear-operation-review-queue"));
 
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain(
+      "0 pending operations; applied=false; editor_intents=0; agent_proposals=0"
+    );
     expect(within(proposal).queryByTestId("proposal-body")).not.toBeInTheDocument();
     expect(await within(operationLedger).findByTestId("operation-ledger-empty")).toHaveTextContent(
       "No structured operations are queued"
@@ -3747,6 +3811,20 @@ describe("OpenPipeStress desktop preview", () => {
     expect(nativePackageAfterClearPacket.operation_review.record_count).toBe(0);
     expect(nativePackageAfterClearPacket.operation_review.proposal_count).toBe(0);
     expect(nativePackageAfterClearPacket.operation_review.held_for_user_acceptance_count).toBe(0);
+
+    const clearedStorageHref =
+      within(proposalStorageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const clearedStoragePacket = JSON.parse(decodeURIComponent(clearedStorageHref.split(",", 2)[1]));
+    expect(clearedStoragePacket.summary.pending_operation_count).toBe(0);
+    expect(clearedStoragePacket.summary.proposal_operation_count).toBe(0);
+    expect(clearedStoragePacket.proposal_refs).toEqual([]);
+
+    const clearedValidationHref =
+      within(proposalProjectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
+    const clearedValidationPacket = JSON.parse(decodeURIComponent(clearedValidationHref.split(",", 2)[1]));
+    expect(clearedValidationPacket.summary.pending_operation_count).toBe(0);
+    expect(clearedValidationPacket.summary.proposal_operation_count).toBe(0);
+    expect(clearedValidationPacket.proposal_refs).toEqual([]);
 
     const exportReviewAfterClear = await screen.findByLabelText("Export safety review");
     const clearedReviewHref =
