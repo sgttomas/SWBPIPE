@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-66");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-67");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2314,6 +2314,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
       "browser_memory_preview"
     );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_editor_intents=1"
+    );
 
     fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
     expect(await screen.findByTestId("local-project-message")).toHaveTextContent("without external file copies");
@@ -2331,6 +2334,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(controls).getByText("Invented Utility Loop Preview")).toBeInTheDocument();
     expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=open");
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_editor_intents=1"
+    );
     expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
       "network=false"
     );
@@ -2355,6 +2361,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(auditPacket.summary.storage_engine).toBe("Browser memory preview");
     expect(auditPacket.summary.storage_mode).toBe("browser_memory_preview");
     expect(auditPacket.summary.pending_operation_count).toBe(1);
+    expect(auditPacket.summary.editor_intent_count).toBe(1);
+    expect(auditPacket.summary.persisted_editor_intent_count).toBe(1);
     expect(auditPacket.summary.applied_operation_count).toBe(0);
     expect(auditPacket.summary.accepted_model_state_mutated).toBe(false);
     expect(auditPacket.summary.network_required).toBe(false);
@@ -2362,6 +2370,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(auditPacket.summary.telemetry_enabled).toBe(false);
     expect(auditPacket.summary.copied_external_files).toBe(false);
     expect(auditPacket.project_summary.storage_mode).toBe("browser_memory_preview");
+    expect(auditPacket.project_summary.editor_intent_count).toBe(1);
     expect(auditPacket.project_summary.copied_external_files).toBe(false);
     expect(auditPacket.editor_intent_refs).toContain(
       "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
@@ -2384,6 +2393,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "pending operations=1"
     );
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "persisted editor intents=1"
+    );
     expect(within(projectValidation).getByTestId("project-validation-boundary").textContent).toContain(
       "private/protected payload=false"
     );
@@ -2397,6 +2409,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.summary.storage_mode).toBe("browser_memory_preview");
     expect(validationPacket.summary.migration_status).toBe("current");
     expect(validationPacket.summary.pending_operation_count).toBe(1);
+    expect(validationPacket.summary.editor_intent_count).toBe(1);
+    expect(validationPacket.summary.persisted_editor_intent_count).toBe(1);
+    expect(validationPacket.project_summary.editor_intent_count).toBe(1);
     expect(validationPacket.summary.accepted_model_state_mutated).toBe(false);
     expect(validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "validate").operation_status).toBe(
       "preflight_generated_preview_current"
@@ -2426,6 +2441,19 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.protected_content_included).toBe(false);
     expect(validationPacket.release_or_professional_claim).toBe(false);
     expect(validationPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+
+    const exportReview = await screen.findByLabelText("Export safety review");
+    const reviewHref = within(exportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
+    const reviewManifest = JSON.parse(decodeURIComponent(reviewHref.split(",", 2)[1]));
+    expect(
+      reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .persisted_editor_intent_count
+    ).toBe(1);
+    expect(
+      reviewManifest.exports.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).persisted_editor_intent_count
+    ).toBe(1);
 
     fireEvent.click(within(tree).getByRole("button", { name: /Invented carbon-steel-like material/i }));
     expect(

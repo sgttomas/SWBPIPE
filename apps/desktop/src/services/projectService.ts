@@ -46,6 +46,7 @@ function envelope(
       migration_status: "current",
       fts_indexed: false,
       copied_external_files: false,
+      editor_intent_count: editorIntents.length,
       proposal_count: proposal ? 1 : 0,
       selected_review_target_count: selectedReviewTarget ? 1 : 0,
       message

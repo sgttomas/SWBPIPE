@@ -428,6 +428,7 @@ export type LocalProjectSummary = {
   migration_status: "current" | string;
   fts_indexed: boolean;
   copied_external_files: boolean;
+  editor_intent_count: number;
   proposal_count: number;
   selected_review_target_count: number;
   message: string;

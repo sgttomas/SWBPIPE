@@ -75,7 +75,9 @@ export function ProjectStorageAuditPanel({
           label="Project snapshot"
           value={`${packet.project_summary?.project_id ?? model.project.id}; ${
             packet.project_summary?.storage_mode ?? "not_persisted_this_session"
-          }; persisted_proposals=${packet.summary.persisted_proposal_count}; persisted_review_targets=${
+          }; persisted_editor_intents=${packet.summary.persisted_editor_intent_count}; persisted_proposals=${
+            packet.summary.persisted_proposal_count
+          }; persisted_review_targets=${
             packet.summary.persisted_selected_review_target_count
           }; copied_external_files=${String(
             packet.summary.copied_external_files
@@ -150,6 +152,7 @@ function buildProjectStorageAuditPacket({
       pending_operation_count: pendingOperationCount,
       editor_intent_count: editorIntents.length,
       proposal_operation_count: proposalCount,
+      persisted_editor_intent_count: projectSummary?.editor_intent_count ?? 0,
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       applied_operation_count: 0,

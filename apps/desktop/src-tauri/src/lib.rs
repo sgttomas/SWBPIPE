@@ -54,6 +54,7 @@ struct LocalProjectSummary {
     migration_status: &'static str,
     fts_indexed: bool,
     copied_external_files: bool,
+    editor_intent_count: usize,
     proposal_count: usize,
     selected_review_target_count: usize,
     message: String,
@@ -389,6 +390,10 @@ fn proposal_count(proposal: &Value) -> usize {
     }
 }
 
+fn editor_intent_count(editor_intents: &Value) -> usize {
+    editor_intents.as_array().map_or(0, Vec::len)
+}
+
 fn selected_review_target_count(selected_review_target: &Value) -> usize {
     if selected_review_target.is_object() {
         1
@@ -401,6 +406,7 @@ fn project_summary(
     project_id: String,
     project_name: String,
     database_path: PathBuf,
+    editor_intents: &Value,
     proposal: &Value,
     selected_review_target: &Value,
     message: String,
@@ -413,6 +419,7 @@ fn project_summary(
         migration_status: "current",
         fts_indexed: true,
         copied_external_files: false,
+        editor_intent_count: editor_intent_count(editor_intents),
         proposal_count: proposal_count(proposal),
         selected_review_target_count: selected_review_target_count(selected_review_target),
         message,
@@ -595,6 +602,7 @@ fn create_local_project(
             project_id,
             project_name,
             path,
+            &editor_intents,
             &proposal,
             &selected_review_target,
             "Created local SQLite project snapshot without external file copies.".to_string(),
@@ -621,6 +629,7 @@ fn open_local_project(
                         id,
                         name,
                         path.clone(),
+                        &editor_intents,
                         &proposal,
                         &selected_review_target,
                         "Opened local SQLite project snapshot.".to_string(),
@@ -660,6 +669,7 @@ fn save_local_project(
             request.project_id,
             request.project_name,
             path,
+            &editor_intents,
             &proposal,
             &selected_review_target,
             "Saved current project model snapshot without external file copies.".to_string(),
@@ -788,6 +798,18 @@ mod tests {
             loaded.5["id"],
             json!("result:stress:pipe-P-120:end-j:torsional-shear")
         );
+        let summary = project_summary(
+            "project:test-local".to_string(),
+            "Test Local Project".to_string(),
+            PathBuf::from(":memory:"),
+            &editor_intents,
+            &proposal,
+            &selected_review_target,
+            "Saved test project snapshot.".to_string(),
+        );
+        assert_eq!(summary.editor_intent_count, 1);
+        assert_eq!(summary.proposal_count, 1);
+        assert_eq!(summary.selected_review_target_count, 1);
 
         let indexed_count: i64 = connection
             .query_row(

@@ -1750,3 +1750,38 @@ job state returned to `state=not_started`. Operation Review Ledger exported
 level. Export Safety Review carried the same selected review target and
 `persisted_selected_review_target_count=1` on the project storage and project
 validation records. Captured browser console error entries were absent.
+
+TP-MAC-67 persisted-editor-intent-count-local-roundtrip smoke passed on
+2026-06-08 America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/` with timestamp marker `2026-06-08T12:15:22-0600 MDT`.
+The local validation run for this tranche passed focused
+`npm test --workspace apps/desktop -- --run App.test.tsx -t "round trips local
+create, save, and open project controls without external file copies"`, full
+`npm test --workspace apps/desktop`, `npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`,
+`PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py
+tests/security/test_local_first_storage_policy.py`, and direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`
+before browser smoke.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-67`. After selecting
+`material:invented-carbon-steel`, queueing a review-only
+`elastic_modulus.value` editor intent, and choosing `Create local`, `Save
+local`, then `Open local`, the local project review context reported `1
+pending operation; applied=false; editor_intents=1`. Project Storage Audit
+visible text reported `operation=open` and `persisted_editor_intents=1`; its
+JSON carried `summary.editor_intent_count=1`,
+`summary.persisted_editor_intent_count=1`, and
+`project_summary.editor_intent_count=1` with `local_only_project_store=true`
+and `external_file_copy_performed=false`. Project Validation Preflight visible
+text reported `persisted editor intents=1`; its JSON carried the same
+`editor_intent_count`, `persisted_editor_intent_count`, and
+`project_summary.editor_intent_count` values. Export Safety Review carried
+`persisted_editor_intent_count=1` on both the `project_storage_audit` and
+`project_validation_preflight` records. Re-selecting the material after open
+showed the restored `editor-intent-1` queue entry. Captured browser console
+error entries were absent.

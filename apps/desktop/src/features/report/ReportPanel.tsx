@@ -459,6 +459,7 @@ function reportPersistenceEvidence({
       storage_mode: storageMode,
       pending_operation_count: operationRecordCount,
       editor_intent_count: editorIntents.length,
+      persisted_editor_intent_count: projectSummary?.editor_intent_count ?? 0,
       proposal_operation_count: proposal ? 1 : 0,
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
@@ -472,6 +473,7 @@ function reportPersistenceEvidence({
       version_check_status: versionCheckStatus,
       migration_status: projectSummary?.migration_status ?? "not_persisted_this_session",
       round_trip_status: "semantic_categories_declared",
+      persisted_editor_intent_count: projectSummary?.editor_intent_count ?? 0,
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       accepted_model_state_mutated: false

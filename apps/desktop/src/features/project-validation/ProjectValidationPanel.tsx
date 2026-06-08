@@ -86,7 +86,9 @@ export function ProjectValidationPanel({
             "version_check"
           )}; migrate=${operationStatus(packet.service_operations, "migrate")}; pending operations=${
             packet.summary.pending_operation_count
-          }; proposals=${packet.summary.proposal_operation_count}; persisted proposals=${
+          }; persisted editor intents=${packet.summary.persisted_editor_intent_count}; proposals=${
+            packet.summary.proposal_operation_count
+          }; persisted proposals=${
             packet.summary.persisted_proposal_count
           }; persisted review targets=${
             packet.summary.persisted_selected_review_target_count
@@ -166,6 +168,7 @@ function buildProjectValidationPacket({
       last_operation: projectOperation,
       pending_operation_count: pendingOperationCount,
       editor_intent_count: editorIntents.length,
+      persisted_editor_intent_count: projectSummary?.editor_intent_count ?? 0,
       proposal_operation_count: proposalCount,
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
