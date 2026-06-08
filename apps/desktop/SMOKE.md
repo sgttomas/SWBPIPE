@@ -1371,3 +1371,38 @@ the report packet persistence inventory carried `expected_export_count=23`,
 included `secrets=available`; and Report Content Lint reported `targets=17`,
 `findings=0`, and `blocking=0`. Captured browser console error entries were
 absent.
+
+TP-MAC-58 security-threat-model-preview smoke passed on 2026-06-08
+America/Edmonton using local Chrome/Playwright against
+`http://127.0.0.1:5175/` with timestamp marker
+`2026-06-08T10:37:18-0600 MDT`. The local validation run for this tranche
+passed `npm test --workspace apps/desktop`, `npm run build --workspace
+apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_security_threat_model.py`, browser initial and solved-state packet
+checks, zero browser console errors, `git diff --check`, and a touched-file
+ASCII scan before closeout.
+
+The initial browser state confirmed the new Threat Model Review panel reported
+`threats=19`, `high=14`, `local_first=true`, `private_payload=false`, and
+`security_certification=false`. The parsed threat-model JSON carried
+`DEL-12-05`, `PKG-12`, `SOW-040`, `OBJ-010`,
+`document_kind=openpipestress.technical_preview.security_threat_model_review`,
+19 threat rows, 14 high-risk rows, 5 medium/high rows, 10 asset classes, 10
+trust boundaries, 6 export workflow reviews, 14 open decisions, 13 `TBD`
+decisions, no direct SQL access, no plugin manifest runtime grant, private
+payload false, protected content false, and no security-certification claim.
+
+Export Safety Review initially reported `17 of 24 local exports ready` with
+`security_threat_model_review:available`; Report Content Lint initially
+reported `targets=17`, `findings=0`, and `blocking=0`, with
+`target:desktop-security-threat-model-template` present.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. Export Safety Review reported `23 of 24 local
+exports ready` because no operation review record was queued; the report
+packet persistence inventory carried `expected_export_count=24`,
+`available_count=23`, and `security_threat_model_review:available`; the report
+readiness line included `threats=available`; and Report Content Lint reported
+`targets=18`, `findings=0`, and `blocking=0`. Captured browser console error
+entries were absent.

@@ -154,6 +154,7 @@ function buildExportReviewManifest({
   const validationPreflightReady = true;
   const telemetryBoundaryReady = true;
   const secretPrivateLibraryReady = true;
+  const securityThreatModelReady = true;
   const editorContractReady = true;
   const missingDataReviewReady = true;
   const buildReadinessReady = true;
@@ -290,6 +291,41 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "DEL-12-04 desktop secret/private-library boundary review; private libraries, private paths, and credential references are metadata-only, public fixtures are blocked, public report context is reference-only, and provider, encryption, storage-root, permission, cloud/network, and external secret-manager decisions stay TBD."
+    },
+    {
+      export_id: "security_threat_model_review",
+      label: "Security threat model review",
+      document_kind: "openpipestress.technical_preview.security_threat_model_review",
+      readiness: securityThreatModelReady ? "available" : "pending_security_threat_model_surface",
+      deliverable_refs: ["DEL-12-05", "DEL-12-01", "DEL-12-02", "DEL-12-03", "DEL-12-04", "DEL-10-02", "DEL-10-03", "DEL-17-09"],
+      source_refs: [
+        model.project.id,
+        "docs/security/threat_model.md",
+        "tests/test_security_threat_model.py",
+        "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx"
+      ],
+      threat_count: 19,
+      high_risk_count: 14,
+      medium_high_risk_count: 5,
+      asset_class_count: 10,
+      trust_boundary_count: 10,
+      export_workflow_count: 6,
+      open_decision_count: 14,
+      tbd_decision_count: 13,
+      local_first: true,
+      telemetry_default_off: true,
+      direct_sql_access: false,
+      raw_sqlite_handle_allowed: false,
+      storage_bypass_requested: false,
+      plugin_manifest_grants_runtime_access: false,
+      no_bypass_controls_present: true,
+      security_certification_claim: false,
+      redaction_action: "threat_model_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-12-05 desktop threat-model review; summarizes current private-data, report/export, plugin/import/FEA handoff, telemetry, secret, and supply-chain threat coverage without claiming security sufficiency or release readiness."
     },
     {
       export_id: "editor_contract_review",
@@ -739,6 +775,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
         "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
         "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
+        "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
         "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
         "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -750,7 +787,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 17 : 16,
+      target_count: result && run ? 18 : 17,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -802,7 +839,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-12-05", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-037", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-011", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

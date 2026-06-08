@@ -44,6 +44,7 @@ import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPa
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
+import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
@@ -351,6 +352,7 @@ export function App() {
           />
           <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
           <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
+          <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
           <BuildReadinessPanel model={model} />
           <SolvePanel
             analysisRun={analysisRun}

@@ -118,6 +118,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
           "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
           "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
+          "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -195,6 +196,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Secret and private-library template records metadata-only private library, private path, and credential references, public fixture blocking, public report reference-only handling, direct SQL false, storage bypass false, network false, private payload false, protected payload false, and no security certification, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-security-threat-model-template",
+      "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Security threat-model template records DEL-12-05 metadata-only threat inventory counts, local-first posture, telemetry default-off, no-bypass controls, open TBD decisions, private payload false, protected payload false, and no security sufficiency, release, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-editor-contract-template",
