@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
 import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPanel";
@@ -364,6 +365,7 @@ export function App() {
             onRun={handleRun}
           />
           <MissingDataBlockingPanel model={model} result={result} />
+          <AccessibilityBaselinePanel model={model} />
           <RuleCheckPanel model={model} result={result} />
           <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
           <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />

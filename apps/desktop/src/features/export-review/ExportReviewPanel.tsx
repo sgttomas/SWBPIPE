@@ -157,6 +157,7 @@ function buildExportReviewManifest({
   const securityThreatModelReady = true;
   const editorContractReady = true;
   const missingDataReviewReady = true;
+  const accessibilityBaselineReady = true;
   const buildReadinessReady = true;
   const reportReady = Boolean(result && analysisRun);
   const resultExportReady = Boolean(result && analysisRun);
@@ -388,6 +389,41 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "DEL-07-04 desktop missing-data warning review; solve-required and rule-check-required data stay distinct, missing values are not auto-filled, and warning meaning is exported as text metadata."
+    },
+    {
+      export_id: "accessibility_usability_baseline_review",
+      label: "Accessibility/usability baseline review",
+      document_kind: "openpipestress.technical_preview.accessibility_usability_baseline_review",
+      readiness: accessibilityBaselineReady ? "available" : "pending_accessibility_baseline_surface",
+      deliverable_refs: ["DEL-07-06", "DEL-07-01", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-07-05", "DEL-07-07"],
+      source_refs: [
+        model.project.id,
+        "core/gui/accessibility/engine.py",
+        "tests/test_accessibility_usability_baseline.py",
+        "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx"
+      ],
+      source_surface_count: 6,
+      total_finding_count: 69,
+      pass_count: 57,
+      warning_count: 10,
+      fail_count: 1,
+      blocking_count: 1,
+      keyboard_path_finding_count: 4,
+      focus_order_finding_count: 3,
+      readable_label_finding_count: 4,
+      warning_visibility_finding_count: 5,
+      result_review_visibility_finding_count: 4,
+      solve_state_feedback_finding_count: 3,
+      accessibility_target_status: "TBD_by_human_project_authority",
+      desktop_runtime_evaluation: "not_performed",
+      software_makes_accessibility_conformance_claim: false,
+      color_only_status_signaling_allowed: false,
+      redaction_action: "accessibility_baseline_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-07-06 desktop accessibility/usability baseline review; reports deterministic core GUI-contract evidence for keyboard, focus, labels, warning visibility, result review, and solve feedback without selecting a final conformance target."
     },
     {
       export_id: "build_package_readiness",
@@ -778,6 +814,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
         "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
         "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+        "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -787,7 +824,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 18 : 17,
+      target_count: result && run ? 19 : 18,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -839,7 +876,7 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-12-05", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-12-05", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-07-06", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-03"],
     scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-037", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-011", "OBJ-012", "OBJ-015", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,

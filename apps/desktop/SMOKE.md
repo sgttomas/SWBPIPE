@@ -1406,3 +1406,40 @@ packet persistence inventory carried `expected_export_count=24`,
 readiness line included `threats=available`; and Report Content Lint reported
 `targets=18`, `findings=0`, and `blocking=0`. Captured browser console error
 entries were absent.
+
+TP-MAC-59 accessibility-usability-baseline-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T10:48:45-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_accessibility_usability_baseline.py`, browser initial and
+solved-state packet checks, zero browser console errors, `git diff --check`,
+and a touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Accessibility Baseline panel
+reported `surfaces=6`, `findings=69`, `warnings=10`,
+`target=TBD_by_human_project_authority`, `conformance_claim=false`,
+`color_only=false`, and `private_payload=false`. The parsed accessibility JSON
+carried `DEL-07-06`, `PKG-07`, `SOW-036`, `OBJ-006`,
+`document_kind=openpipestress.technical_preview.accessibility_usability_baseline_review`,
+6 source surfaces, 69 findings, 57 pass records, 10 warning records, 1 fail
+record, 1 blocking record, target `TBD_by_human_project_authority`, desktop
+runtime evaluation `not_performed`, private payload false, protected content
+false, color-only status signaling false, and no accessibility conformance,
+release, code-compliance, or professional reliance claim.
+
+Export Safety Review initially reported `18 of 25 local exports ready` with
+`accessibility_usability_baseline_review:available`; Report Content Lint
+initially reported `targets=18`, `findings=0`, and `blocking=0`, with
+`target:desktop-accessibility-baseline-template` present.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. Export Safety Review reported `24 of 25 local
+exports ready` because no operation review record was queued; the report
+packet persistence inventory carried `expected_export_count=25`,
+`available_count=24`, and
+`accessibility_usability_baseline_review:available`; the report readiness line
+included `accessibility=available`; and Report Content Lint reported
+`targets=19`, `findings=0`, and `blocking=0`. Captured browser console error
+entries were absent.
