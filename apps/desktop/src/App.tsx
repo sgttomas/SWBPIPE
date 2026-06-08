@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
 import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPanel";
+import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { DiffPreviewPanel } from "./features/diff-preview/DiffPreviewPanel";
@@ -359,6 +360,7 @@ export function App() {
           <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
           <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
           <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
+          <CaepipeMbfExportPanel model={model} result={result} analysisRun={analysisRun} />
           <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
           <NativePackagePanel
             model={model}

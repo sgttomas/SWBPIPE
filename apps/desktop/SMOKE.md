@@ -591,6 +591,45 @@ false certification-claim, false sealing-claim, false approval-claim, and
 false authentication-claim flags. Fresh browser console errors after the
 timestamp marker were absent.
 
+TP-MAC-50 caepipe-mbf-export-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+smoke marker `caepipe-mbf-smoke-1780922356401`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, and `python3 tests/test_caepipe_mbf_export_package.py`
+before browser smoke.
+
+The initial browser state confirmed the new CAEPIPE MBF Export panel reported
+`available`, `nodes=5`, `pipes=4`, `supports=3`,
+`validation=boundary_checked`, and `losses=6`. The parsed CAEPIPE MBF package
+JSON carried
+`document_kind=openpipestress.technical_preview.caepipe_mbf_export_package`,
+`DEL-17-04`, profile `ops.caepipe_mbf.smoke_tbd`,
+`target_family=caepipe_mbf`, `target_version_basis=TBD-17-01-001`,
+`record_subset_basis=TBD-17-01-002`,
+`stable_id_policy=sidecar_mapping_until_direct_mbf_carrier_confirmed`, carried
+TBD refs `TBD-17-01-001`, `TBD-17-01-002`, and `TBD-17-01-003`, 5 nodes, 4
+pipe elements, 3 supports, 2 load cases, 14 sidecar stable-ID entries, all six
+loss categories (`exported`, `omitted`, `approximated`, `delegated`,
+`unsupported`, and `tbd`), zero diagnostics, `validation_status=boundary_checked`,
+and false CAEPIPE-compatibility, solver-validation, code-compliance, and
+professional-reliance claim flags. The parsed MBF text download contained
+`PIPE,P003,N003,N004`, `LOAD_CASES`, and terminal `END`. Export Safety Review
+initially reported `10 of 16 local exports ready`, and Report Content Lint
+reported `targets=9`, `findings=0`, and `blocking=0`.
+
+After running the preview mechanics path, the CAEPIPE MBF package bound to
+`analysis_run_ref=run:preview-linear-static-001` and
+`model_state_ref=state:project:invented-loop-01:preview` while retaining
+`validation=boundary_checked`, 14 stable-ID entries, 6 loss entries, and zero
+diagnostics. Export Safety Review reported `15 of 16 local exports ready`
+because no operation review record was queued; the parsed export review
+manifest carried `export_count=16`, `available_count=15`, and
+`caepipe_mbf_export:available`. The parsed report JSON persistence inventory
+carried `expected_export_count=16`, `available_count=15`, and
+`caepipe_mbf_export:available`; Report Content Lint reported `targets=10`,
+`findings=0`, and `blocking=0`. Captured browser console error entries were
+absent.
+
 TP-MAC-36 result-export-audit smoke passed on 2026-06-07 America/Edmonton
 using the in-app browser at `http://127.0.0.1:5174/` with timestamp marker
 `2026-06-08T04:58:58.888Z`. The run confirmed the new Result Export panel
