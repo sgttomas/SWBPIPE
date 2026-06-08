@@ -154,6 +154,11 @@ export function App() {
     ]);
   }
 
+  function handleClearReviewQueue() {
+    setEditorIntents([]);
+    setProposal(null);
+  }
+
   async function handleCreateProject() {
     if (!model) return;
     setProjectBusy(true);
@@ -445,6 +450,7 @@ export function App() {
             editorIntents={editorIntents}
             proposal={proposal}
             selectedReviewTarget={selectedReviewTarget}
+            onClearReviewQueue={handleClearReviewQueue}
           />
           <ExportReviewPanel
             model={model}

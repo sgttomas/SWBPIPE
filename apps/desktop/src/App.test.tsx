@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-62");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-63");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -1365,6 +1365,27 @@ describe("OpenPipeStress desktop preview", () => {
       reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
         .readiness
     ).toBe("available");
+
+    fireEvent.click(within(operationLedger).getByTestId("clear-operation-review-queue"));
+
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(within(intentPanel).getByTestId("viewport-intent-empty").textContent).toContain(
+      "do not mutate persisted project data directly"
+    );
+    expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("queued=0");
+    expect(await within(operationLedger).findByTestId("operation-ledger-empty")).toHaveTextContent(
+      "No structured operations are queued"
+    );
+    expect(within(operationLedger).queryByTestId("operation-ledger-export-link")).not.toBeInTheDocument();
+    expect(await within(diffPreview).findByTestId("diff-preview-empty")).toHaveTextContent("No operation diffs");
+
+    const clearedReviewHref = within(exportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
+    const clearedReviewManifest = JSON.parse(decodeURIComponent(clearedReviewHref.split(",", 2)[1]));
+    expect(clearedReviewManifest.summary.operation_record_count).toBe(0);
+    expect(
+      clearedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
+        .readiness
+    ).toBe("empty_operation_queue");
   });
 
   it("exposes materials, components, load cases, and combinations in the model workspace", async () => {
@@ -3697,6 +3718,45 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPacket.private_payload_included).toBe(false);
     expect(diffPacket.protected_content_included).toBe(false);
     expect(diffPacket.release_or_professional_claim).toBe(false);
+
+    fireEvent.click(within(operationLedger).getByTestId("clear-operation-review-queue"));
+
+    expect(within(proposal).queryByTestId("proposal-body")).not.toBeInTheDocument();
+    expect(await within(operationLedger).findByTestId("operation-ledger-empty")).toHaveTextContent(
+      "No structured operations are queued"
+    );
+    expect(await within(diffPreview).findByTestId("diff-preview-empty")).toHaveTextContent("No operation diffs");
+    expect(within(report).queryByTestId("report-proposal-operation")).not.toBeInTheDocument();
+    expect(within(report).queryByTestId("report-proposal-boundary")).not.toBeInTheDocument();
+
+    const clearedReportHref = within(report).getByTestId("report-export-link").getAttribute("href") ?? "";
+    const clearedReportPacket = JSON.parse(decodeURIComponent(clearedReportHref.split(",", 2)[1]));
+    expect(clearedReportPacket.proposal_ref).toBe("not generated");
+    expect(clearedReportPacket.proposal_operation).toBeNull();
+    expect(clearedReportPacket.selected_review_target).toEqual({
+      target_type: "result",
+      id: "result:stress:pipe-P-120:end-j:torsional-shear"
+    });
+
+    const nativePackageAfterClearHref =
+      within(nativePackageAfterProposal).getByTestId("native-package-link").getAttribute("href") ?? "";
+    const nativePackageAfterClearPacket = JSON.parse(decodeURIComponent(nativePackageAfterClearHref.split(",", 2)[1]));
+    expect(nativePackageAfterClearPacket.stable_id_map.operation_ref_count).toBe(0);
+    expect(nativePackageAfterClearPacket.stable_id_map.operation_refs).toEqual([]);
+    expect(nativePackageAfterClearPacket.stable_id_map.proposal_refs).toEqual([]);
+    expect(nativePackageAfterClearPacket.operation_review.record_count).toBe(0);
+    expect(nativePackageAfterClearPacket.operation_review.proposal_count).toBe(0);
+    expect(nativePackageAfterClearPacket.operation_review.held_for_user_acceptance_count).toBe(0);
+
+    const exportReviewAfterClear = await screen.findByLabelText("Export safety review");
+    const clearedReviewHref =
+      within(exportReviewAfterClear).getByTestId("export-review-link").getAttribute("href") ?? "";
+    const clearedReviewManifest = JSON.parse(decodeURIComponent(clearedReviewHref.split(",", 2)[1]));
+    expect(clearedReviewManifest.summary.operation_record_count).toBe(0);
+    expect(
+      clearedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
+        .readiness
+    ).toBe("empty_operation_queue");
   }, 15000);
 
   it("links selected diagnostics to affected result and model context", async () => {

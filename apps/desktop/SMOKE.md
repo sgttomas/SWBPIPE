@@ -1594,3 +1594,47 @@ fallback on both the default desktop-sized viewport and a 390 by 844
 mobile-sized viewport. The desktop canvas measured 578 by 325 CSS pixels, and
 the mobile-sized canvas measured 458 by 258 CSS pixels after the viewport
 canvas min-height/aspect-ratio fix.
+
+TP-MAC-63 operation-review-queue-clear smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T11:40:56-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py`, direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`,
+browser review-queue clear checks, zero browser console errors,
+`git diff --check`, and a touched-file ASCII scan before closeout.
+
+The browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-63`. After queuing the three viewport
+intents, the local project review context reported `3 pending operations`,
+the operation review ledger reported `3 review records`, the operation diff
+preview reported `3 operations` and `3 diff rows`, and Export Safety Review
+reported `operation_record_count=3` with `operation_review_ledger:available`.
+
+After choosing `Clear pending operations`, the viewport intent list returned
+to its no-direct-mutation empty state, local project review context reported
+`0 pending operations`, the operation ledger reported no structured
+operations queued, the diff preview reported no operation diffs, and Export
+Safety Review reported `operation_record_count=0` with
+`operation_review_ledger:empty_operation_queue`.
+
+After running the preview mechanics path, filtering to
+`result:stress:pipe-P-120:end-j:torsional-shear`, and generating the
+review-only proposal, the operation ledger reported `1 review record`, the
+diff preview reported `1 operations`, the report export carried
+`proposal:physics-diagnostic-review` and operation
+`op:review-computed-diagnostic`, the native package carried one operation
+ref, and Export Safety Review reported one operation record.
+
+After choosing `Clear pending operations` again, the proposal body was removed,
+the operation ledger and diff preview returned to empty-queue states, the
+report export carried `proposal_ref=not generated` and
+`proposal_operation=null`, the selected review target remained
+`result:stress:pipe-P-120:end-j:torsional-shear`, the native package reported
+`operation_ref_count=0` and `proposal_count=0`, and Export Safety Review
+reported `operation_record_count=0` with
+`operation_review_ledger:empty_operation_queue`. Captured browser console
+error entries were absent.

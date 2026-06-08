@@ -1,4 +1,4 @@
-import { ClipboardCheck, Download } from "lucide-react";
+import { ClipboardCheck, Download, Trash2 } from "lucide-react";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -12,13 +12,15 @@ export function OperationLedgerPanel({
   analysisRun,
   editorIntents,
   proposal,
-  selectedReviewTarget
+  selectedReviewTarget,
+  onClearReviewQueue
 }: {
   model: PreviewModel;
   analysisRun: AnalysisRunEnvelope | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
+  onClearReviewQueue: () => void;
 }) {
   const ledger = buildOperationReviewLedger({
     model,
@@ -51,6 +53,15 @@ export function OperationLedgerPanel({
               {ledger.records.length} review {ledger.records.length === 1 ? "record" : "records"};{" "}
               {ledger.decision_counts.held_for_user_acceptance} held; no accepted-state mutation
             </span>
+            <button
+              className="secondary-action"
+              data-testid="clear-operation-review-queue"
+              onClick={onClearReviewQueue}
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Clear pending operations
+            </button>
           </div>
           <div className="report-list" data-testid="operation-ledger-body">
             <LedgerLine
