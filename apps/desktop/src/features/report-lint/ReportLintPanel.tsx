@@ -123,6 +123,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
           "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+          "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -233,6 +234,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Design workspace template records DEL-07-08 design knowledge, constraint warning, state/run, comparison, overlay, and operation-diff review metadata, accepted model mutation false, private payload false, protected payload false, and no acceptance, release, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-validation-evidence-template",
+      "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Validation evidence template records DEL-09-04 and DEL-09-05 manual sections, evidence areas, local readiness profiles, release-gate families, unresolved TBD decisions, browser tool execution false, private payload false, protected payload false, and no release authorization, certification, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-local-fea-handoff-template",

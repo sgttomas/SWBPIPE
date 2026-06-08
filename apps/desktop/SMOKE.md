@@ -1485,3 +1485,50 @@ packet persistence inventory carried `expected_export_count=26`,
 included `workspace=available`; and Report Content Lint reported `targets=20`,
 `findings=0`, and `blocking=0`. Captured browser console error entries were
 absent.
+
+TP-MAC-61 validation-release-evidence-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T11:12:56-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_release_readiness_script.py`, browser initial and solved-state
+packet checks, zero browser console errors, `git diff --check`, and a
+touched-file ASCII scan before closeout.
+
+The initial browser state confirmed the new Validation Evidence panel reported
+`manual=10`, `evidence=8`, `profiles=5`, and `open_tbd=5`. The manual line
+reported 10 sections and states `PLANNED`, `DRAFT_EVIDENCE`,
+`MAINTAINER_REVIEWED`, `BLOCKED`, and `TBD`; the inventory line reported
+`areas=8`, `gui=PLANNED`, and `bundles=TBD`; the release-check line reported
+profiles `skeleton`, `python`, `security`, `cargo`, and `all`, with
+`skeleton_checks=2` and `dry_run_default=true`; and the release-gate line
+reported solver/rule-engine/GUI/report-template/mixed gate families with
+`thresholds=TBD` and `release_authorized=false`.
+
+The parsed validation-evidence JSON carried
+`document_kind=openpipestress.technical_preview.validation_release_evidence_review`,
+`DEL-09-04`, `DEL-09-05`, `DEL-10-04`, `DEL-09-01`, `DEL-09-02`,
+`DEL-09-03`, `DEL-08-05`, scope items `SOW-026`, `SOW-027`, `SOW-032`, and
+`SOW-043`, 10 manual sections, 8 evidence areas, 5 release profiles, 7
+required release paths, 2 skeleton checks, 5 open validation decisions, and 5
+release-gate families. It recorded
+`latest_dag_dependency_edges=execution/_DAG/DAG-006/DependencyEdges.csv`,
+`browser_panel_runs_tool=false`, `release_publication_authorized=false`,
+`private_payload_included=false`, `protected_content_included=false`, and
+`release_or_professional_claim=false`.
+
+Export Safety Review initially reported `20 of 27 local exports ready` with
+`validation_release_evidence_review:available`; Report Content Lint initially
+reported `targets=20`, `findings=0`, and `blocking=0`, with
+`target:desktop-validation-evidence-template` present.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. Result Export reported `rows=647`.
+Export Safety Review reported `26 of 27 local exports ready` because no
+operation review record was queued; the report packet persistence inventory
+carried `expected_export_count=27`, `available_count=26`, and
+`validation_release_evidence_review:available`; the report readiness line
+included `evidence=available`; and Report Content Lint reported `targets=21`,
+`findings=0`, and `blocking=0`. Captured browser console error entries were
+absent.

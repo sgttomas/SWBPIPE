@@ -160,6 +160,7 @@ function buildExportReviewManifest({
   const accessibilityBaselineReady = true;
   const designWorkspaceReady = true;
   const buildReadinessReady = true;
+  const validationEvidenceReady = true;
   const reportReady = Boolean(result && analysisRun);
   const resultExportReady = Boolean(result && analysisRun);
   const stressNeutralReady = Boolean(result && analysisRun);
@@ -504,6 +505,48 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Provider-neutral local build/package readiness metadata; no CI provider, installer, signing, publishing, release, or professional claim."
+    },
+    {
+      export_id: "validation_release_evidence_review",
+      label: "Validation and release evidence review",
+      document_kind: "openpipestress.technical_preview.validation_release_evidence_review",
+      readiness: validationEvidenceReady ? "available" : "pending_validation_evidence_surface",
+      deliverable_refs: [
+        "DEL-09-04",
+        "DEL-09-05",
+        "DEL-10-04",
+        "DEL-09-01",
+        "DEL-09-02",
+        "DEL-09-03",
+        "DEL-08-05"
+      ],
+      source_refs: [
+        "docs/VALIDATION_STRATEGY.md",
+        "docs/validation_manual/index.md",
+        "docs/RELEASE_QUALITY_GATES.md",
+        "docs/BUILD_AND_RELEASE.md",
+        "tools/release/check_release_readiness.py",
+        "tests/test_release_readiness_script.py",
+        "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx"
+      ],
+      manual_section_count: 10,
+      evidence_area_count: 8,
+      release_profile_count: 5,
+      required_release_path_count: 7,
+      skeleton_check_count: 2,
+      validation_manual_open_decision_count: 5,
+      release_gate_family_count: 5,
+      release_authorization_status: "not_authorized",
+      final_threshold_policy: "TBD",
+      gui_validation_evidence_policy: "TBD",
+      browser_panel_runs_tool: false,
+      dry_run_default: true,
+      redaction_action: "validation_release_evidence_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "DEL-09-04/DEL-09-05 validation and release-evidence review; records manual sections, evidence inventory, local readiness profiles, release-gate families, and unresolved TBDs without authorizing release or professional reliance."
     },
     {
       export_id: "result_envelope",
@@ -864,6 +907,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
         "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
         "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+        "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
         "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
         "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
         "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -873,7 +917,7 @@ function buildExportReviewManifest({
         "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
         "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
       ],
-      target_count: result && run ? 20 : 19,
+      target_count: result && run ? 21 : 20,
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
@@ -925,8 +969,8 @@ function buildExportReviewManifest({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.export_review_manifest",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-12-05", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-07-06", "DEL-07-08", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-13-01", "DEL-13-03", "DEL-14-01", "DEL-14-02", "DEL-14-04", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-02", "DEL-16-03", "DEL-16-04"],
-    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-037", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075", "SOW-076"],
+    deliverable_refs: ["DEL-12-02", "DEL-02-05", "DEL-12-01", "DEL-12-03", "DEL-12-04", "DEL-12-05", "DEL-08-04", "DEL-08-05", "DEL-08-06", "DEL-02-04", "DEL-07-02", "DEL-07-03", "DEL-07-04", "DEL-07-06", "DEL-07-08", "DEL-09-01", "DEL-09-02", "DEL-09-03", "DEL-09-04", "DEL-09-05", "DEL-10-01", "DEL-10-02", "DEL-10-03", "DEL-10-04", "DEL-10-05", "DEL-13-01", "DEL-13-03", "DEL-14-01", "DEL-14-02", "DEL-14-04", "DEL-15-01", "DEL-15-04", "DEL-17-02", "DEL-17-03", "DEL-17-04", "DEL-17-05", "DEL-17-06", "DEL-17-07", "DEL-17-08", "DEL-17-09", "DEL-16-01", "DEL-16-02", "DEL-16-03", "DEL-16-04"],
+    scope_items: ["SOW-040", "SOW-050", "SOW-041", "SOW-029", "SOW-037", "SOW-046", "SOW-043", "SOW-054", "SOW-032", "SOW-026", "SOW-027", "SOW-021", "SOW-022", "SOW-024", "SOW-030", "SOW-031", "SOW-049", "SOW-074", "SOW-075", "SOW-076"],
     objectives: ["OBJ-001", "OBJ-002", "OBJ-006", "OBJ-008", "OBJ-009", "OBJ-010", "OBJ-011", "OBJ-012", "OBJ-015", "OBJ-016", "OBJ-017", "OBJ-018"],
     project_ref: model.project.id,
     model_ref: result?.model_ref ?? model.project.id,

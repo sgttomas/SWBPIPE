@@ -50,6 +50,7 @@ import { SecurityThreatModelPanel } from "./features/security-threat-model/Secur
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
+import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
 import { PipeViewport } from "./features/viewport/PipeViewport";
 import {
   buildAnalysisRunPreview,
@@ -356,6 +357,7 @@ export function App() {
           <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
           <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
           <BuildReadinessPanel model={model} />
+          <ValidationEvidencePanel model={model} />
           <SolvePanel
             analysisRun={analysisRun}
             model={model}
