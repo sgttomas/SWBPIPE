@@ -391,6 +391,7 @@ function reportPersistenceEvidence({
     project_validation_preflight: "available",
     result_envelope: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     headless_runner_envelope: "available",
+    adapter_framework_envelope: "available",
     native_json_package: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     report_packet: mechanicsExportsReady ? "available" : "pending_mechanics_run",
     report_protected_content_lint: "available",

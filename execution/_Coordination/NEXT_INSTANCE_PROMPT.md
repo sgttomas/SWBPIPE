@@ -14,7 +14,8 @@
    issuance and review gates.
 4. `_COORDINATION.md` says how to execute work: app-integration tranches by
    default, local-status discovery, DAG-guided context selection, bounded
-   workers, fan-in, validation, and evidence records.
+   workers, fan-in, validation, evidence records, and git commit/push closeout
+   for completed validated tranches.
 5. Current lifecycle state is application-integration ready: all deliverables
    are `CHECKING` or `ISSUED`; `DEL-01-01` is the sole currently `ISSUED`
    deliverable and remains the accepted governance baseline unless a
@@ -56,3 +57,9 @@
    mechanics, results/diagnostics/report/proposal context, and no release,
    professional, certification, sealing, authentication, or code-compliance
    claims.
+7. At completion of a validated tranche, record evidence, then stage, commit,
+   and push the tranche to the tracked remote branch unless the human pauses git
+   closeout or a real validation/git blocker prevents it. Git closeout is source
+   control hygiene only; it is not lifecycle issuance, release readiness,
+   professional approval, certification, sealing, authentication, or
+   code-compliance acceptance.

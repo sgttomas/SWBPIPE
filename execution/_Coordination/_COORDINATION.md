@@ -142,9 +142,11 @@ At session closeout, update affected deliverable-local `MEMORY.md` and
 `_run_records/**` and any explicitly approved review/audit evidence surfaces.
 For application-integration work, update only the app/code/docs/test/evidence
 surfaces authorized by the tranche and any explicitly selected deliverable
-memory or review surfaces. Leave `NEXT_INSTANCE_PROMPT.md` stable unless the
-entry protocol itself changes. Do not create a session-steering coordination
-state file.
+memory or review surfaces. After validation and evidence recording, commit and
+push the completed tranche unless the human explicitly pauses git closeout or a
+real git/validation blocker prevents it. Leave `NEXT_INSTANCE_PROMPT.md`
+stable unless the entry protocol itself changes. Do not create a
+session-steering coordination state file.
 
 ## Application Integration And Issuance Phase
 
@@ -219,11 +221,13 @@ bounded tranche.
    expected evidence usually includes `npm test --workspace apps/desktop`,
    `npm run build --workspace apps/desktop`, applicable Rust/Python checks,
    and browser/smoke evidence when UI behavior changes.
-8. **Handoff.** Record completed work, residual app gaps, validation state,
-   and boundary review in the touched app/evidence surfaces and any explicitly
-   selected deliverable memory/review files. Do not advance lifecycle state,
-   make release claims, or issue deliverables unless the human explicitly
-   approves that gate.
+8. **Handoff and git closeout.** Record completed work, residual app gaps,
+   validation state, and boundary review in the touched app/evidence surfaces
+   and any explicitly selected deliverable memory/review files. Then stage,
+   commit, and push the validated tranche to the tracked remote branch, keeping
+   the commit message scoped to the app tranche and any explicitly authorized
+   coordination-instruction edits. Do not advance lifecycle state, make release
+   claims, or issue deliverables unless the human explicitly approves that gate.
 
 ## Execution Discipline
 
@@ -266,7 +270,11 @@ Review readiness requires:
   internally consistent or discrepancies are surfaced;
 - no claim exceeds its warrant.
 
-Human approval is required for lifecycle changes, candidate promotion, commits,
-release claims, acceptance records, or any professional/code compliance claim.
+Human approval is required for lifecycle changes, candidate promotion, release
+claims, acceptance records, or any professional/code compliance claim. The
+human project authority has authorized commit-and-push as the normal closeout
+step for completed, validated app-integration tranches; this git closeout does
+not itself create lifecycle approval, release readiness, professional
+acceptance, certification, sealing, authentication, or code-compliance claims.
 Read-only verification snapshots and derivative gap registers are not release,
 professional, code-compliance, or acceptance claims.

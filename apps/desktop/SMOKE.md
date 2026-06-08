@@ -827,3 +827,50 @@ inventory carried `expected_export_count=9`, `available_count=8`, and
 `headless_runner_envelope:available`; report lint remained at `targets=4`,
 `findings=0`, `clean_scan_is_clearance=false`. Fresh browser console errors
 after the timestamp marker were absent.
+
+TP-MAC-44 adapter-framework-envelope-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at
+`http://127.0.0.1:5175/?smoke=tp-mac-44-1780918779041` with timestamp marker
+`2026-06-08T11:40:33Z`. The initial state confirmed the new Adapter Framework
+panel reported `available`, `capabilities=4`, `parse=not_parsed_by_framework`,
+`diagnostics=1`, `schema_first_format_neutral_adapter_framework`,
+`formats=TBD`, `transport=TBD`, capabilities `export_model`,
+`export_results`, `validate_payload`, and `contribution_review`,
+`schema=required`, `units=required`, `protected=required`,
+`export=required_before_shared_payload`, `direct_sql=false`,
+`network=false`, `code_compliance_claim=false`, `plugin=TBD`,
+`endpoint=TBD`, `package_scripts=TBD`, `local_first=true`,
+`telemetry=false`, `private_redacted=true`, and no compliance, certification,
+sealing, approval, or security-certification claim. The parsed adapter JSON
+carried `deliverable_id=DEL-10-02`, `scope_item=SOW-030`,
+`objective=OBJ-009`, `interface_kind=schema_first_format_neutral_adapter_framework`,
+`external_format_list=TBD`, `public_transport_protocol=TBD`,
+`plugin_runtime=TBD`, four declared capabilities, one initial diagnostic, one
+`TBD` checksum, no direct SQL, no network access, no code-compliance claim,
+`telemetry_allowed=false`, and
+`software_makes_security_certification_claim=false`. Export Safety Review
+initially reported `5 of 10 local exports ready` with
+`adapter_framework_envelope` included in the ten-slot manifest.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, and `result_rows=647`; the Adapter Framework
+panel reported `diagnostics=7`, retained `parse=not_parsed_by_framework`,
+and retained required schema/unit/protected-content/export-review validation.
+The parsed adapter JSON carried
+`operation_id=adapter-operation:desktop-preview:run-preview-linear-static-001`,
+`operation_class=export`, `parse_status=not_parsed_by_framework`, seven
+diagnostics, two checksums, audit manifest ref
+`audit-manifest:run:preview-linear-static-001:preview`, result envelope ref
+`result-envelope:run:preview-linear-static-001`, no direct SQL, no network
+access, no arbitrary-code execution, `private_payload_redacted=true`, and
+false compliance and security-certification claims. Export Safety Review
+reported `9 of 10 local exports ready`; the parsed export review manifest
+carried `export_count=10`, `available_count=9`, an available
+`adapter_framework_envelope` export with
+`document_kind=openpipestress.technical_preview.adapter_framework_envelope`,
+deliverable refs `DEL-10-02`, `DEL-02-04`, `DEL-08-04`, `DEL-12-01`, and
+`DEL-12-02`, `result_ref_count=647`, `external_format_list=TBD`,
+`public_transport_protocol=TBD`, and `plugin_runtime=TBD`. The parsed report
+JSON persistence inventory carried `expected_export_count=10`,
+`available_count=9`, and `adapter_framework_envelope:available`. Fresh
+browser console errors after the timestamp marker were absent.
