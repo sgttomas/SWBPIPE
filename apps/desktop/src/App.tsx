@@ -163,10 +163,11 @@ export function App() {
     if (!model) return;
     setProjectBusy(true);
     try {
-      const created = await createLocalProject(model, editorIntents, proposal);
+      const created = await createLocalProject(model, editorIntents, proposal, selectedReviewTarget);
       setProjectSummary(created.summary);
       setEditorIntents(created.editor_intents ?? []);
       setProposal(created.proposal ?? null);
+      setSelectedReviewTarget(created.selected_review_target ?? null);
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
     } catch (error) {
@@ -192,7 +193,7 @@ export function App() {
       setAnalysisRun(null);
       setProposal(opened.proposal ?? null);
       setEditorIntents(opened.editor_intents ?? []);
-      setSelectedReviewTarget(null);
+      setSelectedReviewTarget(opened.selected_review_target ?? null);
       setSolveJob(initialSolveJob());
       setProjectSummary(opened.summary);
       setProjectMessage(opened.summary.message);
@@ -209,10 +210,11 @@ export function App() {
     if (!model) return;
     setProjectBusy(true);
     try {
-      const saved = await saveLocalProject(model, editorIntents, proposal);
+      const saved = await saveLocalProject(model, editorIntents, proposal, selectedReviewTarget);
       setProjectSummary(saved.summary);
       setEditorIntents(saved.editor_intents ?? []);
       setProposal(saved.proposal ?? null);
+      setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectMessage(saved.summary.message);
       setProjectOperation("save");
     } catch (error) {

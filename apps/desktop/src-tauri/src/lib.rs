@@ -55,6 +55,7 @@ struct LocalProjectSummary {
     fts_indexed: bool,
     copied_external_files: bool,
     proposal_count: usize,
+    selected_review_target_count: usize,
     message: String,
 }
 
@@ -64,6 +65,7 @@ struct LocalProjectEnvelope {
     model: Value,
     editor_intents: Value,
     proposal: Value,
+    selected_review_target: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -75,6 +77,8 @@ struct SaveLocalProjectRequest {
     editor_intents: Value,
     #[serde(default)]
     proposal: Value,
+    #[serde(default)]
+    selected_review_target: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -110,6 +114,7 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
                 model_json TEXT NOT NULL,
                 editor_intents_json TEXT NOT NULL DEFAULT '[]',
                 proposal_json TEXT NOT NULL DEFAULT 'null',
+                selected_review_target_json TEXT NOT NULL DEFAULT 'null',
                 created_at_unix INTEGER NOT NULL,
                 updated_at_unix INTEGER NOT NULL
             );
@@ -130,6 +135,11 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
         connection,
         "proposal_json",
         "ALTER TABLE local_projects ADD COLUMN proposal_json TEXT NOT NULL DEFAULT 'null'",
+    )?;
+    ensure_column(
+        connection,
+        "selected_review_target_json",
+        "ALTER TABLE local_projects ADD COLUMN selected_review_target_json TEXT NOT NULL DEFAULT 'null'",
     )
 }
 
@@ -213,12 +223,17 @@ fn upsert_project(
     model: &Value,
     editor_intents: &Value,
     proposal: &Value,
+    selected_review_target: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
         serde_json::to_string(editor_intents).map_err(|error| error.to_string())?;
     let proposal_json = serde_json::to_string(proposal).map_err(|error| error.to_string())?;
-    let search_text = format!("{model_json}\n{editor_intents_json}\n{proposal_json}");
+    let selected_review_target_json =
+        serde_json::to_string(selected_review_target).map_err(|error| error.to_string())?;
+    let search_text = format!(
+        "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}"
+    );
     let now = now_unix_seconds()?;
     let transaction = connection
         .transaction()
@@ -226,13 +241,14 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
                 editor_intents_json = excluded.editor_intents_json,
                 proposal_json = excluded.proposal_json,
+                selected_review_target_json = excluded.selected_review_target_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
             params![
@@ -241,6 +257,7 @@ fn upsert_project(
                 model_json,
                 editor_intents_json,
                 proposal_json,
+                selected_review_target_json,
                 now
             ],
         )
@@ -266,12 +283,12 @@ fn upsert_project(
 fn load_project(
     connection: &Connection,
     project_id: Option<&str>,
-) -> Result<Option<(String, String, Value, Value, Value)>, String> {
+) -> Result<Option<(String, String, Value, Value, Value, Value)>, String> {
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -283,6 +300,7 @@ fn load_project(
                         row.get::<_, String>(2)?,
                         row.get::<_, String>(3)?,
                         row.get::<_, String>(4)?,
+                        row.get::<_, String>(5)?,
                     ))
                 },
             )
@@ -291,7 +309,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -304,6 +322,7 @@ fn load_project(
                         row.get::<_, String>(2)?,
                         row.get::<_, String>(3)?,
                         row.get::<_, String>(4)?,
+                        row.get::<_, String>(5)?,
                     ))
                 },
             )
@@ -311,14 +330,31 @@ fn load_project(
             .map_err(|error| error.to_string())?,
     };
     row.map(
-        |(id, name, model_json, editor_intents_json, proposal_json)| {
+        |(
+            id,
+            name,
+            model_json,
+            editor_intents_json,
+            proposal_json,
+            selected_review_target_json,
+        )| {
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
             let editor_intents = serde_json::from_str::<Value>(&editor_intents_json)
                 .map_err(|error| error.to_string())?;
             let proposal =
                 serde_json::from_str::<Value>(&proposal_json).map_err(|error| error.to_string())?;
-            Ok((id, name, model, editor_intents, proposal))
+            let selected_review_target =
+                serde_json::from_str::<Value>(&selected_review_target_json)
+                    .map_err(|error| error.to_string())?;
+            Ok((
+                id,
+                name,
+                model,
+                editor_intents,
+                proposal,
+                selected_review_target,
+            ))
         },
     )
     .transpose()
@@ -338,8 +374,23 @@ fn normalized_proposal(proposal: Option<Value>) -> Value {
     }
 }
 
+fn normalized_selected_review_target(selected_review_target: Option<Value>) -> Value {
+    match selected_review_target {
+        Some(value) if value.is_object() => value,
+        _ => Value::Null,
+    }
+}
+
 fn proposal_count(proposal: &Value) -> usize {
     if proposal.is_object() {
+        1
+    } else {
+        0
+    }
+}
+
+fn selected_review_target_count(selected_review_target: &Value) -> usize {
+    if selected_review_target.is_object() {
         1
     } else {
         0
@@ -351,6 +402,7 @@ fn project_summary(
     project_name: String,
     database_path: PathBuf,
     proposal: &Value,
+    selected_review_target: &Value,
     message: String,
 ) -> LocalProjectSummary {
     LocalProjectSummary {
@@ -362,6 +414,7 @@ fn project_summary(
         fts_indexed: true,
         copied_external_files: false,
         proposal_count: proposal_count(proposal),
+        selected_review_target_count: selected_review_target_count(selected_review_target),
         message,
     }
 }
@@ -519,6 +572,7 @@ fn create_local_project(
     model: Value,
     editor_intents: Option<Value>,
     proposal: Option<Value>,
+    selected_review_target: Option<Value>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let mut connection = open_project_store(&path)?;
@@ -526,6 +580,7 @@ fn create_local_project(
     let project_name = project_name_from_model(&model);
     let editor_intents = normalized_editor_intents(editor_intents);
     let proposal = normalized_proposal(proposal);
+    let selected_review_target = normalized_selected_review_target(selected_review_target);
     upsert_project(
         &mut connection,
         &project_id,
@@ -533,6 +588,7 @@ fn create_local_project(
         &model,
         &editor_intents,
         &proposal,
+        &selected_review_target,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -540,11 +596,13 @@ fn create_local_project(
             project_name,
             path,
             &proposal,
+            &selected_review_target,
             "Created local SQLite project snapshot without external file copies.".to_string(),
         ),
         model,
         editor_intents,
         proposal,
+        selected_review_target,
     })
 }
 
@@ -556,20 +614,24 @@ fn open_local_project(
     let path = app_store_path(&app)?;
     let connection = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
-        .map(|(id, name, model, editor_intents, proposal)| {
-            Ok(LocalProjectEnvelope {
-                summary: project_summary(
-                    id,
-                    name,
-                    path.clone(),
-                    &proposal,
-                    "Opened local SQLite project snapshot.".to_string(),
-                ),
-                model,
-                editor_intents,
-                proposal,
-            })
-        })
+        .map(
+            |(id, name, model, editor_intents, proposal, selected_review_target)| {
+                Ok(LocalProjectEnvelope {
+                    summary: project_summary(
+                        id,
+                        name,
+                        path.clone(),
+                        &proposal,
+                        &selected_review_target,
+                        "Opened local SQLite project snapshot.".to_string(),
+                    ),
+                    model,
+                    editor_intents,
+                    proposal,
+                    selected_review_target,
+                })
+            },
+        )
         .transpose()
 }
 
@@ -582,6 +644,8 @@ fn save_local_project(
     let mut connection = open_project_store(&path)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
     let proposal = normalized_proposal(Some(request.proposal));
+    let selected_review_target =
+        normalized_selected_review_target(Some(request.selected_review_target));
     upsert_project(
         &mut connection,
         &request.project_id,
@@ -589,6 +653,7 @@ fn save_local_project(
         &request.model,
         &editor_intents,
         &proposal,
+        &selected_review_target,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -596,11 +661,13 @@ fn save_local_project(
             request.project_name,
             path,
             &proposal,
+            &selected_review_target,
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
         model: request.model,
         editor_intents,
         proposal,
+        selected_review_target,
     })
 }
 
@@ -669,6 +736,10 @@ mod tests {
                 "software_makes_compliance_claim": false
             }
         });
+        let selected_review_target = json!({
+            "target_type": "result",
+            "id": "result:stress:pipe-P-120:end-j:torsional-shear"
+        });
         upsert_project(
             &mut connection,
             "project:test-local",
@@ -676,6 +747,7 @@ mod tests {
             &model,
             &editor_intents,
             &proposal,
+            &selected_review_target,
         )
         .expect("project snapshot saves");
 
@@ -687,6 +759,7 @@ mod tests {
         assert_eq!(loaded.2, model);
         assert_eq!(loaded.3, editor_intents);
         assert_eq!(loaded.4, proposal);
+        assert_eq!(loaded.5, selected_review_target);
         assert_eq!(
             loaded.3[0]["validation"]["application_status"],
             json!("not_applied")
@@ -711,6 +784,10 @@ mod tests {
             loaded.4["audit_boundary"]["mutates_accepted_model_state"],
             json!(false)
         );
+        assert_eq!(
+            loaded.5["id"],
+            json!("result:stress:pipe-P-120:end-j:torsional-shear")
+        );
 
         let indexed_count: i64 = connection
             .query_row(
@@ -728,6 +805,14 @@ mod tests {
             )
             .expect("fts5 proposal query succeeds");
         assert_eq!(proposal_indexed_count, 1);
+        let target_indexed_count: i64 = connection
+            .query_row(
+                "SELECT count(*) FROM local_project_fts WHERE local_project_fts MATCH ?1",
+                params!["torsional"],
+                |row| row.get(0),
+            )
+            .expect("fts5 selected target query succeeds");
+        assert_eq!(target_indexed_count, 1);
     }
 
     #[test]

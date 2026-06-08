@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-65");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-66");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2452,6 +2452,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(proposalPanel).getByTestId("proposal-operation-summary").textContent).toContain(
       "op:review-computed-diagnostic"
     );
+    expect(within(proposalPanel).getByTestId("selected-review-target").textContent).toContain(
+      "result: result:stress:pipe-P-120:end-j:torsional-shear"
+    );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
     );
@@ -2472,18 +2475,26 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
       "persisted_proposals=1"
     );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_review_targets=1"
+    );
     const savedStorageHref =
       within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
     const savedStoragePacket = JSON.parse(decodeURIComponent(savedStorageHref.split(",", 2)[1]));
     expect(savedStoragePacket.summary.pending_operation_count).toBe(1);
     expect(savedStoragePacket.summary.proposal_operation_count).toBe(1);
     expect(savedStoragePacket.summary.persisted_proposal_count).toBe(1);
+    expect(savedStoragePacket.summary.persisted_selected_review_target_count).toBe(1);
     expect(savedStoragePacket.project_summary.proposal_count).toBe(1);
+    expect(savedStoragePacket.project_summary.selected_review_target_count).toBe(1);
     expect(savedStoragePacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
 
     const projectValidation = await screen.findByLabelText("Project validation preflight");
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "persisted proposals=1"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "persisted review targets=1"
     );
     const savedValidationHref =
       within(projectValidation).getByTestId("project-validation-export-link").getAttribute("href") ?? "";
@@ -2491,7 +2502,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(savedValidationPacket.summary.pending_operation_count).toBe(1);
     expect(savedValidationPacket.summary.proposal_operation_count).toBe(1);
     expect(savedValidationPacket.summary.persisted_proposal_count).toBe(1);
+    expect(savedValidationPacket.summary.persisted_selected_review_target_count).toBe(1);
     expect(savedValidationPacket.project_summary.proposal_count).toBe(1);
+    expect(savedValidationPacket.project_summary.selected_review_target_count).toBe(1);
     expect(savedValidationPacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
 
     fireEvent.click(within(controls).getByRole("button", { name: /Open local/i }));
@@ -2506,6 +2519,9 @@ describe("OpenPipeStress desktop preview", () => {
       "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
     );
     expect(await within(proposalPanel).findByText("proposal:physics-diagnostic-review")).toBeInTheDocument();
+    expect(within(proposalPanel).getByTestId("selected-review-target").textContent).toContain(
+      "result: result:stress:pipe-P-120:end-j:torsional-shear"
+    );
     expect(within(proposalPanel).getByTestId("proposal-affected-entities").textContent).toContain(
       "result:stress:pipe-P-120:end-j:torsional-shear"
     );
@@ -2517,13 +2533,18 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
       "persisted_proposals=1"
     );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_review_targets=1"
+    );
     const openedStorageHref =
       within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
     const openedStoragePacket = JSON.parse(decodeURIComponent(openedStorageHref.split(",", 2)[1]));
     expect(openedStoragePacket.summary.last_operation).toBe("open");
     expect(openedStoragePacket.summary.proposal_operation_count).toBe(1);
     expect(openedStoragePacket.summary.persisted_proposal_count).toBe(1);
+    expect(openedStoragePacket.summary.persisted_selected_review_target_count).toBe(1);
     expect(openedStoragePacket.project_summary.proposal_count).toBe(1);
+    expect(openedStoragePacket.project_summary.selected_review_target_count).toBe(1);
     expect(openedStoragePacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
     expect(openedStoragePacket.review_operation_statuses).toContain("not_applied");
 
@@ -2536,7 +2557,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(openedValidationPacket.summary.last_operation).toBe("open");
     expect(openedValidationPacket.summary.proposal_operation_count).toBe(1);
     expect(openedValidationPacket.summary.persisted_proposal_count).toBe(1);
+    expect(openedValidationPacket.summary.persisted_selected_review_target_count).toBe(1);
     expect(openedValidationPacket.project_summary.proposal_count).toBe(1);
+    expect(openedValidationPacket.project_summary.selected_review_target_count).toBe(1);
     expect(openedValidationPacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
 
     const operationLedger = await screen.findByLabelText("Operation review ledger");
@@ -2549,6 +2572,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(operationLedger).getByTestId("operation-ledger-record-op-review-computed-diagnostic").textContent
     ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
+    const ledgerHref = within(operationLedger).getByTestId("operation-ledger-export-link").getAttribute("href") ?? "";
+    const ledgerPacket = JSON.parse(decodeURIComponent(ledgerHref.split(",", 2)[1]));
+    expect(ledgerPacket.selected_review_target).toEqual({
+      target_type: "result",
+      id: "result:stress:pipe-P-120:end-j:torsional-shear"
+    });
+    expect(ledgerPacket.records[0].selected_review_target).toEqual({
+      target_type: "result",
+      id: "result:stress:pipe-P-120:end-j:torsional-shear"
+    });
 
     const exportReview = await screen.findByLabelText("Export safety review");
     const openedReviewHref = within(exportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
@@ -2563,6 +2596,10 @@ describe("OpenPipeStress desktop preview", () => {
         .persisted_proposal_count
     ).toBe(1);
     expect(
+      openedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_storage_audit")
+        .persisted_selected_review_target_count
+    ).toBe(1);
+    expect(
       openedReviewManifest.exports.find(
         (item: { export_id: string }) => item.export_id === "project_validation_preflight"
       ).proposal_operation_count
@@ -2571,6 +2608,11 @@ describe("OpenPipeStress desktop preview", () => {
       openedReviewManifest.exports.find(
         (item: { export_id: string }) => item.export_id === "project_validation_preflight"
       ).persisted_proposal_count
+    ).toBe(1);
+    expect(
+      openedReviewManifest.exports.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).persisted_selected_review_target_count
     ).toBe(1);
     expect(
       openedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")

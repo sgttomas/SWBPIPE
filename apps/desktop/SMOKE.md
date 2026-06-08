@@ -1719,3 +1719,34 @@ Operation Review Ledger reported `1 review record` with state binding
 with `project_storage_audit`, `project_validation_preflight`, and
 `operation_review_ledger` all carrying the expected proposal/persisted counts
 or available readiness. Captured browser console error entries were absent.
+
+TP-MAC-66 selected-review-target-local-roundtrip smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T12:06:06-0600 MDT`. The local validation run for
+this tranche passed focused
+`npm test --workspace apps/desktop -- --run App.test.tsx -t "round trips
+review-only proposal operations through local save and open"`, full
+`npm test --workspace apps/desktop`, `npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`,
+`PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py tests/test_agent_rationale_boundary.py
+tests/test_design_authoring_comparison_workspace.py`, and direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`
+before browser smoke.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-66`. After running preview mechanics,
+selecting `result:stress:pipe-P-120:end-j:torsional-shear`, generating
+`proposal:physics-diagnostic-review`, and choosing `Save local`, Project
+Storage Audit and Project Validation Preflight both reported persisted review
+target count `1` in the visible text and exported JSON. After choosing
+`Open local`, the proposal body still rendered, the selected review target
+still showed `result: result:stress:pipe-P-120:end-j:torsional-shear`, the
+proposal affected entity still referenced the same result, and the mechanics
+job state returned to `state=not_started`. Operation Review Ledger exported
+`selected_review_target={target_type: "result", id:
+"result:stress:pipe-P-120:end-j:torsional-shear"}` at both ledger and record
+level. Export Safety Review carried the same selected review target and
+`persisted_selected_review_target_count=1` on the project storage and project
+validation records. Captured browser console error entries were absent.

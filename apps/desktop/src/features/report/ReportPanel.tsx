@@ -461,6 +461,7 @@ function reportPersistenceEvidence({
       editor_intent_count: editorIntents.length,
       proposal_operation_count: proposal ? 1 : 0,
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
+      persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       accepted_model_state_mutated: false
     },
@@ -472,6 +473,7 @@ function reportPersistenceEvidence({
       migration_status: projectSummary?.migration_status ?? "not_persisted_this_session",
       round_trip_status: "semantic_categories_declared",
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
+      persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       accepted_model_state_mutated: false
     },
     export_inventory: {

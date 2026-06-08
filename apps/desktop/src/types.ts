@@ -429,6 +429,7 @@ export type LocalProjectSummary = {
   fts_indexed: boolean;
   copied_external_files: boolean;
   proposal_count: number;
+  selected_review_target_count: number;
   message: string;
 };
 
@@ -437,4 +438,5 @@ export type LocalProjectEnvelope = {
   model: PreviewModel;
   editor_intents: EditorOperationIntent[];
   proposal: AgentProposal | null;
+  selected_review_target: SelectedReviewTarget | null;
 };
