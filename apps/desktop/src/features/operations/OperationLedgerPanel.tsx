@@ -190,11 +190,11 @@ function editorIntentRecord({
     actor: {
       actor_type: intent.author_type,
       actor_ref: "local-preview-user",
-      source_role: "gui_editor"
+      source_role: intent.source?.source_role ?? "gui_editor"
     },
     source: {
-      source_ref: "apps/desktop/property-inspector",
-      source_channel: "local_desktop_preview"
+      source_ref: intent.source?.source_ref ?? "apps/desktop/property-inspector",
+      source_channel: intent.source?.source_channel ?? "local_desktop_preview"
     },
     affected_entities: [targetRef],
     operation_history: {

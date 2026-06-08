@@ -1,26 +1,21 @@
 import { Box, CirclePlus, GitBranch } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import type { EntityRef, PreviewModel, Vec3 } from "../../types";
+import type { EditorOperationIntent, EntityRef, PreviewModel, Vec3 } from "../../types";
 
 type Props = {
   model: PreviewModel;
+  onQueueIntent?: (intent: EditorOperationIntent) => void;
+  queuedIntents?: EditorOperationIntent[];
   selection: EntityRef;
 };
 
-type ViewportIntent = {
-  intent_id: string;
-  command_type: "create_node" | "connect_pipe_run" | "insert_component_symbol";
-  target_ref: string;
-  payload_refs: string[];
-  unit_policy: "unit_aware_domain_validation_required";
-  validation_state: "pending_service_validation";
-  mutation_boundary: "does_not_mutate_persisted_project_payload";
-};
+type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 
-export function PipeViewport({ model, selection }: Props) {
+export function PipeViewport({ model, onQueueIntent, queuedIntents = [], selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
-  const [intents, setIntents] = useState<ViewportIntent[]>([]);
+  const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
+  const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -98,11 +93,13 @@ export function PipeViewport({ model, selection }: Props) {
     };
   }, [model, selection]);
 
-  function addIntent(commandType: ViewportIntent["command_type"]) {
-    setIntents((current) => [
-      buildIntent(model, commandType, current.length + 1),
-      ...current
-    ].slice(0, 4));
+  function addIntent(commandType: ViewportCommandType) {
+    const intent = buildIntent(model, commandType, queuedIntents.length + localIntents.length + 1);
+    if (onQueueIntent) {
+      onQueueIntent(intent);
+      return;
+    }
+    setLocalIntents((current) => [intent, ...current].slice(0, 4));
   }
 
   return (
@@ -128,17 +125,18 @@ export function PipeViewport({ model, selection }: Props) {
           </button>
         </div>
         <div className="viewport-intent-list" data-testid="viewport-intent-list">
-          {intents.length === 0 ? (
+          {visibleIntents.length === 0 ? (
             <p data-testid="viewport-intent-empty">
               Editor gestures create pending service-validation intents; they do not mutate persisted project data directly.
             </p>
           ) : (
-            intents.map((intent) => (
-              <article key={intent.intent_id} data-testid={`viewport-intent-${intent.command_type}`}>
-                <strong>{intent.command_type}</strong>
-                <span>{intent.validation_state}</span>
-                <small>{intent.unit_policy}</small>
-                <small>{intent.mutation_boundary}</small>
+            visibleIntents.map((intent) => (
+              <article key={intent.queue_id ?? intent.operation_id} data-testid={`viewport-intent-${intent.change.change_kind}`}>
+                <strong>{intent.change.change_kind}</strong>
+                <span>pending_service_validation</span>
+                <small>unit_aware_domain_validation_required</small>
+                <small>does_not_mutate_persisted_project_payload</small>
+                <small>{intent.queue_id ?? "not_queued"}</small>
               </article>
             ))
           )}
@@ -148,24 +146,94 @@ export function PipeViewport({ model, selection }: Props) {
   );
 }
 
-function buildIntent(model: PreviewModel, commandType: ViewportIntent["command_type"], sequence: number): ViewportIntent {
-  const nodeRefs = model.nodes.slice(0, 2).map((node) => `node:${node.id}`);
+function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequence: number): EditorOperationIntent {
+  const operationToken = `${safeToken(commandType)}-${sequence.toString().padStart(3, "0")}`;
+  const nodeRefs = model.nodes.slice(0, 2).map((node) => node.id);
   const firstComponent = model.components[0]?.id ?? "TBD";
-  const payloadRefs =
-    commandType === "connect_pipe_run"
-      ? nodeRefs
-      : commandType === "insert_component_symbol"
-        ? [`component:${firstComponent}`]
-        : ["node:preview-created-by-viewport"];
+  const target = viewportTarget(commandType, nodeRefs, firstComponent);
+  const change = viewportChange(commandType, target.ref, nodeRefs, firstComponent);
 
   return {
-    intent_id: `viewport-intent-${sequence.toString().padStart(3, "0")}`,
-    command_type: commandType,
-    target_ref: `model:${model.project.id}`,
-    payload_refs: payloadRefs,
-    unit_policy: "unit_aware_domain_validation_required",
-    validation_state: "pending_service_validation",
-    mutation_boundary: "does_not_mutate_persisted_project_payload"
+    operation_id: `op:viewport-intent-${operationToken}`,
+    operation_kind: viewportOperationKind(commandType),
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/viewport/PipeViewport.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "viewport_editor"
+    },
+    target,
+    change,
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `${commandType} viewport gesture requires application-service validation before any durable model change.`
+  };
+}
+
+function viewportIntents(intents: EditorOperationIntent[]): EditorOperationIntent[] {
+  return intents
+    .filter((intent) => intent.source?.source_role === "viewport_editor" || intent.operation_id.startsWith("op:viewport-intent-"))
+    .slice(0, 4);
+}
+
+function viewportOperationKind(commandType: ViewportCommandType): EditorOperationIntent["operation_kind"] {
+  if (commandType === "create_node") return "create";
+  if (commandType === "connect_pipe_run") return "connect";
+  return "insert";
+}
+
+function viewportTarget(commandType: ViewportCommandType, nodeRefs: string[], firstComponent: string): EditorOperationIntent["target"] {
+  if (commandType === "create_node") {
+    return { object_type: "Node", ref: "node:viewport-preview-created" };
+  }
+  if (commandType === "connect_pipe_run") {
+    return { object_type: "Element", ref: `pipe:viewport-preview:${safeToken(nodeRefs.join("-to-"))}` };
+  }
+  return { object_type: "Component", ref: `component:viewport-preview:${safeToken(firstComponent)}` };
+}
+
+function viewportChange(
+  commandType: ViewportCommandType,
+  targetRef: string,
+  nodeRefs: string[],
+  firstComponent: string
+): EditorOperationIntent["change"] {
+  const after =
+    commandType === "connect_pipe_run"
+      ? nodeRefs.join(" -> ")
+      : commandType === "insert_component_symbol"
+        ? firstComponent
+        : targetRef;
+  return {
+    change_id: `change:viewport:${safeToken(commandType)}:${safeToken(targetRef)}`,
+    change_kind: commandType,
+    field_label: "Viewport command",
+    field_path: `viewport.${commandType}`,
+    before: "not_present",
+    after,
+    unit: "none",
+    dimension: "dimensionless",
+    source_note: "viewport editor gesture review intent; pending_service_validation"
   };
 }
 
@@ -235,4 +303,8 @@ function hasWebGL() {
   } catch {
     return false;
   }
+}
+
+function safeToken(value: string): string {
+  return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
 }

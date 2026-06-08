@@ -486,7 +486,8 @@ button:focus-visible {
 }
 
 .viewport-canvas {
-  min-height: 0;
+  min-height: 240px;
+  aspect-ratio: 16 / 9;
 }
 
 .viewport-canvas canvas {

@@ -341,19 +341,26 @@ export type EditorOperationObjectType =
   | "Load"
   | "Combination";
 
+export type EditorOperationSource = {
+  source_ref: string;
+  source_channel: "local_desktop_preview" | string;
+  source_role: "gui_editor" | "viewport_editor" | string;
+};
+
 export type EditorOperationIntent = {
   queue_id?: string;
   operation_id: string;
-  operation_kind: "modify";
+  operation_kind: "create" | "connect" | "insert" | "modify";
   operation_status: "proposed";
   author_type: "user";
+  source?: EditorOperationSource;
   target: {
     object_type: EditorOperationObjectType;
     ref: string;
   };
   change: {
     change_id: string;
-    change_kind: "set_field" | "update_load" | "update_support";
+    change_kind: "set_field" | "update_load" | "update_support" | "create_node" | "connect_pipe_run" | "insert_component_symbol";
     field_label: string;
     field_path: string;
     before: string;

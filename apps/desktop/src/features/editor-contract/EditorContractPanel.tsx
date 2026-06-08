@@ -146,7 +146,7 @@ function buildEditorContractPacket({
     summary: {
       editor_count: editors.length,
       field_count: editors.reduce((count, item) => count + item.fields.length, 0),
-      surface_count: 6,
+      surface_count: editorSurfaceInventory(model).length,
       ready_editor_count: editors.length - blockedEditorCount,
       blocked_editor_count: blockedEditorCount,
       queued_intent_count: editorIntents.length,
@@ -275,6 +275,11 @@ function editorSurfaceInventory(model: PreviewModel) {
       surface: "supports",
       count: model.supports.length,
       status: model.supports.length > 0 ? "operation_intent_editor_available" : "not_present"
+    },
+    {
+      surface: "viewport_gestures",
+      count: 3,
+      status: "operation_intent_editor_available"
     },
     {
       surface: "rule_pack_references",

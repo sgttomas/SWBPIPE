@@ -1532,3 +1532,65 @@ carried `expected_export_count=27`, `available_count=26`, and
 included `evidence=available`; and Report Content Lint reported `targets=21`,
 `findings=0`, and `blocking=0`. Captured browser console error entries were
 absent.
+
+TP-MAC-62 viewport-operation-queue-preview smoke passed on 2026-06-08
+America/Edmonton using the in-app browser at `http://127.0.0.1:5175/` with
+timestamp marker `2026-06-08T11:31:14-0600 MDT`. The local validation run for
+this tranche passed `npm test --workspace apps/desktop`, `npm run build
+--workspace apps/desktop`, `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/test_viewport_editor_contract.py tests/test_gui_editors_contract.py
+tests/test_model_operation_schema.py tests/test_operation_validation_preview.py
+tests/test_operation_audit_trail.py
+tests/test_design_authoring_comparison_workspace.py`, direct
+`PYTHONDONTWRITEBYTECODE=1 python3 tests/test_model_operation_schema.py`,
+browser queue and solved-state packet checks, responsive canvas dimension
+checks, zero browser console errors, `git diff --check`, and a touched-file
+ASCII scan before closeout.
+
+The initial browser state confirmed the viewport editor intent actions were
+available with one `Node intent`, one `Pipe-run intent`, and one `Component
+intent` control. The local project review context reported `0 pending
+operations`, the editor-contract panel reported `editors=4`, `surfaces=7`,
+and `diagnostics=4`, the editor coverage included
+`viewport_gestures:operation_intent_editor_available`, Report Content Lint
+reported `targets=21`, and the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-62`.
+
+After queuing the three viewport intents, the local project review context
+reported `3 pending operations`. The viewport cards recorded
+`create_node`, `connect_pipe_run`, and `insert_component_symbol` as
+`pending_service_validation`, `unit_aware_domain_validation_required`, and
+`does_not_mutate_persisted_project_payload`, with queue IDs
+`editor-intent-1`, `editor-intent-2`, and `editor-intent-3`. The parsed
+editor-contract JSON reported `queued_intent_count=3`, `surface_count=7`, and
+operation refs `op:viewport-intent-create_node-001`,
+`op:viewport-intent-connect_pipe_run-002`, and
+`op:viewport-intent-insert_component_symbol-003`.
+
+The operation diff preview reported `3 operations`, `3 diff rows`, and
+`3 held`, with every preview carrying `accepted_model_state_mutated=false`.
+The operation review ledger reported 3 records, 3
+`held_for_user_acceptance` decisions, source
+`apps/desktop/src/features/viewport/PipeViewport.tsx`, actor role
+`viewport_editor`, `accepted_model_state_unchanged=true`, and no release or
+professional claim. Export Safety Review reported `21 of 27 local exports
+ready` before solve, with `operation_review_ledger:available`, `DEL-07-01`,
+`SOW-020`, and `operation_record_count=3`.
+
+After running the preview mechanics path, the solve job reported
+`state=completed`, `events=3`, `result_rows=647`, and
+`cancellation_requested=false`. The report packet reported `27 of 27` local
+exports ready, `operation_review_ledger:available`, `queued_count=3`, latest
+operation `op:viewport-intent-insert_component_symbol-003`, latest source
+role `viewport_editor`, accepted-state mutation false, and no release or
+professional claim. Report Content Lint reported `targets=22`, `findings=0`,
+and `blocking=0`, with `target:desktop-viewport-editor-template` present.
+Export Safety Review reported `27 of 27` exports ready and
+`operation_record_count=3`. Captured browser console error entries were
+absent.
+
+Responsive viewport checks confirmed a rendered Three.js canvas with no WebGL
+fallback on both the default desktop-sized viewport and a 390 by 844
+mobile-sized viewport. The desktop canvas measured 578 by 325 CSS pixels, and
+the mobile-sized canvas measured 458 by 258 CSS pixels after the viewport
+canvas min-height/aspect-ratio fix.

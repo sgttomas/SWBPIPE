@@ -322,6 +322,7 @@ function reportExportPacket({
       "DEL-08-03",
       "DEL-08-04",
       "DEL-08-06",
+      "DEL-07-01",
       "DEL-07-03",
       "DEL-07-04",
       "DEL-07-06",
@@ -582,6 +583,7 @@ function formatEditorIntentOperation(intent: EditorOperationIntent): string {
     intent.operation_id,
     intent.operation_kind,
     intent.operation_status,
+    intent.source?.source_role ?? "gui_editor",
     `${intent.target.object_type}:${intent.target.ref}`,
     `${intent.change.field_path}=${intent.change.after}`,
     intent.validation.application_status
@@ -621,6 +623,11 @@ function editorIntentExport(intent: EditorOperationIntent) {
     operation_kind: intent.operation_kind,
     operation_status: intent.operation_status,
     author_type: intent.author_type,
+    source: intent.source ?? {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
     target: intent.target,
     change: intent.change,
     validation: intent.validation,

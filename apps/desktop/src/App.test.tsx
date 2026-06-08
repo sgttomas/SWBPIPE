@@ -684,19 +684,22 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-61");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-62");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
     const editorContract = await screen.findByLabelText("Editor contract review");
     expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("editors=4");
-    expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("surfaces=6");
+    expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("surfaces=7");
     expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain("diagnostics=4");
     expect(within(editorContract).getByTestId("editor-contract-summary").textContent).toContain(
       "private_payload=false"
     );
     expect(within(editorContract).getByTestId("editor-contract-coverage").textContent).toContain(
       "materials:review_editor_available"
+    );
+    expect(within(editorContract).getByTestId("editor-contract-coverage").textContent).toContain(
+      "viewport_gestures:operation_intent_editor_available"
     );
     expect(within(editorContract).getByTestId("editor-contract-coverage").textContent).toContain(
       "private_libraries:reference_slots_only_no_private_payload"
@@ -724,7 +727,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(editorContractPacket.scope_item).toBe("SOW-021");
     expect(editorContractPacket.objectives).toContain("OBJ-006");
     expect(editorContractPacket.summary.editor_count).toBe(4);
-    expect(editorContractPacket.summary.surface_count).toBe(6);
+    expect(editorContractPacket.summary.surface_count).toBe(7);
     expect(editorContractPacket.summary.ready_editor_count).toBe(2);
     expect(editorContractPacket.summary.blocked_editor_count).toBe(2);
     expect(editorContractPacket.summary.diagnostic_count).toBe(4);
@@ -911,7 +914,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(designWorkspacePacket.protected_content_included).toBe(false);
     expect(designWorkspacePacket.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=20");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=21");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -943,7 +946,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(20);
+    expect(lintPacket.lint_run.summary.target_count).toBe(21);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -1280,6 +1283,7 @@ describe("OpenPipeStress desktop preview", () => {
 
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
     const intentPanel = screen.getByLabelText("Viewport editor intents");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
 
     expect(within(intentPanel).getByTestId("viewport-intent-empty").textContent).toContain(
       "do not mutate persisted project data directly"
@@ -1298,6 +1302,69 @@ describe("OpenPipeStress desktop preview", () => {
       expect(intent.textContent).toContain("unit_aware_domain_validation_required");
       expect(intent.textContent).toContain("does_not_mutate_persisted_project_payload");
     }
+    expect(componentIntent.textContent).toContain("editor-intent-3");
+    expect(pipeIntent.textContent).toContain("editor-intent-2");
+    expect(nodeIntent.textContent).toContain("editor-intent-1");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("3 pending operations");
+
+    const editorContract = screen.getByLabelText("Editor contract review");
+    expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("queued=3");
+    const editorContractHref =
+      within(editorContract).getByTestId("editor-contract-export-link").getAttribute("href") ?? "";
+    const editorContractPacket = JSON.parse(decodeURIComponent(editorContractHref.split(",", 2)[1]));
+    expect(editorContractPacket.summary.queued_intent_count).toBe(3);
+    expect(editorContractPacket.summary.surface_count).toBe(7);
+    expect(editorContractPacket.queued_operation_intent_refs).toContain("op:viewport-intent-create_node-001");
+    expect(editorContractPacket.surface_inventory.map((item: { surface: string }) => item.surface)).toContain(
+      "viewport_gestures"
+    );
+
+    const diffPreview = await screen.findByLabelText("Operation diff preview");
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain("3 operations");
+    expect(within(diffPreview).getByTestId("diff-preview-summary").textContent).toContain("3 diff rows");
+    expect(within(diffPreview).getByTestId("diff-preview-validation").textContent).toContain("3 held");
+    const diffHref = within(diffPreview).getByTestId("diff-preview-export-link").getAttribute("href") ?? "";
+    const diffPacket = JSON.parse(decodeURIComponent(diffHref.split(",", 2)[1]));
+    expect(diffPacket.summary.operation_count).toBe(3);
+    expect(diffPacket.summary.diff_row_count).toBe(3);
+    expect(diffPacket.previews.map((item: { operation_id: string }) => item.operation_id)).toContain(
+      "op:viewport-intent-create_node-001"
+    );
+    expect(diffPacket.previews.every((item: { accepted_model_state_mutated: boolean }) => item.accepted_model_state_mutated === false)).toBe(
+      true
+    );
+
+    const operationLedger = await screen.findByLabelText("Operation review ledger");
+    expect(within(operationLedger).getByTestId("operation-ledger-export-summary").textContent).toContain(
+      "3 review records"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-decision-counts").textContent).toContain(
+      "3 held_for_user_acceptance"
+    );
+    const ledgerHref = within(operationLedger).getByTestId("operation-ledger-export-link").getAttribute("href") ?? "";
+    const ledgerPacket = JSON.parse(decodeURIComponent(ledgerHref.split(",", 2)[1]));
+    expect(ledgerPacket.decision_counts.held_for_user_acceptance).toBe(3);
+    expect(ledgerPacket.records[0].source.source_ref).toBe("apps/desktop/src/features/viewport/PipeViewport.tsx");
+    expect(ledgerPacket.records[0].actor.source_role).toBe("viewport_editor");
+    expect(ledgerPacket.records.every((item: { accepted_model_state_ref: { ref: string } }) => item.accepted_model_state_ref.ref === "not generated")).toBe(
+      true
+    );
+    expect(ledgerPacket.accepted_model_state_unchanged).toBe(true);
+    expect(ledgerPacket.release_or_professional_claim).toBe(false);
+
+    const exportReview = await screen.findByLabelText("Export safety review");
+    expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
+      "21 of 27 local exports ready"
+    );
+    const reviewHref = within(exportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
+    const reviewManifest = JSON.parse(decodeURIComponent(reviewHref.split(",", 2)[1]));
+    expect(reviewManifest.deliverable_refs).toContain("DEL-07-01");
+    expect(reviewManifest.scope_items).toContain("SOW-020");
+    expect(reviewManifest.summary.operation_record_count).toBe(3);
+    expect(
+      reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
+        .readiness
+    ).toBe("available");
   });
 
   it("exposes materials, components, load cases, and combinations in the model workspace", async () => {
@@ -1852,9 +1919,11 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(editorContractExport.document_kind).toBe("openpipestress.technical_preview.editor_contract_review");
     expect(editorContractExport.deliverable_refs).toContain("DEL-07-03");
+    expect(editorContractExport.deliverable_refs).toContain("DEL-07-01");
     expect(editorContractExport.deliverable_refs).toContain("DEL-16-01");
+    expect(editorContractExport.source_refs).toContain("apps/desktop/src/features/viewport/PipeViewport.tsx");
     expect(editorContractExport.editor_count).toBe(4);
-    expect(editorContractExport.editor_surface_count).toBe(6);
+    expect(editorContractExport.editor_surface_count).toBe(7);
     expect(editorContractExport.queued_intent_count).toBe(1);
     expect(editorContractExport.ready_editor_count).toBe(2);
     expect(editorContractExport.blocked_editor_count).toBe(2);
@@ -2163,7 +2232,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(lintExport.document_kind).toBe("openpipestress.technical_preview.report_protected_content_lint_run");
     expect(lintExport.deliverable_refs).toContain("DEL-08-05");
-    expect(lintExport.target_count).toBe(21);
+    expect(lintExport.target_count).toBe(22);
     expect(lintExport.finding_count).toBe(0);
     expect(lintExport.blocking_finding_count).toBe(0);
     expect(lintExport.clean_scan_is_clearance).toBe(false);
@@ -3299,7 +3368,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=21");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=22");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -3309,8 +3378,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(21);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(21);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(22);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(22);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

@@ -324,7 +324,12 @@ export function App() {
         </aside>
 
         <section className="center-stage">
-          <PipeViewport model={model} selection={selection} />
+          <PipeViewport
+            model={model}
+            onQueueIntent={handleQueueEditorIntent}
+            queuedIntents={editorIntents}
+            selection={selection}
+          />
           <div className="bottom-panels">
             <KnowledgePanel knowledge={knowledge} result={result} />
             <DiagnosticsPanel
