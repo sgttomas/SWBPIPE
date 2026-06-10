@@ -194,7 +194,7 @@ function buildValidationEvidencePacket(model: PreviewModel) {
     },
     gui_validation_context: {
       smoke_record_surface: "apps/desktop/SMOKE.md",
-      current_tranche_smoke_record: "TP-MAC-72",
+      current_tranche_smoke_record: "TP-MAC-73",
       browser_console_errors_allowed: false,
       screenshot_matrix_policy: "TBD",
       accessibility_target_policy: "TBD",

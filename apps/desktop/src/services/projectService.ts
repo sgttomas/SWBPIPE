@@ -4,6 +4,7 @@ import type {
   AnalysisRunEnvelope,
   EditorOperationIntent,
   LocalProjectEnvelope,
+  LocalProjectIndexEntry,
   LocalStorageCapability,
   MechanicsResult,
   PreviewModel,
@@ -11,6 +12,16 @@ import type {
 } from "../types";
 
 let browserPreviewSnapshot: LocalProjectEnvelope | null = null;
+let browserPreviewSnapshotCreatedAtUnix = 0;
+let browserPreviewSnapshotUpdatedAtUnix = 0;
+
+function recordBrowserSnapshotTimestamps(resetCreated: boolean): void {
+  const nowUnix = Math.floor(Date.now() / 1000);
+  if (resetCreated || browserPreviewSnapshotCreatedAtUnix === 0) {
+    browserPreviewSnapshotCreatedAtUnix = nowUnix;
+  }
+  browserPreviewSnapshotUpdatedAtUnix = nowUnix;
+}
 
 function hasTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -140,6 +151,7 @@ export async function createLocalProject(
       analysisRun,
       "Created local browser-preview project snapshot without external file copies."
     );
+    recordBrowserSnapshotTimestamps(true);
     return cloneEnvelope(browserPreviewSnapshot);
   }
   return invoke<LocalProjectEnvelope>("create_local_project", {
@@ -162,6 +174,22 @@ export async function openLocalProject(): Promise<LocalProjectEnvelope | null> {
   return invoke<LocalProjectEnvelope | null>("open_local_project", { projectId: null });
 }
 
+export async function listLocalProjects(): Promise<LocalProjectIndexEntry[]> {
+  if (!hasTauriRuntime()) {
+    if (!browserPreviewSnapshot) return [];
+    return [
+      {
+        project_id: browserPreviewSnapshot.summary.project_id,
+        project_name: browserPreviewSnapshot.summary.project_name,
+        storage_mode: "browser_memory_preview",
+        created_at_unix: browserPreviewSnapshotCreatedAtUnix,
+        updated_at_unix: browserPreviewSnapshotUpdatedAtUnix
+      }
+    ];
+  }
+  return invoke<LocalProjectIndexEntry[]>("list_local_projects");
+}
+
 export async function saveLocalProject(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[] = [],
@@ -180,6 +208,7 @@ export async function saveLocalProject(
       analysisRun,
       "Saved local browser-preview project snapshot without external file copies."
     );
+    recordBrowserSnapshotTimestamps(false);
     return cloneEnvelope(browserPreviewSnapshot);
   }
   return invoke<LocalProjectEnvelope>("save_local_project", {

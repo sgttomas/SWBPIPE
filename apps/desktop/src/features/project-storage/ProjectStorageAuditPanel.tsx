@@ -2,6 +2,7 @@ import { Download, HardDrive } from "lucide-react";
 import type {
   AgentProposal,
   EditorOperationIntent,
+  LocalProjectIndexEntry,
   LocalProjectSummary,
   LocalStorageCapability,
   PreviewModel
@@ -11,6 +12,7 @@ export function ProjectStorageAuditPanel({
   model,
   storageCapability,
   projectSummary,
+  projectIndex,
   projectMessage,
   projectOperation,
   editorIntents,
@@ -19,6 +21,7 @@ export function ProjectStorageAuditPanel({
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
+  projectIndex: LocalProjectIndexEntry[] | null;
   projectMessage: string;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
@@ -28,6 +31,7 @@ export function ProjectStorageAuditPanel({
     model,
     storageCapability,
     projectSummary,
+    projectIndex,
     projectMessage,
     projectOperation,
     editorIntents,
@@ -93,6 +97,13 @@ export function ProjectStorageAuditPanel({
           testId="project-storage-snapshot"
         />
         <StorageLine
+          label="Project index"
+          value={`state=${packet.summary.project_index_state}; listed_projects=${
+            packet.summary.listed_project_count
+          }; refs=${packet.project_index_refs.length > 0 ? packet.project_index_refs.join(", ") : "none"}`}
+          testId="project-storage-project-index"
+        />
+        <StorageLine
           label="Payload boundary"
           value={`private payload=false; protected content=false; release/professional claim=false`}
           testId="project-storage-payload-boundary"
@@ -119,6 +130,7 @@ function buildProjectStorageAuditPacket({
   model,
   storageCapability,
   projectSummary,
+  projectIndex,
   projectMessage,
   projectOperation,
   editorIntents,
@@ -127,6 +139,7 @@ function buildProjectStorageAuditPacket({
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
+  projectIndex: LocalProjectIndexEntry[] | null;
   projectMessage: string;
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
@@ -167,6 +180,8 @@ function buildProjectStorageAuditPacket({
       persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
       persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
       persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
+      project_index_state: projectIndex ? "listed" : "not_requested",
+      listed_project_count: projectIndex?.length ?? 0,
       applied_operation_count: 0,
       accepted_model_state_mutated: false,
       network_required: Boolean(storageCapability?.network_required),
@@ -176,6 +191,8 @@ function buildProjectStorageAuditPacket({
     },
     storage_capability: storageCapability,
     project_summary: projectSummary,
+    project_index: projectIndex ?? [],
+    project_index_refs: (projectIndex ?? []).map((entry) => entry.project_id),
     project_message: projectMessage,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     proposal_refs: proposal ? [proposal.proposal_id] : [],

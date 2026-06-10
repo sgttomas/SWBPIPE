@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-72");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-73");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -1029,6 +1029,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
       "repository_default_private_write=false"
     );
+    expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain(
+      "state=not_requested"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain(
+      "listed_projects=0"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain("refs=none");
     expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
       "private payload=false"
     );
@@ -1049,6 +1056,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(storagePacket.summary.network_required).toBe(false);
     expect(storagePacket.summary.daemon_required).toBe(false);
     expect(storagePacket.summary.telemetry_enabled).toBe(false);
+    expect(storagePacket.summary.project_index_state).toBe("not_requested");
+    expect(storagePacket.summary.listed_project_count).toBe(0);
+    expect(storagePacket.project_index).toEqual([]);
+    expect(storagePacket.project_index_refs).toEqual([]);
     expect(storagePacket.boundary.repository_default_private_write).toBe(false);
     expect(storagePacket.private_payload_included).toBe(false);
     expect(storagePacket.protected_content_included).toBe(false);
@@ -2540,6 +2551,37 @@ describe("OpenPipeStress desktop preview", () => {
     expect(savedStoragePacket.project_summary.persisted_analysis_run_count).toBe(1);
     expect(savedStoragePacket.project_summary.persisted_analysis_run_ref).toBe("run:preview-linear-static-001");
     expect(savedStoragePacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+    expect(savedStoragePacket.summary.project_index_state).toBe("not_requested");
+    expect(savedStoragePacket.summary.listed_project_count).toBe(0);
+
+    fireEvent.click(within(controls).getByRole("button", { name: /List local/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+        "Listed 1 local project snapshot from the local store index."
+      )
+    );
+    expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain("state=listed");
+    expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain(
+      "listed_projects=1"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain(
+      "refs=project:invented-loop-01"
+    );
+    const listedStorageHref =
+      within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const listedStoragePacket = JSON.parse(decodeURIComponent(listedStorageHref.split(",", 2)[1]));
+    expect(listedStoragePacket.summary.last_operation).toBe("list");
+    expect(listedStoragePacket.summary.project_index_state).toBe("listed");
+    expect(listedStoragePacket.summary.listed_project_count).toBe(1);
+    expect(listedStoragePacket.project_index_refs).toEqual(["project:invented-loop-01"]);
+    expect(listedStoragePacket.project_index).toHaveLength(1);
+    expect(listedStoragePacket.project_index[0].project_id).toBe("project:invented-loop-01");
+    expect(listedStoragePacket.project_index[0].project_name).toBe("Invented Utility Loop Preview");
+    expect(listedStoragePacket.project_index[0].storage_mode).toBe("browser_memory_preview");
+    expect(listedStoragePacket.project_index[0].created_at_unix).toBeGreaterThan(0);
+    expect(listedStoragePacket.project_index[0].updated_at_unix).toBeGreaterThanOrEqual(
+      listedStoragePacket.project_index[0].created_at_unix
+    );
 
     const projectValidation = await screen.findByLabelText("Project validation preflight");
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(

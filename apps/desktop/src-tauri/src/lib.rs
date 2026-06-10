@@ -65,6 +65,15 @@ struct LocalProjectSummary {
 }
 
 #[derive(Debug, Serialize)]
+struct LocalProjectIndexEntry {
+    project_id: String,
+    project_name: String,
+    storage_mode: &'static str,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+}
+
+#[derive(Debug, Serialize)]
 struct LocalProjectEnvelope {
     summary: LocalProjectSummary,
     model: Value,
@@ -405,6 +414,32 @@ fn load_project(
         },
     )
     .transpose()
+}
+
+fn list_projects(connection: &Connection) -> Result<Vec<LocalProjectIndexEntry>, String> {
+    let mut statement = connection
+        .prepare(
+            "
+            SELECT project_id, project_name, created_at_unix, updated_at_unix
+            FROM local_projects
+            ORDER BY updated_at_unix DESC, project_id ASC
+            ",
+        )
+        .map_err(|error| error.to_string())?;
+    let entries = statement
+        .query_map([], |row| {
+            Ok(LocalProjectIndexEntry {
+                project_id: row.get::<_, String>(0)?,
+                project_name: row.get::<_, String>(1)?,
+                storage_mode: "local_sqlite",
+                created_at_unix: row.get::<_, i64>(2)?,
+                updated_at_unix: row.get::<_, i64>(3)?,
+            })
+        })
+        .map_err(|error| error.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    Ok(entries)
 }
 
 fn normalized_editor_intents(editor_intents: Option<Value>) -> Value {
@@ -756,6 +791,13 @@ fn open_local_project(
 }
 
 #[tauri::command]
+fn list_local_projects(app: AppHandle) -> Result<Vec<LocalProjectIndexEntry>, String> {
+    let path = app_store_path(&app)?;
+    let connection = open_project_store(&path)?;
+    list_projects(&connection)
+}
+
+#[tauri::command]
 fn save_local_project(
     app: AppHandle,
     request: SaveLocalProjectRequest,
@@ -810,6 +852,7 @@ pub fn run() {
             get_local_storage_capability,
             create_local_project,
             open_local_project,
+            list_local_projects,
             save_local_project
         ])
         .run(tauri::generate_context!())
@@ -1007,6 +1050,63 @@ mod tests {
             )
             .expect("fts5 selected target query succeeds");
         assert_eq!(target_indexed_count, 1);
+    }
+
+    #[test]
+    fn local_project_store_lists_project_index_ordered_by_most_recent_update() {
+        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        initialize_project_store(&connection).expect("project store schema initializes");
+        assert_eq!(
+            list_projects(&connection).expect("empty store lists").len(),
+            0
+        );
+
+        let first_model = json!({
+            "project": { "id": "project:test-alpha", "name": "Alpha Project" }
+        });
+        let second_model = json!({
+            "project": { "id": "project:test-beta", "name": "Beta Project" }
+        });
+        upsert_project(
+            &mut connection,
+            "project:test-alpha",
+            "Alpha Project",
+            &first_model,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+        )
+        .expect("first project saves");
+        upsert_project(
+            &mut connection,
+            "project:test-beta",
+            "Beta Project",
+            &second_model,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+        )
+        .expect("second project saves");
+        connection
+            .execute(
+                "UPDATE local_projects SET updated_at_unix = updated_at_unix + 60 WHERE project_id = ?1",
+                params!["project:test-beta"],
+            )
+            .expect("recency update applies");
+
+        let entries = list_projects(&connection).expect("populated store lists");
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].project_id, "project:test-beta");
+        assert_eq!(entries[0].project_name, "Beta Project");
+        assert_eq!(entries[0].storage_mode, "local_sqlite");
+        assert!(entries[0].created_at_unix > 0);
+        assert!(entries[0].updated_at_unix >= entries[0].created_at_unix);
+        assert_eq!(entries[1].project_id, "project:test-alpha");
+        assert!(entries[0].updated_at_unix > entries[1].updated_at_unix);
     }
 
     #[test]

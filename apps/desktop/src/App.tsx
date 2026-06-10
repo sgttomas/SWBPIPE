@@ -4,6 +4,7 @@ import {
   FileWarning,
   FolderOpen,
   HardDrive,
+  List,
   LockKeyhole,
   Save,
   ShieldCheck
@@ -63,6 +64,7 @@ import {
 import {
   createLocalProject,
   getLocalStorageCapability,
+  listLocalProjects,
   openLocalProject,
   saveLocalProject
 } from "./services/projectService";
@@ -72,6 +74,7 @@ import type {
   DesignKnowledge,
   EditorOperationIntent,
   EntityRef,
+  LocalProjectIndexEntry,
   LocalProjectSummary,
   LocalStorageCapability,
   MechanicsResult,
@@ -91,6 +94,7 @@ export function App() {
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
   const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
+  const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -231,6 +235,23 @@ export function App() {
     }
   }
 
+  async function handleListProjects() {
+    setProjectBusy(true);
+    try {
+      const listed = await listLocalProjects();
+      setProjectIndex(listed);
+      setProjectMessage(
+        `Listed ${listed.length} local project snapshot${listed.length === 1 ? "" : "s"} from the local store index.`
+      );
+      setProjectOperation("list");
+    } catch (error) {
+      setProjectMessage(`List failed: ${String(error)}`);
+      setProjectOperation("list_failed");
+    } finally {
+      setProjectBusy(false);
+    }
+  }
+
   function handleSelectResult(resultId: string) {
     setSelectedReviewTarget({ target_type: "result", id: resultId });
     const item = result?.results.find((candidate) => candidate.id === resultId);
@@ -295,6 +316,10 @@ export function App() {
           <button type="button" onClick={handleOpenProject} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
             Open local
+          </button>
+          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
+            <List size={15} aria-hidden="true" />
+            List local
           </button>
           <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
             <Save size={15} aria-hidden="true" />
@@ -362,6 +387,7 @@ export function App() {
             model={model}
             storageCapability={storageCapability}
             projectSummary={projectSummary}
+            projectIndex={projectIndex}
             projectMessage={projectMessage}
             projectOperation={projectOperation}
             editorIntents={editorIntents}

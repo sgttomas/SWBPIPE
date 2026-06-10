@@ -438,6 +438,14 @@ export type LocalProjectSummary = {
   message: string;
 };
 
+export type LocalProjectIndexEntry = {
+  project_id: string;
+  project_name: string;
+  storage_mode: "local_sqlite" | "browser_memory_preview" | string;
+  created_at_unix: number;
+  updated_at_unix: number;
+};
+
 export type LocalProjectEnvelope = {
   summary: LocalProjectSummary;
   model: PreviewModel;

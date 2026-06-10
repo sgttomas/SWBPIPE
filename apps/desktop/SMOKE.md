@@ -1964,3 +1964,38 @@ local technical-preview review evidence only; it is not a release claim,
 professional approval, certification, sealing, authentication, or
 code-compliance claim. Captured browser console error and warning entries
 after the timestamp marker were absent.
+
+TP-MAC-73 local-project-index-listing smoke passed on 2026-06-09
+America/Edmonton using the in-app browser at `http://127.0.0.1:5173/` with
+timestamp marker `2026-06-10T03:52:40.229Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`,
+`npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib`
+(including the new `list_projects` ordering test), and the full
+`python3 -m pytest -q tests` suite (340 passed).
+
+The validation-evidence packet captured during the session recorded
+`current_tranche_smoke_record=TP-MAC-73`. Before any project operation the
+Project Storage Audit panel rendered the new `Project index` line at its
+defaults — `state=not_requested; listed_projects=0; refs=none` — and the
+storage-audit packet carried `project_index_state=not_requested`,
+`listed_project_count=0`, and empty `project_index`/`project_index_refs`
+arrays. Choosing the new `List local` control against the empty store reported
+`Listed 0 local project snapshots from the local store index.` with
+`state=listed; listed_projects=0; refs=none`. After `Save local` followed by
+`List local`, the visible line reported
+`state=listed; listed_projects=1; refs=project:invented-loop-01`, and the
+packet recorded `last_operation=list`, `project_index_state=listed`,
+`listed_project_count=1`, `project_index_refs=["project:invented-loop-01"]`,
+and an index entry with `project_id=project:invented-loop-01`,
+`project_name=Invented Utility Loop Preview`,
+`storage_mode=browser_memory_preview`, and positive
+`created_at_unix`/`updated_at_unix` values. A subsequent `Open local`
+round-trip succeeded with the listed index intact, and the packet boundary
+flags remained `release_or_professional_claim=false`,
+`private_payload_included=false`, `protected_content_included=false`,
+`network_required=false`, and `telemetry_enabled=false`. The project index is
+a local technical-preview store listing only; it is not a release claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim. Captured browser console error and warning entries
+after the timestamp marker were absent.
