@@ -1929,3 +1929,38 @@ persisted-run context is local technical-preview review evidence only; it is
 not a release claim, professional approval, certification, sealing,
 authentication, or code-compliance claim. Captured browser console error and
 warning entries after the timestamp marker were absent.
+
+TP-MAC-72 native-package-persisted-run-exposure smoke passed on 2026-06-09
+America/Edmonton using the in-app browser at `http://127.0.0.1:5173/` with
+timestamp marker `2026-06-10T03:38:25.337Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`,
+`npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib`, and the
+full `python3 -m pytest -q tests` suite (340 passed).
+
+The validation-evidence packet captured during the session recorded
+`current_tranche_smoke_record=TP-MAC-72`. Before running preview mechanics the
+Native JSON Package panel rendered its empty state. After running preview
+mechanics (`state=completed`, `result_rows=647`) and before any persistence,
+the visible `Persisted review context` line of the Native JSON Package panel
+rendered the new persisted-run fields at their defaults —
+`mechanics_results=0`, `analysis_runs=0`, `run_ref=not_persisted` — and the
+native package packet carried the same defaults on both
+`source_project.storage_summary` and `generation_context`
+(`persisted_mechanics_result_count=0`, `persisted_analysis_run_count=0`,
+`persisted_analysis_run_ref=not_persisted`). After choosing `Save local`, the
+visible line reported `mechanics_results=1`, `analysis_runs=1`, and
+`run_ref=run:preview-linear-static-001`, and the packet carried
+`persisted_mechanics_result_count=1`, `persisted_analysis_run_count=1`, and
+`persisted_analysis_run_ref=run:preview-linear-static-001` on both
+`source_project.storage_summary` and `generation_context`. After choosing
+`Open local`, the restored run kept the progress basis
+`restored_persisted_run_record_no_new_solve_executed` and the same
+persisted-run values remained in the visible line and in both packet
+locations, with the packet boundary flags
+`release_or_professional_claim=false`, `private_payload_included=false`, and
+`protected_content_included=false`. The exposed persisted-run context is
+local technical-preview review evidence only; it is not a release claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim. Captured browser console error and warning entries
+after the timestamp marker were absent.

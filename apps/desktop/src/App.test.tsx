@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-71");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-72");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2613,6 +2613,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(savedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
       "selected_ref=result: result:stress:pipe-P-120:end-j:torsional-shear"
     );
+    expect(within(savedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "mechanics_results=1"
+    );
+    expect(within(savedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "analysis_runs=1"
+    );
+    expect(within(savedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "run_ref=run:preview-linear-static-001"
+    );
     const savedNativePackageHref =
       within(savedNativePackage).getByTestId("native-package-link").getAttribute("href") ?? "";
     const savedNativePackagePacket = JSON.parse(decodeURIComponent(savedNativePackageHref.split(",", 2)[1]));
@@ -2630,6 +2639,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(savedNativePackagePacket.generation_context.persisted_selected_review_target_count).toBe(1);
     expect(savedNativePackagePacket.generation_context.persisted_selected_review_target_ref).toBe(
       "result: result:stress:pipe-P-120:end-j:torsional-shear"
+    );
+    expect(savedNativePackagePacket.source_project.storage_summary.persisted_mechanics_result_count).toBe(1);
+    expect(savedNativePackagePacket.source_project.storage_summary.persisted_analysis_run_count).toBe(1);
+    expect(savedNativePackagePacket.source_project.storage_summary.persisted_analysis_run_ref).toBe(
+      "run:preview-linear-static-001"
+    );
+    expect(savedNativePackagePacket.generation_context.persisted_mechanics_result_count).toBe(1);
+    expect(savedNativePackagePacket.generation_context.persisted_analysis_run_count).toBe(1);
+    expect(savedNativePackagePacket.generation_context.persisted_analysis_run_ref).toBe(
+      "run:preview-linear-static-001"
     );
 
     fireEvent.click(within(controls).getByRole("button", { name: /Open local/i }));
@@ -2729,6 +2748,30 @@ describe("OpenPipeStress desktop preview", () => {
     expect(openedValidationPacket.summary.persisted_analysis_run_count).toBe(1);
     expect(openedValidationPacket.summary.persisted_analysis_run_ref).toBe("run:preview-linear-static-001");
     expect(openedValidationPacket.proposal_refs).toContain("proposal:physics-diagnostic-review");
+
+    const openedNativePackage = await screen.findByLabelText("Native JSON package");
+    expect(within(openedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "mechanics_results=1"
+    );
+    expect(within(openedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "analysis_runs=1"
+    );
+    expect(within(openedNativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "run_ref=run:preview-linear-static-001"
+    );
+    const openedNativePackageHref =
+      within(openedNativePackage).getByTestId("native-package-link").getAttribute("href") ?? "";
+    const openedNativePackagePacket = JSON.parse(decodeURIComponent(openedNativePackageHref.split(",", 2)[1]));
+    expect(openedNativePackagePacket.source_project.storage_summary.persisted_mechanics_result_count).toBe(1);
+    expect(openedNativePackagePacket.source_project.storage_summary.persisted_analysis_run_count).toBe(1);
+    expect(openedNativePackagePacket.source_project.storage_summary.persisted_analysis_run_ref).toBe(
+      "run:preview-linear-static-001"
+    );
+    expect(openedNativePackagePacket.generation_context.persisted_mechanics_result_count).toBe(1);
+    expect(openedNativePackagePacket.generation_context.persisted_analysis_run_count).toBe(1);
+    expect(openedNativePackagePacket.generation_context.persisted_analysis_run_ref).toBe(
+      "run:preview-linear-static-001"
+    );
 
     const operationLedger = await screen.findByLabelText("Operation review ledger");
     expect(await within(operationLedger).findByTestId("operation-ledger-export-summary")).toHaveTextContent(
@@ -3206,6 +3249,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(nativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
       "selected_ref=not_selected"
     );
+    expect(within(nativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "mechanics_results=0"
+    );
+    expect(within(nativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "analysis_runs=0"
+    );
+    expect(within(nativePackage).getByTestId("native-package-persisted-review-context").textContent).toContain(
+      "run_ref=not_persisted"
+    );
     expect(within(nativePackage).getByTestId("native-package-boundary").textContent).toContain(
       "no private payload, protected content, release claim, compatibility claim, compliance claim, or professional approval claim"
     );
@@ -3237,6 +3289,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(nativePackagePacket.source_project.storage_summary.proposal_count).toBe(0);
     expect(nativePackagePacket.source_project.storage_summary.selected_review_target_count).toBe(0);
     expect(nativePackagePacket.source_project.storage_summary.selected_review_target_ref).toBe("not_selected");
+    expect(nativePackagePacket.source_project.storage_summary.persisted_mechanics_result_count).toBe(0);
+    expect(nativePackagePacket.source_project.storage_summary.persisted_analysis_run_count).toBe(0);
+    expect(nativePackagePacket.source_project.storage_summary.persisted_analysis_run_ref).toBe("not_persisted");
     expect(nativePackagePacket.loss_report.summary.unsupported_count).toBe(1);
     expect(nativePackagePacket.loss_report.summary.tbd_count).toBe(1);
     expect(nativePackagePacket.validation_report.package_shape_status).toBe("review_manifest_complete");
@@ -3251,6 +3306,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(nativePackagePacket.generation_context.persisted_proposal_count).toBe(0);
     expect(nativePackagePacket.generation_context.persisted_selected_review_target_count).toBe(0);
     expect(nativePackagePacket.generation_context.persisted_selected_review_target_ref).toBe("not_selected");
+    expect(nativePackagePacket.generation_context.persisted_mechanics_result_count).toBe(0);
+    expect(nativePackagePacket.generation_context.persisted_analysis_run_count).toBe(0);
+    expect(nativePackagePacket.generation_context.persisted_analysis_run_ref).toBe("not_persisted");
     expect(nativePackagePacket.generation_context.repository_default_private_write).toBe(false);
     expect(nativePackagePacket.run_refs.result_count).toBe(647);
     expect(nativePackagePacket.run_refs.hash_refs).toHaveLength(2);

@@ -109,7 +109,7 @@ export function NativePackagePanel({
             />
             <PackageLine
               label="Persisted review context"
-              value={`editor_intents=${packet.source_project.storage_summary.editor_intent_count}; proposals=${packet.source_project.storage_summary.proposal_count}; selected_targets=${packet.source_project.storage_summary.selected_review_target_count}; selected_ref=${packet.source_project.storage_summary.selected_review_target_ref}`}
+              value={`editor_intents=${packet.source_project.storage_summary.editor_intent_count}; proposals=${packet.source_project.storage_summary.proposal_count}; selected_targets=${packet.source_project.storage_summary.selected_review_target_count}; selected_ref=${packet.source_project.storage_summary.selected_review_target_ref}; mechanics_results=${packet.source_project.storage_summary.persisted_mechanics_result_count}; analysis_runs=${packet.source_project.storage_summary.persisted_analysis_run_count}; run_ref=${packet.source_project.storage_summary.persisted_analysis_run_ref}`}
               testId="native-package-persisted-review-context"
             />
             <PackageLine
@@ -216,7 +216,10 @@ export function buildNativePackageReview({
             editor_intent_count: projectSummary.editor_intent_count,
             proposal_count: projectSummary.proposal_count,
             selected_review_target_count: projectSummary.selected_review_target_count,
-            selected_review_target_ref: projectSummary.selected_review_target_ref
+            selected_review_target_ref: projectSummary.selected_review_target_ref,
+            persisted_mechanics_result_count: projectSummary.persisted_mechanics_result_count,
+            persisted_analysis_run_count: projectSummary.persisted_analysis_run_count,
+            persisted_analysis_run_ref: projectSummary.persisted_analysis_run_ref
           }
         : {
             storage_mode: "not_persisted_this_session",
@@ -225,7 +228,10 @@ export function buildNativePackageReview({
             editor_intent_count: 0,
             proposal_count: 0,
             selected_review_target_count: 0,
-            selected_review_target_ref: "not_selected"
+            selected_review_target_ref: "not_selected",
+            persisted_mechanics_result_count: 0,
+            persisted_analysis_run_count: 0,
+            persisted_analysis_run_ref: "not_persisted"
           }
     },
     manifest: {
@@ -349,6 +355,9 @@ export function buildNativePackageReview({
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       persisted_selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected",
+      persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
+      persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
+      persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
       repository_default_private_write: false,
       runtime_timestamp_omitted: true
     },
