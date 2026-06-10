@@ -1107,6 +1107,16 @@ mod tests {
         assert!(entries[0].updated_at_unix >= entries[0].created_at_unix);
         assert_eq!(entries[1].project_id, "project:test-alpha");
         assert!(entries[0].updated_at_unix > entries[1].updated_at_unix);
+
+        let opened_by_id = load_project(&connection, Some("project:test-alpha"))
+            .expect("open by id loads")
+            .expect("alpha project exists");
+        assert_eq!(opened_by_id.project_id, "project:test-alpha");
+        assert_eq!(opened_by_id.model, first_model);
+        let opened_most_recent = load_project(&connection, None)
+            .expect("open most recent loads")
+            .expect("most recent project exists");
+        assert_eq!(opened_most_recent.project_id, "project:test-beta");
     }
 
     #[test]

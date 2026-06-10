@@ -1999,3 +1999,37 @@ a local technical-preview store listing only; it is not a release claim,
 professional approval, certification, sealing, authentication, or
 code-compliance claim. Captured browser console error and warning entries
 after the timestamp marker were absent.
+
+## TP-MAC-74 — open-by-id-project-picker
+
+- Date: 2026-06-09 (America/Edmonton)
+- Browser smoke marker: `2026-06-10T04:06:53.239Z`
+- Scope: open a specific listed project snapshot by id — `open_local_project`
+  by-id selection covered in Rust tests, `openLocalProject(projectId)` service
+  parameter with browser-memory id matching, per-entry "Open … (id)" picker row
+  rendered from the listed project index, and `open_by_id` operation exposure
+  in the Project Storage Audit packet.
+- Validation commands:
+  - `npm test --workspace apps/desktop` → 10/10 passed
+  - `npm run build --workspace apps/desktop` → built
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` → 3/3
+    passed (index test now also asserts open-by-id selects the older snapshot
+    while open-most-recent returns the newer one)
+  - `python3 -m pytest -q tests` → 340/340 passed
+- Browser smoke (Claude Preview, port 5173):
+  - Initial state: `Project index state=not_requested; listed_projects=0;
+    refs=none`; no picker row rendered.
+  - Save local → List local: message `Listed 1 local project snapshot from the
+    local store index.`; index line `state=listed; listed_projects=1;
+    refs=project:invented-loop-01`; picker row visible with button
+    `Open Invented Utility Loop Preview (project:invented-loop-01)`.
+  - Open by id: message `Opened local browser-preview project snapshot by id
+    project:invented-loop-01.`; storage audit summary `operation=open_by_id`;
+    packet `last_operation=open_by_id`, index state/refs retained.
+  - Validation evidence packet `current_tranche_smoke_record=TP-MAC-74`.
+  - Boundary flags: network=false, daemon=false, telemetry=false,
+    private_payload=false, release_or_professional_claim=false.
+  - Console: zero errors, zero warnings.
+- Boundary: local technical-preview evidence only — invented data, local-only
+  storage; no release, professional, certification, sealing, authentication, or
+  code-compliance claims.

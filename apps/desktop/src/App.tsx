@@ -182,12 +182,14 @@ export function App() {
     }
   }
 
-  async function handleOpenProject() {
+  async function handleOpenProject(projectId: string | null = null) {
     setProjectBusy(true);
     try {
-      const opened = await openLocalProject();
+      const opened = await openLocalProject(projectId);
       if (!opened) {
-        setProjectMessage("No local project snapshot found.");
+        setProjectMessage(
+          projectId ? `No local project snapshot found for ${projectId}.` : "No local project snapshot found."
+        );
         setProjectOperation("open_missing");
         return;
       }
@@ -207,7 +209,7 @@ export function App() {
       );
       setProjectSummary(opened.summary);
       setProjectMessage(opened.summary.message);
-      setProjectOperation("open");
+      setProjectOperation(projectId ? "open_by_id" : "open");
     } catch (error) {
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
@@ -313,7 +315,7 @@ export function App() {
             <Database size={15} aria-hidden="true" />
             Create local
           </button>
-          <button type="button" onClick={handleOpenProject} disabled={projectBusy}>
+          <button type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
             Open local
           </button>
@@ -326,6 +328,22 @@ export function App() {
             Save local
           </button>
         </div>
+        {projectIndex && projectIndex.length > 0 ? (
+          <div className="project-toolbar-actions" data-testid="project-index-picker" aria-label="Open listed project by id">
+            {projectIndex.map((entry) => (
+              <button
+                key={entry.project_id}
+                type="button"
+                data-testid={`project-index-open-${entry.project_id}`}
+                onClick={() => handleOpenProject(entry.project_id)}
+                disabled={projectBusy}
+              >
+                <FolderOpen size={15} aria-hidden="true" />
+                Open {entry.project_name} ({entry.project_id})
+              </button>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className="boundary-strip" aria-label="Preview boundary" data-testid="preview-boundary-strip">

@@ -164,14 +164,17 @@ export async function createLocalProject(
   });
 }
 
-export async function openLocalProject(): Promise<LocalProjectEnvelope | null> {
+export async function openLocalProject(projectId: string | null = null): Promise<LocalProjectEnvelope | null> {
   if (!hasTauriRuntime()) {
     if (!browserPreviewSnapshot) return null;
+    if (projectId && browserPreviewSnapshot.summary.project_id !== projectId) return null;
     const opened = cloneEnvelope(browserPreviewSnapshot);
-    opened.summary.message = "Opened local browser-preview project snapshot.";
+    opened.summary.message = projectId
+      ? `Opened local browser-preview project snapshot by id ${projectId}.`
+      : "Opened local browser-preview project snapshot.";
     return opened;
   }
-  return invoke<LocalProjectEnvelope | null>("open_local_project", { projectId: null });
+  return invoke<LocalProjectEnvelope | null>("open_local_project", { projectId });
 }
 
 export async function listLocalProjects(): Promise<LocalProjectIndexEntry[]> {

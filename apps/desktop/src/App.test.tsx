@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-73");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-74");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -1036,6 +1036,7 @@ describe("OpenPipeStress desktop preview", () => {
       "listed_projects=0"
     );
     expect(within(storageAudit).getByTestId("project-storage-project-index").textContent).toContain("refs=none");
+    expect(screen.queryByTestId("project-index-picker")).toBeNull();
     expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
       "private payload=false"
     );
@@ -2880,6 +2881,27 @@ describe("OpenPipeStress desktop preview", () => {
       openedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
         .readiness
     ).toBe("available");
+
+    expect(screen.getByTestId("project-index-picker")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("project-index-open-project:invented-loop-01"));
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+        "Opened local browser-preview project snapshot by id project:invented-loop-01."
+      )
+    );
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "operation=open_by_id"
+    );
+    const openedByIdStorageHref =
+      within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
+    const openedByIdStoragePacket = JSON.parse(decodeURIComponent(openedByIdStorageHref.split(",", 2)[1]));
+    expect(openedByIdStoragePacket.summary.last_operation).toBe("open_by_id");
+    expect(openedByIdStoragePacket.project_summary.project_id).toBe("project:invented-loop-01");
+    expect(openedByIdStoragePacket.summary.persisted_proposal_count).toBe(1);
+    expect(openedByIdStoragePacket.summary.persisted_selected_review_target_ref).toBe(
+      "result: result:stress:pipe-P-120:end-j:torsional-shear"
+    );
+    expect(openedByIdStoragePacket.summary.persisted_analysis_run_ref).toBe("run:preview-linear-static-001");
   }, 10000);
 
   it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
