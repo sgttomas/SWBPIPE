@@ -50,5 +50,13 @@ describe("hashService", () => {
     expect(hash?.payload_excludes).toBe("validation_report_package_hash_fields");
     expect(hash?.payload_ref).toBe("native-json-preview:project:test-hash");
     expect(hash?.hash_status).toBe("computed_local_preview");
+
+    const carrierExcludesHash = await computePackageHash(
+      "native-json-preview:project:test-hash",
+      payload,
+      "manifest_and_validation_report_package_hash_carrier_fields"
+    );
+    expect(carrierExcludesHash?.payload_excludes).toBe("manifest_and_validation_report_package_hash_carrier_fields");
+    expect(carrierExcludesHash?.value).toBe(hash?.value);
   });
 });

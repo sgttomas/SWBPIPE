@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
-import { canonicalJson, computePackageHash } from "../../services/hashService";
+import { usePackageHash } from "../../services/usePackageHash";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -52,20 +51,7 @@ export function NativePackagePanel({
         storageCapability
       })
     : null;
-  const canonicalPacketPayload = basePacket ? canonicalJson(basePacket) : null;
-  const packageId = basePacket?.package_id ?? null;
-  const [packageHash, setPackageHash] = useState<PackageHashEvidence | null>(null);
-  useEffect(() => {
-    let active = true;
-    setPackageHash(null);
-    if (!canonicalPacketPayload || !packageId) return;
-    computePackageHash(packageId, canonicalPacketPayload).then((hash) => {
-      if (active) setPackageHash(hash);
-    });
-    return () => {
-      active = false;
-    };
-  }, [canonicalPacketPayload, packageId]);
+  const packageHash = usePackageHash(basePacket?.package_id ?? null, basePacket);
   const packet = basePacket ? withPackageHash(basePacket, packageHash) : null;
   const jsonDataHref = packet
     ? `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(packet))}`

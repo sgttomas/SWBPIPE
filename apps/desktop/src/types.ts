@@ -459,7 +459,9 @@ export type PackageHashEvidence = {
   algorithm: "sha256";
   canonicalization: "jcs_like_sorted_object_keys";
   payload_scope: "package_review_payload";
-  payload_excludes: "validation_report_package_hash_fields";
+  payload_excludes:
+    | "validation_report_package_hash_fields"
+    | "manifest_and_validation_report_package_hash_carrier_fields";
   payload_ref: string;
   value: string;
   hash_status: "computed_local_preview";

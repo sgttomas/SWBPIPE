@@ -323,6 +323,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("members=6");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("stable_ids=4");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("diagnostics=4");
+    await waitFor(() =>
+      expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain(
+        "package_hash=computed_local_preview_sha256"
+      )
+    );
     expect(within(pcfExport).getByTestId("pcf-export-boundary").textContent).toContain(
       "target_compatibility=false"
     );
@@ -332,6 +337,11 @@ describe("OpenPipeStress desktop preview", () => {
     const pcfHref = within(pcfExport).getByTestId("pcf-export-link").getAttribute("href") ?? "";
     const pcfPacket = JSON.parse(decodeURIComponent(pcfHref.split(",", 2)[1]));
     expect(pcfPacket.document_kind).toBe("openpipestress.technical_preview.conservative_pcf_export_package");
+    expect(pcfPacket.manifest.canonical_package_hash_status).toBe("computed_local_preview_sha256");
+    expect(pcfPacket.manifest.canonical_package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(pcfPacket.validation_report.hash_validation_status).toBe(
+      "package_hash_computed_local_preview_not_independently_validated"
+    );
     expect(pcfPacket.deliverable_id).toBe("DEL-17-07");
     expect(pcfPacket.package_id).toBe("PKG-17");
     expect(pcfPacket.scope_items).toContain("SOW-030");
@@ -397,9 +407,19 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent).toContain(
       "external_tool_invoked=false"
     );
+    await waitFor(() =>
+      expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain(
+        "package_hash=computed_local_preview_sha256"
+      )
+    );
     const caepipeMbfHref = within(caepipeMbfExport).getByTestId("caepipe-mbf-export-link").getAttribute("href") ?? "";
     const caepipeMbfPacket = JSON.parse(decodeURIComponent(caepipeMbfHref.split(",", 2)[1]));
     expect(caepipeMbfPacket.document_kind).toBe("openpipestress.technical_preview.caepipe_mbf_export_package");
+    expect(caepipeMbfPacket.manifest.canonical_package_hash_status).toBe("computed_local_preview_sha256");
+    expect(caepipeMbfPacket.manifest.canonical_package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(caepipeMbfPacket.validation_report.hash_validation_status).toBe(
+      "package_hash_computed_local_preview_not_independently_validated"
+    );
     expect(caepipeMbfPacket.deliverable_id).toBe("DEL-17-04");
     expect(caepipeMbfPacket.package_id).toBe("PKG-17");
     expect(caepipeMbfPacket.scope_items).toContain("SOW-030");
@@ -537,12 +557,27 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-boundary").textContent).toContain(
       "compatibility=false"
     );
+    await waitFor(() =>
+      expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-validation").textContent).toContain(
+        "package_hash=computed_local_preview_sha256"
+      )
+    );
     const exportAdapterSdkHref =
       within(exportAdapterSdk).getByTestId("export-adapter-sdk-export-link").getAttribute("href") ?? "";
     const exportAdapterSdkPacket = JSON.parse(decodeURIComponent(exportAdapterSdkHref.split(",", 2)[1]));
     expect(exportAdapterSdkPacket.document_kind).toBe(
       "openpipestress.technical_preview.export_adapter_sdk_registry"
     );
+    expect(exportAdapterSdkPacket.manifest.canonical_package_hash_status).toBe("computed_local_preview_sha256");
+    expect(exportAdapterSdkPacket.manifest.canonical_package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(exportAdapterSdkPacket.validation_report.hash_validation_status).toBe(
+      "package_hash_computed_local_preview_not_independently_validated"
+    );
+    expect(
+      exportAdapterSdkPacket.target_registry.targets.find(
+        (item: { target_id: string }) => item.target_id === "stress_neutral_csv_json_package"
+      ).unresolved_tbd_refs
+    ).toEqual([]);
     expect(exportAdapterSdkPacket.deliverable_id).toBe("DEL-17-09");
     expect(exportAdapterSdkPacket.package_id).toBe("PKG-17");
     expect(exportAdapterSdkPacket.scope_items).toContain("SOW-030");
@@ -684,7 +719,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-76");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-77");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2085,9 +2120,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(stressNeutralExport.stable_id_count).toBe(647);
     expect(stressNeutralExport.member_roles).toContain("loss_report");
     expect(stressNeutralExport.comparison_semantics).toBe("diagnostic_export_only_no_pass_fail");
-    expect(stressNeutralExport.canonical_package_hash_status).toBe(
-      "TBD_browser_preview_does_not_emit_canonical_package_hash"
-    );
+    expect(stressNeutralExport.canonical_package_hash_status).toBe("computed_local_preview_sha256_by_target_panel");
     expect(stressNeutralExport.vendor_format_claim).toBe(false);
     expect(stressNeutralExport.solver_validation_claim).toBe(false);
     expect(stressNeutralExport.code_compliance_claim).toBe(false);
@@ -2183,9 +2216,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(pcfExportRecord.stable_id_count).toBe(4);
     expect(pcfExportRecord.loss_category_count).toBe(6);
     expect(pcfExportRecord.validation_status).toBe("blocked_missing_explicit_pcf_target_fields");
-    expect(pcfExportRecord.canonical_package_hash_status).toBe(
-      "TBD_browser_preview_does_not_emit_canonical_package_hash"
-    );
+    expect(pcfExportRecord.canonical_package_hash_status).toBe("computed_local_preview_sha256_by_target_panel");
     expect(pcfExportRecord.target_compatibility_claim).toBe(false);
     expect(pcfExportRecord.solver_validation_claim).toBe(false);
     expect(pcfExportRecord.code_compliance_claim).toBe(false);
@@ -3061,6 +3092,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("members=7");
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("stable_ids=647");
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("validation=passed");
+    await waitFor(() =>
+      expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain(
+        "package_hash=computed_local_preview_sha256"
+      )
+    );
     expect(within(stressNeutral).getByTestId("stress-neutral-boundary").textContent).toContain(
       "vendor_format=false"
     );
@@ -3106,8 +3142,14 @@ describe("OpenPipeStress desktop preview", () => {
       "tbd"
     );
     expect(stressNeutralPacket.manifest.package_members).toHaveLength(7);
-    expect(stressNeutralPacket.manifest.canonical_package_hash_status).toBe(
-      "TBD_browser_preview_does_not_emit_canonical_package_hash"
+    expect(stressNeutralPacket.manifest.canonical_package_hash_status).toBe("computed_local_preview_sha256");
+    expect(stressNeutralPacket.manifest.canonical_package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(stressNeutralPacket.manifest.canonical_package_hash.payload_scope).toBe("package_review_payload");
+    expect(stressNeutralPacket.manifest.canonical_package_hash.payload_excludes).toBe(
+      "manifest_and_validation_report_package_hash_carrier_fields"
+    );
+    expect(stressNeutralPacket.validation_report.hash_validation_status).toBe(
+      "package_hash_computed_local_preview_not_independently_validated"
     );
     expect(stressNeutralPacket.validation_report.validation_status).toBe("passed");
     expect(stressNeutralPacket.validation_report.schema_validation_status).toBe(

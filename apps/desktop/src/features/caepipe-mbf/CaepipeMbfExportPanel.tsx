@@ -1,4 +1,5 @@
 import { Download, FileText } from "lucide-react";
+import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
 type CaePipeMbfReference = {
@@ -32,7 +33,13 @@ export function CaepipeMbfExportPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  const packet = buildCaePipeMbfExportPacket({ model, result, analysisRun });
+  const basePacket = buildCaePipeMbfExportPacket({ model, result, analysisRun });
+  const packageHash = usePackageHash(
+    basePacket.manifest.manifest_id,
+    basePacket,
+    "manifest_and_validation_report_package_hash_carrier_fields"
+  );
+  const packet = withCanonicalPackageHash(basePacket, packageHash);
 
   return (
     <section className="panel caepipe-mbf-panel" aria-label="CAEPIPE MBF export" data-testid="caepipe-mbf-panel">
@@ -83,7 +90,7 @@ export function CaepipeMbfExportPanel({
         />
         <CaePipeMbfLine
           label="Package"
-          value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; mbf_lines=${packet.manifest.mbf_artifact.line_count}`}
+          value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; mbf_lines=${packet.manifest.mbf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="caepipe-mbf-package"
         />
         <CaePipeMbfLine
@@ -170,7 +177,6 @@ function buildCaePipeMbfExportPacket({
         member("validation_report", "validation_report.json", "json", 1),
         member("diagnostics", "diagnostics.json", "json", diagnostics.length)
       ],
-      canonical_package_hash_status: HASH_STATUS_TBD,
       boundary_notes: exportProfile.boundary_notes,
       diagnostics
     },
@@ -181,7 +187,6 @@ function buildCaePipeMbfExportPacket({
     validation_report: {
       validation_status: validationStatus,
       schema_validation_status: SCHEMA_VALIDATION_STATUS,
-      hash_validation_status: HASH_STATUS_TBD,
       blocking_count: blockingCount,
       checks: [
         check("mbf_text_has_terminal_record", mbfText.endsWith("END\n")),

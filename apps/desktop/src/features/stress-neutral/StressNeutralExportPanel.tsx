@@ -1,4 +1,5 @@
 import { Download, FileJson } from "lucide-react";
+import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 
 const STRESS_NEUTRAL_EXPORT_VERSION = "0.1.0";
@@ -50,7 +51,13 @@ export function StressNeutralExportPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  const packet = result && analysisRun ? buildStressNeutralExportPacket({ model, result, analysisRun }) : null;
+  const basePacket = result && analysisRun ? buildStressNeutralExportPacket({ model, result, analysisRun }) : null;
+  const packageHash = usePackageHash(
+    basePacket?.manifest.manifest_id ?? null,
+    basePacket,
+    "manifest_and_validation_report_package_hash_carrier_fields"
+  );
+  const packet = basePacket ? withCanonicalPackageHash(basePacket, packageHash) : null;
   return (
     <section
       className="panel stress-neutral-export-panel"
@@ -105,7 +112,7 @@ export function StressNeutralExportPanel({
             />
             <StressNeutralLine
               label="Package"
-              value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; loss_entries=${packet.loss_report.entries.length}; validation=${packet.validation_report.validation_status}`}
+              value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; loss_entries=${packet.loss_report.entries.length}; validation=${packet.validation_report.validation_status}; package_hash=${packet.manifest.canonical_package_hash_status}`}
               testId="stress-neutral-package"
             />
             <StressNeutralLine
@@ -246,7 +253,6 @@ function buildStressNeutralExportPacket({
         member("validation_report", "validation_report.json", "json", 1),
         member("diagnostics", "diagnostics.json", "json", diagnostics.length)
       ],
-      canonical_package_hash_status: HASH_STATUS_TBD,
       schema_ref: "schemas/stress_neutral_export.schema.json",
       provenance: previewProvenance()
     },
@@ -254,7 +260,6 @@ function buildStressNeutralExportPacket({
       validation_id: `validation:${safeFileToken(result.run_id)}:stress-neutral`,
       validation_status: validationStatus,
       schema_validation_status: SCHEMA_VALIDATION_STATUS,
-      hash_validation_status: HASH_STATUS_TBD,
       checks: [
         check("csv_json_row_sync", resultRows.length === csvText.trimEnd().split("\n").length - 1),
         check("canonical_ref_per_row", resultRows.every((row) => Boolean(row.canonical_ref.ref))),

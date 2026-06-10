@@ -1,4 +1,5 @@
 import { Download, FileText } from "lucide-react";
+import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
 type PcfReference = {
@@ -49,7 +50,13 @@ export function PcfExportPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  const packet = buildPcfExportPacket({ model, result, analysisRun });
+  const basePacket = buildPcfExportPacket({ model, result, analysisRun });
+  const packageHash = usePackageHash(
+    basePacket.manifest.manifest_id,
+    basePacket,
+    "manifest_and_validation_report_package_hash_carrier_fields"
+  );
+  const packet = withCanonicalPackageHash(basePacket, packageHash);
 
   return (
     <section className="panel pcf-export-panel" aria-label="Conservative PCF export" data-testid="pcf-export-panel">
@@ -99,7 +106,7 @@ export function PcfExportPanel({
         />
         <PcfLine
           label="Package"
-          value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; pcf_lines=${packet.manifest.pcf_artifact.line_count}`}
+          value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; pcf_lines=${packet.manifest.pcf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="pcf-export-package"
         />
         <PcfLine
@@ -219,7 +226,6 @@ function buildPcfExportPacket({
         member("validation_report", "validation_report.json", "desktop preview validation and blocking diagnostics", 1),
         member("diagnostics", "diagnostics.json", "diagnostics generated from preview model fields", diagnostics.length)
       ],
-      canonical_package_hash_status: HASH_STATUS_TBD,
       boundary_notes: [
         "browser preview package is shape-aligned with DEL-17-07 but not runtime JSON Schema validated",
         "target import behavior is not tested or claimed"
@@ -228,7 +234,6 @@ function buildPcfExportPacket({
     validation_report: {
       validation_status: validationStatus,
       schema_validation_status: SCHEMA_VALIDATION_STATUS,
-      hash_validation_status: HASH_STATUS_TBD,
       blocking_count: blockingCount,
       checks: [
         check("pcf_text_has_terminal_record", pcfText.endsWith("END-ISOGEN\n")),

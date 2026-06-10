@@ -1,4 +1,5 @@
 import { Download, Puzzle } from "lucide-react";
+import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
 type ExportAdapterSdkReference = {
@@ -41,7 +42,13 @@ export function ExportAdapterSdkPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  const packet = buildExportAdapterSdkPacket({ model, result, analysisRun });
+  const basePacket = buildExportAdapterSdkPacket({ model, result, analysisRun });
+  const packageHash = usePackageHash(
+    basePacket.manifest.manifest_id,
+    basePacket,
+    "manifest_and_validation_report_package_hash_carrier_fields"
+  );
+  const packet = withCanonicalPackageHash(basePacket, packageHash);
 
   return (
     <section
@@ -82,7 +89,7 @@ export function ExportAdapterSdkPanel({
         />
         <ExportAdapterSdkLine
           label="Validation"
-          value={`source_basis=${packet.validation_report.checks.source_basis_required}; stable_ids=${packet.validation_report.checks.stable_ids_required}; loss_report=${packet.validation_report.checks.loss_report_required}; schema=${packet.validation_report.schema_validation_status}`}
+          value={`source_basis=${packet.validation_report.checks.source_basis_required}; stable_ids=${packet.validation_report.checks.stable_ids_required}; loss_report=${packet.validation_report.checks.loss_report_required}; schema=${packet.validation_report.schema_validation_status}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="export-adapter-sdk-validation"
         />
         <ExportAdapterSdkLine
@@ -222,13 +229,11 @@ function buildExportAdapterSdkPacket({
         member("adapter_template", "adapter_template.json", "json", 1),
         member("validation_report", "validation_report.json", "json", 1),
         member("diagnostics", "diagnostics.json", "json", diagnostics.length)
-      ],
-      canonical_package_hash_status: HASH_STATUS_TBD
+      ]
     },
     validation_report: {
       validation_status: validationStatus,
       schema_validation_status: SCHEMA_VALIDATION_STATUS,
-      hash_validation_status: HASH_STATUS_TBD,
       checks: {
         common_export_contract_consumed: targets.every((item) => item.deliverable_refs.includes("DEL-17-02")),
         source_basis_required: targets.every((item) => item.source_basis_state !== "source_basis_admitted") ||
@@ -309,7 +314,7 @@ function exportAdapterTargets(): ExportAdapterTarget[] {
       source_basis_state: "project_owned_package_contract",
       stable_id_policy: "canonical_result_ids_and_sidecar_map",
       validation_status: "available_after_mechanics_run",
-      unresolved_tbd_refs: ["canonical_package_hash_status"]
+      unresolved_tbd_refs: []
     }),
     target({
       target_id: "review_geometry_export",

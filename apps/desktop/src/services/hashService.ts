@@ -37,7 +37,8 @@ export async function computeModelHash(model: PreviewModel): Promise<ModelHashEv
 
 export async function computePackageHash(
   packageId: string,
-  canonicalPayload: string
+  canonicalPayload: string,
+  payloadExcludes: PackageHashEvidence["payload_excludes"] = "validation_report_package_hash_fields"
 ): Promise<PackageHashEvidence | null> {
   const hex = await sha256Hex(canonicalPayload);
   if (!hex) return null;
@@ -45,7 +46,7 @@ export async function computePackageHash(
     algorithm: "sha256",
     canonicalization: "jcs_like_sorted_object_keys",
     payload_scope: "package_review_payload",
-    payload_excludes: "validation_report_package_hash_fields",
+    payload_excludes: payloadExcludes,
     payload_ref: packageId,
     value: `sha256:${hex}`,
     hash_status: "computed_local_preview"
