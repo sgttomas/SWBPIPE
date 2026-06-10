@@ -68,6 +68,7 @@ import {
   openLocalProject,
   saveLocalProject
 } from "./services/projectService";
+import { computeModelHash } from "./services/hashService";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -78,6 +79,7 @@ import type {
   LocalProjectSummary,
   LocalStorageCapability,
   MechanicsResult,
+  ModelHashEvidence,
   PreviewModel,
   SelectedReviewTarget,
   SolveJobAuditState
@@ -95,6 +97,7 @@ export function App() {
   const [storageCapability, setStorageCapability] = useState<LocalStorageCapability | null>(null);
   const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
   const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
+  const [modelHash, setModelHash] = useState<ModelHashEvidence | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -120,6 +123,18 @@ export function App() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    setModelHash(null);
+    if (!model) return;
+    computeModelHash(model).then((hash) => {
+      if (active) setModelHash(hash);
+    });
+    return () => {
+      active = false;
+    };
+  }, [model]);
 
   async function handleRun() {
     setRunning(true);
@@ -451,6 +466,7 @@ export function App() {
           <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
           <NativePackagePanel
             model={model}
+            modelHash={modelHash}
             result={result}
             analysisRun={analysisRun}
             editorIntents={editorIntents}

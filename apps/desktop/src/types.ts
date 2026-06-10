@@ -446,6 +446,15 @@ export type LocalProjectIndexEntry = {
   updated_at_unix: number;
 };
 
+export type ModelHashEvidence = {
+  algorithm: "sha256";
+  canonicalization: "jcs_like_sorted_object_keys";
+  payload_scope: "model_payload";
+  payload_ref: string;
+  value: string;
+  hash_status: "computed_local_preview";
+};
+
 export type LocalProjectEnvelope = {
   summary: LocalProjectSummary;
   model: PreviewModel;

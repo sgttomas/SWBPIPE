@@ -7,6 +7,7 @@ import type {
   LocalProjectSummary,
   LocalStorageCapability,
   MechanicsResult,
+  ModelHashEvidence,
   ObjectRef,
   PreviewModel,
   SelectedReviewTarget
@@ -16,6 +17,7 @@ type Props = {
   analysisRun: AnalysisRunEnvelope | null;
   editorIntents: EditorOperationIntent[];
   model: PreviewModel;
+  modelHash: ModelHashEvidence | null;
   projectSummary: LocalProjectSummary | null;
   proposal: AgentProposal | null;
   result: MechanicsResult | null;
@@ -27,6 +29,7 @@ export function NativePackagePanel({
   analysisRun,
   editorIntents,
   model,
+  modelHash,
   projectSummary,
   proposal,
   result,
@@ -38,6 +41,7 @@ export function NativePackagePanel({
         analysisRun,
         editorIntents,
         model,
+        modelHash,
         projectSummary,
         proposal,
         result,
@@ -141,6 +145,7 @@ export function buildNativePackageReview({
   analysisRun,
   editorIntents,
   model,
+  modelHash,
   projectSummary,
   proposal,
   result,
@@ -150,6 +155,7 @@ export function buildNativePackageReview({
   analysisRun: AnalysisRunEnvelope;
   editorIntents: EditorOperationIntent[];
   model: PreviewModel;
+  modelHash: ModelHashEvidence | null;
   projectSummary: LocalProjectSummary | null;
   proposal: AgentProposal | null;
   result: MechanicsResult;
@@ -170,7 +176,7 @@ export function buildNativePackageReview({
   }));
   const memberRecords = [
     member("manifest.json", "manifest", "package member inventory and boundary summary", "TBD_browser_preview_manifest_not_canonicalized"),
-    member("model/project.json", "model_payload", "invented preview project/model payload", "TBD_model_hash_not_available"),
+    member("model/project.json", "model_payload", "invented preview project/model payload", modelHash?.value ?? "TBD_model_hash_not_available"),
     member("maps/stable_id_map.json", "stable_id_map", "canonical OpenPipeStress entity/result/operation refs", "TBD_id_map_hash_not_available"),
     member("reports/loss_report.json", "loss_report", "required exported/omitted/approximated/delegated/unsupported/tbd review", "TBD_loss_report_hash_not_available"),
     member("reports/validation_report.json", "validation_report", "package-shape and source-boundary evidence only", "TBD_validation_report_hash_not_available"),
@@ -236,7 +242,7 @@ export function buildNativePackageReview({
     },
     manifest: {
       source_model_ref: reference("Project", model.project.id),
-      source_model_version_or_hash_basis: "TBD_model_hash_not_available",
+      source_model_version_or_hash_basis: modelHash?.value ?? "TBD_model_hash_not_available",
       export_profile_id: "native_open_json_preview",
       package_members: memberRecords,
       deterministic_hash_basis: "JCS-compatible JSON where member canonical payloads are available",
@@ -325,7 +331,8 @@ export function buildNativePackageReview({
       implementation_status: "browser_panel_review_packet_not_native_writer",
       deterministic_member_paths: true,
       deterministic_member_ordering: true,
-      model_hash_status: "TBD_model_hash_not_available",
+      model_hash_status: modelHash ? "computed_local_preview_sha256" : "TBD_model_hash_not_available",
+      model_hash: modelHash,
       package_hash_status: "TBD_canonical_package_hash_service_not_available",
       validation_scope: "package shape, stable IDs, boundaries, and current app state only",
       protected_content_screening: "invented preview fixture policy; no protected standards payload expected",

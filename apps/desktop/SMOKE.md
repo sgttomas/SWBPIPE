@@ -2033,3 +2033,38 @@ after the timestamp marker were absent.
 - Boundary: local technical-preview evidence only — invented data, local-only
   storage; no release, professional, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-75 — canonical-model-hash-service
+
+- Date: 2026-06-09 (America/Edmonton)
+- Browser smoke marker: `2026-06-10T04:17:23.439Z`
+- Scope: close the `model_hash_status` TBD in the native JSON package review —
+  new `hashService` computing SHA-256 over JCS-like canonical (sorted-key)
+  model JSON via Web Crypto, model-hash state in App passed into
+  `NativePackagePanel`, computed hash carried in the validation report, the
+  manifest hash basis, and the `model/project.json` member record. The
+  canonical *package* hash service remains `TBD` and is unchanged.
+- Validation commands:
+  - `npm test --workspace apps/desktop` → 12/12 passed (new
+    `hashService.test.ts` covers canonical key-order invariance and
+    deterministic sha256 evidence fields)
+  - `npm run build --workspace apps/desktop` → built
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` → 3/3
+    passed
+  - `python3 -m pytest -q tests` → 340/340 passed
+- Browser smoke (Claude Preview, port 5173):
+  - Run mechanics preview → native package validation line
+    `model_hash=computed_local_preview_sha256`.
+  - Packet: `validation_report.model_hash_status=computed_local_preview_sha256`;
+    `model_hash.value=sha256:f596e0f4…98a701e` (64-hex format verified);
+    canonicalization `jcs_like_sorted_object_keys`; payload ref
+    `project:invented-loop-01`; manifest `source_model_version_or_hash_basis`
+    and `model/project.json` member `hash_status` carry the same value;
+    `package_hash_status` still `TBD_canonical_package_hash_service_not_available`.
+  - Validation evidence packet `current_tranche_smoke_record=TP-MAC-75`.
+  - Boundary flags: private_payload=false, protected_content=false,
+    release_or_professional_claim=false.
+  - Console: zero errors, zero warnings.
+- Boundary: the model hash is local technical-preview evidence for review
+  reproducibility only — not a release artifact hash, acceptance record, or
+  certification/sealing/authentication/code-compliance claim.
