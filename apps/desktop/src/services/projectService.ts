@@ -1,9 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
+  AnalysisRunEnvelope,
   EditorOperationIntent,
   LocalProjectEnvelope,
   LocalStorageCapability,
+  MechanicsResult,
   PreviewModel,
   SelectedReviewTarget
 } from "../types";
@@ -34,6 +36,8 @@ function envelope(
   editorIntents: EditorOperationIntent[],
   proposal: AgentProposal | null,
   selectedReviewTarget: SelectedReviewTarget | null,
+  mechanicsResult: MechanicsResult | null,
+  analysisRun: AnalysisRunEnvelope | null,
   message: string
 ): LocalProjectEnvelope {
   const snapshot = cloneModel(model);
@@ -50,12 +54,17 @@ function envelope(
       proposal_count: proposal ? 1 : 0,
       selected_review_target_count: selectedReviewTarget ? 1 : 0,
       selected_review_target_ref: selectedReviewTargetRef(selectedReviewTarget),
+      persisted_mechanics_result_count: mechanicsResult ? 1 : 0,
+      persisted_analysis_run_count: analysisRun ? 1 : 0,
+      persisted_analysis_run_ref: persistedAnalysisRunRef(analysisRun, mechanicsResult),
       message
     },
     model: snapshot,
     editor_intents: cloneEditorIntents(editorIntents),
     proposal: cloneProposal(proposal),
-    selected_review_target: cloneSelectedReviewTarget(selectedReviewTarget)
+    selected_review_target: cloneSelectedReviewTarget(selectedReviewTarget),
+    mechanics_result: cloneJson(mechanicsResult),
+    analysis_run: cloneJson(analysisRun)
   };
 }
 
@@ -65,7 +74,9 @@ function cloneEnvelope(project: LocalProjectEnvelope): LocalProjectEnvelope {
     model: cloneModel(project.model),
     editor_intents: cloneEditorIntents(project.editor_intents ?? []),
     proposal: cloneProposal(project.proposal),
-    selected_review_target: cloneSelectedReviewTarget(project.selected_review_target)
+    selected_review_target: cloneSelectedReviewTarget(project.selected_review_target),
+    mechanics_result: cloneJson(project.mechanics_result),
+    analysis_run: cloneJson(project.analysis_run)
   };
 }
 
@@ -89,9 +100,21 @@ function cloneSelectedReviewTarget(
   return JSON.parse(JSON.stringify(selectedReviewTarget)) as SelectedReviewTarget;
 }
 
+function cloneJson<T>(value: T | null | undefined): T | null {
+  if (!value) return null;
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 function selectedReviewTargetRef(selectedReviewTarget: SelectedReviewTarget | null): string {
   if (!selectedReviewTarget) return "not_selected";
   return `${selectedReviewTarget.target_type}: ${selectedReviewTarget.id}`;
+}
+
+function persistedAnalysisRunRef(
+  analysisRun: AnalysisRunEnvelope | null,
+  mechanicsResult: MechanicsResult | null
+): string {
+  return analysisRun?.analysis_run?.run_id ?? mechanicsResult?.run_id ?? "not_persisted";
 }
 
 export async function getLocalStorageCapability(): Promise<LocalStorageCapability> {
@@ -103,7 +126,9 @@ export async function createLocalProject(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[] = [],
   proposal: AgentProposal | null = null,
-  selectedReviewTarget: SelectedReviewTarget | null = null
+  selectedReviewTarget: SelectedReviewTarget | null = null,
+  mechanicsResult: MechanicsResult | null = null,
+  analysisRun: AnalysisRunEnvelope | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
@@ -111,11 +136,20 @@ export async function createLocalProject(
       editorIntents,
       proposal,
       selectedReviewTarget,
+      mechanicsResult,
+      analysisRun,
       "Created local browser-preview project snapshot without external file copies."
     );
     return cloneEnvelope(browserPreviewSnapshot);
   }
-  return invoke<LocalProjectEnvelope>("create_local_project", { model, editorIntents, proposal, selectedReviewTarget });
+  return invoke<LocalProjectEnvelope>("create_local_project", {
+    model,
+    editorIntents,
+    proposal,
+    selectedReviewTarget,
+    mechanicsResult,
+    analysisRun
+  });
 }
 
 export async function openLocalProject(): Promise<LocalProjectEnvelope | null> {
@@ -132,7 +166,9 @@ export async function saveLocalProject(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[] = [],
   proposal: AgentProposal | null = null,
-  selectedReviewTarget: SelectedReviewTarget | null = null
+  selectedReviewTarget: SelectedReviewTarget | null = null,
+  mechanicsResult: MechanicsResult | null = null,
+  analysisRun: AnalysisRunEnvelope | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
@@ -140,6 +176,8 @@ export async function saveLocalProject(
       editorIntents,
       proposal,
       selectedReviewTarget,
+      mechanicsResult,
+      analysisRun,
       "Saved local browser-preview project snapshot without external file copies."
     );
     return cloneEnvelope(browserPreviewSnapshot);
@@ -151,7 +189,9 @@ export async function saveLocalProject(
       model,
       editor_intents: editorIntents,
       proposal,
-      selected_review_target: selectedReviewTarget
+      selected_review_target: selectedReviewTarget,
+      mechanics_result: mechanicsResult,
+      analysis_run: analysisRun
     }
   });
 }

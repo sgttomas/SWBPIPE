@@ -1858,3 +1858,39 @@ project review-context summary carried when available`. The package preserved
 protected-content, release/professional-claim, code-compliance-claim, and
 software-approval-claim flags. Captured browser console error entries after
 the timestamp marker were absent.
+
+TP-MAC-70 persisted-mechanics-run-local-roundtrip smoke passed on 2026-06-09
+America/Edmonton using the in-app browser at `http://127.0.0.1:5173/` with
+timestamp marker `2026-06-10T03:00:29.813Z`. The local validation run for this
+tranche passed focused and full `npm test --workspace apps/desktop`,
+`npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`, and
+`PYTHONDONTWRITEBYTECODE=1 python3 -m pytest
+tests/security/test_local_first_storage_policy.py
+tests/test_model_operation_schema.py`.
+
+The initial browser state confirmed the validation-evidence packet recorded
+`current_tranche_smoke_record=TP-MAC-70`. After running preview mechanics,
+selecting `result:stress:pipe-P-120:end-j:torsional-shear`, generating
+`proposal:physics-diagnostic-review`, and choosing `Save local`, the Project
+Storage Audit packet carried `persisted_mechanics_result_count=1`,
+`persisted_analysis_run_count=1`, and
+`persisted_analysis_run_ref=run:preview-linear-static-001` on
+`project_summary`, alongside the persisted selected-review-target ref
+`result: result:stress:pipe-P-120:end-j:torsional-shear`. After choosing
+`Open local`, the saved mechanics run was restored instead of cleared: the
+solve panel reported `state=completed`, `events=1`, `result_rows=647`, and the
+progress basis `restored_persisted_run_record_no_new_solve_executed`,
+declaring that the run record was restored from the local project store and
+that no new solve executed in this session. The restored results re-rendered
+all 647 result rows including
+`result:stress:pipe-P-120:end-j:torsional-shear` and the displacement result
+group after clearing the result filter, the operation review ledger state
+binding reported `state:project:invented-loop-01:preview;
+run:preview-linear-static-001`, the review context still reported `1 pending
+operation; applied=false; editor_intents=0; agent_proposals=1`, and the
+Project Storage Audit packet carried the same persisted mechanics-run fields
+with `operation=open`. The restored run is review context only; it is not a
+new computation, release claim, professional approval, certification,
+sealing, authentication, or code-compliance claim. Captured browser console
+error entries after the timestamp marker were absent.

@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-69");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-70");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2602,7 +2602,17 @@ describe("OpenPipeStress desktop preview", () => {
       )
     );
 
-    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("events=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("result_rows=647");
+    expect(screen.getByTestId("solve-job-progress").textContent).toContain(
+      "restored_persisted_run_record_no_new_solve_executed"
+    );
+    expect(
+      within(results).getByTestId("result-row-result:stress:pipe-P-120:end-j:torsional-shear")
+    ).toBeInTheDocument();
+    fireEvent.change(within(results).getByTestId("result-filter-input"), { target: { value: "" } });
+    expect(await screen.findByTestId("result-group-displacement")).toBeInTheDocument();
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
     );
@@ -2670,7 +2680,7 @@ describe("OpenPipeStress desktop preview", () => {
       "1 review record"
     );
     expect(within(operationLedger).getByTestId("operation-ledger-state-binding").textContent).toContain(
-      "not generated"
+      "state:project:invented-loop-01:preview; run:preview-linear-static-001"
     );
     expect(
       within(operationLedger).getByTestId("operation-ledger-record-op-review-computed-diagnostic").textContent

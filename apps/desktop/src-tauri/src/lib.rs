@@ -58,6 +58,9 @@ struct LocalProjectSummary {
     proposal_count: usize,
     selected_review_target_count: usize,
     selected_review_target_ref: String,
+    persisted_mechanics_result_count: usize,
+    persisted_analysis_run_count: usize,
+    persisted_analysis_run_ref: String,
     message: String,
 }
 
@@ -68,6 +71,8 @@ struct LocalProjectEnvelope {
     editor_intents: Value,
     proposal: Value,
     selected_review_target: Value,
+    mechanics_result: Value,
+    analysis_run: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,6 +86,10 @@ struct SaveLocalProjectRequest {
     proposal: Value,
     #[serde(default)]
     selected_review_target: Value,
+    #[serde(default)]
+    mechanics_result: Value,
+    #[serde(default)]
+    analysis_run: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -117,6 +126,8 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
                 editor_intents_json TEXT NOT NULL DEFAULT '[]',
                 proposal_json TEXT NOT NULL DEFAULT 'null',
                 selected_review_target_json TEXT NOT NULL DEFAULT 'null',
+                mechanics_result_json TEXT NOT NULL DEFAULT 'null',
+                analysis_run_json TEXT NOT NULL DEFAULT 'null',
                 created_at_unix INTEGER NOT NULL,
                 updated_at_unix INTEGER NOT NULL
             );
@@ -142,6 +153,16 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
         connection,
         "selected_review_target_json",
         "ALTER TABLE local_projects ADD COLUMN selected_review_target_json TEXT NOT NULL DEFAULT 'null'",
+    )?;
+    ensure_column(
+        connection,
+        "mechanics_result_json",
+        "ALTER TABLE local_projects ADD COLUMN mechanics_result_json TEXT NOT NULL DEFAULT 'null'",
+    )?;
+    ensure_column(
+        connection,
+        "analysis_run_json",
+        "ALTER TABLE local_projects ADD COLUMN analysis_run_json TEXT NOT NULL DEFAULT 'null'",
     )
 }
 
@@ -226,6 +247,8 @@ fn upsert_project(
     editor_intents: &Value,
     proposal: &Value,
     selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
@@ -233,8 +256,12 @@ fn upsert_project(
     let proposal_json = serde_json::to_string(proposal).map_err(|error| error.to_string())?;
     let selected_review_target_json =
         serde_json::to_string(selected_review_target).map_err(|error| error.to_string())?;
+    let mechanics_result_json =
+        serde_json::to_string(mechanics_result).map_err(|error| error.to_string())?;
+    let analysis_run_json =
+        serde_json::to_string(analysis_run).map_err(|error| error.to_string())?;
     let search_text = format!(
-        "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}"
+        "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
     let now = now_unix_seconds()?;
     let transaction = connection
@@ -243,14 +270,16 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?9)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
                 editor_intents_json = excluded.editor_intents_json,
                 proposal_json = excluded.proposal_json,
                 selected_review_target_json = excluded.selected_review_target_json,
+                mechanics_result_json = excluded.mechanics_result_json,
+                analysis_run_json = excluded.analysis_run_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
             params![
@@ -260,6 +289,8 @@ fn upsert_project(
                 editor_intents_json,
                 proposal_json,
                 selected_review_target_json,
+                mechanics_result_json,
+                analysis_run_json,
                 now
             ],
         )
@@ -282,51 +313,57 @@ fn upsert_project(
     transaction.commit().map_err(|error| error.to_string())
 }
 
+struct StoredProjectRecord {
+    project_id: String,
+    project_name: String,
+    model: Value,
+    editor_intents: Value,
+    proposal: Value,
+    selected_review_target: Value,
+    mechanics_result: Value,
+    analysis_run: Value,
+}
+
 fn load_project(
     connection: &Connection,
     project_id: Option<&str>,
-) -> Result<Option<(String, String, Value, Value, Value, Value)>, String> {
+) -> Result<Option<StoredProjectRecord>, String> {
+    type StoredRow = (String, String, String, String, String, String, String, String);
+    fn stored_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredRow> {
+        Ok((
+            row.get::<_, String>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, String>(2)?,
+            row.get::<_, String>(3)?,
+            row.get::<_, String>(4)?,
+            row.get::<_, String>(5)?,
+            row.get::<_, String>(6)?,
+            row.get::<_, String>(7)?,
+        ))
+    }
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
                 params![id],
-                |row| {
-                    Ok((
-                        row.get::<_, String>(0)?,
-                        row.get::<_, String>(1)?,
-                        row.get::<_, String>(2)?,
-                        row.get::<_, String>(3)?,
-                        row.get::<_, String>(4)?,
-                        row.get::<_, String>(5)?,
-                    ))
-                },
+                stored_row,
             )
             .optional()
             .map_err(|error| error.to_string())?,
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
                 ",
                 [],
-                |row| {
-                    Ok((
-                        row.get::<_, String>(0)?,
-                        row.get::<_, String>(1)?,
-                        row.get::<_, String>(2)?,
-                        row.get::<_, String>(3)?,
-                        row.get::<_, String>(4)?,
-                        row.get::<_, String>(5)?,
-                    ))
-                },
+                stored_row,
             )
             .optional()
             .map_err(|error| error.to_string())?,
@@ -339,6 +376,8 @@ fn load_project(
             editor_intents_json,
             proposal_json,
             selected_review_target_json,
+            mechanics_result_json,
+            analysis_run_json,
         )| {
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
@@ -349,14 +388,20 @@ fn load_project(
             let selected_review_target =
                 serde_json::from_str::<Value>(&selected_review_target_json)
                     .map_err(|error| error.to_string())?;
-            Ok((
-                id,
-                name,
+            let mechanics_result = serde_json::from_str::<Value>(&mechanics_result_json)
+                .map_err(|error| error.to_string())?;
+            let analysis_run = serde_json::from_str::<Value>(&analysis_run_json)
+                .map_err(|error| error.to_string())?;
+            Ok(StoredProjectRecord {
+                project_id: id,
+                project_name: name,
                 model,
                 editor_intents,
                 proposal,
                 selected_review_target,
-            ))
+                mechanics_result,
+                analysis_run,
+            })
         },
     )
     .transpose()
@@ -383,6 +428,20 @@ fn normalized_selected_review_target(selected_review_target: Option<Value>) -> V
     }
 }
 
+fn normalized_mechanics_result(mechanics_result: Option<Value>) -> Value {
+    match mechanics_result {
+        Some(value) if value.is_object() => value,
+        _ => Value::Null,
+    }
+}
+
+fn normalized_analysis_run(analysis_run: Option<Value>) -> Value {
+    match analysis_run {
+        Some(value) if value.is_object() => value,
+        _ => Value::Null,
+    }
+}
+
 fn proposal_count(proposal: &Value) -> usize {
     if proposal.is_object() {
         1
@@ -401,6 +460,24 @@ fn selected_review_target_count(selected_review_target: &Value) -> usize {
     } else {
         0
     }
+}
+
+fn object_count(value: &Value) -> usize {
+    if value.is_object() {
+        1
+    } else {
+        0
+    }
+}
+
+fn persisted_analysis_run_ref(analysis_run: &Value, mechanics_result: &Value) -> String {
+    analysis_run
+        .get("analysis_run")
+        .and_then(|run| run.get("run_id"))
+        .and_then(Value::as_str)
+        .or_else(|| mechanics_result.get("run_id").and_then(Value::as_str))
+        .map(str::to_string)
+        .unwrap_or_else(|| "not_persisted".to_string())
 }
 
 fn selected_review_target_ref(selected_review_target: &Value) -> String {
@@ -425,6 +502,8 @@ fn project_summary(
     editor_intents: &Value,
     proposal: &Value,
     selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
     message: String,
 ) -> LocalProjectSummary {
     LocalProjectSummary {
@@ -439,6 +518,9 @@ fn project_summary(
         proposal_count: proposal_count(proposal),
         selected_review_target_count: selected_review_target_count(selected_review_target),
         selected_review_target_ref: selected_review_target_ref(selected_review_target),
+        persisted_mechanics_result_count: object_count(mechanics_result),
+        persisted_analysis_run_count: object_count(analysis_run),
+        persisted_analysis_run_ref: persisted_analysis_run_ref(analysis_run, mechanics_result),
         message,
     }
 }
@@ -597,6 +679,8 @@ fn create_local_project(
     editor_intents: Option<Value>,
     proposal: Option<Value>,
     selected_review_target: Option<Value>,
+    mechanics_result: Option<Value>,
+    analysis_run: Option<Value>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let mut connection = open_project_store(&path)?;
@@ -605,6 +689,8 @@ fn create_local_project(
     let editor_intents = normalized_editor_intents(editor_intents);
     let proposal = normalized_proposal(proposal);
     let selected_review_target = normalized_selected_review_target(selected_review_target);
+    let mechanics_result = normalized_mechanics_result(mechanics_result);
+    let analysis_run = normalized_analysis_run(analysis_run);
     upsert_project(
         &mut connection,
         &project_id,
@@ -613,6 +699,8 @@ fn create_local_project(
         &editor_intents,
         &proposal,
         &selected_review_target,
+        &mechanics_result,
+        &analysis_run,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -622,12 +710,16 @@ fn create_local_project(
             &editor_intents,
             &proposal,
             &selected_review_target,
+            &mechanics_result,
+            &analysis_run,
             "Created local SQLite project snapshot without external file copies.".to_string(),
         ),
         model,
         editor_intents,
         proposal,
         selected_review_target,
+        mechanics_result,
+        analysis_run,
     })
 }
 
@@ -639,25 +731,27 @@ fn open_local_project(
     let path = app_store_path(&app)?;
     let connection = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
-        .map(
-            |(id, name, model, editor_intents, proposal, selected_review_target)| {
-                Ok(LocalProjectEnvelope {
-                    summary: project_summary(
-                        id,
-                        name,
-                        path.clone(),
-                        &editor_intents,
-                        &proposal,
-                        &selected_review_target,
-                        "Opened local SQLite project snapshot.".to_string(),
-                    ),
-                    model,
-                    editor_intents,
-                    proposal,
-                    selected_review_target,
-                })
-            },
-        )
+        .map(|record| {
+            Ok(LocalProjectEnvelope {
+                summary: project_summary(
+                    record.project_id,
+                    record.project_name,
+                    path.clone(),
+                    &record.editor_intents,
+                    &record.proposal,
+                    &record.selected_review_target,
+                    &record.mechanics_result,
+                    &record.analysis_run,
+                    "Opened local SQLite project snapshot.".to_string(),
+                ),
+                model: record.model,
+                editor_intents: record.editor_intents,
+                proposal: record.proposal,
+                selected_review_target: record.selected_review_target,
+                mechanics_result: record.mechanics_result,
+                analysis_run: record.analysis_run,
+            })
+        })
         .transpose()
 }
 
@@ -672,6 +766,8 @@ fn save_local_project(
     let proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
         normalized_selected_review_target(Some(request.selected_review_target));
+    let mechanics_result = normalized_mechanics_result(Some(request.mechanics_result));
+    let analysis_run = normalized_analysis_run(Some(request.analysis_run));
     upsert_project(
         &mut connection,
         &request.project_id,
@@ -680,6 +776,8 @@ fn save_local_project(
         &editor_intents,
         &proposal,
         &selected_review_target,
+        &mechanics_result,
+        &analysis_run,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -689,12 +787,16 @@ fn save_local_project(
             &editor_intents,
             &proposal,
             &selected_review_target,
+            &mechanics_result,
+            &analysis_run,
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
         model: request.model,
         editor_intents,
         proposal,
         selected_review_target,
+        mechanics_result,
+        analysis_run,
     })
 }
 
@@ -767,6 +869,25 @@ mod tests {
             "target_type": "result",
             "id": "result:stress:pipe-P-120:end-j:torsional-shear"
         });
+        let mechanics_result = json!({
+            "run_id": "run:preview-linear-static-001",
+            "model_ref": "project:test-local",
+            "results": [
+                {
+                    "id": "result:force:pipe-P-120:axial",
+                    "kind": "element_local_axial_force"
+                }
+            ],
+            "diagnostics": []
+        });
+        let analysis_run = json!({
+            "deliverable_id": "DEL-14-02",
+            "analysis_run": {
+                "run_id": "run:preview-linear-static-001",
+                "run_kind": "mechanics_solve",
+                "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED"]
+            }
+        });
         upsert_project(
             &mut connection,
             "project:test-local",
@@ -775,45 +896,53 @@ mod tests {
             &editor_intents,
             &proposal,
             &selected_review_target,
+            &mechanics_result,
+            &analysis_run,
         )
         .expect("project snapshot saves");
 
         let loaded = load_project(&connection, Some("project:test-local"))
             .expect("project snapshot loads")
             .expect("saved project exists");
-        assert_eq!(loaded.0, "project:test-local");
-        assert_eq!(loaded.1, "Test Local Project");
-        assert_eq!(loaded.2, model);
-        assert_eq!(loaded.3, editor_intents);
-        assert_eq!(loaded.4, proposal);
-        assert_eq!(loaded.5, selected_review_target);
+        assert_eq!(loaded.project_id, "project:test-local");
+        assert_eq!(loaded.project_name, "Test Local Project");
+        assert_eq!(loaded.model, model);
+        assert_eq!(loaded.editor_intents, editor_intents);
+        assert_eq!(loaded.proposal, proposal);
+        assert_eq!(loaded.selected_review_target, selected_review_target);
+        assert_eq!(loaded.mechanics_result, mechanics_result);
+        assert_eq!(loaded.analysis_run, analysis_run);
         assert_eq!(
-            loaded.3[0]["validation"]["application_status"],
+            loaded.editor_intents[0]["validation"]["application_status"],
             json!("not_applied")
         );
         assert_eq!(
-            loaded.3[0]["audit_boundary"]["mutates_accepted_model_state"],
+            loaded.editor_intents[0]["audit_boundary"]["mutates_accepted_model_state"],
             json!(false)
         );
         assert_eq!(
-            loaded.3[0]["professional_boundary"]["software_makes_compliance_claim"],
+            loaded.editor_intents[0]["professional_boundary"]["software_makes_compliance_claim"],
             json!(false)
         );
         assert_eq!(
-            loaded.4["operation"]["operation_id"],
+            loaded.proposal["operation"]["operation_id"],
             json!("op:review-computed-diagnostic")
         );
         assert_eq!(
-            loaded.4["validation"]["application_status"],
+            loaded.proposal["validation"]["application_status"],
             json!("not_applied")
         );
         assert_eq!(
-            loaded.4["audit_boundary"]["mutates_accepted_model_state"],
+            loaded.proposal["audit_boundary"]["mutates_accepted_model_state"],
             json!(false)
         );
         assert_eq!(
-            loaded.5["id"],
+            loaded.selected_review_target["id"],
             json!("result:stress:pipe-P-120:end-j:torsional-shear")
+        );
+        assert_eq!(
+            loaded.analysis_run["analysis_run"]["run_id"],
+            json!("run:preview-linear-static-001")
         );
         let summary = project_summary(
             "project:test-local".to_string(),
@@ -822,6 +951,8 @@ mod tests {
             &editor_intents,
             &proposal,
             &selected_review_target,
+            &mechanics_result,
+            &analysis_run,
             "Saved test project snapshot.".to_string(),
         );
         assert_eq!(summary.editor_intent_count, 1);
@@ -831,6 +962,26 @@ mod tests {
             summary.selected_review_target_ref,
             "result: result:stress:pipe-P-120:end-j:torsional-shear"
         );
+        assert_eq!(summary.persisted_mechanics_result_count, 1);
+        assert_eq!(summary.persisted_analysis_run_count, 1);
+        assert_eq!(
+            summary.persisted_analysis_run_ref,
+            "run:preview-linear-static-001"
+        );
+        let empty_summary = project_summary(
+            "project:test-local".to_string(),
+            "Test Local Project".to_string(),
+            PathBuf::from(":memory:"),
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            "Saved empty test project snapshot.".to_string(),
+        );
+        assert_eq!(empty_summary.persisted_mechanics_result_count, 0);
+        assert_eq!(empty_summary.persisted_analysis_run_count, 0);
+        assert_eq!(empty_summary.persisted_analysis_run_ref, "not_persisted");
 
         let indexed_count: i64 = connection
             .query_row(

@@ -432,6 +432,9 @@ export type LocalProjectSummary = {
   proposal_count: number;
   selected_review_target_count: number;
   selected_review_target_ref: string;
+  persisted_mechanics_result_count: number;
+  persisted_analysis_run_count: number;
+  persisted_analysis_run_ref: string;
   message: string;
 };
 
@@ -441,4 +444,6 @@ export type LocalProjectEnvelope = {
   editor_intents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selected_review_target: SelectedReviewTarget | null;
+  mechanics_result: MechanicsResult | null;
+  analysis_run: AnalysisRunEnvelope | null;
 };

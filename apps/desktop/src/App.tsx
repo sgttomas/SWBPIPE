@@ -163,7 +163,7 @@ export function App() {
     if (!model) return;
     setProjectBusy(true);
     try {
-      const created = await createLocalProject(model, editorIntents, proposal, selectedReviewTarget);
+      const created = await createLocalProject(model, editorIntents, proposal, selectedReviewTarget, result, analysisRun);
       setProjectSummary(created.summary);
       setEditorIntents(created.editor_intents ?? []);
       setProposal(created.proposal ?? null);
@@ -187,14 +187,20 @@ export function App() {
         setProjectOperation("open_missing");
         return;
       }
+      const restoredResult = opened.mechanics_result ?? null;
+      const restoredAnalysisRun = opened.analysis_run ?? null;
       setModel(opened.model);
       setSelection(defaultSelection(opened.model));
-      setResult(null);
-      setAnalysisRun(null);
+      setResult(restoredResult);
+      setAnalysisRun(restoredAnalysisRun);
       setProposal(opened.proposal ?? null);
       setEditorIntents(opened.editor_intents ?? []);
       setSelectedReviewTarget(opened.selected_review_target ?? null);
-      setSolveJob(initialSolveJob());
+      setSolveJob(
+        restoredResult && restoredAnalysisRun
+          ? restoredSolveJob(restoredResult, restoredAnalysisRun)
+          : initialSolveJob()
+      );
       setProjectSummary(opened.summary);
       setProjectMessage(opened.summary.message);
       setProjectOperation("open");
@@ -210,7 +216,7 @@ export function App() {
     if (!model) return;
     setProjectBusy(true);
     try {
-      const saved = await saveLocalProject(model, editorIntents, proposal, selectedReviewTarget);
+      const saved = await saveLocalProject(model, editorIntents, proposal, selectedReviewTarget, result, analysisRun);
       setProjectSummary(saved.summary);
       setEditorIntents(saved.editor_intents ?? []);
       setProposal(saved.proposal ?? null);
@@ -608,6 +614,31 @@ function completeSolveJob(
         event_id: "solve-preview-completed",
         state: "completed",
         message: `Preview mechanics completed with ${result.results.length} result rows bound to ${analysisRun.analysis_run.run_id}.`,
+        result_available: true,
+        diagnostic_count: result.diagnostics.length,
+        result_row_count: result.results.length,
+        analysis_status: analysisRun.analysis_run.analysis_status
+      }
+    ],
+    error_message: null
+  };
+}
+
+function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvelope): SolveJobAuditState {
+  return {
+    job_id: `job:preview-linear-static:restored:${safeJobToken(analysisRun.analysis_run.run_id)}`,
+    state: "completed",
+    progress_basis: "restored_persisted_run_record_no_new_solve_executed",
+    percentages_synthesized: false,
+    backend_percent_stream_available: false,
+    cancellation_requested: false,
+    cancellation_status: "not_requested",
+    backend_cancellation_token: "TBD",
+    events: [
+      {
+        event_id: "solve-preview-restored",
+        state: "completed",
+        message: `Restored persisted preview mechanics run ${analysisRun.analysis_run.run_id} from the local project store; no new solve was executed in this session.`,
         result_available: true,
         diagnostic_count: result.diagnostics.length,
         result_row_count: result.results.length,
