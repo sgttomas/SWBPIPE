@@ -457,6 +457,8 @@ export function App() {
             projectOperation={projectOperation}
             editorIntents={editorIntents}
             proposal={proposal}
+            modelHash={modelHash}
+            modelHashIntegrity={modelHashIntegrity}
           />
           <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
           <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />

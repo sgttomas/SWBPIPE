@@ -719,7 +719,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-78");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-79");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -1116,6 +1116,20 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-round-trip").textContent).toContain(
       "6 categories"
     );
+    await waitFor(() =>
+      expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+        "model_hash=model_hash_computed_not_persisted"
+      )
+    );
+    expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+      "persisted_model_hashes=0"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+      "integrity=open_verification_not_run_this_session"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-round-trip").textContent).toContain(
+      "reproducibility=model_hash_computed_not_persisted"
+    );
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "version_check=supported_current_schema"
     );
@@ -1148,8 +1162,28 @@ describe("OpenPipeStress desktop preview", () => {
       "migrate"
     );
     expect(validationPacket.validation_profile.hash_service_status).toBe(
-      "TBD_canonical_project_hash_service_not_available"
+      "canonical_model_hash_service_available_model_payload_scope"
     );
+    expect(validationPacket.validation_profile.project_envelope_hash_status).toBe(
+      "model_payload_scope_only_full_project_envelope_hash_tbd"
+    );
+    expect(validationPacket.summary.model_hash_status).toBe("model_hash_computed_not_persisted");
+    expect(validationPacket.summary.persisted_model_hash_count).toBe(0);
+    expect(validationPacket.summary.persisted_model_hash_ref).toBe("not_persisted");
+    expect(validationPacket.summary.model_hash_integrity_status).toBe("open_verification_not_run_this_session");
+    expect(validationPacket.model_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(validationPacket.model_hash_integrity).toBeNull();
+    expect(
+      validationPacket.round_trip_manifest.categories.find(
+        (category: { category: string }) => category.category === "reproducibility_metadata"
+      ).semantic_equality_status
+    ).toBe("model_hash_computed_not_persisted");
+    expect(
+      validationPacket.diagnostics.map((diagnosticEntry: { code: string }) => diagnosticEntry.code)
+    ).toContain("PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY");
+    expect(
+      validationPacket.diagnostics.map((diagnosticEntry: { code: string }) => diagnosticEntry.code)
+    ).not.toContain("PROJECT-VALIDATION-HASH-SERVICE-TBD");
     expect(validationPacket.boundary.local_only_project_store).toBe(true);
     expect(validationPacket.boundary.repository_default_private_write).toBe(false);
     expect(validationPacket.boundary.accepted_model_state_mutated).toBe(false);
@@ -2468,6 +2502,21 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "persisted editor intents=1"
     );
+    expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+      "model_hash=model_hash_verified_on_open"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+      "persisted_model_hashes=1"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+      "persisted_model_hash_ref=sha256:"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+      "integrity=verified_match"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-round-trip").textContent).toContain(
+      "reproducibility=model_hash_verified_on_open"
+    );
     expect(within(projectValidation).getByTestId("project-validation-boundary").textContent).toContain(
       "private/protected payload=false"
     );
@@ -2495,6 +2544,24 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "migrate").operation_status).toBe(
       "not_run_migration_framework_tbd"
     );
+    expect(validationPacket.summary.model_hash_status).toBe("model_hash_verified_on_open");
+    expect(validationPacket.summary.persisted_model_hash_count).toBe(1);
+    expect(validationPacket.summary.persisted_model_hash_ref).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(validationPacket.summary.model_hash_integrity_status).toBe("verified_match");
+    expect(validationPacket.validation_profile.hash_service_status).toBe(
+      "canonical_model_hash_service_available_model_payload_scope"
+    );
+    expect(validationPacket.model_hash_integrity.integrity_status).toBe("verified_match");
+    expect(validationPacket.model_hash_integrity.verification_basis).toBe("recomputed_on_open_from_restored_model");
+    expect(validationPacket.model_hash_integrity.persisted_value).toBe(validationPacket.model_hash_integrity.recomputed_value);
+    expect(
+      validationPacket.round_trip_manifest.categories.find(
+        (category: { category: string }) => category.category === "reproducibility_metadata"
+      ).semantic_equality_status
+    ).toBe("model_hash_verified_on_open");
+    expect(
+      validationPacket.diagnostics.map((diagnosticEntry: { code: string }) => diagnosticEntry.code)
+    ).not.toContain("PROJECT-VALIDATION-MODEL-HASH-MISMATCH");
     expect(
       validationPacket.round_trip_manifest.categories.find(
         (category: { category: string }) => category.category === "unit_metadata"

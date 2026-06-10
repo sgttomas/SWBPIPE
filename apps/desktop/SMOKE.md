@@ -2126,3 +2126,65 @@ after the timestamp marker were absent.
   integrity signal for human review, not release artifact hashing, acceptance,
   certification, sealing, authentication, or code-compliance claims; no
   network/telemetry writes.
+
+## TP-MAC-79 validation-preflight-model-hash-evidence (2026-06-10)
+
+- Scope: close the stale canonical-hash TBDs in the Project Validation
+  Preflight panel now that the canonical model-hash service exists
+  (TP-MAC-75) and the hash is persisted with local project snapshots and
+  verified on open (TP-MAC-78). `ProjectValidationPanel` gains `modelHash` /
+  `modelHashIntegrity` props (threaded from existing App state; no new hash
+  computation); `validation_profile.hash_service_status` becomes
+  `canonical_model_hash_service_available_model_payload_scope` with a new
+  explicit `project_envelope_hash_status=
+  model_payload_scope_only_full_project_envelope_hash_tbd` so the unresolved
+  full-envelope hash stays declared; the `reproducibility_metadata` round-trip
+  category and a new summary/visible `Model hash evidence` line report the
+  staged status (`model_hash_computed_not_persisted` →
+  `model_hash_persisted_open_verification_not_run` →
+  `model_hash_verified_on_open` / `model_hash_mismatch_review_required` /
+  `model_hash_recompute_unavailable_review_required`, or
+  `model_hash_service_unavailable_in_this_runtime`); the packet carries the
+  `model_hash` evidence object and `model_hash_integrity`; the static
+  `PROJECT-VALIDATION-HASH-SERVICE-TBD` warning is replaced by staged
+  diagnostics (`PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY` info,
+  `PROJECT-VALIDATION-MODEL-HASH-MISMATCH` warning, or
+  `PROJECT-VALIDATION-MODEL-HASH-SERVICE-UNAVAILABLE` warning) with new
+  diagnostic class `REPRODUCIBILITY`.
+- Validation commands: `npm test --workspace apps/desktop` (13/13),
+  `npm run build --workspace apps/desktop` (pass),
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` (3/3),
+  `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q tests` (340/340).
+- Browser smoke (Claude Preview, port 5173, marker
+  `2026-06-10T23:51:19.823Z`): initial state shows
+  `model_hash=model_hash_computed_not_persisted; persisted_model_hashes=0;
+  persisted_model_hash_ref=not_persisted;
+  integrity=open_verification_not_run_this_session` and round-trip
+  `reproducibility=model_hash_computed_not_persisted`; after Create local →
+  Save local → Open local, the model-hash line shows
+  `model_hash=model_hash_verified_on_open; persisted_model_hashes=1;
+  persisted_model_hash_ref=sha256:f596e0f4…98a701e; integrity=verified_match`,
+  the round-trip line shows `reproducibility=model_hash_verified_on_open`,
+  and the storage-audit integrity line shows the same persisted/recomputed
+  values with basis `recomputed_on_open_from_restored_model`. The exported
+  validation packet carries `hash_service_status=
+  canonical_model_hash_service_available_model_payload_scope`,
+  `project_envelope_hash_status=
+  model_payload_scope_only_full_project_envelope_hash_tbd`,
+  `summary.model_hash_status=model_hash_verified_on_open`,
+  `summary.persisted_model_hash_count=1`,
+  `summary.model_hash_integrity_status=verified_match`, the full
+  `model_hash_integrity` object, reproducibility category status
+  `model_hash_verified_on_open`, and diagnostics
+  `PROJECT-VALIDATION-PREFLIGHT-ONLY:info` plus
+  `PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY:info:REPRODUCIBILITY`; boundary
+  flags `private_payload_included`, `protected_content_included`,
+  `release_or_professional_claim`, `network_required`, and
+  `telemetry_enabled` all false. Validation evidence packet
+  `gui_validation_context.current_tranche_smoke_record` is `TP-MAC-79`.
+  Zero console errors/warnings.
+- Boundary: the model-hash preflight evidence is a local technical-preview
+  review-reproducibility signal scoped to the model payload only — not a
+  release artifact hash, acceptance record, certification, sealing,
+  authentication, or code-compliance claim; the full project-envelope hash
+  remains an explicit TBD; no network/telemetry writes.

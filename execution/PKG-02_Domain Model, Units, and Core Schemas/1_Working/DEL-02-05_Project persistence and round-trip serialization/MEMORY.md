@@ -139,3 +139,26 @@ Boundaries preserved:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-10 - TP-MAC-79 validation-preflight model-hash evidence
+
+- Desktop app tranche: the Project Validation Preflight panel now reports the
+  canonical model-hash evidence chain instead of stale TBDs. The
+  `reproducibility_metadata` round-trip category, packet summary, validation
+  profile, visible `Model hash evidence` line, and staged diagnostics carry
+  the model-hash status (`computed_not_persisted` →
+  `persisted_open_verification_not_run` → `verified_on_open` /
+  `mismatch_review_required` / `recompute_unavailable_review_required`).
+- The hash basis is unchanged: WebCrypto SHA-256 over JCS-like sorted-key
+  model JSON (DEL-08-02 evidence service from TP-MAC-75/78); this tranche
+  only consumes that evidence. The full project-envelope hash remains an
+  explicit TBD via the new
+  `validation_profile.project_envelope_hash_status` field; migration
+  framework and physical container remain TBD.
+- Evidence: `{ScopePath}/_run_records/TASK_RUN_2026-06-10_1755.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-79 (browser smoke marker
+  `2026-06-10T23:51:19.823Z`, zero console errors); Vitest 13/13, desktop
+  build, cargo lib 3/3, pytest 340/340 all green.
+- Boundary preserved: review-only local technical-preview reproducibility
+  signal, model-payload scope only; no lifecycle, release, certification,
+  sealing, authentication, professional-approval, or code-compliance claim.

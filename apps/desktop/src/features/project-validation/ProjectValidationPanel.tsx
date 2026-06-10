@@ -4,6 +4,8 @@ import type {
   EditorOperationIntent,
   LocalProjectSummary,
   LocalStorageCapability,
+  ModelHashEvidence,
+  ModelHashIntegrityEvidence,
   PreviewModel
 } from "../../types";
 
@@ -22,7 +24,9 @@ export function ProjectValidationPanel({
   projectSummary,
   projectOperation,
   editorIntents,
-  proposal
+  proposal,
+  modelHash,
+  modelHashIntegrity
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -30,6 +34,8 @@ export function ProjectValidationPanel({
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
+  modelHash: ModelHashEvidence | null;
+  modelHashIntegrity: ModelHashIntegrityEvidence | null;
 }) {
   const packet = buildProjectValidationPacket({
     model,
@@ -37,7 +43,9 @@ export function ProjectValidationPanel({
     projectSummary,
     projectOperation,
     editorIntents,
-    proposal
+    proposal,
+    modelHash,
+    modelHashIntegrity
   });
 
   return (
@@ -76,8 +84,20 @@ export function ProjectValidationPanel({
           value={`${packet.round_trip_manifest.category_count} categories; unit metadata=${categoryStatus(
             packet.round_trip_manifest.categories,
             "unit_metadata"
-          )}; provenance=${categoryStatus(packet.round_trip_manifest.categories, "provenance_metadata")}`}
+          )}; provenance=${categoryStatus(
+            packet.round_trip_manifest.categories,
+            "provenance_metadata"
+          )}; reproducibility=${categoryStatus(packet.round_trip_manifest.categories, "reproducibility_metadata")}`}
           testId="project-validation-round-trip"
+        />
+        <ValidationLine
+          label="Model hash evidence"
+          value={`model_hash=${packet.summary.model_hash_status}; persisted_model_hashes=${
+            packet.summary.persisted_model_hash_count
+          }; persisted_model_hash_ref=${packet.summary.persisted_model_hash_ref}; integrity=${
+            packet.summary.model_hash_integrity_status
+          }`}
+          testId="project-validation-model-hash"
         />
         <ValidationLine
           label="Persistence operations"
@@ -136,7 +156,9 @@ function buildProjectValidationPacket({
   projectSummary,
   projectOperation,
   editorIntents,
-  proposal
+  proposal,
+  modelHash,
+  modelHashIntegrity
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -144,8 +166,11 @@ function buildProjectValidationPacket({
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
+  modelHash: ModelHashEvidence | null;
+  modelHashIntegrity: ModelHashIntegrityEvidence | null;
 }) {
-  const categories = buildRoundTripCategories(model);
+  const modelHashStatus = modelHashEvidenceStatus({ modelHash, projectSummary, modelHashIntegrity });
+  const categories = buildRoundTripCategories(model, modelHashStatus);
   const migrationStatus = projectSummary?.migration_status ?? "not_persisted_this_session";
   const versionCheckStatus = model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
   const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
@@ -184,6 +209,10 @@ function buildProjectValidationPacket({
       persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
       persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
       persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
+      model_hash_status: modelHashStatus,
+      persisted_model_hash_count: projectSummary?.persisted_model_hash_count ?? 0,
+      persisted_model_hash_ref: projectSummary?.persisted_model_hash_ref ?? "not_persisted",
+      model_hash_integrity_status: modelHashIntegrity?.integrity_status ?? "open_verification_not_run_this_session",
       accepted_model_state_mutated: false,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       network_required: Boolean(storageCapability?.network_required),
@@ -194,7 +223,10 @@ function buildProjectValidationPacket({
       profile_id: "technical_preview_project_persistence_preflight",
       json_schema_baseline: "2020-12",
       canonicalization_basis: "JCS-compatible",
-      hash_service_status: "TBD_canonical_project_hash_service_not_available",
+      hash_service_status: modelHash
+        ? "canonical_model_hash_service_available_model_payload_scope"
+        : "model_hash_service_unavailable_in_this_runtime",
+      project_envelope_hash_status: "model_payload_scope_only_full_project_envelope_hash_tbd",
       physical_container_status: projectSummary ? projectSummary.storage_mode : "not_persisted_this_session"
     },
     round_trip_manifest: {
@@ -211,6 +243,8 @@ function buildProjectValidationPacket({
     service_operations: buildServiceOperations({ projectSummary, projectOperation, validationStatus, versionCheckStatus }),
     storage_capability: storageCapability,
     project_summary: projectSummary,
+    model_hash: modelHash,
+    model_hash_integrity: modelHashIntegrity,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     proposal_refs: proposal ? [proposal.proposal_id] : [],
     editor_operation_statuses: unique(editorIntents.map((intent) => intent.validation.application_status)),
@@ -227,7 +261,7 @@ function buildProjectValidationPacket({
       protected_content_included: false,
       release_or_professional_claim: false
     },
-    diagnostics: validationDiagnostics({ storageCapability, projectSummary, versionCheckStatus }),
+    diagnostics: validationDiagnostics({ storageCapability, projectSummary, versionCheckStatus, modelHash, modelHashIntegrity }),
     data_boundary: model.data_boundary,
     private_payload_included: false,
     protected_content_included: false,
@@ -236,7 +270,26 @@ function buildProjectValidationPacket({
   };
 }
 
-function buildRoundTripCategories(model: PreviewModel): RoundTripCategory[] {
+function modelHashEvidenceStatus({
+  modelHash,
+  projectSummary,
+  modelHashIntegrity
+}: {
+  modelHash: ModelHashEvidence | null;
+  projectSummary: LocalProjectSummary | null;
+  modelHashIntegrity: ModelHashIntegrityEvidence | null;
+}): string {
+  if (modelHashIntegrity?.integrity_status === "verified_match") return "model_hash_verified_on_open";
+  if (modelHashIntegrity?.integrity_status === "mismatch_review_required") return "model_hash_mismatch_review_required";
+  if (modelHashIntegrity?.integrity_status === "hash_recompute_unavailable") {
+    return "model_hash_recompute_unavailable_review_required";
+  }
+  if ((projectSummary?.persisted_model_hash_count ?? 0) > 0) return "model_hash_persisted_open_verification_not_run";
+  if (modelHash) return "model_hash_computed_not_persisted";
+  return "model_hash_service_unavailable_in_this_runtime";
+}
+
+function buildRoundTripCategories(model: PreviewModel, modelHashStatus: string): RoundTripCategory[] {
   const rulePackRefs = ((model as unknown as { rule_pack_refs?: unknown[] }).rule_pack_refs ?? []) as unknown[];
   return [
     category("model_content", "ready_for_preview_round_trip", model.nodes.length + model.pipe_segments.length),
@@ -260,7 +313,7 @@ function buildRoundTripCategories(model: PreviewModel): RoundTripCategory[] {
       provenancePresent(model) ? "ready_for_preview_round_trip" : "finding_missing_provenance_metadata",
       countProvenanceRecords(model)
     ),
-    category("reproducibility_metadata", "hash_basis_declared_hash_service_tbd", 1)
+    category("reproducibility_metadata", modelHashStatus, 1)
   ];
 }
 
@@ -386,11 +439,15 @@ function hasUnit(value: unknown): value is { unit: string } {
 function validationDiagnostics({
   storageCapability,
   projectSummary,
-  versionCheckStatus
+  versionCheckStatus,
+  modelHash,
+  modelHashIntegrity
 }: {
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
   versionCheckStatus: string;
+  modelHash: ModelHashEvidence | null;
+  modelHashIntegrity: ModelHashIntegrityEvidence | null;
 }) {
   const diagnostics = [
     diagnostic(
@@ -398,11 +455,7 @@ function validationDiagnostics({
       "info",
       "Validation preflight is local technical-preview evidence and does not create professional acceptance."
     ),
-    diagnostic(
-      "PROJECT-VALIDATION-HASH-SERVICE-TBD",
-      "warning",
-      "Canonical project hash generation is declared as TBD in this app preflight."
-    )
+    modelHashDiagnostic({ modelHash, modelHashIntegrity })
   ];
   if (!storageCapability) {
     diagnostics.push(diagnostic("PROJECT-VALIDATION-STORAGE-CAPABILITY-PENDING", "warning", "Local storage capability has not loaded yet."));
@@ -416,10 +469,38 @@ function validationDiagnostics({
   return diagnostics;
 }
 
+function modelHashDiagnostic({
+  modelHash,
+  modelHashIntegrity
+}: {
+  modelHash: ModelHashEvidence | null;
+  modelHashIntegrity: ModelHashIntegrityEvidence | null;
+}) {
+  if (!modelHash) {
+    return diagnostic(
+      "PROJECT-VALIDATION-MODEL-HASH-SERVICE-UNAVAILABLE",
+      "warning",
+      "Canonical model hash could not be computed in this runtime; reproducibility evidence is unavailable."
+    );
+  }
+  if (modelHashIntegrity?.integrity_status === "mismatch_review_required") {
+    return diagnostic(
+      "PROJECT-VALIDATION-MODEL-HASH-MISMATCH",
+      "warning",
+      "Persisted model hash does not match the hash recomputed from the restored model; human review is required."
+    );
+  }
+  return diagnostic(
+    "PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY",
+    "info",
+    "Canonical model hash is a local technical-preview review-reproducibility signal only, scoped to the model payload; it is not an acceptance, certification, sealing, authentication, or code-compliance record."
+  );
+}
+
 function diagnostic(code: string, severity: "info" | "warning" | "blocking", message: string) {
   return {
     code,
-    class: code.includes("SCHEMA") ? "SCHEMA_VALIDATION" : "MIGRATION",
+    class: code.includes("SCHEMA") ? "SCHEMA_VALIDATION" : code.includes("HASH") ? "REPRODUCIBILITY" : "MIGRATION",
     severity,
     source: "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
     message
