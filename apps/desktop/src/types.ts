@@ -435,6 +435,8 @@ export type LocalProjectSummary = {
   persisted_mechanics_result_count: number;
   persisted_analysis_run_count: number;
   persisted_analysis_run_ref: string;
+  persisted_model_hash_count: number;
+  persisted_model_hash_ref: string;
   message: string;
 };
 
@@ -453,6 +455,14 @@ export type ModelHashEvidence = {
   payload_ref: string;
   value: string;
   hash_status: "computed_local_preview";
+};
+
+export type ModelHashIntegrityEvidence = {
+  integrity_status: "verified_match" | "mismatch_review_required" | "not_persisted" | "hash_recompute_unavailable";
+  persisted_value: string;
+  recomputed_value: string;
+  payload_ref: string;
+  verification_basis: "recomputed_on_open_from_restored_model";
 };
 
 export type PackageHashEvidence = {
@@ -475,4 +485,5 @@ export type LocalProjectEnvelope = {
   selected_review_target: SelectedReviewTarget | null;
   mechanics_result: MechanicsResult | null;
   analysis_run: AnalysisRunEnvelope | null;
+  model_hash: ModelHashEvidence | null;
 };

@@ -5,6 +5,7 @@ import type {
   LocalProjectIndexEntry,
   LocalProjectSummary,
   LocalStorageCapability,
+  ModelHashIntegrityEvidence,
   PreviewModel
 } from "../../types";
 
@@ -16,7 +17,8 @@ export function ProjectStorageAuditPanel({
   projectMessage,
   projectOperation,
   editorIntents,
-  proposal
+  proposal,
+  modelHashIntegrity = null
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -26,6 +28,7 @@ export function ProjectStorageAuditPanel({
   projectOperation: string;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
+  modelHashIntegrity?: ModelHashIntegrityEvidence | null;
 }) {
   const packet = buildProjectStorageAuditPacket({
     model,
@@ -102,6 +105,22 @@ export function ProjectStorageAuditPanel({
             packet.summary.listed_project_count
           }; refs=${packet.project_index_refs.length > 0 ? packet.project_index_refs.join(", ") : "none"}`}
           testId="project-storage-project-index"
+        />
+        <StorageLine
+          label="Model hash persistence"
+          value={`persisted_model_hashes=${projectSummary?.persisted_model_hash_count ?? 0}; persisted_model_hash_ref=${
+            projectSummary?.persisted_model_hash_ref ?? "not_persisted"
+          }`}
+          testId="model-hash-persistence"
+        />
+        <StorageLine
+          label="Model hash integrity"
+          value={
+            modelHashIntegrity
+              ? `integrity_status=${modelHashIntegrity.integrity_status}; persisted_value=${modelHashIntegrity.persisted_value}; recomputed_value=${modelHashIntegrity.recomputed_value}; verification_basis=${modelHashIntegrity.verification_basis}; review-only integrity signal for human review`
+              : "no open-verification has run this session; review-only integrity signal for human review"
+          }
+          testId="model-hash-integrity"
         />
         <StorageLine
           label="Payload boundary"

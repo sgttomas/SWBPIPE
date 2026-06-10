@@ -61,6 +61,8 @@ struct LocalProjectSummary {
     persisted_mechanics_result_count: usize,
     persisted_analysis_run_count: usize,
     persisted_analysis_run_ref: String,
+    persisted_model_hash_count: usize,
+    persisted_model_hash_ref: String,
     message: String,
 }
 
@@ -82,6 +84,7 @@ struct LocalProjectEnvelope {
     selected_review_target: Value,
     mechanics_result: Value,
     analysis_run: Value,
+    model_hash: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -99,6 +102,8 @@ struct SaveLocalProjectRequest {
     mechanics_result: Value,
     #[serde(default)]
     analysis_run: Value,
+    #[serde(default)]
+    model_hash: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -137,6 +142,7 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
                 selected_review_target_json TEXT NOT NULL DEFAULT 'null',
                 mechanics_result_json TEXT NOT NULL DEFAULT 'null',
                 analysis_run_json TEXT NOT NULL DEFAULT 'null',
+                model_hash_json TEXT NOT NULL DEFAULT 'null',
                 created_at_unix INTEGER NOT NULL,
                 updated_at_unix INTEGER NOT NULL
             );
@@ -172,6 +178,11 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
         connection,
         "analysis_run_json",
         "ALTER TABLE local_projects ADD COLUMN analysis_run_json TEXT NOT NULL DEFAULT 'null'",
+    )?;
+    ensure_column(
+        connection,
+        "model_hash_json",
+        "ALTER TABLE local_projects ADD COLUMN model_hash_json TEXT NOT NULL DEFAULT 'null'",
     )
 }
 
@@ -258,6 +269,7 @@ fn upsert_project(
     selected_review_target: &Value,
     mechanics_result: &Value,
     analysis_run: &Value,
+    model_hash: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
@@ -269,6 +281,7 @@ fn upsert_project(
         serde_json::to_string(mechanics_result).map_err(|error| error.to_string())?;
     let analysis_run_json =
         serde_json::to_string(analysis_run).map_err(|error| error.to_string())?;
+    let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
     let search_text = format!(
         "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
@@ -279,8 +292,8 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?9)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?10)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
@@ -289,6 +302,7 @@ fn upsert_project(
                 selected_review_target_json = excluded.selected_review_target_json,
                 mechanics_result_json = excluded.mechanics_result_json,
                 analysis_run_json = excluded.analysis_run_json,
+                model_hash_json = excluded.model_hash_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
             params![
@@ -300,6 +314,7 @@ fn upsert_project(
                 selected_review_target_json,
                 mechanics_result_json,
                 analysis_run_json,
+                model_hash_json,
                 now
             ],
         )
@@ -331,13 +346,24 @@ struct StoredProjectRecord {
     selected_review_target: Value,
     mechanics_result: Value,
     analysis_run: Value,
+    model_hash: Value,
 }
 
 fn load_project(
     connection: &Connection,
     project_id: Option<&str>,
 ) -> Result<Option<StoredProjectRecord>, String> {
-    type StoredRow = (String, String, String, String, String, String, String, String);
+    type StoredRow = (
+        String,
+        String,
+        String,
+        String,
+        String,
+        String,
+        String,
+        String,
+        String,
+    );
     fn stored_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredRow> {
         Ok((
             row.get::<_, String>(0)?,
@@ -348,13 +374,14 @@ fn load_project(
             row.get::<_, String>(5)?,
             row.get::<_, String>(6)?,
             row.get::<_, String>(7)?,
+            row.get::<_, String>(8)?,
         ))
     }
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -366,7 +393,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -387,6 +414,7 @@ fn load_project(
             selected_review_target_json,
             mechanics_result_json,
             analysis_run_json,
+            model_hash_json,
         )| {
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
@@ -401,6 +429,8 @@ fn load_project(
                 .map_err(|error| error.to_string())?;
             let analysis_run = serde_json::from_str::<Value>(&analysis_run_json)
                 .map_err(|error| error.to_string())?;
+            let model_hash = serde_json::from_str::<Value>(&model_hash_json)
+                .map_err(|error| error.to_string())?;
             Ok(StoredProjectRecord {
                 project_id: id,
                 project_name: name,
@@ -410,6 +440,7 @@ fn load_project(
                 selected_review_target,
                 mechanics_result,
                 analysis_run,
+                model_hash,
             })
         },
     )
@@ -477,6 +508,13 @@ fn normalized_analysis_run(analysis_run: Option<Value>) -> Value {
     }
 }
 
+fn normalized_model_hash(model_hash: Option<Value>) -> Value {
+    match model_hash {
+        Some(value) if value.is_object() => value,
+        _ => Value::Null,
+    }
+}
+
 fn proposal_count(proposal: &Value) -> usize {
     if proposal.is_object() {
         1
@@ -515,6 +553,14 @@ fn persisted_analysis_run_ref(analysis_run: &Value, mechanics_result: &Value) ->
         .unwrap_or_else(|| "not_persisted".to_string())
 }
 
+fn persisted_model_hash_ref(model_hash: &Value) -> String {
+    model_hash
+        .get("value")
+        .and_then(Value::as_str)
+        .map(str::to_string)
+        .unwrap_or_else(|| "not_persisted".to_string())
+}
+
 fn selected_review_target_ref(selected_review_target: &Value) -> String {
     let Some(target) = selected_review_target.as_object() else {
         return "not_selected".to_string();
@@ -539,6 +585,7 @@ fn project_summary(
     selected_review_target: &Value,
     mechanics_result: &Value,
     analysis_run: &Value,
+    model_hash: &Value,
     message: String,
 ) -> LocalProjectSummary {
     LocalProjectSummary {
@@ -556,6 +603,8 @@ fn project_summary(
         persisted_mechanics_result_count: object_count(mechanics_result),
         persisted_analysis_run_count: object_count(analysis_run),
         persisted_analysis_run_ref: persisted_analysis_run_ref(analysis_run, mechanics_result),
+        persisted_model_hash_count: object_count(model_hash),
+        persisted_model_hash_ref: persisted_model_hash_ref(model_hash),
         message,
     }
 }
@@ -716,6 +765,7 @@ fn create_local_project(
     selected_review_target: Option<Value>,
     mechanics_result: Option<Value>,
     analysis_run: Option<Value>,
+    model_hash: Option<Value>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let mut connection = open_project_store(&path)?;
@@ -726,6 +776,7 @@ fn create_local_project(
     let selected_review_target = normalized_selected_review_target(selected_review_target);
     let mechanics_result = normalized_mechanics_result(mechanics_result);
     let analysis_run = normalized_analysis_run(analysis_run);
+    let model_hash = normalized_model_hash(model_hash);
     upsert_project(
         &mut connection,
         &project_id,
@@ -736,6 +787,7 @@ fn create_local_project(
         &selected_review_target,
         &mechanics_result,
         &analysis_run,
+        &model_hash,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -747,6 +799,7 @@ fn create_local_project(
             &selected_review_target,
             &mechanics_result,
             &analysis_run,
+            &model_hash,
             "Created local SQLite project snapshot without external file copies.".to_string(),
         ),
         model,
@@ -755,6 +808,7 @@ fn create_local_project(
         selected_review_target,
         mechanics_result,
         analysis_run,
+        model_hash,
     })
 }
 
@@ -777,6 +831,7 @@ fn open_local_project(
                     &record.selected_review_target,
                     &record.mechanics_result,
                     &record.analysis_run,
+                    &record.model_hash,
                     "Opened local SQLite project snapshot.".to_string(),
                 ),
                 model: record.model,
@@ -785,6 +840,7 @@ fn open_local_project(
                 selected_review_target: record.selected_review_target,
                 mechanics_result: record.mechanics_result,
                 analysis_run: record.analysis_run,
+                model_hash: record.model_hash,
             })
         })
         .transpose()
@@ -810,6 +866,7 @@ fn save_local_project(
         normalized_selected_review_target(Some(request.selected_review_target));
     let mechanics_result = normalized_mechanics_result(Some(request.mechanics_result));
     let analysis_run = normalized_analysis_run(Some(request.analysis_run));
+    let model_hash = normalized_model_hash(Some(request.model_hash));
     upsert_project(
         &mut connection,
         &request.project_id,
@@ -820,6 +877,7 @@ fn save_local_project(
         &selected_review_target,
         &mechanics_result,
         &analysis_run,
+        &model_hash,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -831,6 +889,7 @@ fn save_local_project(
             &selected_review_target,
             &mechanics_result,
             &analysis_run,
+            &model_hash,
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
         model: request.model,
@@ -839,6 +898,7 @@ fn save_local_project(
         selected_review_target,
         mechanics_result,
         analysis_run,
+        model_hash,
     })
 }
 
@@ -931,6 +991,14 @@ mod tests {
                 "analysis_status": ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED"]
             }
         });
+        let model_hash = json!({
+            "algorithm": "sha256",
+            "canonicalization": "jcs_like_sorted_object_keys",
+            "payload_scope": "model_payload",
+            "payload_ref": "project:test-local",
+            "value": "sha256:0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd",
+            "hash_status": "computed_local_preview"
+        });
         upsert_project(
             &mut connection,
             "project:test-local",
@@ -941,6 +1009,7 @@ mod tests {
             &selected_review_target,
             &mechanics_result,
             &analysis_run,
+            &model_hash,
         )
         .expect("project snapshot saves");
 
@@ -955,6 +1024,7 @@ mod tests {
         assert_eq!(loaded.selected_review_target, selected_review_target);
         assert_eq!(loaded.mechanics_result, mechanics_result);
         assert_eq!(loaded.analysis_run, analysis_run);
+        assert_eq!(loaded.model_hash, model_hash);
         assert_eq!(
             loaded.editor_intents[0]["validation"]["application_status"],
             json!("not_applied")
@@ -996,6 +1066,7 @@ mod tests {
             &selected_review_target,
             &mechanics_result,
             &analysis_run,
+            &model_hash,
             "Saved test project snapshot.".to_string(),
         );
         assert_eq!(summary.editor_intent_count, 1);
@@ -1011,6 +1082,11 @@ mod tests {
             summary.persisted_analysis_run_ref,
             "run:preview-linear-static-001"
         );
+        assert_eq!(summary.persisted_model_hash_count, 1);
+        assert_eq!(
+            summary.persisted_model_hash_ref,
+            "sha256:0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd"
+        );
         let empty_summary = project_summary(
             "project:test-local".to_string(),
             "Test Local Project".to_string(),
@@ -1020,11 +1096,14 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
+            &Value::Null,
             "Saved empty test project snapshot.".to_string(),
         );
         assert_eq!(empty_summary.persisted_mechanics_result_count, 0);
         assert_eq!(empty_summary.persisted_analysis_run_count, 0);
         assert_eq!(empty_summary.persisted_analysis_run_ref, "not_persisted");
+        assert_eq!(empty_summary.persisted_model_hash_count, 0);
+        assert_eq!(empty_summary.persisted_model_hash_ref, "not_persisted");
 
         let indexed_count: i64 = connection
             .query_row(
@@ -1077,6 +1156,7 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
+            &Value::Null,
         )
         .expect("first project saves");
         upsert_project(
@@ -1085,6 +1165,7 @@ mod tests {
             "Beta Project",
             &second_model,
             &json!([]),
+            &Value::Null,
             &Value::Null,
             &Value::Null,
             &Value::Null,

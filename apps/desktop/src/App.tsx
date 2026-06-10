@@ -80,6 +80,7 @@ import type {
   LocalStorageCapability,
   MechanicsResult,
   ModelHashEvidence,
+  ModelHashIntegrityEvidence,
   PreviewModel,
   SelectedReviewTarget,
   SolveJobAuditState
@@ -98,6 +99,7 @@ export function App() {
   const [projectSummary, setProjectSummary] = useState<LocalProjectSummary | null>(null);
   const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
   const [modelHash, setModelHash] = useState<ModelHashEvidence | null>(null);
+  const [modelHashIntegrity, setModelHashIntegrity] = useState<ModelHashIntegrityEvidence | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -181,8 +183,17 @@ export function App() {
   async function handleCreateProject() {
     if (!model) return;
     setProjectBusy(true);
+    setModelHashIntegrity(null);
     try {
-      const created = await createLocalProject(model, editorIntents, proposal, selectedReviewTarget, result, analysisRun);
+      const created = await createLocalProject(
+        model,
+        editorIntents,
+        proposal,
+        selectedReviewTarget,
+        result,
+        analysisRun,
+        modelHash
+      );
       setProjectSummary(created.summary);
       setEditorIntents(created.editor_intents ?? []);
       setProposal(created.proposal ?? null);
@@ -199,6 +210,7 @@ export function App() {
 
   async function handleOpenProject(projectId: string | null = null) {
     setProjectBusy(true);
+    setModelHashIntegrity(null);
     try {
       const opened = await openLocalProject(projectId);
       if (!opened) {
@@ -225,6 +237,8 @@ export function App() {
       setProjectSummary(opened.summary);
       setProjectMessage(opened.summary.message);
       setProjectOperation(projectId ? "open_by_id" : "open");
+      const recomputedHash = await computeModelHash(opened.model);
+      setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
     } catch (error) {
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
@@ -236,8 +250,17 @@ export function App() {
   async function handleSaveProject() {
     if (!model) return;
     setProjectBusy(true);
+    setModelHashIntegrity(null);
     try {
-      const saved = await saveLocalProject(model, editorIntents, proposal, selectedReviewTarget, result, analysisRun);
+      const saved = await saveLocalProject(
+        model,
+        editorIntents,
+        proposal,
+        selectedReviewTarget,
+        result,
+        analysisRun,
+        modelHash
+      );
       setProjectSummary(saved.summary);
       setEditorIntents(saved.editor_intents ?? []);
       setProposal(saved.proposal ?? null);
@@ -425,6 +448,7 @@ export function App() {
             projectOperation={projectOperation}
             editorIntents={editorIntents}
             proposal={proposal}
+            modelHashIntegrity={modelHashIntegrity}
           />
           <ProjectValidationPanel
             model={model}
@@ -753,4 +777,36 @@ function requestSolveCancellation(current: SolveJobAuditState): SolveJobAuditSta
 
 function safeJobToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+}
+
+function deriveModelHashIntegrity(
+  storedHash: ModelHashEvidence | null,
+  recomputedHash: ModelHashEvidence | null,
+  payloadRef: string
+): ModelHashIntegrityEvidence {
+  if (!storedHash) {
+    return {
+      integrity_status: "not_persisted",
+      persisted_value: "not_persisted",
+      recomputed_value: recomputedHash?.value ?? "unavailable",
+      payload_ref: payloadRef,
+      verification_basis: "recomputed_on_open_from_restored_model"
+    };
+  }
+  if (!recomputedHash) {
+    return {
+      integrity_status: "hash_recompute_unavailable",
+      persisted_value: storedHash.value,
+      recomputed_value: "unavailable",
+      payload_ref: payloadRef,
+      verification_basis: "recomputed_on_open_from_restored_model"
+    };
+  }
+  return {
+    integrity_status: storedHash.value === recomputedHash.value ? "verified_match" : "mismatch_review_required",
+    persisted_value: storedHash.value,
+    recomputed_value: recomputedHash.value,
+    payload_ref: payloadRef,
+    verification_basis: "recomputed_on_open_from_restored_model"
+  };
 }

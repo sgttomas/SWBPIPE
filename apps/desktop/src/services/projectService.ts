@@ -7,6 +7,7 @@ import type {
   LocalProjectIndexEntry,
   LocalStorageCapability,
   MechanicsResult,
+  ModelHashEvidence,
   PreviewModel,
   SelectedReviewTarget
 } from "../types";
@@ -49,6 +50,7 @@ function envelope(
   selectedReviewTarget: SelectedReviewTarget | null,
   mechanicsResult: MechanicsResult | null,
   analysisRun: AnalysisRunEnvelope | null,
+  modelHash: ModelHashEvidence | null,
   message: string
 ): LocalProjectEnvelope {
   const snapshot = cloneModel(model);
@@ -68,6 +70,8 @@ function envelope(
       persisted_mechanics_result_count: mechanicsResult ? 1 : 0,
       persisted_analysis_run_count: analysisRun ? 1 : 0,
       persisted_analysis_run_ref: persistedAnalysisRunRef(analysisRun, mechanicsResult),
+      persisted_model_hash_count: modelHash ? 1 : 0,
+      persisted_model_hash_ref: modelHash?.value ?? "not_persisted",
       message
     },
     model: snapshot,
@@ -75,7 +79,8 @@ function envelope(
     proposal: cloneProposal(proposal),
     selected_review_target: cloneSelectedReviewTarget(selectedReviewTarget),
     mechanics_result: cloneJson(mechanicsResult),
-    analysis_run: cloneJson(analysisRun)
+    analysis_run: cloneJson(analysisRun),
+    model_hash: cloneJson(modelHash)
   };
 }
 
@@ -87,7 +92,8 @@ function cloneEnvelope(project: LocalProjectEnvelope): LocalProjectEnvelope {
     proposal: cloneProposal(project.proposal),
     selected_review_target: cloneSelectedReviewTarget(project.selected_review_target),
     mechanics_result: cloneJson(project.mechanics_result),
-    analysis_run: cloneJson(project.analysis_run)
+    analysis_run: cloneJson(project.analysis_run),
+    model_hash: cloneJson(project.model_hash)
   };
 }
 
@@ -139,7 +145,8 @@ export async function createLocalProject(
   proposal: AgentProposal | null = null,
   selectedReviewTarget: SelectedReviewTarget | null = null,
   mechanicsResult: MechanicsResult | null = null,
-  analysisRun: AnalysisRunEnvelope | null = null
+  analysisRun: AnalysisRunEnvelope | null = null,
+  modelHash: ModelHashEvidence | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
@@ -149,6 +156,7 @@ export async function createLocalProject(
       selectedReviewTarget,
       mechanicsResult,
       analysisRun,
+      modelHash,
       "Created local browser-preview project snapshot without external file copies."
     );
     recordBrowserSnapshotTimestamps(true);
@@ -160,7 +168,8 @@ export async function createLocalProject(
     proposal,
     selectedReviewTarget,
     mechanicsResult,
-    analysisRun
+    analysisRun,
+    modelHash
   });
 }
 
@@ -199,7 +208,8 @@ export async function saveLocalProject(
   proposal: AgentProposal | null = null,
   selectedReviewTarget: SelectedReviewTarget | null = null,
   mechanicsResult: MechanicsResult | null = null,
-  analysisRun: AnalysisRunEnvelope | null = null
+  analysisRun: AnalysisRunEnvelope | null = null,
+  modelHash: ModelHashEvidence | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
@@ -209,6 +219,7 @@ export async function saveLocalProject(
       selectedReviewTarget,
       mechanicsResult,
       analysisRun,
+      modelHash,
       "Saved local browser-preview project snapshot without external file copies."
     );
     recordBrowserSnapshotTimestamps(false);
@@ -223,7 +234,8 @@ export async function saveLocalProject(
       proposal,
       selected_review_target: selectedReviewTarget,
       mechanics_result: mechanicsResult,
-      analysis_run: analysisRun
+      analysis_run: analysisRun,
+      model_hash: modelHash
     }
   });
 }

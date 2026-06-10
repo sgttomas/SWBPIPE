@@ -2083,3 +2083,46 @@ after the timestamp marker were absent.
 - Validation commands: `npm test --workspace apps/desktop` (13/13), `npm run build --workspace apps/desktop` (pass), `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` (3/3), `python3 -m pytest -q tests` (340/340).
 - Browser smoke (Claude Preview, port 5173, marker `2026-06-10T04:42:13.521Z`): after a mechanics run all five panels show `package_hash=computed_local_preview_sha256`; four distinct export-panel hash values observed (stress-neutral `sha256:a29898a3…`, PCF `sha256:7e3613a0…`, CAEPIPE MBF `sha256:4189b878…`, SDK `sha256:0aaf50ce…`); native package hash unchanged from TP-MAC-76 (`sha256:42aa719d…`), confirming the hook refactor preserved the hash basis; SDK stress-neutral target `unresolved_tbd_refs=[]`; ExportReview descriptors show `computed_local_preview_sha256_by_target_panel`; validation evidence smoke record `TP-MAC-77`. Zero console errors/warnings.
 - Boundary: hashes are local technical-preview review-reproducibility evidence only — not release artifact hashes, acceptance records, certification, sealing, authentication, or code-compliance claims; no network/telemetry writes.
+
+## TP-MAC-78 local-project-model-hash-persistence (2026-06-09)
+
+- Scope: persist the canonical model hash with local project snapshots and
+  verify it on open. Rust store (`src-tauri/src/lib.rs`) gains a
+  `model_hash_json` column (with `ensure_column` migration), a
+  `normalized_model_hash` helper, `model_hash` passthrough on
+  `create_local_project` (camelCase invoke arg `modelHash`) and
+  `save_local_project` (`request.model_hash`), envelope `model_hash`, and
+  summary fields `persisted_model_hash_count` / `persisted_model_hash_ref`;
+  the hash is stored verbatim (frontend WebCrypto JCS-like canonicalization is
+  the single hashing authority; no Rust-side hashing) and excluded from FTS.
+  Frontend (`projectService.ts`, `App.tsx`, `ProjectStorageAuditPanel.tsx`,
+  `types.ts`) passes the computed model hash into create/save (browser-memory
+  fallback contract-identical), recomputes the hash from the restored model on
+  open, and derives `ModelHashIntegrityEvidence`
+  (`verified_match` / `mismatch_review_required` / `not_persisted` /
+  `hash_recompute_unavailable`, basis
+  `recomputed_on_open_from_restored_model`), cleared on create/save/open so no
+  stale verification is shown. New audit-panel lines
+  `model-hash-persistence` and `model-hash-integrity`.
+- Validation commands: `npm test --workspace apps/desktop` (13/13),
+  `npm run build --workspace apps/desktop` (pass),
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` (3/3),
+  `python3 -m pytest -q tests` (340/340).
+- Browser smoke (Claude Preview, port 5173, markers
+  `2026-06-10T05:07:30.814Z` start, `2026-06-10T05:08:14.703Z` verified):
+  before any store operation `model-hash-persistence` shows
+  `persisted_model_hashes=0; persisted_model_hash_ref=not_persisted` and
+  `model-hash-integrity` reports no open-verification this session; after
+  mechanics run + Create local, persistence shows count 1 with
+  `sha256:f596e0f4…` while integrity still reports no open-verification;
+  after Save local + Open local, integrity shows
+  `integrity_status=verified_match` with identical persisted and recomputed
+  `sha256:f596e0f4…` values and
+  `verification_basis=recomputed_on_open_from_restored_model`; validation
+  evidence packet `gui_validation_context.current_tranche_smoke_record`
+  is `TP-MAC-78`. Zero console errors/warnings.
+- Boundary: the persisted hash and open-verification status are local
+  technical-preview review-reproducibility evidence only — a review-only
+  integrity signal for human review, not release artifact hashing, acceptance,
+  certification, sealing, authentication, or code-compliance claims; no
+  network/telemetry writes.

@@ -719,7 +719,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-77");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-78");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2329,6 +2329,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "0 pending operations; applied=false"
     );
+    expect(within(storageAudit).getByTestId("model-hash-persistence").textContent).toContain(
+      "persisted_model_hashes=0"
+    );
+    expect(within(storageAudit).getByTestId("model-hash-persistence").textContent).toContain(
+      "persisted_model_hash_ref=not_persisted"
+    );
+    expect(within(storageAudit).getByTestId("model-hash-integrity").textContent).toContain(
+      "no open-verification has run this session"
+    );
 
     const tree = screen.getByLabelText("Model tree");
     fireEvent.click(within(tree).getByRole("button", { name: /Invented carbon-steel-like material/i }));
@@ -2391,6 +2400,26 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
       "protected content=false"
+    );
+    await waitFor(() =>
+      expect(within(storageAudit).getByTestId("model-hash-integrity").textContent).toContain(
+        "integrity_status=verified_match"
+      )
+    );
+    expect(within(storageAudit).getByTestId("model-hash-integrity").textContent).toContain(
+      "persisted_value=sha256:"
+    );
+    expect(within(storageAudit).getByTestId("model-hash-integrity").textContent).toContain(
+      "recomputed_value=sha256:"
+    );
+    expect(within(storageAudit).getByTestId("model-hash-integrity").textContent).toContain(
+      "verification_basis=recomputed_on_open_from_restored_model"
+    );
+    expect(within(storageAudit).getByTestId("model-hash-persistence").textContent).toContain(
+      "persisted_model_hashes=1"
+    );
+    expect(within(storageAudit).getByTestId("model-hash-persistence").textContent).toContain(
+      "persisted_model_hash_ref=sha256:"
     );
     const auditHref = within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
     const auditPacket = JSON.parse(decodeURIComponent(auditHref.split(",", 2)[1]));
