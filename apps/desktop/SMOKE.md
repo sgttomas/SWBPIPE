@@ -2068,3 +2068,11 @@ after the timestamp marker were absent.
 - Boundary: the model hash is local technical-preview evidence for review
   reproducibility only — not a release artifact hash, acceptance record, or
   certification/sealing/authentication/code-compliance claim.
+
+## TP-MAC-76 canonical-package-hash-service (2026-06-09)
+
+- Scope: compute a canonical package hash for the native JSON package review packet. `hashService` gains a shared sha256 digest helper and `computePackageHash(packageId, canonicalPayload)`; `NativePackagePanel` hashes the JCS-like canonical JSON of the built review packet (hash carrier fields excluded from the basis) and carries the evidence in `validation_report.package_hash_status` / `validation_report.package_hash`. Loss-report TBD entry trimmed to physical container + transport. Other export panels' `canonical_package_hash_status` TBDs (ExportReviewPanel, ExportAdapterSdkPanel, StressNeutral, PCF, CAEPIPE MBF) intentionally out of scope.
+- Validation commands: `npm test --workspace apps/desktop` (13/13), `npm run build --workspace apps/desktop` (pass), `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` (3/3), `python3 -m pytest -q tests` (340/340).
+- Browser smoke (Claude Preview, port 5173, marker `2026-06-10T04:29:05.907Z`): ran mechanics preview; native package validation line shows `model_hash=computed_local_preview_sha256; package_hash=computed_local_preview_sha256`; exported packet carries `package_hash.value=sha256:42aa719dcb48731468fce5f5061c2cfa9d692d50757e2d6718c588f9566f0e49` with `payload_scope=package_review_payload`, `payload_excludes=validation_report_package_hash_fields`, `payload_ref=native-json-preview:project:invented-loop-01`, distinct from `model_hash.value=sha256:f596e0f4…98a701e`; loss-report TBD refs now `physical_project_container, public_transport_protocol` only; validation evidence smoke record `TP-MAC-76`.
+- Boundary flags observed false: `private_payload_included`, `protected_content_included`, `release_or_professional_claim`, `network_required`, `telemetry_enabled`; boundary line renders the local-review-only disclaimer. Zero console errors/warnings.
+- Boundary: this hash is local technical-preview review-reproducibility evidence only — not a release artifact hash, acceptance record, certification, sealing, authentication, or code-compliance claim.

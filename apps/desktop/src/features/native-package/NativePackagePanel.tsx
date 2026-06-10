@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
+import { canonicalJson, computePackageHash } from "../../services/hashService";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -9,6 +11,7 @@ import type {
   MechanicsResult,
   ModelHashEvidence,
   ObjectRef,
+  PackageHashEvidence,
   PreviewModel,
   SelectedReviewTarget
 } from "../../types";
@@ -36,7 +39,7 @@ export function NativePackagePanel({
   selectedReviewTarget,
   storageCapability
 }: Props) {
-  const packet = result && analysisRun
+  const basePacket = result && analysisRun
     ? buildNativePackageReview({
         analysisRun,
         editorIntents,
@@ -49,6 +52,21 @@ export function NativePackagePanel({
         storageCapability
       })
     : null;
+  const canonicalPacketPayload = basePacket ? canonicalJson(basePacket) : null;
+  const packageId = basePacket?.package_id ?? null;
+  const [packageHash, setPackageHash] = useState<PackageHashEvidence | null>(null);
+  useEffect(() => {
+    let active = true;
+    setPackageHash(null);
+    if (!canonicalPacketPayload || !packageId) return;
+    computePackageHash(packageId, canonicalPacketPayload).then((hash) => {
+      if (active) setPackageHash(hash);
+    });
+    return () => {
+      active = false;
+    };
+  }, [canonicalPacketPayload, packageId]);
+  const packet = basePacket ? withPackageHash(basePacket, packageHash) : null;
   const jsonDataHref = packet
     ? `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(packet))}`
     : "";
@@ -98,7 +116,7 @@ export function NativePackagePanel({
             />
             <PackageLine
               label="Validation"
-              value={`shape=${packet.validation_report.package_shape_status}; deterministic_paths=${String(packet.validation_report.deterministic_member_paths)}; model_hash=${packet.validation_report.model_hash_status}`}
+              value={`shape=${packet.validation_report.package_shape_status}; deterministic_paths=${String(packet.validation_report.deterministic_member_paths)}; model_hash=${packet.validation_report.model_hash_status}; package_hash=${packet.validation_report.package_hash_status}`}
               testId="native-package-validation"
             />
             <PackageLine
@@ -312,8 +330,8 @@ export function buildNativePackageReview({
         {
           category: "tbd",
           severity: "warning",
-          affected_refs: ["physical_project_container", "public_transport_protocol", "canonical_package_hash"],
-          reason: "physical project package/container, public transport, and canonical package hash service remain TBD",
+          affected_refs: ["physical_project_container", "public_transport_protocol"],
+          reason: "physical project package/container and public transport protocol remain TBD",
           downstream_implication: "do not treat this browser-local packet as a release package format"
         }
       ],
@@ -333,7 +351,6 @@ export function buildNativePackageReview({
       deterministic_member_ordering: true,
       model_hash_status: modelHash ? "computed_local_preview_sha256" : "TBD_model_hash_not_available",
       model_hash: modelHash,
-      package_hash_status: "TBD_canonical_package_hash_service_not_available",
       validation_scope: "package shape, stable IDs, boundaries, and current app state only",
       protected_content_screening: "invented preview fixture policy; no protected standards payload expected",
       private_payload_screening: "private project/rule/component/material payloads are not bundled",
@@ -389,6 +406,22 @@ export function buildNativePackageReview({
       software_makes_sealing_claim: false,
       software_makes_approval_claim: false,
       software_makes_authentication_claim: false
+    }
+  };
+}
+
+export function withPackageHash(
+  packet: ReturnType<typeof buildNativePackageReview>,
+  packageHash: PackageHashEvidence | null
+) {
+  return {
+    ...packet,
+    validation_report: {
+      ...packet.validation_report,
+      package_hash_status: packageHash
+        ? "computed_local_preview_sha256"
+        : "TBD_canonical_package_hash_service_not_available",
+      package_hash: packageHash
     }
   };
 }

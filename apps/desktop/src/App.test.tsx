@@ -684,7 +684,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-75");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-76");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -3299,6 +3299,11 @@ describe("OpenPipeStress desktop preview", () => {
         "model_hash=computed_local_preview_sha256"
       )
     );
+    await waitFor(() =>
+      expect(within(nativePackage).getByTestId("native-package-validation").textContent).toContain(
+        "package_hash=computed_local_preview_sha256"
+      )
+    );
     expect(within(nativePackage).getByTestId("native-package-loss-report").textContent).toContain("1 TBD");
     expect(within(nativePackage).getByTestId("native-package-loss-report").textContent).toContain("1 unsupported");
     expect(within(nativePackage).getByTestId("native-package-storage").textContent).toContain("network=false");
@@ -3373,9 +3378,20 @@ describe("OpenPipeStress desktop preview", () => {
         (item: { path: string }) => item.path === "model/project.json"
       ).hash_status
     ).toMatch(/^sha256:[0-9a-f]{64}$/);
-    expect(nativePackagePacket.validation_report.package_hash_status).toBe(
-      "TBD_canonical_package_hash_service_not_available"
+    expect(nativePackagePacket.validation_report.package_hash_status).toBe("computed_local_preview_sha256");
+    expect(nativePackagePacket.validation_report.package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(nativePackagePacket.validation_report.package_hash.value).not.toBe(
+      nativePackagePacket.validation_report.model_hash.value
     );
+    expect(nativePackagePacket.validation_report.package_hash.canonicalization).toBe("jcs_like_sorted_object_keys");
+    expect(nativePackagePacket.validation_report.package_hash.payload_scope).toBe("package_review_payload");
+    expect(nativePackagePacket.validation_report.package_hash.payload_excludes).toBe(
+      "validation_report_package_hash_fields"
+    );
+    expect(nativePackagePacket.validation_report.package_hash.payload_ref).toBe(
+      "native-json-preview:project:invented-loop-01"
+    );
+    expect(nativePackagePacket.loss_report.entries[2].affected_refs).not.toContain("canonical_package_hash");
     expect(nativePackagePacket.diagnostics).toHaveLength(7);
     expect(nativePackagePacket.generation_context.network_required).toBe(false);
     expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(false);

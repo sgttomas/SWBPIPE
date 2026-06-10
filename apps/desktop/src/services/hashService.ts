@@ -1,4 +1,4 @@
-import type { ModelHashEvidence, PreviewModel } from "../types";
+import type { ModelHashEvidence, PackageHashEvidence, PreviewModel } from "../types";
 
 export function canonicalJson(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
@@ -13,19 +13,40 @@ function subtleCrypto(): SubtleCrypto | null {
   return globalThis.crypto?.subtle ?? null;
 }
 
-export async function computeModelHash(model: PreviewModel): Promise<ModelHashEvidence | null> {
+async function sha256Hex(payload: string): Promise<string | null> {
   const subtle = subtleCrypto();
   if (!subtle) return null;
-  const payload = new TextEncoder().encode(canonicalJson(model));
-  const digest = await subtle.digest("SHA-256", payload);
-  const hex = Array.from(new Uint8Array(digest))
+  const digest = await subtle.digest("SHA-256", new TextEncoder().encode(payload));
+  return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+export async function computeModelHash(model: PreviewModel): Promise<ModelHashEvidence | null> {
+  const hex = await sha256Hex(canonicalJson(model));
+  if (!hex) return null;
   return {
     algorithm: "sha256",
     canonicalization: "jcs_like_sorted_object_keys",
     payload_scope: "model_payload",
     payload_ref: model.project.id,
+    value: `sha256:${hex}`,
+    hash_status: "computed_local_preview"
+  };
+}
+
+export async function computePackageHash(
+  packageId: string,
+  canonicalPayload: string
+): Promise<PackageHashEvidence | null> {
+  const hex = await sha256Hex(canonicalPayload);
+  if (!hex) return null;
+  return {
+    algorithm: "sha256",
+    canonicalization: "jcs_like_sorted_object_keys",
+    payload_scope: "package_review_payload",
+    payload_excludes: "validation_report_package_hash_fields",
+    payload_ref: packageId,
     value: `sha256:${hex}`,
     hash_status: "computed_local_preview"
   };
