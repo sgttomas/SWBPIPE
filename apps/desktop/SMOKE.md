@@ -1894,3 +1894,38 @@ with `operation=open`. The restored run is review context only; it is not a
 new computation, release claim, professional approval, certification,
 sealing, authentication, or code-compliance claim. Captured browser console
 error entries after the timestamp marker were absent.
+
+TP-MAC-71 persisted-mechanics-run-panel-exposure smoke passed on 2026-06-09
+America/Edmonton using the in-app browser at `http://127.0.0.1:5173/` with
+timestamp marker `2026-06-10T03:14:16.045Z`. The local validation run for this
+tranche passed `npm test --workspace apps/desktop`,
+`npm run build --workspace apps/desktop`,
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib`, and the
+full `python3 -m pytest -q tests` suite (340 passed), which includes
+`tests/security/test_local_first_storage_policy.py` and
+`tests/test_model_operation_schema.py`.
+
+The validation-evidence packet captured during the session recorded
+`current_tranche_smoke_record=TP-MAC-71`. The initial browser state confirmed
+that before any persistence the
+Project Storage Audit visible snapshot line and the Project Validation
+Preflight visible persistence-operations line both rendered the new
+persisted-run fields at their defaults: `persisted_mechanics_results=0`,
+`persisted_analysis_runs=0`, and `persisted_analysis_run_ref=not_persisted`.
+After running preview mechanics (`state=completed`, `result_rows=647`) and
+choosing `Save local`, both visible lines reported
+`persisted_mechanics_results=1`, `persisted_analysis_runs=1`, and
+`persisted_analysis_run_ref=run:preview-linear-static-001`. After choosing
+`Open local`, the restored run kept the solve panel at `state=completed`,
+`events=1`, `result_rows=647` with the progress basis
+`restored_persisted_run_record_no_new_solve_executed`, and the same
+persisted-run values remained visible in both panel lines and in the Project
+Storage Audit packet summary. The Export Safety Review manifest entries for
+`project_storage_audit` and `project_validation_preflight` and the report
+persistence-evidence `storage_audit` and `validation_preflight` blocks each
+carried `persisted_mechanics_result_count=1`, `persisted_analysis_run_count=1`,
+and `persisted_analysis_run_ref=run:preview-linear-static-001`. The exposed
+persisted-run context is local technical-preview review evidence only; it is
+not a release claim, professional approval, certification, sealing,
+authentication, or code-compliance claim. Captured browser console error and
+warning entries after the timestamp marker were absent.

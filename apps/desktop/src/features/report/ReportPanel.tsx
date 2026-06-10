@@ -464,6 +464,9 @@ function reportPersistenceEvidence({
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       persisted_selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected",
+      persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
+      persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
+      persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       accepted_model_state_mutated: false
     },
@@ -478,6 +481,9 @@ function reportPersistenceEvidence({
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       persisted_selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected",
+      persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
+      persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
+      persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
       accepted_model_state_mutated: false
     },
     export_inventory: {

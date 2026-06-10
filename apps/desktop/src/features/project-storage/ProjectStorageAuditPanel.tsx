@@ -81,6 +81,12 @@ export function ProjectStorageAuditPanel({
             packet.summary.persisted_selected_review_target_count
           }; persisted_review_target_ref=${
             packet.summary.persisted_selected_review_target_ref
+          }; persisted_mechanics_results=${
+            packet.summary.persisted_mechanics_result_count
+          }; persisted_analysis_runs=${
+            packet.summary.persisted_analysis_run_count
+          }; persisted_analysis_run_ref=${
+            packet.summary.persisted_analysis_run_ref
           }; copied_external_files=${String(
             packet.summary.copied_external_files
           )}`}
@@ -158,6 +164,9 @@ function buildProjectStorageAuditPacket({
       persisted_proposal_count: projectSummary?.proposal_count ?? 0,
       persisted_selected_review_target_count: projectSummary?.selected_review_target_count ?? 0,
       persisted_selected_review_target_ref: projectSummary?.selected_review_target_ref ?? "not_selected",
+      persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
+      persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
+      persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
       applied_operation_count: 0,
       accepted_model_state_mutated: false,
       network_required: Boolean(storageCapability?.network_required),
