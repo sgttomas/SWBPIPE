@@ -27,7 +27,7 @@ type LoadCaseDraft = {
   provenance: string;
 };
 
-type PrimitiveLoadCategory = "concentrated_force" | "distributed_force";
+type PrimitiveLoadCategory = "concentrated_force" | "distributed_force" | "concentrated_moment";
 
 type PrimitiveLoadDraft = {
   loadCaseId: string;
@@ -178,6 +178,7 @@ export function LoadCaseManagerPanel({
       const nextDraft = { ...draft, [field]: value } as PrimitiveLoadDraft;
       if (field === "category") nextDraft.category = primitiveLoadCategoryFromValue(value);
       if (field === "loadCaseId" || field === "category") {
+        nextDraft.direction = defaultPrimitiveLoadDirection(nextDraft.category);
         nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
       }
       return nextDraft;
@@ -302,6 +303,7 @@ export function LoadCaseManagerPanel({
             >
               <option value="concentrated_force">concentrated_force</option>
               <option value="distributed_force">distributed_force</option>
+              <option value="concentrated_moment">concentrated_moment</option>
             </select>
           </label>
           <label>
@@ -369,9 +371,11 @@ export function LoadCaseManagerPanel({
               onChange={(event) => updatePrimitiveLoadDraft("direction", event.target.value)}
               value={primitiveLoadDraft.direction}
             >
-              <option value="global_x">global_x</option>
-              <option value="global_y">global_y</option>
-              <option value="global_z">global_z</option>
+              {primitiveLoadDirectionOptions(primitiveLoadDraft.category).map((direction) => (
+                <option key={direction} value={direction}>
+                  {direction}
+                </option>
+              ))}
             </select>
           </label>
           <label>
@@ -698,7 +702,7 @@ function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): Pri
     category: "concentrated_force",
     targetNode: model.nodes[0]?.id ?? "",
     targetPipe: model.pipe_segments[0]?.id ?? "",
-    direction: "global_y",
+    direction: defaultPrimitiveLoadDirection("concentrated_force"),
     magnitude: "250",
     provenance: "user_entered_local_preview"
   };
@@ -739,7 +743,7 @@ function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraf
       id &&
       !primitiveLoadExists(model, id) &&
       targetExists &&
-      ["global_x", "global_y", "global_z"].includes(draft.direction) &&
+      primitiveLoadDirectionOptions(draft.category).includes(draft.direction) &&
       magnitude !== null &&
       magnitude !== 0 &&
       draft.provenance.trim() &&
@@ -1038,7 +1042,7 @@ function nextPrimitiveLoadIdentifier(
   loadCaseId: string,
   category: PrimitiveLoadCategory = "concentrated_force"
 ): string {
-  const suffix = category === "distributed_force" ? "D" : "F";
+  const suffix = category === "distributed_force" ? "D" : category === "concentrated_moment" ? "M" : "F";
   for (let index = 300; index < 1000; index += 1) {
     const candidate = loadCaseId ? `${loadCaseId}-${suffix}${index}` : `load:${suffix}-${index}`;
     if (!primitiveLoadExists(model, candidate)) return candidate;
@@ -1184,12 +1188,22 @@ function projectDistributedForceUnit(model: PreviewModel): string {
   return force === "TBD" || length === "TBD" ? "TBD" : `${force}/${length}`;
 }
 
+function projectMomentUnit(model: PreviewModel): string {
+  const force = projectForceUnit(model);
+  const length = projectLengthUnit(model);
+  return force === "TBD" || length === "TBD" ? "TBD" : `${force}*${length}`;
+}
+
 function primitiveLoadDraftUnit(model: PreviewModel, category: PrimitiveLoadCategory): string {
-  return category === "distributed_force" ? projectDistributedForceUnit(model) : projectForceUnit(model);
+  if (category === "distributed_force") return projectDistributedForceUnit(model);
+  if (category === "concentrated_moment") return projectMomentUnit(model);
+  return projectForceUnit(model);
 }
 
 function primitiveLoadDraftDimension(category: PrimitiveLoadCategory): string {
-  return category === "distributed_force" ? "force_per_length" : "force";
+  if (category === "distributed_force") return "force_per_length";
+  if (category === "concentrated_moment") return "moment";
+  return "force";
 }
 
 function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
@@ -1197,17 +1211,32 @@ function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
 }
 
 function primitiveLoadCategoryFromValue(value: string): PrimitiveLoadCategory {
+  if (value === "concentrated_moment") return "concentrated_moment";
   return value === "distributed_force" ? "distributed_force" : "concentrated_force";
 }
 
+function primitiveLoadDirectionOptions(category: PrimitiveLoadCategory): string[] {
+  return category === "concentrated_moment" ? ["rotation_x", "rotation_y", "rotation_z"] : ["global_x", "global_y", "global_z"];
+}
+
+function defaultPrimitiveLoadDirection(category: PrimitiveLoadCategory): string {
+  return category === "concentrated_moment" ? "rotation_z" : "global_y";
+}
+
 function primitiveLoadFieldLabel(category: PrimitiveLoadCategory): string {
-  return category === "distributed_force" ? "Distributed force primitive load" : "Concentrated force primitive load";
+  if (category === "distributed_force") return "Distributed force primitive load";
+  if (category === "concentrated_moment") return "Concentrated moment primitive load";
+  return "Concentrated force primitive load";
 }
 
 function primitiveLoadSourceNote(category: PrimitiveLoadCategory): string {
-  return category === "distributed_force"
-    ? "explicit user-entered distributed element force; no concentrated moments, pressure, temperature, or imposed displacements inferred"
-    : "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred";
+  if (category === "distributed_force") {
+    return "explicit user-entered distributed element force; no concentrated moments, pressure, temperature, or imposed displacements inferred";
+  }
+  if (category === "concentrated_moment") {
+    return "explicit user-entered concentrated nodal moment; no pressure, temperature, or imposed displacements inferred";
+  }
+  return "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred";
 }
 
 function parseFiniteNumber(raw: string): number | null {

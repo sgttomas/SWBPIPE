@@ -1900,6 +1900,60 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies a concentrated-moment primitive load through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-category"), {
+      target: { value: "concentrated_moment" }
+    });
+    expect(within(manager).getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-M300");
+    expect(within(manager).getByTestId("load-manager-create-primitive-load-case")).toHaveValue("load:L-100");
+    expect(within(manager).getByTestId("load-manager-create-primitive-node")).toHaveValue("node:N-100");
+    expect(within(manager).getByTestId("load-manager-create-primitive-direction")).toHaveValue("rotation_z");
+    expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+      "op:load-manager-load:L-100-load:L-100-M300-primitive"
+    );
+    expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+      "target=node:N-100; direction=rotation_z; unit=N*m; moment"
+    );
+
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), {
+      target: { value: "80" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-primitive-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "primitive_loads"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-M300-primitive"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 8 primitive loads; 1 combinations"
+    );
+    expect(within(manager).getByTestId("load-manager-case-load:L-100").textContent).toContain(
+      "load:L-100; primitive_user_load; preview_only; primitives=5"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-M300").textContent).toContain(
+      "concentrated_moment; 80 N*m"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-M300").textContent).toContain(
+      "load:L-100-M300; node:node:N-100; rotation_z; dimension=moment"
+    );
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("queues and applies load-case status metadata through the manager panel", async () => {
     render(<App />);
 

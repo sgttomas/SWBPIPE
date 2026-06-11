@@ -1449,11 +1449,14 @@ fn resolve_create_primitive_load(
         .unwrap_or("")
         .trim();
 
-    if !matches!(category, "concentrated_force" | "distributed_force") {
+    if !matches!(
+        category,
+        "concentrated_force" | "distributed_force" | "concentrated_moment"
+    ) {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload category must be `concentrated_force` or `distributed_force`.".to_string(),
+            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, or `concentrated_moment`.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
@@ -1462,6 +1465,8 @@ fn resolve_create_primitive_load(
 
     let expected_dimension = if category == "distributed_force" {
         "force_per_length"
+    } else if category == "concentrated_moment" {
+        "moment"
     } else {
         "force"
     };
@@ -1481,19 +1486,23 @@ fn resolve_create_primitive_load(
         );
         return None;
     };
-    if category == "distributed_force" && stored_length_unit.is_none() {
+    if matches!(category, "distributed_force" | "concentrated_moment")
+        && stored_length_unit.is_none()
+    {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-METADATA-MISSING",
             "blocking",
-            "Project length unit metadata is missing; distributed force primitive loads cannot be accepted.".to_string(),
-            "Repair the model document's project.units.length metadata before creating distributed loads.",
+            "Project length unit metadata is missing; distributed force or concentrated moment primitive loads cannot be accepted.".to_string(),
+            "Repair the model document's project.units.length metadata before creating distributed loads or concentrated moments.",
             vec![target_ref.to_string()],
         );
         return None;
     }
     let expected_unit = if category == "distributed_force" {
         format!("{}/{}", stored_force_unit, stored_length_unit.unwrap_or(""))
+    } else if category == "concentrated_moment" {
+        format!("{}*{}", stored_force_unit, stored_length_unit.unwrap_or(""))
     } else {
         stored_force_unit.to_string()
     };
@@ -1521,8 +1530,12 @@ fn resolve_create_primitive_load(
     }
 
     if id.is_empty()
-        || !matches!(direction, "global_x" | "global_y" | "global_z")
+        || (category == "concentrated_moment"
+            && !matches!(direction, "rotation_x" | "rotation_y" | "rotation_z"))
+        || (category != "concentrated_moment"
+            && !matches!(direction, "global_x" | "global_y" | "global_z"))
         || (category == "concentrated_force" && (target_type != "node" || target_node.is_empty()))
+        || (category == "concentrated_moment" && (target_type != "node" || target_node.is_empty()))
         || (category == "distributed_force" && (target_type != "element" || target_pipe.is_empty()))
         || magnitude_value.is_none()
         || magnitude_unit != expected_unit
@@ -1532,7 +1545,7 @@ fn resolve_create_primitive_load(
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force` with an existing node target or `distributed_force` with an existing element pipe target, global_x/global_y/global_z direction, finite magnitude in the expected unit, and matching dimension.".to_string(),
+            "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node or pipe target, compatible direction, finite magnitude in the expected unit, and matching dimension.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
@@ -1556,6 +1569,17 @@ fn resolve_create_primitive_load(
             "blocking",
             format!("Primitive load `{id}` references node `{target_node}`, which is absent from the current model."),
             "Select an existing node target before authoring a concentrated force.",
+            vec![target_ref.to_string(), target_node.to_string()],
+        );
+        return None;
+    }
+    if category == "concentrated_moment" && find_entity(model, "nodes", target_node).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Primitive load `{id}` references node `{target_node}`, which is absent from the current model."),
+            "Select an existing node target before authoring a concentrated moment.",
             vec![target_ref.to_string(), target_node.to_string()],
         );
         return None;
@@ -2871,6 +2895,89 @@ mod tests {
         );
         missing_pipe["operation_kind"] = json!("create");
         let blocked = apply_operation(&model, &missing_pipe, None);
+        assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_primitive_load_payload_applies_concentrated_moment_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "load:L-1-M1",
+            "category": "concentrated_moment",
+            "target": { "type": "node", "node": "node:N-2" },
+            "direction": "rotation_z",
+            "magnitude": { "value": 80.0, "unit": "N*m" },
+            "dimension": "moment",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "N*m",
+            "moment",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].dimension, "moment");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"]
+                .as_array()
+                .expect("primitive loads array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["load_cases"][0]["primitive_loads"][1], payload);
+
+        let duplicate = apply_operation(&applied, &intent, None);
+        assert!(codes(&duplicate).contains(&"OP-TARGET-ALREADY-EXISTS"));
+        assert!(duplicate.applied_model.is_none());
+
+        let missing_node_payload = json!({
+            "id": "load:L-1-M2",
+            "category": "concentrated_moment",
+            "target": { "type": "node", "node": "node:missing" },
+            "direction": "rotation_z",
+            "magnitude": { "value": 80.0, "unit": "N*m" },
+            "dimension": "moment",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut missing_node = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&missing_node_payload).expect("payload json"),
+            "N*m",
+            "moment",
+        );
+        missing_node["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &missing_node, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }

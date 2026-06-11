@@ -338,6 +338,69 @@ describe("operationService browser-mode engine", () => {
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
   });
 
+  it("applies an explicit concentrated-moment primitive load payload without mutating the input", async () => {
+    const model = sampleModel();
+    model.load_cases.push({
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    });
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const payload = {
+      id: "load:L-1-M1",
+      category: "concentrated_moment",
+      target: { type: "node", node: "node:N-2" },
+      direction: "rotation_z",
+      magnitude: { value: 80, unit: "N*m" },
+      dimension: "moment",
+      provenance: "user_entered_local_preview"
+    };
+    const intent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(payload),
+      "N*m",
+      "moment"
+    );
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.validation.unit_validation).toBe("passed");
+    expect(outcome.diff_preview).toHaveLength(1);
+    expect(outcome.diff_preview[0].dimension).toBe("moment");
+    expect(outcome.applied_model?.load_cases[0].primitive_loads).toEqual([payload]);
+
+    const duplicate = await applyModelOperation(outcome.applied_model!, intent, null);
+    expect(duplicate.validation.application_status).toBe("blocked");
+    expect(duplicate.diagnostics.map((item) => item.code)).toContain("OP-TARGET-ALREADY-EXISTS");
+
+    const missingNodePayload = { ...payload, id: "load:L-1-M2", target: { type: "node", node: "node:missing" } };
+    const missingNode = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(missingNodePayload),
+      "N*m",
+      "moment"
+    );
+    missingNode.operation_kind = "create";
+    const blocked = await applyModelOperation(model, missingNode, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
+  });
+
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
     const model = sampleModel();
 

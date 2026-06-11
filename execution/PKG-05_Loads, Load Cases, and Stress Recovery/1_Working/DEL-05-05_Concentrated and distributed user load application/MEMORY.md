@@ -368,3 +368,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   authoring, pressure/temperature primitive creation, imposed displacements,
   final result-envelope/API/persistence/report integration, production
   tolerance policy, release thresholds, and professional reliance.
+
+## 2026-06-11 - TP-APP-R2-MOMENTCREATE-001 concentrated moment primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche consumed DEL-05-05 concentrated
+  moment design authority in the desktop Load Cases manager. No
+  `core/loads/user_loads` source behavior changed.
+- The GUI and operation seam now accept a single explicit concentrated nodal
+  moment primitive: category `concentrated_moment`, existing node target,
+  `rotation_x|rotation_y|rotation_z` direction, dimension `moment`, project
+  force*length unit `N*m`, finite magnitude, and provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_moment_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-100. Validation passed:
+  operation-applier format check, Rust operation-applier tests 28/28,
+  src-tauri Rust tests 26/26, desktop Vitest 45/45, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser concentrated-moment smoke.
+- Remaining DEL-05-05 residuals include pressure/temperature primitive
+  creation, imposed displacements, final result-envelope/API/persistence/
+  report integration, production tolerance policy, release thresholds, and
+  professional reliance.

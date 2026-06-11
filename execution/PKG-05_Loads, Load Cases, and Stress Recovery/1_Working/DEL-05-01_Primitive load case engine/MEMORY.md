@@ -479,3 +479,26 @@
   combination term creation/deletion, broader algebra authoring, Phase B unit
   picker/display retirement, and packaged-Tauri saved-project smoke over
   edited load data.
+
+## 2026-06-11 - TP-APP-R2-MOMENTCREATE-001 concentrated moment primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche added explicit concentrated nodal
+  moment primitive-load creation to the desktop Load Cases manager for
+  existing load cases. No `core/loads/primitive_loads` source behavior
+  changed.
+- The editor queues a structured `create_primitive_load` intent with
+  `field_path=primitive_loads`, `before=not_present`, category
+  `concentrated_moment`, existing node target, rotational direction, finite
+  magnitude, project force*length unit `N*m`, dimension `moment`, and
+  provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_moment_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-100. Validation passed:
+  operation-applier format check, Rust operation-applier tests 28/28,
+  src-tauri Rust tests 26/26, desktop Vitest 45/45, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over `load:L-100-M300`.
+- A4 residuals remain pressure/temperature primitive creation,
+  imposed-displacement authoring breadth, combination basis editing,
+  combination term creation/deletion, broader algebra authoring, Phase B unit
+  picker/display retirement, and packaged-Tauri saved-project smoke over
+  edited load data.

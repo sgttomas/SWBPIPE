@@ -34,6 +34,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length"
   );
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_moment");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-M300");
+  await expect(page.getByTestId("load-manager-create-primitive-node")).toHaveValue("node:N-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("rotation_z");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-M300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=node:N-100; direction=rotation_z; unit=N*m; moment"
+  );
   await page.getByTestId("load-manager-primitive-load:L-100-P").click();
   await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
     "primitive_loads.2.magnitude.value"

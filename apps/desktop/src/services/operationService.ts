@@ -978,15 +978,17 @@ function resolveCreatePrimitiveLoad(
   const targetType = targetRecord ? stringPayload(targetRecord, "type") : "";
   const targetNode = targetRecord ? stringPayload(targetRecord, "node") : "";
   const targetPipe = targetRecord ? stringPayload(targetRecord, "pipe") : "";
-  const acceptedCategory = category === "concentrated_force" || category === "distributed_force";
-  const expectedDimension = category === "distributed_force" ? "force_per_length" : "force";
+  const acceptedCategory =
+    category === "concentrated_force" || category === "distributed_force" || category === "concentrated_moment";
+  const expectedDimension =
+    category === "distributed_force" ? "force_per_length" : category === "concentrated_moment" ? "moment" : "force";
 
   if (!acceptedCategory) {
     pushDiagnostic(
       checker,
       "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
       "blocking",
-      "Create-primitive-load payload category must be `concentrated_force` or `distributed_force`.",
+      "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, or `concentrated_moment`.",
       "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
       [targetRef]
     );
@@ -1008,19 +1010,24 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
-  if (category === "distributed_force" && typeof storedLengthUnit !== "string") {
+  if ((category === "distributed_force" || category === "concentrated_moment") && typeof storedLengthUnit !== "string") {
     checker.unitState = "blocked";
     pushDiagnostic(
       checker,
       "OP-UNIT-METADATA-MISSING",
       "blocking",
-      "Project length unit metadata is missing; distributed force primitive loads cannot be accepted.",
-      "Repair the model document's project.units.length metadata before creating distributed loads.",
+      "Project length unit metadata is missing; distributed force or concentrated moment primitive loads cannot be accepted.",
+      "Repair the model document's project.units.length metadata before creating distributed loads or concentrated moments.",
       [targetRef]
     );
     return null;
   }
-  const expectedUnit = category === "distributed_force" ? `${storedForceUnit}/${storedLengthUnit}` : storedForceUnit;
+  const expectedUnit =
+    category === "distributed_force"
+      ? `${storedForceUnit}/${storedLengthUnit}`
+      : category === "concentrated_moment"
+        ? `${storedForceUnit}*${storedLengthUnit}`
+        : storedForceUnit;
   if (intent.change.unit !== expectedUnit) {
     checker.unitState = "blocked";
     pushDiagnostic(
@@ -1048,8 +1055,11 @@ function resolveCreatePrimitiveLoad(
 
   if (
     !id ||
-    !["global_x", "global_y", "global_z"].includes(direction) ||
+    (category === "concentrated_moment"
+      ? !["rotation_x", "rotation_y", "rotation_z"].includes(direction)
+      : !["global_x", "global_y", "global_z"].includes(direction)) ||
     (category === "concentrated_force" && (targetType !== "node" || !targetNode)) ||
+    (category === "concentrated_moment" && (targetType !== "node" || !targetNode)) ||
     (category === "distributed_force" && (targetType !== "element" || !targetPipe)) ||
     magnitudeValue === null ||
     magnitudeUnit !== expectedUnit ||
@@ -1060,7 +1070,7 @@ function resolveCreatePrimitiveLoad(
       checker,
       "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
       "blocking",
-      "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force` with an existing node target or `distributed_force` with an existing element pipe target, global_x/global_y/global_z direction, finite magnitude in the expected unit, and matching dimension.",
+      "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node or pipe target, compatible direction, finite magnitude in the expected unit, and matching dimension.",
       "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
       [targetRef]
     );
@@ -1086,6 +1096,18 @@ function resolveCreatePrimitiveLoad(
       "blocking",
       `Primitive load \`${id}\` references node \`${targetNode}\`, which is absent from the current model.`,
       "Select an existing node target before authoring a concentrated force.",
+      [targetRef, targetNode]
+    );
+    return null;
+  }
+  if (category === "concentrated_moment" && !findEntity(model, "nodes", targetNode)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+      "blocking",
+      `Primitive load \`${id}\` references node \`${targetNode}\`, which is absent from the current model.`,
+      "Select an existing node target before authoring a concentrated moment.",
       [targetRef, targetNode]
     );
     return null;
