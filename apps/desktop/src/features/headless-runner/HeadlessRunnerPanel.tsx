@@ -221,17 +221,20 @@ function runnerDiagnosticClass(item: Diagnostic): string {
   return "ASSUMPTION_WARNING";
 }
 
-function jobState(solveJob: SolveJobAuditState): "QUEUED" | "RUNNING" | "CANCELLATION_REQUESTED" | "COMPLETED" | "FAILED" | "TBD" {
+function jobState(
+  solveJob: SolveJobAuditState
+): "QUEUED" | "RUNNING" | "CANCELLATION_REQUESTED" | "CANCELLED" | "COMPLETED" | "FAILED" | "TBD" {
   if (solveJob.state === "queued") return "QUEUED";
   if (solveJob.state === "running") return "RUNNING";
   if (solveJob.state === "cancelling") return "CANCELLATION_REQUESTED";
+  if (solveJob.state === "cancelled") return "CANCELLED";
   if (solveJob.state === "completed") return "COMPLETED";
   if (solveJob.state === "failed") return "FAILED";
   return "TBD";
 }
 
 function progressStep(solveJob: SolveJobAuditState): number {
-  if (solveJob.state === "completed" || solveJob.state === "failed") return 3;
+  if (solveJob.state === "completed" || solveJob.state === "failed" || solveJob.state === "cancelled") return 3;
   if (solveJob.state === "running" || solveJob.state === "cancelling") return 2;
   if (solveJob.state === "queued") return 1;
   return 0;

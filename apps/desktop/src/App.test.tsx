@@ -33,7 +33,8 @@ describe("OpenPipeStress desktop preview", () => {
       "preview_service_event_state_only_no_percent_stream"
     );
     expect(screen.getByTestId("solve-job-progress").textContent).toContain("percentages_synthesized=false");
-    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("token=TBD");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("seam=no_job_started");
+    expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("token=none_no_active_backend_job");
     expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("success_claimed=false");
     expect(screen.getByTestId("solve-job-binding").textContent).toContain("not generated");
     expect(screen.getByTestId("solve-job-boundary").textContent).toContain("private payload=false");
@@ -49,7 +50,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.summary.cancellation_requested).toBe(false);
     expect(solveJobPacket.progress_contract.percentages_synthesized).toBe(false);
     expect(solveJobPacket.progress_contract.backend_percent_stream_available).toBe(false);
-    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe("TBD");
+    expect(solveJobPacket.cancellation.backend_job_seam).toBe("no_job_started");
+    expect(solveJobPacket.cancellation.backend_job_id).toBe(null);
+    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe("none_no_active_backend_job");
+    expect(solveJobPacket.cancellation.cancellation_scope).toBe("ui_request_record_only_no_backend_job");
     expect(solveJobPacket.cancellation.mutates_solver_process_directly).toBe(false);
     expect(solveJobPacket.cancellation.cancellation_success_claimed).toBe(false);
     expect(solveJobPacket.private_payload_included).toBe(false);
@@ -3216,7 +3220,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.cancellation.request_control_visible).toBe(true);
     expect(solveJobPacket.cancellation.request_enabled).toBe(false);
     expect(solveJobPacket.cancellation.requested).toBe(false);
-    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe("TBD");
+    expect(solveJobPacket.cancellation.backend_job_seam).toBe("browser_fixture_no_backend_job");
+    expect(solveJobPacket.cancellation.backend_job_id).toBe(null);
+    expect(solveJobPacket.cancellation.backend_cancellation_token).toBe(
+      "unavailable_no_backend_job_browser_fixture_mode"
+    );
+    expect(solveJobPacket.cancellation.cancellation_scope).toBe("ui_request_record_only_no_backend_job");
     expect(solveJobPacket.cancellation.mutates_solver_process_directly).toBe(false);
     expect(solveJobPacket.cancellation.cancellation_success_claimed).toBe(false);
     expect(solveJobPacket.model_state_ref.ref).toBe("state:project:invented-loop-01:preview");

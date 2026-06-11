@@ -33,6 +33,64 @@ export async function runPreviewMechanics(model?: PreviewModel | null): Promise<
   return invokeOrFixture("run_preview_mechanics", loadMechanicsFixture, model ? { model } : undefined);
 }
 
+export type SolveJobStartReceipt =
+  | {
+      mode: "backend_job";
+      job_id: string;
+      backend_cancellation_token: string;
+      state: string;
+      cancellation_scope: string;
+    }
+  | { mode: "browser_fixture_no_backend_job" };
+
+export type BackendSolveJobStatus = {
+  job_id: string;
+  state: "queued" | "running" | "completed" | "cancelled" | "failed";
+  cancellation_requested: boolean;
+  cancellation_status: string;
+  cancellation_scope: string;
+  result: MechanicsResult | null;
+  error_message: string | null;
+};
+
+export type BackendSolveJobCancellationReceipt = {
+  job_id: string;
+  accepted: boolean;
+  cancellation_status: string;
+  job_state: string;
+  cancellation_scope: string;
+  cancellation_success_claimed: boolean;
+};
+
+export async function startPreviewMechanicsJob(model?: PreviewModel | null): Promise<SolveJobStartReceipt> {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
+    return { mode: "browser_fixture_no_backend_job" };
+  }
+  try {
+    const receipt = await invoke<Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">>(
+      "start_preview_mechanics_job",
+      model ? { model } : undefined
+    );
+    return { mode: "backend_job", ...receipt };
+  } catch {
+    return { mode: "browser_fixture_no_backend_job" };
+  }
+}
+
+export async function pollPreviewMechanicsJob(jobId: string): Promise<BackendSolveJobStatus> {
+  return invoke<BackendSolveJobStatus>("poll_preview_mechanics_job", { jobId });
+}
+
+export async function cancelPreviewMechanicsJob(
+  jobId: string,
+  cancellationToken: string
+): Promise<BackendSolveJobCancellationReceipt> {
+  return invoke<BackendSolveJobCancellationReceipt>("cancel_preview_mechanics_job", {
+    jobId,
+    cancellationToken
+  });
+}
+
 export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<AnalysisRunEnvelope> {
   const runRef = ref("AnalysisRun", result.run_id);
   const resultEnvelopeRef = ref("ResultEnvelope", `result-envelope:${result.run_id}`);

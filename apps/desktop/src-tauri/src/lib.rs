@@ -3,8 +3,10 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
+    sync::{Arc, Mutex, MutexGuard},
     time::{SystemTime, UNIX_EPOCH},
 };
 use tauri::{AppHandle, Manager};
@@ -569,9 +571,8 @@ fn load_project(
                 .map_err(|error| error.to_string())?;
             let model_hash = serde_json::from_str::<Value>(&model_hash_json)
                 .map_err(|error| error.to_string())?;
-            let project_envelope_hash =
-                serde_json::from_str::<Value>(&project_envelope_hash_json)
-                    .map_err(|error| error.to_string())?;
+            let project_envelope_hash = serde_json::from_str::<Value>(&project_envelope_hash_json)
+                .map_err(|error| error.to_string())?;
             Ok(StoredProjectRecord {
                 project_id: id,
                 project_name: name,
@@ -786,12 +787,7 @@ fn load_design_knowledge() -> Result<Value, String> {
     read_fixture("invented_design_knowledge.json")
 }
 
-#[tauri::command]
-fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
-    let model_payload = match model {
-        Some(value) => value,
-        None => read_fixture("invented_preview_model.json")?,
-    };
+fn solve_preview_mechanics(model_payload: Value) -> Result<Value, String> {
     let model: open_pipe_stress_product_physics::PreviewModel =
         serde_json::from_value(model_payload).map_err(|error| error.to_string())?;
     serde_json::to_value(run_linear_static_preview(LinearStaticPreviewRequest {
@@ -799,6 +795,259 @@ fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
         materials: vec![],
     }))
     .map_err(|error| error.to_string())
+}
+
+fn resolve_solve_model_payload(model: Option<Value>) -> Result<Value, String> {
+    match model {
+        Some(value) => Ok(value),
+        None => read_fixture("invented_preview_model.json"),
+    }
+}
+
+#[tauri::command]
+fn run_preview_mechanics(model: Option<Value>) -> Result<Value, String> {
+    solve_preview_mechanics(resolve_solve_model_payload(model)?)
+}
+
+const SOLVE_JOB_CANCELLATION_SCOPE: &str = "cooperative_checkpoints_not_preemptive";
+
+#[derive(Debug, Clone, Serialize)]
+struct SolveJobStartReceipt {
+    job_id: String,
+    backend_cancellation_token: String,
+    state: String,
+    cancellation_scope: &'static str,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct SolveJobStatusReport {
+    job_id: String,
+    state: String,
+    cancellation_requested: bool,
+    cancellation_status: String,
+    cancellation_scope: &'static str,
+    result: Option<Value>,
+    error_message: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct SolveJobCancellationReceipt {
+    job_id: String,
+    accepted: bool,
+    cancellation_status: String,
+    job_state: String,
+    cancellation_scope: &'static str,
+    cancellation_success_claimed: bool,
+}
+
+#[derive(Debug, Clone)]
+struct SolveJobRecord {
+    cancellation_token: String,
+    state: String,
+    cancellation_requested: bool,
+    cancellation_status: String,
+    result: Option<Value>,
+    error_message: Option<String>,
+}
+
+#[derive(Debug, Default)]
+struct SolveJobTable {
+    next_job_number: u64,
+    records: HashMap<String, SolveJobRecord>,
+}
+
+#[derive(Debug, Default)]
+struct SolveJobRegistry {
+    jobs: Arc<Mutex<SolveJobTable>>,
+}
+
+fn lock_solve_jobs(
+    jobs: &Arc<Mutex<SolveJobTable>>,
+) -> Result<MutexGuard<'_, SolveJobTable>, String> {
+    jobs.lock()
+        .map_err(|_| "solve job registry lock poisoned".to_string())
+}
+
+fn start_solve_job(jobs: &Arc<Mutex<SolveJobTable>>) -> Result<SolveJobStartReceipt, String> {
+    let mut table = lock_solve_jobs(jobs)?;
+    table.next_job_number += 1;
+    let job_number = table.next_job_number;
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| error.to_string())?
+        .as_nanos();
+    let job_id = format!("backend-solve-job-{job_number}");
+    let cancellation_token = format!("solve-cancel-token-{job_number}-{nanos:x}");
+    table.records.insert(
+        job_id.clone(),
+        SolveJobRecord {
+            cancellation_token: cancellation_token.clone(),
+            state: "queued".to_string(),
+            cancellation_requested: false,
+            cancellation_status: "not_requested".to_string(),
+            result: None,
+            error_message: None,
+        },
+    );
+    Ok(SolveJobStartReceipt {
+        job_id,
+        backend_cancellation_token: cancellation_token,
+        state: "queued".to_string(),
+        cancellation_scope: SOLVE_JOB_CANCELLATION_SCOPE,
+    })
+}
+
+fn execute_solve_job(
+    jobs: &Arc<Mutex<SolveJobTable>>,
+    job_id: &str,
+    model_payload: Result<Value, String>,
+) {
+    {
+        let Ok(mut table) = lock_solve_jobs(jobs) else {
+            return;
+        };
+        let Some(record) = table.records.get_mut(job_id) else {
+            return;
+        };
+        if record.cancellation_requested {
+            record.state = "cancelled".to_string();
+            record.cancellation_status = "cancelled_before_solver_start".to_string();
+            return;
+        }
+        record.state = "running".to_string();
+    }
+    let outcome = model_payload.and_then(solve_preview_mechanics);
+    publish_solve_outcome(jobs, job_id, outcome);
+}
+
+fn publish_solve_outcome(
+    jobs: &Arc<Mutex<SolveJobTable>>,
+    job_id: &str,
+    outcome: Result<Value, String>,
+) {
+    let Ok(mut table) = lock_solve_jobs(jobs) else {
+        return;
+    };
+    let Some(record) = table.records.get_mut(job_id) else {
+        return;
+    };
+    if record.cancellation_requested {
+        record.state = "cancelled".to_string();
+        record.cancellation_status =
+            "cancelled_before_result_publication_result_discarded".to_string();
+        record.result = None;
+        record.error_message = outcome.err();
+        return;
+    }
+    match outcome {
+        Ok(result) => {
+            record.state = "completed".to_string();
+            record.result = Some(result);
+            record.error_message = None;
+        }
+        Err(error) => {
+            record.state = "failed".to_string();
+            record.result = None;
+            record.error_message = Some(error);
+        }
+    }
+}
+
+fn solve_job_status(
+    jobs: &Arc<Mutex<SolveJobTable>>,
+    job_id: &str,
+) -> Result<SolveJobStatusReport, String> {
+    let table = lock_solve_jobs(jobs)?;
+    let record = table
+        .records
+        .get(job_id)
+        .ok_or_else(|| format!("unknown solve job: {job_id}"))?;
+    Ok(SolveJobStatusReport {
+        job_id: job_id.to_string(),
+        state: record.state.clone(),
+        cancellation_requested: record.cancellation_requested,
+        cancellation_status: record.cancellation_status.clone(),
+        cancellation_scope: SOLVE_JOB_CANCELLATION_SCOPE,
+        result: record.result.clone(),
+        error_message: record.error_message.clone(),
+    })
+}
+
+fn cancel_solve_job(
+    jobs: &Arc<Mutex<SolveJobTable>>,
+    job_id: &str,
+    cancellation_token: &str,
+) -> Result<SolveJobCancellationReceipt, String> {
+    let mut table = lock_solve_jobs(jobs)?;
+    let record = table
+        .records
+        .get_mut(job_id)
+        .ok_or_else(|| format!("unknown solve job: {job_id}"))?;
+    if record.cancellation_token != cancellation_token {
+        return Ok(SolveJobCancellationReceipt {
+            job_id: job_id.to_string(),
+            accepted: false,
+            cancellation_status: "rejected_invalid_cancellation_token".to_string(),
+            job_state: record.state.clone(),
+            cancellation_scope: SOLVE_JOB_CANCELLATION_SCOPE,
+            cancellation_success_claimed: false,
+        });
+    }
+    if matches!(record.state.as_str(), "completed" | "failed" | "cancelled") {
+        return Ok(SolveJobCancellationReceipt {
+            job_id: job_id.to_string(),
+            accepted: false,
+            cancellation_status: format!(
+                "request_after_terminal_state_{}_no_cancellation_performed",
+                record.state
+            ),
+            job_state: record.state.clone(),
+            cancellation_scope: SOLVE_JOB_CANCELLATION_SCOPE,
+            cancellation_success_claimed: false,
+        });
+    }
+    record.cancellation_requested = true;
+    record.cancellation_status =
+        "cancellation_requested_awaiting_cooperative_checkpoint".to_string();
+    Ok(SolveJobCancellationReceipt {
+        job_id: job_id.to_string(),
+        accepted: true,
+        cancellation_status: record.cancellation_status.clone(),
+        job_state: record.state.clone(),
+        cancellation_scope: SOLVE_JOB_CANCELLATION_SCOPE,
+        cancellation_success_claimed: false,
+    })
+}
+
+#[tauri::command]
+fn start_preview_mechanics_job(
+    state: tauri::State<'_, SolveJobRegistry>,
+    model: Option<Value>,
+) -> Result<SolveJobStartReceipt, String> {
+    let receipt = start_solve_job(&state.jobs)?;
+    let jobs = Arc::clone(&state.jobs);
+    let job_id = receipt.job_id.clone();
+    std::thread::spawn(move || {
+        execute_solve_job(&jobs, &job_id, resolve_solve_model_payload(model));
+    });
+    Ok(receipt)
+}
+
+#[tauri::command]
+fn poll_preview_mechanics_job(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<SolveJobStatusReport, String> {
+    solve_job_status(&state.jobs, &job_id)
+}
+
+#[tauri::command]
+fn cancel_preview_mechanics_job(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+    cancellation_token: String,
+) -> Result<SolveJobCancellationReceipt, String> {
+    cancel_solve_job(&state.jobs, &job_id, &cancellation_token)
 }
 
 fn build_sample_agent_proposal(
@@ -1091,10 +1340,14 @@ fn save_local_project(
 
 pub fn run() {
     tauri::Builder::default()
+        .manage(SolveJobRegistry::default())
         .invoke_handler(tauri::generate_handler![
             load_preview_model,
             load_design_knowledge,
             run_preview_mechanics,
+            start_preview_mechanics_job,
+            poll_preview_mechanics_job,
+            cancel_preview_mechanics_job,
             sample_agent_proposal,
             get_local_storage_capability,
             create_local_project,
@@ -1347,8 +1600,7 @@ mod tests {
     #[test]
     fn store_migration_ledger_reports_fresh_open_and_idempotent_reopen_evidence() {
         let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
-        let first_open =
-            apply_store_migrations(&connection).expect("fresh store migrations apply");
+        let first_open = apply_store_migrations(&connection).expect("fresh store migrations apply");
         assert_eq!(first_open.migration_framework, STORE_MIGRATION_FRAMEWORK);
         assert_eq!(first_open.store_schema_version_before_open, 0);
         assert_eq!(first_open.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
@@ -1381,7 +1633,10 @@ mod tests {
             second_open.store_schema_version_before_open,
             STORE_SCHEMA_TARGET_VERSION
         );
-        assert_eq!(second_open.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert_eq!(
+            second_open.store_schema_version,
+            STORE_SCHEMA_TARGET_VERSION
+        );
         assert!(second_open.migrations_applied_on_open.is_empty());
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
@@ -1415,10 +1670,12 @@ mod tests {
                 ",
             )
             .expect("legacy pre-ledger store shape creates");
-        assert_eq!(store_user_version(&connection).expect("user_version reads"), 0);
+        assert_eq!(
+            store_user_version(&connection).expect("user_version reads"),
+            0
+        );
 
-        let migration =
-            apply_store_migrations(&connection).expect("legacy store migrations apply");
+        let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
         assert_eq!(migration.migrations_applied_on_open.len(), 8);
@@ -1478,7 +1735,10 @@ mod tests {
                 ",
             )
             .expect("v7-shape store creates");
-        assert_eq!(store_user_version(&connection).expect("user_version reads"), 7);
+        assert_eq!(
+            store_user_version(&connection).expect("user_version reads"),
+            7
+        );
 
         let migration = apply_store_migrations(&connection).expect("v7 store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 7);
@@ -1629,5 +1889,173 @@ mod tests {
             proposal["professional_boundary"]["software_makes_approval_claim"],
             json!(false)
         );
+    }
+
+    #[test]
+    fn solve_job_seam_completes_and_reports_result_without_cancellation() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+        assert_eq!(receipt.state, "queued");
+        assert!(receipt
+            .backend_cancellation_token
+            .starts_with("solve-cancel-token-"));
+        assert_eq!(
+            receipt.cancellation_scope,
+            "cooperative_checkpoints_not_preemptive"
+        );
+
+        execute_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            resolve_solve_model_payload(None),
+        );
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert_eq!(status.state, "completed");
+        assert!(!status.cancellation_requested);
+        assert_eq!(status.cancellation_status, "not_requested");
+        let result = status.result.expect("completed job publishes a result");
+        assert!(
+            result["results"]
+                .as_array()
+                .expect("result rows present")
+                .len()
+                > 0
+        );
+        assert_eq!(status.error_message, None);
+    }
+
+    #[test]
+    fn solve_job_cancelled_before_execution_never_starts_the_solver() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+
+        let cancel = cancel_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            &receipt.backend_cancellation_token,
+        )
+        .expect("cancel receipt");
+        assert!(cancel.accepted);
+        assert_eq!(
+            cancel.cancellation_status,
+            "cancellation_requested_awaiting_cooperative_checkpoint"
+        );
+        assert!(!cancel.cancellation_success_claimed);
+
+        execute_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            resolve_solve_model_payload(None),
+        );
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert_eq!(status.state, "cancelled");
+        assert!(status.cancellation_requested);
+        assert_eq!(status.cancellation_status, "cancelled_before_solver_start");
+        assert_eq!(status.result, None);
+    }
+
+    #[test]
+    fn solve_job_cancelled_mid_run_discards_result_at_publication_checkpoint() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+        {
+            let mut table = registry.jobs.lock().expect("registry lock");
+            table
+                .records
+                .get_mut(&receipt.job_id)
+                .expect("record present")
+                .state = "running".to_string();
+        }
+
+        let cancel = cancel_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            &receipt.backend_cancellation_token,
+        )
+        .expect("cancel receipt");
+        assert!(cancel.accepted);
+        assert_eq!(cancel.job_state, "running");
+
+        publish_solve_outcome(
+            &registry.jobs,
+            &receipt.job_id,
+            solve_preview_mechanics(resolve_solve_model_payload(None).expect("fixture loads")),
+        );
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert_eq!(status.state, "cancelled");
+        assert_eq!(
+            status.cancellation_status,
+            "cancelled_before_result_publication_result_discarded"
+        );
+        assert_eq!(status.result, None);
+    }
+
+    #[test]
+    fn solve_job_cancellation_after_completion_is_rejected_without_success_claim() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+        execute_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            resolve_solve_model_payload(None),
+        );
+
+        let cancel = cancel_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            &receipt.backend_cancellation_token,
+        )
+        .expect("cancel receipt");
+        assert!(!cancel.accepted);
+        assert_eq!(
+            cancel.cancellation_status,
+            "request_after_terminal_state_completed_no_cancellation_performed"
+        );
+        assert_eq!(cancel.job_state, "completed");
+        assert!(!cancel.cancellation_success_claimed);
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert_eq!(status.state, "completed");
+        assert!(status.result.is_some());
+    }
+
+    #[test]
+    fn solve_job_cancellation_with_invalid_token_is_rejected_and_does_not_flag_the_job() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+
+        let cancel = cancel_solve_job(&registry.jobs, &receipt.job_id, "wrong-token")
+            .expect("cancel receipt");
+        assert!(!cancel.accepted);
+        assert_eq!(
+            cancel.cancellation_status,
+            "rejected_invalid_cancellation_token"
+        );
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert!(!status.cancellation_requested);
+        assert_eq!(status.cancellation_status, "not_requested");
+
+        assert!(solve_job_status(&registry.jobs, "backend-solve-job-missing").is_err());
+        assert!(cancel_solve_job(&registry.jobs, "backend-solve-job-missing", "token").is_err());
+    }
+
+    #[test]
+    fn solve_job_with_invalid_model_payload_fails_with_recorded_error() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+        execute_solve_job(
+            &registry.jobs,
+            &receipt.job_id,
+            Ok(json!({"not_a_preview_model": true})),
+        );
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert_eq!(status.state, "failed");
+        assert_eq!(status.result, None);
+        assert!(status.error_message.is_some());
     }
 }

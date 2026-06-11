@@ -228,7 +228,13 @@ function buildSolveJobPacket({
       request_enabled: running,
       requested: solveJob.cancellation_requested,
       status: solveJob.cancellation_status,
+      backend_job_seam: solveJob.backend_job_seam,
+      backend_job_id: solveJob.backend_job_id,
       backend_cancellation_token: solveJob.backend_cancellation_token,
+      cancellation_scope:
+        solveJob.backend_job_seam === "tauri_backend_job"
+          ? "cooperative_checkpoints_not_preemptive"
+          : "ui_request_record_only_no_backend_job",
       mutates_solver_process_directly: false,
       cancellation_success_claimed: false
     },
@@ -265,6 +271,7 @@ function cancellationSummary(packet: ReturnType<typeof buildSolveJobPacket>): st
     `control_visible=${String(packet.cancellation.request_control_visible)}`,
     `enabled=${String(packet.cancellation.request_enabled)}`,
     `requested=${String(packet.cancellation.requested)}`,
+    `seam=${packet.cancellation.backend_job_seam}`,
     `token=${packet.cancellation.backend_cancellation_token}`,
     `success_claimed=${String(packet.cancellation.cancellation_success_claimed)}`
   ].join("; ");

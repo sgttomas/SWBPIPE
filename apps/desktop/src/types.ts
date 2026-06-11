@@ -239,7 +239,7 @@ export type AnalysisRunEnvelope = {
 
 export type SolveJobEvent = {
   event_id: string;
-  state: "not_started" | "queued" | "running" | "cancelling" | "completed" | "failed";
+  state: "not_started" | "queued" | "running" | "cancelling" | "cancelled" | "completed" | "failed";
   message: string;
   result_available: boolean;
   diagnostic_count: number;
@@ -255,10 +255,18 @@ export type SolveJobAuditState = {
   backend_percent_stream_available: false;
   cancellation_requested: boolean;
   cancellation_status: string;
-  backend_cancellation_token: "TBD";
+  backend_job_seam: SolveJobBackendSeam;
+  backend_job_id: string | null;
+  backend_cancellation_token: string;
   events: SolveJobEvent[];
   error_message: string | null;
 };
+
+export type SolveJobBackendSeam =
+  | "tauri_backend_job"
+  | "browser_fixture_no_backend_job"
+  | "no_job_started"
+  | "restored_persisted_run_no_new_solve";
 
 export type PreviewComparison = {
   schema_version: string;

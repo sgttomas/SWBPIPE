@@ -56,10 +56,18 @@ import { PipeViewport } from "./features/viewport/PipeViewport";
 import {
   buildAnalysisRunPreview,
   buildPreviewComparison,
+  cancelPreviewMechanicsJob,
   loadDesignKnowledge,
   loadPreviewModel,
   loadSampleProposal,
-  runPreviewMechanics
+  pollPreviewMechanicsJob,
+  runPreviewMechanics,
+  startPreviewMechanicsJob
+} from "./services/previewService";
+import type {
+  BackendSolveJobCancellationReceipt,
+  BackendSolveJobStatus,
+  SolveJobStartReceipt
 } from "./services/previewService";
 import {
   createLocalProject,
@@ -146,9 +154,25 @@ export function App() {
   async function handleRun() {
     setRunning(true);
     setAnalysisRun(null);
-    setSolveJob(startSolveJob(model));
     try {
-      const output = await runPreviewMechanics(model);
+      const startReceipt = await startPreviewMechanicsJob(model);
+      setSolveJob(startSolveJob(model, startReceipt));
+      let output: MechanicsResult;
+      if (startReceipt.mode === "backend_job") {
+        const terminal = await awaitBackendSolveJob(startReceipt.job_id);
+        if (terminal.state === "cancelled") {
+          setSolveJob((current) => cancelledSolveJob(current, terminal));
+          return;
+        }
+        if (terminal.state !== "completed" || !terminal.result) {
+          throw new Error(
+            terminal.error_message ?? `backend solve job ${terminal.job_id} ended as ${terminal.state} without a result`
+          );
+        }
+        output = terminal.result;
+      } else {
+        output = await runPreviewMechanics(model);
+      }
       const runRecord = await buildAnalysisRunPreview(output);
       setSolveJob((current) => completeSolveJob(current, output, runRecord));
       setResult(output);
@@ -163,7 +187,13 @@ export function App() {
   }
 
   function handleCancelRun() {
+    const activeJob = solveJob;
     setSolveJob((current) => requestSolveCancellation(current));
+    if (activeJob.backend_job_seam === "tauri_backend_job" && activeJob.backend_job_id) {
+      void cancelPreviewMechanicsJob(activeJob.backend_job_id, activeJob.backend_cancellation_token)
+        .then((receipt) => setSolveJob((current) => recordBackendCancellationReceipt(current, receipt)))
+        .catch((error) => setSolveJob((current) => recordBackendCancellationFailure(current, error)));
+    }
   }
 
   async function handleProposal() {
@@ -671,6 +701,8 @@ function projectReviewContext(editorIntents: EditorOperationIntent[], proposal: 
   return ` Review context: ${total} pending ${label}; applied=false; editor_intents=${editorIntents.length}; agent_proposals=${proposalCount}.`;
 }
 
+const NO_BACKEND_JOB_TOKEN = "none_no_active_backend_job";
+
 function initialSolveJob(): SolveJobAuditState {
   return {
     job_id: "job:preview-linear-static:not-started",
@@ -680,7 +712,9 @@ function initialSolveJob(): SolveJobAuditState {
     backend_percent_stream_available: false,
     cancellation_requested: false,
     cancellation_status: "not_requested",
-    backend_cancellation_token: "TBD",
+    backend_job_seam: "no_job_started",
+    backend_job_id: null,
+    backend_cancellation_token: NO_BACKEND_JOB_TOKEN,
     events: [
       {
         event_id: "solve-preview-not-started",
@@ -696,22 +730,32 @@ function initialSolveJob(): SolveJobAuditState {
   };
 }
 
-function startSolveJob(model: PreviewModel | null): SolveJobAuditState {
+function startSolveJob(model: PreviewModel | null, startReceipt: SolveJobStartReceipt): SolveJobAuditState {
   const modelRef = model?.project.id ?? "project:unknown";
+  const backendJob = startReceipt.mode === "backend_job";
+  const runningMessage = backendJob
+    ? `Backend solve job ${startReceipt.job_id} is executing; cancellation is cooperative at backend checkpoints (${startReceipt.cancellation_scope}); this service path does not stream percentage progress.`
+    : "Preview mechanics command is executing in browser fixture mode without a backend job; this service path does not stream percentage progress.";
   return {
-    job_id: `job:preview-linear-static:${safeJobToken(modelRef)}`,
+    job_id: backendJob ? startReceipt.job_id : `job:preview-linear-static:${safeJobToken(modelRef)}`,
     state: "running",
     progress_basis: "preview_service_event_state_only_no_percent_stream",
     percentages_synthesized: false,
     backend_percent_stream_available: false,
     cancellation_requested: false,
     cancellation_status: "not_requested",
-    backend_cancellation_token: "TBD",
+    backend_job_seam: backendJob ? "tauri_backend_job" : "browser_fixture_no_backend_job",
+    backend_job_id: backendJob ? startReceipt.job_id : null,
+    backend_cancellation_token: backendJob
+      ? startReceipt.backend_cancellation_token
+      : "unavailable_no_backend_job_browser_fixture_mode",
     events: [
       {
         event_id: "solve-preview-queued",
         state: "queued",
-        message: "Preview mechanics command queued through the application service boundary.",
+        message: backendJob
+          ? `Backend solve job ${startReceipt.job_id} queued with a backend cancellation token through the application service boundary.`
+          : "Preview mechanics command queued through the application service boundary.",
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
@@ -720,7 +764,7 @@ function startSolveJob(model: PreviewModel | null): SolveJobAuditState {
       {
         event_id: "solve-preview-running",
         state: "running",
-        message: "Preview mechanics command is executing; this service path does not stream percentage progress.",
+        message: runningMessage,
         result_available: false,
         diagnostic_count: model?.diagnostics.length ?? 0,
         result_row_count: 0,
@@ -731,13 +775,85 @@ function startSolveJob(model: PreviewModel | null): SolveJobAuditState {
   };
 }
 
+async function awaitBackendSolveJob(jobId: string): Promise<BackendSolveJobStatus> {
+  let status = await pollPreviewMechanicsJob(jobId);
+  while (status.state === "queued" || status.state === "running") {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    status = await pollPreviewMechanicsJob(jobId);
+  }
+  return status;
+}
+
+function cancelledSolveJob(current: SolveJobAuditState, status: BackendSolveJobStatus): SolveJobAuditState {
+  return {
+    ...current,
+    state: "cancelled",
+    cancellation_requested: true,
+    cancellation_status: status.cancellation_status,
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-cancelled",
+        state: "cancelled",
+        message: `Backend solve job ${status.job_id} stopped at a cooperative checkpoint (${status.cancellation_status}); no result was published and no cancellation-success guarantee is claimed.`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ],
+    error_message: status.error_message
+  };
+}
+
+function recordBackendCancellationReceipt(
+  current: SolveJobAuditState,
+  receipt: BackendSolveJobCancellationReceipt
+): SolveJobAuditState {
+  return {
+    ...current,
+    cancellation_status: receipt.cancellation_status,
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-cancel-receipt",
+        state: current.state,
+        message: `Backend cancellation receipt for ${receipt.job_id}: accepted=${String(receipt.accepted)}; status=${receipt.cancellation_status}; job_state=${receipt.job_state}; no cancellation success is claimed.`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
+function recordBackendCancellationFailure(current: SolveJobAuditState, error: unknown): SolveJobAuditState {
+  return {
+    ...current,
+    cancellation_status: "backend_cancellation_request_failed",
+    events: [
+      ...current.events,
+      {
+        event_id: "solve-preview-cancel-request-failed",
+        state: current.state,
+        message: `Backend cancellation request failed to reach the job registry: ${String(error)}. The solve job continues under its own state reporting.`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
 function completeSolveJob(
   current: SolveJobAuditState,
   result: MechanicsResult,
   analysisRun: AnalysisRunEnvelope
 ): SolveJobAuditState {
   const cancellationStatus = current.cancellation_requested
-    ? "request_recorded_run_completed_before_backend_cancelled"
+    ? "request_recorded_run_completed_before_cancellation_took_effect"
     : "not_requested";
   return {
     ...current,
@@ -768,7 +884,9 @@ function restoredSolveJob(result: MechanicsResult, analysisRun: AnalysisRunEnvel
     backend_percent_stream_available: false,
     cancellation_requested: false,
     cancellation_status: "not_requested",
-    backend_cancellation_token: "TBD",
+    backend_job_seam: "restored_persisted_run_no_new_solve",
+    backend_job_id: null,
+    backend_cancellation_token: NO_BACKEND_JOB_TOKEN,
     events: [
       {
         event_id: "solve-preview-restored",
@@ -806,17 +924,22 @@ function failSolveJob(current: SolveJobAuditState, error: unknown): SolveJobAudi
 
 function requestSolveCancellation(current: SolveJobAuditState): SolveJobAuditState {
   if (current.state !== "running") return current;
+  const backendJob = current.backend_job_seam === "tauri_backend_job";
   return {
     ...current,
     state: "cancelling",
     cancellation_requested: true,
-    cancellation_status: "request_recorded_backend_token_tbd",
+    cancellation_status: backendJob
+      ? "request_sent_to_backend_job_awaiting_receipt"
+      : "request_recorded_no_backend_job_in_browser_fixture_mode",
     events: [
       ...current.events,
       {
         event_id: "solve-preview-cancel-requested",
         state: "cancelling",
-        message: "Cancellation request recorded at the UI boundary; backend cancellation token remains TBD.",
+        message: backendJob
+          ? `Cancellation requested for backend solve job ${current.backend_job_id} using its backend cancellation token; cancellation is cooperative at backend checkpoints and success is not guaranteed.`
+          : "Cancellation request recorded at the UI boundary; no backend job exists in browser fixture mode, so the in-flight fixture run cannot be interrupted.",
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,

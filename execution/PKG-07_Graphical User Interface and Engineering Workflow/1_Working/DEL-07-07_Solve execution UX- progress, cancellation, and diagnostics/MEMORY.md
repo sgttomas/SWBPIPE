@@ -81,3 +81,12 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Test-discovery evidence remains supportive: `tests/test_solve_execution_ux.py::test_solve_execution_ux_main` is pytest-visible; parent PKG-07 pytest reports 11/11 passing; direct script checks pass; desktop Vitest reports 5/5 passing; viewport-editor Rust tests report 6/6 passing.
 - Recommendation recorded in `_REVIEW.md` and `_run_records/TASK_RUN_2026-06-06_DEL-07-07_CHECKING_READINESS_REVIEW.md`: `MOVE_TO_CHECKING`.
 - No lifecycle state, dependency/DAG authority, code, schemas, fixtures, tests, four-document artifacts, release status, professional reliance, certification, sealing, approval, `ISSUED` status, or code-compliance posture was changed by this review.
+
+## 2026-06-10 - Solve cancellation backend job seam (app-integration tranche)
+
+- The desktop app's solve cancellation is no longer UI-record-only: the Tauri backend now provides an asynchronous solve-job seam (`start_preview_mechanics_job` / `poll_preview_mechanics_job` / `cancel_preview_mechanics_job`) with a per-job `backend_cancellation_token`, resolving the long-standing `backend_cancellation_token: "TBD"` marker in the solve-job audit surfaces.
+- Cancellation is cooperative at backend checkpoints (`cooperative_checkpoints_not_preemptive`): checked before solver start and before result publication; cancelled jobs discard results; receipts never claim cancellation success; invalid tokens and post-terminal requests are rejected honestly.
+- Browser fixture mode reports `browser_fixture_no_backend_job` instead of simulating a backend job; restored persisted runs report `restored_persisted_run_no_new_solve`.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-10_solve_cancellation_backend_job_seam.md` (cargo test 12/12 incl. six new solve-job tests; Vitest 13/13; desktop build green; browser-preview fixture-mode check).
+- Residual TBDs unchanged: no backend percent-progress stream, no preemptive mid-solve interruption, headless-runner CLI/process seams still panel-level.
+- No lifecycle change: `_STATUS.md` remains `CHECKING`. No release, professional, certification, sealing, authentication, or code-compliance claim.
