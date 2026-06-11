@@ -10,7 +10,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -33,6 +33,7 @@ import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlo
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
+import { intentKey, OperationApplyPanel } from "./features/operations/OperationApplyPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
@@ -69,6 +70,7 @@ import type {
   BackendSolveJobStatus,
   SolveJobStartReceipt
 } from "./services/previewService";
+import { applyModelOperation, validateModelOperation } from "./services/operationService";
 import {
   createLocalProject,
   getLocalStorageCapability,
@@ -80,6 +82,7 @@ import { computeModelHash, computeProjectEnvelopeHash } from "./services/hashSer
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
+  AppliedOperationReceipt,
   DesignKnowledge,
   EditorOperationIntent,
   EntityRef,
@@ -89,6 +92,7 @@ import type {
   MechanicsResult,
   ModelHashEvidence,
   ModelHashIntegrityEvidence,
+  OperationOutcome,
   PreviewModel,
   ProjectEnvelopeHashEvidence,
   ProjectEnvelopeHashIntegrityEvidence,
@@ -118,6 +122,11 @@ export function App() {
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
   const [running, setRunning] = useState(false);
   const [projectBusy, setProjectBusy] = useState(false);
+  const [operationOutcomes, setOperationOutcomes] = useState<Record<string, OperationOutcome>>({});
+  const [appliedOperations, setAppliedOperations] = useState<AppliedOperationReceipt[]>([]);
+  const [operationBusy, setOperationBusy] = useState(false);
+  const [operationMessage, setOperationMessage] = useState<string | null>(null);
+  const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
     [analysisRun, result]
@@ -201,10 +210,11 @@ export function App() {
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
+    intentSequence.current += 1;
     setEditorIntents((current) => [
       {
         ...intent,
-        queue_id: `editor-intent-${current.length + 1}`
+        queue_id: `editor-intent-${intentSequence.current}`
       },
       ...current
     ]);
@@ -213,6 +223,71 @@ export function App() {
   function handleClearReviewQueue() {
     setEditorIntents([]);
     setProposal(null);
+    setOperationOutcomes({});
+    setOperationMessage(null);
+  }
+
+  async function handleValidateIntent(intent: EditorOperationIntent) {
+    if (!model) return;
+    setOperationBusy(true);
+    setOperationMessage(null);
+    try {
+      const outcome = await validateModelOperation(model, intent, modelHash);
+      setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
+    } catch (error) {
+      setOperationMessage(`Operation validation failed to run: ${String(error)}`);
+    } finally {
+      setOperationBusy(false);
+    }
+  }
+
+  async function handleApplyIntent(intent: EditorOperationIntent) {
+    if (!model) return;
+    setOperationBusy(true);
+    setOperationMessage(null);
+    try {
+      const outcome = await applyModelOperation(model, intent, modelHash);
+      setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
+      if (outcome.validation.application_status !== "applied_to_session_model" || !outcome.applied_model) {
+        setOperationMessage(
+          `Operation ${outcome.operation_id} was not applied (${outcome.validation.application_status}); see its diagnostics.`
+        );
+        return;
+      }
+      const receipt: AppliedOperationReceipt = {
+        receipt_id: `applied-${appliedOperations.length + 1}-${intentKey(intent)}`,
+        sequence: appliedOperations.length + 1,
+        operation_id: outcome.operation_id,
+        change_id: outcome.change_id,
+        target_object_type: outcome.target_object_type,
+        target_ref: outcome.target_ref,
+        field_path: intent.change.field_path,
+        before: intent.change.before,
+        after: intent.change.after,
+        application_route: outcome.application_route,
+        applied_model_hash: outcome.applied_model_backend_hash ?? "not_reported",
+        acceptance: outcome.acceptance,
+        diagnostics: outcome.diagnostics,
+        professional_boundary: outcome.professional_boundary
+      };
+      setAppliedOperations((current) => [receipt, ...current]);
+      setModel(outcome.applied_model);
+      setEditorIntents((current) => current.filter((queued) => intentKey(queued) !== intentKey(intent)));
+      // Earlier solve output no longer describes the edited model document;
+      // keeping it visible would overstate what was computed.
+      setResult(null);
+      setAnalysisRun(null);
+      setProposal(null);
+      setSelectedReviewTarget(null);
+      setSolveJob(modelChangedSolveJob(outcome));
+      setOperationMessage(
+        `Applied ${outcome.operation_id} to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.`
+      );
+    } catch (error) {
+      setOperationMessage(`Operation apply failed to run: ${String(error)}`);
+    } finally {
+      setOperationBusy(false);
+    }
   }
 
   async function handleCreateProject() {
@@ -423,7 +498,7 @@ export function App() {
               : " Checking local storage."}
           </span>
           <span data-testid="local-project-message"> {projectMessage}</span>
-          <span data-testid="local-project-review-context"> {projectReviewContext(editorIntents, proposal)}</span>
+          <span data-testid="local-project-review-context"> {projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         </div>
         <div className="project-toolbar-actions">
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
@@ -494,6 +569,15 @@ export function App() {
             selection={selection}
           />
           <EditorContractPanel editorIntents={editorIntents} model={model} />
+          <OperationApplyPanel
+            queuedIntents={editorIntents}
+            outcomes={operationOutcomes}
+            appliedOperations={appliedOperations}
+            busy={operationBusy}
+            message={operationMessage}
+            onValidate={handleValidateIntent}
+            onApply={handleApplyIntent}
+          />
         </aside>
 
         <section className="center-stage">
@@ -694,11 +778,15 @@ function storageBadgeLabel(storageCapability: LocalStorageCapability): string {
   return "Local store";
 }
 
-function projectReviewContext(editorIntents: EditorOperationIntent[], proposal: AgentProposal | null): string {
+function projectReviewContext(
+  editorIntents: EditorOperationIntent[],
+  proposal: AgentProposal | null,
+  appliedOperationCount: number
+): string {
   const proposalCount = proposal ? 1 : 0;
   const total = editorIntents.length + proposalCount;
   const label = total === 1 ? "operation" : "operations";
-  return ` Review context: ${total} pending ${label}; applied=false; editor_intents=${editorIntents.length}; agent_proposals=${proposalCount}.`;
+  return ` Review context: ${total} pending ${label}; applied_operations=${appliedOperationCount}; editor_intents=${editorIntents.length}; agent_proposals=${proposalCount}.`;
 }
 
 const NO_BACKEND_JOB_TOKEN = "none_no_active_backend_job";
@@ -772,6 +860,24 @@ function startSolveJob(model: PreviewModel | null, startReceipt: SolveJobStartRe
       }
     ],
     error_message: null
+  };
+}
+
+function modelChangedSolveJob(outcome: OperationOutcome): SolveJobAuditState {
+  return {
+    ...initialSolveJob(),
+    job_id: "job:preview-linear-static:model-changed",
+    events: [
+      {
+        event_id: "solve-preview-model-changed",
+        state: "not_started",
+        message: `Model changed by applied structured operation ${outcome.operation_id}; previous mechanics results were cleared because they no longer describe the edited model. Run a new solve.`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
   };
 }
 

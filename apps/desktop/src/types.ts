@@ -401,6 +401,91 @@ export type EditorOperationIntent = {
   rationale: string;
 };
 
+export type OperationOutcomeDiagnostic = {
+  id: string;
+  code: string;
+  severity: "blocking" | "warning" | "info" | string;
+  message: string;
+  remediation: string;
+  affected_refs: string[];
+  source: string;
+};
+
+export type OperationDiffPreviewRow = {
+  entity_ref: string;
+  object_type: string;
+  field_path: string;
+  before: string;
+  after: string;
+  unit: string;
+  dimension: string;
+  change_kind: string;
+};
+
+export type OperationValidationStates = {
+  schema_validation: string;
+  reference_validation: string;
+  unit_validation: string;
+  before_state_validation: string;
+  diff_preview_status: string;
+  application_status: string;
+};
+
+export type OperationModelBasisEvidence = {
+  claimed_model_hash: string;
+  claimed_hash_canonicalization: string;
+  backend_model_hash: string;
+  backend_canonicalization: string;
+  binding_status: string;
+};
+
+export type OperationAcceptanceRecord = {
+  acceptance_basis: string;
+  acceptance_is_professional_approval: boolean;
+  persistence_status: string;
+};
+
+export type OperationOutcome = {
+  schema_version: string;
+  document_kind: string;
+  deliverable_refs: string[];
+  mode: "validate_only" | "apply";
+  application_route: "tauri_backend_apply" | "browser_fixture_local_apply";
+  operation_id: string;
+  change_id: string;
+  operation_kind: string;
+  change_kind: string;
+  target_object_type: string;
+  target_ref: string;
+  validation: OperationValidationStates;
+  diff_preview: OperationDiffPreviewRow[];
+  diagnostics: OperationOutcomeDiagnostic[];
+  model_basis: OperationModelBasisEvidence;
+  input_model_unchanged: boolean;
+  applied_model: PreviewModel | null;
+  applied_model_backend_hash: string | null;
+  acceptance: OperationAcceptanceRecord;
+  audit_boundary: Record<string, unknown>;
+  professional_boundary: Record<string, boolean>;
+};
+
+export type AppliedOperationReceipt = {
+  receipt_id: string;
+  sequence: number;
+  operation_id: string;
+  change_id: string;
+  target_object_type: string;
+  target_ref: string;
+  field_path: string;
+  before: string;
+  after: string;
+  application_route: OperationOutcome["application_route"];
+  applied_model_hash: string;
+  acceptance: OperationAcceptanceRecord;
+  diagnostics: OperationOutcomeDiagnostic[];
+  professional_boundary: Record<string, boolean>;
+};
+
 export type EntityRef = {
   id: string;
   type:

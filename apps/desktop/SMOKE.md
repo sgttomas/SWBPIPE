@@ -2339,3 +2339,62 @@ after the timestamp marker were absent.
   not an acceptance, certification, sealing, authentication, release, or
   code-compliance record; model *document* schema migrations remain TBD; no
   destructive migrations; no network/telemetry writes.
+
+## TP-MAC-82 apply-operation-command-path (2026-06-10)
+
+- Tranche: `TP-APP-R2-EDITLOOP-001` (completion plan Phase A1) — structured
+  apply-operation seam. New core crate
+  `core/model_operations/operation_applier` implements PKG-16
+  validate → diff → apply semantics for inspector `set_field` /
+  `update_load` / `update_support` intents; new Tauri commands
+  `validate_model_operation` and `apply_model_operation` expose it; the new
+  Apply Operations panel validates/applies queued intents; applying replaces
+  the session model document, clears stale solve results, and records an
+  applied-operation receipt. Browser fixture mode runs an equivalently
+  scoped local engine honestly labeled
+  `application_route=browser_fixture_local_apply` (Tauri route reports
+  `tauri_backend_apply`).
+- Local validation before browser smoke: `cargo test` in
+  `core/model_operations/operation_applier` (19/19, including no-input-
+  mutation, stale-before blocking, unit-mismatch blocking without
+  conversion, project-unit resolution for node positions, restraint
+  vocabulary, deferred-field findings, viewport geometry findings,
+  determinism, and professional-boundary checks); `cargo test` in
+  `apps/desktop/src-tauri` (14/14, including applying an inspector intent to
+  the bundled fixture model and re-solving the applied model through
+  `run_preview_mechanics`); `npm test --workspace apps/desktop` (21/21);
+  `npm run build --workspace apps/desktop`; `python3 -m pytest -q tests`
+  (342/342, untouched surfaces).
+- Browser smoke (Claude Preview, fresh vite server on port 5173, browser
+  fixture mode): selected `material:invented-carbon-steel`, queued
+  `op:editor-intent-material:invented-carbon-steel-elastic_modulus.value`
+  (`200000000000` → `195000000000` Pa) as `editor-intent-1`; Validate
+  reported `validate_only; application_status=not_applied; schema=passed;
+  unit=passed; before_state=passed; route=browser_fixture_local_apply`;
+  Apply reported the applied message, drained the queue
+  (`0 queued; 1 applied this session`), updated the inspector to
+  `195000000000 Pa`, reset the solve job to `state=not_started; events=1`
+  with the model-changed event (`previous mechanics results were cleared`),
+  and recorded the receipt
+  `route=browser_fixture_local_apply;
+  acceptance=user_initiated_apply_in_local_session;
+  persistence=session_state_only_not_yet_saved;
+  professional_approval=false`. Run mechanics preview then completed against
+  the edited model (`state=completed; events=3; result_rows=647`) and Save
+  local stored the edited snapshot (`Saved local browser-preview project
+  snapshot without external file copies`). The toolbar review context now
+  reports `applied_operations=N` instead of a hardcoded `applied=false`.
+  Console errors absent. Vitest covers the same journey plus stale-intent
+  blocking (`OP-STALE-BEFORE-VALUE`) and viewport-gesture blocking
+  (`OP-GEOMETRY-INPUT-INCOMPLETE`).
+- Boundary: applying a structured operation is a user-initiated
+  local-session acceptance over the session model document only — receipts
+  state `acceptance_is_professional_approval=false`; no unit conversion is
+  performed (mismatches block with `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`
+  pending D-01/Phase B); no geometry values are invented for viewport
+  gesture intents (blocked pending A3); applied receipts are session-only
+  until the A2 model-document persistence tranche (D-08); claimed UI model
+  hashes are echoed beside backend hashes without cross-canonicalization
+  equality claims; stale results are cleared rather than displayed against
+  an edited model; no compliance, certification, sealing, authentication,
+  approval, release, or code-compliance claims.

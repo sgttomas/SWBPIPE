@@ -16,14 +16,14 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 
 | ID | Decision | Blocks | State | Packet | Ruling record |
 |---|---|---|---|---|---|
-| D-01 | Unit catalog acceptance: canonical unit set, conversion constants, offset-temperature and gauge/absolute-pressure semantics, tolerance policy | Phase B entirely; FR-002; full Phase A authoring value | NOT_PREPARED | — | — |
+| D-01 | Unit catalog acceptance: canonical unit set, conversion constants, offset-temperature and gauge/absolute-pressure semantics, tolerance policy | Phase B entirely; FR-002; full Phase A authoring value | AWAITING_RULING | [D-01_unit_catalog_acceptance.md](D-01_unit_catalog_acceptance.md) (2026-06-10) | — |
 | D-02 | Rule-pack expression grammar freeze (operator/function set, conformance suite) | Phase C; FR-011 final form | NOT_PREPARED | — | — |
 | D-03 | Sparse solver / model-scale strategy (sparse library vs bounded dense limit with diagnostics) | Phase D scale targets | NOT_PREPARED | — | — |
 | D-04 | Numerical tolerance + coverage thresholds (RGAP-004) | R1/R4/R5 evidence claims; release-quality gates | NOT_PREPARED | — | — |
 | D-05 | CI provider + hosted workflow location (RGAP-003) | Phase E; continuous evidence | NOT_PREPARED | — | — |
 | D-06 | Release matrix, installer formats, signing/notarization, publication targets (RGAP-003/006) | Phase E packaging | NOT_PREPARED | — | — |
 | D-07 | Maintainer quorum + release authority; contributor legal mechanism | Any release claim; R5 IP contribution process | NOT_PREPARED | — | — |
-| D-08 | Model-document schema migration policy (extending the store `user_version` ledger) | Phase A persistence (A2) | NOT_PREPARED | — | — |
+| D-08 | Model-document schema migration policy (extending the store `user_version` ledger) | Phase A persistence (A2) | AWAITING_RULING | [D-08_model_document_schema_migration.md](D-08_model_document_schema_migration.md) (2026-06-10) | — |
 | D-09 | Native package physical container format (single-file project container, public transport form) | Phase E distribution; FR-001 file-level semantics | NOT_PREPARED | — | — |
 | D-10 | Report rendering target (deterministic HTML and/or PDF pipeline) | Phase A report rendering (A7); R5 full report package | NOT_PREPARED | — | — |
 | D-11 | Issuance waves for the `CHECKING` deliverables | Phase F governance closure | NOT_PREPARED | — | — |

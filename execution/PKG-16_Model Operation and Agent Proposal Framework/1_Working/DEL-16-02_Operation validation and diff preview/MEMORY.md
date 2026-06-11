@@ -83,3 +83,33 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - `Review_Findings.csv` now records `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED` for `PKG16-DEL1602-PKG02-001`, `PKG16-DEL1602-PKG02-002`, and `PKG16-DEL1602-PKG02-003`.
 - Supporting ruling packet: `execution/_Reconciliation/Reviews/REV_PKG-16_2026-06-06_1648/HUMAN_DISPOSITION_RULING_PACKET_DEL-16-02-PKG02-FINDINGS.md`.
 - No lifecycle transition, release assertion, legal conclusion, professional approval, certification, sealing, authentication, approval, or code-compliance claim is made by this disposition.
+
+## 2026-06-10 - TP-APP-R2-EDITLOOP-001 apply-operation command path (A1)
+
+- The desktop app now has a runtime apply seam for this deliverable's
+  contract: new Rust crate `core/model_operations/operation_applier`
+  (validate → diff-preview → apply for structured editor intents) behind
+  new Tauri commands `validate_model_operation` / `apply_model_operation`,
+  with an Apply Operations panel and a browser-fixture local engine
+  honestly labeled by `application_route`.
+- Boundary semantics preserved from this deliverable: input model never
+  mutated; blocked operations are findings (stale before-value, unit
+  mismatch without conversion, unknown dimension, unresolved refs, geometry
+  inputs incomplete, deferred fields); `application_status` vocabulary now
+  includes `applied_to_session_model` only for the new returned document;
+  acceptance receipts record `user_initiated_apply_in_local_session` and
+  never professional approval (DEL-16-03 alignment).
+- Known cross-surface notes: the Python engine's `CANONICAL_DIMENSIONS`
+  omitted `force_per_length` (accepted PKG-02 set has 30 ids) — surfaced in
+  the D-01 decision packet and reconciled in-tree by the human project
+  authority in the same session (three Python sets + a schema parity test
+  in `tests/test_operation_validation_preview.py`); cross-language
+  canonical-JSON float formatting prevents UI↔backend hash equality claims
+  (echo-only binding status) — D-08-adjacent follow-up.
+- Evidence: run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_apply_operation_command_path.md`;
+  smoke `apps/desktop/SMOKE.md` TP-MAC-82; suites 19/19 crate, 14/14
+  src-tauri, 21/21 Vitest, 342/342 pytest, build green.
+- No lifecycle change: `_STATUS.md` remains `CHECKING`; this is
+  app-integration absorption of the deliverable's design authority, not
+  issuance.

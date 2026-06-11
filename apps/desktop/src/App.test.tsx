@@ -723,7 +723,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-81");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-82");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -2414,7 +2414,7 @@ describe("OpenPipeStress desktop preview", () => {
     const storageAudit = await screen.findByLabelText("Project storage audit");
     const projectValidation = await screen.findByLabelText("Project validation preflight");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "0 pending operations; applied=false"
+      "0 pending operations; applied_operations=0"
     );
     expect(within(storageAudit).getByTestId("model-hash-persistence").textContent).toContain(
       "persisted_model_hashes=0"
@@ -2438,13 +2438,13 @@ describe("OpenPipeStress desktop preview", () => {
     });
     fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false"
+      "1 pending operation; applied_operations=0"
     );
 
     fireEvent.click(within(controls).getByRole("button", { name: /Create local/i }));
     expect(await screen.findByTestId("local-project-message")).toHaveTextContent("without external file copies");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false"
+      "1 pending operation; applied_operations=0"
     );
     expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=create");
     expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
@@ -2460,7 +2460,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
     expect(await screen.findByTestId("local-project-message")).toHaveTextContent("without external file copies");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false"
+      "1 pending operation; applied_operations=0"
     );
     expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=save");
 
@@ -2469,7 +2469,7 @@ describe("OpenPipeStress desktop preview", () => {
       "Opened local browser-preview project snapshot."
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false"
+      "1 pending operation; applied_operations=0"
     );
     expect(within(controls).getByText("Invented Utility Loop Preview")).toBeInTheDocument();
     expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=open");
@@ -2755,7 +2755,7 @@ describe("OpenPipeStress desktop preview", () => {
       "result: result:stress:pipe-P-120:end-j:torsional-shear"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
+      "1 pending operation; applied_operations=0; editor_intents=0; agent_proposals=1"
     );
 
     const controls = screen.getByLabelText("Local project controls");
@@ -2972,7 +2972,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.change(within(results).getByTestId("result-filter-input"), { target: { value: "" } });
     expect(await screen.findByTestId("result-group-displacement")).toBeInTheDocument();
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
+      "1 pending operation; applied_operations=0; editor_intents=0; agent_proposals=1"
     );
     expect(await within(proposalPanel).findByText("proposal:physics-diagnostic-review")).toBeInTheDocument();
     expect(within(proposalPanel).getByTestId("selected-review-target").textContent).toContain(
@@ -4410,7 +4410,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(proposalExportPacket.persistence_evidence.storage_audit.editor_intent_count).toBe(0);
     expect(proposalExportPacket.persistence_evidence.storage_audit.proposal_operation_count).toBe(1);
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "1 pending operation; applied=false; editor_intents=0; agent_proposals=1"
+      "1 pending operation; applied_operations=0; editor_intents=0; agent_proposals=1"
     );
 
     const proposalStorageAudit = await screen.findByLabelText("Project storage audit");
@@ -4593,7 +4593,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(operationLedger).getByTestId("clear-operation-review-queue"));
 
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
-      "0 pending operations; applied=false; editor_intents=0; agent_proposals=0"
+      "0 pending operations; applied_operations=0; editor_intents=0; agent_proposals=0"
     );
     expect(within(proposal).queryByTestId("proposal-body")).not.toBeInTheDocument();
     expect(await within(operationLedger).findByTestId("operation-ledger-empty")).toHaveTextContent(
@@ -4733,5 +4733,94 @@ describe("OpenPipeStress desktop preview", () => {
       "diagnostic:physics:high-displacement-review"
     );
     expect(proposalExportPacket.proposal_operation.audit_boundary.mutates_accepted_model_state).toBe(false);
+  });
+
+  it("applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    fireEvent.click(within(tree).getByRole("button", { name: /Invented carbon-steel-like material/i }));
+    const inspector = screen.getByLabelText("Property inspector");
+    const intentPanel = within(inspector).getByLabelText("Editor operation intent");
+
+    // Queue two edits of the same field; applying the first must make the
+    // second stale rather than silently double-applying.
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+      target: { value: "elastic_modulus.value" }
+    });
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+      target: { value: "195000000000" }
+    });
+    fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+      target: { value: "210000000000" }
+    });
+    fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("2 queued; 0 applied");
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
+      )
+    );
+
+    // Applied receipt with honest route, acceptance, and persistence labels.
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("route=browser_fixture_local_apply");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+
+    // The session model document changed and earlier solve context is gone.
+    expect(inspector.textContent).toContain("195000000000 Pa");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+    const clearedSolveHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
+    const clearedSolvePacket = JSON.parse(decodeURIComponent(clearedSolveHref.split(",", 2)[1]));
+    expect(clearedSolvePacket.events[0].message).toContain("previous mechanics results were cleared");
+
+    // The remaining queued intent is now stale; applying it is blocked with a
+    // visible finding and the model value is unchanged.
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-2"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain("was not applied")
+    );
+    expect(within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-STALE-BEFORE-VALUE").textContent).toContain(
+      "blocking: OP-STALE-BEFORE-VALUE"
+    );
+    expect(inspector.textContent).toContain("195000000000 Pa");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+
+    // The edited model still solves and saves through the existing paths.
+    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    await waitFor(() => expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed"));
+
+    fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message").textContent).toContain(
+        "Saved local browser-preview project snapshot"
+      )
+    );
+  });
+
+  it("blocks viewport gesture intents at apply with an explicit geometry finding instead of inventing values", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
+    fireEvent.click(within(viewportIntentPanel).getByRole("button", { name: /Node intent/i }));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain("was not applied")
+    );
+    expect(
+      within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-GEOMETRY-INPUT-INCOMPLETE").textContent
+    ).toContain("does not yet carry explicit geometry/connectivity inputs");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
   });
 });

@@ -1,3 +1,4 @@
+use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -1154,6 +1155,26 @@ fn sample_agent_proposal(
 }
 
 #[tauri::command]
+fn validate_model_operation(
+    model: Value,
+    intent: Value,
+    claimed_model_hash: Option<Value>,
+) -> Result<Value, String> {
+    let outcome = validate_operation(&model, &intent, claimed_model_hash.as_ref());
+    serde_json::to_value(outcome).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn apply_model_operation(
+    model: Value,
+    intent: Value,
+    claimed_model_hash: Option<Value>,
+) -> Result<Value, String> {
+    let outcome = apply_operation(&model, &intent, claimed_model_hash.as_ref());
+    serde_json::to_value(outcome).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, String> {
     let path = app_store_path(&app)?;
     let (connection, migration) = open_project_store(&path)?;
@@ -1349,6 +1370,8 @@ pub fn run() {
             poll_preview_mechanics_job,
             cancel_preview_mechanics_job,
             sample_agent_proposal,
+            validate_model_operation,
+            apply_model_operation,
             get_local_storage_capability,
             create_local_project,
             open_local_project,
@@ -2057,5 +2080,87 @@ mod tests {
         assert_eq!(status.state, "failed");
         assert_eq!(status.result, None);
         assert!(status.error_message.is_some());
+    }
+
+    fn fixture_inspector_intent(before: &str, after: &str) -> Value {
+        json!({
+            "operation_id": "op:editor-intent-material-elastic-modulus",
+            "operation_kind": "modify",
+            "operation_status": "proposed",
+            "author_type": "user",
+            "target": { "object_type": "Material", "ref": "material:invented-carbon-steel" },
+            "change": {
+                "change_id": "change:material-elastic-modulus",
+                "change_kind": "set_field",
+                "field_label": "Elastic modulus",
+                "field_path": "elastic_modulus.value",
+                "before": before,
+                "after": after,
+                "unit": "Pa",
+                "dimension": "stress",
+                "source_note": "unit metadata required"
+            },
+            "validation": {
+                "schema_validation": "not_run",
+                "constraint_validation": "not_run",
+                "unit_validation": "not_run",
+                "diff_preview_status": "not_generated",
+                "application_status": "not_applied"
+            },
+            "audit_boundary": {
+                "mutation_route": "structured_operations_only",
+                "direct_model_mutation_allowed": false,
+                "requires_user_acceptance": true,
+                "mutates_accepted_model_state": false
+            },
+            "professional_boundary": {
+                "human_review_required": true,
+                "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false,
+                "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false,
+                "software_makes_authentication_claim": false
+            },
+            "rationale": "command-path test edit"
+        })
+    }
+
+    #[test]
+    fn apply_model_operation_command_applies_inspector_intent_to_bundled_fixture_model() {
+        let model = read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        let intent = fixture_inspector_intent("200000000000", "195000000000");
+        let outcome = apply_model_operation(model.clone(), intent, None).expect("command returns outcome");
+
+        assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model");
+        assert_eq!(outcome["acceptance"]["acceptance_basis"], "user_initiated_apply_in_local_session");
+        assert_eq!(outcome["acceptance"]["acceptance_is_professional_approval"], json!(false));
+        assert_eq!(
+            outcome["applied_model"]["materials"][0]["elastic_modulus"]["value"],
+            json!(195000000000.0)
+        );
+        // The input model the command received is untouched; the applied model
+        // is a new document, and downstream solve still accepts it.
+        assert_eq!(model["materials"][0]["elastic_modulus"]["value"], json!(200000000000_i64));
+        let solved = run_preview_mechanics(Some(outcome["applied_model"].clone()))
+            .expect("edited model still solves through the preview mechanics path");
+        assert!(solved["results"].as_array().map(|rows| !rows.is_empty()).unwrap_or(false));
+    }
+
+    #[test]
+    fn validate_model_operation_command_blocks_stale_intent_without_mutation() {
+        let model = read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        let intent = fixture_inspector_intent("123", "195000000000");
+        let outcome = validate_model_operation(model, intent, None).expect("command returns outcome");
+
+        assert_eq!(outcome["validation"]["application_status"], "not_applied");
+        assert_eq!(outcome["validation"]["before_state_validation"], "blocked_stale");
+        assert!(outcome["applied_model"].is_null());
+        let codes: Vec<&str> = outcome["diagnostics"]
+            .as_array()
+            .expect("diagnostics array")
+            .iter()
+            .filter_map(|item| item["code"].as_str())
+            .collect();
+        assert!(codes.contains(&"OP-STALE-BEFORE-VALUE"));
     }
 }

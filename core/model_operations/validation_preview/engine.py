@@ -48,6 +48,7 @@ CANONICAL_DIMENSIONS = {
     "angle",
     "rotation",
     "force",
+    "force_per_length",
     "moment",
     "pressure",
     "stress",

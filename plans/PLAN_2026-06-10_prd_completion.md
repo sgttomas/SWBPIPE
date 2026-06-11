@@ -60,7 +60,7 @@ Phases are ordered by dependency, not strictly by execution: A and B can run in 
 
 | # | Tranche scope | Key seams (current code) |
 |---|---|---|
-| A1 | **Apply-operation command path.** Add Tauri commands (`apply_model_operation`, `validate_model_operation`, plus diff/accept queries) that take the already-defined editor operation intents and mutate a model document server-side, returning validation results and diffs per the PKG-16 operation→validation→diff→accept contracts | [apps/desktop/src-tauri/src/lib.rs](../apps/desktop/src-tauri/src/lib.rs) (currently 12 commands, none mutating); PKG-16 Python contract modules as the semantic reference; operation intent queue already emitted by the UI |
+| A1 | **Apply-operation command path.** Add Tauri commands (`apply_model_operation`, `validate_model_operation`, plus diff/accept queries) that take the already-defined editor operation intents and mutate a model document server-side, returning validation results and diffs per the PKG-16 operation→validation→diff→accept contracts. **Landed 2026-06-10** as `TP-APP-R2-EDITLOOP-001`: new `core/model_operations/operation_applier` crate + both commands + Apply Operations panel; inspector modify intents apply (viewport gesture intents block pending A3 geometry capture; unit conversion blocks pending D-01/B). Evidence: `apps/desktop/SMOKE.md` TP-MAC-82, DEL-16-02 run record | [apps/desktop/src-tauri/src/lib.rs](../apps/desktop/src-tauri/src/lib.rs) (now 14 commands, two mutating-path); PKG-16 Python contract modules as the semantic reference; operation intent queue already emitted by the UI |
 | A2 | **Model-document persistence.** Store model documents inside the SQLite project envelope with schema version + migration ledger entries (per D-08), canonical JCS hashing of model documents extending the existing project-envelope hash evidence | `openpipestress-projects.sqlite3` store, `user_version` ledger, envelope-hash verification (already implemented for envelopes) |
 | A3 | **Viewport editing UX.** Selection/raycasting, node + straight-pipe element creation/edit tools, property inspector bound to selected entities, undo/redo (PRD §21), inline validation messages | [PipeViewport.tsx](../apps/desktop/src/features/viewport/PipeViewport.tsx) (render-only today); model tree + property panels per PRD §14.1–14.3 |
 | A4 | **Load case manager UI.** Define/edit weight, thermal, pressure metadata, concentrated loads, imposed displacements; load-case algebra surfacing | `core/loads` crates already implement the algebra; PRD §11.5–11.6, FR-007 |
@@ -139,9 +139,9 @@ Current status is as assessed 2026-06-10; "Closes in" names the phase item that 
 
 | FR | Priority | Current status | Closes in |
 |---|---|---|---|
-| FR-001 create/open/save/version projects | Must | Envelope-level create/open/save/list with hash + store migration ledger; model documents not yet editable/persisted | A1–A2 (file-container semantics: D-09) |
+| FR-001 create/open/save/version projects | Must | Envelope-level create/open/save/list with hash + store migration ledger; model documents now editable in session via the A1 apply seam and saved inside the envelope; dedicated model-document persistence/versioning still pending A2 (D-08 packet AWAITING_RULING) | A2 (file-container semantics: D-09) |
 | FR-002 unit systems + conversions | Must | Unit metadata everywhere; no conversion engine (`core/units` empty) | B1–B3 (gated D-01) |
-| FR-003 3D node/element modeling | Must | Render-only viewport; intents not applied | A1, A3 |
+| FR-003 3D node/element modeling | Must | A1 landed: inspector field edits validate/apply to the session model; viewport remains render-only and gesture intents block pending explicit geometry capture | A3 |
 | FR-004 six DOF per node | Must | Met (frame kernel) | — |
 | FR-005 pipe section properties | Must | Met for straight pipe (straight-pipe adapter + stress recovery) | — (re-verify in A5 QA) |
 | FR-006 user-defined materials | Must | Data model + fixtures; no GUI authoring | A3/C3 |
@@ -152,7 +152,7 @@ Current status is as assessed 2026-06-10; "Closes in" names the phase item that 
 | FR-011 rule-pack schema | Must | Met at schema/engine level; grammar not frozen | C1 |
 | FR-012 block incomplete code checks | Must | Met (engine `RULE_INPUTS_INCOMPLETE` + panel surfacing) | C4 end-to-end confirmation |
 | FR-013 graphical 3D modeler | Must | Not met | A3 |
-| FR-014 model tree + property editor | Must | Not met (panels exist; no entity-bound editing) | A3 |
+| FR-014 model tree + property editor | Must | Partially met: entity-bound property edits apply through the A1 seam for supported fields (labels, provenance, quantities same-unit, refs, restraints); full editor UX (undo/redo, inline validation, all fields) remains A3 | A3 |
 | FR-015 results visualization | Must | Tables from preview runs; no deformed shape | A6 |
 | FR-016 calculation reports | Must | Deterministic envelopes; no rendered document | A7 (format: D-10) |
 | FR-017 bend objects | Should | Schema only | D1 |
@@ -175,9 +175,9 @@ Rough relative scale (tranche-count order of magnitude, not calendar estimates):
 
 Suggested first three tranches, in order:
 
-1. **Decision-prep packet for D-01 (units) + D-08 (model schema migration)** — unblocks the two longest poles.
-2. **`TP-APP-R2-EDITLOOP-001` (A1):** apply-operation Tauri command path against PKG-16 contracts, with Vitest + Rust tests.
-3. **`TP-APP-R2-PERSIST-001` (A2):** model-document persistence + hash evidence, extending the existing envelope-hash series (continues the current uncommitted tranche's direction).
+1. **Decision-prep packet for D-01 (units) + D-08 (model schema migration)** — unblocks the two longest poles. **Done 2026-06-10:** both packets drafted, `AWAITING_RULING` in `execution/_Coordination/_DECISIONS/_REGISTER.md`.
+2. **`TP-APP-R2-EDITLOOP-001` (A1):** apply-operation Tauri command path against PKG-16 contracts, with Vitest + Rust tests. **Done 2026-06-10** (see §3 A1 row; smoke TP-MAC-82).
+3. **`TP-APP-R2-PERSIST-001` (A2):** model-document persistence + hash evidence, extending the existing envelope-hash series — **next unblocked item once the human rules on D-08** (packet awaits ruling); if D-08 remains unruled, the next unblocked items are A3 (viewport editing UX) or A4 (load case manager).
 
 ---
 

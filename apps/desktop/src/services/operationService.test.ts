@@ -1,0 +1,212 @@
+import { describe, expect, it } from "vitest";
+import type { EditorOperationIntent, PreviewModel } from "../types";
+import { applyModelOperation, validateModelOperation } from "./operationService";
+
+function sampleModel(): PreviewModel {
+  return {
+    schema_version: "0.1.0",
+    document_kind: "openpipestress.product_preview.model",
+    data_boundary: {},
+    project: { id: "project:test", name: "Test", description: "test", units: { length: "m" } },
+    analysis_status: { mechanics: "ready", rule_check: "not_performed", professional_acceptance: "not_provided" },
+    materials: [
+      {
+        id: "material:steel",
+        label: "Invented steel",
+        elastic_modulus: { value: 200000000000, unit: "Pa" },
+        shear_modulus: { value: 77000000000, unit: "Pa" },
+        thermal_expansion_coefficient: { value: 0.000012, unit: "1/degC" },
+        provenance: "invented_example"
+      }
+    ],
+    nodes: [
+      { id: "node:N-1", label: "Anchor", position: { x: 0, y: 0, z: 0 }, provenance: "invented_example" },
+      { id: "node:N-2", label: "Elbow", position: { x: 3.2, y: 0, z: 0 }, provenance: "invented_example" }
+    ],
+    pipe_segments: [
+      {
+        id: "pipe:P-1",
+        label: "Run",
+        from: "node:N-1",
+        to: "node:N-2",
+        section: {
+          outside_diameter: { value: 0.168, unit: "m" },
+          wall_thickness: { value: 0.007, unit: "m" }
+        },
+        material: "material:steel",
+        provenance: "invented_example"
+      }
+    ],
+    supports: [
+      { id: "support:S-1", label: "Anchor support", node: "node:N-1", restraints: ["UX", "UY", "UZ"], provenance: "invented_example" }
+    ],
+    components: [],
+    load_cases: [],
+    diagnostics: []
+  };
+}
+
+function intentFor(
+  objectType: EditorOperationIntent["target"]["object_type"],
+  targetRef: string,
+  changeKind: EditorOperationIntent["change"]["change_kind"],
+  fieldPath: string,
+  before: string,
+  after: string,
+  unit: string,
+  dimension: string
+): EditorOperationIntent {
+  return {
+    operation_id: `op:test-${fieldPath.replace(/\./g, "-")}`,
+    operation_kind: "modify",
+    operation_status: "proposed",
+    author_type: "user",
+    target: { object_type: objectType, ref: targetRef },
+    change: {
+      change_id: `change:test-${fieldPath.replace(/\./g, "-")}`,
+      change_kind: changeKind,
+      field_label: fieldPath,
+      field_path: fieldPath,
+      before,
+      after,
+      unit,
+      dimension,
+      source_note: "test"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: "test intent"
+  };
+}
+
+describe("operationService browser-mode engine", () => {
+  it("applies a current quantity edit to a new model document without mutating the input", async () => {
+    const model = sampleModel();
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const intent = intentFor("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "195000000000", "Pa", "stress");
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.application_route).toBe("browser_fixture_local_apply");
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.acceptance.acceptance_basis).toBe("user_initiated_apply_in_local_session");
+    expect(outcome.acceptance.acceptance_is_professional_approval).toBe(false);
+    expect(outcome.applied_model?.materials?.[0].elastic_modulus.value).toBe(195000000000);
+    expect(outcome.applied_model_backend_hash).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(outcome.diff_preview).toHaveLength(1);
+    expect(outcome.diff_preview[0].before).toBe("200000000000");
+    expect(outcome.professional_boundary.software_makes_compliance_claim).toBe(false);
+  });
+
+  it("validates without applying and reports generated diff rows", async () => {
+    const model = sampleModel();
+    const intent = intentFor("Node", "node:N-2", "set_field", "position.x", "3.2", "3.5", "m", "length");
+
+    const outcome = await validateModelOperation(model, intent, null);
+
+    expect(outcome.mode).toBe("validate_only");
+    expect(outcome.validation.application_status).toBe("not_applied");
+    expect(outcome.validation.diff_preview_status).toBe("generated");
+    expect(outcome.applied_model).toBeNull();
+  });
+
+  it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
+    const model = sampleModel();
+
+    const stale = await applyModelOperation(
+      model,
+      intentFor("Material", "material:steel", "set_field", "elastic_modulus.value", "1", "2", "Pa", "stress"),
+      null
+    );
+    expect(stale.validation.application_status).toBe("blocked");
+    expect(stale.validation.before_state_validation).toBe("blocked_stale");
+    expect(stale.diagnostics.map((item) => item.code)).toContain("OP-STALE-BEFORE-VALUE");
+
+    const unitMismatch = await applyModelOperation(
+      model,
+      intentFor("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "29000", "ksi", "stress"),
+      null
+    );
+    expect(unitMismatch.diagnostics.map((item) => item.code)).toContain("OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE");
+
+    const unknownDimension = await applyModelOperation(
+      model,
+      intentFor("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "1", "Pa", "made_up"),
+      null
+    );
+    expect(unknownDimension.diagnostics.map((item) => item.code)).toContain("OP-UNIT-DIMENSION-UNKNOWN");
+  });
+
+  it("applies restraint sets with vocabulary enforcement and reference checks", async () => {
+    const model = sampleModel();
+
+    const applied = await applyModelOperation(
+      model,
+      intentFor("Support", "support:S-1", "update_support", "restraints", "UX, UY, UZ", "UX, UZ", "none", "dimensionless"),
+      null
+    );
+    expect(applied.applied_model?.supports[0].restraints).toEqual(["UX", "UZ"]);
+
+    const invalidToken = await applyModelOperation(
+      model,
+      intentFor("Support", "support:S-1", "update_support", "restraints", "UX, UY, UZ", "FLY", "none", "dimensionless"),
+      null
+    );
+    expect(invalidToken.diagnostics.map((item) => item.code)).toContain("OP-RESTRAINT-TOKEN-INVALID");
+
+    const danglingRef = await applyModelOperation(
+      model,
+      intentFor("Element", "pipe:P-1", "set_field", "material", "material:steel", "material:missing", "none", "dimensionless"),
+      null
+    );
+    expect(danglingRef.diagnostics.map((item) => item.code)).toContain("OP-REFERENCE-NOT-FOUND");
+  });
+
+  it("blocks viewport gesture intents with an explicit geometry finding", async () => {
+    const model = sampleModel();
+    const intent = intentFor("Node", "node:viewport-preview-created", "create_node", "viewport.create_node", "not_present", "node:x", "none", "dimensionless");
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(outcome.validation.application_status).toBe("blocked");
+    expect(outcome.diagnostics.map((item) => item.code)).toContain("OP-GEOMETRY-INPUT-INCOMPLETE");
+  });
+
+  it("echoes claimed model hashes without asserting cross-canonicalization equality", async () => {
+    const model = sampleModel();
+    const intent = intentFor("Material", "material:steel", "set_field", "label", "Invented steel", "Renamed", "none", "dimensionless");
+    const outcome = await validateModelOperation(model, intent, {
+      algorithm: "sha256",
+      canonicalization: "jcs_like_sorted_object_keys",
+      payload_scope: "model_payload",
+      payload_ref: "project:test",
+      value: "sha256:abc",
+      hash_status: "computed_local_preview"
+    });
+
+    expect(outcome.model_basis.claimed_model_hash).toBe("sha256:abc");
+    expect(outcome.model_basis.binding_status).toBe("claimed_hash_echoed_cross_canonicalization_equality_not_evaluated");
+    expect(outcome.model_basis.backend_model_hash).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+});

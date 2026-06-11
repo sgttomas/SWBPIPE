@@ -13,14 +13,24 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from core.constraints.validation.engine import (  # noqa: E402
+    CANONICAL_DIMENSIONS as CONSTRAINT_CANONICAL_DIMENSIONS,
+)
+from core.gui.pkg02_boundary import (  # noqa: E402
+    CANONICAL_DIMENSIONS as GUI_CANONICAL_DIMENSIONS,
+)
 from core.model_operations.validation_preview import (  # noqa: E402
     canonical_json,
     validate_and_preview_operations,
+)
+from core.model_operations.validation_preview.engine import (  # noqa: E402
+    CANONICAL_DIMENSIONS,
 )
 
 
 OPERATION_FIXTURE = ROOT / "fixtures" / "model_operations" / "invented_operation_set_valid.json"
 MODEL_STATE_FIXTURE = ROOT / "fixtures" / "model_operations" / "invented_accepted_model_state.json"
+UNITS_SCHEMA = ROOT / "schemas" / "units.schema.yaml"
 
 
 def ref(object_type, value):
@@ -89,6 +99,29 @@ def test_unknown_dimension_blocks_unit_validation():
     assert "OP-UNIT-DIMENSION-UNKNOWN" in codes
     assert result["validation"]["unit_validation"] == "blocked"
     assert result["validation"]["diff_preview_status"] == "blocked_by_validation"
+
+
+def test_force_per_length_dimension_is_accepted_in_quantity_payloads():
+    change = quantity_change()
+    change["value_payload"]["quantity_values"][0].update(
+        {"value": 250.0, "unit": "N/m", "dimension": "force_per_length"}
+    )
+    result = validate_and_preview_operations(operation_envelope(change), model_state())
+
+    codes = {item["code"] for item in result["diagnostics"]}
+    assert "OP-UNIT-DIMENSION-UNKNOWN" not in codes
+    assert "OP-UNIT-METADATA-MISSING" not in codes
+    assert result["validation"]["unit_validation"] == "passed"
+    assert result["validation"]["diff_preview_status"] == "generated"
+
+
+def test_canonical_dimensions_match_accepted_pkg02_vocabulary():
+    with UNITS_SCHEMA.open(encoding="utf-8") as schema_file:
+        accepted = json.load(schema_file)["$defs"]["DimensionId"]["enum"]
+
+    assert CANONICAL_DIMENSIONS == set(accepted)
+    assert CONSTRAINT_CANONICAL_DIMENSIONS == set(accepted)
+    assert list(GUI_CANONICAL_DIMENSIONS) == accepted
 
 
 def test_unresolved_target_and_constraint_findings_are_blocking():
@@ -160,6 +193,8 @@ def main():
     test_valid_operation_generates_stable_preview_without_mutating_state()
     test_missing_unit_metadata_blocks_preview()
     test_unknown_dimension_blocks_unit_validation()
+    test_force_per_length_dimension_is_accepted_in_quantity_payloads()
+    test_canonical_dimensions_match_accepted_pkg02_vocabulary()
     test_unresolved_target_and_constraint_findings_are_blocking()
     test_direct_mutation_request_is_rejected()
     test_schema_invalid_envelope_cannot_report_schema_passed()

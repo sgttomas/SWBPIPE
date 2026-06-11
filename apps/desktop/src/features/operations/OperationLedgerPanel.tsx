@@ -103,7 +103,8 @@ export function OperationLedgerPanel({
         </p>
       )}
       <small className="report-note">
-        Operation ledger records are local review evidence only; this panel does not apply operations or create professional acceptance.
+        Operation ledger records are local review evidence only; this panel does not apply operations. Application runs
+        through the structured apply seam (Apply Operations panel) and never creates professional acceptance.
       </small>
     </section>
   );
@@ -167,7 +168,7 @@ function buildOperationReviewLedger({
     unresolved_tbd: [
       "durable operation audit persistence container",
       "final actor identity model",
-      "operation application outside technical preview"
+      "durable applied-operation receipt persistence (session receipts only until the model-document persistence tranche)"
     ],
     data_boundary: model.data_boundary,
     private_payload_included: false,

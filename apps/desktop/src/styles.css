@@ -1349,3 +1349,47 @@ th {
     grid-template-columns: 270px minmax(460px, 1fr) 320px;
   }
 }
+
+.operation-apply-panel .muted {
+  margin-bottom: 8px;
+}
+
+.operation-apply-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.operation-apply-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.operation-apply-actions button:disabled {
+  color: #8a948f;
+  cursor: not-allowed;
+}
+
+.operation-outcome {
+  display: grid;
+  gap: 3px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #d9dfdb;
+}
+
+.panel-subtitle {
+  margin-top: 10px;
+  color: #59645f;
+  font-size: 11px;
+  text-transform: uppercase;
+}
