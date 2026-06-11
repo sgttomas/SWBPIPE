@@ -1,9 +1,10 @@
 # WORKING_ITEMS run — TP-SEAM-WASM-001 (plan T3) WIP handoff
 
 **Date:** 2026-06-11
-**Status:** WIP_HANDOFF — tranche NOT complete; session paused by the human
-project authority for context-window handoff. This record is handoff prose
-only; it cites the authoritative surfaces below and replaces none of them.
+**Status:** WIP_HANDOFF — superseded same day: the tranche was resumed and
+completed; see `WORKING_ITEMS_RUN_2026-06-11_t3_wasm_enablement_completion.md`
+(this folder). This record remains handoff prose only; it cites the
+authoritative surfaces below and replaces none of them.
 **Plan:** `plans/PLAN_2026-06-11_operation_seam_unification.md` §3 T3
 (accepted; D-13 RULED 2026-06-11 → `DEC-020`, ADR-0001).
 

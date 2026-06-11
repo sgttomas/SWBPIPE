@@ -13,6 +13,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — Operation-seam plan T3: wasm build enablement (`TP-SEAM-WASM-001`)
+
+The wasm32 build of `core/model_operations/operation_applier` is now a
+working browser-loadable engine with proven parity. Landed across two
+sessions (scaffolding committed as `wip(seam-T3)` at handoff, then resumed):
+feature-gated `wasm` wasm-bindgen JSON-string exports
+(`validate_operation_json` / `apply_operation_json`; native build and suite
+unaffected); `apps/desktop/scripts/build-wasm-engine.mjs` +
+`build:wasm` / `build:wasm:desktop` npm scripts (prerequisite checks with
+exact remediation commands — wasm32 target, wasm-bindgen CLI pinned to the
+crate's =0.2.123 — and gitignored `__generated__/` output, never committed);
+a loading shim whose absent-artifact failure is the named diagnostic
+`WASM-ENGINE-ASSET-ABSENT` with the build command (no silent fallback, no
+fallback engine); and the corpus wasm lane in
+`operationContractCorpus.test.ts`.
+
+The plan §3 first-task spike — the 44-case corpus through the wasm engine
+under Vitest/jsdom — succeeded; the §6 stop rule did not fire and no TS
+fallback was written. Two environment-fit fixes only, both artifact
+location/typing (engine semantics untouched): Node-branch path probing for
+the wasm bytes (Vite's test transform rewrites `import.meta.url` to a
+root-relative file URL, breaking module-relative resolution; loud failure
+now lists every probed path) and a `Uint8Array<ArrayBuffer>` copy for
+`BufferSource` typing (also fixed a latent `tsc -b` failure in the WIP
+shim, caught by this tranche's production-build evidence).
+
+Result: three-way native↔wasm↔TS parity — identical semantic outcomes and
+identical corpus-harness canonical sha256 hashes — so hash evidence does not
+fork by environment. Wasm-lane extras: honest `local_wasm_engine` route
+assertion; structured input-error envelope
+(`WASM-ENGINE-INPUT-JSON-INVALID`) instead of a trap.
+`docs/BUILD_AND_RELEASE.md` §3 records the engine identity, toolchain
+prerequisites, and build step.
+
+Evidence: `cargo test` 36/36 (native unchanged); `npm run build:wasm:desktop`
+OK; `npm test --workspace apps/desktop` 151/151 (46 wasm-lane); desktop
+production build green (index chunk at the ~577 kB baseline — the engine is
+dynamically loaded, not bundled). Primary record:
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/_run_records/WORKING_ITEMS_RUN_2026-06-11_t3_wasm_enablement_completion.md`
+(WIP handoff record superseded in the same folder; fan-out records at
+DEL-00-08 and DEL-16-02).
+
 ## 2026-06-11 — Operation-seam plan T1: cross-engine contract corpus + handoff rider (`TP-SEAM-CORPUS-001`)
 
 The editor-operation seam now has an executable cross-engine contract: 44

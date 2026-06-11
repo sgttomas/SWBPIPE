@@ -52,6 +52,16 @@ validation helpers live under `tests/` and `tools/`.
 The provider-neutral readiness script therefore discovers existing manifests
 instead of assuming a future workspace layout.
 
+The browser-mode operation engine is the wasm32 build of
+`core/model_operations/operation_applier` (`DEC-020` / ADR-0001): building the
+desktop app for browser-mode use requires the `wasm32-unknown-unknown` Rust
+target and the `wasm-bindgen` CLI at exactly the version pinned in that crate's
+`Cargo.toml`, and the artifact is produced by
+`npm run build:wasm --workspace apps/desktop` (generated under
+`apps/desktop/src/services/wasmEngine/__generated__/`, never committed; the
+script fails with explicit remediation commands when a prerequisite is
+missing).
+
 ```bash
 python3 tools/release/check_release_readiness.py --profile skeleton
 python3 tools/release/check_release_readiness.py --profile skeleton --execute

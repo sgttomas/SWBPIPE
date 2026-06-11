@@ -35,6 +35,44 @@ function absenceError(stage: string, detail: string): Error {
   );
 }
 
+// Node / Vitest: locate the generated wasm bytes on disk. Vite's test
+// transform rewrites `import.meta.url` to a root-relative file URL
+// (`file:///src/...`), so module-relative resolution alone is unreliable;
+// probe the deterministic candidates and fail loudly listing every probed
+// path. This probes locations of ONE artifact — it is not an engine fallback.
+async function readWasmBytesUnderNode(): Promise<Uint8Array<ArrayBuffer>> {
+  const fsSpecifier = "node:fs/promises";
+  const pathSpecifier = "node:path";
+  const urlSpecifier = "node:url";
+  const { readFile } = (await import(/* @vite-ignore */ fsSpecifier)) as typeof import("node:fs/promises");
+  const path = (await import(/* @vite-ignore */ pathSpecifier)) as typeof import("node:path");
+  const { fileURLToPath } = (await import(/* @vite-ignore */ urlSpecifier)) as typeof import("node:url");
+
+  const candidates: string[] = [];
+  try {
+    // Real ESM: the module's own directory.
+    candidates.push(path.join(path.dirname(fileURLToPath(import.meta.url)), "__generated__", GENERATED_WASM_FILENAME));
+  } catch {
+    // import.meta.url is not a parseable file URL under this transform.
+  }
+  // Vitest with cwd at the desktop workspace, and runs from the repo root.
+  candidates.push(path.resolve(process.cwd(), "src", "services", "wasmEngine", "__generated__", GENERATED_WASM_FILENAME));
+  candidates.push(
+    path.resolve(process.cwd(), "apps", "desktop", "src", "services", "wasmEngine", "__generated__", GENERATED_WASM_FILENAME)
+  );
+
+  for (const candidate of candidates) {
+    try {
+      // Copy into a fresh Uint8Array: Node's Buffer is typed over
+      // ArrayBufferLike, which BufferSource rejects.
+      return new Uint8Array(await readFile(candidate));
+    } catch {
+      // Probe the next candidate; absence is reported below with all paths.
+    }
+  }
+  throw absenceError("wasm artifact not found on disk", `probed: ${candidates.join(", ")}`);
+}
+
 async function instantiate(): Promise<WasmOperationEngine> {
   let glue: GeneratedGlueModule;
   try {
@@ -46,13 +84,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
   const runningUnderNode = typeof process !== "undefined" && Boolean(process.versions?.node);
   try {
     if (runningUnderNode) {
-      // Node / Vitest (including jsdom environments): load the wasm bytes
-      // from disk next to the generated glue; no fetch is available for
-      // file URLs there.
-      const fsSpecifier = "node:fs/promises";
-      const { readFile } = (await import(/* @vite-ignore */ fsSpecifier)) as typeof import("node:fs/promises");
-      const wasmUrl = new URL(`./__generated__/${GENERATED_WASM_FILENAME}`, import.meta.url);
-      const bytes = await readFile(wasmUrl);
+      const bytes = await readWasmBytesUnderNode();
       await glue.default({ module_or_path: bytes });
     } else {
       // Real browser: the wasm-bindgen web-target default path fetches the
