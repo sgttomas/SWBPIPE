@@ -189,6 +189,11 @@ type CreatedCombinationTerm = {
   term: { load_case: string; factor: number };
 };
 
+type DeletedCombinationTerm = {
+  combinationId: string;
+  termIndex: number;
+};
+
 function pushDiagnostic(
   checker: LocalChecker,
   code: string,
@@ -260,6 +265,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && changeKind === "create_combination_term") {
     createdCombinationTerm = resolveCreateCombinationTerm(modelDocument, targetRef, intent, checker);
   }
+  let deletedCombinationTerm: DeletedCombinationTerm | null = null;
+  if (!checker.schemaBlocked && changeKind === "delete_combination_term") {
+    deletedCombinationTerm = resolveDeleteCombinationTerm(modelDocument, targetRef, intent, checker);
+  }
 
   const blocking = hasBlocking(checker);
   const diffPreview: OperationDiffPreviewRow[] =
@@ -276,7 +285,13 @@ async function runLocalOperation(
             change_kind: changeKind
           }
           ]
-      : (createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad || createdCombinationTerm) && !blocking
+      : (createdNode ||
+            createdPipe ||
+            createdLoadCase ||
+            createdPrimitiveLoad ||
+            createdCombinationTerm ||
+            deletedCombinationTerm) &&
+          !blocking
         ? [
             {
               entity_ref: targetRef,
@@ -296,7 +311,13 @@ async function runLocalOperation(
   if (
     mode === "apply" &&
     !blocking &&
-    (resolved || createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad || createdCombinationTerm)
+    (resolved ||
+      createdNode ||
+      createdPipe ||
+      createdLoadCase ||
+      createdPrimitiveLoad ||
+      createdCombinationTerm ||
+      deletedCombinationTerm)
   ) {
     const nextModel = JSON.parse(JSON.stringify(modelDocument)) as Record<string, unknown>;
     const applied = resolved
@@ -311,7 +332,9 @@ async function runLocalOperation(
               ? applyCreatedPrimitiveLoad(nextModel, createdPrimitiveLoad)
               : createdCombinationTerm
                 ? applyCreatedCombinationTerm(nextModel, createdCombinationTerm)
-            : false;
+                : deletedCombinationTerm
+                  ? applyDeletedCombinationTerm(nextModel, deletedCombinationTerm)
+                  : false;
     if (applied) {
       appliedModelHash = await localHash(nextModel);
       appliedModel = nextModel as unknown as PreviewModel;
@@ -453,6 +476,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
     "create_load_case",
     "create_primitive_load",
     "create_combination_term",
+    "delete_combination_term",
     "insert_component_symbol"
   ];
   if (!supported.includes(changeKind)) {
@@ -474,6 +498,8 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
         changeKind === "create_primitive_load" ||
         changeKind === "create_combination_term"
       ? "create"
+      : changeKind === "delete_combination_term"
+        ? "delete"
       : changeKind === "connect_pipe_run"
         ? "connect"
         : "insert";
@@ -1385,6 +1411,131 @@ function resolveCreateCombinationTerm(
   return { combinationId: targetRef, term: { load_case: loadCase, factor } };
 }
 
+function resolveDeleteCombinationTerm(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): DeletedCombinationTerm | null {
+  if (intent.target.object_type !== "Combination") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-DELETE-COMBINATION-TERM-SHAPE-INVALID",
+      "blocking",
+      "Delete-combination-term intents must target object_type `Combination`.",
+      "Refresh the combination-term delete intent from the explicit Load Cases manager form.",
+      [targetRef]
+    );
+    return null;
+  }
+  const termIndex = combinationTermIndexFromFieldPath(intent.change.field_path);
+  if (termIndex === null) {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-DELETE-COMBINATION-TERM-SHAPE-INVALID",
+      "blocking",
+      "Delete-combination-term intents must target an indexed field_path like `terms.2`.",
+      "Refresh the combination-term delete intent from the selected combination term row.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.after !== "not_present") {
+    checker.beforeState = "blocked_stale";
+    pushDiagnostic(
+      checker,
+      "OP-DELETE-AFTER-VALUE-INVALID",
+      "blocking",
+      "Delete-combination-term intents must use after-value `not_present`.",
+      "Re-queue the delete intent from the selected combination term row.",
+      [targetRef]
+    );
+    return null;
+  }
+  checker.unitState = "passed";
+  if (intent.change.unit !== "none") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match stored unit \`none\` for combination term deletion.`,
+      "Delete combination terms with unit `none`; term factors are dimensionless scalars.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "dimensionless") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Delete-combination-term dimension \`${intent.change.dimension}\` must be \`dimensionless\`.`,
+      "Emit combination-term deletion with dimensionless metadata.",
+      [targetRef]
+    );
+    return null;
+  }
+  const combination = findEntity(model, "combinations", targetRef);
+  if (!combination) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-NOT-FOUND",
+      "blocking",
+      `Combination \`${targetRef}\` was not found in the current model.`,
+      "Select an existing combination before deleting a term.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (!Array.isArray(combination.terms)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-COMBINATION-TERMS-MISSING",
+      "blocking",
+      `Combination \`${targetRef}\` does not expose a terms array.`,
+      "Repair the model document before deleting combination terms.",
+      [targetRef]
+    );
+    return null;
+  }
+  const term = combination.terms[termIndex];
+  if (!term) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-COMBINATION-TERM-NOT-FOUND",
+      "blocking",
+      `Combination \`${targetRef}\` does not have a term at index ${termIndex}.`,
+      "Re-queue the delete intent from the current combination term list.",
+      [targetRef]
+    );
+    return null;
+  }
+  const loadCase = stringPayload(term as Record<string, unknown>, "load_case");
+  const factor = numericPayload(term as Record<string, unknown>, "factor");
+  if (!loadCase || factor === null) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-COMBINATION-TERM-PAYLOAD-INVALID",
+      "blocking",
+      `Combination \`${targetRef}\` term ${termIndex} is not a valid { load_case, factor } record.`,
+      "Repair the model document before deleting combination terms.",
+      [targetRef]
+    );
+    return null;
+  }
+  checker.referenceState = "passed";
+  checkBefore(combinationTermDisplay({ load_case: loadCase, factor }), intent.change.before, targetRef, intent.change.field_path, checker);
+  return { combinationId: targetRef, termIndex };
+}
+
 function resolveField(
   model: Record<string, unknown>,
   objectType: string,
@@ -1804,6 +1955,14 @@ function applyCreatedCombinationTerm(model: Record<string, unknown>, created: Cr
   return true;
 }
 
+function applyDeletedCombinationTerm(model: Record<string, unknown>, deleted: DeletedCombinationTerm): boolean {
+  const combination = findEntity(model, "combinations", deleted.combinationId);
+  if (!combination || !Array.isArray(combination.terms)) return false;
+  if (deleted.termIndex < 0 || deleted.termIndex >= combination.terms.length) return false;
+  combination.terms.splice(deleted.termIndex, 1);
+  return true;
+}
+
 function stepInto(value: unknown, segment: string): unknown {
   if (Array.isArray(value)) {
     const index = Number.parseInt(segment, 10);
@@ -1823,6 +1982,17 @@ function stringPayload(record: Record<string, unknown>, key: string): string {
 function numericPayload(record: Record<string, unknown>, key: string): number | null {
   const value = record[key];
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function combinationTermIndexFromFieldPath(fieldPath: string): number | null {
+  const match = /^terms\.(\d+)$/.exec(fieldPath);
+  if (!match) return null;
+  const index = Number.parseInt(match[1], 10);
+  return Number.isSafeInteger(index) ? index : null;
+}
+
+function combinationTermDisplay(term: { load_case: string; factor: number }): string {
+  return `${term.load_case} x ${String(term.factor)}`;
 }
 
 function quantityPayload(record: Record<string, unknown>, path: string[], expectedUnit: string): number | null {

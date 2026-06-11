@@ -690,6 +690,73 @@ describe("operationService browser-mode engine", () => {
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-COMBINATION-TERM-LOAD-NOT-FOUND");
   });
 
+  it("applies explicit combination term deletion without whole terms replacement", async () => {
+    const model = sampleModel();
+    model.combinations = [
+      {
+        id: "combination:C-OP",
+        label: "Operating",
+        basis: "mechanics",
+        terms: [
+          { load_case: "load:L-1", factor: 0.25 },
+          { load_case: "load:L-2", factor: 1 }
+        ],
+        provenance: "invented_example"
+      }
+    ];
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const intent = intentFor(
+      "Combination",
+      "combination:C-OP",
+      "delete_combination_term",
+      "terms.0",
+      "load:L-1 x 0.25",
+      "not_present",
+      "none",
+      "dimensionless"
+    );
+    intent.operation_kind = "delete";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.diagnostics).toEqual([]);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.before_state_validation).toBe("passed");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.applied_model?.combinations?.[0].terms).toEqual([{ load_case: "load:L-2", factor: 1 }]);
+
+    const stale = intentFor(
+      "Combination",
+      "combination:C-OP",
+      "delete_combination_term",
+      "terms.0",
+      "load:L-1 x 1",
+      "not_present",
+      "none",
+      "dimensionless"
+    );
+    stale.operation_kind = "delete";
+    const staleOutcome = await applyModelOperation(model, stale, null);
+    expect(staleOutcome.validation.application_status).toBe("blocked");
+    expect(staleOutcome.diagnostics.map((item) => item.code)).toContain("OP-STALE-BEFORE-VALUE");
+
+    const missingTerm = intentFor(
+      "Combination",
+      "combination:C-OP",
+      "delete_combination_term",
+      "terms.9",
+      "load:L-9 x 1",
+      "not_present",
+      "none",
+      "dimensionless"
+    );
+    missingTerm.operation_kind = "delete";
+    const blocked = await applyModelOperation(model, missingTerm, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-COMBINATION-TERM-NOT-FOUND");
+  });
+
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
     const model = sampleModel();
 

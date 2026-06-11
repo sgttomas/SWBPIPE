@@ -89,6 +89,28 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-11 - TP-APP-R2-COMBTERMDELETE-001 combination term deletion editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with
+  a selected-term delete control for existing load combinations.
+- The app test selects `combination:C-OPER-ALT` term 1, queues and applies
+  `op:load-manager-combination:C-OPER-ALT-term-1-delete`, verifies
+  `load:L-200 x 0.5` is removed from the manager/property-inspector view, and
+  verifies `load:L-100 x 1` remains.
+- The rendered preview records `after=not_present`, unit `none`, dimension
+  `dimensionless`, `direct_model_mutation_allowed=false`, and
+  `professional_approval=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_deletion_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-105. Validation passed:
+  operation-applier format check, Rust operation-applier tests 33/33,
+  src-tauri Rust tests 26/26, desktop Vitest 56/56, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-term deletion smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
 
 - WORKING_ITEMS app-integration tranche extended the Load Cases manager with

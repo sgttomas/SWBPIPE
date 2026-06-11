@@ -130,6 +130,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
     "before=0.5; after=0.75"
   );
+  await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-term-1-delete"
+  );
+  await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
+    "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
+  );
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();

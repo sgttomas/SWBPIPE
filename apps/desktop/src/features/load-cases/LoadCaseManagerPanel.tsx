@@ -1,4 +1,4 @@
-import { ListPlus, Scale, SlidersHorizontal } from "lucide-react";
+import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 
@@ -97,6 +97,7 @@ export function LoadCaseManagerPanel({
   const currentCombinationFactor = selectedCombinationTerm ? combinationTermFactorDisplay(selectedCombinationTerm.term) : "";
   const [proposedCombinationFactor, setProposedCombinationFactor] = useState(currentCombinationFactor);
   const [combinationRationale, setCombinationRationale] = useState("user_entered_combination_factor_preview_change");
+  const [combinationDeleteRationale, setCombinationDeleteRationale] = useState("user_entered_combination_term_delete_preview_change");
   const currentCombinationBasis = selectedCombination?.basis ?? "";
   const [proposedCombinationBasis, setProposedCombinationBasis] = useState(currentCombinationBasis);
   const [combinationBasisRationale, setCombinationBasisRationale] = useState("user_entered_combination_basis_preview_change");
@@ -140,6 +141,14 @@ export function LoadCaseManagerPanel({
           termView: selectedCombinationTerm,
           proposedFactor: proposedCombinationFactor,
           rationale: combinationRationale
+        })
+      : null;
+  const combinationDeleteIntent =
+    selectedCombinationTerm && combinationDeleteRationale.trim()
+      ? buildDeleteCombinationTermIntent({
+          model,
+          termView: selectedCombinationTerm,
+          rationale: combinationDeleteRationale
         })
       : null;
   const combinationBasisChanged = selectedCombination
@@ -208,6 +217,7 @@ export function LoadCaseManagerPanel({
   useEffect(() => {
     setProposedCombinationFactor(currentCombinationFactor);
     setCombinationRationale("user_entered_combination_factor_preview_change");
+    setCombinationDeleteRationale("user_entered_combination_term_delete_preview_change");
   }, [currentCombinationFactor, selectedCombinationTermKey]);
 
   useEffect(() => {
@@ -878,6 +888,32 @@ export function LoadCaseManagerPanel({
               ? `${combinationIntent.operation_id}; before=${combinationIntent.change.before}; after=${combinationIntent.change.after}; unit=${combinationIntent.change.unit}; ${combinationIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentCombinationFactor}; no changed combination factor queued`}
           </p>
+          <div className="combination-delete-controls">
+            <label>
+              <span>Delete rationale</span>
+              <input
+                aria-label="Combination term delete rationale"
+                data-testid="load-manager-combination-delete-rationale"
+                onChange={(event) => setCombinationDeleteRationale(event.target.value)}
+                value={combinationDeleteRationale}
+              />
+            </label>
+            <button
+              data-testid="queue-delete-combination-term-intent"
+              disabled={!combinationDeleteIntent}
+              onClick={() => combinationDeleteIntent && onQueueIntent(combinationDeleteIntent)}
+              title="Queue combination-term delete operation"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-combination-delete-preview">
+            {combinationDeleteIntent
+              ? `${combinationDeleteIntent.operation_id}; before=${combinationDeleteIntent.change.before}; after=${combinationDeleteIntent.change.after}; unit=${combinationDeleteIntent.change.unit}; ${combinationDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : "select a combination term and provide rationale to queue deletion"}
+          </p>
         </section>
       ) : null}
 
@@ -1414,6 +1450,67 @@ function buildCombinationFactorIntent({
   };
 }
 
+function buildDeleteCombinationTermIntent({
+  model,
+  termView,
+  rationale
+}: {
+  model: PreviewModel;
+  termView: CombinationTermView;
+  rationale: string;
+}): EditorOperationIntent {
+  const fieldPath = `terms.${termView.index}`;
+  const operationToken = `${safeToken(termView.combination.id)}-term-${termView.index}-delete`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "delete",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Combination",
+      ref: termView.combination.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "delete_combination_term",
+      field_label: `${combinationTermLoadCase(termView.term)} combination term`,
+      field_path: fieldPath,
+      before: combinationTermDisplay(termView.term),
+      after: "not_present",
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered combination term deletion; existing indexed term only"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `combination term delete intent for ${model.project.id}`
+  };
+}
+
 function primitiveLoadViews(model: PreviewModel): PrimitiveLoadView[] {
   return model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((load, index) => ({
@@ -1529,6 +1626,10 @@ function combinationTermLoadCase(term: CombinationTerm): string {
 
 function combinationTermFactorDisplay(term: CombinationTerm): string {
   return String(term.factor);
+}
+
+function combinationTermDisplay(term: CombinationTerm): string {
+  return `${combinationTermLoadCase(term)} x ${combinationTermFactorDisplay(term)}`;
 }
 
 function primitiveId(load: PrimitiveLoad): string {

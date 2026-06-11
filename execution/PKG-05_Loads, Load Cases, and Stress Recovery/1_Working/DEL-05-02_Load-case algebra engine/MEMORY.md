@@ -219,6 +219,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, or private data changed.
 
+## 2026-06-11 - TP-APP-R2-COMBTERMDELETE-001 combination term deletion editor
+
+- WORKING_ITEMS app-integration tranche added explicit indexed deletion for
+  existing combination terms in the desktop Load Cases manager. No
+  `core/loads/load_case_algebra` source behavior changed.
+- The manager queues structured `delete_combination_term` intents for
+  `Combination.terms.N` with a current before-value, `after=not_present`, unit
+  `none`, dimension `dimensionless`, local-session audit metadata, and no
+  professional approval claim.
+- The tested preview edit removes `combination:C-OPER-ALT` term 1
+  (`load:L-200 x 0.5`) while preserving `load:L-100 x 1`. Whole-term
+  replacement, code/rule combinations, and broader algebra authoring remain
+  outside this tranche.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_deletion_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-105. Validation passed:
+  operation-applier format check, Rust operation-applier tests 33/33,
+  src-tauri Rust tests 26/26, desktop Vitest 56/56, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over
+  `combination:C-OPER-ALT`.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.
+
 ## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
 
 - WORKING_ITEMS app-integration tranche added explicit child-term creation

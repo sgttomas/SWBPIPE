@@ -359,7 +359,7 @@ export type EditorOperationSource = {
 export type EditorOperationIntent = {
   queue_id?: string;
   operation_id: string;
-  operation_kind: "create" | "connect" | "insert" | "modify";
+  operation_kind: "create" | "connect" | "delete" | "insert" | "modify";
   operation_status: "proposed";
   author_type: "user";
   source?: EditorOperationSource;
@@ -378,6 +378,7 @@ export type EditorOperationIntent = {
       | "create_load_case"
       | "create_primitive_load"
       | "create_combination_term"
+      | "delete_combination_term"
       | "insert_component_symbol";
     field_label: string;
     field_path: string;

@@ -2342,6 +2342,48 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an explicit combination term deletion through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    const termRow = within(manager).getByTestId("load-manager-combination-term-combination:C-OPER-ALT-1");
+    expect(termRow.textContent).toContain("load:L-200 x 0.5");
+    fireEvent.click(termRow);
+
+    expect(within(manager).getByTestId("load-manager-combination-delete-preview").textContent).toContain(
+      "op:load-manager-combination:C-OPER-ALT-term-1-delete"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-delete-preview").textContent).toContain(
+      "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-delete-combination-term-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain("terms.1");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "not_present"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-combination:C-OPER-ALT-term-1-delete"
+      )
+    );
+
+    const combinationRow = within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT");
+    expect(combinationRow.textContent).toContain("load:L-100 x 1");
+    expect(combinationRow.textContent).not.toContain("load:L-200 x 0.5");
+    const inspector = screen.getByLabelText("Property inspector");
+    expect(inspector.textContent).toContain("load:L-100 x 1");
+    expect(inspector.textContent).not.toContain("load:L-200 x 0.5");
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 

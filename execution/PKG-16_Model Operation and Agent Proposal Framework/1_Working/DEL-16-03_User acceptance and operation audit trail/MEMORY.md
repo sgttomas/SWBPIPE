@@ -140,6 +140,30 @@ Durable context preserved after PKG-02 grounded finding resolution:
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
 
+## 2026-06-11 - TP-APP-R2-COMBTERMDELETE-001 combination term deletion editor
+
+- WORKING_ITEMS app-integration tranche verified that combination-term
+  deletion enters the model only after the user queues and applies a
+  structured operation in the local session.
+- The app test applies
+  `op:load-manager-combination:C-OPER-ALT-term-1-delete` through
+  `OperationApplyPanel`, removes only the indexed term, leaves
+  `load:L-100 x 1` present, clears pending operations, records
+  `applied_operations=1`, and resets solve state to `not_started`.
+- The browser smoke repeated the queue/apply path and observed no console
+  errors. Persistence remains session-only until explicit Save, and no
+  professional approval claim is recorded.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_deletion_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-105. Validation passed:
+  operation-applier format check, Rust operation-applier tests 33/33,
+  src-tauri Rust tests 26/26, desktop Vitest 56/56, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-term deletion smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.
+
 ## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
 
 - WORKING_ITEMS app-integration tranche verified that combination term

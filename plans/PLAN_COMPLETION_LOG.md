@@ -11,6 +11,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 twelfth sub-slice: combination term deletion editor (`TP-APP-R2-COMBTERMDELETE-001`)
+
+The Load Cases manager now exposes explicit deletion for a selected existing
+combination term. The delete control appears in the selected-term editor,
+captures a rationale, and queues a structured `delete_combination_term`
+operation with `field_path=terms.N`, `before=<load_case> x <factor>`,
+`after=not_present`, unit `none`, and dimension `dimensionless`. The operation
+removes one indexed term only; whole-term replacement, code/rule combinations,
+and broader algebra authoring remain deferred.
+
+The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now validate, diff, and apply
+`delete_combination_term` payloads. Accepted intents must target an existing
+`Combination`, address an existing term index, carry a before-value matching
+the current term display, preserve structured-operation audit boundaries, and
+emit no professional approval claim. Stale before-values, out-of-range
+indices, invalid unit/dimension metadata, and missing combination `terms`
+arrays are blocked.
+
+The app-level regression selects `combination:C-OPER-ALT` term 1, queues
+`op:load-manager-combination:C-OPER-ALT-term-1-delete`, applies it through
+`OperationApplyPanel`, and verifies `load:L-200 x 0.5` is removed while
+`load:L-100 x 1` remains. The Playwright R2 smoke verifies the rendered delete
+preview without applying so the solve/results/report path remains on the
+unchanged fixture model.
+
+In-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-combination:C-OPER-ALT-term-1-delete` and confirmed
+`load:L-200 x 0.5` was no longer visible in the combination row, zero pending
+operations, `applied_operations=1`, solve state `not_started`, and no browser
+console errors.
+
+Residuals remain in A4: broader algebra authoring, Phase B unit picker/display
+retirement, and packaged-Tauri saved-project smoke over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-105;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_deletion_editor.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 eleventh sub-slice: combination term creation editor (`TP-APP-R2-COMBTERMCREATE-001`)
 
 The Load Cases manager now exposes explicit child-term creation for existing
