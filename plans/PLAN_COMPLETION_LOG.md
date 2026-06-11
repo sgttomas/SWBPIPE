@@ -11,6 +11,26 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A8 first sub-slice: Playwright R2 smoke harness (`TP-APP-R2-PLAYWRIGHT-001`)
+
+The desktop workspace now has a Playwright harness and root script
+`npm run test:e2e:desktop`. The first smoke test runs the technical-preview
+fixture through initial shell checks, local-only boundary checks, a nonblank
+and animated Three.js viewport assertion, mechanics preview solve,
+`result_rows=647`, viewport displacement-overlay availability, result
+filtering/detail inspection for `pipe:P-120`, and deterministic report-packet
+export checks.
+
+Vitest is scoped to `src/**/*.test.{ts,tsx}` so the unit suite and Playwright
+suite remain separate. Playwright local output directories are ignored.
+
+Residuals remain in A8: authored create/edit -> solve -> report automation,
+full manual SMOKE checklist parity, packaged Tauri saved-project solve smoke,
+and CI browser provisioning policy.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-90;
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_run_records/WORKING_ITEMS_RUN_2026-06-11_playwright_r2_smoke_harness.md`.
+
 ## 2026-06-11 — A6 first sub-slice: viewport displacement overlay (`TP-APP-R2-DEFORMEDVIEW-001`)
 
 The Three.js viewport now consumes the current mechanics result and renders a

@@ -9,6 +9,7 @@
     "dev:desktop": "npm run dev --workspace apps/desktop",
     "build:desktop": "npm run build --workspace apps/desktop",
     "test:desktop": "npm test --workspace apps/desktop",
+    "test:e2e:desktop": "npm run test:e2e --workspace apps/desktop",
     "generate:product-preview-mechanics": "cargo run --quiet --manifest-path core/product_physics/Cargo.toml --example preview_result > fixtures/product_preview/invented_mechanics_result.json"
   }
 }

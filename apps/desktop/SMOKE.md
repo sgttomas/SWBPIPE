@@ -2629,3 +2629,29 @@ after the timestamp marker were absent.
   magnitudes only. It is not a physical directional deformed-shape solver, not
   a validation plot, not a professional acceptance record, and not a release,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-90 playwright-r2-smoke-harness (2026-06-11)
+
+- Tranche: `TP-APP-R2-PLAYWRIGHT-001` (completion plan Phase A8 first
+  sub-slice) adding a Playwright harness for the desktop technical preview.
+  The root script `npm run test:e2e:desktop` delegates to the desktop
+  workspace and runs `apps/desktop/e2e/r2-smoke.spec.ts` against a Vite dev
+  server on `127.0.0.1:5174`.
+- Automated coverage: initial shell and local-only boundary signals,
+  nonblank/changing Three.js viewport canvas, mechanics preview solve,
+  `result_rows=647`, viewport displacement-overlay availability, result
+  filtering and result-detail metadata for `pipe:P-120`, and deterministic
+  report-packet export fields including false private/protected/release
+  flags.
+- Local validation: `npm run test:e2e:desktop` passed with 1/1 Playwright
+  tests using the `chromium-desktop` project; `npm test --workspace
+  apps/desktop` passed with 31/31 Vitest tests after scoping Vitest to
+  `src/**/*.test.{ts,tsx}`; `npm run build --workspace apps/desktop` passed
+  through `tsc -b` and Vite production build; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this first harness slice is a regression spine over the existing
+  invented preview fixture. It does not yet automate authored model creation
+  from a blank project, packaged Tauri saved-project solve, full manual SMOKE
+  checklist parity, CI browser provisioning, protected/private data handling,
+  release readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claims.
