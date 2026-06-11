@@ -446,6 +446,8 @@ export type LocalProjectSummary = {
   persisted_analysis_run_ref: string;
   persisted_model_hash_count: number;
   persisted_model_hash_ref: string;
+  persisted_project_envelope_hash_count: number;
+  persisted_project_envelope_hash_ref: string;
   message: string;
 };
 
@@ -474,6 +476,24 @@ export type ModelHashIntegrityEvidence = {
   verification_basis: "recomputed_on_open_from_restored_model";
 };
 
+export type ProjectEnvelopeHashEvidence = {
+  algorithm: "sha256";
+  canonicalization: "jcs_like_sorted_object_keys";
+  payload_scope: "project_envelope_payload";
+  payload_excludes: "storage_summary_and_envelope_hash_carrier_fields";
+  payload_ref: string;
+  value: string;
+  hash_status: "computed_local_preview";
+};
+
+export type ProjectEnvelopeHashIntegrityEvidence = {
+  integrity_status: "verified_match" | "mismatch_review_required" | "not_persisted" | "hash_recompute_unavailable";
+  persisted_value: string;
+  recomputed_value: string;
+  payload_ref: string;
+  verification_basis: "recomputed_on_open_from_restored_envelope_payload";
+};
+
 export type PackageHashEvidence = {
   algorithm: "sha256";
   canonicalization: "jcs_like_sorted_object_keys";
@@ -495,4 +515,5 @@ export type LocalProjectEnvelope = {
   mechanics_result: MechanicsResult | null;
   analysis_run: AnalysisRunEnvelope | null;
   model_hash: ModelHashEvidence | null;
+  project_envelope_hash: ProjectEnvelopeHashEvidence | null;
 };

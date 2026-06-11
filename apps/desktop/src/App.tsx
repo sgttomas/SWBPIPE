@@ -68,7 +68,7 @@ import {
   openLocalProject,
   saveLocalProject
 } from "./services/projectService";
-import { computeModelHash } from "./services/hashService";
+import { computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -82,6 +82,8 @@ import type {
   ModelHashEvidence,
   ModelHashIntegrityEvidence,
   PreviewModel,
+  ProjectEnvelopeHashEvidence,
+  ProjectEnvelopeHashIntegrityEvidence,
   SelectedReviewTarget,
   SolveJobAuditState
 } from "./types";
@@ -100,6 +102,9 @@ export function App() {
   const [projectIndex, setProjectIndex] = useState<LocalProjectIndexEntry[] | null>(null);
   const [modelHash, setModelHash] = useState<ModelHashEvidence | null>(null);
   const [modelHashIntegrity, setModelHashIntegrity] = useState<ModelHashIntegrityEvidence | null>(null);
+  const [projectEnvelopeHash, setProjectEnvelopeHash] = useState<ProjectEnvelopeHashEvidence | null>(null);
+  const [projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity] =
+    useState<ProjectEnvelopeHashIntegrityEvidence | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
   const [projectOperation, setProjectOperation] = useState("not_started");
   const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
@@ -184,7 +189,17 @@ export function App() {
     if (!model) return;
     setProjectBusy(true);
     setModelHashIntegrity(null);
+    setProjectEnvelopeHashIntegrity(null);
     try {
+      const envelopeHash = await computeProjectEnvelopeHash({
+        model,
+        editor_intents: editorIntents,
+        proposal,
+        selected_review_target: selectedReviewTarget,
+        mechanics_result: result,
+        analysis_run: analysisRun,
+        model_hash: modelHash
+      });
       const created = await createLocalProject(
         model,
         editorIntents,
@@ -192,12 +207,14 @@ export function App() {
         selectedReviewTarget,
         result,
         analysisRun,
-        modelHash
+        modelHash,
+        envelopeHash
       );
       setProjectSummary(created.summary);
       setEditorIntents(created.editor_intents ?? []);
       setProposal(created.proposal ?? null);
       setSelectedReviewTarget(created.selected_review_target ?? null);
+      setProjectEnvelopeHash(created.project_envelope_hash ?? null);
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
     } catch (error) {
@@ -211,6 +228,7 @@ export function App() {
   async function handleOpenProject(projectId: string | null = null) {
     setProjectBusy(true);
     setModelHashIntegrity(null);
+    setProjectEnvelopeHashIntegrity(null);
     try {
       const opened = await openLocalProject(projectId);
       if (!opened) {
@@ -235,10 +253,27 @@ export function App() {
           : initialSolveJob()
       );
       setProjectSummary(opened.summary);
+      setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setProjectMessage(opened.summary.message);
       setProjectOperation(projectId ? "open_by_id" : "open");
       const recomputedHash = await computeModelHash(opened.model);
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
+      const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
+        model: opened.model,
+        editor_intents: opened.editor_intents ?? [],
+        proposal: opened.proposal ?? null,
+        selected_review_target: opened.selected_review_target ?? null,
+        mechanics_result: opened.mechanics_result ?? null,
+        analysis_run: opened.analysis_run ?? null,
+        model_hash: opened.model_hash ?? null
+      });
+      setProjectEnvelopeHashIntegrity(
+        deriveProjectEnvelopeHashIntegrity(
+          opened.project_envelope_hash ?? null,
+          recomputedEnvelopeHash,
+          opened.model.project.id
+        )
+      );
     } catch (error) {
       setProjectMessage(`Open failed: ${String(error)}`);
       setProjectOperation("open_failed");
@@ -251,7 +286,17 @@ export function App() {
     if (!model) return;
     setProjectBusy(true);
     setModelHashIntegrity(null);
+    setProjectEnvelopeHashIntegrity(null);
     try {
+      const envelopeHash = await computeProjectEnvelopeHash({
+        model,
+        editor_intents: editorIntents,
+        proposal,
+        selected_review_target: selectedReviewTarget,
+        mechanics_result: result,
+        analysis_run: analysisRun,
+        model_hash: modelHash
+      });
       const saved = await saveLocalProject(
         model,
         editorIntents,
@@ -259,12 +304,14 @@ export function App() {
         selectedReviewTarget,
         result,
         analysisRun,
-        modelHash
+        modelHash,
+        envelopeHash
       );
       setProjectSummary(saved.summary);
       setEditorIntents(saved.editor_intents ?? []);
       setProposal(saved.proposal ?? null);
       setSelectedReviewTarget(saved.selected_review_target ?? null);
+      setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setProjectMessage(saved.summary.message);
       setProjectOperation("save");
     } catch (error) {
@@ -459,6 +506,8 @@ export function App() {
             proposal={proposal}
             modelHash={modelHash}
             modelHashIntegrity={modelHashIntegrity}
+            projectEnvelopeHash={projectEnvelopeHash}
+            projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
           />
           <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
           <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
@@ -810,5 +859,37 @@ function deriveModelHashIntegrity(
     recomputed_value: recomputedHash.value,
     payload_ref: payloadRef,
     verification_basis: "recomputed_on_open_from_restored_model"
+  };
+}
+
+function deriveProjectEnvelopeHashIntegrity(
+  storedHash: ProjectEnvelopeHashEvidence | null,
+  recomputedHash: ProjectEnvelopeHashEvidence | null,
+  payloadRef: string
+): ProjectEnvelopeHashIntegrityEvidence {
+  if (!storedHash) {
+    return {
+      integrity_status: "not_persisted",
+      persisted_value: "not_persisted",
+      recomputed_value: recomputedHash?.value ?? "unavailable",
+      payload_ref: payloadRef,
+      verification_basis: "recomputed_on_open_from_restored_envelope_payload"
+    };
+  }
+  if (!recomputedHash) {
+    return {
+      integrity_status: "hash_recompute_unavailable",
+      persisted_value: storedHash.value,
+      recomputed_value: "unavailable",
+      payload_ref: payloadRef,
+      verification_basis: "recomputed_on_open_from_restored_envelope_payload"
+    };
+  }
+  return {
+    integrity_status: storedHash.value === recomputedHash.value ? "verified_match" : "mismatch_review_required",
+    persisted_value: storedHash.value,
+    recomputed_value: recomputedHash.value,
+    payload_ref: payloadRef,
+    verification_basis: "recomputed_on_open_from_restored_envelope_payload"
   };
 }

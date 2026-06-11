@@ -2266,3 +2266,76 @@ after the timestamp marker were absent.
   model document migration framework, release artifact, acceptance record,
   certification, sealing, authentication, or code-compliance claim; no
   destructive migrations; no network/telemetry writes.
+
+## TP-MAC-81 full-project-envelope-hash-persisted-and-verified (2026-06-10)
+
+- Scope: extended the canonical reproducibility hash chain from model-payload
+  scope to the full persisted project envelope, closing the validation-profile
+  `project_envelope_hash_status=
+  model_payload_scope_only_full_project_envelope_hash_tbd` seam. The Tauri
+  store gains ledger migration v8 (`store-v8-project-envelope-hash-column`,
+  `STORE_SCHEMA_TARGET_VERSION=8`) adding `project_envelope_hash_json`;
+  existing v7 stores stage `migrated_on_open_store_schema_v7_to_v8` on next
+  open (covered by a new cargo test). `computeProjectEnvelopeHash` hashes the
+  canonical JSON of `{model, editor_intents, proposal,
+  selected_review_target, mechanics_result, analysis_run, model_hash}` —
+  excluding the volatile storage summary and the envelope-hash carrier field
+  itself so the hash can be recomputed from a restored envelope. The hash is
+  computed at create/save, persisted through the envelope and
+  `LocalProjectSummary` (`persisted_project_envelope_hash_count/ref`), and
+  verified on open with `ProjectEnvelopeHashIntegrityEvidence`
+  (`verification_basis=recomputed_on_open_from_restored_envelope_payload`).
+  The Project Validation Preflight adds an `Envelope hash evidence` line
+  (`data-testid="project-validation-envelope-hash"`), packet blocks
+  `project_envelope_hash` / `project_envelope_hash_integrity`, profile
+  `project_envelope_hash_scope=
+  persisted_envelope_payload_excluding_storage_summary_and_hash_carrier`,
+  and staged REPRODUCIBILITY diagnostics
+  (`PROJECT-VALIDATION-ENVELOPE-HASH-NOT-COMPUTED` /
+  `-REVIEW-ONLY` / `-MISMATCH`).
+- Validation: `npm test --workspace apps/desktop` (13/13),
+  `npm run build --workspace apps/desktop` (built),
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` (6/6,
+  including new
+  `store_migration_ledger_stages_v7_store_to_v8_applying_only_pending_migration`),
+  `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q tests` (340/340).
+- Browser smoke (Claude Preview, fresh server, port 5173, marker
+  `2026-06-11T02:11:26.627Z`): initial state shows
+  `envelope_hash=project_envelope_hash_not_computed_no_save_this_session;
+  persisted_envelope_hashes=0; integrity=
+  open_verification_not_run_this_session` with diagnostic
+  `PROJECT-VALIDATION-ENVELOPE-HASH-NOT-COMPUTED:REPRODUCIBILITY:info`;
+  after Run mechanics preview → Create local → Save local → Open local, the
+  envelope-hash line reports
+  `envelope_hash=project_envelope_hash_verified_on_open;
+  persisted_envelope_hashes=1; integrity=verified_match`, the exported
+  packet carries `project_envelope_hash`
+  (`payload_scope=project_envelope_payload`, `payload_excludes=
+  storage_summary_and_envelope_hash_carrier_fields`,
+  `value=sha256:4fa9a9ae4fd76200f4a1724befca579c28627bd21d080a8c9d49854dc24d9d6e`)
+  and `project_envelope_hash_integrity` with persisted == recomputed and
+  `verification_basis=recomputed_on_open_from_restored_envelope_payload`,
+  over an envelope that includes one persisted mechanics result and one
+  persisted analysis run; diagnostics include
+  `PROJECT-VALIDATION-ENVELOPE-HASH-REVIEW-ONLY:REPRODUCIBILITY:info` and
+  not `PROJECT-VALIDATION-ENVELOPE-HASH-MISMATCH`. The TP-MAC-78/79
+  model-hash chain still verifies (`model_hash=model_hash_verified_on_open;
+  persisted_model_hash_ref=
+  sha256:f596e0f453ffefec7f78fa4e18964931e5a19820d606036481a9ef59598a701e;
+  integrity=verified_match`). Boundary flags `private_payload_included`,
+  `protected_content_included`, `release_or_professional_claim`,
+  `network_required`, `telemetry_enabled`, `accepted_model_state_mutated`,
+  and `repository_default_private_write` all false;
+  `local_only_project_store=true`. Validation evidence packet
+  `gui_validation_context.current_tranche_smoke_record` is `TP-MAC-81`.
+  Zero console errors/warnings on the fresh server (an earlier HMR session
+  while the tranche was being edited produced transient
+  `ProjectValidationPanel` error-boundary warnings; the server was restarted
+  and the final code smoke-tested clean). SQLite-runtime persistence of the
+  new column and the v7→v8 staged migration are covered by the cargo lib
+  tests rather than the browser smoke.
+- Boundary: the project-envelope hash is a local technical-preview
+  review-reproducibility signal over the persisted envelope payload only —
+  not an acceptance, certification, sealing, authentication, release, or
+  code-compliance record; model *document* schema migrations remain TBD; no
+  destructive migrations; no network/telemetry writes.

@@ -1,4 +1,14 @@
-import type { ModelHashEvidence, PackageHashEvidence, PreviewModel } from "../types";
+import type {
+  AgentProposal,
+  AnalysisRunEnvelope,
+  EditorOperationIntent,
+  MechanicsResult,
+  ModelHashEvidence,
+  PackageHashEvidence,
+  PreviewModel,
+  ProjectEnvelopeHashEvidence,
+  SelectedReviewTarget
+} from "../types";
 
 export function canonicalJson(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
@@ -30,6 +40,35 @@ export async function computeModelHash(model: PreviewModel): Promise<ModelHashEv
     canonicalization: "jcs_like_sorted_object_keys",
     payload_scope: "model_payload",
     payload_ref: model.project.id,
+    value: `sha256:${hex}`,
+    hash_status: "computed_local_preview"
+  };
+}
+
+export type ProjectEnvelopeHashPayload = {
+  model: PreviewModel;
+  editor_intents: EditorOperationIntent[];
+  proposal: AgentProposal | null;
+  selected_review_target: SelectedReviewTarget | null;
+  mechanics_result: MechanicsResult | null;
+  analysis_run: AnalysisRunEnvelope | null;
+  model_hash: ModelHashEvidence | null;
+};
+
+// The envelope hash covers the persisted payload only; the volatile storage
+// summary and the envelope-hash carrier field itself are excluded so the hash
+// can be recomputed from a restored envelope.
+export async function computeProjectEnvelopeHash(
+  payload: ProjectEnvelopeHashPayload
+): Promise<ProjectEnvelopeHashEvidence | null> {
+  const hex = await sha256Hex(canonicalJson(payload));
+  if (!hex) return null;
+  return {
+    algorithm: "sha256",
+    canonicalization: "jcs_like_sorted_object_keys",
+    payload_scope: "project_envelope_payload",
+    payload_excludes: "storage_summary_and_envelope_hash_carrier_fields",
+    payload_ref: payload.model.project.id,
     value: `sha256:${hex}`,
     hash_status: "computed_local_preview"
   };

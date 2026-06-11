@@ -72,6 +72,8 @@ struct LocalProjectSummary {
     persisted_analysis_run_ref: String,
     persisted_model_hash_count: usize,
     persisted_model_hash_ref: String,
+    persisted_project_envelope_hash_count: usize,
+    persisted_project_envelope_hash_ref: String,
     message: String,
 }
 
@@ -94,6 +96,7 @@ struct LocalProjectEnvelope {
     mechanics_result: Value,
     analysis_run: Value,
     model_hash: Value,
+    project_envelope_hash: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -113,6 +116,8 @@ struct SaveLocalProjectRequest {
     analysis_run: Value,
     #[serde(default)]
     model_hash: Value,
+    #[serde(default)]
+    project_envelope_hash: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -130,7 +135,7 @@ fn app_store_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(PROJECT_STORE_FILE))
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 7;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 8;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -220,6 +225,17 @@ fn store_migrations() -> Vec<StoreMigration> {
                     connection,
                     "model_hash_json",
                     "ALTER TABLE local_projects ADD COLUMN model_hash_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+        StoreMigration {
+            version: 8,
+            migration_id: "store-v8-project-envelope-hash-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "project_envelope_hash_json",
+                    "ALTER TABLE local_projects ADD COLUMN project_envelope_hash_json TEXT NOT NULL DEFAULT 'null'",
                 )
             },
         },
@@ -383,6 +399,7 @@ fn upsert_project(
     mechanics_result: &Value,
     analysis_run: &Value,
     model_hash: &Value,
+    project_envelope_hash: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
@@ -395,6 +412,8 @@ fn upsert_project(
     let analysis_run_json =
         serde_json::to_string(analysis_run).map_err(|error| error.to_string())?;
     let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
+    let project_envelope_hash_json =
+        serde_json::to_string(project_envelope_hash).map_err(|error| error.to_string())?;
     let search_text = format!(
         "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
@@ -405,8 +424,8 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?10)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?11)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
@@ -416,6 +435,7 @@ fn upsert_project(
                 mechanics_result_json = excluded.mechanics_result_json,
                 analysis_run_json = excluded.analysis_run_json,
                 model_hash_json = excluded.model_hash_json,
+                project_envelope_hash_json = excluded.project_envelope_hash_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
             params![
@@ -428,6 +448,7 @@ fn upsert_project(
                 mechanics_result_json,
                 analysis_run_json,
                 model_hash_json,
+                project_envelope_hash_json,
                 now
             ],
         )
@@ -460,6 +481,7 @@ struct StoredProjectRecord {
     mechanics_result: Value,
     analysis_run: Value,
     model_hash: Value,
+    project_envelope_hash: Value,
 }
 
 fn load_project(
@@ -467,6 +489,7 @@ fn load_project(
     project_id: Option<&str>,
 ) -> Result<Option<StoredProjectRecord>, String> {
     type StoredRow = (
+        String,
         String,
         String,
         String,
@@ -488,13 +511,14 @@ fn load_project(
             row.get::<_, String>(6)?,
             row.get::<_, String>(7)?,
             row.get::<_, String>(8)?,
+            row.get::<_, String>(9)?,
         ))
     }
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -506,7 +530,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -528,6 +552,7 @@ fn load_project(
             mechanics_result_json,
             analysis_run_json,
             model_hash_json,
+            project_envelope_hash_json,
         )| {
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
@@ -544,6 +569,9 @@ fn load_project(
                 .map_err(|error| error.to_string())?;
             let model_hash = serde_json::from_str::<Value>(&model_hash_json)
                 .map_err(|error| error.to_string())?;
+            let project_envelope_hash =
+                serde_json::from_str::<Value>(&project_envelope_hash_json)
+                    .map_err(|error| error.to_string())?;
             Ok(StoredProjectRecord {
                 project_id: id,
                 project_name: name,
@@ -554,6 +582,7 @@ fn load_project(
                 mechanics_result,
                 analysis_run,
                 model_hash,
+                project_envelope_hash,
             })
         },
     )
@@ -628,6 +657,13 @@ fn normalized_model_hash(model_hash: Option<Value>) -> Value {
     }
 }
 
+fn normalized_project_envelope_hash(project_envelope_hash: Option<Value>) -> Value {
+    match project_envelope_hash {
+        Some(value) if value.is_object() => value,
+        _ => Value::Null,
+    }
+}
+
 fn proposal_count(proposal: &Value) -> usize {
     if proposal.is_object() {
         1
@@ -674,6 +710,14 @@ fn persisted_model_hash_ref(model_hash: &Value) -> String {
         .unwrap_or_else(|| "not_persisted".to_string())
 }
 
+fn persisted_project_envelope_hash_ref(project_envelope_hash: &Value) -> String {
+    project_envelope_hash
+        .get("value")
+        .and_then(Value::as_str)
+        .map(str::to_string)
+        .unwrap_or_else(|| "not_persisted".to_string())
+}
+
 fn selected_review_target_ref(selected_review_target: &Value) -> String {
     let Some(target) = selected_review_target.as_object() else {
         return "not_selected".to_string();
@@ -700,6 +744,7 @@ fn project_summary(
     mechanics_result: &Value,
     analysis_run: &Value,
     model_hash: &Value,
+    project_envelope_hash: &Value,
     message: String,
 ) -> LocalProjectSummary {
     LocalProjectSummary {
@@ -723,6 +768,10 @@ fn project_summary(
         persisted_analysis_run_ref: persisted_analysis_run_ref(analysis_run, mechanics_result),
         persisted_model_hash_count: object_count(model_hash),
         persisted_model_hash_ref: persisted_model_hash_ref(model_hash),
+        persisted_project_envelope_hash_count: object_count(project_envelope_hash),
+        persisted_project_envelope_hash_ref: persisted_project_envelope_hash_ref(
+            project_envelope_hash,
+        ),
         message,
     }
 }
@@ -889,6 +938,7 @@ fn create_local_project(
     mechanics_result: Option<Value>,
     analysis_run: Option<Value>,
     model_hash: Option<Value>,
+    project_envelope_hash: Option<Value>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
     let (mut connection, migration) = open_project_store(&path)?;
@@ -900,6 +950,7 @@ fn create_local_project(
     let mechanics_result = normalized_mechanics_result(mechanics_result);
     let analysis_run = normalized_analysis_run(analysis_run);
     let model_hash = normalized_model_hash(model_hash);
+    let project_envelope_hash = normalized_project_envelope_hash(project_envelope_hash);
     upsert_project(
         &mut connection,
         &project_id,
@@ -911,6 +962,7 @@ fn create_local_project(
         &mechanics_result,
         &analysis_run,
         &model_hash,
+        &project_envelope_hash,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -924,6 +976,7 @@ fn create_local_project(
             &mechanics_result,
             &analysis_run,
             &model_hash,
+            &project_envelope_hash,
             "Created local SQLite project snapshot without external file copies.".to_string(),
         ),
         model,
@@ -933,6 +986,7 @@ fn create_local_project(
         mechanics_result,
         analysis_run,
         model_hash,
+        project_envelope_hash,
     })
 }
 
@@ -957,6 +1011,7 @@ fn open_local_project(
                     &record.mechanics_result,
                     &record.analysis_run,
                     &record.model_hash,
+                    &record.project_envelope_hash,
                     "Opened local SQLite project snapshot.".to_string(),
                 ),
                 model: record.model,
@@ -966,6 +1021,7 @@ fn open_local_project(
                 mechanics_result: record.mechanics_result,
                 analysis_run: record.analysis_run,
                 model_hash: record.model_hash,
+                project_envelope_hash: record.project_envelope_hash,
             })
         })
         .transpose()
@@ -992,6 +1048,8 @@ fn save_local_project(
     let mechanics_result = normalized_mechanics_result(Some(request.mechanics_result));
     let analysis_run = normalized_analysis_run(Some(request.analysis_run));
     let model_hash = normalized_model_hash(Some(request.model_hash));
+    let project_envelope_hash =
+        normalized_project_envelope_hash(Some(request.project_envelope_hash));
     upsert_project(
         &mut connection,
         &request.project_id,
@@ -1003,6 +1061,7 @@ fn save_local_project(
         &mechanics_result,
         &analysis_run,
         &model_hash,
+        &project_envelope_hash,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -1016,6 +1075,7 @@ fn save_local_project(
             &mechanics_result,
             &analysis_run,
             &model_hash,
+            &project_envelope_hash,
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
         model: request.model,
@@ -1025,6 +1085,7 @@ fn save_local_project(
         mechanics_result,
         analysis_run,
         model_hash,
+        project_envelope_hash,
     })
 }
 
@@ -1126,6 +1187,15 @@ mod tests {
             "value": "sha256:0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd",
             "hash_status": "computed_local_preview"
         });
+        let project_envelope_hash = json!({
+            "algorithm": "sha256",
+            "canonicalization": "jcs_like_sorted_object_keys",
+            "payload_scope": "project_envelope_payload",
+            "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+            "payload_ref": "project:test-local",
+            "value": "sha256:4567ef014567ef014567ef014567ef014567ef014567ef014567ef014567ef01",
+            "hash_status": "computed_local_preview"
+        });
         upsert_project(
             &mut connection,
             "project:test-local",
@@ -1137,6 +1207,7 @@ mod tests {
             &mechanics_result,
             &analysis_run,
             &model_hash,
+            &project_envelope_hash,
         )
         .expect("project snapshot saves");
 
@@ -1152,6 +1223,7 @@ mod tests {
         assert_eq!(loaded.mechanics_result, mechanics_result);
         assert_eq!(loaded.analysis_run, analysis_run);
         assert_eq!(loaded.model_hash, model_hash);
+        assert_eq!(loaded.project_envelope_hash, project_envelope_hash);
         assert_eq!(
             loaded.editor_intents[0]["validation"]["application_status"],
             json!("not_applied")
@@ -1195,6 +1267,7 @@ mod tests {
             &mechanics_result,
             &analysis_run,
             &model_hash,
+            &project_envelope_hash,
             "Saved test project snapshot.".to_string(),
         );
         assert_eq!(summary.editor_intent_count, 1);
@@ -1215,12 +1288,18 @@ mod tests {
             summary.persisted_model_hash_ref,
             "sha256:0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd"
         );
+        assert_eq!(summary.persisted_project_envelope_hash_count, 1);
+        assert_eq!(
+            summary.persisted_project_envelope_hash_ref,
+            "sha256:4567ef014567ef014567ef014567ef014567ef014567ef014567ef014567ef01"
+        );
         let empty_summary = project_summary(
             "project:test-local".to_string(),
             "Test Local Project".to_string(),
             PathBuf::from(":memory:"),
             &migration,
             &json!([]),
+            &Value::Null,
             &Value::Null,
             &Value::Null,
             &Value::Null,
@@ -1233,6 +1312,11 @@ mod tests {
         assert_eq!(empty_summary.persisted_analysis_run_ref, "not_persisted");
         assert_eq!(empty_summary.persisted_model_hash_count, 0);
         assert_eq!(empty_summary.persisted_model_hash_ref, "not_persisted");
+        assert_eq!(empty_summary.persisted_project_envelope_hash_count, 0);
+        assert_eq!(
+            empty_summary.persisted_project_envelope_hash_ref,
+            "not_persisted"
+        );
 
         let indexed_count: i64 = connection
             .query_row(
@@ -1283,11 +1367,12 @@ mod tests {
                 "store-v5-mechanics-result-column",
                 "store-v6-analysis-run-column",
                 "store-v7-model-hash-column",
+                "store-v8-project-envelope-hash-column",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v7"
+            "migrated_on_open_store_schema_v0_to_v8"
         );
 
         let second_open =
@@ -1301,7 +1386,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v7_no_pending_migrations"
+            "current_store_schema_v8_no_pending_migrations"
         );
     }
 
@@ -1336,10 +1421,10 @@ mod tests {
             apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 7);
+        assert_eq!(migration.migrations_applied_on_open.len(), 8);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v7"
+            "migrated_on_open_store_schema_v0_to_v8"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -1353,6 +1438,66 @@ mod tests {
         assert_eq!(loaded.mechanics_result, Value::Null);
         assert_eq!(loaded.analysis_run, Value::Null);
         assert_eq!(loaded.model_hash, Value::Null);
+        assert_eq!(loaded.project_envelope_hash, Value::Null);
+    }
+
+    #[test]
+    fn store_migration_ledger_stages_v7_store_to_v8_applying_only_pending_migration() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        connection
+            .execute_batch(
+                "
+                CREATE TABLE local_projects (
+                    project_id TEXT PRIMARY KEY,
+                    project_name TEXT NOT NULL,
+                    model_json TEXT NOT NULL,
+                    editor_intents_json TEXT NOT NULL DEFAULT '[]',
+                    proposal_json TEXT NOT NULL DEFAULT 'null',
+                    selected_review_target_json TEXT NOT NULL DEFAULT 'null',
+                    mechanics_result_json TEXT NOT NULL DEFAULT 'null',
+                    analysis_run_json TEXT NOT NULL DEFAULT 'null',
+                    model_hash_json TEXT NOT NULL DEFAULT 'null',
+                    created_at_unix INTEGER NOT NULL,
+                    updated_at_unix INTEGER NOT NULL
+                );
+                CREATE VIRTUAL TABLE local_project_fts USING fts5(
+                    project_id UNINDEXED,
+                    project_name,
+                    model_text
+                );
+                INSERT INTO local_projects (
+                    project_id, project_name, model_json, created_at_unix, updated_at_unix
+                ) VALUES (
+                    'project:v7-local',
+                    'V7 Local Project',
+                    '{\"project\":{\"id\":\"project:v7-local\",\"name\":\"V7 Local Project\"}}',
+                    100,
+                    100
+                );
+                PRAGMA user_version = 7;
+                ",
+            )
+            .expect("v7-shape store creates");
+        assert_eq!(store_user_version(&connection).expect("user_version reads"), 7);
+
+        let migration = apply_store_migrations(&connection).expect("v7 store migrations apply");
+        assert_eq!(migration.store_schema_version_before_open, 7);
+        assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert_eq!(
+            migration.migrations_applied_on_open,
+            vec!["store-v8-project-envelope-hash-column"]
+        );
+        assert_eq!(
+            migration.migration_status,
+            "migrated_on_open_store_schema_v7_to_v8"
+        );
+
+        let loaded = load_project(&connection, Some("project:v7-local"))
+            .expect("v7 project loads after staged migration")
+            .expect("v7 project row preserved");
+        assert_eq!(loaded.project_id, "project:v7-local");
+        assert_eq!(loaded.model_hash, Value::Null);
+        assert_eq!(loaded.project_envelope_hash, Value::Null);
     }
 
     #[test]
@@ -1381,6 +1526,7 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
+            &Value::Null,
         )
         .expect("first project saves");
         upsert_project(
@@ -1389,6 +1535,7 @@ mod tests {
             "Beta Project",
             &second_model,
             &json!([]),
+            &Value::Null,
             &Value::Null,
             &Value::Null,
             &Value::Null,

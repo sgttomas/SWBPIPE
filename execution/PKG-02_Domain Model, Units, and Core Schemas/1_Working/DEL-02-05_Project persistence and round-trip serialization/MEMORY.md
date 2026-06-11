@@ -194,3 +194,44 @@ Boundaries preserved:
 - Boundary preserved: local store maintenance evidence only; no destructive
   migrations; no lifecycle, release, certification, sealing, authentication,
   professional-approval, or code-compliance claim.
+
+## 2026-06-10 - TP-MAC-81 full project-envelope hash persisted and verified on open
+
+- Desktop app tranche: the canonical reproducibility hash chain
+  (TP-MAC-75/78/79 model-payload scope) now extends to the full persisted
+  project envelope, closing the validation-profile
+  `project_envelope_hash_status=
+  model_payload_scope_only_full_project_envelope_hash_tbd` seam.
+  `computeProjectEnvelopeHash` hashes the canonical JSON of `{model,
+  editor_intents, proposal, selected_review_target, mechanics_result,
+  analysis_run, model_hash}` — excluding the volatile storage summary and
+  the envelope-hash carrier field so the hash is recomputable from a
+  restored envelope. Computed at create/save, persisted, and verified on
+  open (`verification_basis=recomputed_on_open_from_restored_envelope_payload`).
+- Store schema: ledger migration v8 (`store-v8-project-envelope-hash-column`,
+  `STORE_SCHEMA_TARGET_VERSION=8`) adds `project_envelope_hash_json`;
+  existing v7 stores stage `migrated_on_open_store_schema_v7_to_v8` — the
+  first real staged use of the TP-MAC-80 migration ledger, cargo-tested via
+  `store_migration_ledger_stages_v7_store_to_v8_applying_only_pending_migration`
+  (only the pending v8 step applies; rows preserved).
+- Evidence surfaces: `LocalProjectSummary` gains
+  `persisted_project_envelope_hash_count/ref`; the validation preflight
+  gains an `Envelope hash evidence` line
+  (`data-testid="project-validation-envelope-hash"`), packet blocks
+  `project_envelope_hash` / `project_envelope_hash_integrity`, profile
+  `project_envelope_hash_scope=
+  persisted_envelope_payload_excluding_storage_summary_and_hash_carrier`,
+  and staged REPRODUCIBILITY diagnostics
+  (`PROJECT-VALIDATION-ENVELOPE-HASH-NOT-COMPUTED` / `-REVIEW-ONLY` /
+  `-MISMATCH`).
+- Evidence: `{ScopePath}/_run_records/TASK_RUN_2026-06-10_2015.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-81 (fresh-server browser smoke marker
+  `2026-06-11T02:11:26.627Z`, `verified_match` over an envelope including a
+  persisted mechanics result and analysis run, zero console
+  errors/warnings); Vitest 13/13, desktop build, cargo lib 6/6, pytest
+  340/340 all green.
+- Boundary preserved: the envelope hash is a local technical-preview
+  review-reproducibility signal only; model *document* schema migrations and
+  the physical project container remain explicit TBDs; no lifecycle,
+  release, certification, sealing, authentication, professional-approval, or
+  code-compliance claim.

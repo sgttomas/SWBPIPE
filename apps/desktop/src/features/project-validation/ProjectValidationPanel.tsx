@@ -6,7 +6,9 @@ import type {
   LocalStorageCapability,
   ModelHashEvidence,
   ModelHashIntegrityEvidence,
-  PreviewModel
+  PreviewModel,
+  ProjectEnvelopeHashEvidence,
+  ProjectEnvelopeHashIntegrityEvidence
 } from "../../types";
 
 type RoundTripCategory = {
@@ -26,7 +28,9 @@ export function ProjectValidationPanel({
   editorIntents,
   proposal,
   modelHash,
-  modelHashIntegrity
+  modelHashIntegrity,
+  projectEnvelopeHash,
+  projectEnvelopeHashIntegrity
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -36,6 +40,8 @@ export function ProjectValidationPanel({
   proposal: AgentProposal | null;
   modelHash: ModelHashEvidence | null;
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
+  projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
 }) {
   const packet = buildProjectValidationPacket({
     model,
@@ -45,7 +51,9 @@ export function ProjectValidationPanel({
     editorIntents,
     proposal,
     modelHash,
-    modelHashIntegrity
+    modelHashIntegrity,
+    projectEnvelopeHash,
+    projectEnvelopeHashIntegrity
   });
 
   return (
@@ -98,6 +106,15 @@ export function ProjectValidationPanel({
             packet.summary.model_hash_integrity_status
           }`}
           testId="project-validation-model-hash"
+        />
+        <ValidationLine
+          label="Envelope hash evidence"
+          value={`envelope_hash=${packet.summary.project_envelope_hash_status}; persisted_envelope_hashes=${
+            packet.summary.persisted_project_envelope_hash_count
+          }; persisted_envelope_hash_ref=${packet.summary.persisted_project_envelope_hash_ref}; integrity=${
+            packet.summary.project_envelope_hash_integrity_status
+          }`}
+          testId="project-validation-envelope-hash"
         />
         <ValidationLine
           label="Store migration evidence"
@@ -167,7 +184,9 @@ function buildProjectValidationPacket({
   editorIntents,
   proposal,
   modelHash,
-  modelHashIntegrity
+  modelHashIntegrity,
+  projectEnvelopeHash,
+  projectEnvelopeHashIntegrity
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -177,8 +196,15 @@ function buildProjectValidationPacket({
   proposal: AgentProposal | null;
   modelHash: ModelHashEvidence | null;
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
+  projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
 }) {
   const modelHashStatus = modelHashEvidenceStatus({ modelHash, projectSummary, modelHashIntegrity });
+  const envelopeHashStatus = projectEnvelopeHashEvidenceStatus({
+    projectEnvelopeHash,
+    projectSummary,
+    projectEnvelopeHashIntegrity
+  });
   const categories = buildRoundTripCategories(model, modelHashStatus);
   const migrationStatus = projectSummary?.migration_status ?? "not_persisted_this_session";
   const storeMigration = buildStoreMigrationEvidence({ projectSummary, storageCapability });
@@ -223,6 +249,11 @@ function buildProjectValidationPacket({
       persisted_model_hash_count: projectSummary?.persisted_model_hash_count ?? 0,
       persisted_model_hash_ref: projectSummary?.persisted_model_hash_ref ?? "not_persisted",
       model_hash_integrity_status: modelHashIntegrity?.integrity_status ?? "open_verification_not_run_this_session",
+      project_envelope_hash_status: envelopeHashStatus,
+      persisted_project_envelope_hash_count: projectSummary?.persisted_project_envelope_hash_count ?? 0,
+      persisted_project_envelope_hash_ref: projectSummary?.persisted_project_envelope_hash_ref ?? "not_persisted",
+      project_envelope_hash_integrity_status:
+        projectEnvelopeHashIntegrity?.integrity_status ?? "open_verification_not_run_this_session",
       accepted_model_state_mutated: false,
       copied_external_files: Boolean(projectSummary?.copied_external_files),
       network_required: Boolean(storageCapability?.network_required),
@@ -236,7 +267,8 @@ function buildProjectValidationPacket({
       hash_service_status: modelHash
         ? "canonical_model_hash_service_available_model_payload_scope"
         : "model_hash_service_unavailable_in_this_runtime",
-      project_envelope_hash_status: "model_payload_scope_only_full_project_envelope_hash_tbd",
+      project_envelope_hash_status: envelopeHashStatus,
+      project_envelope_hash_scope: "persisted_envelope_payload_excluding_storage_summary_and_hash_carrier",
       physical_container_status: projectSummary ? projectSummary.storage_mode : "not_persisted_this_session",
       store_migration_framework_status: storeMigration.migration_framework,
       model_document_migration_status: storeMigration.model_document_migration_status
@@ -258,6 +290,8 @@ function buildProjectValidationPacket({
     project_summary: projectSummary,
     model_hash: modelHash,
     model_hash_integrity: modelHashIntegrity,
+    project_envelope_hash: projectEnvelopeHash,
+    project_envelope_hash_integrity: projectEnvelopeHashIntegrity,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     proposal_refs: proposal ? [proposal.proposal_id] : [],
     editor_operation_statuses: unique(editorIntents.map((intent) => intent.validation.application_status)),
@@ -274,7 +308,15 @@ function buildProjectValidationPacket({
       protected_content_included: false,
       release_or_professional_claim: false
     },
-    diagnostics: validationDiagnostics({ storageCapability, projectSummary, versionCheckStatus, modelHash, modelHashIntegrity }),
+    diagnostics: validationDiagnostics({
+      storageCapability,
+      projectSummary,
+      versionCheckStatus,
+      modelHash,
+      modelHashIntegrity,
+      projectEnvelopeHash,
+      projectEnvelopeHashIntegrity
+    }),
     data_boundary: model.data_boundary,
     private_payload_included: false,
     protected_content_included: false,
@@ -300,6 +342,31 @@ function modelHashEvidenceStatus({
   if ((projectSummary?.persisted_model_hash_count ?? 0) > 0) return "model_hash_persisted_open_verification_not_run";
   if (modelHash) return "model_hash_computed_not_persisted";
   return "model_hash_service_unavailable_in_this_runtime";
+}
+
+function projectEnvelopeHashEvidenceStatus({
+  projectEnvelopeHash,
+  projectSummary,
+  projectEnvelopeHashIntegrity
+}: {
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
+  projectSummary: LocalProjectSummary | null;
+  projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
+}): string {
+  if (projectEnvelopeHashIntegrity?.integrity_status === "verified_match") {
+    return "project_envelope_hash_verified_on_open";
+  }
+  if (projectEnvelopeHashIntegrity?.integrity_status === "mismatch_review_required") {
+    return "project_envelope_hash_mismatch_review_required";
+  }
+  if (projectEnvelopeHashIntegrity?.integrity_status === "hash_recompute_unavailable") {
+    return "project_envelope_hash_recompute_unavailable_review_required";
+  }
+  if ((projectSummary?.persisted_project_envelope_hash_count ?? 0) > 0) {
+    return "project_envelope_hash_persisted_open_verification_not_run";
+  }
+  if (projectEnvelopeHash) return "project_envelope_hash_computed_not_persisted";
+  return "project_envelope_hash_not_computed_no_save_this_session";
 }
 
 function buildRoundTripCategories(model: PreviewModel, modelHashStatus: string): RoundTripCategory[] {
@@ -481,13 +548,17 @@ function validationDiagnostics({
   projectSummary,
   versionCheckStatus,
   modelHash,
-  modelHashIntegrity
+  modelHashIntegrity,
+  projectEnvelopeHash,
+  projectEnvelopeHashIntegrity
 }: {
   storageCapability: LocalStorageCapability | null;
   projectSummary: LocalProjectSummary | null;
   versionCheckStatus: string;
   modelHash: ModelHashEvidence | null;
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
+  projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
 }) {
   const diagnostics = [
     diagnostic(
@@ -496,6 +567,7 @@ function validationDiagnostics({
       "Validation preflight is local technical-preview evidence and does not create professional acceptance."
     ),
     modelHashDiagnostic({ modelHash, modelHashIntegrity }),
+    projectEnvelopeHashDiagnostic({ projectEnvelopeHash, projectEnvelopeHashIntegrity }),
     storeMigrationDiagnostic({ projectSummary, storageCapability })
   ];
   if (!storageCapability) {
@@ -535,6 +607,34 @@ function modelHashDiagnostic({
     "PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY",
     "info",
     "Canonical model hash is a local technical-preview review-reproducibility signal only, scoped to the model payload; it is not an acceptance, certification, sealing, authentication, or code-compliance record."
+  );
+}
+
+function projectEnvelopeHashDiagnostic({
+  projectEnvelopeHash,
+  projectEnvelopeHashIntegrity
+}: {
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
+  projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
+}) {
+  if (projectEnvelopeHashIntegrity?.integrity_status === "mismatch_review_required") {
+    return diagnostic(
+      "PROJECT-VALIDATION-ENVELOPE-HASH-MISMATCH",
+      "warning",
+      "Persisted project-envelope hash does not match the hash recomputed from the restored envelope payload; human review is required."
+    );
+  }
+  if (!projectEnvelopeHash && !projectEnvelopeHashIntegrity) {
+    return diagnostic(
+      "PROJECT-VALIDATION-ENVELOPE-HASH-NOT-COMPUTED",
+      "info",
+      "Project-envelope hash is computed at save time over the persisted envelope payload; no save has produced envelope-hash evidence this session."
+    );
+  }
+  return diagnostic(
+    "PROJECT-VALIDATION-ENVELOPE-HASH-REVIEW-ONLY",
+    "info",
+    "Project-envelope hash is a local technical-preview review-reproducibility signal over the persisted envelope payload (storage summary and hash carrier excluded); it is not an acceptance, certification, sealing, authentication, or code-compliance record."
   );
 }
 
