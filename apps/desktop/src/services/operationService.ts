@@ -979,16 +979,28 @@ function resolveCreatePrimitiveLoad(
   const targetNode = targetRecord ? stringPayload(targetRecord, "node") : "";
   const targetPipe = targetRecord ? stringPayload(targetRecord, "pipe") : "";
   const acceptedCategory =
-    category === "concentrated_force" || category === "distributed_force" || category === "concentrated_moment";
+    category === "concentrated_force" ||
+    category === "distributed_force" ||
+    category === "concentrated_moment" ||
+    category === "pressure" ||
+    category === "thermal";
   const expectedDimension =
-    category === "distributed_force" ? "force_per_length" : category === "concentrated_moment" ? "moment" : "force";
+    category === "distributed_force"
+      ? "force_per_length"
+      : category === "concentrated_moment"
+        ? "moment"
+        : category === "pressure"
+          ? "pressure"
+          : category === "thermal"
+            ? "temperature_interval"
+            : "force";
 
   if (!acceptedCategory) {
     pushDiagnostic(
       checker,
       "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
       "blocking",
-      "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, or `concentrated_moment`.",
+      "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `pressure`, or `thermal`.",
       "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
       [targetRef]
     );
@@ -997,8 +1009,13 @@ function resolveCreatePrimitiveLoad(
 
   const storedForceUnit = valueAtSegments(model, ["project", "units", "force"]);
   const storedLengthUnit = valueAtSegments(model, ["project", "units", "length"]);
+  const storedPressureUnit = valueAtSegments(model, ["project", "units", "pressure"]);
+  const storedTemperatureUnit = valueAtSegments(model, ["project", "units", "temperature"]);
+  const requiresForceUnit =
+    category === "concentrated_force" || category === "distributed_force" || category === "concentrated_moment";
+  const requiresLengthUnit = category === "distributed_force" || category === "concentrated_moment";
   checker.unitState = "passed";
-  if (typeof storedForceUnit !== "string") {
+  if (requiresForceUnit && typeof storedForceUnit !== "string") {
     checker.unitState = "blocked";
     pushDiagnostic(
       checker,
@@ -1010,7 +1027,7 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
-  if ((category === "distributed_force" || category === "concentrated_moment") && typeof storedLengthUnit !== "string") {
+  if (requiresLengthUnit && typeof storedLengthUnit !== "string") {
     checker.unitState = "blocked";
     pushDiagnostic(
       checker,
@@ -1022,12 +1039,44 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
+  if (category === "pressure" && typeof storedPressureUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project pressure unit metadata is missing; pressure primitive loads cannot be accepted.",
+      "Repair the model document's project.units.pressure metadata before creating pressure primitives.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (category === "thermal" && typeof storedTemperatureUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project temperature unit metadata is missing; thermal primitive loads cannot be accepted.",
+      "Repair the model document's project.units.temperature metadata before creating thermal primitives.",
+      [targetRef]
+    );
+    return null;
+  }
+  const forceUnit = typeof storedForceUnit === "string" ? storedForceUnit : "";
+  const lengthUnit = typeof storedLengthUnit === "string" ? storedLengthUnit : "";
+  const pressureUnit = typeof storedPressureUnit === "string" ? storedPressureUnit : "";
+  const temperatureUnit = typeof storedTemperatureUnit === "string" ? storedTemperatureUnit : "";
   const expectedUnit =
     category === "distributed_force"
-      ? `${storedForceUnit}/${storedLengthUnit}`
+      ? `${forceUnit}/${lengthUnit}`
       : category === "concentrated_moment"
-        ? `${storedForceUnit}*${storedLengthUnit}`
-        : storedForceUnit;
+        ? `${forceUnit}*${lengthUnit}`
+        : category === "pressure"
+          ? pressureUnit
+          : category === "thermal"
+            ? temperatureUnit
+            : forceUnit;
   if (intent.change.unit !== expectedUnit) {
     checker.unitState = "blocked";
     pushDiagnostic(
@@ -1060,7 +1109,8 @@ function resolveCreatePrimitiveLoad(
       : !["global_x", "global_y", "global_z"].includes(direction)) ||
     (category === "concentrated_force" && (targetType !== "node" || !targetNode)) ||
     (category === "concentrated_moment" && (targetType !== "node" || !targetNode)) ||
-    (category === "distributed_force" && (targetType !== "element" || !targetPipe)) ||
+    ((category === "distributed_force" || category === "pressure" || category === "thermal") &&
+      (targetType !== "element" || !targetPipe)) ||
     magnitudeValue === null ||
     magnitudeUnit !== expectedUnit ||
     dimension !== expectedDimension ||
@@ -1112,14 +1162,14 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
-  if (category === "distributed_force" && !findEntity(model, "pipe_segments", targetPipe)) {
+  if ((category === "distributed_force" || category === "pressure" || category === "thermal") && !findEntity(model, "pipe_segments", targetPipe)) {
     checker.referenceState = "blocked";
     pushDiagnostic(
       checker,
       "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
       "blocking",
       `Primitive load \`${id}\` references pipe \`${targetPipe}\`, which is absent from the current model.`,
-      "Select an existing pipe target before authoring a distributed force.",
+      "Select an existing pipe target before authoring an element-targeted primitive load.",
       [targetRef, targetPipe]
     );
     return null;
@@ -1131,7 +1181,10 @@ function resolveCreatePrimitiveLoad(
     primitiveLoad: {
       id,
       category,
-      target: category === "distributed_force" ? { type: "element", pipe: targetPipe } : { type: "node", node: targetNode },
+      target:
+        category === "distributed_force" || category === "pressure" || category === "thermal"
+          ? { type: "element", pipe: targetPipe }
+          : { type: "node", node: targetNode },
       direction,
       magnitude: { value: magnitudeValue, unit: expectedUnit },
       dimension: expectedDimension,

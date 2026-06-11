@@ -44,6 +44,26 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "target=node:N-100; direction=rotation_z; unit=N*m; moment"
   );
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("pressure");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-P300");
+  await expect(page.getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_x");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-P300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=pipe:P-100; direction=global_x; unit=Pa; pressure"
+  );
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
+  await expect(page.getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-T300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=pipe:P-100; direction=global_z; unit=degC; temperature_interval"
+  );
   await page.getByTestId("load-manager-primitive-load:L-100-P").click();
   await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
     "primitive_loads.2.magnitude.value"

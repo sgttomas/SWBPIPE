@@ -2984,3 +2984,47 @@ after the timestamp marker were absent.
   conversion, saved-project mutation without user Save, protected standards
   content, private data, or release, professional approval, certification,
   sealing, authentication, or code-compliance claims.
+
+## TP-MAC-101 pressure-thermal-load-creation-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-PRESSTEMP-001` (completion plan Phase A4 eighth
+  sub-slice) adding explicit pressure and thermal primitive creation to the
+  Load Cases manager. The create form selects `pressure` or `thermal`,
+  captures load case, primitive id, existing pipe target, global direction,
+  magnitude, and provenance, then queues a structured `create_primitive_load`
+  operation.
+- Edit path: applying
+  `op:load-manager-load:L-100-load:L-100-P300-primitive` creates
+  `load:L-100-P300` under `load:L-100` as `pressure`,
+  `target=pipe:P-100`, `global_x`, `dimension=pressure`, with magnitude in
+  the project pressure unit (`Pa`). Applying
+  `op:load-manager-load:L-100-load:L-100-T300-primitive` creates
+  `load:L-100-T300` as `thermal`, `target=pipe:P-100`, `global_z`,
+  `dimension=temperature_interval`, with magnitude in the project temperature
+  interval unit (`degC`). Duplicate primitive ids and missing pipe targets are
+  blocked by validation.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 29/29 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 48/48 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the rendered pressure and thermal
+  primitive-load create intents in clean sessions and confirmed `2 load
+  cases; 8 primitive loads; 1 combinations`,
+  `load:L-100-P300; element:pipe:P-100; global_x; dimension=pressure`,
+  `load:L-100-T300; element:pipe:P-100; global_z;
+  dimension=temperature_interval`, persistence remained
+  `session_state_only_not_yet_saved`, professional approval remained false,
+  and solve state remained `not_started`; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not add gauge/absolute pressure conversion,
+  reference-pressure defaults, thermal absolute-temperature conversion,
+  imposed-displacement authoring, combination basis editing, combination term
+  creation/deletion, code/rule combinations, broader algebra authoring, unit
+  conversion, saved-project mutation without user Save, protected standards
+  content, private data, or release, professional approval, certification,
+  sealing, authentication, or code-compliance claims.

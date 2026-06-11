@@ -7,7 +7,7 @@ function sampleModel(): PreviewModel {
     schema_version: "0.1.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
-    project: { id: "project:test", name: "Test", description: "test", units: { length: "m", force: "N" } },
+    project: { id: "project:test", name: "Test", description: "test", units: { length: "m", force: "N", pressure: "Pa", temperature: "degC" } },
     analysis_status: { mechanics: "ready", rule_check: "not_performed", professional_acceptance: "not_provided" },
     materials: [
       {
@@ -397,6 +397,91 @@ describe("operationService browser-mode engine", () => {
     );
     missingNode.operation_kind = "create";
     const blocked = await applyModelOperation(model, missingNode, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
+  });
+
+  it("applies explicit pressure and thermal primitive load payloads without mutating the input", async () => {
+    const model = sampleModel();
+    model.load_cases.push({
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    });
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const pressurePayload = {
+      id: "load:L-1-P1",
+      category: "pressure",
+      target: { type: "element", pipe: "pipe:P-1" },
+      direction: "global_x",
+      magnitude: { value: 1200000, unit: "Pa" },
+      dimension: "pressure",
+      provenance: "user_entered_local_preview"
+    };
+    const pressureIntent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(pressurePayload),
+      "Pa",
+      "pressure"
+    );
+    pressureIntent.operation_kind = "create";
+
+    const pressureOutcome = await applyModelOperation(model, pressureIntent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(pressureOutcome.validation.application_status).toBe("applied_to_session_model");
+    expect(pressureOutcome.validation.reference_validation).toBe("passed");
+    expect(pressureOutcome.validation.unit_validation).toBe("passed");
+    expect(pressureOutcome.applied_model?.load_cases[0].primitive_loads).toEqual([pressurePayload]);
+
+    const thermalPayload = {
+      id: "load:L-1-T1",
+      category: "thermal",
+      target: { type: "element", pipe: "pipe:P-1" },
+      direction: "global_z",
+      magnitude: { value: 12.5, unit: "degC" },
+      dimension: "temperature_interval",
+      provenance: "user_entered_local_preview"
+    };
+    const thermalIntent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(thermalPayload),
+      "degC",
+      "temperature_interval"
+    );
+    thermalIntent.operation_kind = "create";
+
+    const thermalOutcome = await applyModelOperation(pressureOutcome.applied_model!, thermalIntent, null);
+
+    expect(thermalOutcome.validation.application_status).toBe("applied_to_session_model");
+    expect(thermalOutcome.validation.reference_validation).toBe("passed");
+    expect(thermalOutcome.validation.unit_validation).toBe("passed");
+    expect(thermalOutcome.applied_model?.load_cases[0].primitive_loads).toEqual([pressurePayload, thermalPayload]);
+
+    const missingPipePayload = { ...pressurePayload, id: "load:L-1-P2", target: { type: "element", pipe: "pipe:missing" } };
+    const missingPipe = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(missingPipePayload),
+      "Pa",
+      "pressure"
+    );
+    missingPipe.operation_kind = "create";
+    const blocked = await applyModelOperation(model, missingPipe, null);
     expect(blocked.validation.application_status).toBe("blocked");
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
   });

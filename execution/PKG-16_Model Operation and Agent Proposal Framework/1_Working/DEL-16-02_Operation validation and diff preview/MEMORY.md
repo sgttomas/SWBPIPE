@@ -294,3 +294,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no hidden target/default load inference, no durable
   persistence, no protected/private data, and no professional, release, or
   code-compliance claim.
+
+## 2026-06-11 - TP-APP-R2-PRESSTEMP-001 pressure and thermal primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  pressure and thermal `create_primitive_load` operations.
+- Accepted pressure intents must target an existing `Load` with
+  `field_path=primitive_loads`, use `before=not_present`, project pressure
+  unit metadata `Pa`, dimension `pressure`, a unique primitive id, category
+  `pressure`, existing pipe target, global direction, finite magnitude, and
+  provenance. Thermal uses project temperature metadata `degC` and dimension
+  `temperature_interval`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_pressure_thermal_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-101. Validation passed:
+  operation-applier format check, Rust operation-applier tests 29/29,
+  src-tauri Rust tests 26/26, desktop Vitest 48/48, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no gauge/absolute pressure default, no hidden
+  target/default load inference, no durable persistence, no protected/private
+  data, and no professional, release, or code-compliance claim.

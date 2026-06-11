@@ -388,3 +388,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
   creation, imposed displacements, final result-envelope/API/persistence/
   report integration, production tolerance policy, release thresholds, and
   professional reliance.
+
+## 2026-06-11 - TP-APP-R2-PRESSTEMP-001 pressure and thermal primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche consumed DEL-05-05 element-targeted
+  pressure/thermal load design authority in the desktop Load Cases manager.
+  No `core/loads/user_loads` source behavior changed.
+- The GUI and operation seam now accept explicit pressure and thermal
+  primitives: existing pipe target, `global_x|global_y|global_z` direction,
+  dimensions `pressure` and `temperature_interval`, project units `Pa` and
+  `degC`, finite magnitude, and provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_pressure_thermal_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-101. Validation passed:
+  operation-applier format check, Rust operation-applier tests 29/29,
+  src-tauri Rust tests 26/26, desktop Vitest 48/48, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser pressure/thermal smoke.
+- Remaining DEL-05-05 residuals include imposed displacements, final
+  result-envelope/API/persistence/report integration, production tolerance
+  policy, release thresholds, and professional reliance.

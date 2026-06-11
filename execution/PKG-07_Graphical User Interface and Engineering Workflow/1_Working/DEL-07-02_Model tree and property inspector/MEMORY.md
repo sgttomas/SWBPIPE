@@ -349,3 +349,22 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-11 - TP-APP-R2-PRESSTEMP-001 pressure and thermal primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with
+  create-primitive support for explicit pressure and thermal element loads.
+- The app tests apply `load:L-100-P300` and `load:L-100-T300`, verify the
+  manager summary changes to `2 load cases; 8 primitive loads; 1 combinations`,
+  verify `load:L-100` primitive count, and verify the new element-targeted
+  rows with dimensions `pressure` and `temperature_interval`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_pressure_thermal_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-101. Validation passed:
+  operation-applier format check, Rust operation-applier tests 29/29,
+  src-tauri Rust tests 26/26, desktop Vitest 48/48, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser pressure/thermal smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

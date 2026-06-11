@@ -11,6 +11,71 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 eighth sub-slice: pressure and thermal primitive-load creation editor (`TP-APP-R2-PRESSTEMP-001`)
+
+The Load Cases manager now exposes explicit pressure and thermal primitive
+load creation for existing load cases. The create form selects `pressure` or
+`thermal`, captures the target load case, primitive-load id, existing pipe
+target, global direction, magnitude, and provenance, then queues a structured
+`create_primitive_load` operation. Pressure payloads are limited to target
+`{ type: "element", pipe: <existing pipe id> }`, dimension `pressure`, and
+the project pressure unit (`Pa` for the invented preview model). Thermal
+payloads use the same element target contract with dimension
+`temperature_interval` and the project temperature interval unit (`degC` for
+the invented preview model). No gauge/absolute pressure conversion,
+reference-pressure default, thermal absolute-temperature conversion, imposed
+displacement, hidden default, unit conversion, or code-specific combination is
+inferred.
+
+The invented preview model now records `project.units.pressure = "Pa"` so
+pressure creation consumes explicit project unit metadata rather than an
+implicit pressure fallback. This remains a single-unit technical-preview
+posture: D-01 has accepted future unit semantics, but Phase B unit conversion,
+quantity-kind UI, reference-pressure handling, and unit picker/display
+retirement remain outside this tranche.
+
+The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now validate, diff, and apply
+`pressure` and `thermal` primitive-load creation alongside the previously
+landed concentrated-force, distributed-force, and concentrated-moment paths.
+Accepted pressure/thermal intents must target an existing `Load` with
+`field_path=primitive_loads`, `before=not_present`, the corresponding project
+unit metadata, matching dimension, a globally unique primitive-load id,
+category `pressure` or `thermal`, an existing pipe target, global direction,
+finite magnitude in the expected unit, and non-empty provenance. Duplicate
+primitive IDs and missing pipe targets are blocked.
+
+The app-level tests create `load:L-100-P300` and `load:L-100-T300` through
+the manager, apply each through `OperationApplyPanel`, verify the manager
+summary and `load:L-100` primitive count, check the new element-targeted rows,
+confirm the local receipt, and confirm stale solve state is reset. The
+Playwright R2 smoke checks both rendered create previews without queueing so
+the solve/results/report path remains on the unchanged fixture model.
+
+In-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-load:L-100-load:L-100-P300-primitive` and
+`op:load-manager-load:L-100-load:L-100-T300-primitive` in clean sessions. The
+smoke confirmed `2 load cases; 8 primitive loads; 1 combinations`, pressure
+row `load:L-100-P300; element:pipe:P-100; global_x; dimension=pressure`,
+thermal row `load:L-100-T300; element:pipe:P-100; global_z;
+dimension=temperature_interval`, zero pending operations,
+`persistence=session_state_only_not_yet_saved`, `professional_approval=false`,
+and solve state `not_started`.
+
+Residuals remain in A4: imposed-displacement authoring breadth, combination
+basis editing, combination term creation/deletion, broader algebra authoring,
+Phase B unit picker/display retirement, and packaged-Tauri saved-project smoke
+over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-101;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_pressure_thermal_load_creation_editor.md`,
+the same-named record under
+`DEL-05-05_Concentrated and distributed user load application/_run_records/`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 seventh sub-slice: concentrated moment primitive-load creation editor (`TP-APP-R2-MOMENTCREATE-001`)
 
 The Load Cases manager now exposes explicit concentrated nodal-moment

@@ -1451,12 +1451,12 @@ fn resolve_create_primitive_load(
 
     if !matches!(
         category,
-        "concentrated_force" | "distributed_force" | "concentrated_moment"
+        "concentrated_force" | "distributed_force" | "concentrated_moment" | "pressure" | "thermal"
     ) {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, or `concentrated_moment`.".to_string(),
+            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `pressure`, or `thermal`.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
@@ -1467,14 +1467,27 @@ fn resolve_create_primitive_load(
         "force_per_length"
     } else if category == "concentrated_moment" {
         "moment"
+    } else if category == "pressure" {
+        "pressure"
+    } else if category == "thermal" {
+        "temperature_interval"
     } else {
         "force"
     };
     let stored_force_unit = value_at(model, &["project", "units", "force"]).and_then(Value::as_str);
     let stored_length_unit =
         value_at(model, &["project", "units", "length"]).and_then(Value::as_str);
+    let stored_pressure_unit =
+        value_at(model, &["project", "units", "pressure"]).and_then(Value::as_str);
+    let stored_temperature_unit =
+        value_at(model, &["project", "units", "temperature"]).and_then(Value::as_str);
+    let requires_force_unit = matches!(
+        category,
+        "concentrated_force" | "distributed_force" | "concentrated_moment"
+    );
+    let requires_length_unit = matches!(category, "distributed_force" | "concentrated_moment");
     checker.unit_state = "passed";
-    let Some(stored_force_unit) = stored_force_unit else {
+    if requires_force_unit && stored_force_unit.is_none() {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-METADATA-MISSING",
@@ -1485,10 +1498,8 @@ fn resolve_create_primitive_load(
             vec![target_ref.to_string()],
         );
         return None;
-    };
-    if matches!(category, "distributed_force" | "concentrated_moment")
-        && stored_length_unit.is_none()
-    {
+    }
+    if requires_length_unit && stored_length_unit.is_none() {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-METADATA-MISSING",
@@ -1499,12 +1510,46 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
+    if category == "pressure" && stored_pressure_unit.is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project pressure unit metadata is missing; pressure primitive loads cannot be accepted.".to_string(),
+            "Repair the model document's project.units.pressure metadata before creating pressure primitives.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if category == "thermal" && stored_temperature_unit.is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project temperature unit metadata is missing; thermal primitive loads cannot be accepted.".to_string(),
+            "Repair the model document's project.units.temperature metadata before creating thermal primitives.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
     let expected_unit = if category == "distributed_force" {
-        format!("{}/{}", stored_force_unit, stored_length_unit.unwrap_or(""))
+        format!(
+            "{}/{}",
+            stored_force_unit.unwrap_or(""),
+            stored_length_unit.unwrap_or("")
+        )
     } else if category == "concentrated_moment" {
-        format!("{}*{}", stored_force_unit, stored_length_unit.unwrap_or(""))
+        format!(
+            "{}*{}",
+            stored_force_unit.unwrap_or(""),
+            stored_length_unit.unwrap_or("")
+        )
+    } else if category == "pressure" {
+        stored_pressure_unit.unwrap_or("").to_string()
+    } else if category == "thermal" {
+        stored_temperature_unit.unwrap_or("").to_string()
     } else {
-        stored_force_unit.to_string()
+        stored_force_unit.unwrap_or("").to_string()
     };
     if unit != expected_unit {
         checker.unit_state = "blocked";
@@ -1536,7 +1581,8 @@ fn resolve_create_primitive_load(
             && !matches!(direction, "global_x" | "global_y" | "global_z"))
         || (category == "concentrated_force" && (target_type != "node" || target_node.is_empty()))
         || (category == "concentrated_moment" && (target_type != "node" || target_node.is_empty()))
-        || (category == "distributed_force" && (target_type != "element" || target_pipe.is_empty()))
+        || (matches!(category, "distributed_force" | "pressure" | "thermal")
+            && (target_type != "element" || target_pipe.is_empty()))
         || magnitude_value.is_none()
         || magnitude_unit != expected_unit
         || payload_dimension != expected_dimension
@@ -1584,21 +1630,22 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
-    if category == "distributed_force" && find_entity(model, "pipe_segments", target_pipe).is_none()
+    if matches!(category, "distributed_force" | "pressure" | "thermal")
+        && find_entity(model, "pipe_segments", target_pipe).is_none()
     {
         checker.reference_state = "blocked";
         checker.push(
             "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
             "blocking",
             format!("Primitive load `{id}` references pipe `{target_pipe}`, which is absent from the current model."),
-            "Select an existing pipe target before authoring a distributed force.",
+            "Select an existing pipe target before authoring an element-targeted primitive load.",
             vec![target_ref.to_string(), target_pipe.to_string()],
         );
         return None;
     }
     checker.reference_state = "passed";
 
-    let target = if category == "distributed_force" {
+    let target = if matches!(category, "distributed_force" | "pressure" | "thermal") {
         serde_json::json!({ "type": "element", "pipe": target_pipe })
     } else {
         serde_json::json!({ "type": "node", "node": target_node })
@@ -2388,7 +2435,7 @@ mod tests {
         json!({
             "schema_version": "0.1.0",
             "document_kind": "openpipestress.product_preview.model",
-            "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N" } },
+            "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
                 {
                     "id": "material:steel",
@@ -2978,6 +3025,118 @@ mod tests {
         );
         missing_node["operation_kind"] = json!("create");
         let blocked = apply_operation(&model, &missing_node, None);
+        assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_primitive_load_payload_applies_pressure_and_thermal_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let pressure_payload = json!({
+            "id": "load:L-1-P1",
+            "category": "pressure",
+            "target": { "type": "element", "pipe": "pipe:P-1" },
+            "direction": "global_x",
+            "magnitude": { "value": 1200000.0, "unit": "Pa" },
+            "dimension": "pressure",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut pressure_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&pressure_payload).expect("payload json"),
+            "Pa",
+            "pressure",
+        );
+        pressure_intent["operation_kind"] = json!("create");
+
+        let pressure_outcome = apply_operation(&model, &pressure_intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            pressure_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            pressure_outcome.diagnostics
+        );
+        assert_eq!(
+            pressure_outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(pressure_outcome.validation.reference_validation, "passed");
+        assert_eq!(pressure_outcome.validation.unit_validation, "passed");
+        let pressure_applied = pressure_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            pressure_applied["load_cases"][0]["primitive_loads"][1],
+            pressure_payload
+        );
+
+        let thermal_payload = json!({
+            "id": "load:L-1-T1",
+            "category": "thermal",
+            "target": { "type": "element", "pipe": "pipe:P-1" },
+            "direction": "global_z",
+            "magnitude": { "value": 12.5, "unit": "degC" },
+            "dimension": "temperature_interval",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut thermal_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&thermal_payload).expect("payload json"),
+            "degC",
+            "temperature_interval",
+        );
+        thermal_intent["operation_kind"] = json!("create");
+        let thermal_outcome = apply_operation(&pressure_applied, &thermal_intent, None);
+
+        assert!(
+            thermal_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            thermal_outcome.diagnostics
+        );
+        assert_eq!(
+            thermal_outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(thermal_outcome.validation.reference_validation, "passed");
+        assert_eq!(thermal_outcome.validation.unit_validation, "passed");
+        let thermal_applied = thermal_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            thermal_applied["load_cases"][0]["primitive_loads"][2],
+            thermal_payload
+        );
+
+        let missing_pipe_payload = json!({
+            "id": "load:L-1-P2",
+            "category": "pressure",
+            "target": { "type": "element", "pipe": "pipe:missing" },
+            "direction": "global_x",
+            "magnitude": { "value": 1200000.0, "unit": "Pa" },
+            "dimension": "pressure",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut missing_pipe = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&missing_pipe_payload).expect("payload json"),
+            "Pa",
+            "pressure",
+        );
+        missing_pipe["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &missing_pipe, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }
