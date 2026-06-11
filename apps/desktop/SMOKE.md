@@ -2709,3 +2709,30 @@ after the timestamp marker were absent.
   defaults, unit conversion, durable persistence, protected standards content,
   private data, release readiness, professional approval, certification,
   sealing, authentication, or code-compliance claims.
+
+## TP-MAC-93 viewport-canvas-node-drafting (2026-06-11)
+
+- Tranche: `TP-APP-R2-CANVASNODE-001` (completion plan Phase A3 sixth
+  sub-slice) adding canvas pointer capture for explicit node drafting. A
+  primary click on the viewport fills the existing explicit node form with a
+  visible generated node id/label and finite x/y/z coordinates from the
+  `y=0` drafting plane. Queue/Apply remain explicit user actions through the
+  structured operation path.
+- Automated coverage: Vitest creates a canvas-drafted `node:V-001`, queues
+  and applies it through `OperationApplyPanel`, then verifies the active model
+  tree row and property inspector position. Playwright clicks the real
+  WebGL canvas, verifies the form draft and enabled Queue node button, and
+  leaves the draft unqueued so the existing solve/results/report smoke still
+  runs on the unchanged fixture model.
+- Local validation: `npm test --workspace apps/desktop` passed with 34/34
+  Vitest tests; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build with the existing chunk-size warning;
+  `npm run test:e2e:desktop` passed with 1/1 Playwright tests; in-app browser
+  smoke at `http://127.0.0.1:5175/` confirmed one visible canvas, drafted
+  `node:V-001`, finite coordinates, `y=0`, and Queue node enabled.
+- Boundary: this slice drafts explicit node geometry only. It does not queue
+  or apply without user action, mutate saved project data, implement pipe or
+  component gesture capture, infer engineering values, perform unit
+  conversion, add protected standards content, handle private data, or make
+  release, professional approval, certification, sealing, authentication, or
+  code-compliance claims.

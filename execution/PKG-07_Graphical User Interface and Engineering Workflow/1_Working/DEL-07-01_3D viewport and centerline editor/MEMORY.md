@@ -205,6 +205,27 @@ Durable context preserved after reconciliation review:
   standards data, private project data, network path, telemetry path, or DAG
   authority changed.
 
+## 2026-06-11 - TP-APP-R2-CANVASNODE-001 viewport canvas node drafting
+
+- WORKING_ITEMS app-integration tranche added primary-pointer canvas drafting
+  for explicit node creation in `PipeViewport`.
+- In WebGL mode the handler raycasts to the `y=0` drafting plane; in
+  fallback/test mode it maps the pointer into the same bounded drafting plane.
+  The gesture fills visible node id/label/x/y/z fields and does not queue or
+  apply without user action.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_canvas_node_drafting.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-93. Validation passed:
+  `npm test --workspace apps/desktop` (34/34),
+  `npm run build --workspace apps/desktop`, `npm run test:e2e:desktop`
+  (1/1), and in-app browser smoke at `http://127.0.0.1:5175/`.
+- Residual A3 scope remains canvas gesture capture beyond node drafting,
+  including pipe/connectivity and component/rigid authoring.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, or DAG
+  authority changed.
+
 ## 2026-06-11 - TP-APP-R2-CONNECTPIPE-001 explicit straight-pipe connectivity
 
 - WORKING_ITEMS app-integration tranche added an explicit straight-pipe form

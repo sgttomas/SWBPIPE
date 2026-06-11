@@ -11,6 +11,34 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A3 sixth sub-slice: canvas node drafting (`TP-APP-R2-CANVASNODE-001`)
+
+The viewport canvas now captures a primary pointer gesture into the explicit
+node form before any operation is queued. In WebGL mode, the handler raycasts
+from the Three.js camera to the `y=0` drafting plane; in fallback/test mode,
+it maps the pointer into the same bounded model-drafting plane. The captured
+draft fills a visible editable node id (`node:V-001` style), label, and finite
+x/y/z coordinates. The existing Queue node and Apply Operations path remains
+the only mutation path.
+
+The app-level test applies a canvas-drafted node through the structured
+operation seam and verifies model-tree/inspector selection. The Playwright R2
+smoke now exercises the real browser canvas click path without queueing the
+draft, so the solve/report smoke remains on the unchanged fixture model. An
+in-app browser smoke at `http://127.0.0.1:5175/` confirmed a canvas click
+drafted `node:V-001`, finite coordinates, `y=0`, and enabled Queue node.
+
+Residuals remain in A3: canvas gesture capture beyond node drafting
+(pipe/connectivity and component/rigid authoring), rigid/component authoring,
+and broader editor coverage as new authoring surfaces land.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-93;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_canvas_node_drafting.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and the
+same-named record under
+`DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A3 fifth sub-slice: explicit straight-pipe creation (`TP-APP-R2-CONNECTPIPE-001`)
 
 The viewport editor now has an explicit straight-pipe form for user-entered

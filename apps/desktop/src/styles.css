@@ -519,6 +519,7 @@ button:focus-visible {
 .viewport-canvas {
   position: absolute;
   inset: 0;
+  cursor: crosshair;
 }
 
 .viewport-canvas canvas {

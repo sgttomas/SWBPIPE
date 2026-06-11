@@ -19,6 +19,13 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();
+  await canvas.click({ position: { x: 64, y: 64 } });
+  await expect(page.getByTestId("viewport-create-node-id")).toHaveValue("node:V-001");
+  await expect(page.getByTestId("viewport-create-node-label")).toHaveValue("Viewport node V-001");
+  await expect(page.getByTestId("viewport-create-node-x")).toHaveValue(/^-?\d/);
+  await expect(page.getByTestId("viewport-create-node-y")).toHaveValue("0");
+  await expect(page.getByTestId("viewport-create-node-z")).toHaveValue(/^-?\d/);
+  await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
   const before = await canvas.screenshot();
   await page.waitForTimeout(700);
   const after = await canvas.screenshot();

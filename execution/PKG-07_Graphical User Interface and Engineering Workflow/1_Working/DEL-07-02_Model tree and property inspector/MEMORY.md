@@ -111,6 +111,25 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-11 - TP-APP-R2-CANVASNODE-001 viewport canvas node drafting
+
+- WORKING_ITEMS app-integration tranche connected canvas-drafted node
+  geometry to this deliverable's model tree/property-inspector path after the
+  user queues and applies the draft.
+- Vitest creates `node:V-001` from a viewport pointer event, applies it
+  through `OperationApplyPanel`, and verifies the active tree row plus
+  captured inspector position.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_canvas_node_drafting.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-93. Validation passed:
+  `npm test --workspace apps/desktop` (34/34), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), and in-app browser smoke.
+- No property-inspector edit semantics, lifecycle state, review finding
+  status, dependency authority, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, or telemetry path
+  changed.
+
 ## 2026-06-11 - TP-APP-R2-LOADMGR-001 load-case primitive magnitude manager
 
 - WORKING_ITEMS app-integration tranche added a right-rail Load Cases manager

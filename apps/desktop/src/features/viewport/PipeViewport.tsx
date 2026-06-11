@@ -1,5 +1,5 @@
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewModel, Vec3 } from "../../types";
 
@@ -43,6 +43,8 @@ type PipeDraft = {
   provenance: string;
 };
 
+type DraftProjector = (event: { clientX: number; clientY: number }) => Vec3 | null;
+
 type DeformationOverlay = {
   state: "not_started" | "available" | "blocked" | "unavailable";
   summary: string;
@@ -52,6 +54,7 @@ type DeformationOverlay = {
 
 export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], result = null, selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const draftProjectorRef = useRef<DraftProjector | null>(null);
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft());
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft());
@@ -65,12 +68,16 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     const host = hostRef.current;
     if (!host) return;
     if (!hasWebGL()) {
+      draftProjectorRef.current = (event) => fallbackDraftPointFromHostEvent(host, event, model);
       host.replaceChildren();
       const fallback = document.createElement("div");
       fallback.className = "viewport-fallback";
       fallback.textContent = "3D viewport requires WebGL; model data is still loaded in the tree.";
       host.appendChild(fallback);
-      return;
+      return () => {
+        draftProjectorRef.current = null;
+        host.replaceChildren();
+      };
     }
 
     const scene = new THREE.Scene();
@@ -83,6 +90,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(host.clientWidth, host.clientHeight);
     host.replaceChildren(renderer.domElement);
+    draftProjectorRef.current = (event) => raycastDraftPoint(event, renderer.domElement, camera);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.72));
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -145,6 +153,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
+      draftProjectorRef.current = null;
       renderer.dispose();
       host.replaceChildren();
     };
@@ -185,6 +194,13 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     setPipeDraft((current) => ({ ...current, [field]: value }));
   }
 
+  function captureNodeDraftFromViewport(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 && event.button !== undefined) return;
+    const projected = draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
+    if (!projected) return;
+    setNodeDraft(buildDraftNodeFromViewportPoint(model, [...queuedIntents, ...localIntents], projected));
+  }
+
   return (
     <div className="viewport-shell">
       <div className="viewport-toolbar">
@@ -200,7 +216,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
         <span>Selected: {selection.id}</span>
       </div>
       <div className="viewport-frame">
-        <div className="viewport-canvas" ref={hostRef} aria-label="Three.js pipe centerline viewport" />
+        <div
+          className="viewport-canvas"
+          data-testid="viewport-canvas"
+          onPointerDown={captureNodeDraftFromViewport}
+          ref={hostRef}
+          aria-label="Three.js pipe centerline viewport"
+          title="Draft node from viewport"
+        />
         <div className="viewport-selection-layer" aria-label="Viewport entity selection" data-testid="viewport-selection-layer">
           {selectionTargets.map((target) => {
             const active = selection.id === target.ref.id;
@@ -520,6 +543,76 @@ function isPositiveInput(value: string): boolean {
   return isFiniteInput(value) && Number(value) > 0;
 }
 
+function buildDraftNodeFromViewportPoint(model: PreviewModel, queuedIntents: EditorOperationIntent[], point: Vec3): NodeDraft {
+  const id = nextViewportNodeId(model, queuedIntents);
+  return {
+    id,
+    label: `Viewport node ${shortEntityToken(id)}`,
+    x: formatDraftCoordinate(point.x),
+    y: formatDraftCoordinate(point.y),
+    z: formatDraftCoordinate(point.z)
+  };
+}
+
+function nextViewportNodeId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set(model.nodes.map((node) => node.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_node") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `node:V-${index.toString().padStart(3, "0")}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "node:V-TBD";
+}
+
+function formatDraftCoordinate(value: number): string {
+  const rounded = Math.round(value * 1000) / 1000;
+  return String(Object.is(rounded, -0) ? 0 : rounded);
+}
+
+function raycastDraftPoint(
+  event: { clientX: number; clientY: number },
+  canvas: HTMLCanvasElement,
+  camera: THREE.PerspectiveCamera
+): Vec3 | null {
+  const position = eventPositionFraction(canvas, event);
+  const pointer = new THREE.Vector2(position.x * 2 - 1, -(position.y * 2 - 1));
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(pointer, camera);
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const intersection = new THREE.Vector3();
+  if (!raycaster.ray.intersectPlane(plane, intersection)) return null;
+  if (![intersection.x, intersection.y, intersection.z].every(Number.isFinite)) return null;
+  return { x: intersection.x, y: intersection.y, z: intersection.z };
+}
+
+function fallbackDraftPointFromHostEvent(host: HTMLElement, event: { clientX: number; clientY: number }, model: PreviewModel): Vec3 {
+  const position = eventPositionFraction(host, event);
+  const bounds = selectionBounds(model.nodes.map((node) => node.position));
+  const xPercent = clamp(position.x * 100, 12, 88);
+  const depthPercent = clamp(position.y * 100, 20, 78);
+  return {
+    x: unscale(xPercent, bounds.minX, bounds.maxX, 12, 88),
+    y: 0,
+    z: unscale(depthPercent, bounds.minDepth, bounds.maxDepth, 78, 20)
+  };
+}
+
+function eventPositionFraction(element: HTMLElement, event: { clientX: number; clientY: number }): { x: number; y: number } {
+  const rect = element.getBoundingClientRect();
+  const width = rect.width || element.clientWidth || 600;
+  const height = rect.height || element.clientHeight || 320;
+  const left = rect.width ? rect.left : 0;
+  const top = rect.height ? rect.top : 0;
+  return {
+    x: clamp((event.clientX - left) / width, 0, 1),
+    y: clamp((event.clientY - top) / height, 0, 1)
+  };
+}
+
 function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] }) {
   if (kind === "node") return <CircleDot size={13} aria-hidden="true" />;
   if (kind === "pipe") return <GitBranch size={13} aria-hidden="true" />;
@@ -625,6 +718,12 @@ function scale(value: number, min: number, max: number, low: number, high: numbe
   if (!Number.isFinite(value) || max === min) return (low + high) / 2;
   const fraction = (value - min) / (max - min);
   return low + fraction * (high - low);
+}
+
+function unscale(value: number, min: number, max: number, low: number, high: number): number {
+  if (!Number.isFinite(value) || max === min || low === high) return (min + max) / 2;
+  const fraction = (value - low) / (high - low);
+  return min + fraction * (max - min);
 }
 
 function clamp(value: number, min: number, max: number): number {

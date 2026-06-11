@@ -5028,6 +5028,43 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=1; redo=0");
   });
 
+  it("captures viewport pointer geometry into an explicit node draft before apply", async () => {
+    render(<App />);
+
+    const viewportCanvas = await screen.findByTestId("viewport-canvas");
+    const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
+    const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-node-intent");
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.pointerDown(viewportCanvas, { button: 0, clientX: 300, clientY: 160 });
+
+    const idInput = within(viewportIntentPanel).getByTestId("viewport-create-node-id") as HTMLInputElement;
+    const labelInput = within(viewportIntentPanel).getByTestId("viewport-create-node-label") as HTMLInputElement;
+    const xInput = within(viewportIntentPanel).getByTestId("viewport-create-node-x") as HTMLInputElement;
+    const yInput = within(viewportIntentPanel).getByTestId("viewport-create-node-y") as HTMLInputElement;
+    const zInput = within(viewportIntentPanel).getByTestId("viewport-create-node-z") as HTMLInputElement;
+    expect(idInput.value).toBe("node:V-001");
+    expect(labelInput.value).toBe("Viewport node V-001");
+    expect([xInput.value, yInput.value, zInput.value].every((value) => Number.isFinite(Number(value)))).toBe(true);
+    expect(yInput.value).toBe("0");
+    const draftedPosition = `${xInput.value}, ${yInput.value}, ${zInput.value} m`;
+    expect(queueButton).not.toBeDisabled();
+
+    fireEvent.click(queueButton);
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:viewport-create-node-node:V-001-001"
+      )
+    );
+
+    const createdNodeRow = screen.getByTestId("tree-row-node:V-001");
+    expect(createdNodeRow.textContent).toContain("Viewport node V-001");
+    expect(createdNodeRow).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain(draftedPosition);
+  });
+
   it("queues and applies explicit straight pipe connectivity through the structured operation seam", async () => {
     render(<App />);
 

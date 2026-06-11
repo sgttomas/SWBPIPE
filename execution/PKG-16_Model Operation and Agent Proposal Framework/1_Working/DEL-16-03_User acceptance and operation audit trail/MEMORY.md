@@ -139,3 +139,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
+
+## 2026-06-11 - TP-APP-R2-CANVASNODE-001 viewport canvas node drafting
+
+- WORKING_ITEMS app-integration tranche verified that canvas node drafting
+  only fills the visible draft form; user action is still required to queue
+  and apply the structured operation.
+- The app test applies the drafted `node:V-001` through
+  `OperationApplyPanel`, preserving the existing local-session acceptance
+  path and session-state-only posture.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_canvas_node_drafting.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-93. Validation passed:
+  desktop Vitest 34/34, desktop build, desktop Playwright smoke 1/1, and
+  in-app browser draft-only smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.
