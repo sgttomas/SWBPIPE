@@ -292,3 +292,21 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-11 - TP-APP-R2-PRIMCREATE-001 concentrated primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with a
+  create-primitive form for explicit concentrated nodal forces.
+- The app test applies `load:L-100-F300`, verifies the manager summary changes
+  to `2 load cases; 8 primitive loads; 1 combinations`, verifies the
+  `load:L-100` primitive count, and verifies the new primitive row.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_primitive_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-98. Validation passed:
+  operation-applier format check, Rust operation-applier tests 26/26,
+  src-tauri Rust tests 26/26, desktop Vitest 41/41, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser primitive-create smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

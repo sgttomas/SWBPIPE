@@ -1033,7 +1033,8 @@ button:focus-visible {
 .load-magnitude-editor,
 .load-metadata-editor,
 .combination-factor-editor,
-.load-case-create-editor {
+.load-case-create-editor,
+.primitive-load-create-editor {
   display: grid;
   gap: 8px;
   margin: 2px 0 10px;
@@ -1068,7 +1069,8 @@ button:focus-visible {
 .load-editor-controls,
 .load-metadata-controls,
 .combination-factor-controls,
-.load-case-create-controls {
+.load-case-create-controls,
+.primitive-load-create-controls {
   display: grid;
   grid-template-columns: minmax(72px, 0.7fr) minmax(0, 1fr) auto;
   align-items: end;
@@ -1083,10 +1085,15 @@ button:focus-visible {
   grid-template-columns: minmax(92px, 0.8fr) minmax(120px, 1fr) minmax(110px, 0.8fr) minmax(86px, 0.7fr) minmax(0, 1.1fr) auto;
 }
 
+.primitive-load-create-controls {
+  grid-template-columns: minmax(94px, 0.8fr) minmax(122px, 1fr) minmax(98px, 0.8fr) minmax(86px, 0.7fr) minmax(86px, 0.7fr) minmax(0, 1fr) auto;
+}
+
 .load-editor-controls label,
 .load-metadata-controls label,
 .combination-factor-controls label,
-.load-case-create-controls label {
+.load-case-create-controls label,
+.primitive-load-create-controls label {
   display: grid;
   gap: 3px;
   min-width: 0;
@@ -1095,7 +1102,8 @@ button:focus-visible {
 .load-editor-controls span,
 .load-metadata-controls span,
 .combination-factor-controls span,
-.load-case-create-controls span {
+.load-case-create-controls span,
+.primitive-load-create-controls span {
   color: #54615d;
   font-size: 11px;
 }
@@ -1104,7 +1112,9 @@ button:focus-visible {
 .load-metadata-controls input,
 .load-metadata-controls select,
 .combination-factor-controls input,
-.load-case-create-controls input {
+.load-case-create-controls input,
+.primitive-load-create-controls input,
+.primitive-load-create-controls select {
   min-width: 0;
   height: 30px;
   padding: 5px 7px;
@@ -1117,7 +1127,8 @@ button:focus-visible {
 .load-editor-controls button,
 .load-metadata-controls button,
 .combination-factor-controls button,
-.load-case-create-controls button {
+.load-case-create-controls button,
+.primitive-load-create-controls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1135,7 +1146,8 @@ button:focus-visible {
 .load-editor-controls button:disabled,
 .load-metadata-controls button:disabled,
 .combination-factor-controls button:disabled,
-.load-case-create-controls button:disabled {
+.load-case-create-controls button:disabled,
+.primitive-load-create-controls button:disabled {
   color: #7d8985;
   background: #eef2ef;
   cursor: not-allowed;

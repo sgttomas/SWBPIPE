@@ -435,3 +435,24 @@
   combination term creation/deletion, broader algebra authoring, Phase B unit
   picker/display retirement, and packaged-Tauri saved-project smoke over
   edited load data.
+
+## 2026-06-11 - TP-APP-R2-PRIMCREATE-001 concentrated primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche added explicit concentrated nodal-force
+  primitive-load creation to the desktop Load Cases manager for existing load
+  cases. No `core/loads/primitive_loads` source behavior changed.
+- The editor queues a structured `create_primitive_load` intent with
+  `field_path=primitive_loads`, `before=not_present`, project force unit,
+  dimension `force`, existing node target, global direction, finite magnitude,
+  and provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_primitive_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-98. Validation passed:
+  operation-applier format check, Rust operation-applier tests 26/26,
+  src-tauri Rust tests 26/26, desktop Vitest 41/41, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over `load:L-100-F300`.
+- A4 residuals remain distributed primitive-load creation, concentrated
+  moments, pressure/temperature primitive creation, imposed-displacement
+  authoring breadth, combination basis editing, combination term
+  creation/deletion, broader algebra authoring, Phase B unit picker/display
+  retirement, and packaged-Tauri saved-project smoke over edited load data.

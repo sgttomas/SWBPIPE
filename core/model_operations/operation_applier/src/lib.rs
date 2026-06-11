@@ -518,6 +518,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_primitive_load: Option<(String, Value)> = None;
+    if !checker.schema_blocked && change_kind == "create_primitive_load" {
+        created_primitive_load = resolve_create_primitive_load(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
 
     let blocking = checker.blocking();
     let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
@@ -531,7 +545,10 @@ fn run(
             dimension: dimension.clone(),
             change_kind: change_kind.clone(),
         }]
-    } else if (created_node.is_some() || created_pipe.is_some() || created_load_case.is_some())
+    } else if (created_node.is_some()
+        || created_pipe.is_some()
+        || created_load_case.is_some()
+        || created_primitive_load.is_some())
         && !blocking
     {
         vec![DiffPreviewRow {
@@ -587,6 +604,15 @@ fn run(
         } else if let Some(load_case) = &created_load_case {
             let mut next_model = model.clone();
             if apply_created_load_case(&mut next_model, load_case) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some((load_case_id, primitive_load)) = &created_primitive_load {
+            let mut next_model = model.clone();
+            if apply_created_primitive_load(&mut next_model, load_case_id, primitive_load) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -769,6 +795,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "create_node"
             | "connect_pipe_run"
             | "create_load_case"
+            | "create_primitive_load"
             | "insert_component_symbol"
     );
     if !supported_change {
@@ -787,7 +814,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" => "modify",
-        "create_node" | "create_load_case" => "create",
+        "create_node" | "create_load_case" | "create_primitive_load" => "create",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
         _ => unreachable!("supported_change guarantees a known change kind"),
@@ -1301,6 +1328,211 @@ fn resolve_create_load_case(
         "provenance": provenance,
         "primitive_loads": []
     }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_primitive_load(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<(String, Value)> {
+    if object_type != "Load" || field_path != "primitive_loads" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-PRIMITIVE-LOAD-SHAPE-INVALID",
+            "blocking",
+            "Create-primitive-load intents must target object_type `Load` with field_path `primitive_loads`."
+                .to_string(),
+            "Refresh the primitive-load creation intent from the explicit Load Cases manager form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    if find_entity(model, "load_cases", target_ref).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Load case `{target_ref}` was not found in the current model."),
+            "Create or select an existing load case before authoring primitive loads.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let stored_force_unit = value_at(model, &["project", "units", "force"]).and_then(Value::as_str);
+    checker.unit_state = "passed";
+    let Some(stored_force_unit) = stored_force_unit else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project force unit metadata is missing; concentrated force primitive loads cannot be accepted.".to_string(),
+            "Repair the model document's project.units.force metadata before creating force loads.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if unit != stored_force_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match project force unit `{stored_force_unit}`; unit conversion is unavailable until the units engine lands."),
+            "Enter concentrated force values in the project force unit; no silent conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "force" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-primitive-load dimension `{dimension}` must be `force` for this concentrated-force tranche."),
+            "Use the concentrated-force primitive editor for force loads; other primitive dimensions are separate A4 work.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+            "blocking",
+            "Create-primitive-load payload is not valid JSON.".to_string(),
+            "Emit the explicit primitive-load payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+            "blocking",
+            "Create-primitive-load payload must be a JSON object.".to_string(),
+            "Emit id, category, node target, direction, magnitude, dimension, and provenance fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let category = record
+        .get("category")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let direction = record
+        .get("direction")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let payload_dimension = record
+        .get("dimension")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let target_type = record
+        .get("target")
+        .and_then(Value::as_object)
+        .and_then(|target| target.get("type"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let target_node = record
+        .get("target")
+        .and_then(Value::as_object)
+        .and_then(|target| target.get("node"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let magnitude_value = record
+        .get("magnitude")
+        .and_then(Value::as_object)
+        .and_then(|magnitude| magnitude.get("value"))
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    let magnitude_unit = record
+        .get("magnitude")
+        .and_then(Value::as_object)
+        .and_then(|magnitude| magnitude.get("unit"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+
+    if id.is_empty()
+        || category != "concentrated_force"
+        || !matches!(direction, "global_x" | "global_y" | "global_z")
+        || target_type != "node"
+        || target_node.is_empty()
+        || magnitude_value.is_none()
+        || magnitude_unit != stored_force_unit
+        || payload_dimension != "force"
+        || provenance.is_empty()
+    {
+        checker.push(
+            "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+            "blocking",
+            "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force`, existing node target, global_x/global_y/global_z direction, finite magnitude in the project force unit, and dimension `force`.".to_string(),
+            "Refresh the primitive-load creation intent from explicit user-entered concentrated-force fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_primitive_load(model, id).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Primitive load `{id}` already exists in the current model."),
+            "Choose a new stable primitive-load id; create operations never overwrite existing primitive loads.",
+            vec![target_ref.to_string(), id.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "nodes", target_node).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Primitive load `{id}` references node `{target_node}`, which is absent from the current model."),
+            "Select an existing node target before authoring a concentrated force.",
+            vec![target_ref.to_string(), target_node.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    Some((
+        target_ref.to_string(),
+        serde_json::json!({
+            "id": id,
+            "category": category,
+            "target": { "type": "node", "node": target_node },
+            "direction": direction,
+            "magnitude": { "value": magnitude_value.unwrap(), "unit": stored_force_unit },
+            "dimension": "force",
+            "provenance": provenance,
+        }),
+    ))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1846,6 +2078,27 @@ fn apply_created_load_case(model: &mut Value, load_case: &Value) -> bool {
     true
 }
 
+fn apply_created_primitive_load(
+    model: &mut Value,
+    load_case_id: &str,
+    primitive_load: &Value,
+) -> bool {
+    let Some(load_case) = find_entity_mut(model, "load_cases", load_case_id) else {
+        return false;
+    };
+    if load_case.get("primitive_loads").is_none() {
+        load_case["primitive_loads"] = Value::Array(Vec::new());
+    }
+    let Some(primitive_loads) = load_case
+        .get_mut("primitive_loads")
+        .and_then(Value::as_array_mut)
+    else {
+        return false;
+    };
+    primitive_loads.push(primitive_load.clone());
+    true
+}
+
 fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> ModelBasisEvidence {
     let backend_model_hash = format!("sha256:{}", sha256_hex(&canonical_json(model)));
     match claimed_model_hash {
@@ -1945,6 +2198,16 @@ fn find_entity<'a>(model: &'a Value, collection: &str, entity_ref: &str) -> Opti
         .find(|item| item.get("id").and_then(Value::as_str) == Some(entity_ref))
 }
 
+fn find_primitive_load<'a>(model: &'a Value, primitive_ref: &str) -> Option<&'a Value> {
+    model
+        .get("load_cases")?
+        .as_array()?
+        .iter()
+        .filter_map(|load_case| load_case.get("primitive_loads")?.as_array())
+        .flat_map(|primitive_loads| primitive_loads.iter())
+        .find(|item| item.get("id").and_then(Value::as_str) == Some(primitive_ref))
+}
+
 fn find_entity_mut<'a>(
     model: &'a mut Value,
     collection: &str,
@@ -2042,7 +2305,7 @@ mod tests {
         json!({
             "schema_version": "0.1.0",
             "document_kind": "openpipestress.product_preview.model",
-            "project": { "id": "project:test", "name": "Test", "units": { "length": "m" } },
+            "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N" } },
             "materials": [
                 {
                     "id": "material:steel",
@@ -2384,6 +2647,89 @@ mod tests {
         non_empty["operation_kind"] = json!("create");
         let blocked = apply_operation(&model, &non_empty, None);
         assert!(codes(&blocked).contains(&"OP-CREATE-LOAD-CASE-PAYLOAD-INVALID"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_primitive_load_payload_applies_concentrated_force_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "load:L-1-F1",
+            "category": "concentrated_force",
+            "target": { "type": "node", "node": "node:N-2" },
+            "direction": "global_y",
+            "magnitude": { "value": 250.0, "unit": "N" },
+            "dimension": "force",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "N",
+            "force",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "primitive_loads");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"]
+                .as_array()
+                .expect("primitive loads array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["load_cases"][0]["primitive_loads"][1], payload);
+
+        let duplicate = apply_operation(&applied, &intent, None);
+        assert!(codes(&duplicate).contains(&"OP-TARGET-ALREADY-EXISTS"));
+        assert!(duplicate.applied_model.is_none());
+
+        let missing_node_payload = json!({
+            "id": "load:L-1-F2",
+            "category": "concentrated_force",
+            "target": { "type": "node", "node": "node:missing" },
+            "direction": "global_y",
+            "magnitude": { "value": 250.0, "unit": "N" },
+            "dimension": "force",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut missing_node = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&missing_node_payload).expect("payload json"),
+            "N",
+            "force",
+        );
+        missing_node["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &missing_node, None);
+        assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }
 

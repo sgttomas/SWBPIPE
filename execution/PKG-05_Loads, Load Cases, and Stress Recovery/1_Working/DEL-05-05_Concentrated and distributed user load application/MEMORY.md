@@ -328,3 +328,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No additional dependency register, review finding, source code, schema,
   aggregate DAG artifact, release record, professional approval,
   certification, sealing, authentication, or code-compliance claim was changed.
+
+## 2026-06-11 - TP-APP-R2-PRIMCREATE-001 concentrated primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche consumed DEL-05-05 concentrated
+  user-load design authority in the desktop Load Cases manager. No
+  `core/loads/user_loads` source behavior changed.
+- The GUI and operation seam now accept a single explicit concentrated nodal
+  force primitive: category `concentrated_force`, existing node target,
+  `global_x|global_y|global_z` direction, dimension `force`, project force
+  unit, finite magnitude, and provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_primitive_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-98. Validation passed:
+  operation-applier format check, Rust operation-applier tests 26/26,
+  src-tauri Rust tests 26/26, desktop Vitest 41/41, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser concentrated-force smoke.
+- Remaining DEL-05-05 residuals include distributed-load GUI integration,
+  concentrated moments, element-station authoring, final result-envelope/API/
+  persistence/report integration, production tolerance policy, release
+  thresholds, and professional reliance.

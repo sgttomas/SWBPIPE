@@ -183,6 +183,11 @@ type LocalChecker = {
   beforeState: string;
 };
 
+type CreatedPrimitiveLoad = {
+  loadCaseId: string;
+  primitiveLoad: Record<string, unknown>;
+};
+
 function pushDiagnostic(
   checker: LocalChecker,
   code: string,
@@ -246,6 +251,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && changeKind === "create_load_case") {
     createdLoadCase = resolveCreateLoadCase(modelDocument, targetRef, intent, checker);
   }
+  let createdPrimitiveLoad: CreatedPrimitiveLoad | null = null;
+  if (!checker.schemaBlocked && changeKind === "create_primitive_load") {
+    createdPrimitiveLoad = resolveCreatePrimitiveLoad(modelDocument, targetRef, intent, checker);
+  }
 
   const blocking = hasBlocking(checker);
   const diffPreview: OperationDiffPreviewRow[] =
@@ -262,7 +271,7 @@ async function runLocalOperation(
             change_kind: changeKind
           }
         ]
-      : (createdNode || createdPipe || createdLoadCase) && !blocking
+      : (createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad) && !blocking
         ? [
             {
               entity_ref: targetRef,
@@ -279,7 +288,7 @@ async function runLocalOperation(
 
   let appliedModel: PreviewModel | null = null;
   let appliedModelHash: string | null = null;
-  if (mode === "apply" && !blocking && (resolved || createdNode || createdPipe || createdLoadCase)) {
+  if (mode === "apply" && !blocking && (resolved || createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad)) {
     const nextModel = JSON.parse(JSON.stringify(modelDocument)) as Record<string, unknown>;
     const applied = resolved
       ? applyResolvedField(nextModel, objectType, targetRef, resolved)
@@ -289,6 +298,8 @@ async function runLocalOperation(
           ? applyCreatedPipe(nextModel, createdPipe)
           : createdLoadCase
             ? applyCreatedLoadCase(nextModel, createdLoadCase)
+            : createdPrimitiveLoad
+              ? applyCreatedPrimitiveLoad(nextModel, createdPrimitiveLoad)
             : false;
     if (applied) {
       appliedModelHash = await localHash(nextModel);
@@ -429,6 +440,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
     "create_node",
     "connect_pipe_run",
     "create_load_case",
+    "create_primitive_load",
     "insert_component_symbol"
   ];
   if (!supported.includes(changeKind)) {
@@ -445,7 +457,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
   }
   const expectedOperationKind = ["set_field", "update_load", "update_support"].includes(changeKind)
     ? "modify"
-    : changeKind === "create_node" || changeKind === "create_load_case"
+    : changeKind === "create_node" || changeKind === "create_load_case" || changeKind === "create_primitive_load"
       ? "create"
       : changeKind === "connect_pipe_run"
         ? "connect"
@@ -890,6 +902,182 @@ function resolveCreateLoadCase(
   };
 }
 
+function resolveCreatePrimitiveLoad(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): CreatedPrimitiveLoad | null {
+  if (intent.target.object_type !== "Load" || intent.change.field_path !== "primitive_loads") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-PRIMITIVE-LOAD-SHAPE-INVALID",
+      "blocking",
+      "Create-primitive-load intents must target object_type `Load` with field_path `primitive_loads`.",
+      "Refresh the primitive-load creation intent from the explicit Load Cases manager form.",
+      [targetRef]
+    );
+    return null;
+  }
+  checkBefore("not_present", intent.change.before, targetRef, intent.change.field_path, checker);
+  const loadCase = findEntity(model, "load_cases", targetRef);
+  if (!loadCase) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-NOT-FOUND",
+      "blocking",
+      `Load case \`${targetRef}\` was not found in the current model.`,
+      "Create or select an existing load case before authoring primitive loads.",
+      [targetRef]
+    );
+    return null;
+  }
+  const storedForceUnit = valueAtSegments(model, ["project", "units", "force"]);
+  checker.unitState = "passed";
+  if (typeof storedForceUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project force unit metadata is missing; concentrated force primitive loads cannot be accepted.",
+      "Repair the model document's project.units.force metadata before creating force loads.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.unit !== storedForceUnit) {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match project force unit \`${storedForceUnit}\`; unit conversion is unavailable until the units engine lands.`,
+      "Enter concentrated force values in the project force unit; no silent conversion is performed.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "force") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Create-primitive-load dimension \`${intent.change.dimension}\` must be \`force\` for this concentrated-force tranche.`,
+      "Use the concentrated-force primitive editor for force loads; other primitive dimensions are separate A4 work.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(intent.change.after);
+  } catch {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+      "blocking",
+      "Create-primitive-load payload is not valid JSON.",
+      "Emit the explicit primitive-load payload as JSON in change.after.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+      "blocking",
+      "Create-primitive-load payload must be a JSON object.",
+      "Emit id, category, node target, direction, magnitude, dimension, and provenance fields.",
+      [targetRef]
+    );
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const id = stringPayload(record, "id");
+  const category = stringPayload(record, "category");
+  const direction = stringPayload(record, "direction");
+  const provenance = stringPayload(record, "provenance");
+  const target = record.target;
+  const magnitude = record.magnitude;
+  const dimension = stringPayload(record, "dimension");
+  const magnitudeRecord =
+    typeof magnitude === "object" && magnitude !== null && !Array.isArray(magnitude)
+      ? (magnitude as Record<string, unknown>)
+      : null;
+  const targetRecord =
+    typeof target === "object" && target !== null && !Array.isArray(target) ? (target as Record<string, unknown>) : null;
+  const magnitudeValue = magnitudeRecord ? numericPayload(magnitudeRecord, "value") : null;
+  const magnitudeUnit = magnitudeRecord ? stringPayload(magnitudeRecord, "unit") : "";
+  const targetType = targetRecord ? stringPayload(targetRecord, "type") : "";
+  const targetNode = targetRecord ? stringPayload(targetRecord, "node") : "";
+
+  if (
+    !id ||
+    category !== "concentrated_force" ||
+    !["global_x", "global_y", "global_z"].includes(direction) ||
+    targetType !== "node" ||
+    !targetNode ||
+    magnitudeValue === null ||
+    magnitudeUnit !== storedForceUnit ||
+    dimension !== "force" ||
+    !provenance
+  ) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+      "blocking",
+      "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force`, existing node target, global_x/global_y/global_z direction, finite magnitude in the project force unit, and dimension `force`.",
+      "Refresh the primitive-load creation intent from explicit user-entered concentrated-force fields.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (findPrimitiveLoad(model, id)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-ALREADY-EXISTS",
+      "blocking",
+      `Primitive load \`${id}\` already exists in the current model.`,
+      "Choose a new stable primitive-load id; create operations never overwrite existing primitive loads.",
+      [targetRef, id]
+    );
+    return null;
+  }
+  if (!findEntity(model, "nodes", targetNode)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+      "blocking",
+      `Primitive load \`${id}\` references node \`${targetNode}\`, which is absent from the current model.`,
+      "Select an existing node target before authoring a concentrated force.",
+      [targetRef, targetNode]
+    );
+    return null;
+  }
+  checker.referenceState = "passed";
+
+  return {
+    loadCaseId: targetRef,
+    primitiveLoad: {
+      id,
+      category,
+      target: { type: "node", node: targetNode },
+      direction,
+      magnitude: { value: magnitudeValue, unit: storedForceUnit },
+      dimension: "force",
+      provenance
+    }
+  };
+}
+
 function resolveField(
   model: Record<string, unknown>,
   objectType: string,
@@ -1293,6 +1481,15 @@ function applyCreatedLoadCase(model: Record<string, unknown>, loadCase: Record<s
   return true;
 }
 
+function applyCreatedPrimitiveLoad(model: Record<string, unknown>, created: CreatedPrimitiveLoad): boolean {
+  const loadCase = findEntity(model, "load_cases", created.loadCaseId);
+  if (!loadCase) return false;
+  if (loadCase.primitive_loads === undefined) loadCase.primitive_loads = [];
+  if (!Array.isArray(loadCase.primitive_loads)) return false;
+  loadCase.primitive_loads.push(created.primitiveLoad);
+  return true;
+}
+
 function stepInto(value: unknown, segment: string): unknown {
   if (Array.isArray(value)) {
     const index = Number.parseInt(segment, 10);
@@ -1351,6 +1548,21 @@ function findEntity(model: Record<string, unknown>, collection: string, entityRe
     (item) => typeof item === "object" && item !== null && (item as Record<string, unknown>).id === entityRef
   );
   return (match as Record<string, unknown>) ?? null;
+}
+
+function findPrimitiveLoad(model: Record<string, unknown>, primitiveRef: string): Record<string, unknown> | null {
+  const loadCases = model.load_cases;
+  if (!Array.isArray(loadCases)) return null;
+  for (const loadCase of loadCases) {
+    if (typeof loadCase !== "object" || loadCase === null) continue;
+    const primitiveLoads = (loadCase as Record<string, unknown>).primitive_loads;
+    if (!Array.isArray(primitiveLoads)) continue;
+    const match = primitiveLoads.find(
+      (item) => typeof item === "object" && item !== null && (item as Record<string, unknown>).id === primitiveRef
+    );
+    if (match) return match as Record<string, unknown>;
+  }
+  return null;
 }
 
 function valueAtSegments(value: unknown, segments: string[]): unknown {

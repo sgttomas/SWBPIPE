@@ -2868,3 +2868,41 @@ after the timestamp marker were absent.
   conversion, saved-project mutation without user Save, protected standards
   content, private data, or release, professional approval, certification,
   sealing, authentication, or code-compliance claims.
+
+## TP-MAC-98 primitive-load-creation-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-PRIMCREATE-001` (completion plan Phase A4 fifth
+  sub-slice) adding explicit concentrated nodal-force primitive creation to
+  the Load Cases manager. The create form captures load case, primitive id,
+  existing node target, global direction, magnitude, and provenance, then
+  queues a structured `create_primitive_load` operation.
+- Edit path: applying
+  `op:load-manager-load:L-100-load:L-100-F300-primitive` creates
+  `load:L-100-F300` under `load:L-100` as `concentrated_force`,
+  `target=node:N-100`, `global_y`, `dimension=force`, with magnitude in the
+  project force unit. Duplicate primitive ids and missing node targets are
+  blocked by validation. Distributed loads, concentrated moments,
+  pressure/temperature primitive creation, and imposed displacements remain
+  separate A4 residuals.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 26/26 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 41/41 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the rendered primitive-load create intent
+  and confirmed `2 load cases; 8 primitive loads; 1 combinations`,
+  `load:L-100-F300; node:node:N-100; global_y; dimension=force`,
+  persistence remained `session_state_only_not_yet_saved`, professional
+  approval remained false, and solve state remained `not_started`; `git diff
+  --check -- . ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not add distributed primitive-load creation,
+  concentrated moments, pressure/temperature primitive creation,
+  imposed-displacement authoring, combination basis editing, combination term
+  creation/deletion, code/rule combinations, broader algebra authoring, unit
+  conversion, saved-project mutation without user Save, protected standards
+  content, private data, or release, professional approval, certification,
+  sealing, authentication, or code-compliance claims.

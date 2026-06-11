@@ -27,6 +27,15 @@ type LoadCaseDraft = {
   provenance: string;
 };
 
+type PrimitiveLoadDraft = {
+  loadCaseId: string;
+  id: string;
+  targetNode: string;
+  direction: string;
+  magnitude: string;
+  provenance: string;
+};
+
 type LoadMetadataField = "status" | "kind";
 
 export function LoadCaseManagerPanel({
@@ -67,6 +76,9 @@ export function LoadCaseManagerPanel({
   const [combinationRationale, setCombinationRationale] = useState("user_entered_combination_factor_preview_change");
   const nextLoadCaseId = useMemo(() => nextLoadCaseIdentifier(model), [model]);
   const [loadCaseDraft, setLoadCaseDraft] = useState<LoadCaseDraft>(() => defaultLoadCaseDraft(nextLoadCaseId));
+  const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
+    defaultPrimitiveLoadDraft(model, model.load_cases[0]?.id ?? "")
+  );
   const changed = selectedPrimitive ? proposedMagnitude.trim() !== currentMagnitude : false;
   const intent =
     selectedPrimitive && changed
@@ -109,6 +121,12 @@ export function LoadCaseManagerPanel({
         draft: loadCaseDraft
       })
     : null;
+  const createPrimitiveLoadIntent = isPrimitiveLoadDraftReady(model, primitiveLoadDraft)
+    ? buildCreatePrimitiveLoadIntent({
+        model,
+        draft: primitiveLoadDraft
+      })
+    : null;
 
   useEffect(() => {
     if (!primitiveLoads.length) {
@@ -147,6 +165,12 @@ export function LoadCaseManagerPanel({
 
   function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
     setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
+  }
+
+  function updatePrimitiveLoadDraft(field: keyof PrimitiveLoadDraft, value: string) {
+    setPrimitiveLoadDraft((draft) =>
+      field === "loadCaseId" ? { ...draft, loadCaseId: value, id: nextPrimitiveLoadIdentifier(model, value) } : { ...draft, [field]: value }
+    );
   }
 
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
@@ -245,6 +269,105 @@ export function LoadCaseManagerPanel({
             : loadCaseDraft.id.trim() && model.load_cases.some((loadCase) => loadCase.id === loadCaseDraft.id.trim())
               ? `id=${loadCaseDraft.id.trim()} already exists; no load case queued`
               : "complete id/label/kind/status/provenance to queue an empty load case"}
+        </p>
+      </section>
+
+      <section className="primitive-load-create-editor" aria-label="Create concentrated force primitive">
+        <div className="load-editor-heading" data-testid="load-manager-create-primitive-heading">
+          <ListPlus size={14} aria-hidden="true" />
+          <strong>{primitiveLoadDraft.id}</strong>
+          <span>
+            concentrated_force; target={primitiveLoadDraft.targetNode || "node:TBD"}; unit={projectForceUnit(model)}
+          </span>
+        </div>
+        <div className="primitive-load-create-controls">
+          <label>
+            <span>Case</span>
+            <select
+              aria-label="Primitive load case"
+              data-testid="load-manager-create-primitive-load-case"
+              onChange={(event) => updatePrimitiveLoadDraft("loadCaseId", event.target.value)}
+              value={primitiveLoadDraft.loadCaseId}
+            >
+              {model.load_cases.map((loadCase) => (
+                <option key={loadCase.id} value={loadCase.id}>
+                  {loadCase.id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>ID</span>
+            <input
+              aria-label="New primitive load id"
+              data-testid="load-manager-create-primitive-id"
+              onChange={(event) => updatePrimitiveLoadDraft("id", event.target.value)}
+              value={primitiveLoadDraft.id}
+            />
+          </label>
+          <label>
+            <span>Node</span>
+            <select
+              aria-label="Concentrated force target node"
+              data-testid="load-manager-create-primitive-node"
+              onChange={(event) => updatePrimitiveLoadDraft("targetNode", event.target.value)}
+              value={primitiveLoadDraft.targetNode}
+            >
+              {model.nodes.map((node) => (
+                <option key={node.id} value={node.id}>
+                  {node.id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Dir</span>
+            <select
+              aria-label="Concentrated force direction"
+              data-testid="load-manager-create-primitive-direction"
+              onChange={(event) => updatePrimitiveLoadDraft("direction", event.target.value)}
+              value={primitiveLoadDraft.direction}
+            >
+              <option value="global_x">global_x</option>
+              <option value="global_y">global_y</option>
+              <option value="global_z">global_z</option>
+            </select>
+          </label>
+          <label>
+            <span>Magnitude</span>
+            <input
+              aria-label="Concentrated force magnitude"
+              data-testid="load-manager-create-primitive-magnitude"
+              onChange={(event) => updatePrimitiveLoadDraft("magnitude", event.target.value)}
+              value={primitiveLoadDraft.magnitude}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="Concentrated force provenance"
+              data-testid="load-manager-create-primitive-provenance"
+              onChange={(event) => updatePrimitiveLoadDraft("provenance", event.target.value)}
+              value={primitiveLoadDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-primitive-intent"
+            disabled={!createPrimitiveLoadIntent}
+            onClick={() => createPrimitiveLoadIntent && onQueueIntent(createPrimitiveLoadIntent)}
+            title="Queue concentrated-force primitive load operation"
+            type="button"
+          >
+            <ListPlus size={14} aria-hidden="true" />
+            Queue force
+          </button>
+        </div>
+        <p className="muted load-edit-preview" data-testid="load-manager-create-primitive-preview">
+          {createPrimitiveLoadIntent
+            ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveLoadDraft.targetNode}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+            : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
+              ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
+              : "complete case/id/node/direction/nonzero magnitude/provenance to queue a concentrated force"}
         </p>
       </section>
 
@@ -527,6 +650,17 @@ function defaultLoadCaseDraft(id: string): LoadCaseDraft {
   };
 }
 
+function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): PrimitiveLoadDraft {
+  return {
+    loadCaseId,
+    id: nextPrimitiveLoadIdentifier(model, loadCaseId),
+    targetNode: model.nodes[0]?.id ?? "",
+    direction: "global_y",
+    magnitude: "250",
+    provenance: "user_entered_local_preview"
+  };
+}
+
 function nextLoadCaseIdentifier(model: PreviewModel): string {
   const used = new Set(model.load_cases.map((loadCase) => loadCase.id));
   for (let index = 300; index < 1000; index += 1) {
@@ -545,6 +679,23 @@ function isLoadCaseDraftReady(model: PreviewModel, draft: LoadCaseDraft): boolea
       draft.status.trim() &&
       draft.provenance.trim() &&
       !model.load_cases.some((loadCase) => loadCase.id === id)
+  );
+}
+
+function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraft): boolean {
+  const id = draft.id.trim();
+  const magnitude = parseFiniteNumber(draft.magnitude);
+  return Boolean(
+    draft.loadCaseId &&
+      model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId) &&
+      id &&
+      !primitiveLoadExists(model, id) &&
+      model.nodes.some((node) => node.id === draft.targetNode) &&
+      ["global_x", "global_y", "global_z"].includes(draft.direction) &&
+      magnitude !== null &&
+      magnitude !== 0 &&
+      draft.provenance.trim() &&
+      projectForceUnit(model) !== "TBD"
   );
 }
 
@@ -611,6 +762,75 @@ function buildCreateLoadCaseIntent({
       software_makes_authentication_claim: false
     },
     rationale: `load-case creation intent for ${model.project.id}`
+  };
+}
+
+function buildCreatePrimitiveLoadIntent({
+  model,
+  draft
+}: {
+  model: PreviewModel;
+  draft: PrimitiveLoadDraft;
+}): EditorOperationIntent {
+  const forceUnit = projectForceUnit(model);
+  const magnitude = parseFiniteNumber(draft.magnitude) ?? 0;
+  const payload = {
+    id: draft.id.trim(),
+    category: "concentrated_force",
+    target: { type: "node", node: draft.targetNode },
+    direction: draft.direction,
+    magnitude: { value: magnitude, unit: forceUnit },
+    dimension: "force",
+    provenance: draft.provenance.trim()
+  };
+  const operationToken = `${safeToken(draft.loadCaseId)}-${safeToken(payload.id)}-primitive`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Load",
+      ref: draft.loadCaseId
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "create_primitive_load",
+      field_label: "Concentrated force primitive load",
+      field_path: "primitive_loads",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: forceUnit,
+      dimension: "force",
+      source_note: "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `concentrated force primitive-load creation intent for ${model.project.id}`
   };
 }
 
@@ -761,6 +981,18 @@ function primitiveLoadViews(model: PreviewModel): PrimitiveLoadView[] {
   );
 }
 
+function nextPrimitiveLoadIdentifier(model: PreviewModel, loadCaseId: string): string {
+  for (let index = 300; index < 1000; index += 1) {
+    const candidate = loadCaseId ? `${loadCaseId}-F${index}` : `load:F-${index}`;
+    if (!primitiveLoadExists(model, candidate)) return candidate;
+  }
+  return `${loadCaseId || "load:F"}-${primitiveLoadViews(model).length + 1}`;
+}
+
+function primitiveLoadExists(model: PreviewModel, id: string): boolean {
+  return primitiveLoadViews(model).some((primitive) => primitiveId(primitive.load) === id);
+}
+
 function buildLoadMagnitudeIntent({
   model,
   primitive,
@@ -879,6 +1111,17 @@ function primitiveUnit(load: PrimitiveLoad): string {
   const magnitude = load.magnitude;
   if (!magnitude || typeof magnitude !== "object" || Array.isArray(magnitude)) return "TBD";
   return optionalString((magnitude as Record<string, unknown>).unit) ?? "TBD";
+}
+
+function projectForceUnit(model: PreviewModel): string {
+  return optionalString(model.project.units.force) ?? "TBD";
+}
+
+function parseFiniteNumber(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(trimmed)) return null;
+  const parsed = Number.parseFloat(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function stringField(record: Record<string, unknown>, key: string): string {

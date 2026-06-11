@@ -7,7 +7,7 @@ function sampleModel(): PreviewModel {
     schema_version: "0.1.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
-    project: { id: "project:test", name: "Test", description: "test", units: { length: "m" } },
+    project: { id: "project:test", name: "Test", description: "test", units: { length: "m", force: "N" } },
     analysis_status: { mechanics: "ready", rule_check: "not_performed", professional_acceptance: "not_provided" },
     materials: [
       {
@@ -210,6 +210,69 @@ describe("operationService browser-mode engine", () => {
     expect(blocked.validation.application_status).toBe("blocked");
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-CREATE-LOAD-CASE-PAYLOAD-INVALID");
     expect(blocked.applied_model).toBeNull();
+  });
+
+  it("applies an explicit concentrated-force primitive load payload without mutating the input", async () => {
+    const model = sampleModel();
+    model.load_cases.push({
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    });
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const payload = {
+      id: "load:L-1-F1",
+      category: "concentrated_force",
+      target: { type: "node", node: "node:N-2" },
+      direction: "global_y",
+      magnitude: { value: 250, unit: "N" },
+      dimension: "force",
+      provenance: "user_entered_local_preview"
+    };
+    const intent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(payload),
+      "N",
+      "force"
+    );
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.validation.unit_validation).toBe("passed");
+    expect(outcome.diff_preview).toHaveLength(1);
+    expect(outcome.diff_preview[0].field_path).toBe("primitive_loads");
+    expect(outcome.applied_model?.load_cases[0].primitive_loads).toEqual([payload]);
+
+    const duplicate = await applyModelOperation(outcome.applied_model!, intent, null);
+    expect(duplicate.validation.application_status).toBe("blocked");
+    expect(duplicate.diagnostics.map((item) => item.code)).toContain("OP-TARGET-ALREADY-EXISTS");
+
+    const missingNodePayload = { ...payload, id: "load:L-1-F2", target: { type: "node", node: "node:missing" } };
+    const missingNode = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(missingNodePayload),
+      "N",
+      "force"
+    );
+    missingNode.operation_kind = "create";
+    const blocked = await applyModelOperation(model, missingNode, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
   });
 
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
