@@ -30,7 +30,7 @@ export async function loadDesignKnowledge(): Promise<DesignKnowledge> {
 }
 
 export async function runPreviewMechanics(model?: PreviewModel | null): Promise<MechanicsResult> {
-  return invokeOrFixture("run_preview_mechanics", loadMechanicsFixture, model ? { model } : undefined);
+  return invokeOrFixture("run_preview_mechanics", () => runBrowserPreviewMechanics(model), model ? { model } : undefined);
 }
 
 export type SolveJobStartReceipt =
@@ -379,6 +379,47 @@ async function loadKnowledgeFixture(): Promise<DesignKnowledge> {
 
 async function loadMechanicsFixture(): Promise<MechanicsResult> {
   return (await import("../../../../fixtures/product_preview/invented_mechanics_result.json")).default as MechanicsResult;
+}
+
+async function runBrowserPreviewMechanics(model?: PreviewModel | null): Promise<MechanicsResult> {
+  if (!model) return loadMechanicsFixture();
+  const fixtureModel = await loadModelFixture();
+  if (canonicalJson(model) === canonicalJson(fixtureModel)) return loadMechanicsFixture();
+  return blockedBrowserEditedModelResult(model);
+}
+
+function blockedBrowserEditedModelResult(model: PreviewModel): MechanicsResult {
+  return {
+    schema_version: "0.1.0",
+    document_kind: "openpipestress.product_preview.mechanics_result",
+    run_id: `run:preview-linear-static-browser-blocked:${safeComparisonToken(model.project.id)}`,
+    model_ref: model.project.id,
+    status: {
+      mechanics: "MODEL_INCOMPLETE",
+      rule_check: "RULE_INPUTS_INCOMPLETE",
+      professional_acceptance: "NOT_PROVIDED"
+    },
+    summary: {
+      node_count: model.nodes.length,
+      segment_count: model.pipe_segments.length,
+      support_count: model.supports.length,
+      load_case_count: model.load_cases.length,
+      max_displacement: null,
+      max_open_formula_stress: null
+    },
+    results: [],
+    diagnostics: [
+      {
+        id: "diagnostic:browser-solve:edited-model-backend-required",
+        code: "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL",
+        severity: "blocking",
+        source: "apps/desktop/src/services/previewService.ts",
+        affected_refs: [model.project.id],
+        message:
+          "Browser fixture mode will not reuse bundled solved-result rows for an edited model; run through the Tauri backend solve path for model-bound mechanics results."
+      }
+    ]
+  };
 }
 
 async function loadAgentProposalFixture(): Promise<AgentProposal> {

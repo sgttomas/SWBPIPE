@@ -4851,9 +4851,23 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain("195000000000 Pa");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
 
-    // The edited model still solves and saves through the existing paths.
+    // Browser fixture mode must not publish stale solved rows for the edited model.
     fireEvent.click(screen.getByTestId("run-mechanics-preview"));
     await waitFor(() => expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed"));
+    expect(screen.getByTestId("status-mechanics").textContent).toContain("MODEL INCOMPLETE");
+    expect(within(screen.getByTestId("solve-readiness-summary")).getByTestId("readiness-mechanics").textContent).toContain(
+      "0 computed result rows; model incomplete"
+    );
+    expect(within(screen.getByTestId("solve-readiness-summary")).getByTestId("readiness-diagnostics").textContent).toContain(
+      "1 blocking/error"
+    );
+    expect(screen.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeInTheDocument();
+    const editedSolveHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
+    const editedSolvePacket = JSON.parse(decodeURIComponent(editedSolveHref.split(",", 2)[1]));
+    expect(editedSolvePacket.summary.result_row_count).toBe(0);
+    expect(editedSolvePacket.diagnostics.map((item: { code: string }) => item.code)).toContain(
+      "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
     await waitFor(() =>

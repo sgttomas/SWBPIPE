@@ -90,3 +90,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-10_solve_cancellation_backend_job_seam.md` (cargo test 12/12 incl. six new solve-job tests; Vitest 13/13; desktop build green; browser-preview fixture-mode check).
 - Residual TBDs unchanged: no backend percent-progress stream, no preemptive mid-solve interruption, headless-runner CLI/process seams still panel-level.
 - No lifecycle change: `_STATUS.md` remains `CHECKING`. No release, professional, certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-11 - Edited-model solve binding guard (app-integration tranche)
+
+- `TP-APP-R2-SOLVEBOUND-001` added an honest solve-execution boundary for
+  edited browser-session models. Browser fixture mode no longer publishes the
+  bundled solved rows after a structured operation changes the session model;
+  it records `MODEL_INCOMPLETE`, zero result rows, and blocking diagnostic
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`.
+- The solve job UI still completes through the existing event envelope and
+  analysis-run binding path, so downstream panels receive a result envelope
+  that is explicitly bound to the edited model and contains no stale solved
+  rows.
+- Tauri backend unit tests prove the real command/job solve path uses the
+  supplied edited model payload and binds solved results to the edited
+  `project.id`.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-11_edited_model_solve_binding.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-88; Vitest 31/31; Tauri Rust tests 26/26;
+  desktop build green; browser smoke on `http://127.0.0.1:5174/`.
+- No lifecycle change: `_STATUS.md` remains `CHECKING`. No release,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

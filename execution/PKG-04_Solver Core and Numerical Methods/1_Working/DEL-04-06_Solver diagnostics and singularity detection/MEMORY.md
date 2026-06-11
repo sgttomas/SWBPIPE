@@ -216,3 +216,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
   dependency register, DAG artifact, lifecycle transition, release claim,
   professional approval, code-compliance claim, protected standards content, or
   private data was changed or introduced.
+
+## 2026-06-11 - Edited-model solve binding guard
+
+- `TP-APP-R2-SOLVEBOUND-001` added app-level diagnostic gating for edited
+  browser-session models: stale bundled mechanics rows are not reused after a
+  session model change, and browser fixture mode returns
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL` as a blocking diagnostic
+  with `MODEL_INCOMPLETE`.
+- The solver backend path itself was not changed. Tauri tests verify existing
+  `solve_preview_mechanics` command/job callers pass the supplied edited model
+  payload through `open_pipe_stress_product_physics` and receive solved
+  mechanics results bound to the edited `project.id`.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-11_edited_model_solve_binding.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-88; desktop Vitest 31/31; Tauri Rust tests
+  26/26; desktop build green.
+- No solver diagnostic crate, lifecycle state, review finding disposition,
+  dependency register, DAG artifact, protected/private data, release claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim was changed or introduced.

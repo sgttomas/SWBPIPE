@@ -11,6 +11,31 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A5 first sub-slice: model-bound solve guard (`TP-APP-R2-SOLVEBOUND-001`)
+
+The preview mechanics service now refuses to reuse bundled solved-result rows
+for an edited model in browser fixture mode. Edited browser-session models
+return a `MODEL_INCOMPLETE` mechanics result with zero result rows and an
+explicit `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL` blocking
+diagnostic. The unchanged fixture model still returns the bundled solved
+fixture for browser preview workflows.
+
+The Tauri backend path was verified as model-bound: direct
+`run_preview_mechanics(Some(model))` and the solve-job registry both solve the
+supplied edited model payload and publish result envelopes bound to the edited
+`project.id`, not the bundled fixture id.
+
+Residuals remain in the A5 row: full packaged-Tauri GUI smoke over a saved
+edited project snapshot, richer incomplete-model UI copy, and broader
+persisted non-fixture solve coverage as authoring surfaces grow.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-88;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_run_records/WORKING_ITEMS_RUN_2026-06-11_edited_model_solve_binding.md`,
+the same-named record under
+`execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_run_records/`,
+and the same-named record under
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_run_records/`.
+
 ## 2026-06-10 — A3 fourth sub-slice: session undo/redo checkpoints (`TP-APP-R2-UNDOREDO-001`)
 
 The Apply Operations panel now exposes local-session Undo/Redo controls for

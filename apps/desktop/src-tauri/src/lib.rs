@@ -2139,6 +2139,52 @@ mod tests {
     }
 
     #[test]
+    fn run_preview_mechanics_uses_supplied_model_payload() {
+        let mut model =
+            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        model["project"]["id"] = json!("project:edited-solve-command");
+        model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
+
+        let solved = run_preview_mechanics(Some(model)).expect("supplied model solves");
+
+        assert_eq!(solved["model_ref"], json!("project:edited-solve-command"));
+        assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
+        assert!(
+            solved["results"]
+                .as_array()
+                .expect("result rows present")
+                .len()
+                > 0
+        );
+    }
+
+    #[test]
+    fn solve_job_seam_uses_supplied_model_payload() {
+        let registry = SolveJobRegistry::default();
+        let receipt = start_solve_job(&registry.jobs).expect("job starts");
+        let mut model =
+            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        model["project"]["id"] = json!("project:edited-solve-job");
+        model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
+
+        execute_solve_job(&registry.jobs, &receipt.job_id, Ok(model));
+
+        let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
+        assert_eq!(status.state, "completed");
+        let result = status.result.expect("completed job publishes a result");
+        assert_eq!(result["model_ref"], json!("project:edited-solve-job"));
+        assert_eq!(result["status"]["mechanics"], json!("MECHANICS_SOLVED"));
+        assert!(
+            result["results"]
+                .as_array()
+                .expect("result rows present")
+                .len()
+                > 0
+        );
+        assert_eq!(status.error_message, None);
+    }
+
+    #[test]
     fn solve_job_cancelled_before_execution_never_starts_the_solver() {
         let registry = SolveJobRegistry::default();
         let receipt = start_solve_job(&registry.jobs).expect("job starts");

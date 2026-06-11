@@ -2565,3 +2565,37 @@ after the timestamp marker were absent.
   access protected/private data, access network/cloud/telemetry, or make
   release, professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-88 edited-model-solve-binding (2026-06-11)
+
+- Tranche: `TP-APP-R2-SOLVEBOUND-001` (completion plan Phase A5 first
+  sub-slice) adding an honest edited-model solve boundary. Browser fixture
+  mode now refuses to reuse bundled solved-result rows for edited session
+  models; it returns a result envelope bound to the edited `project.id` with
+  `MODEL_INCOMPLETE`, zero result rows, and blocking diagnostic
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`. The unchanged bundled
+  model still returns the solved fixture. Tauri unit coverage verifies that
+  both `run_preview_mechanics(Some(model))` and the backend solve-job seam use
+  the supplied edited model payload and publish solved results bound to the
+  edited `project.id`.
+- Local validation: `npm test --workspace apps/desktop` passed with 31/31
+  Vitest tests; `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`
+  passed with 26/26 Rust tests; `npm run build --workspace apps/desktop`
+  passed through `tsc -b` and Vite production build; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope. Browser smoke
+  against `http://127.0.0.1:5174/` selected
+  `material:invented-carbon-steel`, applied `elastic_modulus.value =
+  195000000000`, ran mechanics preview, and confirmed `status-mechanics =
+  MODEL INCOMPLETE`, `0 computed result rows; model incomplete`,
+  `state=completed; result_rows=0`, diagnostic
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, and solve-job JSON
+  `result_row_count=0` with diagnostics
+  `RULE_INPUTS_MISSING` and
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`. Browser console output
+  contained only Vite debug messages and the React DevTools info line; no
+  warnings/errors/page errors were observed.
+- Boundary: this is not a browser solver implementation. Edited-model solving
+  is proven through the Tauri backend command/job path; browser fixture mode
+  now blocks stale fixture reuse. No protected/private data, code-specific
+  defaults, network/cloud/telemetry, release claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim was added.

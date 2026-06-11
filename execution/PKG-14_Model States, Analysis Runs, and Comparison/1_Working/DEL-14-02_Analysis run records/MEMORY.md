@@ -136,3 +136,20 @@ Durable context preserved after reconciliation review:
 - `_STATUS.md` was moved to `CHECKING` for this bounded alignment only. No
   release, professional-approval, certification, sealing, authentication, or
   code-compliance claim was made.
+
+## 2026-06-11 - Edited-model solve binding guard
+
+- `TP-APP-R2-SOLVEBOUND-001` preserved analysis-run/result binding honesty for
+  edited app-session models. Browser fixture mode now emits an incomplete
+  result envelope bound to the edited `project.id` instead of carrying the
+  bundled fixture's solved result rows forward after model mutation.
+- Backend evidence verifies the authoritative Tauri solve paths
+  (`run_preview_mechanics(Some(model))` and the solve-job registry) solve the
+  supplied edited model payload and publish solved mechanics results bound to
+  the edited `project.id`.
+- Validation evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-11_edited_model_solve_binding.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-88; desktop Vitest 31/31; Tauri Rust tests
+  26/26; desktop build green.
+- This addendum did not change schemas, lifecycle state, review disposition,
+  protected/private data posture, release status, professional approval,
+  certification, sealing, authentication, or code-compliance posture.
