@@ -156,7 +156,9 @@ pub fn evaluate_model_document(
                     &raw_version,
                     applied,
                     "not_applicable_document_refused",
-                    format!("Migration step produced invalid schema_version `{current_version_raw}`."),
+                    format!(
+                        "Migration step produced invalid schema_version `{current_version_raw}`."
+                    ),
                 ),
             };
         };
@@ -174,7 +176,10 @@ pub fn evaluate_model_document(
                 ),
             };
         }
-        let Some(step) = chain.iter().find(|item| item.source_version == current_version_raw) else {
+        let Some(step) = chain
+            .iter()
+            .find(|item| item.source_version == current_version_raw)
+        else {
             return EvaluatedModelDocument {
                 migrated_document: None,
                 status: status(
@@ -281,17 +286,26 @@ mod tests {
         let doc = document(SUPPORTED_MODEL_SCHEMA_VERSION);
         let evaluated = evaluate_model_document(&doc, &model_document_migrations());
         assert_eq!(evaluated.status.status, "current");
-        assert_eq!(evaluated.status.persistence_state, "stored_document_current");
+        assert_eq!(
+            evaluated.status.persistence_state,
+            "stored_document_current"
+        );
         assert!(evaluated.migrated_document.is_none());
         assert!(evaluated.status.applied_migration_ids.is_empty());
-        assert_eq!(evaluated.status.migration_framework, MODEL_MIGRATION_FRAMEWORK);
+        assert_eq!(
+            evaluated.status.migration_framework,
+            MODEL_MIGRATION_FRAMEWORK
+        );
     }
 
     #[test]
     fn newer_documents_are_refused_without_down_migration() {
         for version in ["0.2.0", "1.0.0", "0.1.1"] {
             let evaluated = evaluate_model_document(&document(version), &test_chain());
-            assert_eq!(evaluated.status.status, "newer_than_supported", "version {version}");
+            assert_eq!(
+                evaluated.status.status, "newer_than_supported",
+                "version {version}"
+            );
             assert!(evaluated.migrated_document.is_none());
             assert!(evaluated.status.detail.contains("no down-migration"));
         }
@@ -315,7 +329,10 @@ mod tests {
         let evaluated = evaluate_model_document(&doc, &test_chain());
         assert_eq!(doc, snapshot, "input document must not be mutated");
         assert_eq!(evaluated.status.status, "migrated");
-        assert_eq!(evaluated.status.persistence_state, "in_memory_only_not_yet_saved");
+        assert_eq!(
+            evaluated.status.persistence_state,
+            "in_memory_only_not_yet_saved"
+        );
         assert_eq!(
             evaluated.status.applied_migration_ids,
             vec![
@@ -324,7 +341,10 @@ mod tests {
             ]
         );
         let migrated = evaluated.migrated_document.expect("migrated document");
-        assert_eq!(migrated["schema_version"], json!(SUPPORTED_MODEL_SCHEMA_VERSION));
+        assert_eq!(
+            migrated["schema_version"],
+            json!(SUPPORTED_MODEL_SCHEMA_VERSION)
+        );
         assert_eq!(migrated["migrated_marker"], json!(true));
     }
 
@@ -356,8 +376,14 @@ mod tests {
         assert_eq!(record["pre_migration_model_hash"], json!("sha256:pre"));
         assert_eq!(record["post_migration_model_hash"], json!("sha256:post"));
         assert_eq!(record["source_schema_version"], json!("0.0.9"));
-        assert_eq!(record["target_schema_version"], json!(SUPPORTED_MODEL_SCHEMA_VERSION));
+        assert_eq!(
+            record["target_schema_version"],
+            json!(SUPPORTED_MODEL_SCHEMA_VERSION)
+        );
         assert_eq!(record["destructive_rewrite"], json!(false));
-        assert_eq!(record["professional_boundary"]["software_makes_compliance_claim"], json!(false));
+        assert_eq!(
+            record["professional_boundary"]["software_makes_compliance_claim"],
+            json!(false)
+        );
     }
 }

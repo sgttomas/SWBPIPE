@@ -608,8 +608,9 @@ fn load_project(
                 .map_err(|error| error.to_string())?;
             let project_envelope_hash = serde_json::from_str::<Value>(&project_envelope_hash_json)
                 .map_err(|error| error.to_string())?;
-            let model_migration_ledger = serde_json::from_str::<Value>(&model_migration_ledger_json)
-                .map_err(|error| error.to_string())?;
+            let model_migration_ledger =
+                serde_json::from_str::<Value>(&model_migration_ledger_json)
+                    .map_err(|error| error.to_string())?;
             Ok(StoredProjectRecord {
                 project_id: id,
                 project_name: name,
@@ -1260,9 +1261,14 @@ fn prepare_model_document_for_persist(
     open_time_status: &Value,
     incoming_model_hash: &Value,
 ) -> Result<(Value, ModelDocumentMigrationStatus, Value), String> {
-    let EvaluatedModelDocument { migrated_document, status } =
-        evaluate_model_document(&model, &model_document_migrations());
-    if matches!(status.status.as_str(), "newer_than_supported" | "unsupported_schema" | "failed") {
+    let EvaluatedModelDocument {
+        migrated_document,
+        status,
+    } = evaluate_model_document(&model, &model_document_migrations());
+    if matches!(
+        status.status.as_str(),
+        "newer_than_supported" | "unsupported_schema" | "failed"
+    ) {
         return Err(refuse_model_document(&status));
     }
 
@@ -1278,7 +1284,8 @@ fn prepare_model_document_for_persist(
         .unwrap_or_else(|| "not_previously_stored".to_string());
     let post_migration_model_hash = hash_value_string(incoming_model_hash);
 
-    let open_time_migrated = open_time_status.get("status").and_then(Value::as_str) == Some("migrated");
+    let open_time_migrated =
+        open_time_status.get("status").and_then(Value::as_str) == Some("migrated");
     let (model_to_persist, mut persisted_status, record_basis) = if status.status == "migrated" {
         let migrated = migrated_document
             .ok_or_else(|| "migrated status without a migrated document".to_string())?;
@@ -1428,8 +1435,10 @@ fn open_local_project(
         .map(|record| {
             // DEC-019: evaluate the restored document; migrate in memory when
             // a chain applies; refuse newer/unsupported documents for editing.
-            let EvaluatedModelDocument { migrated_document, status } =
-                evaluate_model_document(&record.model, &model_document_migrations());
+            let EvaluatedModelDocument {
+                migrated_document,
+                status,
+            } = evaluate_model_document(&record.model, &model_document_migrations());
             if matches!(
                 status.status.as_str(),
                 "newer_than_supported" | "unsupported_schema" | "failed"
@@ -2361,25 +2370,187 @@ mod tests {
         })
     }
 
+    fn fixture_load_magnitude_intent(before: &str, after: &str) -> Value {
+        json!({
+            "operation_id": "op:test-load-L-100-Y-magnitude",
+            "operation_kind": "modify",
+            "operation_status": "proposed",
+            "author_type": "user",
+            "target": { "object_type": "Load", "ref": "load:L-100" },
+            "change": {
+                "change_id": "change:test-load-L-100-Y-magnitude",
+                "change_kind": "update_load",
+                "field_label": "load:L-100-Y magnitude",
+                "field_path": "primitive_loads.1.magnitude.value",
+                "before": before,
+                "after": after,
+                "unit": "N",
+                "dimension": "force",
+                "source_note": "explicit load data persistence/solve regression"
+            },
+            "validation": {
+                "schema_validation": "not_run",
+                "constraint_validation": "not_run",
+                "unit_validation": "not_run",
+                "diff_preview_status": "not_generated",
+                "application_status": "not_applied"
+            },
+            "audit_boundary": {
+                "mutation_route": "structured_operations_only",
+                "direct_model_mutation_allowed": false,
+                "requires_user_acceptance": true,
+                "mutates_accepted_model_state": false
+            },
+            "professional_boundary": {
+                "human_review_required": true,
+                "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false,
+                "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false,
+                "software_makes_authentication_claim": false
+            },
+            "rationale": "saved edited load data solve regression"
+        })
+    }
+
+    fn result_value(result: &Value, result_id: &str) -> f64 {
+        result["results"]
+            .as_array()
+            .expect("result rows present")
+            .iter()
+            .find(|item| item["id"].as_str() == Some(result_id))
+            .and_then(|item| item["value"].as_f64())
+            .unwrap_or_else(|| panic!("missing numeric result row {result_id}"))
+    }
+
     #[test]
     fn apply_model_operation_command_applies_inspector_intent_to_bundled_fixture_model() {
-        let model = read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        let model =
+            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
         let intent = fixture_inspector_intent("200000000000", "195000000000");
-        let outcome = apply_model_operation(model.clone(), intent, None).expect("command returns outcome");
+        let outcome =
+            apply_model_operation(model.clone(), intent, None).expect("command returns outcome");
 
-        assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model");
-        assert_eq!(outcome["acceptance"]["acceptance_basis"], "user_initiated_apply_in_local_session");
-        assert_eq!(outcome["acceptance"]["acceptance_is_professional_approval"], json!(false));
+        assert_eq!(
+            outcome["validation"]["application_status"],
+            "applied_to_session_model"
+        );
+        assert_eq!(
+            outcome["acceptance"]["acceptance_basis"],
+            "user_initiated_apply_in_local_session"
+        );
+        assert_eq!(
+            outcome["acceptance"]["acceptance_is_professional_approval"],
+            json!(false)
+        );
         assert_eq!(
             outcome["applied_model"]["materials"][0]["elastic_modulus"]["value"],
             json!(195000000000.0)
         );
         // The input model the command received is untouched; the applied model
         // is a new document, and downstream solve still accepts it.
-        assert_eq!(model["materials"][0]["elastic_modulus"]["value"], json!(200000000000_i64));
+        assert_eq!(
+            model["materials"][0]["elastic_modulus"]["value"],
+            json!(200000000000_i64)
+        );
         let solved = run_preview_mechanics(Some(outcome["applied_model"].clone()))
             .expect("edited model still solves through the preview mechanics path");
-        assert!(solved["results"].as_array().map(|rows| !rows.is_empty()).unwrap_or(false));
+        assert!(solved["results"]
+            .as_array()
+            .map(|rows| !rows.is_empty())
+            .unwrap_or(false));
+    }
+
+    #[test]
+    fn saved_edited_load_model_round_trips_and_solves_from_restored_payload() {
+        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+
+        let mut model =
+            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        let baseline_solve =
+            solve_preview_mechanics(model.clone()).expect("baseline fixture model solves");
+        let baseline_displacement = result_value(&baseline_solve, "result:disp:node-N-140");
+        model["project"]["id"] = json!("project:edited-load-roundtrip");
+        model["project"]["name"] = json!("Edited Load Roundtrip");
+
+        let outcome =
+            apply_model_operation(model, fixture_load_magnitude_intent("350", "425"), None)
+                .expect("load magnitude operation applies");
+        assert_eq!(
+            outcome["validation"]["application_status"],
+            json!("applied_to_session_model")
+        );
+        assert_eq!(
+            outcome["acceptance"]["persistence_status"],
+            json!("session_state_only_not_yet_saved")
+        );
+        let edited_model = outcome["applied_model"].clone();
+        assert_eq!(
+            edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64(),
+            Some(425.0)
+        );
+
+        let (model_to_persist, document_status, ledger) = prepare_model_document_for_persist(
+            &connection,
+            "project:edited-load-roundtrip",
+            edited_model,
+            &Value::Null,
+            &json!({ "value": "sha256:edited-load-roundtrip-model" }),
+        )
+        .expect("edited current model document is ready to persist");
+        assert_eq!(document_status.status, "current");
+        assert_eq!(document_status.persistence_state, "stored_document_current");
+        assert_eq!(ledger, json!([]));
+
+        upsert_project(
+            &mut connection,
+            "project:edited-load-roundtrip",
+            "Edited Load Roundtrip",
+            &model_to_persist,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &json!({ "value": "sha256:edited-load-roundtrip-model" }),
+            &Value::Null,
+            &ledger,
+        )
+        .expect("edited load model persists to the local store");
+
+        let restored = load_project(&connection, Some("project:edited-load-roundtrip"))
+            .expect("store read succeeds")
+            .expect("edited project row exists");
+        assert_eq!(restored.project_id, "project:edited-load-roundtrip");
+        assert_eq!(
+            restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64(),
+            Some(425.0)
+        );
+        assert_eq!(
+            restored.model_hash["value"],
+            json!("sha256:edited-load-roundtrip-model")
+        );
+
+        let restored_solve =
+            solve_preview_mechanics(restored.model).expect("restored edited model solves");
+        assert_eq!(
+            restored_solve["model_ref"],
+            json!("project:edited-load-roundtrip")
+        );
+        assert_eq!(
+            restored_solve["status"]["mechanics"],
+            json!("MECHANICS_SOLVED")
+        );
+        assert!(
+            restored_solve["results"]
+                .as_array()
+                .expect("result rows present")
+                .len()
+                > 0
+        );
+        let edited_displacement = result_value(&restored_solve, "result:disp:node-N-140");
+        assert_ne!(edited_displacement, baseline_displacement);
     }
 
     #[test]
@@ -2389,13 +2560,26 @@ mod tests {
         let _ = &mut connection;
 
         let newer = json!({ "schema_version": "0.2.0", "project": { "id": "project:newer", "name": "Newer" } });
-        let error = prepare_model_document_for_persist(&connection, "project:newer", newer, &Value::Null, &Value::Null)
-            .expect_err("newer-than-supported documents must be refused");
+        let error = prepare_model_document_for_persist(
+            &connection,
+            "project:newer",
+            newer,
+            &Value::Null,
+            &Value::Null,
+        )
+        .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
 
-        let unsupported = json!({ "project": { "id": "project:unversioned", "name": "Unversioned" } });
-        let error = prepare_model_document_for_persist(&connection, "project:unversioned", unsupported, &Value::Null, &Value::Null)
-            .expect_err("documents without a valid schema_version must be refused");
+        let unsupported =
+            json!({ "project": { "id": "project:unversioned", "name": "Unversioned" } });
+        let error = prepare_model_document_for_persist(
+            &connection,
+            "project:unversioned",
+            unsupported,
+            &Value::Null,
+            &Value::Null,
+        )
+        .expect_err("documents without a valid schema_version must be refused");
         assert!(error.contains("unsupported_schema"), "{error}");
     }
 
@@ -2404,9 +2588,14 @@ mod tests {
         let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         apply_store_migrations(&connection).expect("store migrations apply");
         let model = json!({ "schema_version": "0.1.0", "project": { "id": "project:current", "name": "Current" } });
-        let (persisted, status, ledger) =
-            prepare_model_document_for_persist(&connection, "project:current", model.clone(), &Value::Null, &Value::Null)
-                .expect("current documents persist");
+        let (persisted, status, ledger) = prepare_model_document_for_persist(
+            &connection,
+            "project:current",
+            model.clone(),
+            &Value::Null,
+            &Value::Null,
+        )
+        .expect("current documents persist");
         assert_eq!(persisted, model);
         assert_eq!(status.status, "current");
         assert_eq!(status.persistence_state, "stored_document_current");
@@ -2454,10 +2643,19 @@ mod tests {
         assert_eq!(status.persistence_state, "persisted_with_ledger_record");
         let records = ledger.as_array().expect("ledger array");
         assert_eq!(records.len(), 1);
-        assert_eq!(records[0]["pre_migration_model_hash"], json!("sha256:pre-migration"));
-        assert_eq!(records[0]["post_migration_model_hash"], json!("sha256:post-migration"));
+        assert_eq!(
+            records[0]["pre_migration_model_hash"],
+            json!("sha256:pre-migration")
+        );
+        assert_eq!(
+            records[0]["post_migration_model_hash"],
+            json!("sha256:post-migration")
+        );
         assert_eq!(records[0]["source_schema_version"], json!("0.0.9"));
-        assert_eq!(records[0]["applied_migration_ids"], json!(["model-doc-0.0.9-to-0.1.0-test"]));
+        assert_eq!(
+            records[0]["applied_migration_ids"],
+            json!(["model-doc-0.0.9-to-0.1.0-test"])
+        );
         assert_eq!(records[0]["destructive_rewrite"], json!(false));
         assert_eq!(
             records[0]["professional_boundary"]["software_makes_compliance_claim"],
@@ -2467,12 +2665,17 @@ mod tests {
 
     #[test]
     fn validate_model_operation_command_blocks_stale_intent_without_mutation() {
-        let model = read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        let model =
+            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
         let intent = fixture_inspector_intent("123", "195000000000");
-        let outcome = validate_model_operation(model, intent, None).expect("command returns outcome");
+        let outcome =
+            validate_model_operation(model, intent, None).expect("command returns outcome");
 
         assert_eq!(outcome["validation"]["application_status"], "not_applied");
-        assert_eq!(outcome["validation"]["before_state_validation"], "blocked_stale");
+        assert_eq!(
+            outcome["validation"]["before_state_validation"],
+            "blocked_stale"
+        );
         assert!(outcome["applied_model"].is_null());
         let codes: Vec<&str> = outcome["diagnostics"]
             .as_array()

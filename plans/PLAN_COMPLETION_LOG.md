@@ -11,6 +11,34 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A5 second sub-slice: persisted edited-load solve regression (`TP-APP-R2-PERSISTEDSOLVE-001`)
+
+The Tauri backend test suite now proves an edited load-data model can move
+through the app's structured operation and local persistence seams before
+being solved from the restored model payload. The regression applies an
+explicit `update_load` operation to `load:L-100` primitive
+`primitive_loads.1.magnitude.value`, persists the edited model into the local
+SQLite project store, reloads it by project id, and solves the restored
+payload through `solve_preview_mechanics`.
+
+The test asserts the saved/reopened model retains the edited force magnitude,
+the restored solve is bound to `project:edited-load-roundtrip`, mechanics
+status is `MECHANICS_SOLVED`, and `result:disp:node-N-140` changes relative
+to the original fixture solve. This is backend evidence for saved edited-load
+data reaching the solve boundary; it does not claim that the later packaged
+Tauri GUI smoke is complete.
+
+Residuals remain in A5: full packaged-Tauri GUI smoke over a saved edited
+project snapshot, UI polish for incomplete-model diagnostics, and broader
+persisted solve coverage as new authoring surfaces grow.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-107;
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_run_records/WORKING_ITEMS_RUN_2026-06-11_persisted_edited_load_solve_regression.md`,
+the same-named record under
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_run_records/`,
+and the same-named record under
+`execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_run_records/`.
+
 ## 2026-06-11 — A4 thirteenth sub-slice: combination creation editor (`TP-APP-R2-COMBCREATE-001`)
 
 The Load Cases manager now exposes explicit creation for mechanics-basis load

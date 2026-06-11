@@ -3203,3 +3203,32 @@ after the timestamp marker were absent.
   content, rule-pack evaluator behavior, unit conversion, saved-project
   mutation without user Save, private data, release readiness, professional
   approval, certification, sealing, authentication, or code-compliance claims.
+
+## TP-MAC-107 persisted-edited-load-solve-regression (2026-06-11)
+
+- Tranche: `TP-APP-R2-PERSISTEDSOLVE-001` (completion plan Phase A5 second
+  sub-slice) adding a Tauri backend regression for saved edited-load data
+  reaching the solve boundary after local persistence.
+- Regression path: `apps/desktop/src-tauri/src/lib.rs` applies
+  `op:test-load-L-100-Y-magnitude` through the structured operation seam,
+  changing `load:L-100` `primitive_loads.1.magnitude.value` from `350` to
+  `425` N, persists the edited model to an in-memory SQLite store with the
+  current model-document schema status, reloads
+  `project:edited-load-roundtrip`, and solves the restored payload through
+  `solve_preview_mechanics`.
+- Evidence checks: the restored model retains the `425` N magnitude, the
+  restored solve reports `model_ref=project:edited-load-roundtrip`,
+  mechanics status `MECHANICS_SOLVED`, non-empty result rows, and
+  `result:disp:node-N-140` differs from the baseline fixture solve.
+- Local validation: `cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml
+  --check` passed; `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
+  saved_edited_load_model_round_trips_and_solves_from_restored_payload`
+  passed with 1/1 targeted test; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 27/27 Rust tests. No
+  browser smoke was run because this tranche changes backend regression
+  coverage only, not UI runtime behavior.
+- Boundary: this slice does not complete packaged-Tauri GUI smoke, add a
+  browser solver, change solver numerics, perform network/cloud/telemetry
+  work, write repository-default private data, introduce protected standards
+  content, or create release readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claims.

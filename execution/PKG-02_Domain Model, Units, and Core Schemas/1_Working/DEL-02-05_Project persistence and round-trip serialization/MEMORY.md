@@ -260,3 +260,21 @@ Boundaries preserved:
   Vitest, 342/342 pytest, build green.
 - No lifecycle change: `_STATUS.md` remains `CHECKING`; this is
   app-integration absorption of design authority, not issuance.
+
+## 2026-06-11 - TP-APP-R2-PERSISTEDSOLVE-001 persisted edited-load solve regression
+
+- WORKING_ITEMS app-integration tranche added Tauri backend regression
+  evidence that a structured edited load magnitude survives local SQLite
+  persistence and reload before solve.
+- The test applies `op:test-load-L-100-Y-magnitude` to change `load:L-100`
+  `primitive_loads.1.magnitude.value` from `350` to `425` N, persists the
+  edited model, reloads `project:edited-load-roundtrip`, and verifies the
+  restored model/hash carrier before solving.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_persisted_edited_load_solve_regression.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-107. Validation passed:
+  src-tauri format check and src-tauri Rust tests 27/27.
+- This did not complete packaged-Tauri GUI smoke, change schema migration
+  policy, create a physical container ruling, alter lifecycle state, or make
+  release, professional, certification, sealing, authentication, or
+  code-compliance claims.

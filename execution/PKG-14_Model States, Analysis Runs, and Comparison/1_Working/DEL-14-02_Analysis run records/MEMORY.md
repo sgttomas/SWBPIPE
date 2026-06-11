@@ -153,3 +153,19 @@ Durable context preserved after reconciliation review:
 - This addendum did not change schemas, lifecycle state, review disposition,
   protected/private data posture, release status, professional approval,
   certification, sealing, authentication, or code-compliance posture.
+
+## 2026-06-11 - TP-APP-R2-PERSISTEDSOLVE-001 persisted edited-load solve regression
+
+- WORKING_ITEMS app-integration tranche added backend evidence that a restored
+  saved model, not the original bundled fixture, supplies the solve payload
+  after an edited load-data operation.
+- The restored solve binds to `project:edited-load-roundtrip`, reports
+  `MECHANICS_SOLVED`, produces non-empty results, and changes
+  `result:disp:node-N-140` relative to the baseline fixture solve.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_persisted_edited_load_solve_regression.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-107. Validation passed:
+  src-tauri format check and src-tauri Rust tests 27/27.
+- No analysis-run schema, hash policy, lifecycle state, review disposition,
+  protected/private data posture, release status, professional approval,
+  certification, sealing, authentication, or code-compliance posture changed.

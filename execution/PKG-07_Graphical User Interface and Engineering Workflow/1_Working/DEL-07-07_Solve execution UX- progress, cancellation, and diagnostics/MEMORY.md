@@ -111,3 +111,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle change: `_STATUS.md` remains `CHECKING`. No release,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## 2026-06-11 - TP-APP-R2-PERSISTEDSOLVE-001 persisted edited-load solve regression
+
+- WORKING_ITEMS app-integration tranche added backend regression evidence for
+  solving a model restored from local persistence after a structured
+  load-data edit.
+- The test applies an explicit load-magnitude operation, persists and reloads
+  `project:edited-load-roundtrip`, then solves the restored payload through
+  `solve_preview_mechanics`. The restored solve reports
+  `MECHANICS_SOLVED`, non-empty result rows, and a changed
+  `result:disp:node-N-140` value compared with the original fixture solve.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_persisted_edited_load_solve_regression.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-107. Validation passed:
+  src-tauri format check and src-tauri Rust tests 27/27.
+- This is backend regression evidence only. It does not complete packaged GUI
+  smoke, add browser solving, change cancellation/progress UI behavior, or
+  make release, professional, certification, sealing, authentication, or
+  code-compliance claims.
