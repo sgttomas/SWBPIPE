@@ -7,7 +7,7 @@ function sampleModel(): PreviewModel {
     schema_version: "0.1.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
-    project: { id: "project:test", name: "Test", description: "test", units: { length: "m", force: "N", pressure: "Pa", temperature: "degC" } },
+    project: { id: "project:test", name: "Test", description: "test", units: { length: "m", force: "N", angle: "rad", pressure: "Pa", temperature: "degC" } },
     analysis_status: { mechanics: "ready", rule_check: "not_performed", professional_acceptance: "not_provided" },
     materials: [
       {
@@ -482,6 +482,95 @@ describe("operationService browser-mode engine", () => {
     );
     missingPipe.operation_kind = "create";
     const blocked = await applyModelOperation(model, missingPipe, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
+  });
+
+  it("applies explicit imposed-displacement primitive load payloads without mutating the input", async () => {
+    const model = sampleModel();
+    model.load_cases.push({
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    });
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const displacementPayload = {
+      id: "load:L-1-I1",
+      category: "imposed_displacement",
+      target: { type: "support", support: "support:S-1", dof: "UZ" },
+      direction: "UZ",
+      magnitude: { value: -0.006, unit: "m" },
+      dimension: "displacement",
+      provenance: "user_entered_local_preview"
+    };
+    const displacementIntent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(displacementPayload),
+      "m",
+      "displacement"
+    );
+    displacementIntent.operation_kind = "create";
+
+    const displacementOutcome = await applyModelOperation(model, displacementIntent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(displacementOutcome.validation.application_status).toBe("applied_to_session_model");
+    expect(displacementOutcome.validation.reference_validation).toBe("passed");
+    expect(displacementOutcome.validation.unit_validation).toBe("passed");
+    expect(displacementOutcome.applied_model?.load_cases[0].primitive_loads).toEqual([displacementPayload]);
+
+    const rotationPayload = {
+      id: "load:L-1-I2",
+      category: "imposed_displacement",
+      target: { type: "support", support: "support:S-1", dof: "RX" },
+      direction: "RX",
+      magnitude: { value: 0.01, unit: "rad" },
+      dimension: "rotation",
+      provenance: "user_entered_local_preview"
+    };
+    const rotationIntent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(rotationPayload),
+      "rad",
+      "rotation"
+    );
+    rotationIntent.operation_kind = "create";
+
+    const rotationOutcome = await applyModelOperation(displacementOutcome.applied_model!, rotationIntent, null);
+
+    expect(rotationOutcome.validation.application_status).toBe("applied_to_session_model");
+    expect(rotationOutcome.validation.reference_validation).toBe("passed");
+    expect(rotationOutcome.validation.unit_validation).toBe("passed");
+    expect(rotationOutcome.applied_model?.load_cases[0].primitive_loads).toEqual([displacementPayload, rotationPayload]);
+
+    const missingSupportPayload = {
+      ...displacementPayload,
+      id: "load:L-1-I3",
+      target: { type: "support", support: "support:missing", dof: "UZ" }
+    };
+    const missingSupport = intentFor(
+      "Load",
+      "load:L-1",
+      "create_primitive_load",
+      "primitive_loads",
+      "not_present",
+      JSON.stringify(missingSupportPayload),
+      "m",
+      "displacement"
+    );
+    missingSupport.operation_kind = "create";
+    const blocked = await applyModelOperation(model, missingSupport, null);
     expect(blocked.validation.application_status).toBe("blocked");
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
   });

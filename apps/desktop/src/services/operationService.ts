@@ -978,12 +978,18 @@ function resolveCreatePrimitiveLoad(
   const targetType = targetRecord ? stringPayload(targetRecord, "type") : "";
   const targetNode = targetRecord ? stringPayload(targetRecord, "node") : "";
   const targetPipe = targetRecord ? stringPayload(targetRecord, "pipe") : "";
+  const targetSupport = targetRecord ? stringPayload(targetRecord, "support") : "";
+  const targetDof = targetRecord ? stringPayload(targetRecord, "dof") : "";
+  const imposedDofs = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+  const imposedRotationalDofs = ["RX", "RY", "RZ"];
+  const imposedDisplacementIsRotational = category === "imposed_displacement" && imposedRotationalDofs.includes(direction);
   const acceptedCategory =
     category === "concentrated_force" ||
     category === "distributed_force" ||
     category === "concentrated_moment" ||
     category === "pressure" ||
-    category === "thermal";
+    category === "thermal" ||
+    category === "imposed_displacement";
   const expectedDimension =
     category === "distributed_force"
       ? "force_per_length"
@@ -993,6 +999,10 @@ function resolveCreatePrimitiveLoad(
           ? "pressure"
           : category === "thermal"
             ? "temperature_interval"
+            : category === "imposed_displacement"
+              ? imposedDisplacementIsRotational
+                ? "rotation"
+                : "displacement"
             : "force";
 
   if (!acceptedCategory) {
@@ -1000,7 +1010,7 @@ function resolveCreatePrimitiveLoad(
       checker,
       "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
       "blocking",
-      "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `pressure`, or `thermal`.",
+      "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `pressure`, `thermal`, or `imposed_displacement`.",
       "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
       [targetRef]
     );
@@ -1011,9 +1021,14 @@ function resolveCreatePrimitiveLoad(
   const storedLengthUnit = valueAtSegments(model, ["project", "units", "length"]);
   const storedPressureUnit = valueAtSegments(model, ["project", "units", "pressure"]);
   const storedTemperatureUnit = valueAtSegments(model, ["project", "units", "temperature"]);
+  const storedAngleUnit = valueAtSegments(model, ["project", "units", "angle"]);
   const requiresForceUnit =
     category === "concentrated_force" || category === "distributed_force" || category === "concentrated_moment";
-  const requiresLengthUnit = category === "distributed_force" || category === "concentrated_moment";
+  const requiresLengthUnit =
+    category === "distributed_force" ||
+    category === "concentrated_moment" ||
+    (category === "imposed_displacement" && !imposedDisplacementIsRotational);
+  const requiresAngleUnit = category === "imposed_displacement" && imposedDisplacementIsRotational;
   checker.unitState = "passed";
   if (requiresForceUnit && typeof storedForceUnit !== "string") {
     checker.unitState = "blocked";
@@ -1033,8 +1048,8 @@ function resolveCreatePrimitiveLoad(
       checker,
       "OP-UNIT-METADATA-MISSING",
       "blocking",
-      "Project length unit metadata is missing; distributed force or concentrated moment primitive loads cannot be accepted.",
-      "Repair the model document's project.units.length metadata before creating distributed loads or concentrated moments.",
+      "Project length unit metadata is missing; distributed force, concentrated moment, or translational imposed displacement primitive loads cannot be accepted.",
+      "Repair the model document's project.units.length metadata before creating distributed loads, concentrated moments, or translational imposed displacements.",
       [targetRef]
     );
     return null;
@@ -1063,10 +1078,23 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
+  if (requiresAngleUnit && typeof storedAngleUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project angle unit metadata is missing; rotational imposed displacement primitives cannot be accepted.",
+      "Repair the model document's project.units.angle metadata before creating rotational imposed displacements.",
+      [targetRef]
+    );
+    return null;
+  }
   const forceUnit = typeof storedForceUnit === "string" ? storedForceUnit : "";
   const lengthUnit = typeof storedLengthUnit === "string" ? storedLengthUnit : "";
   const pressureUnit = typeof storedPressureUnit === "string" ? storedPressureUnit : "";
   const temperatureUnit = typeof storedTemperatureUnit === "string" ? storedTemperatureUnit : "";
+  const angleUnit = typeof storedAngleUnit === "string" ? storedAngleUnit : "";
   const expectedUnit =
     category === "distributed_force"
       ? `${forceUnit}/${lengthUnit}`
@@ -1074,8 +1102,12 @@ function resolveCreatePrimitiveLoad(
         ? `${forceUnit}*${lengthUnit}`
         : category === "pressure"
           ? pressureUnit
-          : category === "thermal"
-            ? temperatureUnit
+        : category === "thermal"
+          ? temperatureUnit
+          : category === "imposed_displacement"
+            ? imposedDisplacementIsRotational
+              ? angleUnit
+              : lengthUnit
             : forceUnit;
   if (intent.change.unit !== expectedUnit) {
     checker.unitState = "blocked";
@@ -1101,16 +1133,22 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
+  const primitiveDirectionValid =
+    category === "concentrated_moment"
+      ? ["rotation_x", "rotation_y", "rotation_z"].includes(direction)
+      : category === "imposed_displacement"
+        ? imposedDofs.includes(direction)
+        : ["global_x", "global_y", "global_z"].includes(direction);
 
   if (
     !id ||
-    (category === "concentrated_moment"
-      ? !["rotation_x", "rotation_y", "rotation_z"].includes(direction)
-      : !["global_x", "global_y", "global_z"].includes(direction)) ||
+    !primitiveDirectionValid ||
     (category === "concentrated_force" && (targetType !== "node" || !targetNode)) ||
     (category === "concentrated_moment" && (targetType !== "node" || !targetNode)) ||
     ((category === "distributed_force" || category === "pressure" || category === "thermal") &&
       (targetType !== "element" || !targetPipe)) ||
+    (category === "imposed_displacement" &&
+      (targetType !== "support" || !targetSupport || targetDof !== direction || !imposedDofs.includes(direction))) ||
     magnitudeValue === null ||
     magnitudeUnit !== expectedUnit ||
     dimension !== expectedDimension ||
@@ -1120,7 +1158,7 @@ function resolveCreatePrimitiveLoad(
       checker,
       "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
       "blocking",
-      "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node or pipe target, compatible direction, finite magnitude in the expected unit, and matching dimension.",
+      "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node, pipe, or support target, compatible direction, finite magnitude in the expected unit, and matching dimension.",
       "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
       [targetRef]
     );
@@ -1174,6 +1212,18 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
+  if (category === "imposed_displacement" && !findEntity(model, "supports", targetSupport)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+      "blocking",
+      `Primitive load \`${id}\` references support \`${targetSupport}\`, which is absent from the current model.`,
+      "Select an existing support target before authoring an imposed displacement.",
+      [targetRef, targetSupport]
+    );
+    return null;
+  }
   checker.referenceState = "passed";
 
   return {
@@ -1182,7 +1232,9 @@ function resolveCreatePrimitiveLoad(
       id,
       category,
       target:
-        category === "distributed_force" || category === "pressure" || category === "thermal"
+        category === "imposed_displacement"
+          ? { type: "support", support: targetSupport, dof: targetDof }
+          : category === "distributed_force" || category === "pressure" || category === "thermal"
           ? { type: "element", pipe: targetPipe }
           : { type: "node", node: targetNode },
       direction,

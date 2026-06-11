@@ -2062,6 +2062,60 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an imposed-displacement primitive load through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-category"), {
+      target: { value: "imposed_displacement" }
+    });
+    expect(within(manager).getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-I300");
+    expect(within(manager).getByTestId("load-manager-create-primitive-load-case")).toHaveValue("load:L-100");
+    expect(within(manager).getByTestId("load-manager-create-primitive-support")).toHaveValue("support:S-100");
+    expect(within(manager).getByTestId("load-manager-create-primitive-direction")).toHaveValue("UZ");
+    expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+      "op:load-manager-load:L-100-load:L-100-I300-primitive"
+    );
+    expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+      "target=support:S-100; direction=UZ; unit=m; displacement"
+    );
+
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), {
+      target: { value: "-0.006" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-primitive-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "primitive_loads"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-I300-primitive"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 8 primitive loads; 1 combinations"
+    );
+    expect(within(manager).getByTestId("load-manager-case-load:L-100").textContent).toContain(
+      "load:L-100; primitive_user_load; preview_only; primitives=5"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-I300").textContent).toContain(
+      "imposed_displacement; -0.006 m"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-I300").textContent).toContain(
+      "load:L-100-I300; support:support:S-100; UZ; dimension=displacement"
+    );
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("queues and applies load-case status metadata through the manager panel", async () => {
     render(<App />);
 

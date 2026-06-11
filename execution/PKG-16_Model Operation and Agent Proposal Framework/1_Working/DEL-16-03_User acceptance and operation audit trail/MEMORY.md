@@ -140,6 +140,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
 
+## 2026-06-11 - TP-APP-R2-IMPOSED-001 imposed-displacement primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche verified that support-target
+  imposed-displacement primitive-load creation enters the model only after the
+  user queues and applies a structured operation in the local session.
+- The app test applies
+  `op:load-manager-load:L-100-load:L-100-I300-primitive` through
+  `OperationApplyPanel`, updates the session model, clears stale solve
+  results, leaves persistence at `session_state_only_not_yet_saved`, and
+  records no professional approval or code-compliance claim.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_imposed_displacement_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-102. Validation passed:
+  operation-applier format check, Rust operation-applier tests 30/30,
+  src-tauri Rust tests 26/26, desktop Vitest 50/50, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser imposed-displacement smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, support solver boundary
+  acceptance, or protected/private data handling.
+
 ## 2026-06-11 - TP-APP-R2-MOMENTCREATE-001 concentrated moment primitive-load creation editor
 
 - WORKING_ITEMS app-integration tranche verified that concentrated-moment

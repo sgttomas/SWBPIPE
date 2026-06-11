@@ -1435,6 +1435,20 @@ fn resolve_create_primitive_load(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
+    let target_support = record
+        .get("target")
+        .and_then(Value::as_object)
+        .and_then(|target| target.get("support"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let target_dof = record
+        .get("target")
+        .and_then(Value::as_object)
+        .and_then(|target| target.get("dof"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
     let magnitude_value = record
         .get("magnitude")
         .and_then(Value::as_object)
@@ -1451,18 +1465,25 @@ fn resolve_create_primitive_load(
 
     if !matches!(
         category,
-        "concentrated_force" | "distributed_force" | "concentrated_moment" | "pressure" | "thermal"
+        "concentrated_force"
+            | "distributed_force"
+            | "concentrated_moment"
+            | "pressure"
+            | "thermal"
+            | "imposed_displacement"
     ) {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `pressure`, or `thermal`.".to_string(),
+            "Create-primitive-load payload category must be `concentrated_force`, `distributed_force`, `concentrated_moment`, `pressure`, `thermal`, or `imposed_displacement`.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
         return None;
     }
 
+    let imposed_is_rotational =
+        category == "imposed_displacement" && matches!(direction, "RX" | "RY" | "RZ");
     let expected_dimension = if category == "distributed_force" {
         "force_per_length"
     } else if category == "concentrated_moment" {
@@ -1471,6 +1492,10 @@ fn resolve_create_primitive_load(
         "pressure"
     } else if category == "thermal" {
         "temperature_interval"
+    } else if category == "imposed_displacement" && imposed_is_rotational {
+        "rotation"
+    } else if category == "imposed_displacement" {
+        "displacement"
     } else {
         "force"
     };
@@ -1481,11 +1506,14 @@ fn resolve_create_primitive_load(
         value_at(model, &["project", "units", "pressure"]).and_then(Value::as_str);
     let stored_temperature_unit =
         value_at(model, &["project", "units", "temperature"]).and_then(Value::as_str);
+    let stored_angle_unit = value_at(model, &["project", "units", "angle"]).and_then(Value::as_str);
     let requires_force_unit = matches!(
         category,
         "concentrated_force" | "distributed_force" | "concentrated_moment"
     );
-    let requires_length_unit = matches!(category, "distributed_force" | "concentrated_moment");
+    let requires_length_unit = matches!(category, "distributed_force" | "concentrated_moment")
+        || (category == "imposed_displacement" && !imposed_is_rotational);
+    let requires_angle_unit = category == "imposed_displacement" && imposed_is_rotational;
     checker.unit_state = "passed";
     if requires_force_unit && stored_force_unit.is_none() {
         checker.unit_state = "blocked";
@@ -1504,8 +1532,8 @@ fn resolve_create_primitive_load(
         checker.push(
             "OP-UNIT-METADATA-MISSING",
             "blocking",
-            "Project length unit metadata is missing; distributed force or concentrated moment primitive loads cannot be accepted.".to_string(),
-            "Repair the model document's project.units.length metadata before creating distributed loads or concentrated moments.",
+            "Project length unit metadata is missing; distributed force, concentrated moment, or translational imposed displacement primitive loads cannot be accepted.".to_string(),
+            "Repair the model document's project.units.length metadata before creating distributed loads, concentrated moments, or translational imposed displacements.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -1532,6 +1560,17 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
+    if requires_angle_unit && stored_angle_unit.is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project angle unit metadata is missing; rotational imposed displacement primitives cannot be accepted.".to_string(),
+            "Repair the model document's project.units.angle metadata before creating rotational imposed displacements.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
     let expected_unit = if category == "distributed_force" {
         format!(
             "{}/{}",
@@ -1548,6 +1587,10 @@ fn resolve_create_primitive_load(
         stored_pressure_unit.unwrap_or("").to_string()
     } else if category == "thermal" {
         stored_temperature_unit.unwrap_or("").to_string()
+    } else if category == "imposed_displacement" && imposed_is_rotational {
+        stored_angle_unit.unwrap_or("").to_string()
+    } else if category == "imposed_displacement" {
+        stored_length_unit.unwrap_or("").to_string()
     } else {
         stored_force_unit.unwrap_or("").to_string()
     };
@@ -1573,16 +1616,25 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
+    let direction_valid = if category == "concentrated_moment" {
+        matches!(direction, "rotation_x" | "rotation_y" | "rotation_z")
+    } else if category == "imposed_displacement" {
+        matches!(direction, "UX" | "UY" | "UZ" | "RX" | "RY" | "RZ")
+    } else {
+        matches!(direction, "global_x" | "global_y" | "global_z")
+    };
 
     if id.is_empty()
-        || (category == "concentrated_moment"
-            && !matches!(direction, "rotation_x" | "rotation_y" | "rotation_z"))
-        || (category != "concentrated_moment"
-            && !matches!(direction, "global_x" | "global_y" | "global_z"))
+        || !direction_valid
         || (category == "concentrated_force" && (target_type != "node" || target_node.is_empty()))
         || (category == "concentrated_moment" && (target_type != "node" || target_node.is_empty()))
         || (matches!(category, "distributed_force" | "pressure" | "thermal")
             && (target_type != "element" || target_pipe.is_empty()))
+        || (category == "imposed_displacement"
+            && (target_type != "support"
+                || target_support.is_empty()
+                || target_dof != direction
+                || !matches!(direction, "UX" | "UY" | "UZ" | "RX" | "RY" | "RZ")))
         || magnitude_value.is_none()
         || magnitude_unit != expected_unit
         || payload_dimension != expected_dimension
@@ -1591,7 +1643,7 @@ fn resolve_create_primitive_load(
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node or pipe target, compatible direction, finite magnitude in the expected unit, and matching dimension.".to_string(),
+            "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node, pipe, or support target, compatible direction, finite magnitude in the expected unit, and matching dimension.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
@@ -1643,9 +1695,24 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
+    if category == "imposed_displacement"
+        && find_entity(model, "supports", target_support).is_none()
+    {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Primitive load `{id}` references support `{target_support}`, which is absent from the current model."),
+            "Select an existing support target before authoring an imposed displacement.",
+            vec![target_ref.to_string(), target_support.to_string()],
+        );
+        return None;
+    }
     checker.reference_state = "passed";
 
-    let target = if matches!(category, "distributed_force" | "pressure" | "thermal") {
+    let target = if category == "imposed_displacement" {
+        serde_json::json!({ "type": "support", "support": target_support, "dof": target_dof })
+    } else if matches!(category, "distributed_force" | "pressure" | "thermal") {
         serde_json::json!({ "type": "element", "pipe": target_pipe })
     } else {
         serde_json::json!({ "type": "node", "node": target_node })
@@ -2435,7 +2502,7 @@ mod tests {
         json!({
             "schema_version": "0.1.0",
             "document_kind": "openpipestress.product_preview.model",
-            "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "pressure": "Pa", "temperature": "degC" } },
+            "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
                 {
                     "id": "material:steel",
@@ -3137,6 +3204,121 @@ mod tests {
         );
         missing_pipe["operation_kind"] = json!("create");
         let blocked = apply_operation(&model, &missing_pipe, None);
+        assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_primitive_load_payload_applies_imposed_displacement_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let displacement_payload = json!({
+            "id": "load:L-1-I1",
+            "category": "imposed_displacement",
+            "target": { "type": "support", "support": "support:S-1", "dof": "UZ" },
+            "direction": "UZ",
+            "magnitude": { "value": -0.006, "unit": "m" },
+            "dimension": "displacement",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut displacement_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&displacement_payload).expect("payload json"),
+            "m",
+            "displacement",
+        );
+        displacement_intent["operation_kind"] = json!("create");
+
+        let displacement_outcome = apply_operation(&model, &displacement_intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            displacement_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            displacement_outcome.diagnostics
+        );
+        assert_eq!(
+            displacement_outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(
+            displacement_outcome.validation.reference_validation,
+            "passed"
+        );
+        assert_eq!(displacement_outcome.validation.unit_validation, "passed");
+        let displacement_applied = displacement_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            displacement_applied["load_cases"][0]["primitive_loads"][1],
+            displacement_payload
+        );
+
+        let rotation_payload = json!({
+            "id": "load:L-1-I2",
+            "category": "imposed_displacement",
+            "target": { "type": "support", "support": "support:S-1", "dof": "RX" },
+            "direction": "RX",
+            "magnitude": { "value": 0.01, "unit": "rad" },
+            "dimension": "rotation",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut rotation_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&rotation_payload).expect("payload json"),
+            "rad",
+            "rotation",
+        );
+        rotation_intent["operation_kind"] = json!("create");
+        let rotation_outcome = apply_operation(&displacement_applied, &rotation_intent, None);
+
+        assert!(
+            rotation_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            rotation_outcome.diagnostics
+        );
+        assert_eq!(
+            rotation_outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(rotation_outcome.validation.reference_validation, "passed");
+        assert_eq!(rotation_outcome.validation.unit_validation, "passed");
+        let rotation_applied = rotation_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            rotation_applied["load_cases"][0]["primitive_loads"][2],
+            rotation_payload
+        );
+
+        let missing_support_payload = json!({
+            "id": "load:L-1-I3",
+            "category": "imposed_displacement",
+            "target": { "type": "support", "support": "support:missing", "dof": "UZ" },
+            "direction": "UZ",
+            "magnitude": { "value": -0.006, "unit": "m" },
+            "dimension": "displacement",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut missing_support = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&missing_support_payload).expect("payload json"),
+            "m",
+            "displacement",
+        );
+        missing_support["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &missing_support, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }

@@ -11,6 +11,67 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 ninth sub-slice: imposed-displacement primitive-load creation editor (`TP-APP-R2-IMPOSED-001`)
+
+The Load Cases manager now exposes explicit imposed-displacement primitive
+load creation for existing load cases. The create form selects
+`imposed_displacement`, captures the target load case, primitive-load id,
+existing support target, support DOF, magnitude, and provenance, then queues a
+structured `create_primitive_load` operation. Translational DOFs
+`UX|UY|UZ` use the project length unit and dimension `displacement`.
+Rotational DOFs `RX|RY|RZ` use the project angle unit and dimension
+`rotation`. The invented preview model now records `project.units.angle =
+"rad"` so rotational imposed-displacement previews and validation consume
+explicit project metadata.
+
+The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now validate, diff, and apply
+`imposed_displacement` primitive-load creation alongside the previously
+landed concentrated-force, distributed-force, concentrated-moment, pressure,
+and thermal paths. Accepted imposed-displacement intents must target an
+existing `Load` with `field_path=primitive_loads`, `before=not_present`, a
+globally unique primitive-load id, category `imposed_displacement`, target
+`{ type: "support", support: <existing support id>, dof: <matching DOF> }`,
+finite magnitude in the expected project unit, matching dimension, and
+non-empty provenance. Duplicate primitive IDs, missing support targets,
+invalid DOFs, target/DOF mismatches, and missing project unit metadata are
+blocked.
+
+The app-level test creates `load:L-100-I300` through the manager, applies it
+through `OperationApplyPanel`, verifies the manager summary and `load:L-100`
+primitive count, checks the new support-targeted row
+`load:L-100-I300; support:support:S-100; UZ; dimension=displacement`,
+confirms the local receipt, and confirms stale solve state is reset. The
+operation-service and Rust tests also apply a rotational `RX` payload with
+dimension `rotation` and unit `rad`. The Playwright R2 smoke checks both the
+translational preview and the rotational `RX` unit/dimension preview without
+queueing so the solve/results/report path remains on the unchanged fixture
+model.
+
+In-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-load:L-100-load:L-100-I300-primitive` from a clean session
+using the default finite magnitude `250 m`. The smoke confirmed `2 load
+cases; 8 primitive loads; 1 combinations`, manager row
+`load:L-100-I300; support:support:S-100; UZ; dimension=displacement`, zero
+pending operations, `persistence=session_state_only_not_yet_saved`,
+`professional_approval=false`, and solve state `not_started`. The browser
+plugin could not type a replacement magnitude because its virtual clipboard
+was unavailable; the negative translational magnitude path is covered by
+Vitest.
+
+Residuals remain in A4: combination basis editing, combination term
+creation/deletion, broader algebra authoring, Phase B unit picker/display
+retirement, and packaged-Tauri saved-project smoke over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-102;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_imposed_displacement_load_creation_editor.md`,
+the same-named record under
+`DEL-04-03_Linear support and restraint models/_run_records/`, the
+same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 eighth sub-slice: pressure and thermal primitive-load creation editor (`TP-APP-R2-PRESSTEMP-001`)
 
 The Load Cases manager now exposes explicit pressure and thermal primitive

@@ -27,7 +27,13 @@ type LoadCaseDraft = {
   provenance: string;
 };
 
-type PrimitiveLoadCategory = "concentrated_force" | "distributed_force" | "concentrated_moment" | "pressure" | "thermal";
+type PrimitiveLoadCategory =
+  | "concentrated_force"
+  | "distributed_force"
+  | "concentrated_moment"
+  | "pressure"
+  | "thermal"
+  | "imposed_displacement";
 
 type PrimitiveLoadDraft = {
   loadCaseId: string;
@@ -35,6 +41,7 @@ type PrimitiveLoadDraft = {
   category: PrimitiveLoadCategory;
   targetNode: string;
   targetPipe: string;
+  targetSupport: string;
   direction: string;
   magnitude: string;
   provenance: string;
@@ -131,7 +138,7 @@ export function LoadCaseManagerPanel({
         draft: primitiveLoadDraft
       })
     : null;
-  const primitiveDraftUnit = primitiveLoadDraftUnit(model, primitiveLoadDraft.category);
+  const primitiveDraftUnit = primitiveLoadDraftUnit(model, primitiveLoadDraft.category, primitiveLoadDraft.direction);
   const primitiveDraftTarget = primitiveLoadDraftTargetDisplay(primitiveLoadDraft);
 
   useEffect(() => {
@@ -306,6 +313,7 @@ export function LoadCaseManagerPanel({
               <option value="concentrated_moment">concentrated_moment</option>
               <option value="pressure">pressure</option>
               <option value="thermal">thermal</option>
+              <option value="imposed_displacement">imposed_displacement</option>
             </select>
           </label>
           <label>
@@ -332,7 +340,23 @@ export function LoadCaseManagerPanel({
               value={primitiveLoadDraft.id}
             />
           </label>
-          {primitiveLoadUsesPipeTarget(primitiveLoadDraft.category) ? (
+          {primitiveLoadUsesSupportTarget(primitiveLoadDraft.category) ? (
+            <label>
+              <span>Support</span>
+              <select
+                aria-label="Primitive support target"
+                data-testid="load-manager-create-primitive-support"
+                onChange={(event) => updatePrimitiveLoadDraft("targetSupport", event.target.value)}
+                value={primitiveLoadDraft.targetSupport}
+              >
+                {model.supports.map((support) => (
+                  <option key={support.id} value={support.id}>
+                    {support.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : primitiveLoadUsesPipeTarget(primitiveLoadDraft.category) ? (
             <label>
               <span>Pipe</span>
               <select
@@ -704,6 +728,7 @@ function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): Pri
     category: "concentrated_force",
     targetNode: model.nodes[0]?.id ?? "",
     targetPipe: model.pipe_segments[0]?.id ?? "",
+    targetSupport: model.supports[0]?.id ?? "",
     direction: defaultPrimitiveLoadDirection("concentrated_force"),
     magnitude: "250",
     provenance: "user_entered_local_preview"
@@ -734,9 +759,11 @@ function isLoadCaseDraftReady(model: PreviewModel, draft: LoadCaseDraft): boolea
 function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraft): boolean {
   const id = draft.id.trim();
   const magnitude = parseFiniteNumber(draft.magnitude);
-  const unit = primitiveLoadDraftUnit(model, draft.category);
+  const unit = primitiveLoadDraftUnit(model, draft.category, draft.direction);
   const targetExists =
-    primitiveLoadUsesPipeTarget(draft.category)
+    primitiveLoadUsesSupportTarget(draft.category)
+      ? model.supports.some((support) => support.id === draft.targetSupport)
+      : primitiveLoadUsesPipeTarget(draft.category)
       ? model.pipe_segments.some((pipe) => pipe.id === draft.targetPipe)
       : model.nodes.some((node) => node.id === draft.targetNode);
   return Boolean(
@@ -826,14 +853,16 @@ function buildCreatePrimitiveLoadIntent({
   model: PreviewModel;
   draft: PrimitiveLoadDraft;
 }): EditorOperationIntent {
-  const unit = primitiveLoadDraftUnit(model, draft.category);
-  const dimension = primitiveLoadDraftDimension(draft.category);
+  const unit = primitiveLoadDraftUnit(model, draft.category, draft.direction);
+  const dimension = primitiveLoadDraftDimension(draft.category, draft.direction);
   const magnitude = parseFiniteNumber(draft.magnitude) ?? 0;
   const payload = {
     id: draft.id.trim(),
     category: draft.category,
     target:
-      primitiveLoadUsesPipeTarget(draft.category)
+      primitiveLoadUsesSupportTarget(draft.category)
+        ? { type: "support", support: draft.targetSupport, dof: draft.direction }
+        : primitiveLoadUsesPipeTarget(draft.category)
         ? { type: "element", pipe: draft.targetPipe }
         : { type: "node", node: draft.targetNode },
     direction: draft.direction,
@@ -1053,7 +1082,9 @@ function nextPrimitiveLoadIdentifier(
           ? "P"
           : category === "thermal"
             ? "T"
-            : "F";
+            : category === "imposed_displacement"
+              ? "I"
+              : "F";
   for (let index = 300; index < 1000; index += 1) {
     const candidate = loadCaseId ? `${loadCaseId}-${suffix}${index}` : `load:${suffix}-${index}`;
     if (!primitiveLoadExists(model, candidate)) return candidate;
@@ -1167,8 +1198,10 @@ function primitiveTarget(load: PrimitiveLoad): string {
   const type = stringField(record, "type");
   const pipe = optionalString(record.pipe);
   const node = optionalString(record.node);
+  const support = optionalString(record.support);
   if (pipe) return `${type}:${pipe}`;
   if (node) return `${type}:${node}`;
+  if (support) return `${type}:${support}`;
   return `${type}:TBD`;
 }
 
@@ -1213,23 +1246,30 @@ function projectTemperatureUnit(model: PreviewModel): string {
   return optionalString(model.project.units.temperature) ?? "TBD";
 }
 
-function primitiveLoadDraftUnit(model: PreviewModel, category: PrimitiveLoadCategory): string {
+function projectRotationUnit(model: PreviewModel): string {
+  return optionalString(model.project.units.angle) ?? "TBD";
+}
+
+function primitiveLoadDraftUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
   if (category === "distributed_force") return projectDistributedForceUnit(model);
   if (category === "concentrated_moment") return projectMomentUnit(model);
   if (category === "pressure") return projectPressureUnit(model);
   if (category === "thermal") return projectTemperatureUnit(model);
+  if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? projectRotationUnit(model) : projectLengthUnit(model);
   return projectForceUnit(model);
 }
 
-function primitiveLoadDraftDimension(category: PrimitiveLoadCategory): string {
+function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, direction: string): string {
   if (category === "distributed_force") return "force_per_length";
   if (category === "concentrated_moment") return "moment";
   if (category === "pressure") return "pressure";
   if (category === "thermal") return "temperature_interval";
+  if (category === "imposed_displacement") return primitiveLoadDofIsRotational(direction) ? "rotation" : "displacement";
   return "force";
 }
 
 function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
+  if (primitiveLoadUsesSupportTarget(draft.category)) return draft.targetSupport || "support:TBD";
   return primitiveLoadUsesPipeTarget(draft.category) ? draft.targetPipe || "pipe:TBD" : draft.targetNode || "node:TBD";
 }
 
@@ -1237,6 +1277,7 @@ function primitiveLoadCategoryFromValue(value: string): PrimitiveLoadCategory {
   if (value === "concentrated_moment") return "concentrated_moment";
   if (value === "pressure") return "pressure";
   if (value === "thermal") return "thermal";
+  if (value === "imposed_displacement") return "imposed_displacement";
   return value === "distributed_force" ? "distributed_force" : "concentrated_force";
 }
 
@@ -1244,7 +1285,12 @@ function primitiveLoadUsesPipeTarget(category: PrimitiveLoadCategory): boolean {
   return category === "distributed_force" || category === "pressure" || category === "thermal";
 }
 
+function primitiveLoadUsesSupportTarget(category: PrimitiveLoadCategory): boolean {
+  return category === "imposed_displacement";
+}
+
 function primitiveLoadDirectionOptions(category: PrimitiveLoadCategory): string[] {
+  if (category === "imposed_displacement") return ["UX", "UY", "UZ", "RX", "RY", "RZ"];
   return category === "concentrated_moment" ? ["rotation_x", "rotation_y", "rotation_z"] : ["global_x", "global_y", "global_z"];
 }
 
@@ -1252,6 +1298,7 @@ function defaultPrimitiveLoadDirection(category: PrimitiveLoadCategory): string 
   if (category === "concentrated_moment") return "rotation_z";
   if (category === "pressure") return "global_x";
   if (category === "thermal") return "global_z";
+  if (category === "imposed_displacement") return "UZ";
   return "global_y";
 }
 
@@ -1260,6 +1307,7 @@ function primitiveLoadFieldLabel(category: PrimitiveLoadCategory): string {
   if (category === "concentrated_moment") return "Concentrated moment primitive load";
   if (category === "pressure") return "Pressure primitive load";
   if (category === "thermal") return "Thermal primitive load";
+  if (category === "imposed_displacement") return "Imposed displacement primitive load";
   return "Concentrated force primitive load";
 }
 
@@ -1276,7 +1324,14 @@ function primitiveLoadSourceNote(category: PrimitiveLoadCategory): string {
   if (category === "thermal") {
     return "explicit user-entered temperature-interval primitive; no pressure or imposed displacements inferred";
   }
+  if (category === "imposed_displacement") {
+    return "explicit user-entered support-target imposed displacement; no support coordinate policy or hidden restraint defaults inferred";
+  }
   return "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred";
+}
+
+function primitiveLoadDofIsRotational(direction: string): boolean {
+  return direction === "RX" || direction === "RY" || direction === "RZ";
 }
 
 function parseFiniteNumber(raw: string): number | null {

@@ -524,3 +524,25 @@
   basis editing, combination term creation/deletion, broader algebra
   authoring, Phase B unit picker/display retirement, and packaged-Tauri
   saved-project smoke over edited load data.
+
+## 2026-06-11 - TP-APP-R2-IMPOSED-001 imposed-displacement primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche added explicit support-target
+  imposed-displacement primitive-load creation to the desktop Load Cases
+  manager for existing load cases.
+- The editor queues a structured `create_primitive_load` intent with
+  `field_path=primitive_loads`, `before=not_present`, category
+  `imposed_displacement`, existing support target, matching support DOF,
+  finite magnitude, project length unit `m` for translational DOFs, project
+  angle unit `rad` for rotational DOFs, dimension `displacement` or
+  `rotation`, and provenance. The invented preview model now carries explicit
+  `project.units.angle = "rad"`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_imposed_displacement_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-102. Validation passed:
+  operation-applier format check, Rust operation-applier tests 30/30,
+  src-tauri Rust tests 26/26, desktop Vitest 50/50, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser imposed-displacement smoke.
+- A4 residuals remain combination basis editing, combination term
+  creation/deletion, broader algebra authoring, Phase B unit picker/display
+  retirement, and packaged-Tauri saved-project smoke over edited load data.

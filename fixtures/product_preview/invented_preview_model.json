@@ -14,6 +14,7 @@
     "units": {
       "length": "m",
       "force": "N",
+      "angle": "rad",
       "pressure": "Pa",
       "temperature": "degC",
       "stress": "MPa"

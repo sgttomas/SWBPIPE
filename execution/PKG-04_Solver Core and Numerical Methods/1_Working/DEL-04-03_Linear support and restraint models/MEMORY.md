@@ -180,3 +180,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   dependency register, DAG artifact, lifecycle transition, release claim,
   professional approval, code-compliance claim, protected standards content, or
   private data was changed or introduced.
+
+## 2026-06-11 - TP-APP-R2-IMPOSED-001 imposed-displacement primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche used existing support records as
+  explicit targets for desktop Load Cases manager imposed-displacement
+  primitive creation.
+- The authored payload records `{ type: "support", support: <support id>,
+  dof: <DOF> }`; validation requires an existing support and a target DOF
+  matching the primitive-load direction. Translational DOFs use the project
+  length unit and dimension `displacement`; rotational DOFs use the project
+  angle unit and dimension `rotation`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_imposed_displacement_load_creation_editor.md`.
+  Validation passed operation-applier format check, Rust operation-applier
+  tests 30/30, src-tauri Rust tests 26/26, desktop Vitest 50/50, desktop
+  build, desktop Playwright smoke 1/1, in-app browser support-target smoke,
+  and `git diff --check`.
+- No `core/solver/linear_supports` code, support coordinate policy, support
+  stiffness/default-restraint behavior, solver boundary behavior, professional
+  approval, code-compliance claim, protected standards content, or private
+  data was changed or introduced.
