@@ -22,6 +22,9 @@ target/
 apps/desktop/src-tauri/gen/
 apps/desktop/playwright-report/
 apps/desktop/test-results/
+# Generated wasm operation-engine artifacts (built by `npm run build:wasm`;
+# intentionally not committed — see docs/BUILD_AND_RELEASE.md §3 and ADR-0001)
+apps/desktop/src/services/wasmEngine/__generated__/
 
 .env
 .env.*

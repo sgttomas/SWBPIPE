@@ -7,8 +7,19 @@ publish = false
 
 [lib]
 path = "src/lib.rs"
+# `cdylib` exists for the feature-gated wasm32 browser engine build; `rlib`
+# keeps the native library/test path unchanged.
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# Browser-engine build (DEC-020 / ADR-0001): wasm-bindgen JSON-string exports.
+# Native builds and tests never enable this feature.
+wasm = ["dep:wasm-bindgen"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
+# Pinned exactly: the wasm-bindgen CLI version must match the crate version
+# (see docs/BUILD_AND_RELEASE.md and apps/desktop wasm build script).
+wasm-bindgen = { version = "=0.2.123", optional = true }

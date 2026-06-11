@@ -379,6 +379,98 @@ pub fn apply_operation(
     run(model, intent, claimed_model_hash, Mode::Apply)
 }
 
+/// JSON-string boundary for the wasm32 browser-engine build (`--features
+/// wasm`; DEC-020 / ADR-0001). The exports accept and return JSON strings so
+/// the JavaScript shim stays a thin transport. Malformed input JSON returns a
+/// structured error envelope (`document_kind`
+/// `openpipestress.desktop.wasm_engine_input_error`) instead of trapping —
+/// the shim surfaces it as an explicit diagnostic, never a silent fallback.
+/// Native builds and tests do not compile this module.
+#[cfg(feature = "wasm")]
+mod wasm_api {
+    use super::{apply_operation, validate_operation};
+    use serde_json::{json, Value};
+    use wasm_bindgen::prelude::wasm_bindgen;
+
+    const INPUT_ERROR_DOCUMENT_KIND: &str = "openpipestress.desktop.wasm_engine_input_error";
+
+    fn input_error(input_label: &str, detail: String) -> String {
+        json!({
+            "document_kind": INPUT_ERROR_DOCUMENT_KIND,
+            "error": {
+                "code": "WASM-ENGINE-INPUT-JSON-INVALID",
+                "severity": "blocking",
+                "input": input_label,
+                "message": format!("{input_label} is not valid JSON: {detail}"),
+            }
+        })
+        .to_string()
+    }
+
+    fn parse_input(input_label: &str, payload: &str) -> Result<Value, String> {
+        serde_json::from_str(payload).map_err(|error| input_error(input_label, error.to_string()))
+    }
+
+    fn run_json(
+        model_json: &str,
+        intent_json: &str,
+        claimed_model_hash_json: &str,
+        apply: bool,
+    ) -> String {
+        let model = match parse_input("model", model_json) {
+            Ok(value) => value,
+            Err(envelope) => return envelope,
+        };
+        let intent = match parse_input("intent", intent_json) {
+            Ok(value) => value,
+            Err(envelope) => return envelope,
+        };
+        let claimed = match parse_input("claimed_model_hash", claimed_model_hash_json) {
+            Ok(value) => value,
+            Err(envelope) => return envelope,
+        };
+        let claimed_ref = if claimed.is_null() {
+            None
+        } else {
+            Some(&claimed)
+        };
+        let mut outcome = if apply {
+            apply_operation(&model, &intent, claimed_ref)
+        } else {
+            validate_operation(&model, &intent, claimed_ref)
+        };
+        // Honest receipt: this outcome was produced through the in-process
+        // wasm engine, not the Tauri backend command route.
+        outcome.application_route = "local_wasm_engine".to_string();
+        serde_json::to_string(&outcome).unwrap_or_else(|error| {
+            input_error("outcome_serialization", error.to_string())
+        })
+    }
+
+    /// Validate a structured editor-operation intent. Returns the
+    /// `OperationOutcome` document as a JSON string.
+    #[wasm_bindgen]
+    pub fn validate_operation_json(
+        model_json: &str,
+        intent_json: &str,
+        claimed_model_hash_json: &str,
+    ) -> String {
+        run_json(model_json, intent_json, claimed_model_hash_json, false)
+    }
+
+    /// Validate and, when no blocking finding exists, apply the single change
+    /// to a cloned model document. Returns the `OperationOutcome` document as
+    /// a JSON string.
+    #[wasm_bindgen]
+    pub fn apply_operation_json(
+        model_json: &str,
+        intent_json: &str,
+        claimed_model_hash_json: &str,
+    ) -> String {
+        run_json(model_json, intent_json, claimed_model_hash_json, true)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Mode {
     ValidateOnly,

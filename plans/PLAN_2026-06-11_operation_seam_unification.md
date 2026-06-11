@@ -49,6 +49,13 @@ The mirror was a deliberate, code-level choice (its header names the Rust crate 
 
 ### T3 — `TP-SEAM-WASM-001`: wasm build enablement (proceeds after T2 transcription)
 
+**Status (2026-06-11): IN PROGRESS — WIP handoff.** Scaffolding committed as
+`wip(seam-T3)` (feature-gated bindgen exports with native suite green, build
+script, loading shim, corpus wasm test lane, package/ignore wiring); the
+corpus-through-wasm Vitest spike has NOT run (no generated artifact yet) and
+the §6 stop rule for it remains live. Remaining scope and resume order:
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/_run_records/WORKING_ITEMS_RUN_2026-06-11_t3_wasm_enablement_wip_handoff.md`.
+
 **Scope.** Feature-gated (`wasm`) wasm-bindgen exports on `operation_applier` — `validate`/`apply` taking and returning JSON strings; native build unaffected. Build wiring: an npm script producing the wasm artifact for the desktop app (generated artifacts not committed; toolchain prerequisites — `wasm32-unknown-unknown` target, bindgen tooling with pinned versions — documented, with an explicit script failure message when missing; no silent fallback). Loading shim with an explicit diagnostic if the wasm asset is absent. The crate's dependency set (`serde`, `serde_json`, `sha2` only — verified 2026-06-11) is wasm-clean; no host access exists or may be added.
 
 **Parity proof:** the T1 corpus runs through native Rust, wasm Rust, and the still-present TS engine — three-way identical outcomes including the canonical-hash comparison. First-task spike: corpus-through-wasm under Vitest's environment; if wasm loading in the test environment proves intractable, **stop and escalate — do not hand-write any TS fallback engine** (that would recreate the problem this plan removes).
