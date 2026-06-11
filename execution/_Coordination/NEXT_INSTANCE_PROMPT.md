@@ -59,6 +59,11 @@
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked
      implementation item;
+   - if no current-stage plan item remains unblocked, stop: prepare any
+     missing decision packets, finish and commit validated work in hand,
+     end the session with the pending-rulings summary, and await the human
+     ruling — do not substitute out-of-stage scope or unrelated hardening
+     work;
    - prefer regression repair (failed or insufficient tests, build breaks,
      smoke-evidence gaps) ahead of new scope, and residual hardening only
      when it blocks or de-risks a current-stage plan item;

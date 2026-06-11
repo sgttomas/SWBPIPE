@@ -35,16 +35,16 @@ These are the decisions only a human project authority can make. Each blocks spe
 
 | ID | Decision | Blocks | Proposed timing |
 |---|---|---|---|
-| D-01 | **Unit catalog acceptance**: canonical unit set, conversion constants, offset-temperature and gauge/absolute-pressure semantics, tolerance policy (SPEC TBDs) | Phase B entirely; full value of Phase A authoring; FR-002 | First — before or alongside Phase A start |
+| D-01 | **Unit catalog acceptance**: canonical unit set, conversion constants, offset-temperature and gauge/absolute-pressure semantics, tolerance policy (SPEC TBDs) | Phase B entirely; full value of Phase A authoring; FR-002 | **RULED 2026-06-10** (`DEC-018`: SI-canonical with dual display catalog, as the packet proposed) — Phase B unblocked |
 | D-02 | **Rule-pack expression grammar freeze** (final operator/function set, conformance suite) | Phase C; FR-011 final form | Early — grammar churn after rule packs exist in the wild is costly |
 | D-03 | **Sparse solver / model-scale strategy** (accept a sparse library or bounded dense limit with diagnostics) | Phase D scale targets; PRD §23.1 "solver stability for large models" | Before Phase D nonlinear work (iteration multiplies solve cost) |
 | D-04 | **Numerical tolerance + coverage thresholds** (benchmark permitted variance, regression coverage floors) — RGAP-004 | R1/R4/R5 evidence claims; RELEASE_QUALITY_GATES | Before first external evidence bundle (mid-plan) |
 | D-05 | **CI provider + hosted workflow location** — RGAP-003 | Phase E; continuous evidence for all phases | Mid-plan; local profiles in [BUILD_AND_RELEASE.md](../docs/BUILD_AND_RELEASE.md) §5 carry evidence until then |
 | D-06 | **Release matrix, installer formats, signing/notarization, publication targets** — RGAP-003/006 | Phase E packaging | With or after D-05 |
 | D-07 | **Maintainer quorum + release authority; contributor legal mechanism** | Any release claim; R5 "IP contribution process" | Before R5 gate |
-| D-08 | **Model-document schema migration policy** (versioning + migration ledger semantics for model documents, extending the store `user_version` ledger) | Phase A persistence (A2) | With Phase A start (named as a next seam in `init/init-prompt.md`) |
+| D-08 | **Model-document schema migration policy** (versioning + migration ledger semantics for model documents, extending the store `user_version` ledger) | Phase A persistence (A2) | **RULED 2026-06-10** (`DEC-019`: per-document semver transform chain, migrate-in-memory-on-open / persist-on-save, as the packet proposed) — A2 unblocked |
 | D-09 | **Native package physical container format** (single-file project container + public transport form) | Phase E distribution of projects; FR-001 "version" semantics at file level | Mid-plan |
-| D-10 | **Report rendering target** (deterministic HTML and/or PDF pipeline choice) | Phase A report rendering (A7); R5 "full report package" | With Phase A |
+| D-10 | **Report rendering target** (deterministic HTML and/or PDF pipeline choice) | Phase A report rendering (A7); R5 "full report package" | **Packet drafted 2026-06-10, AWAITING_RULING** (proposes deterministic single-file HTML via a Rust renderer crate, hash-bound, with a D-10b PDF follow-up at the R5 lead-up) |
 | D-11 | **Issuance waves** for the 100 `CHECKING` deliverables | Governance closure (Phase F) | Human-paced throughout; suggested wave alignment in §5 Phase F |
 | D-12 | **Disposition of FR-024 (dynamics) and FR-025 (local FEA export)** (`Could` priority): implement post-beta or record explicit deferral | Final PRD-completeness claim | At R5 gate |
 
@@ -61,7 +61,7 @@ Phases are ordered by dependency, not strictly by execution: A and B can run in 
 | # | Tranche scope | Key seams (current code) |
 |---|---|---|
 | A1 | **Apply-operation command path.** Add Tauri commands (`apply_model_operation`, `validate_model_operation`, plus diff/accept queries) that take the already-defined editor operation intents and mutate a model document server-side, returning validation results and diffs per the PKG-16 operation→validation→diff→accept contracts. **Landed 2026-06-10** as `TP-APP-R2-EDITLOOP-001`: new `core/model_operations/operation_applier` crate + both commands + Apply Operations panel; inspector modify intents apply (viewport gesture intents block pending A3 geometry capture; unit conversion blocks pending D-01/B). Evidence: `apps/desktop/SMOKE.md` TP-MAC-82, DEL-16-02 run record | [apps/desktop/src-tauri/src/lib.rs](../apps/desktop/src-tauri/src/lib.rs) (now 14 commands, two mutating-path); PKG-16 Python contract modules as the semantic reference; operation intent queue already emitted by the UI |
-| A2 | **Model-document persistence.** Store model documents inside the SQLite project envelope with schema version + migration ledger entries (per D-08), canonical JCS hashing of model documents extending the existing project-envelope hash evidence | `openpipestress-projects.sqlite3` store, `user_version` ledger, envelope-hash verification (already implemented for envelopes) |
+| A2 | **Model-document persistence.** Store model documents inside the SQLite project envelope with schema version + migration ledger entries (per D-08), canonical JCS hashing of model documents extending the existing project-envelope hash evidence. **Landed 2026-06-10** as `TP-APP-R2-PERSIST-001` under `DEC-019`: in-document semver authority, application-service transform chain (migrate-in-memory-on-open / persist-on-save), refusal semantics for newer/unsupported documents, store v9 evidence-only migration ledger with pre/post hashes, validation-preflight evidence replacing the TBD marker. Open residuals: compatibility-window size (human ruling), explicit "Migrate project" operation, sibling JSON-slot coverage. Evidence: SMOKE TP-MAC-83, DEL-02-05 run record | `openpipestress-projects.sqlite3` store, `user_version` ledger, envelope-hash verification (already implemented for envelopes) |
 | A3 | **Viewport editing UX.** Selection/raycasting, node + straight-pipe element creation/edit tools, property inspector bound to selected entities, undo/redo (PRD §21), inline validation messages | [PipeViewport.tsx](../apps/desktop/src/features/viewport/PipeViewport.tsx) (render-only today); model tree + property panels per PRD §14.1–14.3 |
 | A4 | **Load case manager UI.** Define/edit weight, thermal, pressure metadata, concentrated loads, imposed displacements; load-case algebra surfacing | `core/loads` crates already implement the algebra; PRD §11.5–11.6, FR-007 |
 | A5 | **Solve-from-edited-model.** Route the mechanics job path to solve the *persisted edited model* (not only bundled fixtures), with `MODEL_INCOMPLETE` gating and the existing job/diagnostics envelopes; finish the solve-cancellation backend token (named seam in `init/init-prompt.md`) | `run_preview_mechanics` / job commands; [core/product_physics](../core/product_physics/Cargo.toml) bridge |
@@ -139,7 +139,7 @@ Current status is as assessed 2026-06-10; "Closes in" names the phase item that 
 
 | FR | Priority | Current status | Closes in |
 |---|---|---|---|
-| FR-001 create/open/save/version projects | Must | Envelope-level create/open/save/list with hash + store migration ledger; model documents now editable in session via the A1 apply seam and saved inside the envelope; dedicated model-document persistence/versioning still pending A2 (D-08 packet AWAITING_RULING) | A2 (file-container semantics: D-09) |
+| FR-001 create/open/save/version projects | Must | Envelope-level create/open/save/list with hash + store migration ledger; model documents editable via the A1 apply seam and versioned/migration-governed per DEC-019 (A2 landed: in-document semver authority, migration ledger evidence, refusal semantics); residuals: compatibility window ruling, explicit migrate operation, file-container semantics | D-09 (file-level semantics); A2 residuals |
 | FR-002 unit systems + conversions | Must | Unit metadata everywhere; no conversion engine (`core/units` empty) | B1–B3 (gated D-01) |
 | FR-003 3D node/element modeling | Must | A1 landed: inspector field edits validate/apply to the session model; viewport remains render-only and gesture intents block pending explicit geometry capture | A3 |
 | FR-004 six DOF per node | Must | Met (frame kernel) | — |
@@ -177,7 +177,7 @@ Suggested first three tranches, in order:
 
 1. **Decision-prep packet for D-01 (units) + D-08 (model schema migration)** — unblocks the two longest poles. **Done 2026-06-10:** both packets drafted, `AWAITING_RULING` in `execution/_Coordination/_DECISIONS/_REGISTER.md`.
 2. **`TP-APP-R2-EDITLOOP-001` (A1):** apply-operation Tauri command path against PKG-16 contracts, with Vitest + Rust tests. **Done 2026-06-10** (see §3 A1 row; smoke TP-MAC-82).
-3. **`TP-APP-R2-PERSIST-001` (A2):** model-document persistence + hash evidence, extending the existing envelope-hash series — **next unblocked item once the human rules on D-08** (packet awaits ruling); if D-08 remains unruled, the next unblocked items are A3 (viewport editing UX) or A4 (load case manager).
+3. **`TP-APP-R2-PERSIST-001` (A2):** model-document persistence + hash evidence, extending the existing envelope-hash series — **unblocked 2026-06-10 by the D-08 ruling (`DEC-019`)**; the active tranche after the A1 landing.
 
 ---
 

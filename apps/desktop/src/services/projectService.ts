@@ -4,6 +4,7 @@ import type {
   AnalysisRunEnvelope,
   EditorOperationIntent,
   LocalProjectEnvelope,
+  ModelDocumentMigrationStatus,
   LocalProjectIndexEntry,
   LocalStorageCapability,
   MechanicsResult,
@@ -27,6 +28,77 @@ function recordBrowserSnapshotTimestamps(resetCreated: boolean): void {
 
 function hasTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+export const SUPPORTED_MODEL_SCHEMA_VERSION = "0.1.0";
+const MODEL_MIGRATION_FRAMEWORK = "application_service_separate_db_and_product_schema";
+
+function parseSemver(raw: string): [number, number, number] | null {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(raw.trim());
+  if (!match) return null;
+  return [Number(match[1]), Number(match[2]), Number(match[3])];
+}
+
+// Browser-preview mirror of the backend DEC-019 evaluation. No transform
+// chain exists in the browser store; documents are current, refused as newer
+// than supported, or refused as unsupported.
+export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentMigrationStatus {
+  const raw = typeof model.schema_version === "string" ? model.schema_version : "";
+  const documentVersion = parseSemver(raw);
+  const supported = parseSemver(SUPPORTED_MODEL_SCHEMA_VERSION);
+  const base = {
+    source_schema_version: raw || "missing_schema_version",
+    target_schema_version: SUPPORTED_MODEL_SCHEMA_VERSION,
+    migration_framework: MODEL_MIGRATION_FRAMEWORK,
+    db_migration_status: "browser_memory_preview_no_store_ledger",
+    applied_migration_ids: [] as string[]
+  };
+  if (!documentVersion || !supported) {
+    return {
+      ...base,
+      status: "unsupported_schema",
+      product_schema_migration_status: "unsupported_schema",
+      persistence_state: "not_applicable_document_refused",
+      detail: "Model document has no valid semver schema_version; refusing without coercion."
+    };
+  }
+  const compare =
+    documentVersion[0] - supported[0] || documentVersion[1] - supported[1] || documentVersion[2] - supported[2];
+  if (compare === 0) {
+    return {
+      ...base,
+      status: "current",
+      product_schema_migration_status: "current",
+      persistence_state: "stored_document_current",
+      detail: "Model document schema_version matches the supported version; no migration applied."
+    };
+  }
+  if (compare > 0) {
+    return {
+      ...base,
+      status: "newer_than_supported",
+      product_schema_migration_status: "newer_than_supported",
+      persistence_state: "not_applicable_document_refused",
+      detail: `Model document schema_version ${raw} is newer than the supported ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration).`
+    };
+  }
+  return {
+    ...base,
+    status: "unsupported_schema",
+    product_schema_migration_status: "unsupported_schema",
+    persistence_state: "not_applicable_document_refused",
+    detail: `No migration path exists in the browser preview from ${raw} to ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing without coercion.`
+  };
+}
+
+function requireEditableModelDocument(model: PreviewModel): ModelDocumentMigrationStatus {
+  const status = evaluateModelDocumentLocal(model);
+  if (status.status !== "current") {
+    throw new Error(
+      `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}`
+    );
+  }
+  return status;
 }
 
 function localOnlyCapability(): LocalStorageCapability {
@@ -97,7 +169,9 @@ function envelope(
     mechanics_result: cloneJson(mechanicsResult),
     analysis_run: cloneJson(analysisRun),
     model_hash: cloneJson(modelHash),
-    project_envelope_hash: cloneJson(projectEnvelopeHash)
+    project_envelope_hash: cloneJson(projectEnvelopeHash),
+    model_document_migration: requireEditableModelDocument(model),
+    model_migration_ledger: []
   };
 }
 
@@ -111,7 +185,9 @@ function cloneEnvelope(project: LocalProjectEnvelope): LocalProjectEnvelope {
     mechanics_result: cloneJson(project.mechanics_result),
     analysis_run: cloneJson(project.analysis_run),
     model_hash: cloneJson(project.model_hash),
-    project_envelope_hash: cloneJson(project.project_envelope_hash)
+    project_envelope_hash: cloneJson(project.project_envelope_hash),
+    model_document_migration: cloneJson(project.model_document_migration),
+    model_migration_ledger: JSON.parse(JSON.stringify(project.model_migration_ledger ?? []))
   };
 }
 
@@ -198,6 +274,7 @@ export async function openLocalProject(projectId: string | null = null): Promise
   if (!hasTauriRuntime()) {
     if (!browserPreviewSnapshot) return null;
     if (projectId && browserPreviewSnapshot.summary.project_id !== projectId) return null;
+    requireEditableModelDocument(browserPreviewSnapshot.model);
     const opened = cloneEnvelope(browserPreviewSnapshot);
     opened.summary.message = projectId
       ? `Opened local browser-preview project snapshot by id ${projectId}.`
@@ -231,7 +308,8 @@ export async function saveLocalProject(
   mechanicsResult: MechanicsResult | null = null,
   analysisRun: AnalysisRunEnvelope | null = null,
   modelHash: ModelHashEvidence | null = null,
-  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null
+  projectEnvelopeHash: ProjectEnvelopeHashEvidence | null = null,
+  modelDocumentMigration: ModelDocumentMigrationStatus | null = null
 ): Promise<LocalProjectEnvelope> {
   if (!hasTauriRuntime()) {
     browserPreviewSnapshot = envelope(
@@ -259,7 +337,8 @@ export async function saveLocalProject(
       mechanics_result: mechanicsResult,
       analysis_run: analysisRun,
       model_hash: modelHash,
-      project_envelope_hash: projectEnvelopeHash
+      project_envelope_hash: projectEnvelopeHash,
+      model_document_migration: modelDocumentMigration
     }
   });
 }

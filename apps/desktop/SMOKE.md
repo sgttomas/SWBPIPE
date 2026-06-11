@@ -2398,3 +2398,50 @@ after the timestamp marker were absent.
   equality claims; stale results are cleared rather than displayed against
   an edited model; no compliance, certification, sealing, authentication,
   approval, release, or code-compliance claims.
+
+## TP-MAC-83 model-document-schema-migration-seam (2026-06-10)
+
+- Tranche: `TP-APP-R2-PERSIST-001` (completion plan Phase A2) implementing the
+  human-ruled D-08 policy (`DEC-019` in
+  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12): two-track versioning
+  with the in-document semver `schema_version` as the sole model-document
+  version authority; an ordered transform-chain registry in the application
+  service (`apps/desktop/src-tauri/src/model_document_migration.rs`,
+  framework `application_service_separate_db_and_product_schema`);
+  migrate-in-memory-on-open / persist-on-save; `newer_than_supported` and
+  `unsupported_schema` documents refused for editing with structured
+  diagnostics (no coercion, no down-migration); and a per-document
+  evidence-only migration ledger (store schema v9 column
+  `model_migration_ledger_json`) whose records carry pre- and post-migration
+  model hashes. The validation preflight's hardcoded
+  `model_document_migrations_not_defined_tbd` marker is replaced by real
+  DEC-019 evidence (new `project-validation-model-document-migration` line
+  and packet block). The published transform chain is empty — `0.1.0` is the
+  only model-document schema version ever published — so chain mechanics are
+  proven by injected-chain tests, not invented historical versions.
+- Local validation before browser smoke: `cargo test` in
+  `apps/desktop/src-tauri` (24/24: 7 new migration-module tests covering
+  current/newer/invalid/chain/gap/failure/ledger-record semantics; 3 new
+  persist-path tests covering refusal, current-document persistence, and
+  open-time-migrated save appending a ledger record with pre/post hashes;
+  store ledger tests updated for the v9 staged migration with target
+  version 9); `npm test --workspace apps/desktop` (25/25, including new
+  projectService browser-engine tests and the R2 flow asserting the new
+  validation line); `npm run build --workspace apps/desktop`;
+  `python3 -m pytest -q tests` (342/342).
+- Browser smoke (Claude Preview, fresh vite server on port 5173, browser
+  fixture mode): initial load shows
+  `status=current; source=0.1.0; target=0.1.0;
+  framework=application_service_separate_db_and_product_schema;
+  persistence=no_persistence_operation_this_session; ledger_records=0`
+  (session-document local evaluation — no hardcoded TBD); after Create
+  local → Save local → Open local the line reports
+  `persistence=stored_document_current; ledger_records=0` from the
+  persistence envelope. Console errors and warnings absent.
+- Boundary: model-document migration evidence is a local technical-preview
+  reproducibility signal only; stored bytes are never rewritten as a side
+  effect of open; no destructive rewrites; no down-migration; refused
+  documents are findings, not silent coercions; the backward-compatibility
+  window size remains `TBD — human ruling` per the DEC-019 packet note; no
+  release, professional, certification, sealing, authentication, approval,
+  or code-compliance claims.

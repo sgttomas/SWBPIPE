@@ -599,6 +599,32 @@ export type PackageHashEvidence = {
   hash_status: "computed_local_preview";
 };
 
+export type ModelDocumentMigrationStatus = {
+  status: "current" | "migrated" | "newer_than_supported" | "unsupported_schema" | "failed" | string;
+  source_schema_version: string;
+  target_schema_version: string;
+  migration_framework: string;
+  db_migration_status: string;
+  product_schema_migration_status: string;
+  applied_migration_ids: string[];
+  persistence_state: string;
+  detail: string;
+};
+
+export type ModelMigrationLedgerRecord = {
+  record_kind: string;
+  recorded_at_unix: number;
+  source_schema_version: string;
+  target_schema_version: string;
+  applied_migration_ids: string[];
+  migration_framework: string;
+  pre_migration_model_hash: string;
+  post_migration_model_hash: string;
+  trigger: string;
+  destructive_rewrite: boolean;
+  professional_boundary: Record<string, boolean>;
+};
+
 export type LocalProjectEnvelope = {
   summary: LocalProjectSummary;
   model: PreviewModel;
@@ -609,4 +635,6 @@ export type LocalProjectEnvelope = {
   analysis_run: AnalysisRunEnvelope | null;
   model_hash: ModelHashEvidence | null;
   project_envelope_hash: ProjectEnvelopeHashEvidence | null;
+  model_document_migration: ModelDocumentMigrationStatus | null;
+  model_migration_ledger: ModelMigrationLedgerRecord[];
 };

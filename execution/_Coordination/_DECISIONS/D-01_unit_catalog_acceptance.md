@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Decision ID | D-01 |
-| Status | **AWAITING_RULING** (register row moves `NOT_PREPARED` → `AWAITING_RULING` per `execution/_Coordination/_DECISIONS/_REGISTER.md` row states) |
+| Status | **RULED** — accepted as proposed by the human project authority on 2026-06-10; ruling record `DEC-018` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 |
 | Prepared | 2026-06-10 by TASK (Type 2) for WORKING_ITEMS, tranche TP-APP-R2-EDITLOOP-001 decision-preparation subscope |
 | Blocks | Phase B entirely; FR-002; full value of Phase A authoring (`plans/PLAN_2026-06-10_prd_completion.md` §2 row D-01) |
 | Authority | Human project authority only. All recommendations below are `PROPOSAL` (`docs/CONTRACT.md` OPS-K-AGENT-4: "Agent outputs are drafts/proposals until accepted by a human gate") |

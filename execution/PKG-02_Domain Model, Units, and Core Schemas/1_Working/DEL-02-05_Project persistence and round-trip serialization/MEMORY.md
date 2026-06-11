@@ -235,3 +235,28 @@ Boundaries preserved:
   the physical project container remain explicit TBDs; no lifecycle,
   release, certification, sealing, authentication, professional-approval, or
   code-compliance claim.
+
+## 2026-06-10 - TP-APP-R2-PERSIST-001 model-document schema migration seam (A2, DEC-019)
+
+- The human project authority ruled decision D-08 (`DEC-019`): two-track
+  versioning with in-document semver as the sole model-document version
+  authority, migrate-in-memory-on-open / persist-on-save, explicit-operation
+  evidence guarantees. The desktop app now implements that policy:
+  `apps/desktop/src-tauri/src/model_document_migration.rs` (transform-chain
+  registry, refusal semantics for newer/unsupported/failed documents), store
+  schema v9 evidence-only `model_migration_ledger_json` column with
+  pre/post-hash ledger records, and DEC-019 evidence in the validation
+  preflight replacing the `model_document_migrations_not_defined_tbd` marker.
+- This deliverable's reserved `MigrationStatus` shape and
+  `application_service_separate_db_and_product_schema` framework enum from
+  `schemas/project_persistence.schema.yaml` are now exercised by running
+  code. The staged explicit "Migrate project" operation, sibling JSON-slot
+  coverage, read-only inspection of newer documents, and the
+  backward-compatibility window size remain open (window size is an explicit
+  `TBD — human ruling` carried in the DEC-019 packet).
+- Evidence: run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_model_document_schema_migration.md`;
+  smoke `apps/desktop/SMOKE.md` TP-MAC-83; suites 24/24 src-tauri, 25/25
+  Vitest, 342/342 pytest, build green.
+- No lifecycle change: `_STATUS.md` remains `CHECKING`; this is
+  app-integration absorption of design authority, not issuance.

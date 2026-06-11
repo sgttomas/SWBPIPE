@@ -269,6 +269,12 @@ bounded tranche.
      `execution/_Coordination/_DECISIONS/_REGISTER.md`;
    - if a packet already awaits ruling, proceed to the next unblocked
      implementation item;
+   - if no current-stage plan item remains unblocked, stop: do not
+     substitute out-of-stage scope or unrelated hardening work. Finish and
+     commit any validated work in hand, ensure every blocking decision has a
+     prepared packet, end the session with the pending-rulings summary, and
+     await the human ruling. A continuous or unsupervised loop halts here by
+     design and resumes only after a human records the ruling(s);
    - agents never resolve these decisions; rulings are human records,
      captured per existing `DEC`/`SCA` decision practice and reflected back
      into the register and plan;

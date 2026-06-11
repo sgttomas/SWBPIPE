@@ -1,3 +1,9 @@
+mod model_document_migration;
+
+use model_document_migration::{
+    evaluate_model_document, migration_ledger_record, model_document_migrations,
+    EvaluatedModelDocument, ModelDocumentMigrationStatus,
+};
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
 use rusqlite::{params, Connection, OptionalExtension};
@@ -100,6 +106,8 @@ struct LocalProjectEnvelope {
     analysis_run: Value,
     model_hash: Value,
     project_envelope_hash: Value,
+    model_document_migration: Value,
+    model_migration_ledger: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -121,6 +129,10 @@ struct SaveLocalProjectRequest {
     model_hash: Value,
     #[serde(default)]
     project_envelope_hash: Value,
+    /// Open-time migration status passed back by the UI so persisting a
+    /// migrated document can write its ledger record (DEC-019).
+    #[serde(default)]
+    model_document_migration: Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -138,7 +150,7 @@ fn app_store_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(PROJECT_STORE_FILE))
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 8;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 9;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -239,6 +251,19 @@ fn store_migrations() -> Vec<StoreMigration> {
                     connection,
                     "project_envelope_hash_json",
                     "ALTER TABLE local_projects ADD COLUMN project_envelope_hash_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+        // Evidence-only ledger of applied model-document migrations (DEC-019).
+        // The model-document schema *version* authority stays in-document.
+        StoreMigration {
+            version: 9,
+            migration_id: "store-v9-model-document-migration-ledger-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "model_migration_ledger_json",
+                    "ALTER TABLE local_projects ADD COLUMN model_migration_ledger_json TEXT NOT NULL DEFAULT '[]'",
                 )
             },
         },
@@ -403,6 +428,7 @@ fn upsert_project(
     analysis_run: &Value,
     model_hash: &Value,
     project_envelope_hash: &Value,
+    model_migration_ledger: &Value,
 ) -> Result<(), String> {
     let model_json = serde_json::to_string(model).map_err(|error| error.to_string())?;
     let editor_intents_json =
@@ -417,6 +443,8 @@ fn upsert_project(
     let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
     let project_envelope_hash_json =
         serde_json::to_string(project_envelope_hash).map_err(|error| error.to_string())?;
+    let model_migration_ledger_json =
+        serde_json::to_string(model_migration_ledger).map_err(|error| error.to_string())?;
     let search_text = format!(
         "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
     );
@@ -427,8 +455,8 @@ fn upsert_project(
     transaction
         .execute(
             "
-            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, created_at_unix, updated_at_unix)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?11)
+            INSERT INTO local_projects (project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, model_migration_ledger_json, created_at_unix, updated_at_unix)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12)
             ON CONFLICT(project_id) DO UPDATE SET
                 project_name = excluded.project_name,
                 model_json = excluded.model_json,
@@ -439,6 +467,7 @@ fn upsert_project(
                 analysis_run_json = excluded.analysis_run_json,
                 model_hash_json = excluded.model_hash_json,
                 project_envelope_hash_json = excluded.project_envelope_hash_json,
+                model_migration_ledger_json = excluded.model_migration_ledger_json,
                 updated_at_unix = excluded.updated_at_unix
             ",
             params![
@@ -452,6 +481,7 @@ fn upsert_project(
                 analysis_run_json,
                 model_hash_json,
                 project_envelope_hash_json,
+                model_migration_ledger_json,
                 now
             ],
         )
@@ -485,6 +515,7 @@ struct StoredProjectRecord {
     analysis_run: Value,
     model_hash: Value,
     project_envelope_hash: Value,
+    model_migration_ledger: Value,
 }
 
 fn load_project(
@@ -492,6 +523,7 @@ fn load_project(
     project_id: Option<&str>,
 ) -> Result<Option<StoredProjectRecord>, String> {
     type StoredRow = (
+        String,
         String,
         String,
         String,
@@ -515,13 +547,14 @@ fn load_project(
             row.get::<_, String>(7)?,
             row.get::<_, String>(8)?,
             row.get::<_, String>(9)?,
+            row.get::<_, String>(10)?,
         ))
     }
     let row = match project_id {
         Some(id) => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, model_migration_ledger_json
                 FROM local_projects
                 WHERE project_id = ?1
                 ",
@@ -533,7 +566,7 @@ fn load_project(
         None => connection
             .query_row(
                 "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
+                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, model_migration_ledger_json
                 FROM local_projects
                 ORDER BY updated_at_unix DESC, project_id ASC
                 LIMIT 1
@@ -556,6 +589,7 @@ fn load_project(
             analysis_run_json,
             model_hash_json,
             project_envelope_hash_json,
+            model_migration_ledger_json,
         )| {
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
@@ -574,6 +608,8 @@ fn load_project(
                 .map_err(|error| error.to_string())?;
             let project_envelope_hash = serde_json::from_str::<Value>(&project_envelope_hash_json)
                 .map_err(|error| error.to_string())?;
+            let model_migration_ledger = serde_json::from_str::<Value>(&model_migration_ledger_json)
+                .map_err(|error| error.to_string())?;
             Ok(StoredProjectRecord {
                 project_id: id,
                 project_name: name,
@@ -585,6 +621,7 @@ fn load_project(
                 analysis_run,
                 model_hash,
                 project_envelope_hash,
+                model_migration_ledger,
             })
         },
     )
@@ -1198,6 +1235,115 @@ fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, Str
     })
 }
 
+fn refuse_model_document(status: &ModelDocumentMigrationStatus) -> String {
+    format!(
+        "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}",
+        status.status, status.source_schema_version, status.target_schema_version, status.detail
+    )
+}
+
+fn hash_value_string(hash: &Value) -> String {
+    hash.get("value")
+        .and_then(Value::as_str)
+        .unwrap_or("not_reported")
+        .to_string()
+}
+
+/// Resolve the model document, migration status, and ledger array to persist
+/// for create/save (DEC-019): refuse unsupported/newer documents, migrate
+/// older ones through the published chain, and append a ledger record when a
+/// migrated document is being persisted (whether migrated here or at open).
+fn prepare_model_document_for_persist(
+    connection: &Connection,
+    project_id: &str,
+    model: Value,
+    open_time_status: &Value,
+    incoming_model_hash: &Value,
+) -> Result<(Value, ModelDocumentMigrationStatus, Value), String> {
+    let EvaluatedModelDocument { migrated_document, status } =
+        evaluate_model_document(&model, &model_document_migrations());
+    if matches!(status.status.as_str(), "newer_than_supported" | "unsupported_schema" | "failed") {
+        return Err(refuse_model_document(&status));
+    }
+
+    let prior = load_project(connection, Some(project_id))?;
+    let mut ledger = prior
+        .as_ref()
+        .map(|record| record.model_migration_ledger.clone())
+        .filter(Value::is_array)
+        .unwrap_or_else(|| Value::Array(Vec::new()));
+    let pre_migration_model_hash = prior
+        .as_ref()
+        .map(|record| hash_value_string(&record.model_hash))
+        .unwrap_or_else(|| "not_previously_stored".to_string());
+    let post_migration_model_hash = hash_value_string(incoming_model_hash);
+
+    let open_time_migrated = open_time_status.get("status").and_then(Value::as_str) == Some("migrated");
+    let (model_to_persist, mut persisted_status, record_basis) = if status.status == "migrated" {
+        let migrated = migrated_document
+            .ok_or_else(|| "migrated status without a migrated document".to_string())?;
+        (migrated, status.clone(), Some(status))
+    } else if open_time_migrated {
+        // The UI already holds the in-memory-migrated document from open; the
+        // incoming document is current and the open-time status carries the
+        // evidence to record.
+        let recorded = ModelDocumentMigrationStatus {
+            status: "migrated".to_string(),
+            source_schema_version: open_time_status
+                .get("source_schema_version")
+                .and_then(Value::as_str)
+                .unwrap_or("TBD")
+                .to_string(),
+            target_schema_version: open_time_status
+                .get("target_schema_version")
+                .and_then(Value::as_str)
+                .unwrap_or(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION)
+                .to_string(),
+            migration_framework: model_document_migration::MODEL_MIGRATION_FRAMEWORK.to_string(),
+            db_migration_status: "store_user_version_ledger_separate_ddl_only".to_string(),
+            product_schema_migration_status: "migrated".to_string(),
+            applied_migration_ids: open_time_status
+                .get("applied_migration_ids")
+                .and_then(Value::as_array)
+                .map(|items| {
+                    items
+                        .iter()
+                        .filter_map(Value::as_str)
+                        .map(str::to_string)
+                        .collect()
+                })
+                .unwrap_or_default(),
+            persistence_state: "in_memory_only_not_yet_saved".to_string(),
+            detail: "Open-time in-memory migration persisted on save.".to_string(),
+        };
+        (model, status, Some(recorded))
+    } else {
+        (model, status, None)
+    };
+
+    if let Some(basis) = record_basis {
+        let record = migration_ledger_record(
+            &basis,
+            &pre_migration_model_hash,
+            &post_migration_model_hash,
+            now_unix_seconds()?,
+        );
+        ledger
+            .as_array_mut()
+            .expect("ledger normalized to array above")
+            .push(record);
+        persisted_status.persistence_state = "persisted_with_ledger_record".to_string();
+        persisted_status.product_schema_migration_status = "migrated".to_string();
+        persisted_status.status = "migrated".to_string();
+        persisted_status.detail =
+            "Migrated model document persisted with a ledger record (DEC-019).".to_string();
+    } else {
+        persisted_status.persistence_state = "stored_document_current".to_string();
+    }
+
+    Ok((model_to_persist, persisted_status, ledger))
+}
+
 #[tauri::command]
 fn create_local_project(
     app: AppHandle,
@@ -1221,6 +1367,13 @@ fn create_local_project(
     let analysis_run = normalized_analysis_run(analysis_run);
     let model_hash = normalized_model_hash(model_hash);
     let project_envelope_hash = normalized_project_envelope_hash(project_envelope_hash);
+    let (model, document_migration, model_migration_ledger) = prepare_model_document_for_persist(
+        &connection,
+        &project_id,
+        model,
+        &Value::Null,
+        &model_hash,
+    )?;
     upsert_project(
         &mut connection,
         &project_id,
@@ -1233,6 +1386,7 @@ fn create_local_project(
         &analysis_run,
         &model_hash,
         &project_envelope_hash,
+        &model_migration_ledger,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -1257,6 +1411,9 @@ fn create_local_project(
         analysis_run,
         model_hash,
         project_envelope_hash,
+        model_document_migration: serde_json::to_value(document_migration)
+            .map_err(|error| error.to_string())?,
+        model_migration_ledger,
     })
 }
 
@@ -1269,6 +1426,17 @@ fn open_local_project(
     let (connection, migration) = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
         .map(|record| {
+            // DEC-019: evaluate the restored document; migrate in memory when
+            // a chain applies; refuse newer/unsupported documents for editing.
+            let EvaluatedModelDocument { migrated_document, status } =
+                evaluate_model_document(&record.model, &model_document_migrations());
+            if matches!(
+                status.status.as_str(),
+                "newer_than_supported" | "unsupported_schema" | "failed"
+            ) {
+                return Err(refuse_model_document(&status));
+            }
+            let model = migrated_document.unwrap_or(record.model);
             Ok(LocalProjectEnvelope {
                 summary: project_summary(
                     record.project_id,
@@ -1284,7 +1452,7 @@ fn open_local_project(
                     &record.project_envelope_hash,
                     "Opened local SQLite project snapshot.".to_string(),
                 ),
-                model: record.model,
+                model,
                 editor_intents: record.editor_intents,
                 proposal: record.proposal,
                 selected_review_target: record.selected_review_target,
@@ -1292,6 +1460,9 @@ fn open_local_project(
                 analysis_run: record.analysis_run,
                 model_hash: record.model_hash,
                 project_envelope_hash: record.project_envelope_hash,
+                model_document_migration: serde_json::to_value(status)
+                    .map_err(|error| error.to_string())?,
+                model_migration_ledger: record.model_migration_ledger,
             })
         })
         .transpose()
@@ -1320,11 +1491,18 @@ fn save_local_project(
     let model_hash = normalized_model_hash(Some(request.model_hash));
     let project_envelope_hash =
         normalized_project_envelope_hash(Some(request.project_envelope_hash));
+    let (model, document_migration, model_migration_ledger) = prepare_model_document_for_persist(
+        &connection,
+        &request.project_id,
+        request.model,
+        &request.model_document_migration,
+        &model_hash,
+    )?;
     upsert_project(
         &mut connection,
         &request.project_id,
         &request.project_name,
-        &request.model,
+        &model,
         &editor_intents,
         &proposal,
         &selected_review_target,
@@ -1332,6 +1510,7 @@ fn save_local_project(
         &analysis_run,
         &model_hash,
         &project_envelope_hash,
+        &model_migration_ledger,
     )?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -1348,7 +1527,7 @@ fn save_local_project(
             &project_envelope_hash,
             "Saved current project model snapshot without external file copies.".to_string(),
         ),
-        model: request.model,
+        model,
         editor_intents,
         proposal,
         selected_review_target,
@@ -1356,6 +1535,9 @@ fn save_local_project(
         analysis_run,
         model_hash,
         project_envelope_hash,
+        model_document_migration: serde_json::to_value(document_migration)
+            .map_err(|error| error.to_string())?,
+        model_migration_ledger,
     })
 }
 
@@ -1484,6 +1666,7 @@ mod tests {
             &analysis_run,
             &model_hash,
             &project_envelope_hash,
+            &serde_json::json!([]),
         )
         .expect("project snapshot saves");
 
@@ -1643,11 +1826,12 @@ mod tests {
                 "store-v6-analysis-run-column",
                 "store-v7-model-hash-column",
                 "store-v8-project-envelope-hash-column",
+                "store-v9-model-document-migration-ledger-column",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v8"
+            "migrated_on_open_store_schema_v0_to_v9"
         );
 
         let second_open =
@@ -1664,7 +1848,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v8_no_pending_migrations"
+            "current_store_schema_v9_no_pending_migrations"
         );
     }
 
@@ -1701,10 +1885,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 8);
+        assert_eq!(migration.migrations_applied_on_open.len(), 9);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v8"
+            "migrated_on_open_store_schema_v0_to_v9"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -1768,11 +1952,14 @@ mod tests {
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
         assert_eq!(
             migration.migrations_applied_on_open,
-            vec!["store-v8-project-envelope-hash-column"]
+            vec![
+                "store-v8-project-envelope-hash-column",
+                "store-v9-model-document-migration-ledger-column"
+            ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v8"
+            "migrated_on_open_store_schema_v7_to_v9"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
@@ -1781,6 +1968,7 @@ mod tests {
         assert_eq!(loaded.project_id, "project:v7-local");
         assert_eq!(loaded.model_hash, Value::Null);
         assert_eq!(loaded.project_envelope_hash, Value::Null);
+        assert_eq!(loaded.model_migration_ledger, json!([]));
     }
 
     #[test]
@@ -1810,6 +1998,7 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
+            &serde_json::json!([]),
         )
         .expect("first project saves");
         upsert_project(
@@ -1824,6 +2013,7 @@ mod tests {
             &Value::Null,
             &Value::Null,
             &Value::Null,
+            &serde_json::json!([]),
         )
         .expect("second project saves");
         connection
@@ -2144,6 +2334,89 @@ mod tests {
         let solved = run_preview_mechanics(Some(outcome["applied_model"].clone()))
             .expect("edited model still solves through the preview mechanics path");
         assert!(solved["results"].as_array().map(|rows| !rows.is_empty()).unwrap_or(false));
+    }
+
+    #[test]
+    fn persist_preparation_refuses_newer_and_unsupported_model_documents() {
+        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let _ = &mut connection;
+
+        let newer = json!({ "schema_version": "0.2.0", "project": { "id": "project:newer", "name": "Newer" } });
+        let error = prepare_model_document_for_persist(&connection, "project:newer", newer, &Value::Null, &Value::Null)
+            .expect_err("newer-than-supported documents must be refused");
+        assert!(error.contains("newer_than_supported"), "{error}");
+
+        let unsupported = json!({ "project": { "id": "project:unversioned", "name": "Unversioned" } });
+        let error = prepare_model_document_for_persist(&connection, "project:unversioned", unsupported, &Value::Null, &Value::Null)
+            .expect_err("documents without a valid schema_version must be refused");
+        assert!(error.contains("unsupported_schema"), "{error}");
+    }
+
+    #[test]
+    fn persist_preparation_keeps_current_documents_without_ledger_records() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let model = json!({ "schema_version": "0.1.0", "project": { "id": "project:current", "name": "Current" } });
+        let (persisted, status, ledger) =
+            prepare_model_document_for_persist(&connection, "project:current", model.clone(), &Value::Null, &Value::Null)
+                .expect("current documents persist");
+        assert_eq!(persisted, model);
+        assert_eq!(status.status, "current");
+        assert_eq!(status.persistence_state, "stored_document_current");
+        assert_eq!(ledger, json!([]));
+    }
+
+    #[test]
+    fn saving_an_open_time_migrated_document_appends_a_ledger_record_with_pre_and_post_hashes() {
+        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        let stored_model = json!({ "schema_version": "0.1.0", "project": { "id": "project:migrated", "name": "Migrated" } });
+        upsert_project(
+            &mut connection,
+            "project:migrated",
+            "Migrated",
+            &stored_model,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &json!({ "value": "sha256:pre-migration" }),
+            &Value::Null,
+            &serde_json::json!([]),
+        )
+        .expect("seed row persists");
+
+        let open_time_status = json!({
+            "status": "migrated",
+            "source_schema_version": "0.0.9",
+            "target_schema_version": "0.1.0",
+            "applied_migration_ids": ["model-doc-0.0.9-to-0.1.0-test"]
+        });
+        let (persisted, status, ledger) = prepare_model_document_for_persist(
+            &connection,
+            "project:migrated",
+            stored_model.clone(),
+            &open_time_status,
+            &json!({ "value": "sha256:post-migration" }),
+        )
+        .expect("migrated document persists with evidence");
+
+        assert_eq!(persisted, stored_model);
+        assert_eq!(status.status, "migrated");
+        assert_eq!(status.persistence_state, "persisted_with_ledger_record");
+        let records = ledger.as_array().expect("ledger array");
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0]["pre_migration_model_hash"], json!("sha256:pre-migration"));
+        assert_eq!(records[0]["post_migration_model_hash"], json!("sha256:post-migration"));
+        assert_eq!(records[0]["source_schema_version"], json!("0.0.9"));
+        assert_eq!(records[0]["applied_migration_ids"], json!(["model-doc-0.0.9-to-0.1.0-test"]));
+        assert_eq!(records[0]["destructive_rewrite"], json!(false));
+        assert_eq!(
+            records[0]["professional_boundary"]["software_makes_compliance_claim"],
+            json!(false)
+        );
     }
 
     #[test]

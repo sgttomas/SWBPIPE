@@ -1,6 +1,6 @@
 # D-08 — Model-Document Schema Migration Policy
 
-**Status:** AWAITING_RULING
+**Status:** RULED — accepted as proposed by the human project authority on 2026-06-10; ruling record `DEC-019` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12
 **Prepared:** 2026-06-10 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-APP-R2-EDITLOOP-001 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-08.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-08; §3 Phase A item A2.

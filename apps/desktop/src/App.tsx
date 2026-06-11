@@ -90,8 +90,10 @@ import type {
   LocalProjectSummary,
   LocalStorageCapability,
   MechanicsResult,
+  ModelDocumentMigrationStatus,
   ModelHashEvidence,
   ModelHashIntegrityEvidence,
+  ModelMigrationLedgerRecord,
   OperationOutcome,
   PreviewModel,
   ProjectEnvelopeHashEvidence,
@@ -115,6 +117,8 @@ export function App() {
   const [modelHash, setModelHash] = useState<ModelHashEvidence | null>(null);
   const [modelHashIntegrity, setModelHashIntegrity] = useState<ModelHashIntegrityEvidence | null>(null);
   const [projectEnvelopeHash, setProjectEnvelopeHash] = useState<ProjectEnvelopeHashEvidence | null>(null);
+  const [modelDocumentMigration, setModelDocumentMigration] = useState<ModelDocumentMigrationStatus | null>(null);
+  const [modelMigrationLedger, setModelMigrationLedger] = useState<ModelMigrationLedgerRecord[]>([]);
   const [projectEnvelopeHashIntegrity, setProjectEnvelopeHashIntegrity] =
     useState<ProjectEnvelopeHashIntegrityEvidence | null>(null);
   const [projectMessage, setProjectMessage] = useState("Local project store not opened.");
@@ -320,6 +324,8 @@ export function App() {
       setProposal(created.proposal ?? null);
       setSelectedReviewTarget(created.selected_review_target ?? null);
       setProjectEnvelopeHash(created.project_envelope_hash ?? null);
+      setModelDocumentMigration(created.model_document_migration ?? null);
+      setModelMigrationLedger(created.model_migration_ledger ?? []);
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
     } catch (error) {
@@ -359,6 +365,8 @@ export function App() {
       );
       setProjectSummary(opened.summary);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
+      setModelDocumentMigration(opened.model_document_migration ?? null);
+      setModelMigrationLedger(opened.model_migration_ledger ?? []);
       setProjectMessage(opened.summary.message);
       setProjectOperation(projectId ? "open_by_id" : "open");
       const recomputedHash = await computeModelHash(opened.model);
@@ -410,13 +418,16 @@ export function App() {
         result,
         analysisRun,
         modelHash,
-        envelopeHash
+        envelopeHash,
+        modelDocumentMigration
       );
       setProjectSummary(saved.summary);
       setEditorIntents(saved.editor_intents ?? []);
       setProposal(saved.proposal ?? null);
       setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
+      setModelDocumentMigration(saved.model_document_migration ?? null);
+      setModelMigrationLedger(saved.model_migration_ledger ?? []);
       setProjectMessage(saved.summary.message);
       setProjectOperation("save");
     } catch (error) {
@@ -622,6 +633,8 @@ export function App() {
             modelHashIntegrity={modelHashIntegrity}
             projectEnvelopeHash={projectEnvelopeHash}
             projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+            modelDocumentMigration={modelDocumentMigration}
+            modelMigrationLedger={modelMigrationLedger}
           />
           <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
           <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />

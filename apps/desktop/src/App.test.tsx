@@ -723,7 +723,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-82");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-83");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -1174,16 +1174,17 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.store_migration.evidence_source).toBe("storage_capability_probe");
     expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
-    expect(validationPacket.store_migration.model_document_migration_status).toBe(
-      "model_document_migrations_not_defined_tbd"
-    );
+    expect(validationPacket.model_document_migration.status).toBe("current");
+    expect(validationPacket.model_document_migration.evidence_source).toBe("session_document_local_evaluation");
+    expect(validationPacket.model_document_migration.version_authority).toBe("in_document_schema_version_semver");
+    expect(validationPacket.model_document_migration.decision_basis).toBe("DEC-019_model_document_schema_migration_policy");
+    expect(validationPacket.model_document_migration.ledger_record_count).toBe(0);
+    expect(validationPacket.model_document_migration.down_migration_performed).toBe(false);
     expect(
       validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "migrate")
         .operation_status
     ).toBe("not_run_no_local_snapshot_this_session");
-    expect(validationPacket.validation_profile.model_document_migration_status).toBe(
-      "model_document_migrations_not_defined_tbd"
-    );
+    expect(validationPacket.validation_profile.model_document_migration_status).toBe("current");
     expect(validationPacket.summary.round_trip_status).toBe("semantic_categories_declared");
     expect(validationPacket.round_trip_manifest.category_count).toBe(6);
     expect(validationPacket.round_trip_manifest.categories.map((category: { category: string }) => category.category)).toContain(
@@ -2607,10 +2608,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.summary.migration_status).toBe("browser_memory_snapshot_no_sql_store_migrations_applicable");
     expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
     expect(validationPacket.store_migration.evidence_source).toBe("local_project_summary");
-    expect(validationPacket.store_migration.migration_scope).toBe("local_store_schema_only_not_model_document_schema");
-    expect(validationPacket.store_migration.model_document_migration_status).toBe(
-      "model_document_migrations_not_defined_tbd"
+    expect(validationPacket.store_migration.migration_scope).toBe(
+      "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019"
     );
+    expect(validationPacket.model_document_migration.status).toBe("current");
+    expect(validationPacket.model_document_migration.evidence_source).toBe("persistence_operation_envelope");
+    expect(validationPacket.model_document_migration.persistence_state).toBe("stored_document_current");
+    expect(validationPacket.model_document_migration.ledger_record_count).toBe(0);
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
     expect(validationPacket.store_migration.destructive_migration_performed).toBe(false);
     expect(validationPacket.project_summary.store_schema_version).toBe(0);
@@ -4804,6 +4808,13 @@ describe("OpenPipeStress desktop preview", () => {
         "Saved local browser-preview project snapshot"
       )
     );
+
+    // DEC-019 evidence: the saved (edited) model document carries current
+    // schema-version evidence with the in-document version authority.
+    const documentMigrationLine = screen.getByTestId("project-validation-model-document-migration");
+    expect(documentMigrationLine.textContent).toContain("status=current");
+    expect(documentMigrationLine.textContent).toContain("framework=application_service_separate_db_and_product_schema");
+    expect(documentMigrationLine.textContent).toContain("ledger_records=0");
   });
 
   it("blocks viewport gesture intents at apply with an explicit geometry finding instead of inventing values", async () => {

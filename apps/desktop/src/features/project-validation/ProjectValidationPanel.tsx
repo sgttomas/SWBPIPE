@@ -4,7 +4,9 @@ import type {
   EditorOperationIntent,
   LocalProjectSummary,
   LocalStorageCapability,
+  ModelDocumentMigrationStatus,
   ModelHashEvidence,
+  ModelMigrationLedgerRecord,
   ModelHashIntegrityEvidence,
   PreviewModel,
   ProjectEnvelopeHashEvidence,
@@ -30,7 +32,9 @@ export function ProjectValidationPanel({
   modelHash,
   modelHashIntegrity,
   projectEnvelopeHash,
-  projectEnvelopeHashIntegrity
+  projectEnvelopeHashIntegrity,
+  modelDocumentMigration,
+  modelMigrationLedger
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -42,6 +46,8 @@ export function ProjectValidationPanel({
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
   projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
+  modelDocumentMigration: ModelDocumentMigrationStatus | null;
+  modelMigrationLedger: ModelMigrationLedgerRecord[];
 }) {
   const packet = buildProjectValidationPacket({
     model,
@@ -53,7 +59,9 @@ export function ProjectValidationPanel({
     modelHash,
     modelHashIntegrity,
     projectEnvelopeHash,
-    projectEnvelopeHashIntegrity
+    projectEnvelopeHashIntegrity,
+    modelDocumentMigration,
+    modelMigrationLedger
   });
 
   return (
@@ -126,6 +134,17 @@ export function ProjectValidationPanel({
           testId="project-validation-store-migration"
         />
         <ValidationLine
+          label="Model document migration"
+          value={`status=${packet.model_document_migration.status}; source=${
+            packet.model_document_migration.source_schema_version
+          }; target=${packet.model_document_migration.target_schema_version}; framework=${
+            packet.model_document_migration.migration_framework
+          }; persistence=${packet.model_document_migration.persistence_state}; ledger_records=${
+            packet.model_document_migration.ledger_record_count
+          }`}
+          testId="project-validation-model-document-migration"
+        />
+        <ValidationLine
           label="Persistence operations"
           value={`validate=${operationStatus(packet.service_operations, "validate")}; version_check=${operationStatus(
             packet.service_operations,
@@ -186,7 +205,9 @@ function buildProjectValidationPacket({
   modelHash,
   modelHashIntegrity,
   projectEnvelopeHash,
-  projectEnvelopeHashIntegrity
+  projectEnvelopeHashIntegrity,
+  modelDocumentMigration,
+  modelMigrationLedger
 }: {
   model: PreviewModel;
   storageCapability: LocalStorageCapability | null;
@@ -198,6 +219,8 @@ function buildProjectValidationPacket({
   modelHashIntegrity: ModelHashIntegrityEvidence | null;
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null;
   projectEnvelopeHashIntegrity: ProjectEnvelopeHashIntegrityEvidence | null;
+  modelDocumentMigration: ModelDocumentMigrationStatus | null;
+  modelMigrationLedger: ModelMigrationLedgerRecord[];
 }) {
   const modelHashStatus = modelHashEvidenceStatus({ modelHash, projectSummary, modelHashIntegrity });
   const envelopeHashStatus = projectEnvelopeHashEvidenceStatus({
@@ -271,7 +294,7 @@ function buildProjectValidationPacket({
       project_envelope_hash_scope: "persisted_envelope_payload_excluding_storage_summary_and_hash_carrier",
       physical_container_status: projectSummary ? projectSummary.storage_mode : "not_persisted_this_session",
       store_migration_framework_status: storeMigration.migration_framework,
-      model_document_migration_status: storeMigration.model_document_migration_status
+      model_document_migration_status: modelDocumentMigrationEvidence(model, modelDocumentMigration, modelMigrationLedger).status
     },
     round_trip_manifest: {
       category_count: categories.length,
@@ -286,6 +309,7 @@ function buildProjectValidationPacket({
     },
     service_operations: buildServiceOperations({ projectSummary, projectOperation, validationStatus, versionCheckStatus }),
     store_migration: storeMigration,
+    model_document_migration: modelDocumentMigrationEvidence(model, modelDocumentMigration, modelMigrationLedger),
     storage_capability: storageCapability,
     project_summary: projectSummary,
     model_hash: modelHash,
@@ -444,6 +468,32 @@ function buildServiceOperations({
   ];
 }
 
+// DEC-019 evidence: in-document semver is the version authority; migration
+// runs in memory on open and persists on save with a ledger record. Before a
+// persistence operation runs this session, the current session document is
+// evaluated locally so the surface is never a hardcoded TBD marker.
+function modelDocumentMigrationEvidence(
+  model: PreviewModel,
+  status: ModelDocumentMigrationStatus | null,
+  ledger: ModelMigrationLedgerRecord[]
+) {
+  return {
+    decision_basis: "DEC-019_model_document_schema_migration_policy",
+    version_authority: "in_document_schema_version_semver",
+    evidence_source: status ? "persistence_operation_envelope" : "session_document_local_evaluation",
+    status: status?.status ?? (model.schema_version === "0.1.0" ? "current" : "unsupported_schema_review_required"),
+    source_schema_version: status?.source_schema_version ?? model.schema_version,
+    target_schema_version: status?.target_schema_version ?? "0.1.0",
+    migration_framework: status?.migration_framework ?? "application_service_separate_db_and_product_schema",
+    persistence_state: status?.persistence_state ?? "no_persistence_operation_this_session",
+    applied_migration_ids: status?.applied_migration_ids ?? [],
+    ledger_record_count: ledger.length,
+    ledger_records: ledger,
+    destructive_rewrite: false,
+    down_migration_performed: false
+  };
+}
+
 function buildStoreMigrationEvidence({
   projectSummary,
   storageCapability
@@ -463,8 +513,7 @@ function buildStoreMigrationEvidence({
       : storageCapability
         ? "storage_capability_probe"
         : "not_loaded_this_session",
-    migration_scope: "local_store_schema_only_not_model_document_schema",
-    model_document_migration_status: "model_document_migrations_not_defined_tbd",
+    migration_scope: "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019",
     destructive_migration_performed: false
   };
 }
