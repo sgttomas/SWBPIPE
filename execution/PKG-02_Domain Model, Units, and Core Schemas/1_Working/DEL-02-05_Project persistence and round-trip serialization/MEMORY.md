@@ -162,3 +162,35 @@ Boundaries preserved:
 - Boundary preserved: review-only local technical-preview reproducibility
   signal, model-payload scope only; no lifecycle, release, certification,
   sealing, authentication, professional-approval, or code-compliance claim.
+
+## 2026-06-10 - TP-MAC-80 versioned store schema migration ledger
+
+- Desktop app tranche: the local SQLite project store now initializes through
+  a versioned `PRAGMA user_version` migration ledger
+  (`versioned_sqlite_user_version_migration_ledger`,
+  `STORE_SCHEMA_TARGET_VERSION=7`: v1 base project/FTS tables, v2–v7 the six
+  snapshot JSON columns) instead of ad-hoc unversioned setup, and the
+  hard-coded `migration_status="current"` is replaced by derived staged
+  statuses (`current_store_schema_v7_no_pending_migrations` /
+  `migrated_on_open_store_schema_v{before}_to_v{after}`). Migration steps are
+  idempotent, so legacy pre-ledger stores reconcile from v0 without data loss
+  (cargo-tested, including row preservation with defaulted columns).
+- Evidence surfaces: `StorageCapability` and `LocalProjectSummary` carry
+  `migration_framework`, `migration_status`, `store_schema_version`,
+  `store_schema_target_version`, `migrations_applied_on_open`; the validation
+  preflight packet gains a `store_migration` block, profile fields, a visible
+  `Store migration evidence` line, a staged `migrate` service operation
+  (closing `not_run_migration_framework_tbd`), and staged `MIGRATION`-class
+  info diagnostics. Browser fallback reports honest non-SQL parity values.
+- Authority basis: DEL-00-04 REQ-04-01/REQ-04-02 (versioned persistence;
+  declared schema version and migration status). Model *document* schema
+  migrations remain an explicit TBD
+  (`model_document_migration_status=model_document_migrations_not_defined_tbd`),
+  as do the full project-envelope hash and physical project container.
+- Evidence: `{ScopePath}/_run_records/TASK_RUN_2026-06-10_1935.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-80 (browser smoke marker
+  `2026-06-11T01:27:57.689Z`, zero console errors); Vitest 13/13, desktop
+  build, cargo lib 5/5 (2 new migration tests), pytest 340/340 all green.
+- Boundary preserved: local store maintenance evidence only; no destructive
+  migrations; no lifecycle, release, certification, sealing, authentication,
+  professional-approval, or code-compliance claim.

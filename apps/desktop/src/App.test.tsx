@@ -719,7 +719,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(validationEvidencePacket.release_quality_gates.release_publication_authorized).toBe(false);
     expect(validationEvidencePacket.release_quality_gates.final_threshold_policy).toBe("TBD");
-    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-79");
+    expect(validationEvidencePacket.gui_validation_context.current_tranche_smoke_record).toBe("TP-MAC-80");
     expect(validationEvidencePacket.private_payload_included).toBe(false);
     expect(validationEvidencePacket.protected_content_included).toBe(false);
     expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
@@ -1110,6 +1110,17 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
       "migration=not_persisted_this_session"
     );
+    await waitFor(() =>
+      expect(within(projectValidation).getByTestId("project-validation-store-migration").textContent).toContain(
+        "framework=browser_memory_preview_no_sqlite_migration_ledger"
+      )
+    );
+    expect(within(projectValidation).getByTestId("project-validation-store-migration").textContent).toContain(
+      "applied_on_open=0"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-store-migration").textContent).toContain(
+      "status=browser_memory_snapshot_no_sql_store_migrations_applicable"
+    );
     expect(within(projectValidation).getByTestId("project-validation-schema").textContent).toContain(
       "schema_version=0.1.0"
     );
@@ -1147,6 +1158,19 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.summary.validation_status).toBe("preview_not_persisted");
     expect(validationPacket.summary.version_check_status).toBe("supported_current_schema");
     expect(validationPacket.summary.migration_status).toBe("not_persisted_this_session");
+    expect(validationPacket.store_migration.evidence_source).toBe("storage_capability_probe");
+    expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
+    expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
+    expect(validationPacket.store_migration.model_document_migration_status).toBe(
+      "model_document_migrations_not_defined_tbd"
+    );
+    expect(
+      validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "migrate")
+        .operation_status
+    ).toBe("not_run_no_local_snapshot_this_session");
+    expect(validationPacket.validation_profile.model_document_migration_status).toBe(
+      "model_document_migrations_not_defined_tbd"
+    );
     expect(validationPacket.summary.round_trip_status).toBe("semantic_categories_declared");
     expect(validationPacket.round_trip_manifest.category_count).toBe(6);
     expect(validationPacket.round_trip_manifest.categories.map((category: { category: string }) => category.category)).toContain(
@@ -2494,7 +2518,16 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_current"
     );
     expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
-      "migration=current"
+      "migration=browser_memory_snapshot_no_sql_store_migrations_applicable"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-store-migration").textContent).toContain(
+      "framework=browser_memory_preview_no_sqlite_migration_ledger"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-store-migration").textContent).toContain(
+      "applied_on_open=0"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-store-migration").textContent).toContain(
+      "status=browser_memory_snapshot_no_sql_store_migrations_applicable"
     );
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "pending operations=1"
@@ -2528,7 +2561,17 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.summary.validation_status).toBe("preview_current");
     expect(validationPacket.summary.last_operation).toBe("open");
     expect(validationPacket.summary.storage_mode).toBe("browser_memory_preview");
-    expect(validationPacket.summary.migration_status).toBe("current");
+    expect(validationPacket.summary.migration_status).toBe("browser_memory_snapshot_no_sql_store_migrations_applicable");
+    expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
+    expect(validationPacket.store_migration.evidence_source).toBe("local_project_summary");
+    expect(validationPacket.store_migration.migration_scope).toBe("local_store_schema_only_not_model_document_schema");
+    expect(validationPacket.store_migration.model_document_migration_status).toBe(
+      "model_document_migrations_not_defined_tbd"
+    );
+    expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
+    expect(validationPacket.store_migration.destructive_migration_performed).toBe(false);
+    expect(validationPacket.project_summary.store_schema_version).toBe(0);
+    expect(validationPacket.project_summary.store_schema_target_version).toBe(0);
     expect(validationPacket.summary.pending_operation_count).toBe(1);
     expect(validationPacket.summary.editor_intent_count).toBe(1);
     expect(validationPacket.summary.persisted_editor_intent_count).toBe(1);
@@ -2542,8 +2585,23 @@ describe("OpenPipeStress desktop preview", () => {
         .operation_status
     ).toBe("supported_current_schema");
     expect(validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "migrate").operation_status).toBe(
-      "not_run_migration_framework_tbd"
+      "browser_memory_snapshot_no_sql_store_migrations_applicable"
     );
+    expect(
+      validationPacket.service_operations.find((operation: { operation: string }) => operation.operation === "migrate")
+        .result_available
+    ).toBe(true);
+    expect(
+      validationPacket.diagnostics.map((diagnosticItem: { code: string }) => diagnosticItem.code)
+    ).toContain("PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY");
+    expect(
+      validationPacket.diagnostics.map((diagnosticItem: { code: string }) => diagnosticItem.code)
+    ).not.toContain("PROJECT-VALIDATION-STORE-MIGRATED-ON-OPEN");
+    expect(
+      validationPacket.diagnostics.find(
+        (diagnosticItem: { code: string }) => diagnosticItem.code === "PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY"
+      ).class
+    ).toBe("MIGRATION");
     expect(validationPacket.summary.model_hash_status).toBe("model_hash_verified_on_open");
     expect(validationPacket.summary.persisted_model_hash_count).toBe(1);
     expect(validationPacket.summary.persisted_model_hash_ref).toMatch(/^sha256:[0-9a-f]{64}$/);

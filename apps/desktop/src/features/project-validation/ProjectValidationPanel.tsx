@@ -100,6 +100,15 @@ export function ProjectValidationPanel({
           testId="project-validation-model-hash"
         />
         <ValidationLine
+          label="Store migration evidence"
+          value={`framework=${packet.store_migration.migration_framework}; store_schema_version=${
+            packet.store_migration.store_schema_version
+          }; target=${packet.store_migration.store_schema_target_version}; applied_on_open=${
+            packet.store_migration.migrations_applied_on_open.length
+          }; status=${packet.store_migration.migration_status}`}
+          testId="project-validation-store-migration"
+        />
+        <ValidationLine
           label="Persistence operations"
           value={`validate=${operationStatus(packet.service_operations, "validate")}; version_check=${operationStatus(
             packet.service_operations,
@@ -172,6 +181,7 @@ function buildProjectValidationPacket({
   const modelHashStatus = modelHashEvidenceStatus({ modelHash, projectSummary, modelHashIntegrity });
   const categories = buildRoundTripCategories(model, modelHashStatus);
   const migrationStatus = projectSummary?.migration_status ?? "not_persisted_this_session";
+  const storeMigration = buildStoreMigrationEvidence({ projectSummary, storageCapability });
   const versionCheckStatus = model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
   const validationStatus = projectSummary ? "preview_current" : "preview_not_persisted";
   const proposalCount = proposal ? 1 : 0;
@@ -227,7 +237,9 @@ function buildProjectValidationPacket({
         ? "canonical_model_hash_service_available_model_payload_scope"
         : "model_hash_service_unavailable_in_this_runtime",
       project_envelope_hash_status: "model_payload_scope_only_full_project_envelope_hash_tbd",
-      physical_container_status: projectSummary ? projectSummary.storage_mode : "not_persisted_this_session"
+      physical_container_status: projectSummary ? projectSummary.storage_mode : "not_persisted_this_session",
+      store_migration_framework_status: storeMigration.migration_framework,
+      model_document_migration_status: storeMigration.model_document_migration_status
     },
     round_trip_manifest: {
       category_count: categories.length,
@@ -241,6 +253,7 @@ function buildProjectValidationPacket({
       ]
     },
     service_operations: buildServiceOperations({ projectSummary, projectOperation, validationStatus, versionCheckStatus }),
+    store_migration: storeMigration,
     storage_capability: storageCapability,
     project_summary: projectSummary,
     model_hash: modelHash,
@@ -356,10 +369,37 @@ function buildServiceOperations({
     },
     {
       operation: "migrate",
-      operation_status: "not_run_migration_framework_tbd",
-      result_available: false
+      operation_status: projectSummary
+        ? projectSummary.migration_status
+        : "not_run_no_local_snapshot_this_session",
+      result_available: Boolean(projectSummary)
     }
   ];
+}
+
+function buildStoreMigrationEvidence({
+  projectSummary,
+  storageCapability
+}: {
+  projectSummary: LocalProjectSummary | null;
+  storageCapability: LocalStorageCapability | null;
+}) {
+  const source = projectSummary ?? storageCapability;
+  return {
+    migration_framework: source?.migration_framework ?? "store_migration_evidence_not_loaded_this_session",
+    migration_status: source?.migration_status ?? "store_migration_evidence_not_loaded_this_session",
+    store_schema_version: source?.store_schema_version ?? 0,
+    store_schema_target_version: source?.store_schema_target_version ?? 0,
+    migrations_applied_on_open: source?.migrations_applied_on_open ?? [],
+    evidence_source: projectSummary
+      ? "local_project_summary"
+      : storageCapability
+        ? "storage_capability_probe"
+        : "not_loaded_this_session",
+    migration_scope: "local_store_schema_only_not_model_document_schema",
+    model_document_migration_status: "model_document_migrations_not_defined_tbd",
+    destructive_migration_performed: false
+  };
 }
 
 function category(
@@ -455,7 +495,8 @@ function validationDiagnostics({
       "info",
       "Validation preflight is local technical-preview evidence and does not create professional acceptance."
     ),
-    modelHashDiagnostic({ modelHash, modelHashIntegrity })
+    modelHashDiagnostic({ modelHash, modelHashIntegrity }),
+    storeMigrationDiagnostic({ projectSummary, storageCapability })
   ];
   if (!storageCapability) {
     diagnostics.push(diagnostic("PROJECT-VALIDATION-STORAGE-CAPABILITY-PENDING", "warning", "Local storage capability has not loaded yet."));
@@ -494,6 +535,29 @@ function modelHashDiagnostic({
     "PROJECT-VALIDATION-MODEL-HASH-REVIEW-ONLY",
     "info",
     "Canonical model hash is a local technical-preview review-reproducibility signal only, scoped to the model payload; it is not an acceptance, certification, sealing, authentication, or code-compliance record."
+  );
+}
+
+function storeMigrationDiagnostic({
+  projectSummary,
+  storageCapability
+}: {
+  projectSummary: LocalProjectSummary | null;
+  storageCapability: LocalStorageCapability | null;
+}) {
+  const appliedOnOpen =
+    projectSummary?.migrations_applied_on_open?.length ?? storageCapability?.migrations_applied_on_open?.length ?? 0;
+  if (appliedOnOpen > 0) {
+    return diagnostic(
+      "PROJECT-VALIDATION-STORE-MIGRATED-ON-OPEN",
+      "info",
+      "Versioned store migrations were applied when the local project store was opened; this is local store maintenance evidence only, not a model document migration or acceptance record."
+    );
+  }
+  return diagnostic(
+    "PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY",
+    "info",
+    "Store migration evidence covers the local store schema ledger only; model document migrations remain TBD and no migration claim exceeds the local technical preview."
   );
 }
 

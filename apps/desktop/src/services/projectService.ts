@@ -39,9 +39,17 @@ function localOnlyCapability(): LocalStorageCapability {
     path_policy: "browser-session memory fallback; no repository-default writes",
     large_file_policy: "reference external files by path/hash metadata; do not silently copy large files",
     database_path: "browser-session memory fallback",
-    compile_options: []
+    compile_options: [],
+    migration_framework: BROWSER_MIGRATION_FRAMEWORK,
+    migration_status: BROWSER_MIGRATION_STATUS,
+    store_schema_version: 0,
+    store_schema_target_version: 0,
+    migrations_applied_on_open: []
   };
 }
+
+const BROWSER_MIGRATION_FRAMEWORK = "browser_memory_preview_no_sqlite_migration_ledger";
+const BROWSER_MIGRATION_STATUS = "browser_memory_snapshot_no_sql_store_migrations_applicable";
 
 function envelope(
   model: PreviewModel,
@@ -60,7 +68,11 @@ function envelope(
       project_name: snapshot.project.name,
       database_path: "browser-session memory fallback",
       storage_mode: "browser_memory_preview",
-      migration_status: "current",
+      migration_status: BROWSER_MIGRATION_STATUS,
+      migration_framework: BROWSER_MIGRATION_FRAMEWORK,
+      store_schema_version: 0,
+      store_schema_target_version: 0,
+      migrations_applied_on_open: [],
       fts_indexed: false,
       copied_external_files: false,
       editor_intent_count: editorIntents.length,

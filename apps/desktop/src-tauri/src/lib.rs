@@ -43,6 +43,11 @@ struct StorageCapability {
     large_file_policy: &'static str,
     database_path: String,
     compile_options: Vec<String>,
+    migration_framework: &'static str,
+    migration_status: String,
+    store_schema_version: i64,
+    store_schema_target_version: i64,
+    migrations_applied_on_open: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -51,7 +56,11 @@ struct LocalProjectSummary {
     project_name: String,
     database_path: String,
     storage_mode: &'static str,
-    migration_status: &'static str,
+    migration_status: String,
+    migration_framework: &'static str,
+    store_schema_version: i64,
+    store_schema_target_version: i64,
+    migrations_applied_on_open: Vec<String>,
     fts_indexed: bool,
     copied_external_files: bool,
     editor_intent_count: usize,
@@ -121,28 +130,110 @@ fn app_store_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(PROJECT_STORE_FILE))
 }
 
-fn open_project_store(path: &Path) -> Result<Connection, String> {
-    let connection = Connection::open(path).map_err(|error| error.to_string())?;
-    initialize_project_store(&connection)?;
-    Ok(connection)
+const STORE_SCHEMA_TARGET_VERSION: i64 = 7;
+const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
+
+struct StoreMigration {
+    version: i64,
+    migration_id: &'static str,
+    apply: fn(&Connection) -> Result<(), String>,
 }
 
-fn initialize_project_store(connection: &Connection) -> Result<(), String> {
+#[derive(Debug, Clone, Serialize)]
+struct StoreMigrationEvidence {
+    migration_framework: &'static str,
+    store_schema_version_before_open: i64,
+    store_schema_version: i64,
+    store_schema_target_version: i64,
+    migrations_applied_on_open: Vec<String>,
+    pending_migration_count: i64,
+    migration_status: String,
+}
+
+fn store_migrations() -> Vec<StoreMigration> {
+    vec![
+        StoreMigration {
+            version: 1,
+            migration_id: "store-v1-base-project-and-fts-tables",
+            apply: migrate_v1_base_tables,
+        },
+        StoreMigration {
+            version: 2,
+            migration_id: "store-v2-editor-intents-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "editor_intents_json",
+                    "ALTER TABLE local_projects ADD COLUMN editor_intents_json TEXT NOT NULL DEFAULT '[]'",
+                )
+            },
+        },
+        StoreMigration {
+            version: 3,
+            migration_id: "store-v3-proposal-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "proposal_json",
+                    "ALTER TABLE local_projects ADD COLUMN proposal_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+        StoreMigration {
+            version: 4,
+            migration_id: "store-v4-selected-review-target-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "selected_review_target_json",
+                    "ALTER TABLE local_projects ADD COLUMN selected_review_target_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+        StoreMigration {
+            version: 5,
+            migration_id: "store-v5-mechanics-result-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "mechanics_result_json",
+                    "ALTER TABLE local_projects ADD COLUMN mechanics_result_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+        StoreMigration {
+            version: 6,
+            migration_id: "store-v6-analysis-run-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "analysis_run_json",
+                    "ALTER TABLE local_projects ADD COLUMN analysis_run_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+        StoreMigration {
+            version: 7,
+            migration_id: "store-v7-model-hash-column",
+            apply: |connection| {
+                ensure_column(
+                    connection,
+                    "model_hash_json",
+                    "ALTER TABLE local_projects ADD COLUMN model_hash_json TEXT NOT NULL DEFAULT 'null'",
+                )
+            },
+        },
+    ]
+}
+
+fn migrate_v1_base_tables(connection: &Connection) -> Result<(), String> {
     connection
         .execute_batch(
             "
-            PRAGMA foreign_keys = ON;
-            PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS local_projects (
                 project_id TEXT PRIMARY KEY,
                 project_name TEXT NOT NULL,
                 model_json TEXT NOT NULL,
-                editor_intents_json TEXT NOT NULL DEFAULT '[]',
-                proposal_json TEXT NOT NULL DEFAULT 'null',
-                selected_review_target_json TEXT NOT NULL DEFAULT 'null',
-                mechanics_result_json TEXT NOT NULL DEFAULT 'null',
-                analysis_run_json TEXT NOT NULL DEFAULT 'null',
-                model_hash_json TEXT NOT NULL DEFAULT 'null',
                 created_at_unix INTEGER NOT NULL,
                 updated_at_unix INTEGER NOT NULL
             );
@@ -153,37 +244,59 @@ fn initialize_project_store(connection: &Connection) -> Result<(), String> {
             );
             ",
         )
+        .map_err(|error| error.to_string())
+}
+
+fn store_user_version(connection: &Connection) -> Result<i64, String> {
+    connection
+        .query_row("PRAGMA user_version", [], |row| row.get(0))
+        .map_err(|error| error.to_string())
+}
+
+fn open_project_store(path: &Path) -> Result<(Connection, StoreMigrationEvidence), String> {
+    let connection = Connection::open(path).map_err(|error| error.to_string())?;
+    let migration = apply_store_migrations(&connection)?;
+    Ok((connection, migration))
+}
+
+// Each migration step is idempotent (IF NOT EXISTS / column probes), so legacy
+// stores written before the user_version ledger existed reconcile cleanly from
+// version 0 without data loss.
+fn apply_store_migrations(connection: &Connection) -> Result<StoreMigrationEvidence, String> {
+    connection
+        .execute_batch(
+            "
+            PRAGMA foreign_keys = ON;
+            PRAGMA journal_mode = WAL;
+            ",
+        )
         .map_err(|error| error.to_string())?;
-    ensure_column(
-        connection,
-        "editor_intents_json",
-        "ALTER TABLE local_projects ADD COLUMN editor_intents_json TEXT NOT NULL DEFAULT '[]'",
-    )?;
-    ensure_column(
-        connection,
-        "proposal_json",
-        "ALTER TABLE local_projects ADD COLUMN proposal_json TEXT NOT NULL DEFAULT 'null'",
-    )?;
-    ensure_column(
-        connection,
-        "selected_review_target_json",
-        "ALTER TABLE local_projects ADD COLUMN selected_review_target_json TEXT NOT NULL DEFAULT 'null'",
-    )?;
-    ensure_column(
-        connection,
-        "mechanics_result_json",
-        "ALTER TABLE local_projects ADD COLUMN mechanics_result_json TEXT NOT NULL DEFAULT 'null'",
-    )?;
-    ensure_column(
-        connection,
-        "analysis_run_json",
-        "ALTER TABLE local_projects ADD COLUMN analysis_run_json TEXT NOT NULL DEFAULT 'null'",
-    )?;
-    ensure_column(
-        connection,
-        "model_hash_json",
-        "ALTER TABLE local_projects ADD COLUMN model_hash_json TEXT NOT NULL DEFAULT 'null'",
-    )
+    let version_before = store_user_version(connection)?;
+    let mut migrations_applied = Vec::new();
+    for migration in store_migrations() {
+        if migration.version > version_before {
+            (migration.apply)(connection)?;
+            connection
+                .execute_batch(&format!("PRAGMA user_version = {}", migration.version))
+                .map_err(|error| error.to_string())?;
+            migrations_applied.push(migration.migration_id.to_string());
+        }
+    }
+    let version_after = store_user_version(connection)?;
+    let migration_status = if migrations_applied.is_empty() {
+        format!("current_store_schema_v{version_after}_no_pending_migrations")
+    } else {
+        format!("migrated_on_open_store_schema_v{version_before}_to_v{version_after}")
+    };
+    Ok(StoreMigrationEvidence {
+        migration_framework: STORE_MIGRATION_FRAMEWORK,
+        store_schema_version_before_open: version_before,
+        store_schema_version: version_after,
+        store_schema_target_version: STORE_SCHEMA_TARGET_VERSION,
+        migrations_applied_on_open: migrations_applied,
+        pending_migration_count: STORE_SCHEMA_TARGET_VERSION - version_after,
+        migration_status,
+    })
 }
 
 fn ensure_column(
@@ -580,6 +693,7 @@ fn project_summary(
     project_id: String,
     project_name: String,
     database_path: PathBuf,
+    migration: &StoreMigrationEvidence,
     editor_intents: &Value,
     proposal: &Value,
     selected_review_target: &Value,
@@ -593,7 +707,11 @@ fn project_summary(
         project_name,
         database_path: database_path.display().to_string(),
         storage_mode: "local_sqlite",
-        migration_status: "current",
+        migration_status: migration.migration_status.clone(),
+        migration_framework: migration.migration_framework,
+        store_schema_version: migration.store_schema_version,
+        store_schema_target_version: migration.store_schema_target_version,
+        migrations_applied_on_open: migration.migrations_applied_on_open.clone(),
         fts_indexed: true,
         copied_external_files: false,
         editor_intent_count: editor_intent_count(editor_intents),
@@ -740,7 +858,7 @@ fn sample_agent_proposal(
 #[tauri::command]
 fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, String> {
     let path = app_store_path(&app)?;
-    let connection = open_project_store(&path)?;
+    let (connection, migration) = open_project_store(&path)?;
     Ok(StorageCapability {
         engine: "SQLite",
         bundled: true,
@@ -753,6 +871,11 @@ fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, Str
             "reference external files by path/hash metadata; do not silently copy large files",
         database_path: path.display().to_string(),
         compile_options: sqlite_compile_options(&connection)?,
+        migration_framework: migration.migration_framework,
+        migration_status: migration.migration_status.clone(),
+        store_schema_version: migration.store_schema_version,
+        store_schema_target_version: migration.store_schema_target_version,
+        migrations_applied_on_open: migration.migrations_applied_on_open.clone(),
     })
 }
 
@@ -768,7 +891,7 @@ fn create_local_project(
     model_hash: Option<Value>,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
-    let mut connection = open_project_store(&path)?;
+    let (mut connection, migration) = open_project_store(&path)?;
     let project_id = project_id_from_model(&model);
     let project_name = project_name_from_model(&model);
     let editor_intents = normalized_editor_intents(editor_intents);
@@ -794,6 +917,7 @@ fn create_local_project(
             project_id,
             project_name,
             path,
+            &migration,
             &editor_intents,
             &proposal,
             &selected_review_target,
@@ -818,7 +942,7 @@ fn open_local_project(
     project_id: Option<String>,
 ) -> Result<Option<LocalProjectEnvelope>, String> {
     let path = app_store_path(&app)?;
-    let connection = open_project_store(&path)?;
+    let (connection, migration) = open_project_store(&path)?;
     load_project(&connection, project_id.as_deref())?
         .map(|record| {
             Ok(LocalProjectEnvelope {
@@ -826,6 +950,7 @@ fn open_local_project(
                     record.project_id,
                     record.project_name,
                     path.clone(),
+                    &migration,
                     &record.editor_intents,
                     &record.proposal,
                     &record.selected_review_target,
@@ -849,7 +974,7 @@ fn open_local_project(
 #[tauri::command]
 fn list_local_projects(app: AppHandle) -> Result<Vec<LocalProjectIndexEntry>, String> {
     let path = app_store_path(&app)?;
-    let connection = open_project_store(&path)?;
+    let (connection, _migration) = open_project_store(&path)?;
     list_projects(&connection)
 }
 
@@ -859,7 +984,7 @@ fn save_local_project(
     request: SaveLocalProjectRequest,
 ) -> Result<LocalProjectEnvelope, String> {
     let path = app_store_path(&app)?;
-    let mut connection = open_project_store(&path)?;
+    let (mut connection, migration) = open_project_store(&path)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
     let proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
@@ -884,6 +1009,7 @@ fn save_local_project(
             request.project_id,
             request.project_name,
             path,
+            &migration,
             &editor_intents,
             &proposal,
             &selected_review_target,
@@ -926,7 +1052,8 @@ mod tests {
     #[test]
     fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
-        initialize_project_store(&connection).expect("project store schema initializes");
+        let migration =
+            apply_store_migrations(&connection).expect("project store migrations apply");
         assert!(fts5_available(&connection));
 
         let model = json!({
@@ -1061,6 +1188,7 @@ mod tests {
             "project:test-local".to_string(),
             "Test Local Project".to_string(),
             PathBuf::from(":memory:"),
+            &migration,
             &editor_intents,
             &proposal,
             &selected_review_target,
@@ -1091,6 +1219,7 @@ mod tests {
             "project:test-local".to_string(),
             "Test Local Project".to_string(),
             PathBuf::from(":memory:"),
+            &migration,
             &json!([]),
             &Value::Null,
             &Value::Null,
@@ -1132,9 +1261,104 @@ mod tests {
     }
 
     #[test]
+    fn store_migration_ledger_reports_fresh_open_and_idempotent_reopen_evidence() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        let first_open =
+            apply_store_migrations(&connection).expect("fresh store migrations apply");
+        assert_eq!(first_open.migration_framework, STORE_MIGRATION_FRAMEWORK);
+        assert_eq!(first_open.store_schema_version_before_open, 0);
+        assert_eq!(first_open.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert_eq!(
+            first_open.store_schema_target_version,
+            STORE_SCHEMA_TARGET_VERSION
+        );
+        assert_eq!(first_open.pending_migration_count, 0);
+        assert_eq!(
+            first_open.migrations_applied_on_open,
+            vec![
+                "store-v1-base-project-and-fts-tables",
+                "store-v2-editor-intents-column",
+                "store-v3-proposal-column",
+                "store-v4-selected-review-target-column",
+                "store-v5-mechanics-result-column",
+                "store-v6-analysis-run-column",
+                "store-v7-model-hash-column",
+            ]
+        );
+        assert_eq!(
+            first_open.migration_status,
+            "migrated_on_open_store_schema_v0_to_v7"
+        );
+
+        let second_open =
+            apply_store_migrations(&connection).expect("current store reopen succeeds");
+        assert_eq!(
+            second_open.store_schema_version_before_open,
+            STORE_SCHEMA_TARGET_VERSION
+        );
+        assert_eq!(second_open.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert!(second_open.migrations_applied_on_open.is_empty());
+        assert_eq!(second_open.pending_migration_count, 0);
+        assert_eq!(
+            second_open.migration_status,
+            "current_store_schema_v7_no_pending_migrations"
+        );
+    }
+
+    #[test]
+    fn store_migration_ledger_reconciles_legacy_store_and_preserves_rows() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        connection
+            .execute_batch(
+                "
+                CREATE TABLE local_projects (
+                    project_id TEXT PRIMARY KEY,
+                    project_name TEXT NOT NULL,
+                    model_json TEXT NOT NULL,
+                    created_at_unix INTEGER NOT NULL,
+                    updated_at_unix INTEGER NOT NULL
+                );
+                INSERT INTO local_projects (
+                    project_id, project_name, model_json, created_at_unix, updated_at_unix
+                ) VALUES (
+                    'project:legacy-local',
+                    'Legacy Local Project',
+                    '{\"project\":{\"id\":\"project:legacy-local\",\"name\":\"Legacy Local Project\"}}',
+                    100,
+                    100
+                );
+                ",
+            )
+            .expect("legacy pre-ledger store shape creates");
+        assert_eq!(store_user_version(&connection).expect("user_version reads"), 0);
+
+        let migration =
+            apply_store_migrations(&connection).expect("legacy store migrations apply");
+        assert_eq!(migration.store_schema_version_before_open, 0);
+        assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
+        assert_eq!(migration.migrations_applied_on_open.len(), 7);
+        assert_eq!(
+            migration.migration_status,
+            "migrated_on_open_store_schema_v0_to_v7"
+        );
+
+        let loaded = load_project(&connection, Some("project:legacy-local"))
+            .expect("legacy project loads after migration")
+            .expect("legacy project row preserved");
+        assert_eq!(loaded.project_id, "project:legacy-local");
+        assert_eq!(loaded.project_name, "Legacy Local Project");
+        assert_eq!(loaded.editor_intents, json!([]));
+        assert_eq!(loaded.proposal, Value::Null);
+        assert_eq!(loaded.selected_review_target, Value::Null);
+        assert_eq!(loaded.mechanics_result, Value::Null);
+        assert_eq!(loaded.analysis_run, Value::Null);
+        assert_eq!(loaded.model_hash, Value::Null);
+    }
+
+    #[test]
     fn local_project_store_lists_project_index_ordered_by_most_recent_update() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
-        initialize_project_store(&connection).expect("project store schema initializes");
+        apply_store_migrations(&connection).expect("project store migrations apply");
         assert_eq!(
             list_projects(&connection).expect("empty store lists").len(),
             0

@@ -418,6 +418,11 @@ export type LocalStorageCapability = {
   large_file_policy: string;
   database_path: string;
   compile_options: string[];
+  migration_framework: string;
+  migration_status: string;
+  store_schema_version: number;
+  store_schema_target_version: number;
+  migrations_applied_on_open: string[];
 };
 
 export type LocalProjectSummary = {
@@ -425,7 +430,11 @@ export type LocalProjectSummary = {
   project_name: string;
   database_path: string;
   storage_mode: "local_sqlite" | string;
-  migration_status: "current" | string;
+  migration_status: string;
+  migration_framework: string;
+  store_schema_version: number;
+  store_schema_target_version: number;
+  migrations_applied_on_open: string[];
   fts_indexed: boolean;
   copied_external_files: boolean;
   editor_intent_count: number;

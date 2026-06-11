@@ -2188,3 +2188,81 @@ after the timestamp marker were absent.
   release artifact hash, acceptance record, certification, sealing,
   authentication, or code-compliance claim; the full project-envelope hash
   remains an explicit TBD; no network/telemetry writes.
+
+## TP-MAC-80 versioned-store-schema-migration-ledger (2026-06-10)
+
+- Scope: replace the local project store's ad-hoc, unversioned schema setup
+  and hard-coded `migration_status="current"` with a versioned SQLite
+  `user_version` migration ledger
+  (`versioned_sqlite_user_version_migration_ledger`,
+  `STORE_SCHEMA_TARGET_VERSION=7`: v1 base project/FTS tables, v2–v7 the six
+  snapshot JSON columns), closing the Project Validation Preflight
+  `migrate=not_run_migration_framework_tbd` seam per the DEL-00-04
+  persistence/schema-versioning architecture (REQ-04-01/REQ-04-02). Every
+  store open applies pending migrations idempotently (legacy pre-ledger
+  stores reconcile from v0 without data loss) and reports evidence:
+  `StorageCapability` and `LocalProjectSummary` gain `migration_framework`,
+  `migration_status`
+  (`current_store_schema_v7_no_pending_migrations` /
+  `migrated_on_open_store_schema_v{before}_to_v{after}`),
+  `store_schema_version`, `store_schema_target_version`, and
+  `migrations_applied_on_open`. The validation preflight packet gains a
+  `store_migration` block (with `evidence_source`,
+  `migration_scope=local_store_schema_only_not_model_document_schema`,
+  `model_document_migration_status=model_document_migrations_not_defined_tbd`,
+  `destructive_migration_performed=false`), profile fields
+  `store_migration_framework_status` and `model_document_migration_status`,
+  a visible `Store migration evidence` line
+  (`data-testid="project-validation-store-migration"`), a staged `migrate`
+  service operation, and staged info diagnostics
+  (`PROJECT-VALIDATION-STORE-MIGRATED-ON-OPEN` /
+  `PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY`, class
+  `MIGRATION`). The browser memory fallback reports honest parity values
+  (`browser_memory_preview_no_sqlite_migration_ledger`,
+  `browser_memory_snapshot_no_sql_store_migrations_applicable`, versions 0).
+  Model *document* migrations remain an explicit TBD; only the local store
+  schema ledger is claimed.
+- Validation commands: `npm test --workspace apps/desktop` (13/13),
+  `npm run build --workspace apps/desktop` (pass),
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib` (5/5,
+  including new `store_migration_ledger_reports_fresh_open_and_idempotent_
+  reopen_evidence` and
+  `store_migration_ledger_reconciles_legacy_store_and_preserves_rows`),
+  `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q tests` (340/340).
+- Browser smoke (Claude Preview, port 5173, marker
+  `2026-06-11T01:27:57.689Z`): initial state shows
+  `framework=browser_memory_preview_no_sqlite_migration_ledger;
+  store_schema_version=0; target=0; applied_on_open=0;
+  status=browser_memory_snapshot_no_sql_store_migrations_applicable` with
+  `migrate=not_run_no_local_snapshot_this_session` and summary
+  `migration=not_persisted_this_session`; after Create local → Save local →
+  Open local, the summary shows
+  `migration=browser_memory_snapshot_no_sql_store_migrations_applicable`,
+  the migrate operation reports the same staged status with
+  `result_available=true`, the exported packet carries the full
+  `store_migration` block (`evidence_source=local_project_summary`,
+  `migrations_applied_on_open=[]`,
+  `destructive_migration_performed=false`), profile
+  `store_migration_framework_status=
+  browser_memory_preview_no_sqlite_migration_ledger` and
+  `model_document_migration_status=model_document_migrations_not_defined_tbd`,
+  and diagnostics include
+  `PROJECT-VALIDATION-STORE-MIGRATION-LEDGER-REVIEW-ONLY:MIGRATION:info`
+  (and not `PROJECT-VALIDATION-STORE-MIGRATED-ON-OPEN`, since the browser
+  fallback applies no SQL migrations). The TP-MAC-78/79 model-hash chain
+  still verifies (`model_hash=model_hash_verified_on_open;
+  integrity=verified_match`). Boundary flags `private_payload_included`,
+  `protected_content_included`, `release_or_professional_claim`,
+  `network_required`, `telemetry_enabled`,
+  `accepted_model_state_mutated`, and `repository_default_private_write`
+  all false; `local_only_project_store=true`. Validation evidence packet
+  `gui_validation_context.current_tranche_smoke_record` is `TP-MAC-80`.
+  Zero console errors/warnings. SQLite-runtime migration behavior
+  (fresh v0→v7 open, idempotent reopen, legacy reconciliation with row
+  preservation) is covered by the cargo lib tests rather than the browser
+  smoke.
+- Boundary: store migration evidence is local technical-preview store
+  maintenance evidence scoped to the SQLite store schema ledger only — not a
+  model document migration framework, release artifact, acceptance record,
+  certification, sealing, authentication, or code-compliance claim; no
+  destructive migrations; no network/telemetry writes.
