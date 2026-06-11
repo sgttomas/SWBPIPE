@@ -11,6 +11,51 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 thirteenth sub-slice: combination creation editor (`TP-APP-R2-COMBCREATE-001`)
+
+The Load Cases manager now exposes explicit creation for mechanics-basis load
+combinations. The create form captures a new combination id, label, mechanics
+basis, one existing load-case term, a finite dimensionless factor, provenance,
+and rationale, then queues a structured `create_combination` operation with
+`field_path=combinations`, `before=not_present`, unit `none`, and dimension
+`dimensionless`.
+
+The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now validate, diff, and apply
+`create_combination` payloads. Accepted intents must create a new
+`Combination`, use basis `mechanics`, include at least one explicit term,
+reference existing load cases, carry finite factors, avoid duplicate initial
+operands, preserve structured-operation audit boundaries, and emit no
+professional approval claim. Duplicate ids, missing load cases, empty terms,
+invalid payloads, non-mechanics basis values, and invalid unit/dimension
+metadata are blocked.
+
+The app-level regression queues `op:load-manager-create-combination:C-300`,
+applies it through `OperationApplyPanel`, verifies the manager summary changes
+to two combinations, checks the new `combination:C-300` row with
+`load:L-100 x 1`, selects the row into the property inspector, and confirms
+zero pending operations with solve state reset to `not_started`. The
+Playwright R2 smoke verifies the rendered create-combination preview without
+applying so the solve/results/report path remains on the unchanged fixture
+model.
+
+In-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-create-combination:C-300` and confirmed two combinations,
+`combination:C-300` with `basis=mechanics` and `load:L-100 x 1`, property
+inspector selection, zero pending operations, `applied_operations=1`, solve
+state `not_started`, and no browser console errors.
+
+Residuals remain in A4: subtraction/range expression authoring, Phase B unit
+picker/display retirement, and packaged-Tauri saved-project smoke over edited
+load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-106;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_creation_editor.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 twelfth sub-slice: combination term deletion editor (`TP-APP-R2-COMBTERMDELETE-001`)
 
 The Load Cases manager now exposes explicit deletion for a selected existing

@@ -377,6 +377,7 @@ export type EditorOperationIntent = {
       | "connect_pipe_run"
       | "create_load_case"
       | "create_primitive_load"
+      | "create_combination"
       | "create_combination_term"
       | "delete_combination_term"
       | "insert_component_symbol";

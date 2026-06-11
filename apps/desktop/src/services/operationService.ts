@@ -184,6 +184,10 @@ type CreatedPrimitiveLoad = {
   primitiveLoad: Record<string, unknown>;
 };
 
+type CreatedCombination = {
+  combination: Record<string, unknown>;
+};
+
 type CreatedCombinationTerm = {
   combinationId: string;
   term: { load_case: string; factor: number };
@@ -261,6 +265,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && changeKind === "create_primitive_load") {
     createdPrimitiveLoad = resolveCreatePrimitiveLoad(modelDocument, targetRef, intent, checker);
   }
+  let createdCombination: CreatedCombination | null = null;
+  if (!checker.schemaBlocked && changeKind === "create_combination") {
+    createdCombination = resolveCreateCombination(modelDocument, targetRef, intent, checker);
+  }
   let createdCombinationTerm: CreatedCombinationTerm | null = null;
   if (!checker.schemaBlocked && changeKind === "create_combination_term") {
     createdCombinationTerm = resolveCreateCombinationTerm(modelDocument, targetRef, intent, checker);
@@ -289,6 +297,7 @@ async function runLocalOperation(
             createdPipe ||
             createdLoadCase ||
             createdPrimitiveLoad ||
+            createdCombination ||
             createdCombinationTerm ||
             deletedCombinationTerm) &&
           !blocking
@@ -316,6 +325,7 @@ async function runLocalOperation(
       createdPipe ||
       createdLoadCase ||
       createdPrimitiveLoad ||
+      createdCombination ||
       createdCombinationTerm ||
       deletedCombinationTerm)
   ) {
@@ -330,11 +340,13 @@ async function runLocalOperation(
             ? applyCreatedLoadCase(nextModel, createdLoadCase)
             : createdPrimitiveLoad
               ? applyCreatedPrimitiveLoad(nextModel, createdPrimitiveLoad)
-              : createdCombinationTerm
-                ? applyCreatedCombinationTerm(nextModel, createdCombinationTerm)
-                : deletedCombinationTerm
-                  ? applyDeletedCombinationTerm(nextModel, deletedCombinationTerm)
-                  : false;
+              : createdCombination
+                ? applyCreatedCombination(nextModel, createdCombination)
+                : createdCombinationTerm
+                  ? applyCreatedCombinationTerm(nextModel, createdCombinationTerm)
+                  : deletedCombinationTerm
+                    ? applyDeletedCombinationTerm(nextModel, deletedCombinationTerm)
+                    : false;
     if (applied) {
       appliedModelHash = await localHash(nextModel);
       appliedModel = nextModel as unknown as PreviewModel;
@@ -475,6 +487,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
     "connect_pipe_run",
     "create_load_case",
     "create_primitive_load",
+    "create_combination",
     "create_combination_term",
     "delete_combination_term",
     "insert_component_symbol"
@@ -496,6 +509,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
     : changeKind === "create_node" ||
         changeKind === "create_load_case" ||
         changeKind === "create_primitive_load" ||
+        changeKind === "create_combination" ||
         changeKind === "create_combination_term"
       ? "create"
       : changeKind === "delete_combination_term"
@@ -1286,6 +1300,185 @@ function resolveCreatePrimitiveLoad(
   };
 }
 
+function resolveCreateCombination(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): CreatedCombination | null {
+  if (intent.target.object_type !== "Combination" || intent.change.field_path !== "combinations") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-SHAPE-INVALID",
+      "blocking",
+      "Create-combination intents must target object_type `Combination` with field_path `combinations`.",
+      "Refresh the combination creation intent from the explicit Load Cases manager form.",
+      [targetRef]
+    );
+    return null;
+  }
+  checkBefore("not_present", intent.change.before, targetRef, intent.change.field_path, checker);
+  checker.unitState = "passed";
+  if (intent.change.unit !== "none") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match stored unit \`none\` for combination creation.`,
+      "Create combination records with unit `none`; term factors are dimensionless scalars.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "dimensionless") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Create-combination dimension \`${intent.change.dimension}\` must be \`dimensionless\`.`,
+      "Emit combination creation with dimensionless metadata.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (model.combinations !== undefined && !Array.isArray(model.combinations)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-COMBINATION-COLLECTION-MISSING",
+      "blocking",
+      "Model document does not expose a combinations array.",
+      "Repair the model document before creating combinations.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (findEntity(model, "combinations", targetRef)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-ALREADY-EXISTS",
+      "blocking",
+      `Combination \`${targetRef}\` already exists in the current model.`,
+      "Choose a new stable combination id; create operations never overwrite existing entities.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(intent.change.after);
+  } catch {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+      "blocking",
+      "Create-combination payload is not valid JSON.",
+      "Emit the explicit combination payload as JSON in change.after.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+      "blocking",
+      "Create-combination payload must be a JSON object.",
+      "Emit id, label, basis, terms, and provenance fields for the new combination.",
+      [targetRef]
+    );
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const id = stringPayload(record, "id");
+  const label = stringPayload(record, "label");
+  const basis = stringPayload(record, "basis");
+  const provenance = stringPayload(record, "provenance");
+  const termPayloads = Array.isArray(record.terms) ? record.terms : null;
+  if (id !== targetRef || !label || basis !== "mechanics" || !provenance || !termPayloads?.length) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+      "blocking",
+      "Create-combination payload must include matching id, non-empty label/provenance, basis `mechanics`, and at least one explicit term.",
+      "Refresh the combination creation intent from explicit user-entered combination fields.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  const terms: Array<{ load_case: string; factor: number }> = [];
+  const seenLoadCases = new Set<string>();
+  for (const rawTerm of termPayloads) {
+    if (typeof rawTerm !== "object" || rawTerm === null || Array.isArray(rawTerm)) {
+      pushDiagnostic(
+        checker,
+        "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+        "blocking",
+        "Create-combination terms must be JSON objects.",
+        "Emit each term as { load_case, factor }.",
+        [targetRef]
+      );
+      return null;
+    }
+    const term = rawTerm as Record<string, unknown>;
+    const loadCase = stringPayload(term, "load_case");
+    const factor = numericPayload(term, "factor");
+    if (!loadCase || factor === null) {
+      pushDiagnostic(
+        checker,
+        "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+        "blocking",
+        "Create-combination terms must include load_case references and finite numeric factors.",
+        "Refresh the combination creation intent from explicit user-entered term fields.",
+        [targetRef]
+      );
+      return null;
+    }
+    if (seenLoadCases.has(loadCase)) {
+      pushDiagnostic(
+        checker,
+        "OP-COMBINATION-TERM-DUPLICATE",
+        "blocking",
+        `Combination \`${targetRef}\` repeats load case \`${loadCase}\` in its initial terms.`,
+        "Use one explicit factor per load case; duplicate operands are blocked.",
+        [targetRef, loadCase]
+      );
+      return null;
+    }
+    if (!findEntity(model, "load_cases", loadCase)) {
+      checker.referenceState = "blocked";
+      pushDiagnostic(
+        checker,
+        "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
+        "blocking",
+        `Combination term references load case \`${loadCase}\`, which is absent from the current model.`,
+        "Select an existing load case before creating a combination.",
+        [targetRef, loadCase]
+      );
+      return null;
+    }
+    seenLoadCases.add(loadCase);
+    terms.push({ load_case: loadCase, factor });
+  }
+
+  checker.referenceState = "passed";
+  return {
+    combination: {
+      id,
+      label,
+      basis,
+      terms,
+      provenance
+    }
+  };
+}
+
 function resolveCreateCombinationTerm(
   model: Record<string, unknown>,
   targetRef: string,
@@ -1945,6 +2138,13 @@ function applyCreatedPrimitiveLoad(model: Record<string, unknown>, created: Crea
   if (loadCase.primitive_loads === undefined) loadCase.primitive_loads = [];
   if (!Array.isArray(loadCase.primitive_loads)) return false;
   loadCase.primitive_loads.push(created.primitiveLoad);
+  return true;
+}
+
+function applyCreatedCombination(model: Record<string, unknown>, created: CreatedCombination): boolean {
+  if (model.combinations === undefined) model.combinations = [];
+  if (!Array.isArray(model.combinations)) return false;
+  model.combinations.push(created.combination);
   return true;
 }
 

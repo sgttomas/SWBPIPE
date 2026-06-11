@@ -535,6 +535,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_combination: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "create_combination" {
+        created_combination = resolve_create_combination(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_combination_term: Option<(String, Value)> = None;
     if !checker.schema_blocked && change_kind == "create_combination_term" {
         created_combination_term = resolve_create_combination_term(
@@ -580,6 +594,7 @@ fn run(
         || created_pipe.is_some()
         || created_load_case.is_some()
         || created_primitive_load.is_some()
+        || created_combination.is_some()
         || created_combination_term.is_some()
         || deleted_combination_term.is_some())
         && !blocking
@@ -646,6 +661,15 @@ fn run(
         } else if let Some((load_case_id, primitive_load)) = &created_primitive_load {
             let mut next_model = model.clone();
             if apply_created_primitive_load(&mut next_model, load_case_id, primitive_load) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(combination) = &created_combination {
+            let mut next_model = model.clone();
+            if apply_created_combination(&mut next_model, combination) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -847,6 +871,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "connect_pipe_run"
             | "create_load_case"
             | "create_primitive_load"
+            | "create_combination"
             | "create_combination_term"
             | "delete_combination_term"
             | "insert_component_symbol"
@@ -870,6 +895,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         "create_node"
         | "create_load_case"
         | "create_primitive_load"
+        | "create_combination"
         | "create_combination_term" => "create",
         "delete_combination_term" => "delete",
         "connect_pipe_run" => "connect",
@@ -1790,6 +1816,214 @@ fn resolve_create_primitive_load(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn resolve_create_combination(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Combination" || field_path != "combinations" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-COMBINATION-SHAPE-INVALID",
+            "blocking",
+            "Create-combination intents must target object_type `Combination` with field_path `combinations`.".to_string(),
+            "Refresh the combination creation intent from the explicit Load Cases manager form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!(
+                "Intent unit `{unit}` does not match stored unit `none` for combination creation."
+            ),
+            "Create combination records with unit `none`; term factors are dimensionless scalars.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-combination dimension `{dimension}` must be `dimensionless`."),
+            "Emit combination creation with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if model.get("combinations").is_some()
+        && !model.get("combinations").is_some_and(Value::is_array)
+    {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMBINATION-COLLECTION-MISSING",
+            "blocking",
+            "Model document does not expose a combinations array.".to_string(),
+            "Repair the model document before creating combinations.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "combinations", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Combination `{target_ref}` already exists in the current model."),
+            "Choose a new stable combination id; create operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let payload: Value = match serde_json::from_str(after) {
+        Ok(payload) => payload,
+        Err(_) => {
+            checker.push(
+                "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+                "blocking",
+                "Create-combination payload is not valid JSON.".to_string(),
+                "Emit the explicit combination payload as JSON in change.after.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination payload must be a JSON object.".to_string(),
+            "Emit id, label, basis, terms, and provenance fields for the new combination.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let basis = record
+        .get("basis")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let Some(term_payloads) = record.get("terms").and_then(Value::as_array) else {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination payload must include at least one explicit term.".to_string(),
+            "Refresh the combination creation intent from explicit user-entered combination fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if id != target_ref
+        || label.is_empty()
+        || basis != "mechanics"
+        || provenance.is_empty()
+        || term_payloads.is_empty()
+    {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination payload must include matching id, non-empty label/provenance, basis `mechanics`, and at least one explicit term.".to_string(),
+            "Refresh the combination creation intent from explicit user-entered combination fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let mut terms = Vec::new();
+    let mut seen_load_cases = std::collections::HashSet::new();
+    for raw_term in term_payloads {
+        let Some(term) = raw_term.as_object() else {
+            checker.push(
+                "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+                "blocking",
+                "Create-combination terms must be JSON objects.".to_string(),
+                "Emit each term as { load_case, factor }.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        };
+        let load_case = term
+            .get("load_case")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .trim();
+        let factor = term.get("factor").and_then(Value::as_f64);
+        let factor_is_finite = factor.map(f64::is_finite).unwrap_or(false);
+        if load_case.is_empty() || !factor_is_finite {
+            checker.push(
+                "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+                "blocking",
+                "Create-combination terms must include load_case references and finite numeric factors.".to_string(),
+                "Refresh the combination creation intent from explicit user-entered term fields.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+        if !seen_load_cases.insert(load_case.to_string()) {
+            checker.push(
+                "OP-COMBINATION-TERM-DUPLICATE",
+                "blocking",
+                format!("Combination `{target_ref}` repeats load case `{load_case}` in its initial terms."),
+                "Use one explicit factor per load case; duplicate operands are blocked.",
+                vec![target_ref.to_string(), load_case.to_string()],
+            );
+            return None;
+        }
+        if find_entity(model, "load_cases", load_case).is_none() {
+            checker.reference_state = "blocked";
+            checker.push(
+                "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
+                "blocking",
+                format!("Combination term references load case `{load_case}`, which is absent from the current model."),
+                "Select an existing load case before creating a combination.",
+                vec![target_ref.to_string(), load_case.to_string()],
+            );
+            return None;
+        }
+        terms.push(serde_json::json!({ "load_case": load_case, "factor": factor.unwrap() }));
+    }
+
+    checker.reference_state = "passed";
+    Some(serde_json::json!({
+        "id": id,
+        "label": label,
+        "basis": basis,
+        "terms": terms,
+        "provenance": provenance,
+    }))
+}
+
+#[allow(clippy::too_many_arguments)]
 fn resolve_create_combination_term(
     model: &Value,
     target_ref: &str,
@@ -2613,6 +2847,17 @@ fn apply_created_primitive_load(
         return false;
     };
     primitive_loads.push(primitive_load.clone());
+    true
+}
+
+fn apply_created_combination(model: &mut Value, combination: &Value) -> bool {
+    if model.get("combinations").is_none() {
+        model["combinations"] = Value::Array(Vec::new());
+    }
+    let Some(combinations) = model.get_mut("combinations").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    combinations.push(combination.clone());
     true
 }
 
@@ -4040,6 +4285,96 @@ mod tests {
         let blocked = apply_operation(&model, &empty, None);
         assert!(codes(&blocked).contains(&"OP-VALUE-EMPTY"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_combination_payload_creates_mechanics_record_with_initial_term() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "combination:C-NEW",
+            "label": "User mechanics combination",
+            "basis": "mechanics",
+            "terms": [{ "load_case": "load:L-1", "factor": 1.25 }],
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Combination",
+            "combination:C-NEW",
+            "create_combination",
+            "combinations",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview[0].field_path, "combinations");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["combinations"][1], payload);
+
+        let mut missing_load = modify_intent(
+            "Combination",
+            "combination:C-BAD",
+            "create_combination",
+            "combinations",
+            "not_present",
+            &serde_json::to_string(&json!({
+                "id": "combination:C-BAD",
+                "label": "Bad combination",
+                "basis": "mechanics",
+                "terms": [{ "load_case": "load:missing", "factor": 1.0 }],
+                "provenance": "user_entered_local_preview"
+            }))
+            .expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        missing_load["operation_kind"] = json!("create");
+        let missing_outcome = apply_operation(&model, &missing_load, None);
+        assert_eq!(missing_outcome.validation.application_status, "blocked");
+        assert!(codes(&missing_outcome).contains(&"OP-COMBINATION-TERM-LOAD-NOT-FOUND"));
+
+        let mut duplicate = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "create_combination",
+            "combinations",
+            "not_present",
+            &serde_json::to_string(&json!({
+                "id": "combination:C-OP",
+                "label": "Duplicate",
+                "basis": "mechanics",
+                "terms": [{ "load_case": "load:L-1", "factor": 1.0 }],
+                "provenance": "user_entered_local_preview"
+            }))
+            .expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        duplicate["operation_kind"] = json!("create");
+        let duplicate_outcome = apply_operation(&model, &duplicate, None);
+        assert_eq!(duplicate_outcome.validation.application_status, "blocked");
+        assert!(codes(&duplicate_outcome).contains(&"OP-TARGET-ALREADY-EXISTS"));
     }
 
     #[test]

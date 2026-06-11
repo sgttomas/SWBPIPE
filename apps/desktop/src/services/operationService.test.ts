@@ -690,6 +690,78 @@ describe("operationService browser-mode engine", () => {
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-COMBINATION-TERM-LOAD-NOT-FOUND");
   });
 
+  it("applies explicit mechanics combination creation with an initial term", async () => {
+    const model = sampleModel();
+    model.load_cases.push({
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    });
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const payload = {
+      id: "combination:C-NEW",
+      label: "User mechanics combination",
+      basis: "mechanics",
+      terms: [{ load_case: "load:L-1", factor: 1.25 }],
+      provenance: "user_entered_local_preview"
+    };
+    const intent = intentFor(
+      "Combination",
+      "combination:C-NEW",
+      "create_combination",
+      "combinations",
+      "not_present",
+      JSON.stringify(payload),
+      "none",
+      "dimensionless"
+    );
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.diagnostics).toEqual([]);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.before_state_validation).toBe("passed");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.validation.unit_validation).toBe("passed");
+    expect(outcome.diff_preview[0].field_path).toBe("combinations");
+    expect(outcome.applied_model?.combinations).toEqual([payload]);
+
+    const missingLoad = intentFor(
+      "Combination",
+      "combination:C-BAD",
+      "create_combination",
+      "combinations",
+      "not_present",
+      JSON.stringify({ ...payload, id: "combination:C-BAD", terms: [{ load_case: "load:missing", factor: 1 }] }),
+      "none",
+      "dimensionless"
+    );
+    missingLoad.operation_kind = "create";
+    const missingOutcome = await applyModelOperation(model, missingLoad, null);
+    expect(missingOutcome.validation.application_status).toBe("blocked");
+    expect(missingOutcome.diagnostics.map((item) => item.code)).toContain("OP-COMBINATION-TERM-LOAD-NOT-FOUND");
+
+    const unsupportedBasis = intentFor(
+      "Combination",
+      "combination:C-RULE",
+      "create_combination",
+      "combinations",
+      "not_present",
+      JSON.stringify({ ...payload, id: "combination:C-RULE", basis: "owner_design_basis" }),
+      "none",
+      "dimensionless"
+    );
+    unsupportedBasis.operation_kind = "create";
+    const basisOutcome = await applyModelOperation(model, unsupportedBasis, null);
+    expect(basisOutcome.validation.application_status).toBe("blocked");
+    expect(basisOutcome.diagnostics.map((item) => item.code)).toContain("OP-CREATE-COMBINATION-PAYLOAD-INVALID");
+  });
+
   it("applies explicit combination term deletion without whole terms replacement", async () => {
     const model = sampleModel();
     model.combinations = [

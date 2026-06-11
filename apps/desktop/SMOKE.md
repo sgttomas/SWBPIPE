@@ -3170,3 +3170,36 @@ after the timestamp marker were absent.
   mutation without user Save, protected standards content, private data,
   release readiness, professional approval, certification, sealing,
   authentication, or code-compliance claims.
+
+## TP-MAC-106 combination-creation-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-COMBCREATE-001` (completion plan Phase A4 thirteenth
+  sub-slice) adding explicit mechanics-basis combination creation to the Load
+  Cases manager. The create form captures a new combination id, label, basis
+  `mechanics`, existing load case, finite dimensionless factor, provenance,
+  and rationale, then queues a structured `create_combination` operation.
+- Edit path: applying `op:load-manager-create-combination:C-300` creates
+  `combination:C-300` with `basis=mechanics` and initial term
+  `load:L-100 x 1`. Duplicate combination ids, missing referenced load cases,
+  empty terms, non-finite factors, duplicate initial operands, non-mechanics
+  basis values, and invalid unit/dimension metadata are blocked by validation.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 34/34 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 58/58 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the create-combination intent and
+  confirmed two combinations, `combination:C-300` with `basis=mechanics` and
+  `load:L-100 x 1`, property inspector selection, zero pending operations,
+  `applied_operations=1`, solve state `not_started`, and no browser console
+  errors; `git diff --check -- . ':!init/init-prompt.md'` passed for the
+  touched scope.
+- Boundary: this slice does not add subtraction/range expression authoring,
+  code/rule combinations, public code-specific factors, protected standards
+  content, rule-pack evaluator behavior, unit conversion, saved-project
+  mutation without user Save, private data, release readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claims.

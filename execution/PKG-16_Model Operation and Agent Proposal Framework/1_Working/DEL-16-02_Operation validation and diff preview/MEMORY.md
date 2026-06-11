@@ -359,6 +359,29 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  `create_combination` operations.
+- Accepted intents must target a new `Combination` with
+  `field_path=combinations`, use `operation_kind=create`, carry
+  `before=not_present`, unit `none`, dimension `dimensionless`, and JSON
+  payload `{ id, label, basis: "mechanics", terms, provenance }`.
+- Duplicate ids, missing referenced load cases, empty terms, invalid
+  payloads, non-finite factors, duplicate initial operands, non-mechanics
+  basis values, and wrong unit/dimension metadata are blocked. Subtraction and
+  range-expression authoring remain deferred.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-106. Validation passed:
+  operation-applier format check, Rust operation-applier tests 34/34,
+  src-tauri Rust tests 26/26, desktop Vitest 58/58, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no durable persistence, no protected/private data,
+  and no professional, release, or code-compliance claim.
+
 ## 2026-06-11 - TP-APP-R2-COMBTERMDELETE-001 combination term deletion editor
 
 - WORKING_ITEMS app-integration tranche extended the browser local operation

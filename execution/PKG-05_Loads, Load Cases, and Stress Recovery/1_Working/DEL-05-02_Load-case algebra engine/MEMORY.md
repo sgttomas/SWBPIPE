@@ -219,6 +219,29 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, or private data changed.
 
+## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
+
+- WORKING_ITEMS app-integration tranche added explicit mechanics-basis
+  combination creation in the desktop Load Cases manager. No
+  `core/loads/load_case_algebra` source behavior changed.
+- The manager queues structured `create_combination` intents for a new
+  `Combination` with `field_path=combinations`, `before=not_present`, unit
+  `none`, dimension `dimensionless`, and one explicit existing load-case term.
+- The tested preview path creates `combination:C-300` with `basis=mechanics`
+  and initial term `load:L-100 x 1`. Subtraction/range expression authoring,
+  code/rule combinations, and broader algebra schema changes remain outside
+  this tranche.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-106. Validation passed:
+  operation-applier format check, Rust operation-applier tests 34/34,
+  src-tauri Rust tests 26/26, desktop Vitest 58/58, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.
+
 ## 2026-06-11 - TP-APP-R2-COMBTERMDELETE-001 combination term deletion editor
 
 - WORKING_ITEMS app-integration tranche added explicit indexed deletion for

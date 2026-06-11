@@ -2342,6 +2342,53 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies explicit mechanics combination creation through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    expect(within(manager).getByTestId("load-manager-create-combination-heading").textContent).toContain(
+      "combination:C-300"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "op:load-manager-create-combination:C-300"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless"
+    );
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-label"), {
+      target: { value: "User operating combination" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-combination-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain("combinations");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "\"basis\":\"mechanics\""
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-create-combination:C-300"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 7 primitive loads; 2 combinations"
+    );
+    const newCombination = within(manager).getByTestId("load-manager-combination-combination:C-300");
+    expect(newCombination.textContent).toContain("User operating combination");
+    expect(newCombination.textContent).toContain("basis=mechanics");
+    expect(newCombination.textContent).toContain("load:L-100 x 1");
+    fireEvent.click(within(manager).getByTestId("load-manager-combination-select-combination:C-300"));
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("combination:C-300");
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("queues and applies an explicit combination term deletion through the manager panel", async () => {
     render(<App />);
 

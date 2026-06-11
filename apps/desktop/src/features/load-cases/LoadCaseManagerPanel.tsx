@@ -54,6 +54,16 @@ type CombinationTermDraft = {
   rationale: string;
 };
 
+type CombinationDraft = {
+  id: string;
+  label: string;
+  basis: string;
+  loadCaseId: string;
+  factor: string;
+  provenance: string;
+  rationale: string;
+};
+
 type LoadMetadataField = "status" | "kind";
 
 export function LoadCaseManagerPanel({
@@ -102,6 +112,10 @@ export function LoadCaseManagerPanel({
   const [proposedCombinationBasis, setProposedCombinationBasis] = useState(currentCombinationBasis);
   const [combinationBasisRationale, setCombinationBasisRationale] = useState("user_entered_combination_basis_preview_change");
   const [combinationTermDraft, setCombinationTermDraft] = useState<CombinationTermDraft>(() => defaultCombinationTermDraft(model));
+  const nextCombinationId = useMemo(() => nextCombinationIdentifier(model), [model]);
+  const [combinationDraft, setCombinationDraft] = useState<CombinationDraft>(() =>
+    defaultCombinationDraft(model, nextCombinationId)
+  );
   const nextLoadCaseId = useMemo(() => nextLoadCaseIdentifier(model), [model]);
   const [loadCaseDraft, setLoadCaseDraft] = useState<LoadCaseDraft>(() => defaultLoadCaseDraft(nextLoadCaseId));
   const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
@@ -167,6 +181,12 @@ export function LoadCaseManagerPanel({
     ? buildCreateCombinationTermIntent({
         model,
         draft: combinationTermDraft
+      })
+    : null;
+  const createCombinationIntent = isCombinationDraftReady(model, combinationDraft)
+    ? buildCreateCombinationIntent({
+        model,
+        draft: combinationDraft
       })
     : null;
   const createLoadCaseIntent = isLoadCaseDraftReady(model, loadCaseDraft)
@@ -238,6 +258,19 @@ export function LoadCaseManagerPanel({
     });
   }, [model, selectedCombination?.id]);
 
+  useEffect(() => {
+    setCombinationDraft((draft) => {
+      const id = draft.id.trim() && !model.combinations?.some((combination) => combination.id === draft.id.trim())
+        ? draft.id
+        : nextCombinationId;
+      const loadCaseId = model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId)
+        ? draft.loadCaseId
+        : model.load_cases[0]?.id ?? "";
+      if (id === draft.id && loadCaseId === draft.loadCaseId) return draft;
+      return { ...draft, id, loadCaseId };
+    });
+  }, [model, nextCombinationId]);
+
   function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
     setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
   }
@@ -262,6 +295,10 @@ export function LoadCaseManagerPanel({
       }
       return nextDraft;
     });
+  }
+
+  function updateCombinationDraft(field: keyof CombinationDraft, value: string) {
+    setCombinationDraft((draft) => ({ ...draft, [field]: value }));
   }
 
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
@@ -520,6 +557,107 @@ export function LoadCaseManagerPanel({
             : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
               ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
               : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load"}
+          </p>
+      </section>
+
+      <section className="combination-create-editor" aria-label="Create combination">
+        <div className="load-editor-heading" data-testid="load-manager-create-combination-heading">
+          <ListPlus size={14} aria-hidden="true" />
+          <strong>{combinationDraft.id}</strong>
+          <span>
+            basis={combinationDraft.basis}; initial={combinationDraft.loadCaseId} x {combinationDraft.factor}
+          </span>
+        </div>
+        <div className="combination-create-controls">
+          <label>
+            <span>ID</span>
+            <input
+              aria-label="New combination id"
+              data-testid="load-manager-create-combination-id"
+              onChange={(event) => updateCombinationDraft("id", event.target.value)}
+              value={combinationDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New combination label"
+              data-testid="load-manager-create-combination-label"
+              onChange={(event) => updateCombinationDraft("label", event.target.value)}
+              value={combinationDraft.label}
+            />
+          </label>
+          <label>
+            <span>Basis</span>
+            <select
+              aria-label="New combination basis"
+              data-testid="load-manager-create-combination-basis"
+              onChange={(event) => updateCombinationDraft("basis", event.target.value)}
+              value={combinationDraft.basis}
+            >
+              <option value="mechanics">mechanics</option>
+            </select>
+          </label>
+          <label>
+            <span>Load</span>
+            <select
+              aria-label="New combination initial load case"
+              data-testid="load-manager-create-combination-load-case"
+              onChange={(event) => updateCombinationDraft("loadCaseId", event.target.value)}
+              value={combinationDraft.loadCaseId}
+            >
+              {model.load_cases.map((loadCase) => (
+                <option key={loadCase.id} value={loadCase.id}>
+                  {loadCase.id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Factor</span>
+            <input
+              aria-label="New combination factor"
+              data-testid="load-manager-create-combination-factor"
+              onChange={(event) => updateCombinationDraft("factor", event.target.value)}
+              value={combinationDraft.factor}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New combination provenance"
+              data-testid="load-manager-create-combination-provenance"
+              onChange={(event) => updateCombinationDraft("provenance", event.target.value)}
+              value={combinationDraft.provenance}
+            />
+          </label>
+          <label>
+            <span>Rationale</span>
+            <input
+              aria-label="New combination rationale"
+              data-testid="load-manager-create-combination-rationale"
+              onChange={(event) => updateCombinationDraft("rationale", event.target.value)}
+              value={combinationDraft.rationale}
+            />
+          </label>
+          <button
+            data-testid="queue-create-combination-intent"
+            disabled={!createCombinationIntent}
+            onClick={() => createCombinationIntent && onQueueIntent(createCombinationIntent)}
+            title="Queue combination creation operation"
+            type="button"
+          >
+            <ListPlus size={14} aria-hidden="true" />
+            Queue combo
+          </button>
+        </div>
+        <p className="muted load-edit-preview" data-testid="load-manager-create-combination-preview">
+          {createCombinationIntent
+            ? `${createCombinationIntent.operation_id}; before=${createCombinationIntent.change.before}; after=${combinationDraft.id}; term=${combinationDraft.loadCaseId} x ${combinationDraft.factor}; unit=${createCombinationIntent.change.unit}; ${createCombinationIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+            : combinationDraft.id.trim() &&
+                model.combinations?.some((combination) => combination.id === combinationDraft.id.trim())
+              ? `id=${combinationDraft.id.trim()} already exists; no combination queued`
+              : "complete id/label/load case/finite factor/provenance/rationale to queue a mechanics combination"}
         </p>
       </section>
 
@@ -983,6 +1121,18 @@ function defaultCombinationTermDraft(model: PreviewModel): CombinationTermDraft 
   };
 }
 
+function defaultCombinationDraft(model: PreviewModel, id: string): CombinationDraft {
+  return {
+    id,
+    label: "User mechanics combination",
+    basis: "mechanics",
+    loadCaseId: model.load_cases[0]?.id ?? "",
+    factor: "1",
+    provenance: "user_entered_local_preview",
+    rationale: "user_entered_combination_create_preview_change"
+  };
+}
+
 function defaultCombinationTermLoadCase(model: PreviewModel, combinationId: string): string {
   const combination = model.combinations?.find((item) => item.id === combinationId);
   const existing = new Set((combination?.terms ?? []).map((term) => term.load_case));
@@ -996,6 +1146,15 @@ function nextLoadCaseIdentifier(model: PreviewModel): string {
     if (!used.has(candidate)) return candidate;
   }
   return `load:L-${model.load_cases.length + 1}`;
+}
+
+function nextCombinationIdentifier(model: PreviewModel): string {
+  const used = new Set((model.combinations ?? []).map((combination) => combination.id));
+  for (let index = 300; index < 1000; index += 1) {
+    const candidate = `combination:C-${index}`;
+    if (!used.has(candidate)) return candidate;
+  }
+  return `combination:C-${(model.combinations?.length ?? 0) + 1}`;
 }
 
 function isLoadCaseDraftReady(model: PreviewModel, draft: LoadCaseDraft): boolean {
@@ -1031,6 +1190,21 @@ function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraf
       magnitude !== 0 &&
       draft.provenance.trim() &&
       unit !== "TBD"
+  );
+}
+
+function isCombinationDraftReady(model: PreviewModel, draft: CombinationDraft): boolean {
+  const id = draft.id.trim();
+  return Boolean(
+    id &&
+      draft.label.trim() &&
+      draft.basis === "mechanics" &&
+      draft.loadCaseId &&
+      model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId) &&
+      parseFiniteNumber(draft.factor) !== null &&
+      draft.provenance.trim() &&
+      draft.rationale.trim() &&
+      !(model.combinations ?? []).some((combination) => combination.id === id)
   );
 }
 
@@ -1108,6 +1282,72 @@ function buildCreateLoadCaseIntent({
       software_makes_authentication_claim: false
     },
     rationale: `load-case creation intent for ${model.project.id}`
+  };
+}
+
+function buildCreateCombinationIntent({
+  model,
+  draft
+}: {
+  model: PreviewModel;
+  draft: CombinationDraft;
+}): EditorOperationIntent {
+  const factor = parseFiniteNumber(draft.factor) ?? 0;
+  const payload = {
+    id: draft.id.trim(),
+    label: draft.label.trim(),
+    basis: "mechanics",
+    terms: [{ load_case: draft.loadCaseId, factor }],
+    provenance: draft.provenance.trim()
+  };
+  const operationToken = `create-${safeToken(payload.id)}`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Combination",
+      ref: payload.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "create_combination",
+      field_label: "Combination",
+      field_path: "combinations",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered mechanics combination; no code/rule combination default inferred"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: draft.rationale.trim() || `combination creation intent for ${model.project.id}`
   };
 }
 
