@@ -2233,6 +2233,54 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an existing combination basis through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.click(within(manager).getByTestId("load-manager-combination-select-combination:C-OPER-ALT"));
+
+    const queueButton = within(manager).getByTestId("queue-combination-basis-intent");
+    expect(within(manager).getByTestId("load-manager-selected-combination").textContent).toContain(
+      "combination:C-OPER-ALT"
+    );
+    expect(within(manager).getByTestId("load-manager-selected-combination").textContent).toContain(
+      "field=basis; current=mechanics"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
+      "current=mechanics"
+    );
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.change(within(manager).getByTestId("load-manager-combination-basis-value"), {
+      target: { value: "mechanics_user_review" }
+    });
+    expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
+      "op:load-manager-combination:C-OPER-ALT-basis"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
+      "before=mechanics; after=mechanics_user_review"
+    );
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain("basis");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-combination:C-OPER-ALT-basis"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT").textContent).toContain(
+      "basis=mechanics_user_review"
+    );
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("Basismechanics_user_review");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 

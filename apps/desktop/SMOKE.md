@@ -3068,3 +3068,37 @@ after the timestamp marker were absent.
   user Save, protected standards content, private data, or release,
   professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-103 combination-basis-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-COMBBASIS-001` (completion plan Phase A4 tenth
+  sub-slice) adding explicit basis editing for existing load combinations in
+  the Load Cases manager. The selected-combination editor captures a
+  replacement basis text value and rationale, then queues a structured
+  `update_load` operation.
+- Edit path: applying `op:load-manager-combination:C-OPER-ALT-basis` updates
+  `combination:C-OPER-ALT` from `basis=mechanics` to
+  `basis=mechanics_user_review` with unit `none` and dimension
+  `dimensionless`. Existing combination terms and provenance are preserved.
+  Whole `terms` replacement, term creation/deletion, code/rule combinations,
+  and broader algebra authoring remain deferred by validation.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 31/31 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 52/52 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the rendered combination-basis edit and
+  confirmed `basis=mechanics_user_review`, zero pending operations,
+  `applied_operations=1`, and solve state `not_started`; `git diff --check --
+  . ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not add whole-term replacement, combination term
+  creation/deletion, public code-specific combination factors, protected
+  standards content, rule-pack evaluator behavior, stress recovery, allowables,
+  SIF/flexibility tables, broader algebra authoring, unit conversion,
+  saved-project mutation without user Save, protected/private data handling,
+  release readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claims.

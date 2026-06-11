@@ -175,9 +175,8 @@ struct FieldRule {
 /// Inspector-offered fields whose application is deliberately deferred to a
 /// later completion-plan item. Returned as explicit blocked findings so the
 /// scope limit stays visible instead of silently half-working.
-const DEFERRED_FIELDS: [(&str, &str, &str); 3] = [
+const DEFERRED_FIELDS: [(&str, &str, &str); 2] = [
     ("Component", "kind", "component-kind editing is deferred to the component editor scope (completion plan Phase C/D)"),
-    ("Combination", "basis", "combination basis editing is deferred to the load case manager (completion plan A4)"),
     ("Combination", "terms", "combination term editing is deferred to the load case manager (completion plan A4)"),
 ];
 
@@ -332,6 +331,10 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
         "Combination" => &[
             FieldRule {
                 field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "basis",
                 kind: FieldKind::Text,
             },
             FieldRule {
@@ -3620,6 +3623,63 @@ mod tests {
     }
 
     #[test]
+    fn combination_basis_applies_without_term_or_provenance_mutation() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let intent = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "update_load",
+            "basis",
+            "mechanics",
+            "mechanics_user_review",
+            "none",
+            "dimensionless",
+        );
+        let outcome = apply_operation(&model, &intent, None);
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["combinations"][0]["basis"],
+            json!("mechanics_user_review")
+        );
+        assert_eq!(
+            applied["combinations"][0]["terms"],
+            before_snapshot["combinations"][0]["terms"]
+        );
+        assert_eq!(
+            applied["combinations"][0]["provenance"],
+            before_snapshot["combinations"][0]["provenance"]
+        );
+
+        let empty = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "update_load",
+            "basis",
+            "mechanics",
+            " ",
+            "none",
+            "dimensionless",
+        );
+        let blocked = apply_operation(&model, &empty, None);
+        assert!(codes(&blocked).contains(&"OP-VALUE-EMPTY"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
     fn apply_blocks_missing_targets_and_dangling_references() {
         let model = sample_model();
         let missing_target = modify_intent(
@@ -3724,12 +3784,12 @@ mod tests {
     fn deferred_inspector_fields_block_with_explicit_scope_finding() {
         let model = sample_model();
         let intent = modify_intent(
-            "Combination",
-            "combination:C-OP",
+            "Component",
+            "component:C-1",
             "set_field",
-            "basis",
-            "mechanics",
-            "code_specific_default",
+            "kind",
+            "bend",
+            "tee",
             "none",
             "dimensionless",
         );

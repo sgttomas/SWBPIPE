@@ -575,6 +575,63 @@ describe("operationService browser-mode engine", () => {
     expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND");
   });
 
+  it("applies combination basis edits while whole terms remain deferred", async () => {
+    const model = sampleModel();
+    model.combinations = [
+      {
+        id: "combination:C-OP",
+        label: "Operating",
+        basis: "mechanics",
+        terms: [{ load_case: "load:L-1", factor: 1 }],
+        provenance: "invented_example"
+      }
+    ];
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const intent = intentFor(
+      "Combination",
+      "combination:C-OP",
+      "update_load",
+      "basis",
+      "mechanics",
+      "mechanics_user_review",
+      "none",
+      "dimensionless"
+    );
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.diagnostics).toEqual([]);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.applied_model?.combinations?.[0].basis).toBe("mechanics_user_review");
+    expect(outcome.applied_model?.combinations?.[0].terms).toEqual([{ load_case: "load:L-1", factor: 1 }]);
+
+    const empty = await applyModelOperation(
+      model,
+      intentFor("Combination", "combination:C-OP", "update_load", "basis", "mechanics", " ", "none", "dimensionless"),
+      null
+    );
+    expect(empty.validation.application_status).toBe("blocked");
+    expect(empty.diagnostics.map((item) => item.code)).toContain("OP-VALUE-EMPTY");
+
+    const wholeTerms = await applyModelOperation(
+      model,
+      intentFor(
+        "Combination",
+        "combination:C-OP",
+        "update_load",
+        "terms",
+        "load:L-1 x 1",
+        "load:L-1 x 0.75",
+        "none",
+        "dimensionless"
+      ),
+      null
+    );
+    expect(wholeTerms.validation.application_status).toBe("blocked");
+    expect(wholeTerms.diagnostics.map((item) => item.code)).toContain("OP-FIELD-EDIT-DEFERRED");
+  });
+
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
     const model = sampleModel();
 

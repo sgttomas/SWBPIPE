@@ -132,6 +132,26 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-11 - TP-APP-R2-COMBBASIS-001 combination basis editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with a
+  selected-combination basis editor.
+- The app test applies `op:load-manager-combination:C-OPER-ALT-basis`, updates
+  the row from `basis=mechanics` to `basis=mechanics_user_review`, verifies the
+  property inspector, confirms zero pending operations, and confirms stale
+  solve state is reset.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_basis_editor.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-103. Validation passed:
+  operation-applier format check, Rust operation-applier tests 31/31,
+  src-tauri Rust tests 26/26, desktop Vitest 52/52, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-basis smoke.
+- No lifecycle state, review finding status, dependency authority, term
+  creation/deletion, broader algebra authoring, code/rule combination claim,
+  release readiness, professional approval, certification, sealing,
+  authentication, code-compliance claim, protected standards data, private
+  project data, network path, or telemetry path changed.
+
 ## 2026-06-11 - TP-APP-R2-DISTLOAD-001 distributed primitive-load creation editor
 
 - WORKING_ITEMS app-integration tranche extended the Load Cases manager with a

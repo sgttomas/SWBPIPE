@@ -70,6 +70,11 @@ export function LoadCaseManagerPanel({
     primitiveLoads.find((primitive) => primitiveKey(primitive) === selectedPrimitiveKey) ?? primitiveLoads[0] ?? null;
   const selectedCombinationTerm =
     combinationTerms.find((term) => combinationTermKey(term) === selectedCombinationTermKey) ?? combinationTerms[0] ?? null;
+  const selectedCombination =
+    (selection.type === "combination" ? model.combinations?.find((combination) => combination.id === selection.id) : null) ??
+    selectedCombinationTerm?.combination ??
+    model.combinations?.[0] ??
+    null;
   const selectedLoadCase =
     (selection.type === "load" ? model.load_cases.find((loadCase) => loadCase.id === selection.id) : null) ??
     selectedPrimitive?.loadCase ??
@@ -85,6 +90,9 @@ export function LoadCaseManagerPanel({
   const currentCombinationFactor = selectedCombinationTerm ? combinationTermFactorDisplay(selectedCombinationTerm.term) : "";
   const [proposedCombinationFactor, setProposedCombinationFactor] = useState(currentCombinationFactor);
   const [combinationRationale, setCombinationRationale] = useState("user_entered_combination_factor_preview_change");
+  const currentCombinationBasis = selectedCombination?.basis ?? "";
+  const [proposedCombinationBasis, setProposedCombinationBasis] = useState(currentCombinationBasis);
+  const [combinationBasisRationale, setCombinationBasisRationale] = useState("user_entered_combination_basis_preview_change");
   const nextLoadCaseId = useMemo(() => nextLoadCaseIdentifier(model), [model]);
   const [loadCaseDraft, setLoadCaseDraft] = useState<LoadCaseDraft>(() => defaultLoadCaseDraft(nextLoadCaseId));
   const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
@@ -124,6 +132,18 @@ export function LoadCaseManagerPanel({
           termView: selectedCombinationTerm,
           proposedFactor: proposedCombinationFactor,
           rationale: combinationRationale
+        })
+      : null;
+  const combinationBasisChanged = selectedCombination
+    ? proposedCombinationBasis.trim() !== "" && proposedCombinationBasis.trim() !== currentCombinationBasis
+    : false;
+  const combinationBasisIntent =
+    selectedCombination && combinationBasisChanged
+      ? buildCombinationBasisIntent({
+          model,
+          combination: selectedCombination,
+          proposedBasis: proposedCombinationBasis,
+          rationale: combinationBasisRationale
         })
       : null;
   const createLoadCaseIntent = isLoadCaseDraftReady(model, loadCaseDraft)
@@ -176,6 +196,11 @@ export function LoadCaseManagerPanel({
     setCombinationRationale("user_entered_combination_factor_preview_change");
   }, [currentCombinationFactor, selectedCombinationTermKey]);
 
+  useEffect(() => {
+    setProposedCombinationBasis(currentCombinationBasis);
+    setCombinationBasisRationale("user_entered_combination_basis_preview_change");
+  }, [currentCombinationBasis, selectedCombination?.id]);
+
   function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
     setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
   }
@@ -206,6 +231,10 @@ export function LoadCaseManagerPanel({
   function handleSelectCombinationTerm(termView: CombinationTermView) {
     setSelectedCombinationTermKey(combinationTermKey(termView));
     onSelect({ type: "combination", id: termView.combination.id });
+  }
+
+  function handleSelectCombination(combination: Combination) {
+    onSelect({ type: "combination", id: combination.id });
   }
 
   return (
@@ -602,11 +631,20 @@ export function LoadCaseManagerPanel({
             const terms = combinationTerms.filter((term) => term.combination.id === combination.id);
             return (
               <article className="load-combination-row" data-testid={`load-manager-combination-${combination.id}`} key={combination.id}>
-                <strong>{combination.label}</strong>
-                <small>
-                  {combination.id}; basis={combination.basis}; terms=
-                  {combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")}
-                </small>
+                <button
+                  className={
+                    selectedCombination?.id === combination.id ? "combination-summary-row active" : "combination-summary-row"
+                  }
+                  data-testid={`load-manager-combination-select-${combination.id}`}
+                  onClick={() => handleSelectCombination(combination)}
+                  type="button"
+                >
+                  <strong>{combination.label}</strong>
+                  <small>
+                    {combination.id}; basis={combination.basis}; terms=
+                    {combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")}
+                  </small>
+                </button>
                 {terms.length ? (
                   <div className="combination-term-list">
                     {terms.map((term) => (
@@ -630,6 +668,51 @@ export function LoadCaseManagerPanel({
             );
           })}
         </div>
+      ) : null}
+
+      {selectedCombination ? (
+        <section className="combination-basis-editor" aria-label="Combination basis editor">
+          <div className="load-editor-heading" data-testid="load-manager-selected-combination">
+            <SlidersHorizontal size={14} aria-hidden="true" />
+            <strong>{selectedCombination.id}</strong>
+            <span>field=basis; current={currentCombinationBasis}; path=basis</span>
+          </div>
+          <div className="combination-basis-controls">
+            <label>
+              <span>Basis</span>
+              <input
+                aria-label="Combination basis"
+                data-testid="load-manager-combination-basis-value"
+                onChange={(event) => setProposedCombinationBasis(event.target.value)}
+                value={proposedCombinationBasis}
+              />
+            </label>
+            <label>
+              <span>Rationale</span>
+              <input
+                aria-label="Combination basis rationale"
+                data-testid="load-manager-combination-basis-rationale"
+                onChange={(event) => setCombinationBasisRationale(event.target.value)}
+                value={combinationBasisRationale}
+              />
+            </label>
+            <button
+              data-testid="queue-combination-basis-intent"
+              disabled={!combinationBasisIntent}
+              onClick={() => combinationBasisIntent && onQueueIntent(combinationBasisIntent)}
+              title="Queue combination-basis operation"
+              type="button"
+            >
+              <ListPlus size={14} aria-hidden="true" />
+              Queue basis
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-combination-basis-preview">
+            {combinationBasisIntent
+              ? `${combinationBasisIntent.operation_id}; before=${combinationBasisIntent.change.before}; after=${combinationBasisIntent.change.after}; unit=${combinationBasisIntent.change.unit}; ${combinationBasisIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : `current=${currentCombinationBasis}; no changed combination basis queued`}
+          </p>
+        </section>
       ) : null}
 
       {selectedCombinationTerm ? (
@@ -993,6 +1076,68 @@ function combinationTermViews(model: PreviewModel): CombinationTermView[] {
       combination
     }))
   );
+}
+
+function buildCombinationBasisIntent({
+  model,
+  combination,
+  proposedBasis,
+  rationale
+}: {
+  model: PreviewModel;
+  combination: Combination;
+  proposedBasis: string;
+  rationale: string;
+}): EditorOperationIntent {
+  const operationToken = `${safeToken(combination.id)}-basis`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "modify",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Combination",
+      ref: combination.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "update_load",
+      field_label: `${combination.label} combination basis`,
+      field_path: "basis",
+      before: combination.basis,
+      after: proposedBasis.trim() || "TBD",
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered combination basis label; no code/rule combination default inferred"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `combination basis edit intent for ${model.project.id}`
+  };
 }
 
 function buildCombinationFactorIntent({

@@ -338,3 +338,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no support coordinate policy, no solver boundary
   behavior, no durable persistence, no protected/private data, and no
   professional, release, or code-compliance claim.
+
+## 2026-06-11 - TP-APP-R2-COMBBASIS-001 combination basis editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  `Combination.basis` text edits.
+- Accepted intents must target an existing `Combination` with
+  `field_path=basis`, use `change_kind=update_load`, carry the current
+  before-value, non-empty after-value, unit `none`, and dimension
+  `dimensionless`. Whole `Combination.terms` replacement remains deferred.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_basis_editor.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-103. Validation passed:
+  operation-applier format check, Rust operation-applier tests 31/31,
+  src-tauri Rust tests 26/26, desktop Vitest 52/52, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no whole-term replacement, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.

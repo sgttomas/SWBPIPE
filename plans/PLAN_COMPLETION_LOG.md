@@ -11,6 +11,52 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 tenth sub-slice: combination basis editor (`TP-APP-R2-COMBBASIS-001`)
+
+The Load Cases manager now exposes explicit basis editing for existing load
+combinations. The selected-combination editor captures a replacement
+`Combination.basis` text value and rationale, then queues a structured
+`update_load` operation with `field_path=basis`, unit `none`, and dimension
+`dimensionless`. The operation is limited to an existing combination record;
+whole-term replacement, term creation/deletion, code/rule combinations, and
+broader algebra authoring remain deferred.
+
+The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now treat
+`Combination.basis` as an editable text field while retaining the explicit
+deferred finding for whole `Combination.terms` edits. Accepted basis edits
+must target an existing `Combination`, carry a current before-value, provide a
+non-empty replacement value, and route through structured operations only. The
+tests prove the edit changes only `basis` and preserves `terms` and
+`provenance`.
+
+The app-level test selects `combination:C-OPER-ALT`, changes basis from
+`mechanics` to `mechanics_user_review`, queues
+`op:load-manager-combination:C-OPER-ALT-basis`, applies it through
+`OperationApplyPanel`, verifies the manager row and property inspector, and
+confirms zero pending operations with solve state reset to `not_started`. The
+Playwright R2 smoke checks the rendered basis preview without applying so the
+solve/results/report path remains on the unchanged fixture model.
+
+In-app browser smoke at `http://127.0.0.1:5175/` keyed
+`mechanics_user_review` into the basis field, applied
+`op:load-manager-combination:C-OPER-ALT-basis`, and confirmed
+`basis=mechanics_user_review`, zero pending operations,
+`applied_operations=1`, and solve state `not_started`. The smoke used
+single-key presses because the Browser plugin's virtual clipboard remained
+unavailable for `fill`/`type`.
+
+Residuals remain in A4: combination term creation/deletion, broader algebra
+authoring, Phase B unit picker/display retirement, and packaged-Tauri
+saved-project smoke over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-103;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_basis_editor.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 ninth sub-slice: imposed-displacement primitive-load creation editor (`TP-APP-R2-IMPOSED-001`)
 
 The Load Cases manager now exposes explicit imposed-displacement primitive

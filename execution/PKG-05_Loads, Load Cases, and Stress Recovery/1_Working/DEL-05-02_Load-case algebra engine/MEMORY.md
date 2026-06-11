@@ -219,6 +219,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, or private data changed.
 
+## 2026-06-11 - TP-APP-R2-COMBBASIS-001 combination basis editor
+
+- WORKING_ITEMS app-integration tranche added editing for existing
+  `Combination.basis` text values in the desktop Load Cases manager. No
+  `core/loads/load_case_algebra` source behavior changed.
+- The manager queues explicit structured `update_load` intents for
+  `Combination.basis` with unit `none`, dimension `dimensionless`,
+  local-session audit metadata, and no professional approval claim.
+- The tested preview edit updates `combination:C-OPER-ALT` from
+  `basis=mechanics` to `basis=mechanics_user_review`, preserving existing
+  `terms` and `provenance`. Whole `terms` replacement, term
+  creation/deletion, code/rule combinations, and broader algebra authoring
+  remain outside this tranche.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_basis_editor.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-103. Validation passed:
+  operation-applier format check, Rust operation-applier tests 31/31,
+  src-tauri Rust tests 26/26, desktop Vitest 52/52, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over
+  `combination:C-OPER-ALT`.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.
+
 ## 2026-06-11 - TP-APP-R2-COMBFACTOR-001 combination term-factor editor
 
 - WORKING_ITEMS app-integration tranche added editing for existing
