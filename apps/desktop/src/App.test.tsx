@@ -11,6 +11,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(await screen.findByText("OpenPipeStress Technical Preview")).toBeInTheDocument();
     expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
     expect(await screen.findByTestId("solve-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("viewport-deformation-status").textContent).toContain("not started; result rows=0");
     const initialReadiness = screen.getByTestId("solve-readiness-summary");
     expect(within(initialReadiness).getByTestId("readiness-mechanics").textContent).toContain(
       "preview run not started"
@@ -1741,6 +1742,14 @@ describe("OpenPipeStress desktop preview", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Run mechanics preview/i }));
     const report = await screen.findByLabelText("Report packet");
+    await waitFor(() =>
+      expect(screen.getByTestId("viewport-deformation-status").textContent).toContain(
+        "available; nodes=5; max=33.211157 mm"
+      )
+    );
+    expect(screen.getByTestId("viewport-deformation-boundary").textContent).toContain(
+      "scale=normalized_display_offset_not_physical_length"
+    );
     expect(await within(report).findByTestId("report-editor-intent-summary")).toHaveTextContent("1 queued");
     expect(within(report).getByTestId("report-editor-intent-operation").textContent).toContain(
       "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
@@ -4867,6 +4876,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(editedSolvePacket.summary.result_row_count).toBe(0);
     expect(editedSolvePacket.diagnostics.map((item: { code: string }) => item.code)).toContain(
       "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
+    );
+    expect(screen.getByTestId("viewport-deformation-status").textContent).toContain(
+      "blocked; mechanics=model incomplete; rows=0"
     );
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));

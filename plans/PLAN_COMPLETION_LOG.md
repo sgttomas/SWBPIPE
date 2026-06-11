@@ -11,6 +11,29 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A6 first sub-slice: viewport displacement overlay (`TP-APP-R2-DEFORMEDVIEW-001`)
+
+The Three.js viewport now consumes the current mechanics result and renders a
+review-only shape overlay after a solved preview run. The first slice uses
+available `displacement_magnitude` rows by node, draws a teal overlaid
+centerline/marker set, and exposes a toolbar status with node count, maximum
+reported displacement magnitude, and an explicit boundary:
+`scale=normalized_display_offset_not_physical_length`,
+`vector_direction=TBD`, and `professional_claim=false`.
+
+When no result is present the overlay status is `not started`; when the
+current mechanics result is incomplete, such as the browser edited-model guard,
+the overlay status is `blocked` and no deformed overlay is rendered.
+
+Residuals remain in A6: true directional deformed shape once displacement
+vectors exist, support-reaction visualization, stress/governing-ratio views,
+and richer result-selection coupling.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-89;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_deformation_overlay.md`
+and the same-named record under
+`DEL-07-05_Results viewer/_run_records/`.
+
 ## 2026-06-11 — A5 first sub-slice: model-bound solve guard (`TP-APP-R2-SOLVEBOUND-001`)
 
 The preview mechanics service now refuses to reuse bundled solved-result rows

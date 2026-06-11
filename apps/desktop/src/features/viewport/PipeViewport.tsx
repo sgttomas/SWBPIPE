@@ -1,13 +1,14 @@
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import type { EditorOperationIntent, EntityRef, PreviewModel, Vec3 } from "../../types";
+import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewModel, Vec3 } from "../../types";
 
 type Props = {
   model: PreviewModel;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   onSelect: (selection: EntityRef) => void;
   queuedIntents?: EditorOperationIntent[];
+  result?: MechanicsResult | null;
   selection: EntityRef;
 };
 
@@ -28,11 +29,19 @@ type NodeDraft = {
   z: string;
 };
 
-export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], selection }: Props) {
+type DeformationOverlay = {
+  state: "not_started" | "available" | "blocked" | "unavailable";
+  summary: string;
+  boundary: string;
+  nodePositions: Map<string, Vec3>;
+};
+
+export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], result = null, selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft());
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
+  const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const nodeDraftValid = isNodeDraftValid(nodeDraft);
 
@@ -72,6 +81,19 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       if (!from || !to) continue;
       scene.add(pipeMesh(from, to, selection.id === segment.id));
     }
+    if (deformation.state === "available") {
+      for (const segment of model.pipe_segments) {
+        const from = deformation.nodePositions.get(segment.from);
+        const to = deformation.nodePositions.get(segment.to);
+        if (!from || !to) continue;
+        scene.add(deformedPipeMesh(from, to, selection.id === segment.id));
+      }
+      for (const node of model.nodes) {
+        const position = deformation.nodePositions.get(node.id);
+        if (!position) continue;
+        scene.add(deformationMarker(position, selection.id === node.id));
+      }
+    }
     for (const node of model.nodes) {
       scene.add(marker(node.position, selection.id === node.id ? 0xf08c22 : 0x2f6f73, 0.095));
     }
@@ -110,7 +132,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       renderer.dispose();
       host.replaceChildren();
     };
-  }, [model, selection]);
+  }, [model, selection, deformation]);
 
   function addIntent(commandType: ViewportCommandType) {
     const intent = buildIntent(model, commandType, queuedIntents.length + localIntents.length + 1);
@@ -140,6 +162,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     <div className="viewport-shell">
       <div className="viewport-toolbar">
         <span>3D Centerline</span>
+        <span
+          className={`viewport-deformation-status ${deformation.state}`}
+          aria-label="Viewport deformation overlay status"
+          data-testid="viewport-deformation-status"
+        >
+          <strong data-testid="viewport-deformation-summary">{deformation.summary}</strong>
+          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>
+        </span>
         <span>Selected: {selection.id}</span>
       </div>
       <div className="viewport-frame">
@@ -596,6 +626,39 @@ function componentMesh(position: Vec3, active: boolean) {
   return box;
 }
 
+function deformedPipeMesh(from: Vec3, to: Vec3, active: boolean) {
+  const start = toVector(from);
+  const end = toVector(to);
+  const direction = end.clone().sub(start);
+  const length = direction.length();
+  const geometry = new THREE.CylinderGeometry(active ? 0.045 : 0.032, active ? 0.045 : 0.032, length, 18);
+  const material = new THREE.MeshStandardMaterial({
+    color: active ? 0xf08c22 : 0x0f8f85,
+    emissive: active ? 0x4c2500 : 0x03433f,
+    metalness: 0.1,
+    opacity: 0.82,
+    roughness: 0.42,
+    transparent: true
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.copy(start.clone().add(end).multiplyScalar(0.5));
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+  return mesh;
+}
+
+function deformationMarker(position: Vec3, active: boolean) {
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(active ? 0.075 : 0.055, 18, 12),
+    new THREE.MeshStandardMaterial({
+      color: active ? 0xf08c22 : 0x0f8f85,
+      emissive: active ? 0x4c2500 : 0x03433f,
+      opacity: 0.86,
+      roughness: 0.44,
+      transparent: true
+    })
+  ).translateX(position.x).translateY(position.y).translateZ(position.z);
+}
+
 function grid() {
   const helper = new THREE.GridHelper(10, 10, 0x8b9490, 0xd6dbd4);
   helper.position.set(3.8, -0.02, 1.1);
@@ -605,6 +668,78 @@ function grid() {
 
 function toVector(position: Vec3) {
   return new THREE.Vector3(position.x, position.y, position.z);
+}
+
+function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | null): DeformationOverlay {
+  if (!result) {
+    return {
+      state: "not_started",
+      summary: "not started; result rows=0",
+      boundary: "scale=not_generated; professional_claim=false",
+      nodePositions: new Map()
+    };
+  }
+  if (result.status.mechanics !== "MECHANICS_SOLVED") {
+    return {
+      state: "blocked",
+      summary: `blocked; mechanics=${formatStatus(result.status.mechanics)}; rows=${result.results.length}`,
+      boundary: "scale=not_generated; professional_claim=false",
+      nodePositions: new Map()
+    };
+  }
+
+  const nodeIds = new Set(model.nodes.map((node) => node.id));
+  const nodeValues = new Map<string, { value: number; unit: string }>();
+  for (const row of result.results) {
+    if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
+    const current = nodeValues.get(row.entity_ref);
+    if (!current || Math.abs(row.value) > Math.abs(current.value)) {
+      nodeValues.set(row.entity_ref, { value: row.value, unit: row.unit });
+    }
+  }
+  if (nodeValues.size === 0) {
+    return {
+      state: "unavailable",
+      summary: "unavailable; displacement rows=0",
+      boundary: "scale=not_generated; professional_claim=false",
+      nodePositions: new Map()
+    };
+  }
+
+  const values = Array.from(nodeValues.values());
+  const maxValue = Math.max(...values.map((item) => Math.abs(item.value)));
+  const units = Array.from(new Set(values.map((item) => item.unit))).sort();
+  const unit = units.length === 1 ? units[0] : "mixed";
+  const displayOffset = 0.65;
+  const nodePositions = new Map(
+    model.nodes.map((node) => {
+      const value = nodeValues.get(node.id)?.value ?? 0;
+      const normalizedOffset = maxValue > 0 ? (Math.abs(value) / maxValue) * displayOffset : 0;
+      return [
+        node.id,
+        {
+          x: node.position.x,
+          y: node.position.y + normalizedOffset,
+          z: node.position.z
+        }
+      ] as const;
+    })
+  );
+
+  return {
+    state: "available",
+    summary: `available; nodes=${nodeValues.size}; max=${formatNumber(maxValue)} ${unit}`,
+    boundary: `scale=normalized_display_offset_not_physical_length; vector_direction=TBD; unit_basis=${unit}; professional_claim=false`,
+    nodePositions
+  };
+}
+
+function formatStatus(value: string): string {
+  return value.replaceAll("_", " ").toLowerCase();
+}
+
+function formatNumber(value: number): string {
+  return value.toFixed(6).replace(/0+$/u, "").replace(/\.$/u, "");
 }
 
 function hasWebGL() {

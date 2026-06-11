@@ -59,3 +59,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Active predecessor status spot-checks found `DEL-04-06`, `DEL-05-03`, and `DEL-05-04` at `CHECKING`; dependency files were not edited.
 - Recommendation recorded in `_REVIEW.md`: `MOVE_TO_CHECKING`, with lifecycle transition left to a separate authorized step.
 - No release, professional, code-compliance, certification, sealing, or `ISSUED` claim is made by this addendum.
+
+## 2026-06-11 - TP-APP-R2-DEFORMEDVIEW-001 viewport displacement overlay
+
+- WORKING_ITEMS app-integration tranche connected solved preview mechanics
+  results to the viewport visualization surface. The first slice consumes
+  node `displacement_magnitude` rows and exposes the maximum reported
+  magnitude (`33.211157 mm` on the invented fixture) in the viewport overlay
+  status.
+- The overlay is explicitly bounded as
+  `scale=normalized_display_offset_not_physical_length` and
+  `vector_direction=TBD`; incomplete mechanics results produce a blocked
+  overlay status and no rendered overlay.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_deformation_overlay.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-89. Validation passed:
+  `npm test --workspace apps/desktop` (31/31),
+  `npm run build --workspace apps/desktop`, touched-scope
+  `git diff --check`, and desktop/mobile browser pixel smoke.
+- No lifecycle state, review finding disposition, release readiness,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, or DAG authority changed.

@@ -229,3 +229,28 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim, protected
   standards data, private project data, network path, telemetry path, or DAG
   authority changed.
+
+## 2026-06-11 - TP-APP-R2-DEFORMEDVIEW-001 viewport displacement overlay
+
+- WORKING_ITEMS app-integration tranche added a solved-result overlay to
+  `PipeViewport`: after preview mechanics produces solved displacement
+  magnitudes, the Three.js scene draws an overlaid centerline and node markers
+  with normalized display offsets.
+- The viewport toolbar records the visible boundary:
+  `scale=normalized_display_offset_not_physical_length`,
+  `vector_direction=TBD`, `unit_basis=mm`, and
+  `professional_claim=false`. No overlay is rendered for incomplete mechanics
+  results.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_deformation_overlay.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-89. Validation passed:
+  `npm test --workspace apps/desktop` (31/31),
+  `npm run build --workspace apps/desktop`, touched-scope
+  `git diff --check`, and desktop/mobile browser pixel smoke.
+- Residual A6 scope remains: true directional deformed shape once
+  displacement vectors exist, support reactions, stress/governing-ratio views,
+  and richer result-selection coupling.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, or DAG
+  authority changed.

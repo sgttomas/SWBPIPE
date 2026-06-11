@@ -684,6 +684,7 @@ export function App() {
             onQueueIntent={handleQueueEditorIntent}
             onSelect={setSelection}
             queuedIntents={editorIntents}
+            result={result}
             selection={selection}
           />
           <div className="bottom-panels">

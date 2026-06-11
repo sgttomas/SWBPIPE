@@ -193,7 +193,7 @@ button:focus-visible {
 }
 
 .center-stage {
-  grid-template-rows: minmax(420px, 1fr) 260px;
+  grid-template-rows: max-content 260px;
 }
 
 .bottom-panels {
@@ -491,20 +491,21 @@ button:focus-visible {
 
 .viewport-shell {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
 }
 
 .viewport-frame {
   position: relative;
   z-index: 1;
+  height: clamp(240px, 25vw, 325px);
   min-height: 240px;
-  aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
 .viewport-toolbar {
   display: flex;
   justify-content: space-between;
+  align-items: start;
   gap: 12px;
   min-height: 36px;
   padding: 9px 12px;
@@ -542,6 +543,40 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.viewport-toolbar > span {
+  min-width: 0;
+}
+
+.viewport-deformation-status {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 2px;
+  max-width: 58%;
+  padding-left: 10px;
+  border-left: 3px solid #8a9691;
+  color: #31403d;
+}
+
+.viewport-deformation-status strong,
+.viewport-deformation-status small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.viewport-deformation-status small {
+  color: #66736f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.viewport-deformation-status.available {
+  border-left: 3px solid #0f8f85;
+}
+
+.viewport-deformation-status.blocked {
+  border-left: 3px solid #b54708;
 }
 
 .viewport-select-target {

@@ -2599,3 +2599,33 @@ after the timestamp marker were absent.
   now blocks stale fixture reuse. No protected/private data, code-specific
   defaults, network/cloud/telemetry, release claim, professional approval,
   certification, sealing, authentication, or code-compliance claim was added.
+
+## TP-MAC-89 viewport-deformation-overlay (2026-06-11)
+
+- Tranche: `TP-APP-R2-DEFORMEDVIEW-001` (completion plan Phase A6 first
+  sub-slice) adding a Three.js viewport overlay from solved preview mechanics
+  result rows. The overlay consumes node `displacement_magnitude` rows,
+  renders an overlaid centerline/marker set, and reports
+  `available; nodes=5; max=33.211157 mm` with boundary
+  `scale=normalized_display_offset_not_physical_length;
+  vector_direction=TBD; unit_basis=mm; professional_claim=false`. Initial
+  state reports `not started`; incomplete mechanics results report `blocked`
+  and render no overlay.
+- Local validation: `npm test --workspace apps/desktop` passed with 31/31
+  Vitest tests; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope.
+- Browser smoke against `http://127.0.0.1:5174/` used system Chrome through
+  Playwright. Desktop viewport `1280x900`: canvas screenshot was `578x320`,
+  opaque pixels `184960`, sampled unique colors reached `1000`, and a
+  700 ms animation diff changed `5567` pixels. Mobile viewport `390x844`:
+  canvas screenshot was `458x240`, opaque pixels `109920`, sampled unique
+  colors reached `1000`, and the animation diff changed `6480` pixels. Both
+  runs updated overlay status to `available; nodes=5; max=33.211157 mm`;
+  layout checks confirmed `frameBottom == intentsTop` and
+  `intentsBottom < bottomPanelsTop`; browser console output contained only
+  Vite debug messages and the React DevTools info line.
+- Boundary: this overlay is a normalized display aid from displacement
+  magnitudes only. It is not a physical directional deformed-shape solver, not
+  a validation plot, not a professional acceptance record, and not a release,
+  certification, sealing, authentication, or code-compliance claim.
