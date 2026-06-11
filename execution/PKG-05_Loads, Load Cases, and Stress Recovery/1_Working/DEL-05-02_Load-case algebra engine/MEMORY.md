@@ -219,6 +219,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, or private data changed.
 
+## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
+
+- WORKING_ITEMS app-integration tranche added explicit child-term creation
+  for existing combinations in the desktop Load Cases manager. No
+  `core/loads/load_case_algebra` source behavior changed.
+- The manager queues structured `create_combination_term` intents for
+  `Combination.terms` with `before=not_present`, unit `none`, dimension
+  `dimensionless`, and JSON payload `{ load_case, factor }`.
+- The tested preview path creates `load:L-300` and appends it to
+  `combination:C-OPER-ALT` as a new term, preserving existing
+  `load:L-100 x 1` and `load:L-200 x 0.5` terms. Whole-term replacement,
+  deletion, code/rule combinations, and broader algebra authoring remain
+  outside this tranche.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-104. Validation passed:
+  operation-applier format check, Rust operation-applier tests 32/32,
+  src-tauri Rust tests 26/26, desktop Vitest 54/54, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over
+  `combination:C-OPER-ALT`.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.
+
 ## 2026-06-11 - TP-APP-R2-COMBBASIS-001 combination basis editor
 
 - WORKING_ITEMS app-integration tranche added editing for existing

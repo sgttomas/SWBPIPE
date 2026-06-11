@@ -2281,6 +2281,67 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an explicit combination term through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-load-label"), {
+      target: { value: "User operating case" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-load-case-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-create-load:L-300"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "3 load cases; 7 primitive loads; 1 combinations"
+    );
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-term-load-case"), {
+      target: { value: "load:L-300" }
+    });
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-term-factor"), {
+      target: { value: "0.25" }
+    });
+
+    expect(within(manager).getByTestId("load-manager-create-combination-term-heading").textContent).toContain(
+      "combination:C-OPER-ALT"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-term-preview").textContent).toContain(
+      "op:load-manager-combination:C-OPER-ALT-term-2-create"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-term-preview").textContent).toContain(
+      "before=not_present; after=load:L-300 x 0.25; unit=none; dimensionless"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-create-combination-term-intent"));
+
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain("terms");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain(
+      "\"load_case\":\"load:L-300\""
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-2"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-combination:C-OPER-ALT-term-2-create"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT").textContent).toContain(
+      "load:L-100 x 1; load:L-200 x 0.5; load:L-300 x 0.25"
+    );
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("load:L-300 x 0.25");
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-2-editor-intent-2").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=2");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 

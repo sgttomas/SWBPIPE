@@ -107,6 +107,19 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
     "before=mechanics; after=mechanics_user_review"
   );
+  await expect(page.getByTestId("load-manager-create-combination-term-heading")).toContainText(
+    "combination:C-OPER-ALT"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-term-2-create"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "before=not_present; after=load:L-100 x 1; unit=none; dimensionless"
+  );
+  await page.getByTestId("load-manager-create-combination-term-factor").fill("0.25");
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "before=not_present; after=load:L-100 x 0.25; unit=none; dimensionless"
+  );
   await page.getByTestId("load-manager-combination-term-combination:C-OPER-ALT-1").click();
   await expect(page.getByTestId("load-manager-selected-combination-term")).toContainText("terms.1.factor");
   await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText("current=0.5");

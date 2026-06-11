@@ -535,6 +535,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_combination_term: Option<(String, Value)> = None;
+    if !checker.schema_blocked && change_kind == "create_combination_term" {
+        created_combination_term = resolve_create_combination_term(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
 
     let blocking = checker.blocking();
     let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
@@ -551,7 +565,8 @@ fn run(
     } else if (created_node.is_some()
         || created_pipe.is_some()
         || created_load_case.is_some()
-        || created_primitive_load.is_some())
+        || created_primitive_load.is_some()
+        || created_combination_term.is_some())
         && !blocking
     {
         vec![DiffPreviewRow {
@@ -616,6 +631,15 @@ fn run(
         } else if let Some((load_case_id, primitive_load)) = &created_primitive_load {
             let mut next_model = model.clone();
             if apply_created_primitive_load(&mut next_model, load_case_id, primitive_load) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some((combination_id, term)) = &created_combination_term {
+            let mut next_model = model.clone();
+            if apply_created_combination_term(&mut next_model, combination_id, term) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -799,6 +823,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "connect_pipe_run"
             | "create_load_case"
             | "create_primitive_load"
+            | "create_combination_term"
             | "insert_component_symbol"
     );
     if !supported_change {
@@ -817,7 +842,10 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" => "modify",
-        "create_node" | "create_load_case" | "create_primitive_load" => "create",
+        "create_node"
+        | "create_load_case"
+        | "create_primitive_load"
+        | "create_combination_term" => "create",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
         _ => unreachable!("supported_change guarantees a known change kind"),
@@ -1736,6 +1764,136 @@ fn resolve_create_primitive_load(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn resolve_create_combination_term(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<(String, Value)> {
+    if object_type != "Combination" || field_path != "terms" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-COMBINATION-TERM-SHAPE-INVALID",
+            "blocking",
+            "Create-combination-term intents must target object_type `Combination` with field_path `terms`.".to_string(),
+            "Refresh the combination-term creation intent from the explicit Load Cases manager form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for combination term creation."),
+            "Create combination terms with unit `none`; term factors are dimensionless scalars.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-combination-term dimension `{dimension}` must be `dimensionless`."),
+            "Emit combination-term factors with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(combination) = find_entity(model, "combinations", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Combination `{target_ref}` was not found in the current model."),
+            "Select an existing combination before creating a term.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    let payload: Value = match serde_json::from_str(after) {
+        Ok(payload) => payload,
+        Err(_) => {
+            checker.push(
+                "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+                "blocking",
+                "Create-combination-term payload is not valid JSON.".to_string(),
+                "Emit the explicit combination-term payload as JSON in change.after.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination-term payload must be a JSON object.".to_string(),
+            "Emit load_case and factor fields for the new term.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let load_case = record
+        .get("load_case")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let factor = record.get("factor").and_then(Value::as_f64);
+    let factor_is_finite = factor.map(f64::is_finite).unwrap_or(false);
+    if load_case.is_empty() || !factor_is_finite {
+        checker.push(
+            "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination-term payload must include a load_case reference and finite numeric factor.".to_string(),
+            "Refresh the combination-term creation intent from explicit user-entered term fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "load_cases", load_case).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
+            "blocking",
+            format!("Combination term references load case `{load_case}`, which is absent from the current model."),
+            "Select an existing load case before creating a combination term.",
+            vec![target_ref.to_string(), load_case.to_string()],
+        );
+        return None;
+    }
+    if !combination.get("terms").is_some_and(Value::is_array) {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMBINATION-TERMS-MISSING",
+            "blocking",
+            format!("Combination `{target_ref}` does not expose a terms array."),
+            "Repair the model document before creating combination terms.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+    Some((
+        target_ref.to_string(),
+        serde_json::json!({ "load_case": load_case, "factor": factor.unwrap() }),
+    ))
+}
+
+#[allow(clippy::too_many_arguments)]
 fn resolve_field(
     model: &Value,
     object_type: &str,
@@ -2296,6 +2454,17 @@ fn apply_created_primitive_load(
         return false;
     };
     primitive_loads.push(primitive_load.clone());
+    true
+}
+
+fn apply_created_combination_term(model: &mut Value, combination_id: &str, term: &Value) -> bool {
+    let Some(combination) = find_entity_mut(model, "combinations", combination_id) else {
+        return false;
+    };
+    let Some(terms) = combination.get_mut("terms").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    terms.push(term.clone());
     true
 }
 
@@ -3676,6 +3845,63 @@ mod tests {
         );
         let blocked = apply_operation(&model, &empty, None);
         assert!(codes(&blocked).contains(&"OP-VALUE-EMPTY"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_combination_term_payload_appends_one_term_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({ "load_case": "load:L-1", "factor": 0.25 });
+        let mut intent = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "create_combination_term",
+            "terms",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["combinations"][0]["terms"], json!([payload]));
+        assert_eq!(
+            applied["combinations"][0]["basis"],
+            before_snapshot["combinations"][0]["basis"]
+        );
+
+        let mut missing_load = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "create_combination_term",
+            "terms",
+            "not_present",
+            r#"{"load_case":"load:missing","factor":1}"#,
+            "none",
+            "dimensionless",
+        );
+        missing_load["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &missing_load, None);
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-TERM-LOAD-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }
 

@@ -140,6 +140,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
 
+## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
+
+- WORKING_ITEMS app-integration tranche verified that combination term
+  creation enters the model only after the user queues and applies a
+  structured operation in the local session.
+- The app regression applies `op:load-manager-create-load:L-300`, then applies
+  `op:load-manager-combination:C-OPER-ALT-term-2-create` through
+  `OperationApplyPanel`, updates the session model, clears stale solve
+  results, leaves persistence at `session_state_only_not_yet_saved`, and
+  records no professional approval or code-compliance claim.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-104. Validation passed:
+  operation-applier format check, Rust operation-applier tests 32/32,
+  src-tauri Rust tests 26/26, desktop Vitest 54/54, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-term-create smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.
+
 ## 2026-06-11 - TP-APP-R2-IMPOSED-001 imposed-displacement primitive-load creation editor
 
 - WORKING_ITEMS app-integration tranche verified that support-target

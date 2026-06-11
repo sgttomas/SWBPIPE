@@ -184,6 +184,11 @@ type CreatedPrimitiveLoad = {
   primitiveLoad: Record<string, unknown>;
 };
 
+type CreatedCombinationTerm = {
+  combinationId: string;
+  term: { load_case: string; factor: number };
+};
+
 function pushDiagnostic(
   checker: LocalChecker,
   code: string,
@@ -251,6 +256,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && changeKind === "create_primitive_load") {
     createdPrimitiveLoad = resolveCreatePrimitiveLoad(modelDocument, targetRef, intent, checker);
   }
+  let createdCombinationTerm: CreatedCombinationTerm | null = null;
+  if (!checker.schemaBlocked && changeKind === "create_combination_term") {
+    createdCombinationTerm = resolveCreateCombinationTerm(modelDocument, targetRef, intent, checker);
+  }
 
   const blocking = hasBlocking(checker);
   const diffPreview: OperationDiffPreviewRow[] =
@@ -266,8 +275,8 @@ async function runLocalOperation(
             dimension: intent.change.dimension,
             change_kind: changeKind
           }
-        ]
-      : (createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad) && !blocking
+          ]
+      : (createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad || createdCombinationTerm) && !blocking
         ? [
             {
               entity_ref: targetRef,
@@ -284,7 +293,11 @@ async function runLocalOperation(
 
   let appliedModel: PreviewModel | null = null;
   let appliedModelHash: string | null = null;
-  if (mode === "apply" && !blocking && (resolved || createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad)) {
+  if (
+    mode === "apply" &&
+    !blocking &&
+    (resolved || createdNode || createdPipe || createdLoadCase || createdPrimitiveLoad || createdCombinationTerm)
+  ) {
     const nextModel = JSON.parse(JSON.stringify(modelDocument)) as Record<string, unknown>;
     const applied = resolved
       ? applyResolvedField(nextModel, objectType, targetRef, resolved)
@@ -296,6 +309,8 @@ async function runLocalOperation(
             ? applyCreatedLoadCase(nextModel, createdLoadCase)
             : createdPrimitiveLoad
               ? applyCreatedPrimitiveLoad(nextModel, createdPrimitiveLoad)
+              : createdCombinationTerm
+                ? applyCreatedCombinationTerm(nextModel, createdCombinationTerm)
             : false;
     if (applied) {
       appliedModelHash = await localHash(nextModel);
@@ -437,6 +452,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
     "connect_pipe_run",
     "create_load_case",
     "create_primitive_load",
+    "create_combination_term",
     "insert_component_symbol"
   ];
   if (!supported.includes(changeKind)) {
@@ -453,7 +469,10 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
   }
   const expectedOperationKind = ["set_field", "update_load", "update_support"].includes(changeKind)
     ? "modify"
-    : changeKind === "create_node" || changeKind === "create_load_case" || changeKind === "create_primitive_load"
+    : changeKind === "create_node" ||
+        changeKind === "create_load_case" ||
+        changeKind === "create_primitive_load" ||
+        changeKind === "create_combination_term"
       ? "create"
       : changeKind === "connect_pipe_run"
         ? "connect"
@@ -1241,6 +1260,131 @@ function resolveCreatePrimitiveLoad(
   };
 }
 
+function resolveCreateCombinationTerm(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): CreatedCombinationTerm | null {
+  if (intent.target.object_type !== "Combination" || intent.change.field_path !== "terms") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-TERM-SHAPE-INVALID",
+      "blocking",
+      "Create-combination-term intents must target object_type `Combination` with field_path `terms`.",
+      "Refresh the combination-term creation intent from the explicit Load Cases manager form.",
+      [targetRef]
+    );
+    return null;
+  }
+  checkBefore("not_present", intent.change.before, targetRef, intent.change.field_path, checker);
+  checker.unitState = "passed";
+  if (intent.change.unit !== "none") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match stored unit \`none\` for combination term creation.`,
+      "Create combination terms with unit `none`; term factors are dimensionless scalars.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "dimensionless") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Create-combination-term dimension \`${intent.change.dimension}\` must be \`dimensionless\`.`,
+      "Emit combination-term factors with dimensionless metadata.",
+      [targetRef]
+    );
+    return null;
+  }
+  const combination = findEntity(model, "combinations", targetRef);
+  if (!combination) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-NOT-FOUND",
+      "blocking",
+      `Combination \`${targetRef}\` was not found in the current model.`,
+      "Select an existing combination before creating a term.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(intent.change.after);
+  } catch {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+      "blocking",
+      "Create-combination-term payload is not valid JSON.",
+      "Emit the explicit combination-term payload as JSON in change.after.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+      "blocking",
+      "Create-combination-term payload must be a JSON object.",
+      "Emit load_case and factor fields for the new term.",
+      [targetRef]
+    );
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const loadCase = stringPayload(record, "load_case");
+  const factor = numericPayload(record, "factor");
+  if (!loadCase || factor === null) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-COMBINATION-TERM-PAYLOAD-INVALID",
+      "blocking",
+      "Create-combination-term payload must include a load_case reference and finite numeric factor.",
+      "Refresh the combination-term creation intent from explicit user-entered term fields.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (!findEntity(model, "load_cases", loadCase)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-COMBINATION-TERM-LOAD-NOT-FOUND",
+      "blocking",
+      `Combination term references load case \`${loadCase}\`, which is absent from the current model.`,
+      "Select an existing load case before creating a combination term.",
+      [targetRef, loadCase]
+    );
+    return null;
+  }
+  if (!Array.isArray(combination.terms)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-COMBINATION-TERMS-MISSING",
+      "blocking",
+      `Combination \`${targetRef}\` does not expose a terms array.`,
+      "Repair the model document before creating combination terms.",
+      [targetRef]
+    );
+    return null;
+  }
+  checker.referenceState = "passed";
+  return { combinationId: targetRef, term: { load_case: loadCase, factor } };
+}
+
 function resolveField(
   model: Record<string, unknown>,
   objectType: string,
@@ -1650,6 +1794,13 @@ function applyCreatedPrimitiveLoad(model: Record<string, unknown>, created: Crea
   if (loadCase.primitive_loads === undefined) loadCase.primitive_loads = [];
   if (!Array.isArray(loadCase.primitive_loads)) return false;
   loadCase.primitive_loads.push(created.primitiveLoad);
+  return true;
+}
+
+function applyCreatedCombinationTerm(model: Record<string, unknown>, created: CreatedCombinationTerm): boolean {
+  const combination = findEntity(model, "combinations", created.combinationId);
+  if (!combination || !Array.isArray(combination.terms)) return false;
+  combination.terms.push(created.term);
   return true;
 }
 

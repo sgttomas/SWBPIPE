@@ -358,3 +358,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no whole-term replacement, no durable persistence,
   no protected/private data, and no professional, release, or code-compliance
   claim.
+
+## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  `create_combination_term` operations.
+- Accepted intents must target an existing `Combination` with
+  `field_path=terms`, use `operation_kind=create`, carry
+  `before=not_present`, unit `none`, dimension `dimensionless`, and JSON
+  payload `{ load_case: <existing load id>, factor: <finite number> }`.
+- Missing referenced load cases, invalid payloads, wrong unit/dimension
+  metadata, and missing combination `terms` arrays are blocked. Whole
+  `Combination.terms` replacement remains deferred.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-104. Validation passed:
+  operation-applier format check, Rust operation-applier tests 32/32,
+  src-tauri Rust tests 26/26, desktop Vitest 54/54, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no whole-term replacement, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.

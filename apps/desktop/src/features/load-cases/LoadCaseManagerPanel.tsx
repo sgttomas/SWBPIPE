@@ -47,6 +47,13 @@ type PrimitiveLoadDraft = {
   provenance: string;
 };
 
+type CombinationTermDraft = {
+  combinationId: string;
+  loadCaseId: string;
+  factor: string;
+  rationale: string;
+};
+
 type LoadMetadataField = "status" | "kind";
 
 export function LoadCaseManagerPanel({
@@ -93,6 +100,7 @@ export function LoadCaseManagerPanel({
   const currentCombinationBasis = selectedCombination?.basis ?? "";
   const [proposedCombinationBasis, setProposedCombinationBasis] = useState(currentCombinationBasis);
   const [combinationBasisRationale, setCombinationBasisRationale] = useState("user_entered_combination_basis_preview_change");
+  const [combinationTermDraft, setCombinationTermDraft] = useState<CombinationTermDraft>(() => defaultCombinationTermDraft(model));
   const nextLoadCaseId = useMemo(() => nextLoadCaseIdentifier(model), [model]);
   const [loadCaseDraft, setLoadCaseDraft] = useState<LoadCaseDraft>(() => defaultLoadCaseDraft(nextLoadCaseId));
   const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
@@ -144,8 +152,14 @@ export function LoadCaseManagerPanel({
           combination: selectedCombination,
           proposedBasis: proposedCombinationBasis,
           rationale: combinationBasisRationale
-        })
+      })
       : null;
+  const createCombinationTermIntent = isCombinationTermDraftReady(model, combinationTermDraft)
+    ? buildCreateCombinationTermIntent({
+        model,
+        draft: combinationTermDraft
+      })
+    : null;
   const createLoadCaseIntent = isLoadCaseDraftReady(model, loadCaseDraft)
     ? buildCreateLoadCaseIntent({
         model,
@@ -201,6 +215,19 @@ export function LoadCaseManagerPanel({
     setCombinationBasisRationale("user_entered_combination_basis_preview_change");
   }, [currentCombinationBasis, selectedCombination?.id]);
 
+  useEffect(() => {
+    setCombinationTermDraft((draft) => {
+      const combinationId = model.combinations?.some((combination) => combination.id === draft.combinationId)
+        ? draft.combinationId
+        : selectedCombination?.id ?? model.combinations?.[0]?.id ?? "";
+      const loadCaseId = model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId)
+        ? draft.loadCaseId
+        : defaultCombinationTermLoadCase(model, combinationId);
+      if (combinationId === draft.combinationId && loadCaseId === draft.loadCaseId) return draft;
+      return { ...draft, combinationId, loadCaseId };
+    });
+  }, [model, selectedCombination?.id]);
+
   function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
     setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
   }
@@ -212,6 +239,16 @@ export function LoadCaseManagerPanel({
       if (field === "loadCaseId" || field === "category") {
         nextDraft.direction = defaultPrimitiveLoadDirection(nextDraft.category);
         nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
+      }
+      return nextDraft;
+    });
+  }
+
+  function updateCombinationTermDraft(field: keyof CombinationTermDraft, value: string) {
+    setCombinationTermDraft((draft) => {
+      const nextDraft = { ...draft, [field]: value };
+      if (field === "combinationId") {
+        nextDraft.loadCaseId = defaultCombinationTermLoadCase(model, value);
       }
       return nextDraft;
     });
@@ -235,6 +272,11 @@ export function LoadCaseManagerPanel({
 
   function handleSelectCombination(combination: Combination) {
     onSelect({ type: "combination", id: combination.id });
+    setCombinationTermDraft((draft) => ({
+      ...draft,
+      combinationId: combination.id,
+      loadCaseId: defaultCombinationTermLoadCase(model, combination.id)
+    }));
   }
 
   return (
@@ -670,6 +712,83 @@ export function LoadCaseManagerPanel({
         </div>
       ) : null}
 
+      {model.combinations?.length && model.load_cases.length ? (
+        <section className="combination-term-create-editor" aria-label="Create combination term">
+          <div className="load-editor-heading" data-testid="load-manager-create-combination-term-heading">
+            <ListPlus size={14} aria-hidden="true" />
+            <strong>{combinationTermDraft.combinationId}</strong>
+            <span>
+              new term; load={combinationTermDraft.loadCaseId}; factor={combinationTermDraft.factor}
+            </span>
+          </div>
+          <div className="combination-term-create-controls">
+            <label>
+              <span>Combination</span>
+              <select
+                aria-label="Combination term target combination"
+                data-testid="load-manager-create-combination-term-combination"
+                onChange={(event) => updateCombinationTermDraft("combinationId", event.target.value)}
+                value={combinationTermDraft.combinationId}
+              >
+                {(model.combinations ?? []).map((combination) => (
+                  <option key={combination.id} value={combination.id}>
+                    {combination.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Load</span>
+              <select
+                aria-label="Combination term load case"
+                data-testid="load-manager-create-combination-term-load-case"
+                onChange={(event) => updateCombinationTermDraft("loadCaseId", event.target.value)}
+                value={combinationTermDraft.loadCaseId}
+              >
+                {model.load_cases.map((loadCase) => (
+                  <option key={loadCase.id} value={loadCase.id}>
+                    {loadCase.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Factor</span>
+              <input
+                aria-label="Combination term factor"
+                data-testid="load-manager-create-combination-term-factor"
+                onChange={(event) => updateCombinationTermDraft("factor", event.target.value)}
+                value={combinationTermDraft.factor}
+              />
+            </label>
+            <label>
+              <span>Rationale</span>
+              <input
+                aria-label="Combination term creation rationale"
+                data-testid="load-manager-create-combination-term-rationale"
+                onChange={(event) => updateCombinationTermDraft("rationale", event.target.value)}
+                value={combinationTermDraft.rationale}
+              />
+            </label>
+            <button
+              data-testid="queue-create-combination-term-intent"
+              disabled={!createCombinationTermIntent}
+              onClick={() => createCombinationTermIntent && onQueueIntent(createCombinationTermIntent)}
+              title="Queue combination-term creation operation"
+              type="button"
+            >
+              <ListPlus size={14} aria-hidden="true" />
+              Queue term
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-create-combination-term-preview">
+            {createCombinationTermIntent
+              ? `${createCombinationTermIntent.operation_id}; before=${createCombinationTermIntent.change.before}; after=${combinationTermDraft.loadCaseId} x ${combinationTermDraft.factor}; unit=${createCombinationTermIntent.change.unit}; ${createCombinationTermIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : "select combination/load case and finite factor to queue a combination term"}
+          </p>
+        </section>
+      ) : null}
+
       {selectedCombination ? (
         <section className="combination-basis-editor" aria-label="Combination basis editor">
           <div className="load-editor-heading" data-testid="load-manager-selected-combination">
@@ -818,6 +937,22 @@ function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): Pri
   };
 }
 
+function defaultCombinationTermDraft(model: PreviewModel): CombinationTermDraft {
+  const combinationId = model.combinations?.[0]?.id ?? "";
+  return {
+    combinationId,
+    loadCaseId: defaultCombinationTermLoadCase(model, combinationId),
+    factor: "1",
+    rationale: "user_entered_combination_term_preview_change"
+  };
+}
+
+function defaultCombinationTermLoadCase(model: PreviewModel, combinationId: string): string {
+  const combination = model.combinations?.find((item) => item.id === combinationId);
+  const existing = new Set((combination?.terms ?? []).map((term) => term.load_case));
+  return model.load_cases.find((loadCase) => !existing.has(loadCase.id))?.id ?? model.load_cases[0]?.id ?? "";
+}
+
 function nextLoadCaseIdentifier(model: PreviewModel): string {
   const used = new Set(model.load_cases.map((loadCase) => loadCase.id));
   for (let index = 300; index < 1000; index += 1) {
@@ -860,6 +995,17 @@ function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraf
       magnitude !== 0 &&
       draft.provenance.trim() &&
       unit !== "TBD"
+  );
+}
+
+function isCombinationTermDraftReady(model: PreviewModel, draft: CombinationTermDraft): boolean {
+  return Boolean(
+    draft.combinationId &&
+      model.combinations?.some((combination) => combination.id === draft.combinationId) &&
+      draft.loadCaseId &&
+      model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId) &&
+      parseFiniteNumber(draft.factor) !== null &&
+      draft.rationale.trim()
   );
 }
 
@@ -1001,6 +1147,71 @@ function buildCreatePrimitiveLoadIntent({
       software_makes_authentication_claim: false
     },
     rationale: `${draft.category} primitive-load creation intent for ${model.project.id}`
+  };
+}
+
+function buildCreateCombinationTermIntent({
+  model,
+  draft
+}: {
+  model: PreviewModel;
+  draft: CombinationTermDraft;
+}): EditorOperationIntent {
+  const combination = model.combinations?.find((item) => item.id === draft.combinationId);
+  const termIndex = combination?.terms.length ?? 0;
+  const factor = parseFiniteNumber(draft.factor) ?? 0;
+  const payload = {
+    load_case: draft.loadCaseId,
+    factor
+  };
+  const operationToken = `${safeToken(draft.combinationId)}-term-${termIndex}-create`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Combination",
+      ref: draft.combinationId
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "create_combination_term",
+      field_label: "Combination term",
+      field_path: "terms",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered combination term; no code/rule combination default inferred"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: draft.rationale.trim() || `combination term creation intent for ${model.project.id}`
   };
 }
 

@@ -3102,3 +3102,37 @@ after the timestamp marker were absent.
   saved-project mutation without user Save, protected/private data handling,
   release readiness, professional approval, certification, sealing,
   authentication, or code-compliance claims.
+
+## TP-MAC-104 combination-term-creation-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-COMBTERMCREATE-001` (completion plan Phase A4 eleventh
+  sub-slice) adding explicit child-term creation for existing load
+  combinations in the Load Cases manager. The create form selects an existing
+  combination, existing load case, finite dimensionless factor, and rationale,
+  then queues a structured `create_combination_term` operation.
+- Edit path: applying `op:load-manager-combination:C-OPER-ALT-term-2-create`
+  appends one `{ load_case, factor }` term to `combination:C-OPER-ALT` with
+  unit `none` and dimension `dimensionless`. The app regression creates
+  `load:L-300`, appends it as `load:L-300 x 0.25`, and verifies existing terms
+  `load:L-100 x 1` and `load:L-200 x 0.5` are preserved. Missing referenced
+  load cases and invalid term payloads are blocked by validation.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 32/32 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 54/54 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied `load:L-300` creation, selected it in the
+  combination-term form, applied
+  `op:load-manager-combination:C-OPER-ALT-term-2-create`, and confirmed
+  `load:L-300 x 1`, zero pending operations, `applied_operations=2`, solve
+  state `not_started`, and no browser console errors; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not add whole-term replacement, combination term
+  deletion, code/rule combinations, broader algebra authoring, unit
+  conversion, saved-project mutation without user Save, protected standards
+  content, private data, release readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claims.

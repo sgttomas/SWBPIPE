@@ -89,6 +89,25 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-11 - TP-APP-R2-COMBTERMCREATE-001 combination term creation editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with
+  a create-term editor for existing combinations.
+- The app regression creates `load:L-300`, selects it in the combination-term
+  form, queues `op:load-manager-combination:C-OPER-ALT-term-2-create`, applies
+  it through `OperationApplyPanel`, and verifies the manager row and property
+  inspector include the new term.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-104. Validation passed:
+  operation-applier format check, Rust operation-applier tests 32/32,
+  src-tauri Rust tests 26/26, desktop Vitest 54/54, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-term-create smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-11 - TP-APP-R2-IMPOSED-001 imposed-displacement primitive-load creation editor
 
 - WORKING_ITEMS app-integration tranche extended the Load Cases manager with

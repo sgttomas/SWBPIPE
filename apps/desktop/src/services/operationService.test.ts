@@ -632,6 +632,64 @@ describe("operationService browser-mode engine", () => {
     expect(wholeTerms.diagnostics.map((item) => item.code)).toContain("OP-FIELD-EDIT-DEFERRED");
   });
 
+  it("applies explicit combination term creation payloads without whole terms replacement", async () => {
+    const model = sampleModel();
+    model.load_cases.push({
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    });
+    model.combinations = [
+      {
+        id: "combination:C-OP",
+        label: "Operating",
+        basis: "mechanics",
+        terms: [],
+        provenance: "invented_example"
+      }
+    ];
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const payload = { load_case: "load:L-1", factor: 0.25 };
+    const intent = intentFor(
+      "Combination",
+      "combination:C-OP",
+      "create_combination_term",
+      "terms",
+      "not_present",
+      JSON.stringify(payload),
+      "none",
+      "dimensionless"
+    );
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.diagnostics).toEqual([]);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.validation.unit_validation).toBe("passed");
+    expect(outcome.applied_model?.combinations?.[0].terms).toEqual([payload]);
+
+    const missingLoad = intentFor(
+      "Combination",
+      "combination:C-OP",
+      "create_combination_term",
+      "terms",
+      "not_present",
+      JSON.stringify({ load_case: "load:missing", factor: 1 }),
+      "none",
+      "dimensionless"
+    );
+    missingLoad.operation_kind = "create";
+    const blocked = await applyModelOperation(model, missingLoad, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-COMBINATION-TERM-LOAD-NOT-FOUND");
+  });
+
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
     const model = sampleModel();
 
