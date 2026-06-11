@@ -595,6 +595,7 @@ export function App() {
           <PipeViewport
             model={model}
             onQueueIntent={handleQueueEditorIntent}
+            onSelect={setSelection}
             queuedIntents={editorIntents}
             selection={selection}
           />

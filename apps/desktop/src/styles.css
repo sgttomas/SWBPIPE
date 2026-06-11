@@ -472,6 +472,13 @@ button:focus-visible {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
+.viewport-frame {
+  position: relative;
+  min-height: 240px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
 .viewport-toolbar {
   display: flex;
   justify-content: space-between;
@@ -486,8 +493,8 @@ button:focus-visible {
 }
 
 .viewport-canvas {
-  min-height: 240px;
-  aspect-ratio: 16 / 9;
+  position: absolute;
+  inset: 0;
 }
 
 .viewport-canvas canvas {
@@ -506,6 +513,66 @@ button:focus-visible {
   background: #f4f6f4;
   font-size: 13px;
   text-align: center;
+}
+
+.viewport-selection-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.viewport-select-target {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 58px;
+  height: 26px;
+  padding: 0 5px;
+  border: 1px solid rgba(46, 68, 62, 0.48);
+  border-radius: 4px;
+  color: #22312e;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(35, 45, 42, 0.14);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.viewport-select-target span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewport-select-target.node {
+  border-color: rgba(47, 111, 115, 0.6);
+}
+
+.viewport-select-target.pipe {
+  border-color: rgba(79, 111, 115, 0.62);
+}
+
+.viewport-select-target.support {
+  border-color: rgba(107, 125, 73, 0.62);
+}
+
+.viewport-select-target.component {
+  border-color: rgba(135, 76, 98, 0.62);
+}
+
+.viewport-select-target.active,
+.viewport-select-target:focus-visible {
+  color: #141f1d;
+  background: #fff4df;
+  border-color: #d57d16;
+  outline: 2px solid rgba(213, 125, 22, 0.35);
+  outline-offset: 2px;
 }
 
 .viewport-intents {

@@ -179,3 +179,28 @@ Durable context preserved after reconciliation review:
   issue the deliverable, accept release readiness, certify, seal, authenticate,
   approve engineering work, make a code-compliance claim, change DAG authority,
   change dependency authority, or alter protected/private-data disposition.
+
+## 2026-06-10 - TP-APP-R2-VIEWSELECT-001 viewport-selection binding
+
+- WORKING_ITEMS app-integration tranche added DOM-accessible viewport
+  selection controls in `apps/desktop/src/features/viewport/PipeViewport.tsx`
+  for loaded nodes, straight pipe segments, supports, and component markers.
+- The controls update the shared app selection state, model-tree active row,
+  property inspector, and viewport active highlight. They do not create or
+  apply durable model operations; operation mutation remains behind the
+  structured operation queue and explicit apply path.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_viewport_selection_binding.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-84. Validation passed:
+  `npm test --workspace apps/desktop` (26/26) and
+  `npm run build --workspace apps/desktop`; live browser smoke on
+  `http://127.0.0.1:5174/` confirmed viewport selection state with no console
+  warnings/errors.
+- Residual A3 scope remains: true canvas raycast/gesture geometry capture,
+  node/straight-pipe creation tools with explicit coordinates/connectivity,
+  undo/redo, and inline validation messages. Viewport geometry-creation
+  intents still block at apply rather than inventing values.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, or DAG
+  authority changed.

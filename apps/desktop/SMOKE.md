@@ -2445,3 +2445,32 @@ after the timestamp marker were absent.
   window size remains `TBD — human ruling` per the DEC-019 packet note; no
   release, professional, certification, sealing, authentication, approval,
   or code-compliance claims.
+
+## TP-MAC-84 viewport-selection-binding (2026-06-10)
+
+- Tranche: `TP-APP-R2-VIEWSELECT-001` (completion plan Phase A3 sub-slice)
+  implementing selectable viewport entity controls over the existing Three.js
+  centerline view. The viewport now exposes DOM-accessible selection targets
+  for the invented fixture's rendered nodes, straight pipe segments,
+  supports, and component markers; selecting one updates the shared React
+  selection state, the model tree active row, the property inspector, and the
+  viewport active highlight. The controls are generated from loaded model data
+  and do not create or apply operation intents by themselves.
+- Local validation: `npm test --workspace apps/desktop` passed with 26/26
+  Vitest tests, including `selects rendered viewport entities into the shared
+  model inspector`; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build. Browser smoke against a fresh Vite
+  server on `http://127.0.0.1:5174/` confirmed 14 viewport selection targets;
+  selecting `pipe:P-120` updated the inspector to `Rack span`, set the model
+  tree row class to `tree-row active`, set the viewport target
+  `aria-pressed=true`, and updated the toolbar to `Selected: pipe:P-120`.
+  Browser console warnings/errors were absent. No Rust or Python source
+  changed in this tranche.
+- Boundary: this is UI selection and inspection only. Durable model mutation
+  still routes through queued structured operations and the existing explicit
+  apply path; viewport geometry-creation intents remain blocked from apply
+  until later A3 geometry capture supplies explicit coordinates/connectivity.
+  No unit conversion, code-specific default, protected standards data,
+  private project data, telemetry, network path, release claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  is introduced.

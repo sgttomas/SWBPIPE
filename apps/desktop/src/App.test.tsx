@@ -1523,6 +1523,41 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("empty_operation_queue");
   });
 
+  it("selects rendered viewport entities into the shared model inspector", async () => {
+    render(<App />);
+
+    const viewportSelection = await screen.findByTestId("viewport-selection-layer");
+    const tree = await screen.findByLabelText("Model tree");
+    const inspector = screen.getByLabelText("Property inspector");
+
+    expect(within(viewportSelection).getAllByRole("button")).toHaveLength(14);
+
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-pipe:P-120"));
+    expect(within(inspector).getByRole("heading", { name: "Rack span" })).toBeInTheDocument();
+    expect(inspector.textContent).toContain("pipe:P-120");
+    expect(inspector.textContent).toContain("node:N-120");
+    expect(within(tree).getByTestId("tree-row-pipe:P-120")).toHaveClass("active");
+    expect(within(viewportSelection).getByTestId("viewport-select-pipe:P-120")).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-support:S-120"));
+    expect(within(inspector).getByRole("heading", { name: "Guide on riser" })).toBeInTheDocument();
+    expect(inspector.textContent).toContain("support:S-120");
+    expect(inspector.textContent).toContain("UX, UZ");
+    expect(within(tree).getByTestId("tree-row-support:S-120")).toHaveClass("active");
+
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-component:C-140"));
+    expect(within(inspector).getByRole("heading", { name: "Invented tie-in marker" })).toBeInTheDocument();
+    expect(inspector.textContent).toContain("component:C-140");
+    expect(inspector.textContent).toContain("terminal");
+    expect(within(tree).getByTestId("tree-row-component:C-140")).toHaveClass("active");
+
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-node:N-140"));
+    expect(within(inspector).getByRole("heading", { name: "Terminal tie-in" })).toBeInTheDocument();
+    expect(inspector.textContent).toContain("node:N-140");
+    expect(inspector.textContent).toContain("7.6, 2.4, 2.2 m");
+    expect(within(tree).getByTestId("tree-row-node:N-140")).toHaveClass("active");
+  });
+
   it("exposes materials, components, load cases, and combinations in the model workspace", async () => {
     render(<App />);
 

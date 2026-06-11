@@ -1,20 +1,29 @@
-import { Box, CirclePlus, GitBranch } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { EditorOperationIntent, EntityRef, PreviewModel, Vec3 } from "../../types";
 
 type Props = {
   model: PreviewModel;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  onSelect: (selection: EntityRef) => void;
   queuedIntents?: EditorOperationIntent[];
   selection: EntityRef;
 };
 
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 
-export function PipeViewport({ model, onQueueIntent, queuedIntents = [], selection }: Props) {
+type ViewportSelectionTarget = {
+  ref: EntityRef;
+  label: string;
+  kind: "node" | "pipe" | "support" | "component";
+  screen: { x: number; y: number };
+};
+
+export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
+  const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
 
   useEffect(() => {
@@ -106,9 +115,32 @@ export function PipeViewport({ model, onQueueIntent, queuedIntents = [], selecti
     <div className="viewport-shell">
       <div className="viewport-toolbar">
         <span>3D Centerline</span>
-        <span>{selection.id}</span>
+        <span>Selected: {selection.id}</span>
       </div>
-      <div className="viewport-canvas" ref={hostRef} aria-label="Three.js pipe centerline viewport" />
+      <div className="viewport-frame">
+        <div className="viewport-canvas" ref={hostRef} aria-label="Three.js pipe centerline viewport" />
+        <div className="viewport-selection-layer" aria-label="Viewport entity selection" data-testid="viewport-selection-layer">
+          {selectionTargets.map((target) => {
+            const active = selection.id === target.ref.id;
+            return (
+              <button
+                aria-label={`Select ${target.label} in viewport`}
+                aria-pressed={active}
+                className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
+                data-testid={`viewport-select-${target.ref.id}`}
+                key={`${target.ref.type}:${target.ref.id}`}
+                onClick={() => onSelect(target.ref)}
+                style={{ left: `${target.screen.x}%`, top: `${target.screen.y}%` }}
+                title={`${target.label} (${target.ref.id})`}
+                type="button"
+              >
+                <ViewportTargetIcon kind={target.kind} />
+                <span>{shortEntityToken(target.ref.id)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <section className="viewport-intents" aria-label="Viewport editor intents">
         <div className="viewport-intent-actions">
           <button type="button" onClick={() => addIntent("create_node")}>
@@ -144,6 +176,122 @@ export function PipeViewport({ model, onQueueIntent, queuedIntents = [], selecti
       </section>
     </div>
   );
+}
+
+function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] }) {
+  if (kind === "node") return <CircleDot size={13} aria-hidden="true" />;
+  if (kind === "pipe") return <GitBranch size={13} aria-hidden="true" />;
+  return <Box size={13} aria-hidden="true" />;
+}
+
+function viewportSelectionTargets(model: PreviewModel): ViewportSelectionTarget[] {
+  const nodeMap = new Map(model.nodes.map((node) => [node.id, node.position]));
+  const rawTargets: Array<Omit<ViewportSelectionTarget, "screen"> & { position: Vec3; offsetY: number }> = [
+    ...model.nodes.map((node) => ({
+      ref: { type: "node" as const, id: node.id },
+      label: node.label,
+      kind: "node" as const,
+      position: node.position,
+      offsetY: 0
+    })),
+    ...model.pipe_segments.flatMap((pipe) => {
+      const from = nodeMap.get(pipe.from);
+      const to = nodeMap.get(pipe.to);
+      if (!from || !to) return [];
+      return [
+        {
+          ref: { type: "pipe" as const, id: pipe.id },
+          label: pipe.label,
+          kind: "pipe" as const,
+          position: midpoint(from, to),
+          offsetY: 0
+        }
+      ];
+    }),
+    ...model.supports.flatMap((support) => {
+      const node = nodeMap.get(support.node);
+      if (!node) return [];
+      return [
+        {
+          ref: { type: "support" as const, id: support.id },
+          label: support.label,
+          kind: "support" as const,
+          position: node,
+          offsetY: 8
+        }
+      ];
+    }),
+    ...model.components.flatMap((component) => {
+      const node = nodeMap.get(component.node);
+      if (!node) return [];
+      return [
+        {
+          ref: { type: "component" as const, id: component.id },
+          label: component.label,
+          kind: "component" as const,
+          position: node,
+          offsetY: -8
+        }
+      ];
+    })
+  ];
+
+  const bounds = selectionBounds(rawTargets.map((target) => target.position));
+  return rawTargets.map(({ position, offsetY, ...target }) => ({
+    ...target,
+    screen: projectToViewport(position, bounds, offsetY)
+  }));
+}
+
+function midpoint(from: Vec3, to: Vec3): Vec3 {
+  return {
+    x: (from.x + to.x) / 2,
+    y: (from.y + to.y) / 2,
+    z: (from.z + to.z) / 2
+  };
+}
+
+function selectionBounds(positions: Vec3[]) {
+  if (!positions.length) {
+    return { minX: 0, maxX: 0, minDepth: 0, maxDepth: 0 };
+  }
+  const depths = positions.map((position) => depthAxis(position));
+  return {
+    minX: Math.min(...positions.map((position) => position.x)),
+    maxX: Math.max(...positions.map((position) => position.x)),
+    minDepth: Math.min(...depths),
+    maxDepth: Math.max(...depths)
+  };
+}
+
+function projectToViewport(
+  position: Vec3,
+  bounds: ReturnType<typeof selectionBounds>,
+  offsetY: number
+): ViewportSelectionTarget["screen"] {
+  return {
+    x: scale(position.x, bounds.minX, bounds.maxX, 12, 88),
+    y: clamp(scale(depthAxis(position), bounds.minDepth, bounds.maxDepth, 78, 20) + offsetY, 14, 86)
+  };
+}
+
+function depthAxis(position: Vec3): number {
+  return position.z + position.y * 0.45;
+}
+
+function scale(value: number, min: number, max: number, low: number, high: number): number {
+  if (!Number.isFinite(value) || max === min) return (low + high) / 2;
+  const fraction = (value - min) / (max - min);
+  return low + fraction * (high - low);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function shortEntityToken(value: string): string {
+  const parts = value.split(":");
+  return parts[parts.length - 1] || value;
 }
 
 function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequence: number): EditorOperationIntent {

@@ -66,3 +66,25 @@ Durable context preserved after reconciliation review:
 - Recommendation: `MOVE_TO_CHECKING` for bounded DEL-07-02 local lifecycle consideration. Basis: prior PASS review, no non-empty `Review_Findings.csv` rows, DEL-07-02 wrapper discovery evidence, pytest 11/11, direct scripts passed, desktop Vitest 5/5, viewport Rust tests 6/6, and no DEL-07-02 human-disposition blocker.
 - Remaining upstream `TBD` dependency satisfaction rows remain recorded as future interface/dependency evidence and were not changed or closed by this review.
 - No lifecycle, dependency, finding-disposition, four-document, code, schema, fixture, test, DAG, release, professional, code-compliance, certification, sealing, approval, `ISSUED`, or public-readiness state was changed.
+
+## 2026-06-10 - TP-APP-R2-VIEWSELECT-001 viewport-to-inspector binding
+
+- WORKING_ITEMS app-integration tranche connected the viewport's rendered
+  model entities to this deliverable's shared model-tree/property-inspector
+  selection contract. Selecting a loaded node, pipe, support, or component
+  from the viewport updates the inspector and active model-tree row.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_viewport_selection_binding.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-84. Validation passed:
+  `npm test --workspace apps/desktop` (26/26) and
+  `npm run build --workspace apps/desktop`; live browser smoke on
+  `http://127.0.0.1:5174/` confirmed viewport selection state with no console
+  warnings/errors.
+- The tranche does not broaden property editing semantics, supply missing
+  engineering values, perform unit conversion, mutate persisted project data,
+  or make professional/release/code-compliance claims. Structured operation
+  apply remains the only model mutation path.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
