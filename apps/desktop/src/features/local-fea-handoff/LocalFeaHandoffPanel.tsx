@@ -246,12 +246,24 @@ function buildLocalFeaHandoffPacket({
 }
 
 function selectedLocalRegion(model: PreviewModel, result: MechanicsResult) {
-  const stressElement = result.summary.max_open_formula_stress?.location_ref ?? "pipe:P-120";
-  const displacementNode = result.summary.max_displacement?.location_ref ?? "node:N-140";
-  const stressPipe = model.pipe_segments.find((item) => item.id === stressElement) ?? model.pipe_segments[0];
-  const displacementPipes = model.pipe_segments.filter((item) => item.from === displacementNode || item.to === displacementNode);
+  // No invented fallback references: when the result summary does not carry a
+  // location_ref, the absence is surfaced as an explicit incomplete-state
+  // finding (LOCAL-FEA-RESULT-SUMMARY-REF-MISSING) and the region degrades
+  // honestly instead of borrowing fixture entity ids.
+  const stressElement = result.summary.max_open_formula_stress?.location_ref ?? null;
+  const displacementNode = result.summary.max_displacement?.location_ref ?? null;
+  const missingSummaryRefs = [
+    ...(stressElement ? [] : ["summary.max_open_formula_stress.location_ref"]),
+    ...(displacementNode ? [] : ["summary.max_displacement.location_ref"])
+  ];
+  const stressPipe = stressElement
+    ? model.pipe_segments.find((item) => item.id === stressElement) ?? model.pipe_segments[0]
+    : undefined;
+  const displacementPipes = displacementNode
+    ? model.pipe_segments.filter((item) => item.from === displacementNode || item.to === displacementNode)
+    : [];
   const selectedPipes = unique([stressPipe?.id, ...displacementPipes.map((item) => item.id)]).filter(Boolean);
-  const selectedNodeSet = new Set<string>([displacementNode]);
+  const selectedNodeSet = new Set<string>(displacementNode ? [displacementNode] : []);
   for (const pipeId of selectedPipes) {
     const pipe = model.pipe_segments.find((item) => item.id === pipeId);
     if (pipe) {
@@ -264,7 +276,10 @@ function selectedLocalRegion(model: PreviewModel, result: MechanicsResult) {
   const supportIds = model.supports.filter((item) => nodeIds.includes(item.node)).map((item) => item.id).sort();
 
   return {
-    regionId: `local-region:${safeRefToken(stressElement)}:${safeRefToken(displacementNode)}`,
+    regionId: `local-region:${stressElement ? safeRefToken(stressElement) : "stress-location-ref-missing"}:${
+      displacementNode ? safeRefToken(displacementNode) : "displacement-location-ref-missing"
+    }`,
+    missingSummaryRefs,
     nodeIds,
     elementIds: selectedPipes.sort(),
     componentIds,
@@ -309,7 +324,7 @@ function selectedResultRefs(result: MechanicsResult): string[] {
 }
 
 function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>) {
-  return [
+  const items = [
     diagnostic(
       "LOCAL-FEA-MESH-NOT-GENERATED",
       "LOCAL_HANDOFF_WARNING",
@@ -339,6 +354,20 @@ function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>) {
       selected.regionId
     )
   ];
+  if (selected.missingSummaryRefs.length > 0) {
+    // Appended after the four standing findings so unsupportedBehaviorFlags
+    // keeps its diagnostic indices.
+    items.push(
+      diagnostic(
+        "LOCAL-FEA-RESULT-SUMMARY-REF-MISSING",
+        "LOCAL_HANDOFF_WARNING",
+        `Result summary fields ${selected.missingSummaryRefs.join(" and ")} are missing; the local region selection basis is incomplete and no substitute entity references are invented.`,
+        "Re-run the mechanics preview so the result summary carries explicit location references before using this handoff package.",
+        selected.regionId
+      )
+    );
+  }
+  return items;
 }
 
 function unsupportedBehaviorFlags(diagnostics: ReturnType<typeof localFeaDiagnostics>) {

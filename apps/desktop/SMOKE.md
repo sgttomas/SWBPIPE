@@ -3259,3 +3259,42 @@ after the timestamp marker were absent.
   checks, protected standards data, private data, release readiness,
   professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-109 operation-contract-corpus (2026-06-11)
+
+- Tranche: `TP-SEAM-CORPUS-001` (operation-seam unification plan T1 plus its
+  boundary-hygiene rider) adding the cross-engine operation contract corpus
+  and removing the local-FEA handoff fixture-ID fallback.
+- Contract corpus checks: 44 invented cases at
+  `fixtures/model_operations/contract_corpus/` execute through both engines —
+  the Rust contract reference via
+  `core/model_operations/operation_applier/tests/contract_corpus.rs` under
+  plain `cargo test`, and the browser mirror via
+  `apps/desktop/src/services/operationContractCorpus.test.ts` under plain
+  `npm test` — asserting identical semantic outcomes (validation states,
+  diff-preview rows, order-insensitive diagnostic records), parsed-JSON deep
+  equality of applied documents, and one shared corpus-harness canonical
+  sha256 per applied document (the hash-stability guarantee). The coverage
+  floor is enforced programmatically in both runners: all 10 operation kinds
+  accepted, the named block classes (19 distinct blocking codes recorded),
+  and dynamic paths `primitive_loads.N.magnitude.value` / `terms.N.factor`
+  each accepted and blocked. The TypeScript engine reproduced all 44
+  recorded Rust outcomes with zero alignment fixes (`operationService.ts`
+  unchanged).
+- Handoff rider checks: `LocalFeaHandoffPanel` no longer substitutes
+  `pipe:P-120` / `node:N-140` when result-summary location refs are missing;
+  it emits the explicit `LOCAL-FEA-RESULT-SUMMARY-REF-MISSING` finding with
+  an honestly degraded region id, and keeps real references plus the
+  standing four findings when refs are present (two Vitest cases).
+- Local validation: `cargo test` (operation_applier) passed 36/36 (34 lib +
+  2 corpus tests); `npm test --workspace apps/desktop` passed 105/105 Vitest
+  tests across 7 files; `npm run test:e2e:desktop` passed 1/1 Playwright
+  tests unchanged; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build with the existing chunk-size warning.
+- Boundary: all corpus data is invented with `PUBLIC_DOMAIN_OR_ORIGINAL`
+  provenance recorded in the corpus README (`review_status` pending human
+  review); no protected standards content, code-specific values, network
+  surfaces, release readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claims. The plan §5 freeze
+  rule was honored: no new operation kinds or field rules entered the TS
+  engine.

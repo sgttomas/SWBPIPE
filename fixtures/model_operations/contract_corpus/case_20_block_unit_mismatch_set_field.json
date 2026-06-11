@@ -1,0 +1,277 @@
+{
+  "base_model": {
+    "analysis_status": {
+      "mechanics": "ready",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed"
+    },
+    "combinations": [
+      {
+        "basis": "mechanics",
+        "id": "combination:C-OP",
+        "label": "Operating",
+        "provenance": "invented_example",
+        "terms": []
+      }
+    ],
+    "components": [
+      {
+        "id": "component:C-1",
+        "kind": "bend",
+        "label": "Bend",
+        "node": "node:N-2",
+        "provenance": "invented_example"
+      }
+    ],
+    "data_boundary": {
+      "private_data_policy": "no_private_project_data",
+      "professional_boundary": "technical_preview_requires_human_engineering_review",
+      "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+      "public_examples_policy": "invented_or_cleared_data_only"
+    },
+    "diagnostics": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "load:L-1",
+        "kind": "primitive_user_load",
+        "label": "Invented weight case",
+        "primitive_loads": [
+          {
+            "category": "distributed_force",
+            "dimension": "force_per_length",
+            "direction": "global_z",
+            "id": "load:L-1-Z",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -190.0
+            },
+            "provenance": "invented_example",
+            "target": {
+              "pipe": "pipe:P-1",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented_example",
+        "status": "preview_only"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material:M-1",
+        "label": "Invented steel-like material",
+        "provenance": "invented_example",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 77000000000.0
+        },
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 0.000012
+        }
+      },
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 100000000000.0
+        },
+        "id": "material:M-2",
+        "label": "Invented alloy-like material",
+        "provenance": "invented_example",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 38000000000.0
+        },
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 0.000016
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:N-1",
+        "label": "Anchor",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented_example"
+      },
+      {
+        "id": "node:N-2",
+        "label": "Elbow",
+        "position": {
+          "x": 3.2,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented_example"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:N-1",
+        "id": "pipe:P-1",
+        "label": "Run",
+        "material": "material:M-1",
+        "provenance": "invented_example",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.168
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.007
+          }
+        },
+        "to": "node:N-2"
+      }
+    ],
+    "project": {
+      "description": "Invented preview-model derivative shared by the cross-engine operation contract corpus.",
+      "id": "project:corpus",
+      "name": "Contract corpus invented model",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.1.0",
+    "supports": [
+      {
+        "id": "support:S-1",
+        "label": "Anchor support",
+        "node": "node:N-1",
+        "provenance": "invented_example",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ"
+        ]
+      }
+    ]
+  },
+  "case_id": "block-unit-mismatch-set-field",
+  "claimed_model_hash": null,
+  "description": "Block class unit mismatch: intent unit token differs from the stored unit; no silent conversion.",
+  "expected": {
+    "applied_model": null,
+    "applied_model_canonical_sha256": null,
+    "outcome": {
+      "acceptance": {
+        "acceptance_basis": "none_validation_only",
+        "acceptance_is_professional_approval": false,
+        "persistence_status": "not_applicable_no_application"
+      },
+      "applied": false,
+      "audit_boundary": {
+        "applied_model_is_new_document": false,
+        "direct_model_mutation_allowed": false,
+        "input_model_mutated_in_place": false,
+        "mutation_route": "structured_operations_only",
+        "requires_user_acceptance": true
+      },
+      "change_id": "change:corpus-block-unit-mismatch-set-field",
+      "change_kind": "set_field",
+      "deliverable_refs": [
+        "DEL-16-02",
+        "DEL-16-03"
+      ],
+      "diagnostics": [
+        {
+          "affected_refs": [
+            "material:M-1"
+          ],
+          "blocking": true,
+          "code": "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+          "severity": "blocking"
+        }
+      ],
+      "diff_preview": [],
+      "document_kind": "openpipestress.desktop.operation_outcome",
+      "input_model_unchanged": true,
+      "mode": "apply",
+      "model_basis": {
+        "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+        "claimed_hash_canonicalization": "not_provided",
+        "claimed_model_hash": "not_provided"
+      },
+      "operation_id": "op:corpus-block-unit-mismatch-set-field",
+      "operation_kind": "modify",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_compliance_claim": false,
+        "software_makes_sealing_claim": false
+      },
+      "schema_version": "0.1.0",
+      "target_object_type": "Material",
+      "target_ref": "material:M-1",
+      "validation": {
+        "application_status": "blocked",
+        "before_state_validation": "not_run",
+        "diff_preview_status": "blocked_by_validation",
+        "reference_validation": "not_run",
+        "schema_validation": "passed",
+        "unit_validation": "blocked"
+      }
+    }
+  },
+  "intent": {
+    "audit_boundary": {
+      "direct_model_mutation_allowed": false,
+      "mutates_accepted_model_state": false,
+      "mutation_route": "structured_operations_only",
+      "requires_user_acceptance": true
+    },
+    "author_type": "user",
+    "change": {
+      "after": "29000",
+      "before": "200000000000",
+      "change_id": "change:corpus-block-unit-mismatch-set-field",
+      "change_kind": "set_field",
+      "dimension": "stress",
+      "field_label": "elastic_modulus.value",
+      "field_path": "elastic_modulus.value",
+      "source_note": "contract_corpus_invented",
+      "unit": "ksi"
+    },
+    "operation_id": "op:corpus-block-unit-mismatch-set-field",
+    "operation_kind": "modify",
+    "operation_status": "proposed",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "rationale": "invented contract corpus case",
+    "target": {
+      "object_type": "Material",
+      "ref": "material:M-1"
+    },
+    "validation": {
+      "application_status": "not_applied",
+      "constraint_validation": "not_run",
+      "diff_preview_status": "not_generated",
+      "schema_validation": "not_run",
+      "unit_validation": "not_run"
+    }
+  },
+  "mode": "apply"
+}
