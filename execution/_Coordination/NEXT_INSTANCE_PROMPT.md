@@ -91,7 +91,9 @@
    (from `execution/_Coordination/_DECISIONS/_REGISTER.md`) and the next
    unblocked plan item.
 8. At completion of a validated tranche, record evidence, update the
-   completion-plan and decision-register rows the tranche affects, then stage,
+   completion-plan and decision-register rows the tranche affects —
+   compressing landed items per the plan-maintenance rule (one line plus
+   run-record and `plans/PLAN_COMPLETION_LOG.md` pointers) — then stage,
    commit, and push the tranche to the tracked remote branch unless the human
    pauses git closeout or a real validation/git blocker prevents it. Git
    closeout is source control hygiene only; it is not lifecycle issuance,

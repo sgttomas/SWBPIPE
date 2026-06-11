@@ -2474,3 +2474,30 @@ after the timestamp marker were absent.
   private project data, telemetry, network path, release claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   is introduced.
+
+## TP-MAC-85 property-inspector-inline-validation (2026-06-10)
+
+- Tranche: `TP-APP-R2-INLINEVALID-001` (completion plan Phase A3 sub-slice)
+  adding validate-only inline feedback to the property inspector's draft
+  editor intent. The inspector now calls the existing structured-operation
+  validation seam before queue/apply and displays application status, schema
+  state, unit state, before-state state, diff rows, diagnostics, and an
+  explicit no-mutation/professional-boundary note beside the draft edit.
+- Local validation: `npm test --workspace apps/desktop` passed with 26/26
+  Vitest tests, including inline validation of an invented material elastic
+  modulus edit; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build. Browser smoke against a fresh Vite
+  server on `http://127.0.0.1:5174/` selected
+  `material:invented-carbon-steel`, validated
+  `elastic_modulus.value` from `200000000000` to `210000000000` Pa, and
+  observed `validate_only; application_status=not_applied; schema=passed;
+  unit=passed; before_state=passed`, the expected diff row, and
+  `validate-only; no accepted model mutation; no professional approval`.
+  Timestamp-filtered browser logs after the final reload contained no new
+  warnings/errors. No Rust or Python source changed in this tranche.
+- Boundary: this is validation preview only. It does not apply operations,
+  mutate accepted or persisted model state, perform unit conversion, supply
+  code-specific defaults, include protected standards data, include private
+  project data, access network/cloud/telemetry, or make release,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claims.

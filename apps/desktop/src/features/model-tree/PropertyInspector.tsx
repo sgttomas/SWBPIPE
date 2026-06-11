@@ -1,16 +1,22 @@
-import { ListPlus } from "lucide-react";
+import { ListPlus, SearchCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
+import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
 
 export function PropertyInspector({
   model,
   onQueueIntent,
+  onValidateIntent,
+  operationBusy = false,
+  operationOutcomes = {},
   queuedIntents = [],
   selection
 }: {
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
+  onValidateIntent?: (intent: EditorOperationIntent) => void;
+  operationBusy?: boolean;
+  operationOutcomes?: Record<string, OperationOutcome>;
   queuedIntents?: EditorOperationIntent[];
   selection: EntityRef;
 }) {
@@ -28,6 +34,9 @@ export function PropertyInspector({
         rationale,
         selection
       })
+    : null;
+  const inlineValidationOutcome = operationIntent
+    ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
   const fieldChanged = Boolean(operationIntent && operationIntent.change.before !== operationIntent.change.after);
 
@@ -109,8 +118,19 @@ export function PropertyInspector({
                 <ListPlus size={14} aria-hidden="true" />
                 Queue review intent
               </button>
+              <button
+                data-testid="validate-editor-intent-inline"
+                disabled={!fieldChanged || operationBusy || !onValidateIntent}
+                onClick={() => operationIntent && onValidateIntent?.(operationIntent)}
+                title="Validate without applying"
+                type="button"
+              >
+                <SearchCheck size={14} aria-hidden="true" />
+                Validate intent
+              </button>
             </div>
             <OperationIntentPreview intent={operationIntent} />
+            <InlineValidationPreview intent={operationIntent} outcome={inlineValidationOutcome} />
             <IntentQueue intents={queuedIntents} />
           </>
         ) : (
@@ -120,6 +140,48 @@ export function PropertyInspector({
         )}
       </section>
     </div>
+  );
+}
+
+function InlineValidationPreview({
+  intent,
+  outcome
+}: {
+  intent: EditorOperationIntent;
+  outcome: OperationOutcome | null;
+}) {
+  if (!outcome) {
+    return (
+      <p className="muted editor-inline-validation" data-testid="editor-intent-inline-validation-empty">
+        Validate this draft intent to preview structured-operation findings before queuing or applying it.
+      </p>
+    );
+  }
+
+  return (
+    <article className="editor-inline-validation" data-testid="editor-intent-inline-validation">
+      <strong data-testid="editor-intent-inline-validation-status">
+        {outcome.mode}; application_status={outcome.validation.application_status}; schema=
+        {outcome.validation.schema_validation}; unit={outcome.validation.unit_validation}; before_state=
+        {outcome.validation.before_state_validation}
+      </strong>
+      {outcome.diff_preview.map((row) => (
+        <small data-testid="editor-intent-inline-validation-diff" key={`${row.entity_ref}-${row.field_path}-${row.after}`}>
+          diff: {row.entity_ref} {row.field_path} {row.before} to {row.after} [{row.unit}]
+        </small>
+      ))}
+      {outcome.diagnostics.length === 0 ? (
+        <small data-testid="editor-intent-inline-validation-boundary">
+          {intent.operation_id}; validate-only; no accepted model mutation; no professional approval.
+        </small>
+      ) : (
+        outcome.diagnostics.map((diagnostic) => (
+          <small data-testid={`editor-intent-inline-validation-diagnostic-${diagnostic.code}`} key={diagnostic.id}>
+            {diagnostic.severity}: {diagnostic.code} - {diagnostic.message}
+          </small>
+        ))
+      )}
+    </article>
   );
 }
 
@@ -417,6 +479,32 @@ function buildOperationIntent({
     },
     rationale: rationale.trim() || `preview edit intent for ${model.project.id}`
   };
+}
+
+function matchingInlineValidationOutcome(
+  outcome: OperationOutcome | undefined,
+  intent: EditorOperationIntent
+): OperationOutcome | null {
+  if (!outcome) return null;
+  if (outcome.operation_id !== intent.operation_id || outcome.change_id !== intent.change.change_id) return null;
+  if (outcome.target_ref !== intent.target.ref || outcome.target_object_type !== intent.target.object_type) return null;
+  if (outcome.change_kind !== intent.change.change_kind) return null;
+  if (outcome.diff_preview.length === 0) {
+    return outcome.validation.application_status === "blocked" ? outcome : null;
+  }
+  return outcome.diff_preview.some(
+    (row) =>
+      row.entity_ref === intent.target.ref &&
+      row.field_path === intent.change.field_path &&
+      row.before === intent.change.before &&
+      row.after === intent.change.after
+  )
+    ? outcome
+    : null;
+}
+
+function operationIntentKey(intent: EditorOperationIntent): string {
+  return intent.queue_id ?? intent.operation_id;
 }
 
 function safeToken(value: string): string {

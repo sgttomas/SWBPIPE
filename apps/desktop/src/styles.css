@@ -467,6 +467,28 @@ button:focus-visible {
   gap: 3px;
 }
 
+.editor-inline-validation {
+  display: grid;
+  gap: 4px;
+  min-height: 28px;
+  padding: 7px;
+  border: 1px solid #d9dfdb;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #2d3837;
+  font-size: 12px;
+}
+
+.editor-inline-validation strong,
+.editor-inline-validation small {
+  overflow-wrap: anywhere;
+}
+
+.editor-inline-validation small {
+  color: #5f6c68;
+  font-size: 11px;
+}
+
 .viewport-shell {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;

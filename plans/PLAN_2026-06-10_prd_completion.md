@@ -5,6 +5,8 @@
 
 **Baseline:** [plans/ASSESSMENT_2026-06-10_repo_and_app_state.md](ASSESSMENT_2026-06-10_repo_and_app_state.md) (same date; all test surfaces green: 340/340 pytest, 422 Rust `#[test]`s across 25 crates, 13/13 Vitest, desktop production build passing).
 
+**Plan maintenance:** this plan is a selection instrument, not a history. When an item lands, compress its row to one line — `LANDED <date> (<tranche id>)`, residual hand-offs, and pointers to the run record and [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md) — and move the narrative detail to that log. Partially-landed items keep their remaining scope in the row and push landed detail to the log. Decision rows carry at most state, a `DEC-xxx` pointer, and a one-clause outcome.
+
 ---
 
 ## 1. Definition of "complete per the PRD"
@@ -60,9 +62,9 @@ Phases are ordered by dependency, not strictly by execution: A and B can run in 
 
 | # | Tranche scope | Key seams (current code) |
 |---|---|---|
-| A1 | **Apply-operation command path.** Add Tauri commands (`apply_model_operation`, `validate_model_operation`, plus diff/accept queries) that take the already-defined editor operation intents and mutate a model document server-side, returning validation results and diffs per the PKG-16 operation→validation→diff→accept contracts. **Landed 2026-06-10** as `TP-APP-R2-EDITLOOP-001`: new `core/model_operations/operation_applier` crate + both commands + Apply Operations panel; inspector modify intents apply (viewport gesture intents block pending A3 geometry capture; unit conversion blocks pending D-01/B). Evidence: `apps/desktop/SMOKE.md` TP-MAC-82, DEL-16-02 run record | [apps/desktop/src-tauri/src/lib.rs](../apps/desktop/src-tauri/src/lib.rs) (now 14 commands, two mutating-path); PKG-16 Python contract modules as the semantic reference; operation intent queue already emitted by the UI |
-| A2 | **Model-document persistence.** Store model documents inside the SQLite project envelope with schema version + migration ledger entries (per D-08), canonical JCS hashing of model documents extending the existing project-envelope hash evidence. **Landed 2026-06-10** as `TP-APP-R2-PERSIST-001` under `DEC-019`: in-document semver authority, application-service transform chain (migrate-in-memory-on-open / persist-on-save), refusal semantics for newer/unsupported documents, store v9 evidence-only migration ledger with pre/post hashes, validation-preflight evidence replacing the TBD marker. Open residuals: compatibility-window size (human ruling), explicit "Migrate project" operation, sibling JSON-slot coverage. Evidence: SMOKE TP-MAC-83, DEL-02-05 run record | `openpipestress-projects.sqlite3` store, `user_version` ledger, envelope-hash verification (already implemented for envelopes) |
-| A3 | **Viewport editing UX.** Selection/raycasting, node + straight-pipe element creation/edit tools, property inspector bound to selected entities, undo/redo (PRD §21), inline validation messages. **First sub-slice landed 2026-06-10** as `TP-APP-R2-VIEWSELECT-001`: viewport entity selection controls for loaded nodes, straight pipes, supports, and component markers now drive shared selection, model-tree active state, property-inspector binding, and viewport active highlight. Residuals: true canvas raycast/gesture geometry capture, node/straight-pipe creation tools with explicit coordinates/connectivity, undo/redo, and inline validation messages. Evidence: `apps/desktop/SMOKE.md` TP-MAC-84 and DEL-07-01/DEL-07-02 run records. | [PipeViewport.tsx](../apps/desktop/src/features/viewport/PipeViewport.tsx); model tree + property panels per PRD §14.1–14.3 |
+| A1 | **Apply-operation command path** — **LANDED 2026-06-10** (`TP-APP-R2-EDITLOOP-001`); residual hand-offs: gesture geometry capture → A3, unit conversion → Phase B. Detail: [completion log](PLAN_COMPLETION_LOG.md); evidence: DEL-16-02 run record, SMOKE TP-MAC-82 | `apply_model_operation` / `validate_model_operation` in [lib.rs](../apps/desktop/src-tauri/src/lib.rs); PKG-16 contracts |
+| A2 | **Model-document persistence** — **LANDED 2026-06-10** (`TP-APP-R2-PERSIST-001`, per `DEC-019`); residuals: compatibility-window size (human ruling), explicit "Migrate project" operation, sibling JSON-slot coverage. Detail: [completion log](PLAN_COMPLETION_LOG.md); evidence: DEL-02-05 run record, SMOKE TP-MAC-83 | store v9 ledger + in-document semver (landed) |
+| A3 | **Viewport editing UX.** Remaining scope: canvas raycast/gesture geometry capture, node + straight-pipe creation tools with explicit coordinates/connectivity, undo/redo (PRD §21), and broader inline validation coverage as new editors land. *Selection sub-slice LANDED 2026-06-10* (`TP-APP-R2-VIEWSELECT-001`: viewport selection → model tree + inspector binding; detail: [completion log](PLAN_COMPLETION_LOG.md); evidence: DEL-07-01/DEL-07-02 run records, SMOKE TP-MAC-84). *Inline validation sub-slice LANDED 2026-06-10* (`TP-APP-R2-INLINEVALID-001`: property-inspector draft intent validate-only feedback before queue/apply; evidence: DEL-07-02/DEL-16-02 run records, SMOKE TP-MAC-85) | [PipeViewport.tsx](../apps/desktop/src/features/viewport/PipeViewport.tsx); model tree + property panels per PRD §14.1–14.3 |
 | A4 | **Load case manager UI.** Define/edit weight, thermal, pressure metadata, concentrated loads, imposed displacements; load-case algebra surfacing | `core/loads` crates already implement the algebra; PRD §11.5–11.6, FR-007 |
 | A5 | **Solve-from-edited-model.** Route the mechanics job path to solve the *persisted edited model* (not only bundled fixtures), with `MODEL_INCOMPLETE` gating and the existing job/diagnostics envelopes; finish the solve-cancellation backend token (named seam in `init/init-prompt.md`) | `run_preview_mechanics` / job commands; [core/product_physics](../core/product_physics/Cargo.toml) bridge |
 | A6 | **Results visualization.** Deformed-shape plot in the viewport (R2 deliverable), support reactions, stress tables, governing-ratio views (FR-015) | Three.js viewport; existing results envelopes |
@@ -139,9 +141,9 @@ Current status is as assessed 2026-06-10; "Closes in" names the phase item that 
 
 | FR | Priority | Current status | Closes in |
 |---|---|---|---|
-| FR-001 create/open/save/version projects | Must | Envelope-level create/open/save/list with hash + store migration ledger; model documents editable via the A1 apply seam and versioned/migration-governed per DEC-019 (A2 landed: in-document semver authority, migration ledger evidence, refusal semantics); residuals: compatibility window ruling, explicit migrate operation, file-container semantics | D-09 (file-level semantics); A2 residuals |
+| FR-001 create/open/save/version projects | Must | Largely met (A1+A2 landed: editable, versioned, migration-governed model documents per DEC-019); residuals: compatibility-window ruling, explicit migrate operation, file-container semantics | D-09 (file-level semantics); A2 residuals |
 | FR-002 unit systems + conversions | Must | Unit metadata everywhere; no conversion engine (`core/units` empty) | B1–B3 (gated D-01) |
-| FR-003 3D node/element modeling | Must | A1 landed: inspector field edits validate/apply to the session model; A3 first sub-slice landed viewport selection for loaded nodes/pipes/supports/components into the shared inspector; viewport geometry-creation intents still block pending explicit coordinate/connectivity capture | A3 |
+| FR-003 3D node/element modeling | Must | Partially met (edit via inspector + viewport selection landed); creation with coordinate/connectivity capture pending | A3 |
 | FR-004 six DOF per node | Must | Met (frame kernel) | — |
 | FR-005 pipe section properties | Must | Met for straight pipe (straight-pipe adapter + stress recovery) | — (re-verify in A5 QA) |
 | FR-006 user-defined materials | Must | Data model + fixtures; no GUI authoring | A3/C3 |
@@ -151,8 +153,8 @@ Current status is as assessed 2026-06-10; "Closes in" names the phase item that 
 | FR-010 fundamental stress recovery | Must | Met (axial/bending/torsion/pressure) | — |
 | FR-011 rule-pack schema | Must | Met at schema/engine level; grammar not frozen | C1 |
 | FR-012 block incomplete code checks | Must | Met (engine `RULE_INPUTS_INCOMPLETE` + panel surfacing) | C4 end-to-end confirmation |
-| FR-013 graphical 3D modeler | Must | Partially met: loaded 3D entities can be selected from the viewport into the shared model tree/property inspector; creation/edit gestures still need explicit geometry capture, undo/redo, and inline validation | A3 |
-| FR-014 model tree + property editor | Must | Partially met: entity-bound property edits apply through the A1 seam for supported fields (labels, provenance, quantities same-unit, refs, restraints), and viewport selection now binds rendered entities to the inspector; full editor UX (undo/redo, inline validation, all fields) remains A3 | A3 |
+| FR-013 graphical 3D modeler | Must | Partially met (viewport selection → tree/inspector landed; property-inspector inline validation landed); creation/edit gestures, undo/redo, and broader validation for future editors pending | A3 |
+| FR-014 model tree + property editor | Must | Partially met (entity-bound edits via A1 seam for supported fields; viewport selection binds rendered entities to the inspector; draft inspector edits now have validate-only inline feedback); full editor UX pending | A3 |
 | FR-015 results visualization | Must | Tables from preview runs; no deformed shape | A6 |
 | FR-016 calculation reports | Must | Deterministic envelopes; no rendered document | A7 (format: D-10) |
 | FR-017 bend objects | Should | Schema only | D1 |
@@ -173,11 +175,7 @@ Dependency spine: **A1→A2→A5** is the single most load-bearing chain (everyt
 
 Rough relative scale (tranche-count order of magnitude, not calendar estimates): Phase A ~8–14 bounded tranches (largest); B ~3–5; C ~4–6; D ~8–12; E ~6–10; F is human-paced. No calendar dates are proposed — the project runs on bounded, evidenced tranches, and inventing dates here would be false precision (`ASSUMPTION` if ever needed: sizing above assumes tranche granularity similar to the May–June 2026 app tranches).
 
-Suggested first three tranches, in order:
-
-1. **Decision-prep packet for D-01 (units) + D-08 (model schema migration)** — unblocks the two longest poles. **Done 2026-06-10:** both packets drafted, `AWAITING_RULING` in `execution/_Coordination/_DECISIONS/_REGISTER.md`.
-2. **`TP-APP-R2-EDITLOOP-001` (A1):** apply-operation Tauri command path against PKG-16 contracts, with Vitest + Rust tests. **Done 2026-06-10** (see §3 A1 row; smoke TP-MAC-82).
-3. **`TP-APP-R2-PERSIST-001` (A2):** model-document persistence + hash evidence, extending the existing envelope-hash series — **unblocked 2026-06-10 by the D-08 ruling (`DEC-019`)**; the active tranche after the A1 landing.
+The original first-three-tranches sequence (D-01/D-08 decision prep → A1 → A2) **completed 2026-06-10** — see the [completion log](PLAN_COMPLETION_LOG.md). Selection now follows the §3 phase tables under the coordination loop's spine-first order.
 
 ---
 

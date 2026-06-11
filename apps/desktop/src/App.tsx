@@ -576,6 +576,9 @@ export function App() {
           <PropertyInspector
             model={model}
             onQueueIntent={handleQueueEditorIntent}
+            onValidateIntent={handleValidateIntent}
+            operationBusy={operationBusy}
+            operationOutcomes={operationOutcomes}
             queuedIntents={editorIntents}
             selection={selection}
           />

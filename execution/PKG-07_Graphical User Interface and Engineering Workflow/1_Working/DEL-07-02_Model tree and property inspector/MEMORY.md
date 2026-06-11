@@ -88,3 +88,25 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-10 - TP-APP-R2-INLINEVALID-001 property-inspector inline validation
+
+- WORKING_ITEMS app-integration tranche added validate-only inline feedback to
+  the property inspector's draft editor intent. The inspector calls the
+  existing structured-operation validation seam and displays status, diff
+  rows, diagnostics, and the no-mutation/professional-boundary note before an
+  operation is queued or applied.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_property_inspector_inline_validation.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-85. Validation passed:
+  `npm test --workspace apps/desktop` (26/26) and
+  `npm run build --workspace apps/desktop`; timestamp-filtered live browser
+  smoke on `http://127.0.0.1:5174/` confirmed the inline validate-only state
+  with no new console warnings/errors after the final reload.
+- The tranche does not apply operations, mutate persisted project data,
+  broaden field support, perform unit conversion, supply missing engineering
+  values, or make professional/release/code-compliance claims.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

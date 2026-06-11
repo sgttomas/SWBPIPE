@@ -14,6 +14,7 @@ Primary pointers:
 - `docs/PRD.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
+- `docs/RELEASE_QUALITY_GATES.md`
 - `docs/BUILD_AND_RELEASE.md`
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 - `docs/_Registers/*.csv`
@@ -88,6 +89,9 @@ Review, closeout, or release-readiness intake:
 
 - `docs/VALIDATION_STRATEGY.md` for verification and release-quality
   expectations.
+- `docs/RELEASE_QUALITY_GATES.md` for the gate definitions that
+  release-readiness evidence, threshold work (`D-04`), and Phase E tranches
+  must satisfy.
 - Applicable deliverable-local review files, `Review_Findings.csv`, run
   records, validation evidence, source indexes, and aggregation or
   reconciliation snapshots.
@@ -301,7 +305,11 @@ bounded tranche.
    validation state, and boundary review in the touched app/evidence surfaces
    and any explicitly selected deliverable memory/review files. Update the
    completion-plan and decision-register rows affected by the tranche or by
-   any recorded human ruling. Then stage,
+   any recorded human ruling. Keep the plan a selection instrument, not a
+   history: compress landed items to one line — `LANDED <date>`, tranche id,
+   residual hand-offs, and pointers to the run record and
+   `plans/PLAN_COMPLETION_LOG.md` — and move the narrative detail to that
+   log; partially-landed items keep remaining scope in the row. Then stage,
    commit, and push the validated tranche to the tracked remote branch, keeping
    the commit message scoped to the app tranche and any explicitly authorized
    coordination-instruction edits. Do not advance lifecycle state, make release

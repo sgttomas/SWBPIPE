@@ -113,3 +113,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle change: `_STATUS.md` remains `CHECKING`; this is
   app-integration absorption of the deliverable's design authority, not
   issuance.
+
+## 2026-06-10 - TP-APP-R2-INLINEVALID-001 property-inspector inline validation
+
+- The desktop property inspector now exposes this deliverable's validate-only
+  operation seam inline for draft editor intents before queue/apply. The UI
+  displays application status, schema/unit/before-state states, diff rows,
+  diagnostics, and a no-mutation/professional-boundary note.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_property_inspector_inline_validation.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-85. Validation passed:
+  `npm test --workspace apps/desktop` (26/26) and
+  `npm run build --workspace apps/desktop`; timestamp-filtered live browser
+  smoke on `http://127.0.0.1:5174/` confirmed validate-only inline feedback
+  for `material:invented-carbon-steel` with no new console warnings/errors
+  after the final reload.
+- Boundary semantics remain unchanged: inline validation does not apply or
+  persist operations, mutate accepted model state, perform unit conversion,
+  supply code-specific defaults, or make professional/release/code-compliance
+  claims.
+- No lifecycle state, finding status, dependency authority, release readiness,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

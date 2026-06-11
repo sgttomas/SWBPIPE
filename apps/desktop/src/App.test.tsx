@@ -1625,6 +1625,24 @@ describe("OpenPipeStress desktop preview", () => {
       "before=200000000000; after=210000000000"
     );
     expect(within(intentPanel).getByTestId("editor-intent-validation").textContent).toContain("not_applied");
+    fireEvent.click(within(intentPanel).getByTestId("validate-editor-intent-inline"));
+    await waitFor(() =>
+      expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
+        "validate_only; application_status=not_applied"
+      )
+    );
+    expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
+      "schema=passed"
+    );
+    expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
+      "unit=passed"
+    );
+    expect(within(intentPanel).getByTestId("editor-intent-inline-validation-diff").textContent).toContain(
+      "material:invented-carbon-steel elastic_modulus.value 200000000000 to 210000000000 [Pa]"
+    );
+    expect(within(intentPanel).getByTestId("editor-intent-inline-validation-boundary").textContent).toContain(
+      "no accepted model mutation"
+    );
     fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
     expect(within(intentPanel).getByTestId("editor-intent-queue").textContent).toContain("editor-intent-1");
     expect(within(intentPanel).getByTestId("editor-intent-queue").textContent).toContain(
