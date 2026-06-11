@@ -3232,3 +3232,30 @@ after the timestamp marker were absent.
   work, write repository-default private data, introduce protected standards
   content, or create release readiness, professional approval,
   certification, sealing, authentication, or code-compliance claims.
+
+## TP-MAC-108 results-family-selector (2026-06-11)
+
+- Tranche: `TP-APP-R2-RESULTFAMILY-001` (completion plan Phase A6 second
+  sub-slice) adding direct result-family selectors to the desktop results
+  panel.
+- Result selector checks: after solving the invented preview model, the
+  results panel reports `647 of 647 results match filter`; family counts show
+  `Displacement=15`, `Reaction=9`, `Force=180`, `Moment=180`, and
+  `Stress=263`. Selecting `Reaction` reports `9 of 647 results match filter`,
+  `Showing 1 to 9 of 9 matching results; page 1 of 1`, and shows
+  `result:reaction:support-S-120`. Selecting `Stress` reports
+  `263 of 647 results match filter`, `Showing 1 to 50 of 263 matching
+  results; page 1 of 6`, and shows
+  `result:stress:pipe-P-120:end-i:torsional-shear`. Returning to `All`
+  restores `647 of 647 results match filter`.
+- Local validation: `npm test --workspace apps/desktop` passed with 58/58
+  Vitest tests; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build with the existing chunk-size warning;
+  `npm run test:e2e:desktop` passed with 1/1 Playwright tests; in-app browser
+  smoke at `http://127.0.0.1:5175/` confirmed solved result-family selection,
+  non-overflowing family selector buttons, all-family restoration, and zero
+  browser console errors.
+- Boundary: this slice does not add governing-ratio result generation, rule
+  checks, protected standards data, private data, release readiness,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claims.

@@ -11,6 +11,31 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A6 second sub-slice: results family selector (`TP-APP-R2-RESULTFAMILY-001`)
+
+The results panel now exposes direct result-family filters with visible counts
+for the solved preview envelope: displacement, reaction, force, moment, and
+stress. Selecting a family resets pagination and constrains the existing
+table groups, while the existing free-text filter still composes with the
+selected family. The support-reaction rows and stress rows are therefore
+selectable as dedicated table views without requiring text-search strings.
+
+The fixture-backed app test asserts the family counts
+(`15/9/180/180/263`), reaction-only pagination (`9 of 647`), stress-only
+pagination (`263 of 647`), active `aria-pressed` state, and representative
+reaction/stress rows. The Playwright R2 smoke covers the reaction family path
+after solving. In-app browser smoke at `http://127.0.0.1:5175/` confirmed the
+solved app showed `result_rows=647`, reaction/stress family selection,
+visible non-overflowing selector buttons, all-family restoration, and zero
+browser console errors.
+
+Residuals remain in A6: true directional deformed shape once displacement
+vectors exist, governing-ratio views once ratio rows exist in result
+envelopes, and richer result-selection coupling.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-108 and
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_run_records/WORKING_ITEMS_RUN_2026-06-11_results_family_selector.md`.
+
 ## 2026-06-11 — A5 second sub-slice: persisted edited-load solve regression (`TP-APP-R2-PERSISTEDSOLVE-001`)
 
 The Tauri backend test suite now proves an edited load-data model can move

@@ -186,6 +186,15 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   await expect(page.getByTestId("results-panel")).toBeVisible();
   await expect(page.getByTestId("result-filter-summary")).toContainText("647 of 647 results match filter");
+  await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
+  await page.getByTestId("result-family-reaction").click();
+  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 647 results match filter");
+  await expect(page.getByTestId("result-page-summary")).toContainText(
+    "Showing 1 to 9 of 9 matching results; page 1 of 1"
+  );
+  await expect(page.getByTestId("result-row-result:reaction:support-S-120")).toBeVisible();
+  await page.getByTestId("result-family-all").click();
+  await expect(page.getByTestId("result-filter-summary")).toContainText("647 of 647 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
   await expect(page.getByTestId("result-filter-summary")).toContainText("167 of 647 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(

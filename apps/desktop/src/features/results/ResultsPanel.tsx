@@ -5,6 +5,29 @@ import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
+type ResultFamily = "displacement" | "reaction" | "force" | "moment" | "stress" | "ratio" | "other";
+type ResultFamilyFilter = "all" | ResultFamily;
+type ResultFamilyCounts = Record<ResultFamily, number> & { total: number };
+const RESULT_FAMILY_OPTIONS: { id: ResultFamilyFilter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "displacement", label: "Displacement" },
+  { id: "reaction", label: "Reaction" },
+  { id: "force", label: "Force" },
+  { id: "moment", label: "Moment" },
+  { id: "stress", label: "Stress" },
+  { id: "ratio", label: "Ratio" },
+  { id: "other", label: "Other" }
+];
+const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
+  total: 0,
+  displacement: 0,
+  reaction: 0,
+  force: 0,
+  moment: 0,
+  stress: 0,
+  ratio: 0,
+  other: 0
+};
 
 export function ResultsPanel({
   result,
@@ -20,11 +43,16 @@ export function ResultsPanel({
   onSelectResult: (resultId: string) => void;
 }) {
   const [filterText, setFilterText] = useState("");
+  const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
+  const familyCounts = useMemo(
+    () => (result ? countResultFamilies(result.results) : EMPTY_RESULT_FAMILY_COUNTS),
+    [result]
+  );
   const filteredResults = useMemo(
-    () => (result ? filterResults(result.results, filterText) : []),
-    [filterText, result]
+    () => (result ? filterResults(result.results, filterText, familyFilter) : []),
+    [familyFilter, filterText, result]
   );
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
@@ -46,6 +74,11 @@ export function ResultsPanel({
     setPageIndex(0);
   }
 
+  function handleFamilyFilterChange(value: ResultFamilyFilter) {
+    setFamilyFilter(value);
+    setPageIndex(0);
+  }
+
   function handlePageSizeChange(value: number) {
     setPageSize(value);
     setPageIndex(0);
@@ -57,11 +90,14 @@ export function ResultsPanel({
       {result ? (
         <>
           <ResultControls
+            familyCounts={familyCounts}
+            familyFilter={familyFilter}
             filterText={filterText}
             filteredCount={filteredResults.length}
             totalCount={result.results.length}
             page={page}
             pageSize={pageSize}
+            onFamilyFilterChange={handleFamilyFilterChange}
             onFilterChange={handleFilterChange}
             onPageSizeChange={handlePageSizeChange}
             onPreviousPage={() => setPageIndex((current) => Math.max(0, current - 1))}
@@ -131,28 +167,57 @@ export function ResultsPanel({
 }
 
 function ResultControls({
+  familyCounts,
+  familyFilter,
   filterText,
   filteredCount,
   totalCount,
   page,
   pageSize,
+  onFamilyFilterChange,
   onFilterChange,
   onPageSizeChange,
   onPreviousPage,
   onNextPage
 }: {
+  familyCounts: ResultFamilyCounts;
+  familyFilter: ResultFamilyFilter;
   filterText: string;
   filteredCount: number;
   totalCount: number;
   page: ResultPage;
   pageSize: number;
+  onFamilyFilterChange: (value: ResultFamilyFilter) => void;
   onFilterChange: (value: string) => void;
   onPageSizeChange: (value: number) => void;
   onPreviousPage: () => void;
   onNextPage: () => void;
 }) {
+  const visibleFamilyOptions = RESULT_FAMILY_OPTIONS.filter(
+    (option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0
+  );
+
   return (
     <section className="result-controls" aria-label="Result filtering" data-testid="result-controls">
+      <div className="result-family-row" role="group" aria-label="Result family filter">
+        {visibleFamilyOptions.map((option) => {
+          const count = option.id === "all" ? familyCounts.total : familyCounts[option.id as ResultFamily];
+          const isActive = option.id === familyFilter;
+          return (
+            <button
+              aria-pressed={isActive}
+              className={isActive ? "result-family-active" : undefined}
+              data-testid={`result-family-${option.id}`}
+              key={option.id}
+              onClick={() => onFamilyFilterChange(option.id)}
+              type="button"
+            >
+              <span>{option.label}</span>
+              <strong data-testid={`result-family-count-${option.id}`}>{count}</strong>
+            </button>
+          );
+        })}
+      </div>
       <div className="result-filter-row">
         <label>
           <Search size={14} aria-hidden="true" />
@@ -343,18 +408,20 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
 }
 
 function groupResults(resultItems: MechanicsResult["results"]) {
-  const specs = [
-    { title: "Displacement", match: (kind: string) => kind === "displacement_magnitude" },
-    { title: "Reaction", match: (kind: string) => kind === "reaction_resultant" },
-    { title: "Force", match: (kind: string) => kind.includes("_force") },
-    { title: "Moment", match: (kind: string) => kind.includes("_moment") },
-    { title: "Stress", match: (kind: string) => kind.includes("stress") }
+  const specs: { title: string; family: ResultFamily }[] = [
+    { title: "Displacement", family: "displacement" },
+    { title: "Reaction", family: "reaction" },
+    { title: "Force", family: "force" },
+    { title: "Moment", family: "moment" },
+    { title: "Stress", family: "stress" },
+    { title: "Ratio", family: "ratio" },
+    { title: "Other", family: "other" }
   ];
 
   return specs
     .map((spec) => ({
       title: spec.title,
-      items: resultItems.filter((item) => spec.match(item.kind))
+      items: resultItems.filter((item) => resultFamilyKey(item) === spec.family)
     }))
     .filter((group) => group.items.length > 0);
 }
@@ -382,11 +449,24 @@ function paginateResults(resultItems: MechanicsResult["results"], pageIndex: num
   };
 }
 
-function filterResults(resultItems: MechanicsResult["results"], filterText: string): MechanicsResult["results"] {
+function countResultFamilies(resultItems: MechanicsResult["results"]): ResultFamilyCounts {
+  const counts: ResultFamilyCounts = { ...EMPTY_RESULT_FAMILY_COUNTS, total: resultItems.length };
+  for (const item of resultItems) {
+    counts[resultFamilyKey(item)] += 1;
+  }
+  return counts;
+}
+
+function filterResults(
+  resultItems: MechanicsResult["results"],
+  filterText: string,
+  familyFilter: ResultFamilyFilter
+): MechanicsResult["results"] {
   const query = filterText.trim().toLowerCase();
-  if (!query) return resultItems;
 
   return resultItems.filter((item) => {
+    if (familyFilter !== "all" && resultFamilyKey(item) !== familyFilter) return false;
+    if (!query) return true;
     const searchable = [
       item.id,
       item.kind,
@@ -407,4 +487,16 @@ function filterResults(resultItems: MechanicsResult["results"], filterText: stri
       .toLowerCase();
     return searchable.includes(query);
   });
+}
+
+function resultFamilyKey(result: MechanicsResult["results"][number]): ResultFamily {
+  const kind = result.kind.toLowerCase();
+  const id = result.id.toLowerCase();
+  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
+  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
+  if (kind.includes("force") || id.includes("force")) return "force";
+  if (kind.includes("moment") || id.includes("moment")) return "moment";
+  if (kind.includes("stress") || id.includes("stress")) return "stress";
+  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
+  return "other";
 }

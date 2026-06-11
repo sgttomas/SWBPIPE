@@ -81,3 +81,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, telemetry path, or DAG authority changed.
+
+## 2026-06-11 - TP-APP-R2-RESULTFAMILY-001 results family selector
+
+- WORKING_ITEMS app-integration tranche added direct results-panel family
+  filters and counts for solved preview result rows: displacement, reaction,
+  force, moment, and stress. Support-reaction and stress table views are now
+  selectable without text-search strings.
+- The selector composes with the existing text filter and pagination; changing
+  family resets pagination and preserves the review-only result detail and
+  endpoint-pair behavior.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_results_family_selector.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-108. Validation passed:
+  `npm test --workspace apps/desktop` (58/58), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), in-app browser smoke at
+  `http://127.0.0.1:5175/`, and touched-scope `git diff --check`.
+- Governing-ratio views remain deferred until result envelopes contain ratio
+  rows. No lifecycle state, review finding disposition, release readiness,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, or DAG authority changed.

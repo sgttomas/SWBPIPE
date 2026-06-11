@@ -4626,6 +4626,42 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(results).getByTestId("previous-result-page")).toBeDisabled();
     expect(within(results).getByTestId("next-result-page")).not.toBeDisabled();
+    expect(within(results).getByTestId("result-family-count-all").textContent).toContain("647");
+    expect(within(results).getByTestId("result-family-count-displacement").textContent).toContain("15");
+    expect(within(results).getByTestId("result-family-count-reaction").textContent).toContain("9");
+    expect(within(results).getByTestId("result-family-count-force").textContent).toContain("180");
+    expect(within(results).getByTestId("result-family-count-moment").textContent).toContain("180");
+    expect(within(results).getByTestId("result-family-count-stress").textContent).toContain("263");
+
+    fireEvent.click(within(results).getByTestId("result-family-reaction"));
+    expect(within(results).getByTestId("result-family-reaction")).toHaveAttribute("aria-pressed", "true");
+    expect(within(results).getByTestId("result-filter-summary").textContent).toContain(
+      "9 of 647 results match filter"
+    );
+    expect(within(results).getByTestId("result-page-summary").textContent).toContain(
+      "Showing 1 to 9 of 9 matching results; page 1 of 1"
+    );
+    expect(within(results).getByTestId("result-group-reaction")).toBeInTheDocument();
+    expect(within(results).queryByTestId("result-group-force")).not.toBeInTheDocument();
+    expect(within(results).getByTestId("result-row-result:reaction:support-S-120")).toBeInTheDocument();
+
+    fireEvent.click(within(results).getByTestId("result-family-stress"));
+    expect(within(results).getByTestId("result-family-stress")).toHaveAttribute("aria-pressed", "true");
+    expect(within(results).getByTestId("result-filter-summary").textContent).toContain(
+      "263 of 647 results match filter"
+    );
+    expect(within(results).getByTestId("result-page-summary").textContent).toContain(
+      "Showing 1 to 50 of 263 matching results; page 1 of 6"
+    );
+    expect(within(results).getByTestId("result-group-stress")).toBeInTheDocument();
+    expect(within(results).queryByTestId("result-group-force")).not.toBeInTheDocument();
+    expect(within(results).getByTestId("result-row-result:stress:pipe-P-120:end-i:torsional-shear")).toBeInTheDocument();
+
+    fireEvent.click(within(results).getByTestId("result-family-all"));
+    expect(within(results).getByTestId("result-family-all")).toHaveAttribute("aria-pressed", "true");
+    expect(within(results).getByTestId("result-filter-summary").textContent).toContain(
+      "647 of 647 results match filter"
+    );
 
     fireEvent.click(within(results).getByTestId("next-result-page"));
     expect(within(results).getByTestId("result-page-summary").textContent).toContain(
