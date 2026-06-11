@@ -28,6 +28,7 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-10 | Report rendering target (deterministic HTML and/or PDF pipeline) | Phase A report rendering (A7); R5 full report package | AWAITING_RULING | [D-10_report_rendering_target.md](D-10_report_rendering_target.md) (2026-06-10) | — |
 | D-11 | Issuance waves for the `CHECKING` deliverables | Phase F governance closure | NOT_PREPARED | — | — |
 | D-12 | Disposition of FR-024 (dynamics) and FR-025 (local FEA export): implement post-beta or record explicit deferral | Final PRD-completeness claim | NOT_PREPARED | — | — |
+| D-13 | Operation-seam engine unification: wasm32 build of `operation_applier` as the sole browser-mode engine; retire the TS mirror's validation/apply logic; stand up the DEL-00-01 ADR surface with this as its first accepted entry | Operation-seam plan T3/T4; the R2 from-scratch authoring set; Phase B unit-aware fields (B2) | RULED | [PLAN_2026-06-11_operation_seam_unification.md](../../../plans/PLAN_2026-06-11_operation_seam_unification.md) §2 (plan-as-packet, 2026-06-11) | `DEC-020` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (accepted as proposed, 2026-06-11) |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
