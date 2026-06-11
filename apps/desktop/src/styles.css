@@ -901,8 +901,147 @@ button:focus-visible {
   min-height: 320px;
 }
 
+.load-case-manager-panel {
+  min-height: 430px;
+}
+
 .report-panel {
   min-height: 360px;
+}
+
+.load-case-list,
+.load-primitive-list,
+.load-combination-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.load-case-row,
+.primitive-load-row {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d9dfdb;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.load-case-row.active,
+.primitive-load-row.active {
+  border-color: #86aaa0;
+  background: #eef7f2;
+  outline: 2px solid rgba(76, 127, 109, 0.18);
+  outline-offset: -2px;
+}
+
+.load-combination-row {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid #d9dfdb;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.load-case-row strong,
+.primitive-load-row strong,
+.load-combination-row strong {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.load-case-row small,
+.primitive-load-row small,
+.load-combination-row small {
+  color: #66736f;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.load-magnitude-editor {
+  display: grid;
+  gap: 8px;
+  margin: 2px 0 10px;
+  padding: 9px;
+  border: 1px solid #d8dfdb;
+  border-radius: 4px;
+  background: #f8faf8;
+}
+
+.load-editor-heading {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 0.7fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.load-editor-heading strong,
+.load-editor-heading span,
+.load-edit-preview {
+  overflow-wrap: anywhere;
+}
+
+.load-editor-heading strong {
+  font-size: 12px;
+}
+
+.load-editor-heading span {
+  color: #66736f;
+  font-size: 11px;
+}
+
+.load-editor-controls {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.7fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 7px;
+}
+
+.load-editor-controls label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.load-editor-controls span {
+  color: #54615d;
+  font-size: 11px;
+}
+
+.load-editor-controls input {
+  min-width: 0;
+  height: 30px;
+  padding: 5px 7px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+}
+
+.load-editor-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.load-editor-controls button:disabled {
+  color: #7d8985;
+  background: #eef2ef;
+  cursor: not-allowed;
 }
 
 .comparison-summary {

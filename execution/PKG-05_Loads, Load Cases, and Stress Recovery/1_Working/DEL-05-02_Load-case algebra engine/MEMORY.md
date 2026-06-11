@@ -196,3 +196,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No additional dependency register, review finding, source code, schema,
   aggregate DAG artifact, release record, professional approval,
   certification, sealing, authentication, or code-compliance claim was changed.
+
+## 2026-06-11 - TP-APP-R2-LOADMGR-001 load-case primitive magnitude manager
+
+- WORKING_ITEMS app-integration tranche surfaced existing combination terms in
+  the desktop Load Cases manager. No `core/loads/load_case_algebra` source
+  behavior changed.
+- The manager displays `combination:C-OPER-ALT` with mechanics basis and terms
+  `load:L-100 x 1` and `load:L-200 x 0.5`, preserving the existing explicit
+  user-defined mechanics-combination/no-code-default boundary.
+- The editable part of this tranche is limited to primitive-load magnitude
+  updates through structured operations; combination basis/terms editing
+  remains residual A4 scope.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_manager_primitive_magnitude.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-91. Validation passed:
+  `npm test --workspace apps/desktop` (32/32), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), and `git diff --check -- .
+  ':!init/init-prompt.md'`.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.

@@ -11,6 +11,29 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 first sub-slice: load-case primitive magnitude manager (`TP-APP-R2-LOADMGR-001`)
+
+The desktop app now has a right-rail Load Cases manager over the invented
+preview model. It surfaces load-case counts, primitive-load rows, combination
+terms, and a focused primitive-load magnitude editor. Selecting
+`load:L-100-P` exposes `primitive_loads.2.magnitude.value`; changing the
+magnitude queues `op:load-manager-load:L-100-load:L-100-P-magnitude` as a
+structured `update_load` intent. Applying the queued operation uses the
+existing OperationApplyPanel, records local-session acceptance, clears stale
+solve results, and leaves persistence to the Save local path.
+
+Residuals remain in A4: load-case creation, load status/kind editing,
+arbitrary primitive-load creation, imposed-displacement authoring breadth,
+full combination editing/algebra authoring, unit picker/display retirement
+after Phase B, and packaged-Tauri saved-project smoke over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-91;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_manager_primitive_magnitude.md`,
+the same-named record under
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/`,
+and the same-named record under
+`DEL-05-02_Load-case algebra engine/_run_records/`.
+
 ## 2026-06-11 — A8 first sub-slice: Playwright R2 smoke harness (`TP-APP-R2-PLAYWRIGHT-001`)
 
 The desktop workspace now has a Playwright harness and root script

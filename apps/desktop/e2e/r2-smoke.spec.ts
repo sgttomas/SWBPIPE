@@ -9,6 +9,13 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "2 load cases; 7 primitive loads; 1 combinations"
+  );
+  await page.getByTestId("load-manager-primitive-load:L-100-P").click();
+  await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
+    "primitive_loads.2.magnitude.value"
+  );
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();

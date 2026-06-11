@@ -2655,3 +2655,29 @@ after the timestamp marker were absent.
   checklist parity, CI browser provisioning, protected/private data handling,
   release readiness, professional approval, certification, sealing,
   authentication, or code-compliance claims.
+
+## TP-MAC-91 load-case-manager-primitive-magnitude (2026-06-11)
+
+- Tranche: `TP-APP-R2-LOADMGR-001` (completion plan Phase A4 first
+  sub-slice) adding a right-rail Load Cases manager for the invented desktop
+  preview model. The panel surfaces `2 load cases`, `7 primitive loads`, and
+  `1 combinations`; selecting `load:L-100-P` exposes
+  `primitive_loads.2.magnitude.value` with pressure magnitude `1200000 Pa`.
+- Edit path: changing the selected primitive magnitude queues
+  `op:load-manager-load:L-100-load:L-100-P-magnitude` as a structured
+  `update_load` operation. Applying it uses the existing OperationApplyPanel,
+  records `session_state_only_not_yet_saved`, clears stale solve results, and
+  does not mutate a saved project until the user saves locally.
+- Local validation: `npm test --workspace apps/desktop` passed with 32/32
+  Vitest tests, including manager queue/apply coverage; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed with
+  1/1 Playwright tests and now asserts manager summary plus primitive
+  pressure-row selection; `git diff --check -- . ':!init/init-prompt.md'`
+  passed for the touched scope.
+- Boundary: this first A4 slice edits existing primitive load magnitudes only.
+  It does not add load-case creation, load status/kind editing, arbitrary
+  primitive-load creation, imposed-displacement authoring breadth,
+  rule-code/default combinations, protected standards content, private data,
+  release readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claims.

@@ -28,6 +28,7 @@ import { ExternalProverBoundaryPanel } from "./features/external-prover/External
 import { HandoffPanel } from "./features/handoff/HandoffPanel";
 import { HeadlessRunnerPanel } from "./features/headless-runner/HeadlessRunnerPanel";
 import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
+import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
@@ -730,6 +731,12 @@ export function App() {
           <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
           <BuildReadinessPanel model={model} />
           <ValidationEvidencePanel model={model} />
+          <LoadCaseManagerPanel
+            model={model}
+            onQueueIntent={handleQueueEditorIntent}
+            onSelect={setSelection}
+            selection={selection}
+          />
           <SolvePanel
             analysisRun={analysisRun}
             model={model}

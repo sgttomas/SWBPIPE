@@ -369,3 +369,26 @@
   review disposition, lifecycle state, protected standards data, code-specific
   combination/default, private data, release claim, code-compliance claim, or
   professional reliance claim was changed or introduced by this fan-in.
+
+## 2026-06-11 - TP-APP-R2-LOADMGR-001 load-case primitive magnitude manager
+
+- WORKING_ITEMS app-integration tranche consumed the existing primitive-load
+  model evidence in the desktop GUI. No `core/loads/primitive_loads` source
+  behavior changed.
+- The new Load Cases manager surfaces the invented preview primitive loads,
+  including weight, occasional, pressure, and thermal records, with target,
+  direction, dimension, magnitude, and unit metadata.
+- Existing primitive-load magnitude fields can now be queued as structured
+  `update_load` operations. The tested pressure row is `load:L-100-P` at
+  `primitive_loads.2.magnitude.value`, updated from `1200000 Pa` to
+  `1500000 Pa` in local session state.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_manager_primitive_magnitude.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-91. Validation passed:
+  `npm test --workspace apps/desktop` (32/32), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), and `git diff --check -- .
+  ':!init/init-prompt.md'`.
+- This tranche does not add new primitive category semantics, arbitrary
+  primitive-load creation, unit conversion, solver validation, code-specific
+  factors/defaults, protected standards data, private data, release claim,
+  code-compliance claim, or professional reliance claim.

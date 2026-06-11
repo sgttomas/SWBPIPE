@@ -89,6 +89,33 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-11 - TP-APP-R2-LOADMGR-001 load-case primitive magnitude manager
+
+- WORKING_ITEMS app-integration tranche added a right-rail Load Cases manager
+  to the desktop preview UI. The manager surfaces load-case rows,
+  primitive-load rows, combination terms, and the single-unit preview posture.
+- The first editable scope is existing primitive-load magnitude fields. The
+  manager queues `update_load` structured-operation intents such as
+  `op:load-manager-load:L-100-load:L-100-P-magnitude` for
+  `primitive_loads.2.magnitude.value`.
+- Applying a queued manager intent uses the existing OperationApplyPanel,
+  local-session acceptance record, undo/redo checkpoint path, and stale-solve
+  clearing behavior.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_manager_primitive_magnitude.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-91. Validation passed:
+  `npm test --workspace apps/desktop` (32/32), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), and `git diff --check -- .
+  ':!init/init-prompt.md'`.
+- Residual A4 scope remains: load-case creation, load status/kind editing,
+  arbitrary primitive-load creation, imposed-displacement authoring breadth,
+  full combination editing/algebra authoring, and packaged-Tauri saved-project
+  smoke over edited load data.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-10 - TP-APP-R2-INLINEVALID-001 property-inspector inline validation
 
 - WORKING_ITEMS app-integration tranche added validate-only inline feedback to

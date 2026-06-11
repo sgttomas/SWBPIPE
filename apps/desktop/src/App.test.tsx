@@ -1698,6 +1698,62 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain("invented_example_user_defined_mechanics_combination_no_code_default");
   });
 
+  it("queues and applies a load-case primitive magnitude through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 7 primitive loads; 1 combinations"
+    );
+    expect(within(manager).getByTestId("load-case-manager-boundary").textContent).toContain(
+      "structured operations"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT").textContent).toContain(
+      "load:L-100 x 1"
+    );
+
+    fireEvent.click(within(manager).getByTestId("load-manager-primitive-load:L-100-P"));
+    expect(within(manager).getByTestId("load-manager-selected-primitive").textContent).toContain("load:L-100-P");
+    expect(within(manager).getByTestId("load-manager-selected-primitive").textContent).toContain(
+      "primitive_loads.2.magnitude.value"
+    );
+    expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain("current=1200000 Pa");
+
+    fireEvent.change(within(manager).getByTestId("load-manager-magnitude-value"), {
+      target: { value: "1500000" }
+    });
+    expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain(
+      "op:load-manager-load:L-100-load:L-100-P-magnitude"
+    );
+    expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain(
+      "before=1200000; after=1500000"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-load-magnitude-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "primitive_loads.2.magnitude.value"
+    );
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-P-magnitude"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-P").textContent).toContain(
+      "pressure; 1500000 Pa"
+    );
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 
