@@ -196,3 +196,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
+
+## 2026-06-11 - TP-APP-R2-COMBFACTOR-001 combination term-factor editor
+
+- WORKING_ITEMS app-integration tranche verified that combination term-factor
+  edits enter the model only after the user queues and applies a structured
+  operation in the local session.
+- The app test applies
+  `op:load-manager-combination:C-OPER-ALT-term-1-factor` through
+  `OperationApplyPanel`, updates the session model, clears stale solve
+  results, leaves persistence at `session_state_only_not_yet_saved`, and
+  records no professional approval or code-compliance claim.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_factor_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-96. Validation passed:
+  operation-applier format check, Rust operation-applier tests 24/24,
+  src-tauri Rust tests 26/26, desktop Vitest 37/37, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-factor smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.

@@ -2795,3 +2795,41 @@ after the timestamp marker were absent.
   editing, unit conversion, saved-project mutation without user Save,
   protected standards content, private data, or release, professional
   approval, certification, sealing, authentication, or code-compliance claims.
+
+## TP-MAC-96 combination-term-factor-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-COMBFACTOR-001` (completion plan Phase A4 third
+  sub-slice) adding existing combination term-factor editing to the Load
+  Cases manager. The editor queues structured `update_load` operations for
+  `Combination.terms.N.factor` with explicit before/after scalar values, unit
+  `none`, dimension `dimensionless`, and the existing local-session
+  acceptance boundary.
+- Edit path: applying
+  `op:load-manager-combination:C-OPER-ALT-term-1-factor` updates the existing
+  `combination:C-OPER-ALT` second term from `load:L-200 x 0.5` to
+  `load:L-200 x 0.75` through `OperationApplyPanel`, resets stale solve
+  results, leaves persistence at `session_state_only_not_yet_saved`, and
+  records no professional approval. Whole `terms` replacement, `basis`
+  editing, term creation/deletion, code/rule combinations, and broader
+  algebra authoring remain explicitly deferred.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 24/24 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 37/37 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the rendered combination-factor edit and
+  confirmed `load:L-200 x 0.75`, pending operations returned to zero,
+  persistence remained `session_state_only_not_yet_saved`, professional
+  approval remained false, and solve state remained `not_started`; `git diff
+  --check -- . ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not add load-case creation, arbitrary
+  primitive-load creation, imposed-displacement authoring, combination basis
+  editing, combination term creation/deletion, code/rule combinations,
+  broader algebra authoring, unit conversion, saved-project mutation without
+  user Save, protected standards content, private data, or release,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claims.

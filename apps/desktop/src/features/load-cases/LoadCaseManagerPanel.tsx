@@ -3,12 +3,20 @@ import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 
 type LoadCase = PreviewModel["load_cases"][number];
+type Combination = NonNullable<PreviewModel["combinations"]>[number];
+type CombinationTerm = Combination["terms"][number];
 type PrimitiveLoad = Record<string, unknown>;
 
 type PrimitiveLoadView = {
   index: number;
   load: PrimitiveLoad;
   loadCase: LoadCase;
+};
+
+type CombinationTermView = {
+  index: number;
+  term: CombinationTerm;
+  combination: Combination;
 };
 
 type LoadMetadataField = "status" | "kind";
@@ -25,9 +33,15 @@ export function LoadCaseManagerPanel({
   selection: EntityRef;
 }) {
   const primitiveLoads = useMemo(() => primitiveLoadViews(model), [model]);
+  const combinationTerms = useMemo(() => combinationTermViews(model), [model]);
   const [selectedPrimitiveKey, setSelectedPrimitiveKey] = useState(primitiveLoads[0] ? primitiveKey(primitiveLoads[0]) : "");
+  const [selectedCombinationTermKey, setSelectedCombinationTermKey] = useState(
+    combinationTerms[0] ? combinationTermKey(combinationTerms[0]) : ""
+  );
   const selectedPrimitive =
     primitiveLoads.find((primitive) => primitiveKey(primitive) === selectedPrimitiveKey) ?? primitiveLoads[0] ?? null;
+  const selectedCombinationTerm =
+    combinationTerms.find((term) => combinationTermKey(term) === selectedCombinationTermKey) ?? combinationTerms[0] ?? null;
   const selectedLoadCase =
     (selection.type === "load" ? model.load_cases.find((loadCase) => loadCase.id === selection.id) : null) ??
     selectedPrimitive?.loadCase ??
@@ -40,6 +54,9 @@ export function LoadCaseManagerPanel({
   const currentMetadataValue = selectedLoadCase ? loadCaseMetadataValue(selectedLoadCase, metadataField) : "";
   const [proposedMetadataValue, setProposedMetadataValue] = useState(currentMetadataValue);
   const [metadataRationale, setMetadataRationale] = useState("user_entered_load_case_metadata_preview_change");
+  const currentCombinationFactor = selectedCombinationTerm ? combinationTermFactorDisplay(selectedCombinationTerm.term) : "";
+  const [proposedCombinationFactor, setProposedCombinationFactor] = useState(currentCombinationFactor);
+  const [combinationRationale, setCombinationRationale] = useState("user_entered_combination_factor_preview_change");
   const changed = selectedPrimitive ? proposedMagnitude.trim() !== currentMagnitude : false;
   const intent =
     selectedPrimitive && changed
@@ -64,6 +81,18 @@ export function LoadCaseManagerPanel({
         })
       : null;
   const metadataOptions = loadMetadataOptions(model, metadataField, currentMetadataValue);
+  const combinationFactorChanged = selectedCombinationTerm
+    ? proposedCombinationFactor.trim() !== "" && proposedCombinationFactor.trim() !== currentCombinationFactor
+    : false;
+  const combinationIntent =
+    selectedCombinationTerm && combinationFactorChanged
+      ? buildCombinationFactorIntent({
+          model,
+          termView: selectedCombinationTerm,
+          proposedFactor: proposedCombinationFactor,
+          rationale: combinationRationale
+        })
+      : null;
 
   useEffect(() => {
     if (!primitiveLoads.length) {
@@ -85,6 +114,21 @@ export function LoadCaseManagerPanel({
     setMetadataRationale("user_entered_load_case_metadata_preview_change");
   }, [currentMetadataValue, metadataField, selectedLoadCase?.id]);
 
+  useEffect(() => {
+    if (!combinationTerms.length) {
+      setSelectedCombinationTermKey("");
+      return;
+    }
+    if (!combinationTerms.some((term) => combinationTermKey(term) === selectedCombinationTermKey)) {
+      setSelectedCombinationTermKey(combinationTermKey(combinationTerms[0]));
+    }
+  }, [combinationTerms, selectedCombinationTermKey]);
+
+  useEffect(() => {
+    setProposedCombinationFactor(currentCombinationFactor);
+    setCombinationRationale("user_entered_combination_factor_preview_change");
+  }, [currentCombinationFactor, selectedCombinationTermKey]);
+
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
     setSelectedPrimitiveKey(primitiveKey(primitive));
     onSelect({ type: "load", id: primitive.loadCase.id });
@@ -94,6 +138,11 @@ export function LoadCaseManagerPanel({
     onSelect({ type: "load", id: loadCase.id });
     const firstPrimitive = primitiveLoads.find((primitive) => primitive.loadCase.id === loadCase.id);
     if (firstPrimitive) setSelectedPrimitiveKey(primitiveKey(firstPrimitive));
+  }
+
+  function handleSelectCombinationTerm(termView: CombinationTermView) {
+    setSelectedCombinationTermKey(combinationTermKey(termView));
+    onSelect({ type: "combination", id: termView.combination.id });
   }
 
   return (
@@ -263,16 +312,85 @@ export function LoadCaseManagerPanel({
 
       {model.combinations?.length ? (
         <div className="load-combination-list" data-testid="load-case-manager-combinations">
-          {model.combinations.map((combination) => (
-            <article className="load-combination-row" data-testid={`load-manager-combination-${combination.id}`} key={combination.id}>
-              <strong>{combination.label}</strong>
-              <small>
-                {combination.id}; basis={combination.basis}; terms=
-                {combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")}
-              </small>
-            </article>
-          ))}
+          {model.combinations.map((combination) => {
+            const terms = combinationTerms.filter((term) => term.combination.id === combination.id);
+            return (
+              <article className="load-combination-row" data-testid={`load-manager-combination-${combination.id}`} key={combination.id}>
+                <strong>{combination.label}</strong>
+                <small>
+                  {combination.id}; basis={combination.basis}; terms=
+                  {combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")}
+                </small>
+                {terms.length ? (
+                  <div className="combination-term-list">
+                    {terms.map((term) => (
+                      <button
+                        className={
+                          selectedCombinationTerm && combinationTermKey(term) === combinationTermKey(selectedCombinationTerm)
+                            ? "combination-term-row active"
+                            : "combination-term-row"
+                        }
+                        data-testid={`load-manager-combination-term-${safeToken(term.combination.id)}-${term.index}`}
+                        key={combinationTermKey(term)}
+                        onClick={() => handleSelectCombinationTerm(term)}
+                        type="button"
+                      >
+                        {combinationTermLoadCase(term.term)} x {combinationTermFactorDisplay(term.term)}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
+      ) : null}
+
+      {selectedCombinationTerm ? (
+        <section className="combination-factor-editor" aria-label="Combination term factor editor">
+          <div className="load-editor-heading" data-testid="load-manager-selected-combination-term">
+            <SlidersHorizontal size={14} aria-hidden="true" />
+            <strong>{selectedCombinationTerm.combination.id}</strong>
+            <span>
+              term={combinationTermLoadCase(selectedCombinationTerm.term)}; path=terms.{selectedCombinationTerm.index}.factor
+            </span>
+          </div>
+          <div className="combination-factor-controls">
+            <label>
+              <span>Factor</span>
+              <input
+                aria-label="Combination term factor"
+                data-testid="load-manager-combination-factor-value"
+                onChange={(event) => setProposedCombinationFactor(event.target.value)}
+                value={proposedCombinationFactor}
+              />
+            </label>
+            <label>
+              <span>Rationale</span>
+              <input
+                aria-label="Combination term rationale"
+                data-testid="load-manager-combination-factor-rationale"
+                onChange={(event) => setCombinationRationale(event.target.value)}
+                value={combinationRationale}
+              />
+            </label>
+            <button
+              data-testid="queue-combination-factor-intent"
+              disabled={!combinationIntent}
+              onClick={() => combinationIntent && onQueueIntent(combinationIntent)}
+              title="Queue combination-factor operation"
+              type="button"
+            >
+              <ListPlus size={14} aria-hidden="true" />
+              Queue factor
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-combination-factor-preview">
+            {combinationIntent
+              ? `${combinationIntent.operation_id}; before=${combinationIntent.change.before}; after=${combinationIntent.change.after}; unit=${combinationIntent.change.unit}; ${combinationIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : `current=${currentCombinationFactor}; no changed combination factor queued`}
+          </p>
+        </section>
       ) : null}
 
       <small className="report-note" data-testid="load-case-manager-boundary">
@@ -371,6 +489,79 @@ function buildLoadMetadataIntent({
   };
 }
 
+function combinationTermViews(model: PreviewModel): CombinationTermView[] {
+  return (model.combinations ?? []).flatMap((combination) =>
+    combination.terms.map((term, index) => ({
+      index,
+      term,
+      combination
+    }))
+  );
+}
+
+function buildCombinationFactorIntent({
+  model,
+  termView,
+  proposedFactor,
+  rationale
+}: {
+  model: PreviewModel;
+  termView: CombinationTermView;
+  proposedFactor: string;
+  rationale: string;
+}): EditorOperationIntent {
+  const fieldPath = `terms.${termView.index}.factor`;
+  const operationToken = `${safeToken(termView.combination.id)}-term-${termView.index}-factor`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "modify",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Combination",
+      ref: termView.combination.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "update_load",
+      field_label: `${combinationTermLoadCase(termView.term)} combination factor`,
+      field_path: fieldPath,
+      before: combinationTermFactorDisplay(termView.term),
+      after: proposedFactor.trim() || combinationTermFactorDisplay(termView.term),
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered combination term factor; existing term only"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `combination factor edit intent for ${model.project.id}`
+  };
+}
+
 function primitiveLoadViews(model: PreviewModel): PrimitiveLoadView[] {
   return model.load_cases.flatMap((loadCase) =>
     (loadCase.primitive_loads ?? []).map((load, index) => ({
@@ -446,6 +637,18 @@ function buildLoadMagnitudeIntent({
 
 function primitiveKey(primitive: PrimitiveLoadView): string {
   return `${primitive.loadCase.id}::${primitive.index}::${primitiveId(primitive.load)}`;
+}
+
+function combinationTermKey(termView: CombinationTermView): string {
+  return `${termView.combination.id}::${termView.index}::${combinationTermLoadCase(termView.term)}`;
+}
+
+function combinationTermLoadCase(term: CombinationTerm): string {
+  return term.load_case;
+}
+
+function combinationTermFactorDisplay(term: CombinationTerm): string {
+  return String(term.factor);
 }
 
 function primitiveId(load: PrimitiveLoad): string {

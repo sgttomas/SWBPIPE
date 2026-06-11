@@ -30,6 +30,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
     "op:load-manager-load:L-100-kind"
   );
+  await page.getByTestId("load-manager-combination-term-combination:C-OPER-ALT-1").click();
+  await expect(page.getByTestId("load-manager-selected-combination-term")).toContainText("terms.1.factor");
+  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText("current=0.5");
+  await page.getByTestId("load-manager-combination-factor-value").fill("0.75");
+  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-term-1-factor"
+  );
+  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
+    "before=0.5; after=0.75"
+  );
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();

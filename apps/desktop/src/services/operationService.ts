@@ -63,6 +63,7 @@ type UnitSource = "sibling" | `project_units:${string}`;
 
 type FieldKind =
   | { kind: "text" }
+  | { kind: "number"; requirePositive: boolean }
   | { kind: "quantity"; requirePositive: boolean; unitSource: UnitSource }
   | { kind: "entity_ref"; collection: string }
   | { kind: "restraint_set" };
@@ -818,7 +819,9 @@ function resolveField(
   const fieldKind: FieldKind | undefined =
     objectType === "Load" && isPrimitiveMagnitudePath(fieldPath)
       ? { kind: "quantity", requirePositive: false, unitSource: "sibling" }
-      : FIELD_RULES[objectType]?.[fieldPath];
+      : objectType === "Combination" && isCombinationTermFactorPath(fieldPath)
+        ? { kind: "number", requirePositive: false }
+        : FIELD_RULES[objectType]?.[fieldPath];
   if (!fieldKind) {
     pushDiagnostic(
       checker,
@@ -862,6 +865,83 @@ function resolveField(
       return null;
     }
     return { fieldKind, currentDisplay: current, appliedValue: trimmed, segments };
+  }
+
+  if (fieldKind.kind === "number") {
+    const currentValue = valueAtSegments(entity, segments);
+    if (typeof currentValue !== "number") {
+      pushDiagnostic(
+        checker,
+        "OP-NUMBER-FIELD-MISSING",
+        "blocking",
+        `Numeric field \`${fieldPath}\` is not present on \`${targetRef}\`.`,
+        "Refresh the editor intent against the current model document.",
+        [targetRef]
+      );
+      return null;
+    }
+    checker.unitState = "passed";
+    if (intent.change.unit !== "none") {
+      checker.unitState = "blocked";
+      pushDiagnostic(
+        checker,
+        "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+        "blocking",
+        `Intent unit \`${intent.change.unit}\` does not match stored unit \`none\` for dimensionless numeric field \`${fieldPath}\`.`,
+        "Enter the scalar value with unit `none`; no silent conversion is performed.",
+        [targetRef]
+      );
+      return null;
+    }
+    if (!CANONICAL_DIMENSIONS.has(intent.change.dimension)) {
+      checker.unitState = "blocked";
+      pushDiagnostic(
+        checker,
+        "OP-UNIT-DIMENSION-UNKNOWN",
+        "blocking",
+        `Dimension \`${intent.change.dimension}\` is outside the canonical dimension vocabulary.`,
+        "Use a canonical dimension token; vocabulary changes await the D-01 unit-catalog ruling.",
+        [targetRef]
+      );
+      return null;
+    }
+    if (intent.change.dimension !== "dimensionless") {
+      checker.unitState = "blocked";
+      pushDiagnostic(
+        checker,
+        "OP-UNIT-DIMENSION-MISMATCH",
+        "blocking",
+        `Dimensionless numeric field \`${fieldPath}\` cannot be edited with dimension \`${intent.change.dimension}\`.`,
+        "Use dimension `dimensionless` for scalar combination factors.",
+        [targetRef]
+      );
+      return null;
+    }
+    checkBeforeNumeric(currentValue, before, targetRef, fieldPath, checker);
+    const parsed = parseFiniteNumber(after);
+    if (parsed === null) {
+      pushDiagnostic(
+        checker,
+        "OP-VALUE-NOT-NUMERIC",
+        "blocking",
+        `Replacement value \`${after}\` for \`${fieldPath}\` is not a finite number.`,
+        "Provide a finite numeric value.",
+        [targetRef]
+      );
+      return null;
+    }
+    if (fieldKind.requirePositive && parsed <= 0) {
+      pushDiagnostic(
+        checker,
+        "OP-VALUE-NOT-POSITIVE",
+        "blocking",
+        `Replacement value \`${after}\` for \`${fieldPath}\` must be greater than zero.`,
+        "Provide a positive scalar value.",
+        [targetRef]
+      );
+      return null;
+    }
+    return { fieldKind, currentDisplay: String(currentValue), appliedValue: parsed, segments };
   }
 
   if (fieldKind.kind === "quantity") {
@@ -1132,6 +1212,10 @@ function vectorPayload(record: Record<string, unknown>, key: string): { x: numbe
 
 function isPrimitiveMagnitudePath(fieldPath: string): boolean {
   return /^primitive_loads\.\d+\.magnitude\.value$/.test(fieldPath);
+}
+
+function isCombinationTermFactorPath(fieldPath: string): boolean {
+  return /^terms\.\d+\.factor$/.test(fieldPath);
 }
 
 function findEntity(model: Record<string, unknown>, collection: string, entityRef: string): Record<string, unknown> | null {

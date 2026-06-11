@@ -255,3 +255,21 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-11 - TP-APP-R2-COMBFACTOR-001 combination term-factor editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with
+  selectable existing combination term rows and a factor editor.
+- The app test applies `combination:C-OPER-ALT` term 1 from `0.5` to `0.75`,
+  verifies the manager row and property inspector update, confirms pending
+  operations return to zero, and confirms stale solve state is reset.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_factor_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-96. Validation passed:
+  operation-applier format check, Rust operation-applier tests 24/24,
+  src-tauri Rust tests 26/26, desktop Vitest 37/37, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser combination-factor smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

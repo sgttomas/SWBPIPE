@@ -1819,6 +1819,58 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("queue-load-metadata-intent")).not.toBeDisabled();
   });
 
+  it("queues and applies an existing combination term factor through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    const termRow = within(manager).getByTestId("load-manager-combination-term-combination:C-OPER-ALT-1");
+    expect(termRow.textContent).toContain("load:L-200 x 0.5");
+    fireEvent.click(termRow);
+
+    const queueButton = within(manager).getByTestId("queue-combination-factor-intent");
+    expect(within(manager).getByTestId("load-manager-selected-combination-term").textContent).toContain(
+      "combination:C-OPER-ALT"
+    );
+    expect(within(manager).getByTestId("load-manager-selected-combination-term").textContent).toContain(
+      "terms.1.factor"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-factor-preview").textContent).toContain(
+      "current=0.5"
+    );
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.change(within(manager).getByTestId("load-manager-combination-factor-value"), {
+      target: { value: "0.75" }
+    });
+    expect(within(manager).getByTestId("load-manager-combination-factor-preview").textContent).toContain(
+      "op:load-manager-combination:C-OPER-ALT-term-1-factor"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-factor-preview").textContent).toContain(
+      "before=0.5; after=0.75"
+    );
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "terms.1.factor"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-combination:C-OPER-ALT-term-1-factor"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT").textContent).toContain(
+      "load:L-200 x 0.75"
+    );
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("load:L-200 x 0.75");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 

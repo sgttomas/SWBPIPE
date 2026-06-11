@@ -218,3 +218,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
   combination/default, rule-pack evaluator behavior, release claim,
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, or private data changed.
+
+## 2026-06-11 - TP-APP-R2-COMBFACTOR-001 combination term-factor editor
+
+- WORKING_ITEMS app-integration tranche added editing for existing
+  combination term factors in the desktop Load Cases manager. No
+  `core/loads/load_case_algebra` source behavior changed.
+- The manager queues explicit structured `update_load` intents for
+  `Combination.terms.N.factor` with unit `none`, dimension `dimensionless`,
+  local-session audit metadata, and no professional approval claim.
+- The tested preview edit updates `combination:C-OPER-ALT` term 1 from
+  `load:L-200 x 0.5` to `load:L-200 x 0.75`. Whole `terms` replacement,
+  `basis` editing, term creation/deletion, code/rule combinations, and broader
+  algebra authoring remain outside this tranche.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_factor_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-96. Validation passed:
+  operation-applier format check, Rust operation-applier tests 24/24,
+  src-tauri Rust tests 26/26, desktop Vitest 37/37, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over
+  `combination:C-OPER-ALT`.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.

@@ -193,3 +193,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Boundary semantics remain unchanged: no direct input-model mutation, no
   silent unit conversion, no hidden load defaults, no durable persistence, no
   protected/private data, and no professional/release/code-compliance claim.
+
+## 2026-06-11 - TP-APP-R2-COMBFACTOR-001 combination term-factor editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply dynamic
+  `Combination.terms.N.factor` edits as dimensionless numeric fields.
+- Whole `Combination.terms` replacement and `Combination.basis` remain
+  explicitly deferred, preserving the A4 residual boundary for term
+  creation/deletion, basis editing, code/rule combinations, and broader
+  algebra authoring.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_factor_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-96. Validation passed:
+  operation-applier format check, Rust operation-applier tests 24/24,
+  src-tauri Rust tests 26/26, desktop Vitest 37/37, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden load defaults, no durable persistence, no
+  protected/private data, and no professional/release/code-compliance claim.

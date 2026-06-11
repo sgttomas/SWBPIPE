@@ -148,6 +148,11 @@ enum UnitSource {
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum FieldKind {
     Text,
+    /// Bare numeric scalar with no unit metadata, such as a dimensionless
+    /// combination factor.
+    Number {
+        require_positive: bool,
+    },
     /// Numeric quantity; `require_positive` rejects non-physical zero/negative
     /// geometry and modulus values.
     Quantity {
@@ -1185,11 +1190,17 @@ fn resolve_field(
         return None;
     }
 
-    // Dynamic load-magnitude paths: primitive_loads.<index>.magnitude.value
+    // Dynamic paths: primitive_loads.<index>.magnitude.value and
+    // terms.<index>.factor are existing child fields, not whole-record
+    // creation/editing.
     let rule_kind = if object_type == "Load" && is_primitive_magnitude_path(field_path) {
         Some(FieldKind::Quantity {
             require_positive: false,
             unit_source: UnitSource::SiblingUnitField,
+        })
+    } else if object_type == "Combination" && is_combination_term_factor_path(field_path) {
+        Some(FieldKind::Number {
+            require_positive: false,
         })
     } else {
         field_rules(object_type)
@@ -1241,6 +1252,100 @@ fn resolve_field(
                 kind,
                 current_display: current,
                 applied_value: Value::String(trimmed.to_string()),
+                segments,
+            })
+        }
+        FieldKind::Number { require_positive } => {
+            let value_node = value_at_segments(entity, &segments);
+            let Some(current_number) = value_node.and_then(Value::as_f64) else {
+                checker.push(
+                    "OP-NUMBER-FIELD-MISSING",
+                    "blocking",
+                    format!("Numeric field `{field_path}` is not present on `{target_ref}`."),
+                    "Refresh the editor intent against the current model document.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            checker.unit_state = "passed";
+            if unit != "none" {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                    "blocking",
+                    format!(
+                        "Intent unit `{unit}` does not match stored unit `none` for dimensionless numeric field `{field_path}`."
+                    ),
+                    "Enter the scalar value with unit `none`; no silent conversion is performed.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            if !CANONICAL_DIMENSIONS.contains(&dimension) {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-DIMENSION-UNKNOWN",
+                    "blocking",
+                    format!("Dimension `{dimension}` is outside the canonical dimension vocabulary."),
+                    "Use a canonical dimension token; vocabulary changes await the D-01 unit-catalog ruling.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            if dimension != "dimensionless" {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-UNIT-DIMENSION-MISMATCH",
+                    "blocking",
+                    format!(
+                        "Dimensionless numeric field `{field_path}` cannot be edited with dimension `{dimension}`."
+                    ),
+                    "Use dimension `dimensionless` for scalar combination factors.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+
+            check_before_numeric(current_number, before, target_ref, field_path, checker);
+
+            let Some(parsed) = parse_finite_number(after) else {
+                checker.push(
+                    "OP-VALUE-NOT-NUMERIC",
+                    "blocking",
+                    format!(
+                        "Replacement value `{after}` for `{field_path}` is not a finite number."
+                    ),
+                    "Provide a finite numeric value.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            if require_positive && parsed <= 0.0 {
+                checker.push(
+                    "OP-VALUE-NOT-POSITIVE",
+                    "blocking",
+                    format!(
+                        "Replacement value `{after}` for `{field_path}` must be greater than zero."
+                    ),
+                    "Provide a positive scalar value.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+            let Some(number) = Number::from_f64(parsed) else {
+                checker.push(
+                    "OP-VALUE-NOT-NUMERIC",
+                    "blocking",
+                    format!("Replacement value `{after}` for `{field_path}` cannot be encoded as a JSON number."),
+                    "Provide a finite numeric value.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            };
+            Some(ResolvedField {
+                kind,
+                current_display: display_number(current_number),
+                applied_value: Value::Number(number),
                 segments,
             })
         }
@@ -1611,6 +1716,15 @@ fn is_primitive_magnitude_path(field_path: &str) -> bool {
         && !segments[1].is_empty()
         && segments[2] == "magnitude"
         && segments[3] == "value"
+}
+
+fn is_combination_term_factor_path(field_path: &str) -> bool {
+    let segments: Vec<&str> = field_path.split('.').collect();
+    segments.len() == 3
+        && segments[0] == "terms"
+        && segments[1].chars().all(|ch| ch.is_ascii_digit())
+        && !segments[1].is_empty()
+        && segments[2] == "factor"
 }
 
 fn quantity_value(
@@ -2257,6 +2371,64 @@ mod tests {
             kind_applied["load_cases"][0]["status"],
             before_snapshot["load_cases"][0]["status"]
         );
+    }
+
+    #[test]
+    fn combination_term_factor_applies_without_whole_term_editing() {
+        let mut model = sample_model();
+        model["combinations"][0]["terms"] = json!([
+            { "load_case": "load:L-1", "factor": 1.0 },
+            { "load_case": "load:L-1", "factor": 0.5 }
+        ]);
+        let before_snapshot = model.clone();
+        let intent = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "update_load",
+            "terms.1.factor",
+            "0.5",
+            "0.75",
+            "none",
+            "dimensionless",
+        );
+        let outcome = apply_operation(&model, &intent, None);
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["combinations"][0]["terms"][0]["factor"], json!(1.0));
+        assert_eq!(
+            applied["combinations"][0]["terms"][1]["factor"],
+            json!(0.75)
+        );
+        assert_eq!(
+            applied["combinations"][0]["terms"][1]["load_case"],
+            json!("load:L-1")
+        );
+
+        let whole_terms = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "update_load",
+            "terms",
+            "load:L-1 x 1; load:L-1 x 0.5",
+            "load:L-1 x 1; load:L-1 x 0.75",
+            "none",
+            "dimensionless",
+        );
+        let blocked = apply_operation(&model, &whole_terms, None);
+        assert!(codes(&blocked).contains(&"OP-FIELD-EDIT-DEFERRED"));
+        assert!(blocked.applied_model.is_none());
     }
 
     #[test]

@@ -1004,8 +1004,35 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.combination-term-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+.combination-term-row {
+  min-height: 28px;
+  padding: 5px 7px;
+  border: 1px solid #d9dfdb;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.combination-term-row.active {
+  border-color: #86aaa0;
+  background: #eef7f2;
+  outline: 2px solid rgba(76, 127, 109, 0.18);
+  outline-offset: -2px;
+}
+
 .load-magnitude-editor,
-.load-metadata-editor {
+.load-metadata-editor,
+.combination-factor-editor {
   display: grid;
   gap: 8px;
   margin: 2px 0 10px;
@@ -1038,7 +1065,8 @@ button:focus-visible {
 }
 
 .load-editor-controls,
-.load-metadata-controls {
+.load-metadata-controls,
+.combination-factor-controls {
   display: grid;
   grid-template-columns: minmax(72px, 0.7fr) minmax(0, 1fr) auto;
   align-items: end;
@@ -1050,21 +1078,24 @@ button:focus-visible {
 }
 
 .load-editor-controls label,
-.load-metadata-controls label {
+.load-metadata-controls label,
+.combination-factor-controls label {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
 .load-editor-controls span,
-.load-metadata-controls span {
+.load-metadata-controls span,
+.combination-factor-controls span {
   color: #54615d;
   font-size: 11px;
 }
 
 .load-editor-controls input,
 .load-metadata-controls input,
-.load-metadata-controls select {
+.load-metadata-controls select,
+.combination-factor-controls input {
   min-width: 0;
   height: 30px;
   padding: 5px 7px;
@@ -1075,7 +1106,8 @@ button:focus-visible {
 }
 
 .load-editor-controls button,
-.load-metadata-controls button {
+.load-metadata-controls button,
+.combination-factor-controls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1091,7 +1123,8 @@ button:focus-visible {
 }
 
 .load-editor-controls button:disabled,
-.load-metadata-controls button:disabled {
+.load-metadata-controls button:disabled,
+.combination-factor-controls button:disabled {
   color: #7d8985;
   background: #eef2ef;
   cursor: not-allowed;

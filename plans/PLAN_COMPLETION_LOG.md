@@ -11,6 +11,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 third sub-slice: combination term-factor editor (`TP-APP-R2-COMBFACTOR-001`)
+
+The Load Cases manager now exposes existing combination term-factor editing
+for the invented mechanics preview combination. The editor selects an
+existing `Combination.terms.N.factor` row, queues a structured `update_load`
+intent with explicit before/after scalar values, unit `none`, dimension
+`dimensionless`, local-session audit boundaries, and no professional approval
+claim. Whole `Combination.terms` replacement, combination `basis` editing,
+term creation/deletion, code/rule combinations, and broader algebra authoring
+remain explicitly out of scope.
+
+The browser local operation mirror and Rust `core/model_operations/
+operation_applier` crate now validate, diff, and apply the dynamic
+`terms.N.factor` path as a dimensionless numeric field. The app-level test
+applies `combination:C-OPER-ALT` term 1 from `0.5` to `0.75` through
+`OperationApplyPanel`, verifies the manager row, property inspector,
+pending-operation count, applied-operation count, and stale-solve reset. The
+Rust test proves `terms.1.factor` applies without mutating the input model and
+that whole `terms` editing remains an explicit deferred finding. The
+Playwright R2 smoke previews the rendered factor editor without queueing so
+the solve/results/report path remains on the unchanged fixture model.
+
+An in-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-combination:C-OPER-ALT-term-1-factor` and confirmed
+`load:L-200 x 0.75`, zero pending operations,
+`persistence=session_state_only_not_yet_saved`, `professional_approval=false`,
+and solve state `not_started`.
+
+Residuals remain in A4: load-case creation, arbitrary primitive-load
+creation, imposed-displacement authoring breadth, combination basis editing,
+combination term creation/deletion, broader algebra authoring, Phase B unit
+picker/display retirement, and packaged-Tauri saved-project smoke over edited
+load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-96;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_combination_term_factor_editor.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 second sub-slice: load-case metadata editor (`TP-APP-R2-LOADMETA-001`)
 
 The Load Cases manager now exposes selected load-case metadata editing for
