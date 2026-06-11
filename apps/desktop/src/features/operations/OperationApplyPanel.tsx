@@ -1,22 +1,30 @@
-import { CheckCheck, PlayCircle, SearchCheck } from "lucide-react";
+import { CheckCheck, PlayCircle, Redo2, SearchCheck, Undo2 } from "lucide-react";
 import type { AppliedOperationReceipt, EditorOperationIntent, OperationOutcome } from "../../types";
 
 export function OperationApplyPanel({
   queuedIntents,
   outcomes,
   appliedOperations,
+  undoCount,
+  redoCount,
   busy,
   message,
   onValidate,
-  onApply
+  onApply,
+  onUndo,
+  onRedo
 }: {
   queuedIntents: EditorOperationIntent[];
   outcomes: Record<string, OperationOutcome>;
   appliedOperations: AppliedOperationReceipt[];
+  undoCount: number;
+  redoCount: number;
   busy: boolean;
   message: string | null;
   onValidate: (intent: EditorOperationIntent) => void;
   onApply: (intent: EditorOperationIntent) => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }) {
   return (
     <section className="panel operation-apply-panel" aria-label="Apply structured operations" data-testid="operation-apply-panel">
@@ -28,6 +36,31 @@ export function OperationApplyPanel({
         {queuedIntents.length} queued; {appliedOperations.length} applied this session. Applying validates through the
         structured-operation seam and replaces the session model document; saving the project stores it locally.
       </p>
+      <div className="operation-history-actions" aria-label="Session edit history">
+        <button
+          data-testid="undo-session-model-edit"
+          disabled={busy || undoCount === 0}
+          onClick={onUndo}
+          title="Undo last local session model edit"
+          type="button"
+        >
+          <Undo2 size={14} aria-hidden="true" />
+          Undo
+        </button>
+        <button
+          data-testid="redo-session-model-edit"
+          disabled={busy || redoCount === 0}
+          onClick={onRedo}
+          title="Redo last undone local session model edit"
+          type="button"
+        >
+          <Redo2 size={14} aria-hidden="true" />
+          Redo
+        </button>
+        <small data-testid="session-history-summary">
+          undo={undoCount}; redo={redoCount}; local_session_only=true; saved_project_mutated=false
+        </small>
+      </div>
       {message ? (
         <p className="muted" data-testid="operation-apply-message">
           {message}

@@ -130,3 +130,21 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-10 - TP-APP-R2-UNDOREDO-001 session undo/redo checkpoints
+
+- WORKING_ITEMS app-integration tranche added local-session Undo/Redo
+  controls and history counters to the Apply Operations panel.
+- Undo/redo restores in-memory model and selection checkpoints, clears stale
+  solve results, and remains explicitly labeled local-session-only with
+  `saved_project_mutated=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_session_undo_redo_checkpoints.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-87. Validation passed:
+  `npm test --workspace apps/desktop` (28/28) and `npm run build
+  --workspace apps/desktop`. Browser smoke created `node:N-155`, undid it,
+  and redid it with no timestamp-filtered browser warnings/errors.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

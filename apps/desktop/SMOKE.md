@@ -2537,3 +2537,31 @@ after the timestamp marker were absent.
   include private project data, access network/cloud/telemetry, or make
   release, professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-87 session-undo-redo-checkpoints (2026-06-10)
+
+- Tranche: `TP-APP-R2-UNDOREDO-001` (completion plan Phase A3 sub-slice)
+  adding local-session undo/redo checkpoints for applied structured
+  operations. The Apply Operations panel now exposes Undo/Redo controls and a
+  history summary (`undo=N; redo=N; local_session_only=true;
+  saved_project_mutated=false`). Applying an operation pushes the prior
+  session model/selection onto the undo stack and clears redo; undo restores
+  the prior session model, moves the current model to redo, clears stale solve
+  results, and does not mutate saved project data; redo restores the undone
+  session model and clears stale solve results again.
+- Local validation: `npm test --workspace apps/desktop` passed with 28/28
+  Vitest tests, including apply → undo → redo of explicit viewport node
+  creation; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build; targeted `git diff --check` on touched
+  files passed. Browser smoke against `http://127.0.0.1:5174/` created
+  `node:N-155` at `9.1, 2.6, 3.3`, observed `undo=1; redo=0`, clicked Undo
+  and confirmed the node row disappeared with `undo=0; redo=1` and
+  `state=not_started`, then clicked Redo and confirmed the active node row
+  and inspector position returned with `undo=1; redo=0`. Timestamp-filtered
+  browser warnings/errors after the final reload were absent.
+- Boundary: undo/redo is an in-memory session checkpoint mechanism only. It
+  does not rewrite durable project snapshots, erase the audit receipt ledger,
+  persist model changes, perform unit conversion, infer engineering values,
+  access protected/private data, access network/cloud/telemetry, or make
+  release, professional approval, certification, sealing, authentication, or
+  code-compliance claims.

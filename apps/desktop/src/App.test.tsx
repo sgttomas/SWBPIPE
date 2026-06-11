@@ -4918,6 +4918,32 @@ describe("OpenPipeStress desktop preview", () => {
     expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
     expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
     expect(receipt.textContent).toContain("professional_approval=false");
+
+    expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=1; redo=0");
+    expect(within(applyPanel).getByTestId("undo-session-model-edit")).not.toBeDisabled();
+    expect(within(applyPanel).getByTestId("redo-session-model-edit")).toBeDisabled();
+
+    fireEvent.click(within(applyPanel).getByTestId("undo-session-model-edit"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Undid op:viewport-create-node-node:N-150-001"
+      )
+    );
+    expect(screen.queryByTestId("tree-row-node:N-150")).toBeNull();
+    expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=0; redo=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    fireEvent.click(within(applyPanel).getByTestId("redo-session-model-edit"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Redid op:viewport-create-node-node:N-150-001"
+      )
+    );
+    const redoneNodeRow = screen.getByTestId("tree-row-node:N-150");
+    expect(redoneNodeRow.textContent).toContain("User preview node");
+    expect(redoneNodeRow).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("8.4, 2.4, 2.8 m");
+    expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=1; redo=0");
   });
 
   it("blocks underspecified viewport node gestures at apply instead of inventing values", async () => {

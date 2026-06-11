@@ -102,3 +102,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - This is local review/audit evidence only. It does not imply durable
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, or code-compliance.
+
+## 2026-06-10 - TP-APP-R2-UNDOREDO-001 session undo/redo checkpoints
+
+- WORKING_ITEMS app-integration tranche added local-session Undo/Redo
+  controls for applied structured operations.
+- The controls restore in-memory model checkpoints while preserving the
+  applied-operation receipt ledger as historical local-session evidence. The
+  UI labels the history surface `local_session_only=true` and
+  `saved_project_mutated=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_session_undo_redo_checkpoints.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-87. Validation passed:
+  desktop Vitest 28/28, desktop build, and browser smoke with no
+  timestamp-filtered warnings/errors.
+- This is not durable persistence, release readiness, professional approval,
+  certification, sealing, authentication, approval, code compliance, or
+  protected/private data handling.

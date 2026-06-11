@@ -11,6 +11,24 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-10 — A3 fourth sub-slice: session undo/redo checkpoints (`TP-APP-R2-UNDOREDO-001`)
+
+The Apply Operations panel now exposes local-session Undo/Redo controls for
+applied structured operations. Applying an operation records a checkpoint for
+the previous session model and selection; undo restores that checkpoint,
+moves the current model to redo, and clears stale solve results; redo restores
+the undone model and clears stale solve results again. The history summary is
+explicitly labeled local-session-only and saved-project-mutated=false.
+
+Residuals remain in the A3 row: true canvas raycast/gesture geometry capture,
+straight-pipe connectivity creation, and broader editor coverage as new
+authoring surfaces land.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-87;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-10_session_undo_redo_checkpoints.md`
+and the same-named record under
+`DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-10 — A3 third sub-slice: explicit node create operation (`TP-APP-R2-CREATENODE-001`)
 
 The viewport editor now has an explicit node-geometry form for user-entered

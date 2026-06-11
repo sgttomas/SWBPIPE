@@ -102,6 +102,13 @@ import type {
   SolveJobAuditState
 } from "./types";
 
+type SessionModelCheckpoint = {
+  checkpoint_id: string;
+  operation_id: string;
+  model: PreviewModel;
+  selection: EntityRef;
+};
+
 export function App() {
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
@@ -128,6 +135,8 @@ export function App() {
   const [projectBusy, setProjectBusy] = useState(false);
   const [operationOutcomes, setOperationOutcomes] = useState<Record<string, OperationOutcome>>({});
   const [appliedOperations, setAppliedOperations] = useState<AppliedOperationReceipt[]>([]);
+  const [undoStack, setUndoStack] = useState<SessionModelCheckpoint[]>([]);
+  const [redoStack, setRedoStack] = useState<SessionModelCheckpoint[]>([]);
   const [operationBusy, setOperationBusy] = useState(false);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
   const intentSequence = useRef(0);
@@ -275,6 +284,18 @@ export function App() {
         professional_boundary: outcome.professional_boundary
       };
       setAppliedOperations((current) => [receipt, ...current]);
+      setUndoStack((current) =>
+        [
+          {
+            checkpoint_id: `undo-${appliedOperations.length + 1}-${intentKey(intent)}`,
+            operation_id: outcome.operation_id,
+            model: clonePreviewModel(model),
+            selection: selection ?? defaultSelection(model)
+          },
+          ...current
+        ].slice(0, 25)
+      );
+      setRedoStack([]);
       setModel(outcome.applied_model);
       const appliedSelection = selectionForOperationOutcome(outcome);
       if (appliedSelection) setSelection(appliedSelection);
@@ -294,6 +315,60 @@ export function App() {
     } finally {
       setOperationBusy(false);
     }
+  }
+
+  function handleUndoSessionModelEdit() {
+    if (!model || !selection || undoStack.length === 0) return;
+    const [checkpoint, ...remainingUndo] = undoStack;
+    setUndoStack(remainingUndo);
+    setRedoStack((current) =>
+      [
+        {
+          checkpoint_id: `redo-${checkpoint.checkpoint_id}`,
+          operation_id: checkpoint.operation_id,
+          model: clonePreviewModel(model),
+          selection
+        },
+        ...current
+      ].slice(0, 25)
+    );
+    setModel(clonePreviewModel(checkpoint.model));
+    setSelection(checkpoint.selection);
+    clearComputedModelState(sessionHistoryChangedSolveJob("undo", checkpoint.operation_id));
+    setOperationMessage(
+      `Undid ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`
+    );
+  }
+
+  function handleRedoSessionModelEdit() {
+    if (!model || !selection || redoStack.length === 0) return;
+    const [checkpoint, ...remainingRedo] = redoStack;
+    setRedoStack(remainingRedo);
+    setUndoStack((current) =>
+      [
+        {
+          checkpoint_id: `undo-${checkpoint.checkpoint_id}`,
+          operation_id: checkpoint.operation_id,
+          model: clonePreviewModel(model),
+          selection
+        },
+        ...current
+      ].slice(0, 25)
+    );
+    setModel(clonePreviewModel(checkpoint.model));
+    setSelection(checkpoint.selection);
+    clearComputedModelState(sessionHistoryChangedSolveJob("redo", checkpoint.operation_id));
+    setOperationMessage(
+      `Redid ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`
+    );
+  }
+
+  function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
+    setResult(null);
+    setAnalysisRun(null);
+    setProposal(null);
+    setSelectedReviewTarget(null);
+    setSolveJob(nextSolveJob);
   }
 
   async function handleCreateProject() {
@@ -355,6 +430,9 @@ export function App() {
       const restoredAnalysisRun = opened.analysis_run ?? null;
       setModel(opened.model);
       setSelection(defaultSelection(opened.model));
+      setUndoStack([]);
+      setRedoStack([]);
+      setAppliedOperations([]);
       setResult(restoredResult);
       setAnalysisRun(restoredAnalysisRun);
       setProposal(opened.proposal ?? null);
@@ -589,10 +667,14 @@ export function App() {
             queuedIntents={editorIntents}
             outcomes={operationOutcomes}
             appliedOperations={appliedOperations}
+            undoCount={undoStack.length}
+            redoCount={redoStack.length}
             busy={operationBusy}
             message={operationMessage}
             onValidate={handleValidateIntent}
             onApply={handleApplyIntent}
+            onUndo={handleUndoSessionModelEdit}
+            onRedo={handleRedoSessionModelEdit}
           />
         </aside>
 
@@ -822,6 +904,10 @@ function selectionForOperationOutcome(outcome: OperationOutcome): EntityRef | nu
   return type ? { type, id: outcome.target_ref } : null;
 }
 
+function clonePreviewModel(model: PreviewModel): PreviewModel {
+  return JSON.parse(JSON.stringify(model)) as PreviewModel;
+}
+
 const NO_BACKEND_JOB_TOKEN = "none_no_active_backend_job";
 
 function initialSolveJob(): SolveJobAuditState {
@@ -905,6 +991,25 @@ function modelChangedSolveJob(outcome: OperationOutcome): SolveJobAuditState {
         event_id: "solve-preview-model-changed",
         state: "not_started",
         message: `Model changed by applied structured operation ${outcome.operation_id}; previous mechanics results were cleared because they no longer describe the edited model. Run a new solve.`,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ]
+  };
+}
+
+function sessionHistoryChangedSolveJob(action: "undo" | "redo", operationId: string): SolveJobAuditState {
+  const verb = action === "undo" ? "Undid" : "Redid";
+  return {
+    ...initialSolveJob(),
+    job_id: `job:preview-linear-static:session-${action}`,
+    events: [
+      {
+        event_id: `solve-preview-session-${action}`,
+        state: "not_started",
+        message: `${verb} local session model operation ${operationId}; previous mechanics results were cleared because they no longer describe the current model. Run a new solve.`,
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,
