@@ -173,3 +173,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Boundary semantics remain unchanged: no direct input-model mutation, no
   silent unit conversion, no geometry inference, no durable persistence, no
   protected/private data, and no professional/release/code-compliance claim.
+
+## 2026-06-11 - TP-APP-R2-LOADMETA-001 load-case metadata editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  `Load.status` and `Load.kind` text metadata updates.
+- `apps/desktop/src/services/operationService.ts` and
+  `core/model_operations/operation_applier/src/lib.rs` now treat those fields
+  as supported text fields. Existing `Combination.basis` and
+  `Combination.terms` remain explicitly deferred for the later A4 combination
+  editor scope.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_metadata_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-95. Validation passed:
+  operation-applier format check, Rust operation-applier tests 23/23,
+  src-tauri Rust tests 26/26, desktop Vitest 36/36, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden load defaults, no durable persistence, no
+  protected/private data, and no professional/release/code-compliance claim.

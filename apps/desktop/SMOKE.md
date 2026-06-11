@@ -2762,3 +2762,36 @@ after the timestamp marker were absent.
   conversion, add protected standards content, handle private data, or make
   release, professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-95 load-case-metadata-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-LOADMETA-001` (completion plan Phase A4 second
+  sub-slice) adding selected load-case `status` and `kind` editing to the
+  Load Cases manager. The editor queues structured `update_load` operations
+  for `Load.status` or `Load.kind` with explicit before/after values, unit
+  `none`, dimension `dimensionless`, and the existing local-session
+  acceptance boundary.
+- Edit path: applying `op:load-manager-load:L-100-status` updates
+  `load:L-100` from `preview_only` to `TBD` through `OperationApplyPanel`,
+  resets stale solve results, leaves persistence at
+  `session_state_only_not_yet_saved`, and records no professional approval.
+  The `kind` editor previews `primitive_user_load -> TBD`; combination
+  `basis` and `terms` editing remain explicitly deferred.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 23/23 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 36/36 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the rendered status edit and confirmed the
+  row showed `status=TBD`, pending operations returned to zero, and solve
+  state remained `not_started`; `git diff --check -- . ':!init/init-prompt.md'`
+  passed for the touched scope.
+- Boundary: this slice does not add load-case creation, arbitrary
+  primitive-load creation, imposed-displacement authoring, combination
+  editing, unit conversion, saved-project mutation without user Save,
+  protected standards content, private data, or release, professional
+  approval, certification, sealing, authentication, or code-compliance claims.

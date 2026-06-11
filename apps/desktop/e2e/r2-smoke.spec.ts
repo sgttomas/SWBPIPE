@@ -16,6 +16,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
     "primitive_loads.2.magnitude.value"
   );
+  await expect(page.getByTestId("load-manager-selected-case")).toContainText("field=status");
+  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText("current=preview_only");
+  await page.getByTestId("load-manager-metadata-value").selectOption("TBD");
+  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
+    "op:load-manager-load:L-100-status"
+  );
+  await page.getByTestId("load-manager-metadata-field").selectOption("kind");
+  await expect(page.getByTestId("load-manager-selected-case")).toContainText(
+    "field=kind; current=primitive_user_load"
+  );
+  await page.getByTestId("load-manager-metadata-value").selectOption("TBD");
+  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
+    "op:load-manager-load:L-100-kind"
+  );
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();

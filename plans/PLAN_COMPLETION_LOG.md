@@ -11,6 +11,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 second sub-slice: load-case metadata editor (`TP-APP-R2-LOADMETA-001`)
+
+The Load Cases manager now exposes selected load-case metadata editing for
+`status` and `kind`. The editor queues structured `update_load` intents for
+`Load.status` or `Load.kind` with explicit before/after values, unit `none`,
+dimension `dimensionless`, local-session audit boundaries, and no
+professional approval claim. The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now validate, diff, and apply
+those two load metadata fields; combination `basis`/`terms` editing remains
+explicitly deferred.
+
+The app-level test applies `load:L-100` status from `preview_only` to `TBD`
+through `OperationApplyPanel`, verifies the manager row, property inspector,
+pending-operation count, applied-operation count, and stale-solve reset, then
+verifies the `kind` editor previews `primitive_user_load -> TBD` without
+applying a second operation. The Playwright R2 smoke checks the rendered
+status/kind metadata controls without queueing so the solve/results/report
+path remains on the unchanged fixture model. An in-app browser smoke at
+`http://127.0.0.1:5175/` applied the rendered status edit and confirmed the
+row showed `status=TBD`, pending operations returned to zero, and solve state
+remained `not_started`.
+
+Residuals remain in A4: load-case creation, arbitrary primitive-load creation,
+imposed-displacement authoring breadth, full combination editing/algebra
+authoring, Phase B unit picker/display retirement, and packaged-Tauri
+saved-project smoke over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-95;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_metadata_editor.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A3 seventh sub-slice: viewport pipe endpoint picking (`TP-APP-R2-PIPEPICK-001`)
 
 The viewport pipe form now has explicit endpoint-pick controls. Arming

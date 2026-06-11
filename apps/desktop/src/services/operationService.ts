@@ -102,6 +102,8 @@ const FIELD_RULES: Record<string, Record<string, FieldKind>> = {
   },
   Load: {
     label: { kind: "text" },
+    status: { kind: "text" },
+    kind: { kind: "text" },
     provenance: { kind: "text" }
   },
   Combination: {
@@ -115,16 +117,6 @@ const DEFERRED_FIELDS: Array<{ objectType: string; fieldPath: string; reason: st
     objectType: "Component",
     fieldPath: "kind",
     reason: "component-kind editing is deferred to the component editor scope (completion plan Phase C/D)"
-  },
-  {
-    objectType: "Load",
-    fieldPath: "status",
-    reason: "load-case status editing is deferred to the load case manager (completion plan A4)"
-  },
-  {
-    objectType: "Load",
-    fieldPath: "kind",
-    reason: "load-case kind editing is deferred to the load case manager (completion plan A4)"
   },
   {
     objectType: "Combination",

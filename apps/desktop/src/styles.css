@@ -1004,7 +1004,8 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
-.load-magnitude-editor {
+.load-magnitude-editor,
+.load-metadata-editor {
   display: grid;
   gap: 8px;
   margin: 2px 0 10px;
@@ -1036,25 +1037,34 @@ button:focus-visible {
   font-size: 11px;
 }
 
-.load-editor-controls {
+.load-editor-controls,
+.load-metadata-controls {
   display: grid;
   grid-template-columns: minmax(72px, 0.7fr) minmax(0, 1fr) auto;
   align-items: end;
   gap: 7px;
 }
 
-.load-editor-controls label {
+.load-metadata-controls {
+  grid-template-columns: minmax(72px, 0.7fr) minmax(92px, 0.8fr) minmax(0, 1fr) auto;
+}
+
+.load-editor-controls label,
+.load-metadata-controls label {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
-.load-editor-controls span {
+.load-editor-controls span,
+.load-metadata-controls span {
   color: #54615d;
   font-size: 11px;
 }
 
-.load-editor-controls input {
+.load-editor-controls input,
+.load-metadata-controls input,
+.load-metadata-controls select {
   min-width: 0;
   height: 30px;
   padding: 5px 7px;
@@ -1064,7 +1074,8 @@ button:focus-visible {
   background: #ffffff;
 }
 
-.load-editor-controls button {
+.load-editor-controls button,
+.load-metadata-controls button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1079,7 +1090,8 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-.load-editor-controls button:disabled {
+.load-editor-controls button:disabled,
+.load-metadata-controls button:disabled {
   color: #7d8985;
   background: #eef2ef;
   cursor: not-allowed;

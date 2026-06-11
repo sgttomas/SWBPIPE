@@ -170,10 +170,8 @@ struct FieldRule {
 /// Inspector-offered fields whose application is deliberately deferred to a
 /// later completion-plan item. Returned as explicit blocked findings so the
 /// scope limit stays visible instead of silently half-working.
-const DEFERRED_FIELDS: [(&str, &str, &str); 5] = [
+const DEFERRED_FIELDS: [(&str, &str, &str); 3] = [
     ("Component", "kind", "component-kind editing is deferred to the component editor scope (completion plan Phase C/D)"),
-    ("Load", "status", "load-case status editing is deferred to the load case manager (completion plan A4)"),
-    ("Load", "kind", "load-case kind editing is deferred to the load case manager (completion plan A4)"),
     ("Combination", "basis", "combination basis editing is deferred to the load case manager (completion plan A4)"),
     ("Combination", "terms", "combination term editing is deferred to the load case manager (completion plan A4)"),
 ];
@@ -311,6 +309,14 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
         "Load" => &[
             FieldRule {
                 field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "status",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "kind",
                 kind: FieldKind::Text,
             },
             FieldRule {
@@ -2194,6 +2200,66 @@ mod tests {
     }
 
     #[test]
+    fn load_case_status_and_kind_metadata_apply_without_mutating_input() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+
+        let status_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "status",
+            "preview_only",
+            "TBD",
+            "none",
+            "dimensionless",
+        );
+        let status_outcome = apply_operation(&model, &status_intent, None);
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            status_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            status_outcome.diagnostics
+        );
+        assert_eq!(
+            status_outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        let status_applied = status_outcome.applied_model.expect("status applied model");
+        assert_eq!(status_applied["load_cases"][0]["status"], json!("TBD"));
+        assert_eq!(
+            status_applied["load_cases"][0]["kind"],
+            before_snapshot["load_cases"][0]["kind"]
+        );
+
+        let kind_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "kind",
+            "primitive_user_load",
+            "TBD",
+            "none",
+            "dimensionless",
+        );
+        let kind_outcome = apply_operation(&model, &kind_intent, None);
+        assert!(
+            kind_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            kind_outcome.diagnostics
+        );
+        let kind_applied = kind_outcome.applied_model.expect("kind applied model");
+        assert_eq!(kind_applied["load_cases"][0]["kind"], json!("TBD"));
+        assert_eq!(
+            kind_applied["load_cases"][0]["status"],
+            before_snapshot["load_cases"][0]["status"]
+        );
+    }
+
+    #[test]
     fn apply_blocks_missing_targets_and_dangling_references() {
         let model = sample_model();
         let missing_target = modify_intent(
@@ -2298,12 +2364,12 @@ mod tests {
     fn deferred_inspector_fields_block_with_explicit_scope_finding() {
         let model = sample_model();
         let intent = modify_intent(
-            "Load",
-            "load:L-1",
-            "update_load",
-            "status",
-            "preview_only",
-            "solved",
+            "Combination",
+            "combination:C-OP",
+            "set_field",
+            "basis",
+            "mechanics",
+            "code_specific_default",
             "none",
             "dimensionless",
         );

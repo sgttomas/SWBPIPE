@@ -11,6 +11,8 @@ type PrimitiveLoadView = {
   loadCase: LoadCase;
 };
 
+type LoadMetadataField = "status" | "kind";
+
 export function LoadCaseManagerPanel({
   model,
   onQueueIntent,
@@ -26,9 +28,18 @@ export function LoadCaseManagerPanel({
   const [selectedPrimitiveKey, setSelectedPrimitiveKey] = useState(primitiveLoads[0] ? primitiveKey(primitiveLoads[0]) : "");
   const selectedPrimitive =
     primitiveLoads.find((primitive) => primitiveKey(primitive) === selectedPrimitiveKey) ?? primitiveLoads[0] ?? null;
+  const selectedLoadCase =
+    (selection.type === "load" ? model.load_cases.find((loadCase) => loadCase.id === selection.id) : null) ??
+    selectedPrimitive?.loadCase ??
+    model.load_cases[0] ??
+    null;
   const currentMagnitude = selectedPrimitive ? primitiveMagnitudeDisplay(selectedPrimitive.load) : "";
   const [proposedMagnitude, setProposedMagnitude] = useState(currentMagnitude);
   const [rationale, setRationale] = useState("user_entered_load_case_preview_change");
+  const [metadataField, setMetadataField] = useState<LoadMetadataField>("status");
+  const currentMetadataValue = selectedLoadCase ? loadCaseMetadataValue(selectedLoadCase, metadataField) : "";
+  const [proposedMetadataValue, setProposedMetadataValue] = useState(currentMetadataValue);
+  const [metadataRationale, setMetadataRationale] = useState("user_entered_load_case_metadata_preview_change");
   const changed = selectedPrimitive ? proposedMagnitude.trim() !== currentMagnitude : false;
   const intent =
     selectedPrimitive && changed
@@ -39,6 +50,20 @@ export function LoadCaseManagerPanel({
           rationale
         })
       : null;
+  const metadataChanged = selectedLoadCase
+    ? proposedMetadataValue.trim() !== "" && proposedMetadataValue.trim() !== currentMetadataValue
+    : false;
+  const metadataIntent =
+    selectedLoadCase && metadataChanged
+      ? buildLoadMetadataIntent({
+          model,
+          loadCase: selectedLoadCase,
+          field: metadataField,
+          proposedValue: proposedMetadataValue,
+          rationale: metadataRationale
+        })
+      : null;
+  const metadataOptions = loadMetadataOptions(model, metadataField, currentMetadataValue);
 
   useEffect(() => {
     if (!primitiveLoads.length) {
@@ -54,6 +79,11 @@ export function LoadCaseManagerPanel({
     setProposedMagnitude(currentMagnitude);
     setRationale("user_entered_load_case_preview_change");
   }, [currentMagnitude, selectedPrimitiveKey]);
+
+  useEffect(() => {
+    setProposedMetadataValue(currentMetadataValue);
+    setMetadataRationale("user_entered_load_case_metadata_preview_change");
+  }, [currentMetadataValue, metadataField, selectedLoadCase?.id]);
 
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
     setSelectedPrimitiveKey(primitiveKey(primitive));
@@ -94,6 +124,71 @@ export function LoadCaseManagerPanel({
           </button>
         ))}
       </div>
+
+      {selectedLoadCase ? (
+        <section className="load-metadata-editor" aria-label="Load case metadata editor">
+          <div className="load-editor-heading" data-testid="load-manager-selected-case">
+            <SlidersHorizontal size={14} aria-hidden="true" />
+            <strong>{selectedLoadCase.id}</strong>
+            <span>
+              field={metadataField}; current={currentMetadataValue}; path={metadataField}
+            </span>
+          </div>
+          <div className="load-metadata-controls">
+            <label>
+              <span>Field</span>
+              <select
+                aria-label="Load case metadata field"
+                data-testid="load-manager-metadata-field"
+                onChange={(event) => setMetadataField(event.target.value as LoadMetadataField)}
+                value={metadataField}
+              >
+                <option value="status">Status</option>
+                <option value="kind">Kind</option>
+              </select>
+            </label>
+            <label>
+              <span>Value</span>
+              <select
+                aria-label="Load case metadata value"
+                data-testid="load-manager-metadata-value"
+                onChange={(event) => setProposedMetadataValue(event.target.value)}
+                value={proposedMetadataValue}
+              >
+                {metadataOptions.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Rationale</span>
+              <input
+                aria-label="Load case metadata rationale"
+                data-testid="load-manager-metadata-rationale"
+                onChange={(event) => setMetadataRationale(event.target.value)}
+                value={metadataRationale}
+              />
+            </label>
+            <button
+              data-testid="queue-load-metadata-intent"
+              disabled={!metadataIntent}
+              onClick={() => metadataIntent && onQueueIntent(metadataIntent)}
+              title="Queue load-case metadata operation"
+              type="button"
+            >
+              <ListPlus size={14} aria-hidden="true" />
+              Queue metadata
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-metadata-preview">
+            {metadataIntent
+              ? `${metadataIntent.operation_id}; before=${metadataIntent.change.before}; after=${metadataIntent.change.after}; unit=${metadataIntent.change.unit}; ${metadataIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : `current=${currentMetadataValue}; no changed ${metadataField} queued`}
+          </p>
+        </section>
+      ) : null}
 
       <div className="load-primitive-list" data-testid="load-case-manager-primitives">
         {primitiveLoads.map((primitive) => (
@@ -187,6 +282,93 @@ export function LoadCaseManagerPanel({
       </small>
     </section>
   );
+}
+
+function loadCaseMetadataValue(loadCase: LoadCase, field: LoadMetadataField): string {
+  return loadCase[field];
+}
+
+function loadMetadataOptions(model: PreviewModel, field: LoadMetadataField, currentValue: string): string[] {
+  const values = new Set<string>();
+  for (const loadCase of model.load_cases) {
+    const value = loadCaseMetadataValue(loadCase, field).trim();
+    if (value) values.add(value);
+  }
+  if (currentValue.trim()) values.add(currentValue.trim());
+  values.add("TBD");
+  if (field === "status") values.add("preview_only");
+  if (field === "kind") values.add("primitive_user_load");
+  return Array.from(values).sort((left, right) => {
+    if (left === currentValue) return -1;
+    if (right === currentValue) return 1;
+    if (left === "TBD") return 1;
+    if (right === "TBD") return -1;
+    return left.localeCompare(right);
+  });
+}
+
+function buildLoadMetadataIntent({
+  model,
+  loadCase,
+  field,
+  proposedValue,
+  rationale
+}: {
+  model: PreviewModel;
+  loadCase: LoadCase;
+  field: LoadMetadataField;
+  proposedValue: string;
+  rationale: string;
+}): EditorOperationIntent {
+  const operationToken = `${safeToken(loadCase.id)}-${field}`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "modify",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Load",
+      ref: loadCase.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "update_load",
+      field_label: `Load case ${field}`,
+      field_path: field,
+      before: loadCaseMetadataValue(loadCase, field),
+      after: proposedValue.trim() || "TBD",
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered load-case metadata"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `load case metadata edit intent for ${model.project.id}`
+  };
 }
 
 function primitiveLoadViews(model: PreviewModel): PrimitiveLoadView[] {

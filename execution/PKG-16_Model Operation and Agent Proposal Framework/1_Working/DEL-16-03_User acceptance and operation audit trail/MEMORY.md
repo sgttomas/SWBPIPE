@@ -176,3 +176,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
+
+## 2026-06-11 - TP-APP-R2-LOADMETA-001 load-case metadata editor
+
+- WORKING_ITEMS app-integration tranche verified that selected load-case
+  metadata edits enter the model only after the user queues and applies a
+  structured operation in the local session.
+- The app test applies `op:load-manager-load:L-100-status` through
+  `OperationApplyPanel`, updates the session model, clears stale solve
+  results, leaves persistence at `session_state_only_not_yet_saved`, and
+  records no professional approval or code-compliance claim.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_metadata_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-95. Validation passed:
+  operation-applier format check, Rust operation-applier tests 23/23,
+  src-tauri Rust tests 26/26, desktop Vitest 36/36, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser status-edit smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.

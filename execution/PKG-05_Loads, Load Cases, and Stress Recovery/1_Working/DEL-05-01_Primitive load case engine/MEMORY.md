@@ -392,3 +392,25 @@
   primitive-load creation, unit conversion, solver validation, code-specific
   factors/defaults, protected standards data, private data, release claim,
   code-compliance claim, or professional reliance claim.
+
+## 2026-06-11 - TP-APP-R2-LOADMETA-001 load-case metadata editor
+
+- WORKING_ITEMS app-integration tranche added selected load-case `status` and
+  `kind` metadata editing to the desktop Load Cases manager for the invented
+  preview model. No `core/loads/primitive_loads` source behavior changed.
+- The editor queues explicit structured `update_load` intents with
+  before/after values, unit `none`, dimension `dimensionless`, and local
+  session audit/professional-boundary metadata.
+- Manager values are bounded to the current preview model values plus explicit
+  `TBD`; this tranche does not introduce new load categories, new load-case
+  records, or code-specific defaults.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_metadata_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-95. Validation passed:
+  operation-applier format check, Rust operation-applier tests 23/23,
+  src-tauri Rust tests 26/26, desktop Vitest 36/36, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over `load:L-100`.
+- A4 residuals remain load-case creation, arbitrary primitive-load creation,
+  imposed-displacement authoring breadth, full combination editing/algebra
+  authoring, Phase B unit picker/display retirement, and packaged-Tauri
+  saved-project smoke over edited load data.

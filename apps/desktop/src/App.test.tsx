@@ -1754,6 +1754,71 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies load-case status metadata through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.click(within(manager).getByTestId("load-manager-case-load:L-100"));
+
+    const queueButton = within(manager).getByTestId("queue-load-metadata-intent");
+    expect(within(manager).getByTestId("load-manager-selected-case").textContent).toContain("load:L-100");
+    expect(within(manager).getByTestId("load-manager-selected-case").textContent).toContain("field=status");
+    expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
+      "current=preview_only"
+    );
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.change(within(manager).getByTestId("load-manager-metadata-value"), {
+      target: { value: "TBD" }
+    });
+    expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
+      "op:load-manager-load:L-100-status"
+    );
+    expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
+      "before=preview_only; after=TBD"
+    );
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "status"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-status"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-manager-case-load:L-100").textContent).toContain(
+      "load:L-100; primitive_user_load; TBD; primitives=4"
+    );
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("TBD");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    fireEvent.change(within(manager).getByTestId("load-manager-metadata-field"), {
+      target: { value: "kind" }
+    });
+    await waitFor(() =>
+      expect(within(manager).getByTestId("load-manager-selected-case").textContent).toContain(
+        "field=kind; current=primitive_user_load"
+      )
+    );
+    fireEvent.change(within(manager).getByTestId("load-manager-metadata-value"), {
+      target: { value: "TBD" }
+    });
+    expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
+      "op:load-manager-load:L-100-kind"
+    );
+    expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
+      "before=primitive_user_load; after=TBD"
+    );
+    expect(within(manager).getByTestId("queue-load-metadata-intent")).not.toBeDisabled();
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 

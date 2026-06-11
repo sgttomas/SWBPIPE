@@ -236,3 +236,22 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-11 - TP-APP-R2-LOADMETA-001 load-case metadata editor
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with a
+  selected load-case metadata editor for `status` and `kind`.
+- The app test applies `load:L-100` status from `preview_only` to `TBD`,
+  verifies the manager row and property inspector update, confirms pending
+  operations return to zero, and separately previews `kind` from
+  `primitive_user_load` to `TBD`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_metadata_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-95. Validation passed:
+  operation-applier format check, Rust operation-applier tests 23/23,
+  src-tauri Rust tests 26/26, desktop Vitest 36/36, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser status-edit smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
