@@ -11,11 +11,14 @@ Primary pointers:
 - `docs/CONTRACT.md`
 - `docs/TYPES.md`
 - `docs/SPEC.md`
+- `docs/PRD.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
 - `docs/BUILD_AND_RELEASE.md`
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 - `docs/_Registers/*.csv`
+- `plans/PLAN_2026-06-10_prd_completion.md`
+- `execution/_Coordination/_DECISIONS/_REGISTER.md`
 - `package.json`
 - `apps/desktop/package.json`
 - `apps/desktop/SMOKE.md`
@@ -49,6 +52,14 @@ Baseline intake for every new session:
   boundaries.
 - `execution/_Decomposition/SOFTWARE_DECOMP.md` for the current package and
   deliverable working surface.
+- `docs/PRD.md` §10 (functional requirements) and §22 (release milestones) as
+  the product completion yardstick for ordinary tranche selection.
+- `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan
+  (non-governing `PROPOSAL`) — for phase ordering, the dependency spine, the
+  FR completion map, and the human decision register `D-01..D-12`. Update
+  this pointer when a successor plan is accepted.
+- `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
+  preparation status and rulings pending with the human project authority.
 - `execution/_Coordination/_COORDINATION.md`,
   `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`, and authoritative
   discovery surfaces named here for current entry protocol and state.
@@ -123,6 +134,13 @@ Authoritative state:
    replace decomposition truth, DAG authority, deliverable lifecycle state, or
    human review gates, but they are now the primary ordinary development
    surface for producing a working desktop application.
+6. The completion plan (`plans/PLAN_2026-06-10_prd_completion.md`) and the
+   decision register (`execution/_Coordination/_DECISIONS/_REGISTER.md`) are
+   non-governing guidance surfaces: they order tranche selection toward the
+   PRD yardstick and track human decision preparation. They do not replace
+   decomposition truth, DAG authority, deliverable lifecycle state, or human
+   gates. When they disagree with authoritative surfaces, surface the
+   discrepancy and correct the plan or register, not the authority.
 
 Handoff and state discovery:
 
@@ -141,8 +159,9 @@ Handoff and state discovery:
 At session closeout, update affected deliverable-local `MEMORY.md` and
 `_run_records/**` and any explicitly approved review/audit evidence surfaces.
 For application-integration work, update only the app/code/docs/test/evidence
-surfaces authorized by the tranche and any explicitly selected deliverable
-memory or review surfaces. After validation and evidence recording, commit and
+surfaces authorized by the tranche, the completion-plan and decision-register
+rows the tranche or a recorded human ruling affects, and any explicitly
+selected deliverable memory or review surfaces. After validation and evidence recording, commit and
 push the completed tranche unless the human explicitly pauses git closeout or a
 real git/validation blocker prevents it. Leave `NEXT_INSTANCE_PROMPT.md`
 stable unless the entry protocol itself changes. Do not create a
@@ -157,26 +176,54 @@ remains the accepted governance baseline unless a human-approved change path
 opens it.
 
 Until all deliverables are `ISSUED`, ordinary development is app-centric:
-produce and harden a working desktop application while using `CHECKING`
-deliverables, `DAG-006`, and the decomposition as mature design authority.
-Formal issuance remains a separate human-gated lifecycle workflow.
+produce a working desktop application while using `CHECKING` deliverables,
+`DAG-006`, and the decomposition as mature design authority. `CHECKING`
+means design authority is mature; it does not mean the application has
+absorbed that deliverable's scope. The completion plan's FR map tracks
+absorption toward the PRD yardstick. Formal issuance remains a separate
+human-gated lifecycle workflow.
 
 ### Working Desktop Application Standard
 
-For this phase, a working desktop application is a technical-preview desktop
-app that:
+The application standard is staged. Every stage keeps every boundary
+prohibition below; stages raise only the functional bar, never relax the
+boundary.
+
+**Stage floor — technical preview (met as of 2026-06-10).** A desktop app
+that:
 
 - builds and tests locally through the root/desktop package scripts;
 - loads invented preview project/model/design-knowledge data;
-- exposes local-only project create/open/save controls without cloud, daemon,
-  network, telemetry, or repository-default private-data writes;
+- exposes local-only project create/open/save controls;
 - runs preview mechanics through the accepted app/core boundary and renders
   results, diagnostics, report context, and review-only agent proposals;
 - shows the professional, release, protected-content, and private-data
-  boundaries visibly;
-- avoids protected standards content, private project data, release-readiness
-  claims, professional approval claims, certification, sealing,
-  authentication, or code-compliance claims.
+  boundaries visibly.
+
+**Current target stage — PRD R2 exit criterion.** A user can create, solve,
+and report a small piping model in the desktop app without editing raw files
+(PRD §22.3), reached through the completion plan's Phase A items.
+Interactive authoring of user-created local models — applying editor
+operations to a persisted local model document — is in scope at this stage
+and does not violate the technical-preview boundary. The boundary
+prohibitions concern claims, network surfaces, and data classes, not
+interactivity:
+
+- no cloud, daemon, network, telemetry, or repository-default private-data
+  writes;
+- bundled examples and fixtures remain invented; user-created models stay in
+  local project storage and are never committed to the repository;
+- no protected standards content and no private project data in the
+  repository;
+- no release-readiness claims, professional approval claims, certification,
+  sealing, authentication, or code-compliance claims.
+
+**Later stages.** After R2-stage evidence is recorded and human-reviewed,
+subsequent target stages follow the completion plan: R3 (rule packs and
+private libraries in the GUI), R4 (piping components and nonlinear
+supports), R5 (engineering beta). Agents propose stage advancement with
+evidence; only a human-approved coordination update advances the target
+stage recorded here.
 
 This standard is not a release gate, legal clearance, professional reliance
 record, or final `ISSUED` lifecycle decision.
@@ -198,32 +245,57 @@ bounded tranche.
    or the same command with `--format csv` when machine-readable output is
    needed. Record `git status --short` before coordination-sensitive planning
    or execution.
-3. **Default candidate selection.** For ordinary development, select an
-   application-integration tranche from current app gaps, failed or
-   insufficient app tests or smoke evidence, missing app-to-core seams, preview
-   workflow gaps, build/package gaps, or validation evidence gaps. Do not
-   require an `IN_PROGRESS` deliverable candidate.
-4. **Issuance candidate selection.** For human-directed lifecycle closeout,
+3. **Default candidate selection.** For ordinary development, select the
+   highest-leverage application-integration tranche in this order:
+   1. the earliest unblocked item on the completion plan's dependency spine
+      for the current target stage (Phase A first; its load-bearing chain is
+      A1 apply-operation seam → A2 model-document persistence → A5
+      solve-from-edited-model, with A3/A4/A6/A7/A8 layered alongside);
+   2. regression repair: failed or insufficient app tests, build breaks, or
+      smoke-evidence gaps in already-landed surfaces;
+   3. residual hardening (missing app-to-core seams, preview workflow gaps,
+      build/package gaps, validation evidence gaps) when it blocks or
+      de-risks a current-stage plan item.
+   Do not require an `IN_PROGRESS` deliverable candidate. Do not select
+   hardening work ahead of an unblocked current-stage plan item without
+   recording why in the tranche proposal.
+4. **Decision escalation.** When the next plan item is blocked by a human
+   decision (`D-01..D-12` in the completion plan, or any newly discovered
+   human-gated TBD):
+   - if no decision packet exists, the tranche is a decision-preparation
+     tranche: assemble options, evidence, impacts, and a recommendation
+     labeled `PROPOSAL` into
+     `execution/_Coordination/_DECISIONS/D-XX_<slug>.md` and update
+     `execution/_Coordination/_DECISIONS/_REGISTER.md`;
+   - if a packet already awaits ruling, proceed to the next unblocked
+     implementation item;
+   - agents never resolve these decisions; rulings are human records,
+     captured per existing `DEC`/`SCA` decision practice and reflected back
+     into the register and plan;
+   - every session summary lists the decision packets awaiting human ruling.
+5. **Issuance candidate selection.** For human-directed lifecycle closeout,
    select from `CHECKING` deliverables. `ISSUED` deliverables are not
    work-selection scope except through a human-approved change path.
-5. **Context selection.** Start from the app/code/test surfaces for app
+6. **Context selection.** Start from the app/code/test surfaces for app
    integration work. Use `DAG-006/DependencyEdges.csv` and
    `DAG-006/DeliverableNodes.csv` only to discover related deliverables whose
    local artifacts need inspection. DAG rows do not replace local artifact
    inspection.
-6. **Bounded execution.** After approval, dispatch canonical `TASK` workers or
+7. **Bounded execution.** After approval, dispatch canonical `TASK` workers or
    work locally inside a sealed tranche. Several workers may run concurrently
    only when file sets are disjoint and write scopes are explicit. App
    tranches may cross deliverable boundaries only when the tranche names the
    app-owned slice and its allowed write targets.
-7. **Fan-in and validation.** Fan in worker results, check for scope drift, and
+8. **Fan-in and validation.** Fan in worker results, check for scope drift, and
    run validation appropriate to the changed app slice. For app integration,
    expected evidence usually includes `npm test --workspace apps/desktop`,
    `npm run build --workspace apps/desktop`, applicable Rust/Python checks,
    and browser/smoke evidence when UI behavior changes.
-8. **Handoff and git closeout.** Record completed work, residual app gaps,
+9. **Handoff and git closeout.** Record completed work, residual app gaps,
    validation state, and boundary review in the touched app/evidence surfaces
-   and any explicitly selected deliverable memory/review files. Then stage,
+   and any explicitly selected deliverable memory/review files. Update the
+   completion-plan and decision-register rows affected by the tranche or by
+   any recorded human ruling. Then stage,
    commit, and push the validated tranche to the tracked remote branch, keeping
    the commit message scoped to the app tranche and any explicitly authorized
    coordination-instruction edits. Do not advance lifecycle state, make release

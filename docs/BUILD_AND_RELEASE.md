@@ -42,9 +42,11 @@ Those decisions remain `TBD` until a human project authority records them.
 
 ## 3. Repository Baseline
 
-The current repository does not have a root Cargo workspace, root JavaScript
-package, or desktop shell package manifest. Rust crates are currently
-crate-local under `core/` and `validation/benchmarks/`. Python tests and
+The current repository has a root npm workspace manifest (`package.json` with
+the `apps/desktop` workspace) and a Tauri 2 desktop shell under `apps/desktop/`
+(`apps/desktop/package.json` and `apps/desktop/src-tauri/Cargo.toml`). There is
+still no root Cargo workspace: Rust crates remain crate-local under `core/`,
+`validation/benchmarks/`, and `apps/desktop/src-tauri/`. Python tests and
 validation helpers live under `tests/` and `tools/`.
 
 The provider-neutral readiness script therefore discovers existing manifests
