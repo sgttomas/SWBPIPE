@@ -252,3 +252,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no hidden target/default load inference, no durable
   persistence, no protected/private data, and no professional, release, or
   code-compliance claim.
+
+## 2026-06-11 - TP-APP-R2-DISTLOAD-001 distributed primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  distributed-force `create_primitive_load` operations.
+- Accepted intents must target an existing `Load` with
+  `field_path=primitive_loads`, use `before=not_present`, project force and
+  length unit metadata, unit `N/m`, dimension `force_per_length`, a unique
+  primitive id, category `distributed_force`, existing pipe target, global
+  direction, finite magnitude, and provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_distributed_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-99. Validation passed:
+  operation-applier format check, Rust operation-applier tests 27/27,
+  src-tauri Rust tests 26/26, desktop Vitest 43/43, desktop build, desktop
+  Playwright smoke 1/1, and targeted browser smoke.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden target/default load inference, no durable
+  persistence, no protected/private data, and no professional, release, or
+  code-compliance claim.

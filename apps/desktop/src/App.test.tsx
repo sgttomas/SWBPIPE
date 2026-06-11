@@ -1847,6 +1847,59 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies a distributed-force primitive load through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-category"), {
+      target: { value: "distributed_force" }
+    });
+    expect(within(manager).getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
+    expect(within(manager).getByTestId("load-manager-create-primitive-load-case")).toHaveValue("load:L-100");
+    expect(within(manager).getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
+    expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+      "op:load-manager-load:L-100-load:L-100-D300-primitive"
+    );
+    expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+      "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length"
+    );
+
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), {
+      target: { value: "120" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-primitive-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "primitive_loads"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-D300-primitive"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 8 primitive loads; 1 combinations"
+    );
+    expect(within(manager).getByTestId("load-manager-case-load:L-100").textContent).toContain(
+      "load:L-100; primitive_user_load; preview_only; primitives=5"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-D300").textContent).toContain(
+      "distributed_force; 120 N/m"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-load:L-100-D300").textContent).toContain(
+      "load:L-100-D300; element:pipe:P-100; global_y; dimension=force_per_length"
+    );
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("queues and applies load-case status metadata through the manager panel", async () => {
     render(<App />);
 
@@ -2791,7 +2844,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("local-project-review-context").textContent).toContain(
       "1 pending operation; applied_operations=0"
     );
-    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=save");
+    await waitFor(() =>
+      expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=save")
+    );
 
     fireEvent.click(within(controls).getByRole("button", { name: /Open local/i }));
     expect(await screen.findByTestId("local-project-message")).toHaveTextContent(
@@ -2801,7 +2856,9 @@ describe("OpenPipeStress desktop preview", () => {
       "1 pending operation; applied_operations=0"
     );
     expect(within(controls).getByText("Invented Utility Loop Preview")).toBeInTheDocument();
-    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=open");
+    await waitFor(() =>
+      expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain("operation=open")
+    );
     expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
       "persisted_editor_intents=1"
     );

@@ -11,6 +11,61 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 sixth sub-slice: distributed primitive-load creation editor (`TP-APP-R2-DISTLOAD-001`)
+
+The Load Cases manager now exposes explicit distributed element-force
+primitive load creation for existing load cases. The create form selects
+`distributed_force`, captures the target load case, primitive-load id, existing
+pipe target, global direction, magnitude, and provenance, then queues a
+structured `create_primitive_load` operation. The payload is limited to target
+`{ type: "element", pipe: <existing pipe id> }`, dimension
+`force_per_length`, and the project force/length unit basis (`N/m` for the
+invented preview model). No concentrated moments, pressure or temperature
+primitives, imposed displacements, hidden defaults, unit conversion, or
+code-specific combinations are inferred.
+
+The browser local operation mirror and Rust
+`core/model_operations/operation_applier` crate now validate, diff, and apply
+`distributed_force` primitive-load creation alongside the previously landed
+`concentrated_force` path. Accepted distributed intents must target an
+existing `Load` with `field_path=primitive_loads`, `before=not_present`,
+project force and length unit metadata, dimension `force_per_length`, a
+globally unique primitive-load id, category `distributed_force`, an existing
+pipe target, direction `global_x|global_y|global_z`, finite magnitude in the
+expected unit, and non-empty provenance. Duplicate primitive IDs and missing
+pipe targets are blocked.
+
+The app-level test creates `load:L-100-D300` through the manager, applies it
+through `OperationApplyPanel`, verifies the manager summary and `load:L-100`
+primitive count, checks the new row
+`load:L-100-D300; element:pipe:P-100; global_y; dimension=force_per_length`,
+confirms the local receipt, and confirms stale solve state is reset. The
+Playwright R2 smoke checks the rendered distributed create preview without
+queueing so the solve/results/report path remains on the unchanged fixture
+model.
+
+An in-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-load:L-100-load:L-100-D300-primitive` and confirmed `2 load
+cases; 8 primitive loads; 1 combinations`, the distributed-force manager row
+with `250 N/m`, zero pending operations,
+`persistence=session_state_only_not_yet_saved`, `professional_approval=false`,
+and solve state `not_started`.
+
+Residuals remain in A4: concentrated moments, pressure/temperature primitive
+creation, imposed-displacement authoring breadth, combination basis editing,
+combination term creation/deletion, broader algebra authoring, Phase B unit
+picker/display retirement, and packaged-Tauri saved-project smoke over edited
+load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-99;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_distributed_load_creation_editor.md`,
+the same-named record under
+`DEL-05-05_Concentrated and distributed user load application/_run_records/`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 fifth sub-slice: concentrated primitive-load creation editor (`TP-APP-R2-PRIMCREATE-001`)
 
 The Load Cases manager now exposes explicit concentrated nodal-force primitive

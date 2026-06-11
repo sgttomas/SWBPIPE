@@ -934,45 +934,6 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
-  const storedForceUnit = valueAtSegments(model, ["project", "units", "force"]);
-  checker.unitState = "passed";
-  if (typeof storedForceUnit !== "string") {
-    checker.unitState = "blocked";
-    pushDiagnostic(
-      checker,
-      "OP-UNIT-METADATA-MISSING",
-      "blocking",
-      "Project force unit metadata is missing; concentrated force primitive loads cannot be accepted.",
-      "Repair the model document's project.units.force metadata before creating force loads.",
-      [targetRef]
-    );
-    return null;
-  }
-  if (intent.change.unit !== storedForceUnit) {
-    checker.unitState = "blocked";
-    pushDiagnostic(
-      checker,
-      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
-      "blocking",
-      `Intent unit \`${intent.change.unit}\` does not match project force unit \`${storedForceUnit}\`; unit conversion is unavailable until the units engine lands.`,
-      "Enter concentrated force values in the project force unit; no silent conversion is performed.",
-      [targetRef]
-    );
-    return null;
-  }
-  if (intent.change.dimension !== "force") {
-    checker.unitState = "blocked";
-    pushDiagnostic(
-      checker,
-      "OP-UNIT-DIMENSION-UNKNOWN",
-      "blocking",
-      `Create-primitive-load dimension \`${intent.change.dimension}\` must be \`force\` for this concentrated-force tranche.`,
-      "Use the concentrated-force primitive editor for force loads; other primitive dimensions are separate A4 work.",
-      [targetRef]
-    );
-    return null;
-  }
-
   let payload: unknown;
   try {
     payload = JSON.parse(intent.change.after);
@@ -1016,24 +977,91 @@ function resolveCreatePrimitiveLoad(
   const magnitudeUnit = magnitudeRecord ? stringPayload(magnitudeRecord, "unit") : "";
   const targetType = targetRecord ? stringPayload(targetRecord, "type") : "";
   const targetNode = targetRecord ? stringPayload(targetRecord, "node") : "";
+  const targetPipe = targetRecord ? stringPayload(targetRecord, "pipe") : "";
+  const acceptedCategory = category === "concentrated_force" || category === "distributed_force";
+  const expectedDimension = category === "distributed_force" ? "force_per_length" : "force";
+
+  if (!acceptedCategory) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+      "blocking",
+      "Create-primitive-load payload category must be `concentrated_force` or `distributed_force`.",
+      "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  const storedForceUnit = valueAtSegments(model, ["project", "units", "force"]);
+  const storedLengthUnit = valueAtSegments(model, ["project", "units", "length"]);
+  checker.unitState = "passed";
+  if (typeof storedForceUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project force unit metadata is missing; primitive force loads cannot be accepted.",
+      "Repair the model document's project.units.force metadata before creating force loads.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (category === "distributed_force" && typeof storedLengthUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project length unit metadata is missing; distributed force primitive loads cannot be accepted.",
+      "Repair the model document's project.units.length metadata before creating distributed loads.",
+      [targetRef]
+    );
+    return null;
+  }
+  const expectedUnit = category === "distributed_force" ? `${storedForceUnit}/${storedLengthUnit}` : storedForceUnit;
+  if (intent.change.unit !== expectedUnit) {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match expected primitive-load unit \`${expectedUnit}\`; unit conversion is unavailable until the units engine lands.`,
+      "Enter primitive load values in the project unit basis; no silent conversion is performed.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== expectedDimension) {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Create-primitive-load dimension \`${intent.change.dimension}\` must be \`${expectedDimension}\` for category \`${category}\`.`,
+      "Emit primitive-load creation intents with dimension metadata that matches the selected primitive-load category.",
+      [targetRef]
+    );
+    return null;
+  }
 
   if (
     !id ||
-    category !== "concentrated_force" ||
     !["global_x", "global_y", "global_z"].includes(direction) ||
-    targetType !== "node" ||
-    !targetNode ||
+    (category === "concentrated_force" && (targetType !== "node" || !targetNode)) ||
+    (category === "distributed_force" && (targetType !== "element" || !targetPipe)) ||
     magnitudeValue === null ||
-    magnitudeUnit !== storedForceUnit ||
-    dimension !== "force" ||
+    magnitudeUnit !== expectedUnit ||
+    dimension !== expectedDimension ||
     !provenance
   ) {
     pushDiagnostic(
       checker,
       "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
       "blocking",
-      "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force`, existing node target, global_x/global_y/global_z direction, finite magnitude in the project force unit, and dimension `force`.",
-      "Refresh the primitive-load creation intent from explicit user-entered concentrated-force fields.",
+      "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force` with an existing node target or `distributed_force` with an existing element pipe target, global_x/global_y/global_z direction, finite magnitude in the expected unit, and matching dimension.",
+      "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
       [targetRef]
     );
     return null;
@@ -1050,7 +1078,7 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
-  if (!findEntity(model, "nodes", targetNode)) {
+  if (category === "concentrated_force" && !findEntity(model, "nodes", targetNode)) {
     checker.referenceState = "blocked";
     pushDiagnostic(
       checker,
@@ -1062,6 +1090,18 @@ function resolveCreatePrimitiveLoad(
     );
     return null;
   }
+  if (category === "distributed_force" && !findEntity(model, "pipe_segments", targetPipe)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+      "blocking",
+      `Primitive load \`${id}\` references pipe \`${targetPipe}\`, which is absent from the current model.`,
+      "Select an existing pipe target before authoring a distributed force.",
+      [targetRef, targetPipe]
+    );
+    return null;
+  }
   checker.referenceState = "passed";
 
   return {
@@ -1069,10 +1109,10 @@ function resolveCreatePrimitiveLoad(
     primitiveLoad: {
       id,
       category,
-      target: { type: "node", node: targetNode },
+      target: category === "distributed_force" ? { type: "element", pipe: targetPipe } : { type: "node", node: targetNode },
       direction,
-      magnitude: { value: magnitudeValue, unit: storedForceUnit },
-      dimension: "force",
+      magnitude: { value: magnitudeValue, unit: expectedUnit },
+      dimension: expectedDimension,
       provenance
     }
   };

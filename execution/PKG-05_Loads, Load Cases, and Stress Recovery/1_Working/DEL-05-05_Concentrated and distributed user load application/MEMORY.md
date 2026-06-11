@@ -348,3 +348,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   concentrated moments, element-station authoring, final result-envelope/API/
   persistence/report integration, production tolerance policy, release
   thresholds, and professional reliance.
+
+## 2026-06-11 - TP-APP-R2-DISTLOAD-001 distributed primitive-load creation editor
+
+- WORKING_ITEMS app-integration tranche consumed DEL-05-05 distributed
+  user-load design authority in the desktop Load Cases manager. No
+  `core/loads/user_loads` source behavior changed.
+- The GUI and operation seam now accept a single explicit distributed element
+  force primitive: category `distributed_force`, existing pipe target,
+  `global_x|global_y|global_z` direction, dimension `force_per_length`,
+  project force/length unit `N/m`, finite magnitude, and provenance.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_distributed_load_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-99. Validation passed:
+  operation-applier format check, Rust operation-applier tests 27/27,
+  src-tauri Rust tests 26/26, desktop Vitest 43/43, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser distributed-force smoke.
+- Remaining DEL-05-05 residuals include concentrated moments, element-station
+  authoring, pressure/temperature primitive creation, imposed displacements,
+  final result-envelope/API/persistence/report integration, production
+  tolerance policy, release thresholds, and professional reliance.

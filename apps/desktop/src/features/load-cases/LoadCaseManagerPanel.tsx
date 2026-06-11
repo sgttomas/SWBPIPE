@@ -27,10 +27,14 @@ type LoadCaseDraft = {
   provenance: string;
 };
 
+type PrimitiveLoadCategory = "concentrated_force" | "distributed_force";
+
 type PrimitiveLoadDraft = {
   loadCaseId: string;
   id: string;
+  category: PrimitiveLoadCategory;
   targetNode: string;
+  targetPipe: string;
   direction: string;
   magnitude: string;
   provenance: string;
@@ -127,6 +131,8 @@ export function LoadCaseManagerPanel({
         draft: primitiveLoadDraft
       })
     : null;
+  const primitiveDraftUnit = primitiveLoadDraftUnit(model, primitiveLoadDraft.category);
+  const primitiveDraftTarget = primitiveLoadDraftTargetDisplay(primitiveLoadDraft);
 
   useEffect(() => {
     if (!primitiveLoads.length) {
@@ -168,9 +174,14 @@ export function LoadCaseManagerPanel({
   }
 
   function updatePrimitiveLoadDraft(field: keyof PrimitiveLoadDraft, value: string) {
-    setPrimitiveLoadDraft((draft) =>
-      field === "loadCaseId" ? { ...draft, loadCaseId: value, id: nextPrimitiveLoadIdentifier(model, value) } : { ...draft, [field]: value }
-    );
+    setPrimitiveLoadDraft((draft) => {
+      const nextDraft = { ...draft, [field]: value } as PrimitiveLoadDraft;
+      if (field === "category") nextDraft.category = primitiveLoadCategoryFromValue(value);
+      if (field === "loadCaseId" || field === "category") {
+        nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
+      }
+      return nextDraft;
+    });
   }
 
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
@@ -272,15 +283,27 @@ export function LoadCaseManagerPanel({
         </p>
       </section>
 
-      <section className="primitive-load-create-editor" aria-label="Create concentrated force primitive">
+      <section className="primitive-load-create-editor" aria-label="Create primitive load">
         <div className="load-editor-heading" data-testid="load-manager-create-primitive-heading">
           <ListPlus size={14} aria-hidden="true" />
           <strong>{primitiveLoadDraft.id}</strong>
           <span>
-            concentrated_force; target={primitiveLoadDraft.targetNode || "node:TBD"}; unit={projectForceUnit(model)}
+            {primitiveLoadDraft.category}; target={primitiveDraftTarget}; unit={primitiveDraftUnit}
           </span>
         </div>
         <div className="primitive-load-create-controls">
+          <label>
+            <span>Type</span>
+            <select
+              aria-label="Primitive load category"
+              data-testid="load-manager-create-primitive-category"
+              onChange={(event) => updatePrimitiveLoadDraft("category", event.target.value)}
+              value={primitiveLoadDraft.category}
+            >
+              <option value="concentrated_force">concentrated_force</option>
+              <option value="distributed_force">distributed_force</option>
+            </select>
+          </label>
           <label>
             <span>Case</span>
             <select
@@ -305,25 +328,43 @@ export function LoadCaseManagerPanel({
               value={primitiveLoadDraft.id}
             />
           </label>
-          <label>
-            <span>Node</span>
-            <select
-              aria-label="Concentrated force target node"
-              data-testid="load-manager-create-primitive-node"
-              onChange={(event) => updatePrimitiveLoadDraft("targetNode", event.target.value)}
-              value={primitiveLoadDraft.targetNode}
-            >
-              {model.nodes.map((node) => (
-                <option key={node.id} value={node.id}>
-                  {node.id}
-                </option>
-              ))}
-            </select>
-          </label>
+          {primitiveLoadDraft.category === "distributed_force" ? (
+            <label>
+              <span>Pipe</span>
+              <select
+                aria-label="Distributed force target pipe"
+                data-testid="load-manager-create-primitive-pipe"
+                onChange={(event) => updatePrimitiveLoadDraft("targetPipe", event.target.value)}
+                value={primitiveLoadDraft.targetPipe}
+              >
+                {model.pipe_segments.map((pipe) => (
+                  <option key={pipe.id} value={pipe.id}>
+                    {pipe.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <label>
+              <span>Node</span>
+              <select
+                aria-label="Concentrated force target node"
+                data-testid="load-manager-create-primitive-node"
+                onChange={(event) => updatePrimitiveLoadDraft("targetNode", event.target.value)}
+                value={primitiveLoadDraft.targetNode}
+              >
+                {model.nodes.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {node.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label>
             <span>Dir</span>
             <select
-              aria-label="Concentrated force direction"
+              aria-label="Primitive load direction"
               data-testid="load-manager-create-primitive-direction"
               onChange={(event) => updatePrimitiveLoadDraft("direction", event.target.value)}
               value={primitiveLoadDraft.direction}
@@ -336,7 +377,7 @@ export function LoadCaseManagerPanel({
           <label>
             <span>Magnitude</span>
             <input
-              aria-label="Concentrated force magnitude"
+              aria-label="Primitive load magnitude"
               data-testid="load-manager-create-primitive-magnitude"
               onChange={(event) => updatePrimitiveLoadDraft("magnitude", event.target.value)}
               value={primitiveLoadDraft.magnitude}
@@ -345,7 +386,7 @@ export function LoadCaseManagerPanel({
           <label>
             <span>Provenance</span>
             <input
-              aria-label="Concentrated force provenance"
+              aria-label="Primitive load provenance"
               data-testid="load-manager-create-primitive-provenance"
               onChange={(event) => updatePrimitiveLoadDraft("provenance", event.target.value)}
               value={primitiveLoadDraft.provenance}
@@ -355,19 +396,19 @@ export function LoadCaseManagerPanel({
             data-testid="queue-create-primitive-intent"
             disabled={!createPrimitiveLoadIntent}
             onClick={() => createPrimitiveLoadIntent && onQueueIntent(createPrimitiveLoadIntent)}
-            title="Queue concentrated-force primitive load operation"
+            title="Queue primitive load operation"
             type="button"
           >
             <ListPlus size={14} aria-hidden="true" />
-            Queue force
+            Queue load
           </button>
         </div>
         <p className="muted load-edit-preview" data-testid="load-manager-create-primitive-preview">
           {createPrimitiveLoadIntent
-            ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveLoadDraft.targetNode}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+            ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
             : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
               ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
-              : "complete case/id/node/direction/nonzero magnitude/provenance to queue a concentrated force"}
+              : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load"}
         </p>
       </section>
 
@@ -653,8 +694,10 @@ function defaultLoadCaseDraft(id: string): LoadCaseDraft {
 function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): PrimitiveLoadDraft {
   return {
     loadCaseId,
-    id: nextPrimitiveLoadIdentifier(model, loadCaseId),
+    id: nextPrimitiveLoadIdentifier(model, loadCaseId, "concentrated_force"),
+    category: "concentrated_force",
     targetNode: model.nodes[0]?.id ?? "",
+    targetPipe: model.pipe_segments[0]?.id ?? "",
     direction: "global_y",
     magnitude: "250",
     provenance: "user_entered_local_preview"
@@ -685,17 +728,22 @@ function isLoadCaseDraftReady(model: PreviewModel, draft: LoadCaseDraft): boolea
 function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraft): boolean {
   const id = draft.id.trim();
   const magnitude = parseFiniteNumber(draft.magnitude);
+  const unit = primitiveLoadDraftUnit(model, draft.category);
+  const targetExists =
+    draft.category === "distributed_force"
+      ? model.pipe_segments.some((pipe) => pipe.id === draft.targetPipe)
+      : model.nodes.some((node) => node.id === draft.targetNode);
   return Boolean(
     draft.loadCaseId &&
       model.load_cases.some((loadCase) => loadCase.id === draft.loadCaseId) &&
       id &&
       !primitiveLoadExists(model, id) &&
-      model.nodes.some((node) => node.id === draft.targetNode) &&
+      targetExists &&
       ["global_x", "global_y", "global_z"].includes(draft.direction) &&
       magnitude !== null &&
       magnitude !== 0 &&
       draft.provenance.trim() &&
-      projectForceUnit(model) !== "TBD"
+      unit !== "TBD"
   );
 }
 
@@ -772,15 +820,19 @@ function buildCreatePrimitiveLoadIntent({
   model: PreviewModel;
   draft: PrimitiveLoadDraft;
 }): EditorOperationIntent {
-  const forceUnit = projectForceUnit(model);
+  const unit = primitiveLoadDraftUnit(model, draft.category);
+  const dimension = primitiveLoadDraftDimension(draft.category);
   const magnitude = parseFiniteNumber(draft.magnitude) ?? 0;
   const payload = {
     id: draft.id.trim(),
-    category: "concentrated_force",
-    target: { type: "node", node: draft.targetNode },
+    category: draft.category,
+    target:
+      draft.category === "distributed_force"
+        ? { type: "element", pipe: draft.targetPipe }
+        : { type: "node", node: draft.targetNode },
     direction: draft.direction,
-    magnitude: { value: magnitude, unit: forceUnit },
-    dimension: "force",
+    magnitude: { value: magnitude, unit },
+    dimension,
     provenance: draft.provenance.trim()
   };
   const operationToken = `${safeToken(draft.loadCaseId)}-${safeToken(payload.id)}-primitive`;
@@ -801,13 +853,13 @@ function buildCreatePrimitiveLoadIntent({
     change: {
       change_id: `change:load-manager-${operationToken}`,
       change_kind: "create_primitive_load",
-      field_label: "Concentrated force primitive load",
+      field_label: primitiveLoadFieldLabel(draft.category),
       field_path: "primitive_loads",
       before: "not_present",
       after: JSON.stringify(payload),
-      unit: forceUnit,
-      dimension: "force",
-      source_note: "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred"
+      unit,
+      dimension,
+      source_note: primitiveLoadSourceNote(draft.category)
     },
     validation: {
       schema_validation: "not_run",
@@ -830,7 +882,7 @@ function buildCreatePrimitiveLoadIntent({
       software_makes_approval_claim: false,
       software_makes_authentication_claim: false
     },
-    rationale: `concentrated force primitive-load creation intent for ${model.project.id}`
+    rationale: `${draft.category} primitive-load creation intent for ${model.project.id}`
   };
 }
 
@@ -981,12 +1033,17 @@ function primitiveLoadViews(model: PreviewModel): PrimitiveLoadView[] {
   );
 }
 
-function nextPrimitiveLoadIdentifier(model: PreviewModel, loadCaseId: string): string {
+function nextPrimitiveLoadIdentifier(
+  model: PreviewModel,
+  loadCaseId: string,
+  category: PrimitiveLoadCategory = "concentrated_force"
+): string {
+  const suffix = category === "distributed_force" ? "D" : "F";
   for (let index = 300; index < 1000; index += 1) {
-    const candidate = loadCaseId ? `${loadCaseId}-F${index}` : `load:F-${index}`;
+    const candidate = loadCaseId ? `${loadCaseId}-${suffix}${index}` : `load:${suffix}-${index}`;
     if (!primitiveLoadExists(model, candidate)) return candidate;
   }
-  return `${loadCaseId || "load:F"}-${primitiveLoadViews(model).length + 1}`;
+  return `${loadCaseId || `load:${suffix}`}-${primitiveLoadViews(model).length + 1}`;
 }
 
 function primitiveLoadExists(model: PreviewModel, id: string): boolean {
@@ -1115,6 +1172,42 @@ function primitiveUnit(load: PrimitiveLoad): string {
 
 function projectForceUnit(model: PreviewModel): string {
   return optionalString(model.project.units.force) ?? "TBD";
+}
+
+function projectLengthUnit(model: PreviewModel): string {
+  return optionalString(model.project.units.length) ?? "TBD";
+}
+
+function projectDistributedForceUnit(model: PreviewModel): string {
+  const force = projectForceUnit(model);
+  const length = projectLengthUnit(model);
+  return force === "TBD" || length === "TBD" ? "TBD" : `${force}/${length}`;
+}
+
+function primitiveLoadDraftUnit(model: PreviewModel, category: PrimitiveLoadCategory): string {
+  return category === "distributed_force" ? projectDistributedForceUnit(model) : projectForceUnit(model);
+}
+
+function primitiveLoadDraftDimension(category: PrimitiveLoadCategory): string {
+  return category === "distributed_force" ? "force_per_length" : "force";
+}
+
+function primitiveLoadDraftTargetDisplay(draft: PrimitiveLoadDraft): string {
+  return draft.category === "distributed_force" ? draft.targetPipe || "pipe:TBD" : draft.targetNode || "node:TBD";
+}
+
+function primitiveLoadCategoryFromValue(value: string): PrimitiveLoadCategory {
+  return value === "distributed_force" ? "distributed_force" : "concentrated_force";
+}
+
+function primitiveLoadFieldLabel(category: PrimitiveLoadCategory): string {
+  return category === "distributed_force" ? "Distributed force primitive load" : "Concentrated force primitive load";
+}
+
+function primitiveLoadSourceNote(category: PrimitiveLoadCategory): string {
+  return category === "distributed_force"
+    ? "explicit user-entered distributed element force; no concentrated moments, pressure, temperature, or imposed displacements inferred"
+    : "explicit user-entered concentrated node force; no distributed loads, moments, or imposed displacements inferred";
 }
 
 function parseFiniteNumber(raw: string): number | null {

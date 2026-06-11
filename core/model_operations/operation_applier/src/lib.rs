@@ -1368,42 +1368,6 @@ fn resolve_create_primitive_load(
         return None;
     }
 
-    let stored_force_unit = value_at(model, &["project", "units", "force"]).and_then(Value::as_str);
-    checker.unit_state = "passed";
-    let Some(stored_force_unit) = stored_force_unit else {
-        checker.unit_state = "blocked";
-        checker.push(
-            "OP-UNIT-METADATA-MISSING",
-            "blocking",
-            "Project force unit metadata is missing; concentrated force primitive loads cannot be accepted.".to_string(),
-            "Repair the model document's project.units.force metadata before creating force loads.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    };
-    if unit != stored_force_unit {
-        checker.unit_state = "blocked";
-        checker.push(
-            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
-            "blocking",
-            format!("Intent unit `{unit}` does not match project force unit `{stored_force_unit}`; unit conversion is unavailable until the units engine lands."),
-            "Enter concentrated force values in the project force unit; no silent conversion is performed.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    }
-    if dimension != "force" {
-        checker.unit_state = "blocked";
-        checker.push(
-            "OP-UNIT-DIMENSION-UNKNOWN",
-            "blocking",
-            format!("Create-primitive-load dimension `{dimension}` must be `force` for this concentrated-force tranche."),
-            "Use the concentrated-force primitive editor for force loads; other primitive dimensions are separate A4 work.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    }
-
     let Ok(payload) = serde_json::from_str::<Value>(after) else {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
@@ -1464,6 +1428,13 @@ fn resolve_create_primitive_load(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
+    let target_pipe = record
+        .get("target")
+        .and_then(Value::as_object)
+        .and_then(|target| target.get("pipe"))
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
     let magnitude_value = record
         .get("magnitude")
         .and_then(Value::as_object)
@@ -1478,21 +1449,91 @@ fn resolve_create_primitive_load(
         .unwrap_or("")
         .trim();
 
+    if !matches!(category, "concentrated_force" | "distributed_force") {
+        checker.push(
+            "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+            "blocking",
+            "Create-primitive-load payload category must be `concentrated_force` or `distributed_force`.".to_string(),
+            "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let expected_dimension = if category == "distributed_force" {
+        "force_per_length"
+    } else {
+        "force"
+    };
+    let stored_force_unit = value_at(model, &["project", "units", "force"]).and_then(Value::as_str);
+    let stored_length_unit =
+        value_at(model, &["project", "units", "length"]).and_then(Value::as_str);
+    checker.unit_state = "passed";
+    let Some(stored_force_unit) = stored_force_unit else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project force unit metadata is missing; primitive force loads cannot be accepted."
+                .to_string(),
+            "Repair the model document's project.units.force metadata before creating force loads.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if category == "distributed_force" && stored_length_unit.is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project length unit metadata is missing; distributed force primitive loads cannot be accepted.".to_string(),
+            "Repair the model document's project.units.length metadata before creating distributed loads.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let expected_unit = if category == "distributed_force" {
+        format!("{}/{}", stored_force_unit, stored_length_unit.unwrap_or(""))
+    } else {
+        stored_force_unit.to_string()
+    };
+    if unit != expected_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match expected primitive-load unit `{expected_unit}`; unit conversion is unavailable until the units engine lands."),
+            "Enter primitive load values in the project unit basis; no silent conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != expected_dimension {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-primitive-load dimension `{dimension}` must be `{expected_dimension}` for category `{category}`."),
+            "Emit primitive-load creation intents with dimension metadata that matches the selected primitive-load category.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
     if id.is_empty()
-        || category != "concentrated_force"
         || !matches!(direction, "global_x" | "global_y" | "global_z")
-        || target_type != "node"
-        || target_node.is_empty()
+        || (category == "concentrated_force" && (target_type != "node" || target_node.is_empty()))
+        || (category == "distributed_force" && (target_type != "element" || target_pipe.is_empty()))
         || magnitude_value.is_none()
-        || magnitude_unit != stored_force_unit
-        || payload_dimension != "force"
+        || magnitude_unit != expected_unit
+        || payload_dimension != expected_dimension
         || provenance.is_empty()
     {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force`, existing node target, global_x/global_y/global_z direction, finite magnitude in the project force unit, and dimension `force`.".to_string(),
-            "Refresh the primitive-load creation intent from explicit user-entered concentrated-force fields.",
+            "Create-primitive-load payload must include non-empty id/provenance, category `concentrated_force` with an existing node target or `distributed_force` with an existing element pipe target, global_x/global_y/global_z direction, finite magnitude in the expected unit, and matching dimension.".to_string(),
+            "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -1508,7 +1549,7 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
-    if find_entity(model, "nodes", target_node).is_none() {
+    if category == "concentrated_force" && find_entity(model, "nodes", target_node).is_none() {
         checker.reference_state = "blocked";
         checker.push(
             "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
@@ -1519,17 +1560,35 @@ fn resolve_create_primitive_load(
         );
         return None;
     }
+    if category == "distributed_force" && find_entity(model, "pipe_segments", target_pipe).is_none()
+    {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Primitive load `{id}` references pipe `{target_pipe}`, which is absent from the current model."),
+            "Select an existing pipe target before authoring a distributed force.",
+            vec![target_ref.to_string(), target_pipe.to_string()],
+        );
+        return None;
+    }
     checker.reference_state = "passed";
+
+    let target = if category == "distributed_force" {
+        serde_json::json!({ "type": "element", "pipe": target_pipe })
+    } else {
+        serde_json::json!({ "type": "node", "node": target_node })
+    };
 
     Some((
         target_ref.to_string(),
         serde_json::json!({
             "id": id,
             "category": category,
-            "target": { "type": "node", "node": target_node },
+            "target": target,
             "direction": direction,
-            "magnitude": { "value": magnitude_value.unwrap(), "unit": stored_force_unit },
-            "dimension": "force",
+            "magnitude": { "value": magnitude_value.unwrap(), "unit": expected_unit },
+            "dimension": expected_dimension,
             "provenance": provenance,
         }),
     ))
@@ -2729,6 +2788,89 @@ mod tests {
         );
         missing_node["operation_kind"] = json!("create");
         let blocked = apply_operation(&model, &missing_node, None);
+        assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_primitive_load_payload_applies_distributed_force_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "load:L-1-D1",
+            "category": "distributed_force",
+            "target": { "type": "element", "pipe": "pipe:P-1" },
+            "direction": "global_z",
+            "magnitude": { "value": 125.0, "unit": "N/m" },
+            "dimension": "force_per_length",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "N/m",
+            "force_per_length",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].unit, "N/m");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"]
+                .as_array()
+                .expect("primitive loads array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["load_cases"][0]["primitive_loads"][1], payload);
+
+        let duplicate = apply_operation(&applied, &intent, None);
+        assert!(codes(&duplicate).contains(&"OP-TARGET-ALREADY-EXISTS"));
+        assert!(duplicate.applied_model.is_none());
+
+        let missing_pipe_payload = json!({
+            "id": "load:L-1-D2",
+            "category": "distributed_force",
+            "target": { "type": "element", "pipe": "pipe:missing" },
+            "direction": "global_z",
+            "magnitude": { "value": 125.0, "unit": "N/m" },
+            "dimension": "force_per_length",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut missing_pipe = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&missing_pipe_payload).expect("payload json"),
+            "N/m",
+            "force_per_length",
+        );
+        missing_pipe["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &missing_pipe, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }
