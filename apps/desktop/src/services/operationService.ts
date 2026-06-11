@@ -242,6 +242,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && changeKind === "connect_pipe_run") {
     createdPipe = resolveConnectPipeRun(modelDocument, targetRef, intent, checker);
   }
+  let createdLoadCase: Record<string, unknown> | null = null;
+  if (!checker.schemaBlocked && changeKind === "create_load_case") {
+    createdLoadCase = resolveCreateLoadCase(modelDocument, targetRef, intent, checker);
+  }
 
   const blocking = hasBlocking(checker);
   const diffPreview: OperationDiffPreviewRow[] =
@@ -255,10 +259,10 @@ async function runLocalOperation(
             after: intent.change.after,
             unit: intent.change.unit,
             dimension: intent.change.dimension,
-              change_kind: changeKind
-            }
-          ]
-      : (createdNode || createdPipe) && !blocking
+            change_kind: changeKind
+          }
+        ]
+      : (createdNode || createdPipe || createdLoadCase) && !blocking
         ? [
             {
               entity_ref: targetRef,
@@ -275,7 +279,7 @@ async function runLocalOperation(
 
   let appliedModel: PreviewModel | null = null;
   let appliedModelHash: string | null = null;
-  if (mode === "apply" && !blocking && (resolved || createdNode || createdPipe)) {
+  if (mode === "apply" && !blocking && (resolved || createdNode || createdPipe || createdLoadCase)) {
     const nextModel = JSON.parse(JSON.stringify(modelDocument)) as Record<string, unknown>;
     const applied = resolved
       ? applyResolvedField(nextModel, objectType, targetRef, resolved)
@@ -283,7 +287,9 @@ async function runLocalOperation(
         ? applyCreatedNode(nextModel, createdNode)
         : createdPipe
           ? applyCreatedPipe(nextModel, createdPipe)
-        : false;
+          : createdLoadCase
+            ? applyCreatedLoadCase(nextModel, createdLoadCase)
+            : false;
     if (applied) {
       appliedModelHash = await localHash(nextModel);
       appliedModel = nextModel as unknown as PreviewModel;
@@ -422,6 +428,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
     "update_support",
     "create_node",
     "connect_pipe_run",
+    "create_load_case",
     "insert_component_symbol"
   ];
   if (!supported.includes(changeKind)) {
@@ -438,7 +445,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
   }
   const expectedOperationKind = ["set_field", "update_load", "update_support"].includes(changeKind)
     ? "modify"
-    : changeKind === "create_node"
+    : changeKind === "create_node" || changeKind === "create_load_case"
       ? "create"
       : changeKind === "connect_pipe_run"
         ? "connect"
@@ -767,6 +774,119 @@ function resolveConnectPipeRun(
     material,
     y_reference: yReference,
     provenance
+  };
+}
+
+function resolveCreateLoadCase(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): Record<string, unknown> | null {
+  if (intent.target.object_type !== "Load" || intent.change.field_path !== "load_cases") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-LOAD-CASE-SHAPE-INVALID",
+      "blocking",
+      "Create-load-case intents must target object_type `Load` with field_path `load_cases`.",
+      "Refresh the load-case creation intent from the explicit Load Cases manager form.",
+      [targetRef]
+    );
+    return null;
+  }
+  checkBefore("not_present", intent.change.before, targetRef, intent.change.field_path, checker);
+  checker.unitState = "passed";
+  if (intent.change.unit !== "none") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match stored unit \`none\` for load-case creation.`,
+      "Create load-case records with unit `none`; primitive-load quantities are authored separately.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "dimensionless") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Create-load-case dimension \`${intent.change.dimension}\` must be \`dimensionless\`.`,
+      "Emit load-case metadata with dimensionless metadata; primitive-load quantities are authored separately.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (findEntity(model, "load_cases", targetRef)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-ALREADY-EXISTS",
+      "blocking",
+      `Load case \`${targetRef}\` already exists in the current model.`,
+      "Choose a new stable load-case id; create operations never overwrite existing entities.",
+      [targetRef]
+    );
+    return null;
+  }
+  checker.referenceState = "passed";
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(intent.change.after);
+  } catch {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-load-case payload is not valid JSON.",
+      "Emit the explicit load-case metadata payload as JSON in change.after.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-load-case payload must be a JSON object.",
+      "Emit id, label, kind, status, provenance, and empty primitive_loads fields for the new load case.",
+      [targetRef]
+    );
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const id = stringPayload(record, "id");
+  const label = stringPayload(record, "label");
+  const kind = stringPayload(record, "kind");
+  const status = stringPayload(record, "status");
+  const provenance = stringPayload(record, "provenance");
+  const primitiveLoads = record.primitive_loads;
+  const primitiveLoadsEmpty = primitiveLoads === undefined || (Array.isArray(primitiveLoads) && primitiveLoads.length === 0);
+  if (id !== targetRef || !label || !kind || !status || !provenance || !primitiveLoadsEmpty) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-load-case payload must include matching id, non-empty label/kind/status/provenance, and no primitive load records.",
+      "Create the load-case shell first; author primitive loads through explicit primitive-load operations.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  return {
+    id,
+    label,
+    kind,
+    status,
+    provenance,
+    primitive_loads: []
   };
 }
 
@@ -1164,6 +1284,12 @@ function applyCreatedNode(model: Record<string, unknown>, node: Record<string, u
 function applyCreatedPipe(model: Record<string, unknown>, pipe: Record<string, unknown>): boolean {
   if (!Array.isArray(model.pipe_segments)) return false;
   model.pipe_segments.push(pipe);
+  return true;
+}
+
+function applyCreatedLoadCase(model: Record<string, unknown>, loadCase: Record<string, unknown>): boolean {
+  if (!Array.isArray(model.load_cases)) return false;
+  model.load_cases.push(loadCase);
   return true;
 }
 

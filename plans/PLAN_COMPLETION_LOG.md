@@ -11,6 +11,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A4 fourth sub-slice: empty load-case creation editor (`TP-APP-R2-LOADCREATE-001`)
+
+The Load Cases manager now exposes explicit empty load-case creation for the
+invented preview model. The create form captures a user-supplied load-case id,
+label, kind, status, and provenance, previews the structured create operation,
+and queues only a load-case shell with `primitive_loads=0`. It does not create
+primitive loads, imposed displacements, code combinations, hidden defaults, or
+derived engineering values.
+
+The browser local operation mirror and Rust `core/model_operations/
+operation_applier` crate now validate, diff, and apply `create_load_case`
+intents. Accepted intents must target `Load` with `field_path=load_cases`,
+`before=not_present`, unit `none`, dimension `dimensionless`, a non-duplicate
+load-case id, matching JSON payload id, non-empty label/kind/status/
+provenance, and absent or empty `primitive_loads`. Non-empty primitive payloads
+are blocked so future primitive-load creation remains an explicit A4 tranche.
+
+The app-level test creates `load:L-300` through the manager, applies it through
+`OperationApplyPanel`, verifies the manager summary and row
+`load:L-300; primitive_user_load; draft; primitives=0`, checks the property
+inspector, confirms the local receipt, and confirms stale solve state is reset.
+The Playwright R2 smoke checks the rendered create preview without queueing so
+the solve/results/report path remains on the unchanged fixture model.
+
+An in-app browser smoke at `http://127.0.0.1:5175/` applied
+`op:load-manager-create-load:L-300` and confirmed `3 load cases; 7 primitive
+loads; 1 combinations`, the empty-shell manager row, zero pending operations,
+`persistence=session_state_only_not_yet_saved`, `professional_approval=false`,
+and solve state `not_started`.
+
+Residuals remain in A4: arbitrary primitive-load creation,
+imposed-displacement authoring breadth, combination basis editing, combination
+term creation/deletion, broader algebra authoring, Phase B unit picker/display
+retirement, and packaged-Tauri saved-project smoke over edited load data.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-97;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_creation_editor.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 third sub-slice: combination term-factor editor (`TP-APP-R2-COMBFACTOR-001`)
 
 The Load Cases manager now exposes existing combination term-factor editing

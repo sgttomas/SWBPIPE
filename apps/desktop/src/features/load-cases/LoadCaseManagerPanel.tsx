@@ -19,6 +19,14 @@ type CombinationTermView = {
   combination: Combination;
 };
 
+type LoadCaseDraft = {
+  id: string;
+  label: string;
+  kind: string;
+  status: string;
+  provenance: string;
+};
+
 type LoadMetadataField = "status" | "kind";
 
 export function LoadCaseManagerPanel({
@@ -57,6 +65,8 @@ export function LoadCaseManagerPanel({
   const currentCombinationFactor = selectedCombinationTerm ? combinationTermFactorDisplay(selectedCombinationTerm.term) : "";
   const [proposedCombinationFactor, setProposedCombinationFactor] = useState(currentCombinationFactor);
   const [combinationRationale, setCombinationRationale] = useState("user_entered_combination_factor_preview_change");
+  const nextLoadCaseId = useMemo(() => nextLoadCaseIdentifier(model), [model]);
+  const [loadCaseDraft, setLoadCaseDraft] = useState<LoadCaseDraft>(() => defaultLoadCaseDraft(nextLoadCaseId));
   const changed = selectedPrimitive ? proposedMagnitude.trim() !== currentMagnitude : false;
   const intent =
     selectedPrimitive && changed
@@ -93,6 +103,12 @@ export function LoadCaseManagerPanel({
           rationale: combinationRationale
         })
       : null;
+  const createLoadCaseIntent = isLoadCaseDraftReady(model, loadCaseDraft)
+    ? buildCreateLoadCaseIntent({
+        model,
+        draft: loadCaseDraft
+      })
+    : null;
 
   useEffect(() => {
     if (!primitiveLoads.length) {
@@ -129,6 +145,10 @@ export function LoadCaseManagerPanel({
     setCombinationRationale("user_entered_combination_factor_preview_change");
   }, [currentCombinationFactor, selectedCombinationTermKey]);
 
+  function updateLoadCaseDraft(field: keyof LoadCaseDraft, value: string) {
+    setLoadCaseDraft((draft) => ({ ...draft, [field]: value }));
+  }
+
   function handleSelectPrimitive(primitive: PrimitiveLoadView) {
     setSelectedPrimitiveKey(primitiveKey(primitive));
     onSelect({ type: "load", id: primitive.loadCase.id });
@@ -155,6 +175,78 @@ export function LoadCaseManagerPanel({
         {model.load_cases.length} load cases; {primitiveLoads.length} primitive loads; {model.combinations?.length ?? 0} combinations;
         unit posture=single_unit_system_preview; saved_project_mutated=false
       </p>
+
+      <section className="load-case-create-editor" aria-label="Create load case">
+        <div className="load-editor-heading" data-testid="load-manager-create-load-case-heading">
+          <ListPlus size={14} aria-hidden="true" />
+          <strong>{loadCaseDraft.id}</strong>
+          <span>new empty load case; primitives=0; unit=none</span>
+        </div>
+        <div className="load-case-create-controls">
+          <label>
+            <span>ID</span>
+            <input
+              aria-label="New load case id"
+              data-testid="load-manager-create-load-id"
+              onChange={(event) => updateLoadCaseDraft("id", event.target.value)}
+              value={loadCaseDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New load case label"
+              data-testid="load-manager-create-load-label"
+              onChange={(event) => updateLoadCaseDraft("label", event.target.value)}
+              value={loadCaseDraft.label}
+            />
+          </label>
+          <label>
+            <span>Kind</span>
+            <input
+              aria-label="New load case kind"
+              data-testid="load-manager-create-load-kind"
+              onChange={(event) => updateLoadCaseDraft("kind", event.target.value)}
+              value={loadCaseDraft.kind}
+            />
+          </label>
+          <label>
+            <span>Status</span>
+            <input
+              aria-label="New load case status"
+              data-testid="load-manager-create-load-status"
+              onChange={(event) => updateLoadCaseDraft("status", event.target.value)}
+              value={loadCaseDraft.status}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New load case provenance"
+              data-testid="load-manager-create-load-provenance"
+              onChange={(event) => updateLoadCaseDraft("provenance", event.target.value)}
+              value={loadCaseDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-load-case-intent"
+            disabled={!createLoadCaseIntent}
+            onClick={() => createLoadCaseIntent && onQueueIntent(createLoadCaseIntent)}
+            title="Queue load-case creation operation"
+            type="button"
+          >
+            <ListPlus size={14} aria-hidden="true" />
+            Queue case
+          </button>
+        </div>
+        <p className="muted load-edit-preview" data-testid="load-manager-create-load-preview">
+          {createLoadCaseIntent
+            ? `${createLoadCaseIntent.operation_id}; before=${createLoadCaseIntent.change.before}; after=${loadCaseDraft.id}; unit=${createLoadCaseIntent.change.unit}; ${createLoadCaseIntent.change.dimension}; primitive_loads=0; direct_model_mutation_allowed=false; professional_approval=false`
+            : loadCaseDraft.id.trim() && model.load_cases.some((loadCase) => loadCase.id === loadCaseDraft.id.trim())
+              ? `id=${loadCaseDraft.id.trim()} already exists; no load case queued`
+              : "complete id/label/kind/status/provenance to queue an empty load case"}
+        </p>
+      </section>
 
       <div className="load-case-list" data-testid="load-case-manager-cases">
         {model.load_cases.map((loadCase) => (
@@ -423,6 +515,103 @@ function loadMetadataOptions(model: PreviewModel, field: LoadMetadataField, curr
     if (right === "TBD") return -1;
     return left.localeCompare(right);
   });
+}
+
+function defaultLoadCaseDraft(id: string): LoadCaseDraft {
+  return {
+    id,
+    label: "User load case",
+    kind: "primitive_user_load",
+    status: "draft",
+    provenance: "user_entered_local_preview"
+  };
+}
+
+function nextLoadCaseIdentifier(model: PreviewModel): string {
+  const used = new Set(model.load_cases.map((loadCase) => loadCase.id));
+  for (let index = 300; index < 1000; index += 1) {
+    const candidate = `load:L-${index}`;
+    if (!used.has(candidate)) return candidate;
+  }
+  return `load:L-${model.load_cases.length + 1}`;
+}
+
+function isLoadCaseDraftReady(model: PreviewModel, draft: LoadCaseDraft): boolean {
+  const id = draft.id.trim();
+  return Boolean(
+    id &&
+      draft.label.trim() &&
+      draft.kind.trim() &&
+      draft.status.trim() &&
+      draft.provenance.trim() &&
+      !model.load_cases.some((loadCase) => loadCase.id === id)
+  );
+}
+
+function buildCreateLoadCaseIntent({
+  model,
+  draft
+}: {
+  model: PreviewModel;
+  draft: LoadCaseDraft;
+}): EditorOperationIntent {
+  const payload = {
+    id: draft.id.trim(),
+    label: draft.label.trim(),
+    kind: draft.kind.trim(),
+    status: draft.status.trim(),
+    provenance: draft.provenance.trim(),
+    primitive_loads: []
+  };
+  const operationToken = `create-${safeToken(payload.id)}`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Load",
+      ref: payload.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "create_load_case",
+      field_label: "Load case",
+      field_path: "load_cases",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered empty load-case shell; primitive loads are not inferred"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `load-case creation intent for ${model.project.id}`
+  };
 }
 
 function buildLoadMetadataIntent({

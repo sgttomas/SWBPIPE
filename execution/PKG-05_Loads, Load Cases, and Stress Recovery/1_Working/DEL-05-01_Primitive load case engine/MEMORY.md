@@ -414,3 +414,24 @@
   imposed-displacement authoring breadth, full combination editing/algebra
   authoring, Phase B unit picker/display retirement, and packaged-Tauri
   saved-project smoke over edited load data.
+
+## 2026-06-11 - TP-APP-R2-LOADCREATE-001 empty load-case creation editor
+
+- WORKING_ITEMS app-integration tranche added explicit empty load-case shell
+  creation to the desktop Load Cases manager for the invented preview model.
+  No `core/loads/primitive_loads` source behavior changed.
+- The editor queues a structured `create_load_case` intent with
+  `field_path=load_cases`, `before=not_present`, unit `none`, dimension
+  `dimensionless`, explicit id/label/kind/status/provenance, and
+  `primitive_loads=0`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_load_case_creation_editor.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-97. Validation passed:
+  operation-applier format check, Rust operation-applier tests 25/25,
+  src-tauri Rust tests 26/26, desktop Vitest 39/39, desktop build, desktop
+  Playwright smoke 1/1, and in-app browser smoke over `load:L-300`.
+- A4 residuals remain arbitrary primitive-load creation,
+  imposed-displacement authoring breadth, combination basis editing,
+  combination term creation/deletion, broader algebra authoring, Phase B unit
+  picker/display retirement, and packaged-Tauri saved-project smoke over
+  edited load data.

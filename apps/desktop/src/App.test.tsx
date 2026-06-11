@@ -1754,6 +1754,49 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an empty load case through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    expect(within(manager).getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
+    expect(within(manager).getByTestId("load-manager-create-load-preview").textContent).toContain(
+      "op:load-manager-create-load:L-300"
+    );
+    expect(within(manager).getByTestId("load-manager-create-load-preview").textContent).toContain(
+      "primitive_loads=0"
+    );
+    fireEvent.change(within(manager).getByTestId("load-manager-create-load-label"), {
+      target: { value: "User operating case" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-load-case-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "load_cases"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-create-load:L-300"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "3 load cases; 7 primitive loads; 1 combinations"
+    );
+    expect(within(manager).getByTestId("load-manager-case-load:L-300").textContent).toContain(
+      "load:L-300; primitive_user_load; draft; primitives=0"
+    );
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("User operating case");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("load:L-300");
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("queues and applies load-case status metadata through the manager panel", async () => {
     render(<App />);
 

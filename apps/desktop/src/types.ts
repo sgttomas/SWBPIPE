@@ -369,7 +369,14 @@ export type EditorOperationIntent = {
   };
   change: {
     change_id: string;
-    change_kind: "set_field" | "update_load" | "update_support" | "create_node" | "connect_pipe_run" | "insert_component_symbol";
+    change_kind:
+      | "set_field"
+      | "update_load"
+      | "update_support"
+      | "create_node"
+      | "connect_pipe_run"
+      | "create_load_case"
+      | "insert_component_symbol";
     field_label: string;
     field_path: string;
     before: string;

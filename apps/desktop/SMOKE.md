@@ -2833,3 +2833,38 @@ after the timestamp marker were absent.
   user Save, protected standards content, private data, or release,
   professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-97 load-case-creation-editor (2026-06-11)
+
+- Tranche: `TP-APP-R2-LOADCREATE-001` (completion plan Phase A4 fourth
+  sub-slice) adding explicit empty load-case creation to the Load Cases
+  manager. The create form captures id, label, kind, status, and provenance,
+  then queues a structured `create_load_case` operation for a shell whose
+  `primitive_loads` collection is empty.
+- Edit path: applying `op:load-manager-create-load:L-300` creates
+  `load:L-300` as `primitive_user_load`, `draft`, `primitive_loads=0`
+  through `OperationApplyPanel`, resets stale solve results, leaves
+  persistence at `session_state_only_not_yet_saved`, and records no
+  professional approval. Non-empty primitive payloads are rejected so future
+  primitive-load creation remains explicit work.
+- Local validation: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check` passed; `cargo
+  test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  passed with 25/25 Rust tests; `cargo test --manifest-path
+  apps/desktop/src-tauri/Cargo.toml` passed with 26/26 Rust tests; `npm test
+  --workspace apps/desktop` passed with 39/39 Vitest tests; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production build
+  with the existing chunk-size warning; `npm run test:e2e:desktop` passed
+  with 1/1 Playwright tests; in-app browser smoke at
+  `http://127.0.0.1:5175/` applied the rendered empty load-case create intent
+  and confirmed `3 load cases; 7 primitive loads; 1 combinations`,
+  `load:L-300; primitive_user_load; draft; primitives=0`, persistence
+  remained `session_state_only_not_yet_saved`, professional approval remained
+  false, and solve state remained `not_started`; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not add arbitrary primitive-load creation,
+  imposed-displacement authoring, combination basis editing, combination term
+  creation/deletion, code/rule combinations, broader algebra authoring, unit
+  conversion, saved-project mutation without user Save, protected standards
+  content, private data, or release, professional approval, certification,
+  sealing, authentication, or code-compliance claims.

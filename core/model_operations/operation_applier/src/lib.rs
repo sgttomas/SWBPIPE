@@ -504,6 +504,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_load_case: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "create_load_case" {
+        created_load_case = resolve_create_load_case(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
 
     let blocking = checker.blocking();
     let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
@@ -517,7 +531,9 @@ fn run(
             dimension: dimension.clone(),
             change_kind: change_kind.clone(),
         }]
-    } else if (created_node.is_some() || created_pipe.is_some()) && !blocking {
+    } else if (created_node.is_some() || created_pipe.is_some() || created_load_case.is_some())
+        && !blocking
+    {
         vec![DiffPreviewRow {
             entity_ref: target_ref.clone(),
             object_type: object_type.clone(),
@@ -562,6 +578,15 @@ fn run(
         } else if let Some(pipe) = &created_pipe {
             let mut next_model = model.clone();
             if apply_created_pipe(&mut next_model, pipe) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(load_case) = &created_load_case {
+            let mut next_model = model.clone();
+            if apply_created_load_case(&mut next_model, load_case) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -743,6 +768,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "update_support"
             | "create_node"
             | "connect_pipe_run"
+            | "create_load_case"
             | "insert_component_symbol"
     );
     if !supported_change {
@@ -761,7 +787,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
 
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" => "modify",
-        "create_node" => "create",
+        "create_node" | "create_load_case" => "create",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
         _ => unreachable!("supported_change guarantees a known change kind"),
@@ -1134,6 +1160,146 @@ fn resolve_connect_pipe_run(
         "material": material,
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
         "provenance": provenance,
+    }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_load_case(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Load" || field_path != "load_cases" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-LOAD-CASE-SHAPE-INVALID",
+            "blocking",
+            "Create-load-case intents must target object_type `Load` with field_path `load_cases`."
+                .to_string(),
+            "Refresh the load-case creation intent from the explicit Load Cases manager form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for load-case creation."),
+            "Create load-case records with unit `none`; primitive-load quantities are authored separately.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-load-case dimension `{dimension}` must be `dimensionless`."),
+            "Emit load-case metadata with dimensionless metadata; primitive-load quantities are authored separately.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "load_cases", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Load case `{target_ref}` already exists in the current model."),
+            "Choose a new stable load-case id; create operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-load-case payload is not valid JSON.".to_string(),
+            "Emit the explicit load-case metadata payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-load-case payload must be a JSON object.".to_string(),
+            "Emit id, label, kind, status, provenance, and empty primitive_loads fields for the new load case.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let kind = record
+        .get("kind")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let status = record
+        .get("status")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let primitive_loads_empty = match record.get("primitive_loads") {
+        None => true,
+        Some(value) => value.as_array().is_some_and(Vec::is_empty),
+    };
+
+    if id != target_ref
+        || label.is_empty()
+        || kind.is_empty()
+        || status.is_empty()
+        || provenance.is_empty()
+        || !primitive_loads_empty
+    {
+        checker.push(
+            "OP-CREATE-LOAD-CASE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-load-case payload must include matching id, non-empty label/kind/status/provenance, and no primitive load records.".to_string(),
+            "Create the load-case shell first; author primitive loads through explicit primitive-load operations.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    Some(serde_json::json!({
+        "id": id,
+        "label": label,
+        "kind": kind,
+        "status": status,
+        "provenance": provenance,
+        "primitive_loads": []
     }))
 }
 
@@ -1672,6 +1838,14 @@ fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
     true
 }
 
+fn apply_created_load_case(model: &mut Value, load_case: &Value) -> bool {
+    let Some(load_cases) = model.get_mut("load_cases").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    load_cases.push(load_case.clone());
+    true
+}
+
 fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> ModelBasisEvidence {
     let backend_model_hash = format!("sha256:{}", sha256_hex(&canonical_json(model)));
     match claimed_model_hash {
@@ -2133,6 +2307,84 @@ mod tests {
             outcome.professional_boundary["software_makes_approval_claim"],
             json!(false)
         );
+    }
+
+    #[test]
+    fn explicit_create_load_case_payload_applies_empty_shell_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "load:L-2",
+            "label": "User load case",
+            "kind": "primitive_user_load",
+            "status": "draft",
+            "provenance": "user_entered_local_preview",
+            "primitive_loads": []
+        });
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-2",
+            "create_load_case",
+            "load_cases",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "load_cases");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["load_cases"]
+                .as_array()
+                .expect("load cases array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["load_cases"][1], payload);
+        assert_eq!(applied["load_cases"][0], before_snapshot["load_cases"][0]);
+
+        let non_empty_payload = json!({
+            "id": "load:L-3",
+            "label": "Bad load case",
+            "kind": "primitive_user_load",
+            "status": "draft",
+            "provenance": "user_entered_local_preview",
+            "primitive_loads": [{ "id": "load:L-3-F" }]
+        });
+        let mut non_empty = modify_intent(
+            "Load",
+            "load:L-3",
+            "create_load_case",
+            "load_cases",
+            "not_present",
+            &serde_json::to_string(&non_empty_payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        non_empty["operation_kind"] = json!("create");
+        let blocked = apply_operation(&model, &non_empty, None);
+        assert!(codes(&blocked).contains(&"OP-CREATE-LOAD-CASE-PAYLOAD-INVALID"));
+        assert!(blocked.applied_model.is_none());
     }
 
     #[test]

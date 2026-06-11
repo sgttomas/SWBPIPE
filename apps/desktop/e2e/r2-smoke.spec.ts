@@ -12,6 +12,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 7 primitive loads; 1 combinations"
   );
+  await expect(page.getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
+  await expect(page.getByTestId("load-manager-create-load-preview")).toContainText(
+    "op:load-manager-create-load:L-300"
+  );
+  await expect(page.getByTestId("load-manager-create-load-preview")).toContainText("primitive_loads=0");
   await page.getByTestId("load-manager-primitive-load:L-100-P").click();
   await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
     "primitive_loads.2.magnitude.value"

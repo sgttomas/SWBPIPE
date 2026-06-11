@@ -155,6 +155,63 @@ describe("operationService browser-mode engine", () => {
     expect(outcome.professional_boundary.software_makes_approval_claim).toBe(false);
   });
 
+  it("applies an explicit empty load-case payload without mutating the input", async () => {
+    const model = sampleModel();
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const payload = {
+      id: "load:L-1",
+      label: "User load case",
+      kind: "primitive_user_load",
+      status: "draft",
+      provenance: "user_entered_local_preview",
+      primitive_loads: []
+    };
+    const intent = intentFor(
+      "Load",
+      "load:L-1",
+      "create_load_case",
+      "load_cases",
+      "not_present",
+      JSON.stringify(payload),
+      "none",
+      "dimensionless"
+    );
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.validation.unit_validation).toBe("passed");
+    expect(outcome.diff_preview).toHaveLength(1);
+    expect(outcome.diff_preview[0].field_path).toBe("load_cases");
+    expect(outcome.applied_model?.load_cases).toHaveLength(1);
+    expect(outcome.applied_model?.load_cases[0]).toEqual(payload);
+    expect(outcome.professional_boundary.software_makes_compliance_claim).toBe(false);
+
+    const nonEmptyPayload = {
+      ...payload,
+      id: "load:L-2",
+      primitive_loads: [{ id: "load:L-2-F" }]
+    };
+    const nonEmpty = intentFor(
+      "Load",
+      "load:L-2",
+      "create_load_case",
+      "load_cases",
+      "not_present",
+      JSON.stringify(nonEmptyPayload),
+      "none",
+      "dimensionless"
+    );
+    nonEmpty.operation_kind = "create";
+    const blocked = await applyModelOperation(model, nonEmpty, null);
+    expect(blocked.validation.application_status).toBe("blocked");
+    expect(blocked.diagnostics.map((item) => item.code)).toContain("OP-CREATE-LOAD-CASE-PAYLOAD-INVALID");
+    expect(blocked.applied_model).toBeNull();
+  });
+
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
     const model = sampleModel();
 
