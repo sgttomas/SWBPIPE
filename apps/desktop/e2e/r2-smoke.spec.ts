@@ -26,6 +26,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-create-node-y")).toHaveValue("0");
   await expect(page.getByTestId("viewport-create-node-z")).toHaveValue(/^-?\d/);
   await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
+
+  await page.getByTestId("viewport-pick-pipe-from").click();
+  await expect(page.getByTestId("viewport-pick-pipe-from")).toHaveAttribute("aria-pressed", "true");
+  await page.getByTestId("viewport-select-node:N-100").click();
+  await expect(page.getByTestId("viewport-create-pipe-from")).toHaveValue("node:N-100");
+  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
+  await page.getByTestId("viewport-select-node:N-140").click();
+  await expect(page.getByTestId("viewport-create-pipe-to")).toHaveValue("node:N-140");
+  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "false");
+
   const before = await canvas.screenshot();
   await page.waitForTimeout(700);
   const after = await canvas.screenshot();

@@ -157,3 +157,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
+
+## 2026-06-11 - TP-APP-R2-PIPEPICK-001 viewport pipe endpoint picking
+
+- WORKING_ITEMS app-integration tranche verified that viewport endpoint
+  picking feeds only the explicit straight-pipe operation draft; explicit user
+  action is still required to queue and apply the structured operation.
+- The app test applies picked-endpoint `pipe:P-151` through
+  `OperationApplyPanel`, preserving the existing local-session acceptance
+  posture and session-state-only boundary.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_pipe_endpoint_picking.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-94. Validation passed:
+  desktop Vitest 35/35, desktop build, desktop Playwright smoke 1/1, and
+  in-app browser endpoint-pick smoke; `git diff --check -- .
+  ':!init/init-prompt.md'` passed.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.

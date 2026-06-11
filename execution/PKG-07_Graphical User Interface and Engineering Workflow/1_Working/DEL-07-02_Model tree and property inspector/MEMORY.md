@@ -216,3 +216,23 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-11 - TP-APP-R2-PIPEPICK-001 viewport pipe endpoint picking
+
+- WORKING_ITEMS app-integration tranche extended viewport node-target
+  selection so it can fill the explicit straight-pipe `from`/`to` fields
+  when the user arms endpoint-pick mode.
+- The app test picks `node:N-100` and `node:N-140`, supplies the remaining
+  explicit pipe fields, applies `pipe:P-151`, and verifies the created pipe
+  is active in the model tree, viewport layer, and property inspector.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_pipe_endpoint_picking.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-94. Validation passed:
+  `npm test --workspace apps/desktop` (35/35), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), and in-app browser
+  endpoint-pick smoke; `git diff --check -- . ':!init/init-prompt.md'`
+  passed.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

@@ -299,3 +299,27 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim, protected
   standards data, private project data, network path, telemetry path, or DAG
   authority changed.
+
+## 2026-06-11 - TP-APP-R2-PIPEPICK-001 viewport pipe endpoint picking
+
+- WORKING_ITEMS app-integration tranche added endpoint-pick controls to the
+  viewport straight-pipe form. Arming `from` and selecting a rendered node
+  fills the `from` endpoint and advances to `to`; selecting the second node
+  fills `to` and clears pick mode.
+- Endpoint picking supplies only existing node references. Pipe id, material,
+  section geometry, non-zero `y_reference`, and provenance remain explicit
+  user-entered inputs before Queue pipe can enable.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_pipe_endpoint_picking.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-94. Validation passed:
+  `npm test --workspace apps/desktop` (35/35), `npm run build --workspace
+  apps/desktop`, `npm run test:e2e:desktop` (1/1), and in-app browser
+  endpoint-pick smoke; `git diff --check -- . ':!init/init-prompt.md'`
+  passed.
+- Residual A3 scope remains: broader canvas creation/edit gestures,
+  component/rigid authoring, and broader editor coverage as new authoring
+  surfaces land.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, or DAG
+  authority changed.

@@ -2736,3 +2736,29 @@ after the timestamp marker were absent.
   conversion, add protected standards content, handle private data, or make
   release, professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-94 viewport-pipe-endpoint-picking (2026-06-11)
+
+- Tranche: `TP-APP-R2-PIPEPICK-001` (completion plan Phase A3 seventh
+  sub-slice) adding endpoint-pick controls to the viewport straight-pipe
+  form. Arming `Pick` for `from` and selecting a rendered node fills the
+  `from` field and advances to `to`; selecting a second rendered node fills
+  `to` and clears pick mode.
+- Edit path: endpoint picking only supplies existing node references. Pipe id,
+  label, material, outside diameter, wall thickness, non-zero `y_reference`,
+  and provenance remain explicit inputs before Queue pipe can enable. Vitest
+  queues/applies picked-endpoint `pipe:P-151` through the existing
+  OperationApplyPanel and verifies the created pipe selection.
+- Local validation: `npm test --workspace apps/desktop` passed with 35/35
+  Vitest tests; `npm run build --workspace apps/desktop` passed through
+  `tsc -b` and Vite production build with the existing chunk-size warning;
+  `npm run test:e2e:desktop` passed with 1/1 Playwright tests; in-app browser
+  smoke at `http://127.0.0.1:5175/` confirmed `from=node:N-100`,
+  `to=node:N-140`, pick-mode advancement/clearing, and Queue pipe disabled
+  until the remaining explicit fields are supplied; `git diff --check -- .
+  ':!init/init-prompt.md'` passed for the touched scope.
+- Boundary: this slice does not infer pipe section/material/provenance values,
+  auto-queue or auto-apply operations, mutate saved project data, perform unit
+  conversion, add protected standards content, handle private data, or make
+  release, professional approval, certification, sealing, authentication, or
+  code-compliance claims.

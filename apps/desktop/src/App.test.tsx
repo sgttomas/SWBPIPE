@@ -5135,6 +5135,75 @@ describe("OpenPipeStress desktop preview", () => {
     expect(receipt.textContent).toContain("professional_approval=false");
   });
 
+  it("picks straight pipe endpoints from viewport node targets before apply", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
+    const viewportSelection = screen.getByTestId("viewport-selection-layer");
+    const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-pipe-intent");
+    const fromSelect = within(viewportIntentPanel).getByTestId("viewport-create-pipe-from") as HTMLSelectElement;
+    const toSelect = within(viewportIntentPanel).getByTestId("viewport-create-pipe-to") as HTMLSelectElement;
+    const pickFrom = within(viewportIntentPanel).getByTestId("viewport-pick-pipe-from");
+    const pickTo = within(viewportIntentPanel).getByTestId("viewport-pick-pipe-to");
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.click(pickFrom);
+    expect(pickFrom).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-node:N-100"));
+    await waitFor(() => expect(fromSelect.value).toBe("node:N-100"));
+    expect(toSelect.value).toBe("");
+    expect(pickFrom).toHaveAttribute("aria-pressed", "false");
+    expect(pickTo).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(within(viewportSelection).getByTestId("viewport-select-node:N-140"));
+    await waitFor(() => expect(toSelect.value).toBe("node:N-140"));
+    expect(fromSelect.value).toBe("node:N-100");
+    expect(pickTo).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-id"), {
+      target: { value: "pipe:P-151" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-label"), {
+      target: { value: "Viewport picked pipe" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-material"), {
+      target: { value: "material:invented-carbon-steel" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-od"), {
+      target: { value: "0.114" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-wall"), {
+      target: { value: "0.006" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-yref-x"), {
+      target: { value: "0" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-yref-y"), {
+      target: { value: "0" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-yref-z"), {
+      target: { value: "1" }
+    });
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:viewport-connect-pipe-pipe:P-151-001"
+      )
+    );
+    const createdPipeRow = screen.getByTestId("tree-row-pipe:P-151");
+    expect(createdPipeRow.textContent).toContain("Viewport picked pipe");
+    expect(createdPipeRow).toHaveClass("active");
+    expect(screen.getByTestId("viewport-select-pipe:P-151")).toHaveAttribute("aria-pressed", "true");
+    const inspector = screen.getByLabelText("Property inspector");
+    expect(inspector.textContent).toContain("Viewport picked pipe");
+    expect(inspector.textContent).toContain("material:invented-carbon-steel");
+  });
+
   it("blocks underspecified viewport node gestures at apply instead of inventing values", async () => {
     render(<App />);
 

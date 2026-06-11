@@ -11,6 +11,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A3 seventh sub-slice: viewport pipe endpoint picking (`TP-APP-R2-PIPEPICK-001`)
+
+The viewport pipe form now has explicit endpoint-pick controls. Arming
+`Pick` for the `from` endpoint and selecting a rendered viewport node fills
+the pipe form's `from` field, advances to `to` picking, and still updates the
+normal viewport/model-tree selection. Selecting a second rendered node fills
+the `to` field and clears pick mode. Picking only supplies node references;
+material, section geometry, non-zero `y_reference`, and provenance remain
+explicit user-entered fields before Queue pipe can be enabled.
+
+The app-level test picks `node:N-100` and `node:N-140` from viewport targets,
+fills the remaining explicit pipe fields, queues and applies
+`pipe:P-151` through `OperationApplyPanel`, and verifies the created pipe is
+selected in the model tree, viewport layer, and inspector. The Playwright R2
+smoke covers the rendered endpoint-pick controls before the unchanged
+solve/results/report flow. An in-app browser smoke at
+`http://127.0.0.1:5175/` confirmed `from=node:N-100`,
+`to=node:N-140`, pick-mode advancement/clearing, and Queue pipe remaining
+disabled until the remaining explicit fields are supplied.
+
+Residuals remain in A3: canvas gesture capture beyond node drafting and
+endpoint picking, component/rigid authoring, and broader editor coverage as
+new authoring surfaces land.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-94;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-06-11_viewport_pipe_endpoint_picking.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and the
+same-named record under
+`DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A3 sixth sub-slice: canvas node drafting (`TP-APP-R2-CANVASNODE-001`)
 
 The viewport canvas now captures a primary pointer gesture into the explicit

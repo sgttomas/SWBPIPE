@@ -43,6 +43,8 @@ type PipeDraft = {
   provenance: string;
 };
 
+type PipeEndpointPickMode = "from" | "to" | null;
+
 type DraftProjector = (event: { clientX: number; clientY: number }) => Vec3 | null;
 
 type DeformationOverlay = {
@@ -58,6 +60,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft());
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft());
+  const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
@@ -176,6 +179,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     const intent = buildExplicitPipeIntent(model, pipeDraft, queuedIntents.length + localIntents.length + 1);
     queueIntent(intent);
     setPipeDraft(emptyPipeDraft());
+    setPipeEndpointPickMode(null);
   }
 
   function queueIntent(intent: EditorOperationIntent) {
@@ -192,6 +196,22 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
 
   function updatePipeDraft(field: keyof PipeDraft, value: string) {
     setPipeDraft((current) => ({ ...current, [field]: value }));
+    if (field === "from" || field === "to") {
+      setPipeEndpointPickMode(null);
+    }
+  }
+
+  function armPipeEndpointPick(mode: Exclude<PipeEndpointPickMode, null>) {
+    setPipeEndpointPickMode((current) => (current === mode ? null : mode));
+  }
+
+  function chooseViewportTarget(target: ViewportSelectionTarget) {
+    if (pipeEndpointPickMode && target.kind === "node") {
+      const mode = pipeEndpointPickMode;
+      setPipeDraft((current) => nextPipeDraftWithEndpoint(current, mode, target.ref.id));
+      setPipeEndpointPickMode(mode === "from" ? "to" : null);
+    }
+    onSelect(target.ref);
   }
 
   function captureNodeDraftFromViewport(event: ReactPointerEvent<HTMLDivElement>) {
@@ -234,7 +254,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
                 className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
                 data-testid={`viewport-select-${target.ref.id}`}
                 key={`${target.ref.type}:${target.ref.id}`}
-                onClick={() => onSelect(target.ref)}
+                onClick={() => chooseViewportTarget(target)}
                 style={{ left: `${target.screen.x}%`, top: `${target.screen.y}%` }}
                 title={`${target.label} (${target.ref.id})`}
                 type="button"
@@ -334,8 +354,21 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
                 value={pipeDraft.label}
               />
             </label>
-            <label>
-              <span>From</span>
+            <div className="viewport-endpoint-field">
+              <div className="viewport-field-heading">
+                <span>From</span>
+                <button
+                  aria-pressed={pipeEndpointPickMode === "from"}
+                  className="viewport-endpoint-pick"
+                  data-testid="viewport-pick-pipe-from"
+                  onClick={() => armPipeEndpointPick("from")}
+                  title="Pick pipe from-node in viewport"
+                  type="button"
+                >
+                  <CircleDot size={12} aria-hidden="true" />
+                  Pick
+                </button>
+              </div>
               <select
                 aria-label="New pipe from node"
                 data-testid="viewport-create-pipe-from"
@@ -349,9 +382,22 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              <span>To</span>
+            </div>
+            <div className="viewport-endpoint-field">
+              <div className="viewport-field-heading">
+                <span>To</span>
+                <button
+                  aria-pressed={pipeEndpointPickMode === "to"}
+                  className="viewport-endpoint-pick"
+                  data-testid="viewport-pick-pipe-to"
+                  onClick={() => armPipeEndpointPick("to")}
+                  title="Pick pipe to-node in viewport"
+                  type="button"
+                >
+                  <CircleDot size={12} aria-hidden="true" />
+                  Pick
+                </button>
+              </div>
               <select
                 aria-label="New pipe to node"
                 data-testid="viewport-create-pipe-to"
@@ -365,7 +411,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
             <label>
               <span>Material</span>
               <select
@@ -512,6 +558,17 @@ function emptyPipeDraft(): PipeDraft {
     yReferenceZ: "",
     provenance: "user_entered_local_preview"
   };
+}
+
+function nextPipeDraftWithEndpoint(
+  current: PipeDraft,
+  mode: Exclude<PipeEndpointPickMode, null>,
+  nodeId: string
+): PipeDraft {
+  if (mode === "from") {
+    return { ...current, from: nodeId, to: current.to === nodeId ? "" : current.to };
+  }
+  return { ...current, to: nodeId, from: current.from === nodeId ? "" : current.from };
 }
 
 function isNodeDraftValid(draft: NodeDraft): boolean {

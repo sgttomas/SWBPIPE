@@ -669,7 +669,8 @@ button:focus-visible {
 }
 
 .viewport-node-form label,
-.viewport-pipe-form label {
+.viewport-pipe-form label,
+.viewport-endpoint-field {
   display: grid;
   gap: 3px;
   min-width: 0;
@@ -692,6 +693,29 @@ button:focus-visible {
   border-radius: 4px;
   color: #263331;
   background: #ffffff;
+}
+
+.viewport-field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  min-height: 18px;
+}
+
+.viewport-pipe-form .viewport-endpoint-pick {
+  align-self: center;
+  min-height: 20px;
+  padding: 1px 6px;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.viewport-pipe-form .viewport-endpoint-pick[aria-pressed="true"] {
+  color: #141f1d;
+  background: #fff4df;
+  border-color: #d57d16;
 }
 
 .viewport-intent-actions button,
