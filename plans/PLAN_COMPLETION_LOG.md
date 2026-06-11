@@ -1,7 +1,9 @@
 # Plan Completion Log
 
 Archive ledger for landed items from the active completion plan (currently
-[PLAN_2026-06-10_prd_completion.md](PLAN_2026-06-10_prd_completion.md)). When
+[PLAN_2026-06-10_prd_completion.md](PLAN_2026-06-10_prd_completion.md), plus
+the accepted hardening-lane plan
+[PLAN_2026-06-11_operation_seam_unification.md](PLAN_2026-06-11_operation_seam_unification.md)). When
 a plan item lands, its row in the plan is compressed to one line and the full
 narrative moves here, newest entry first. This file is history, not
 authority: lifecycle state lives in deliverable `_STATUS.md` files, evidence
@@ -10,6 +12,61 @@ lives in `_run_records/**`, and rulings live in the decision register and
 certification, or code-compliance claim.
 
 ---
+
+## 2026-06-11 — Operation-seam plan T1: cross-engine contract corpus + handoff rider (`TP-SEAM-CORPUS-001`)
+
+The editor-operation seam now has an executable cross-engine contract: 44
+invented cases at `fixtures/model_operations/contract_corpus/` run inside
+both engines' normal suites — a Rust integration test in the
+`operation_applier` crate (the contract reference, with a `CORPUS_BLESS=1`
+regeneration mode) and a Vitest spec driving `operationService` browser mode
+— asserting identical semantic outcomes (validation states, diff-preview
+rows, order-insensitive diagnostic records), parsed-JSON deep equality of
+applied documents, and one shared corpus-harness canonical sha256 per
+applied document. Engine-identity fields are excluded only via a documented
+per-field allowlist. The coverage floor is enforced programmatically in both
+runners: all 10 operation kinds accepted, the named block classes (19
+distinct blocking codes), and the dynamic paths
+`primitive_loads.N.magnitude.value` / `terms.N.factor` accepted and blocked.
+Notable finding: the TypeScript mirror reproduced all 44 Rust-reference
+outcomes on first execution — zero alignment fixes, zero quarantined cases —
+which retroactively strengthens all existing browser-based evidence.
+
+The boundary-hygiene rider removed the `LocalFeaHandoffPanel` fixture-ID
+fallback (`pipe:P-120` / `node:N-140`): missing result-summary refs now emit
+the explicit `LOCAL-FEA-RESULT-SUMMARY-REF-MISSING` finding with an honestly
+degraded region id and no invented references (two new panel tests).
+
+Execution note: the bounded TASK worker for this tranche was interrupted by
+an environment connection loss after authoring its artifacts; WORKING_ITEMS
+independently re-verified everything (cargo 36/36; Vitest 105/105;
+Playwright 1/1 unchanged; desktop production build green) and completed the
+closeout. Residual: corpus README `review_status` pending human review.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-109 and
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-11_seam_contract_corpus_fanin.md`
+(interrupted worker record `TASK_RUN_2026-06-11_1414.md` finalized FAILED in
+the same folder; fan-out records at DEL-16-03 and DEL-00-08; rider record at
+DEL-10-03).
+
+## 2026-06-11 — Operation-seam plan T2: ADR surface + D-13 ruling transcription (`TP-SEAM-DECISION-001`)
+
+The ADR surface anticipated by DEL-00-01 now exists: `docs/architecture/adr/`
+with `template.md`, `index.md`, and
+`ADR-0001_operation_seam_engine_unification.md` (status accepted, dated
+2026-06-11) recording the D-13 ruling — wasm32 `operation_applier` as the
+sole browser-mode engine, the TS mirror's validation/apply logic retired at
+plan T4, four alternatives rejected with reasons, consequences, and
+reconsideration triggers. The pre-write gate check confirmed the surface was
+unbuilt by explicit deferral (PKG-00 lock review), not resolved elsewhere.
+Transcription obligations completed: `DEC-020` appended to
+`SOFTWARE_DECOMP.md` §12 and the D-13 row appended to
+`_DECISIONS/_REGISTER.md` directly in state RULED, with the accepted plan
+itself as the packet. Cross-consistency of ADR ↔ DEC-020 ↔ D-13 ↔ plan §2
+verified; no code changes.
+
+Evidence:
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/_run_records/TASK_RUN_2026-06-11_1408.md`.
 
 ## 2026-06-11 — A6 second sub-slice: results family selector (`TP-APP-R2-RESULTFAMILY-001`)
 
