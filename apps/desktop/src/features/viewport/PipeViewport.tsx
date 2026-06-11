@@ -29,6 +29,20 @@ type NodeDraft = {
   z: string;
 };
 
+type PipeDraft = {
+  id: string;
+  label: string;
+  from: string;
+  to: string;
+  material: string;
+  outsideDiameter: string;
+  wallThickness: string;
+  yReferenceX: string;
+  yReferenceY: string;
+  yReferenceZ: string;
+  provenance: string;
+};
+
 type DeformationOverlay = {
   state: "not_started" | "available" | "blocked" | "unavailable";
   summary: string;
@@ -40,10 +54,12 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft());
+  const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft());
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const nodeDraftValid = isNodeDraftValid(nodeDraft);
+  const pipeDraftValid = isPipeDraftValid(pipeDraft);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -146,6 +162,13 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     setNodeDraft(emptyNodeDraft());
   }
 
+  function addExplicitPipeIntent() {
+    if (!pipeDraftValid) return;
+    const intent = buildExplicitPipeIntent(model, pipeDraft, queuedIntents.length + localIntents.length + 1);
+    queueIntent(intent);
+    setPipeDraft(emptyPipeDraft());
+  }
+
   function queueIntent(intent: EditorOperationIntent) {
     if (onQueueIntent) {
       onQueueIntent(intent);
@@ -156,6 +179,10 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
 
   function updateNodeDraft(field: keyof NodeDraft, value: string) {
     setNodeDraft((current) => ({ ...current, [field]: value }));
+  }
+
+  function updatePipeDraft(field: keyof PipeDraft, value: string) {
+    setPipeDraft((current) => ({ ...current, [field]: value }));
   }
 
   return (
@@ -263,6 +290,150 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
               Queue node
             </button>
           </div>
+          <div className="viewport-pipe-form" aria-label="Explicit straight pipe connectivity">
+            <label>
+              <span>Pipe ID</span>
+              <input
+                aria-label="New pipe ID"
+                data-testid="viewport-create-pipe-id"
+                onChange={(event) => updatePipeDraft("id", event.target.value)}
+                placeholder="pipe:P-2"
+                value={pipeDraft.id}
+              />
+            </label>
+            <label>
+              <span>Label</span>
+              <input
+                aria-label="New pipe label"
+                data-testid="viewport-create-pipe-label"
+                onChange={(event) => updatePipeDraft("label", event.target.value)}
+                placeholder="Pipe label"
+                value={pipeDraft.label}
+              />
+            </label>
+            <label>
+              <span>From</span>
+              <select
+                aria-label="New pipe from node"
+                data-testid="viewport-create-pipe-from"
+                onChange={(event) => updatePipeDraft("from", event.target.value)}
+                value={pipeDraft.from}
+              >
+                <option value="">From node</option>
+                {model.nodes.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {node.label} ({node.id})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>To</span>
+              <select
+                aria-label="New pipe to node"
+                data-testid="viewport-create-pipe-to"
+                onChange={(event) => updatePipeDraft("to", event.target.value)}
+                value={pipeDraft.to}
+              >
+                <option value="">To node</option>
+                {model.nodes.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {node.label} ({node.id})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Material</span>
+              <select
+                aria-label="New pipe material"
+                data-testid="viewport-create-pipe-material"
+                onChange={(event) => updatePipeDraft("material", event.target.value)}
+                value={pipeDraft.material}
+              >
+                <option value="">Material</option>
+                {(model.materials ?? []).map((material) => (
+                  <option key={material.id} value={material.id}>
+                    {material.label} ({material.id})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>OD</span>
+              <input
+                aria-label="New pipe outside diameter"
+                data-testid="viewport-create-pipe-od"
+                inputMode="decimal"
+                onChange={(event) => updatePipeDraft("outsideDiameter", event.target.value)}
+                placeholder="0.114"
+                value={pipeDraft.outsideDiameter}
+              />
+            </label>
+            <label>
+              <span>Wall</span>
+              <input
+                aria-label="New pipe wall thickness"
+                data-testid="viewport-create-pipe-wall"
+                inputMode="decimal"
+                onChange={(event) => updatePipeDraft("wallThickness", event.target.value)}
+                placeholder="0.006"
+                value={pipeDraft.wallThickness}
+              />
+            </label>
+            <label>
+              <span>Yref X</span>
+              <input
+                aria-label="New pipe y-reference X"
+                data-testid="viewport-create-pipe-yref-x"
+                inputMode="decimal"
+                onChange={(event) => updatePipeDraft("yReferenceX", event.target.value)}
+                placeholder="0"
+                value={pipeDraft.yReferenceX}
+              />
+            </label>
+            <label>
+              <span>Yref Y</span>
+              <input
+                aria-label="New pipe y-reference Y"
+                data-testid="viewport-create-pipe-yref-y"
+                inputMode="decimal"
+                onChange={(event) => updatePipeDraft("yReferenceY", event.target.value)}
+                placeholder="0"
+                value={pipeDraft.yReferenceY}
+              />
+            </label>
+            <label>
+              <span>Yref Z</span>
+              <input
+                aria-label="New pipe y-reference Z"
+                data-testid="viewport-create-pipe-yref-z"
+                inputMode="decimal"
+                onChange={(event) => updatePipeDraft("yReferenceZ", event.target.value)}
+                placeholder="1"
+                value={pipeDraft.yReferenceZ}
+              />
+            </label>
+            <label>
+              <span>Provenance</span>
+              <input
+                aria-label="New pipe provenance"
+                data-testid="viewport-create-pipe-provenance"
+                onChange={(event) => updatePipeDraft("provenance", event.target.value)}
+                value={pipeDraft.provenance}
+              />
+            </label>
+            <button
+              data-testid="queue-explicit-pipe-intent"
+              disabled={!pipeDraftValid}
+              onClick={addExplicitPipeIntent}
+              title="Queue explicit straight-pipe connect intent"
+              type="button"
+            >
+              <GitBranch size={15} aria-hidden="true" />
+              Queue pipe
+            </button>
+          </div>
           <div className="viewport-intent-actions">
             <button type="button" onClick={() => addIntent("create_node")}>
               <CirclePlus size={15} aria-hidden="true" />
@@ -304,12 +475,49 @@ function emptyNodeDraft(): NodeDraft {
   return { id: "", label: "", x: "", y: "", z: "" };
 }
 
+function emptyPipeDraft(): PipeDraft {
+  return {
+    id: "",
+    label: "",
+    from: "",
+    to: "",
+    material: "",
+    outsideDiameter: "",
+    wallThickness: "",
+    yReferenceX: "",
+    yReferenceY: "",
+    yReferenceZ: "",
+    provenance: "user_entered_local_preview"
+  };
+}
+
 function isNodeDraftValid(draft: NodeDraft): boolean {
   return Boolean(draft.id.trim() && draft.label.trim()) && [draft.x, draft.y, draft.z].every(isFiniteInput);
 }
 
+function isPipeDraftValid(draft: PipeDraft): boolean {
+  return (
+    Boolean(
+      draft.id.trim() &&
+        draft.label.trim() &&
+        draft.from.trim() &&
+        draft.to.trim() &&
+        draft.from !== draft.to &&
+        draft.material.trim() &&
+        draft.provenance.trim()
+    ) &&
+    [draft.outsideDiameter, draft.wallThickness].every(isPositiveInput) &&
+    [draft.yReferenceX, draft.yReferenceY, draft.yReferenceZ].every(isFiniteInput) &&
+    [draft.yReferenceX, draft.yReferenceY, draft.yReferenceZ].some((value) => Number(value) !== 0)
+  );
+}
+
 function isFiniteInput(value: string): boolean {
   return value.trim() !== "" && Number.isFinite(Number(value));
+}
+
+function isPositiveInput(value: string): boolean {
+  return isFiniteInput(value) && Number(value) > 0;
 }
 
 function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] }) {
@@ -531,6 +739,76 @@ function buildExplicitNodeIntent(model: PreviewModel, draft: NodeDraft, sequence
       software_makes_authentication_claim: false
     },
     rationale: "explicit user-entered node geometry; requires service validation before durable model change."
+  };
+}
+
+function buildExplicitPipeIntent(model: PreviewModel, draft: PipeDraft, sequence: number): EditorOperationIntent {
+  const pipeId = draft.id.trim();
+  const label = draft.label.trim();
+  const lengthUnit = model.project.units.length ?? "TBD";
+  const payload = {
+    id: pipeId,
+    label,
+    from: draft.from.trim(),
+    to: draft.to.trim(),
+    section: {
+      outside_diameter: { value: Number(draft.outsideDiameter), unit: lengthUnit },
+      wall_thickness: { value: Number(draft.wallThickness), unit: lengthUnit }
+    },
+    material: draft.material.trim(),
+    y_reference: {
+      x: Number(draft.yReferenceX),
+      y: Number(draft.yReferenceY),
+      z: Number(draft.yReferenceZ)
+    },
+    provenance: draft.provenance.trim()
+  };
+
+  return {
+    operation_id: `op:viewport-connect-pipe-${safeToken(pipeId)}-${sequence.toString().padStart(3, "0")}`,
+    operation_kind: "connect",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/viewport/PipeViewport.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "viewport_editor"
+    },
+    target: { object_type: "Element", ref: pipeId },
+    change: {
+      change_id: `change:viewport:connect-pipe:${safeToken(pipeId)}`,
+      change_kind: "connect_pipe_run",
+      field_label: "Explicit straight pipe connectivity",
+      field_path: "pipe_segments",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: lengthUnit,
+      dimension: "length",
+      source_note: "explicit user-entered straight-pipe connectivity and section geometry"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale:
+      "explicit user-entered straight-pipe connectivity and section geometry; requires service validation before durable model change."
   };
 }
 

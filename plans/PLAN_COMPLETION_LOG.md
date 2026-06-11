@@ -11,6 +11,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A3 fifth sub-slice: explicit straight-pipe creation (`TP-APP-R2-CONNECTPIPE-001`)
+
+The viewport editor now has an explicit straight-pipe form for user-entered
+pipe id, label, endpoint nodes, material, outside diameter, wall thickness,
+non-zero local `y_reference`, and provenance. The form queues a structured
+`connect_pipe_run` intent with `field_path=pipe_segments` and applies it
+through the same operation review/acceptance path as other local-session
+edits. Legacy one-click pipe-run viewport gestures remain blocked because
+they still carry only underspecified `viewport.connect_pipe_run` data.
+
+The Rust `core/model_operations/operation_applier` crate and browser local
+operation mirror both validate the explicit pipe payload: matching id,
+`before=not_present`, project length unit, `dimension=length`, non-duplicate
+pipe id, existing endpoint nodes/material, positive OD/wall quantities, and
+non-zero `y_reference`. Applying the intent appends a new `pipe_segments`
+record to the returned session model without mutating the input model in
+place. The app test confirms `pipe:P-150` is created, selected in the model
+tree and viewport selection layer, visible in the property inspector, and
+recorded with local-session acceptance only.
+
+Residuals remain in A3: true canvas raycast/gesture geometry capture,
+rigid/component authoring, and broader editor coverage as new authoring
+surfaces land.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-92;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-06-11_explicit_straight_pipe_connectivity.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-11 — A4 first sub-slice: load-case primitive magnitude manager (`TP-APP-R2-LOADMGR-001`)
 
 The desktop app now has a right-rail Load Cases manager over the invented

@@ -205,6 +205,30 @@ Durable context preserved after reconciliation review:
   standards data, private project data, network path, telemetry path, or DAG
   authority changed.
 
+## 2026-06-11 - TP-APP-R2-CONNECTPIPE-001 explicit straight-pipe connectivity
+
+- WORKING_ITEMS app-integration tranche added an explicit straight-pipe form
+  to the viewport editor for user-entered pipe id, label, endpoint nodes,
+  material, outside diameter, wall thickness, non-zero `y_reference`, and
+  provenance.
+- The form queues `connect_pipe_run` intents for the structured operation seam;
+  legacy one-click viewport pipe-run gestures remain blocked rather than
+  inventing connectivity or section geometry.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_explicit_straight_pipe_connectivity.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-92. Validation passed:
+  `cargo test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  (22/22), `npm test --workspace apps/desktop` (33/33),
+  `npm run build --workspace apps/desktop`, and
+  `npm run test:e2e:desktop` (1/1).
+- Residual A3 scope remains: true canvas raycast/gesture geometry capture,
+  rigid/component authoring, and broader editor coverage as new authoring
+  surfaces land.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, or DAG
+  authority changed.
+
 ## 2026-06-10 - TP-APP-R2-CREATENODE-001 explicit node create operation
 
 - WORKING_ITEMS app-integration tranche added an explicit node-geometry form

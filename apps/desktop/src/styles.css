@@ -652,25 +652,37 @@ button:focus-visible {
   gap: 7px;
 }
 
-.viewport-node-form {
+.viewport-node-form,
+.viewport-pipe-form {
   display: grid;
-  grid-template-columns: minmax(96px, 1.2fr) minmax(96px, 1.2fr) repeat(3, minmax(52px, 0.7fr)) auto;
   gap: 7px;
   width: 100%;
 }
 
-.viewport-node-form label {
+.viewport-node-form {
+  grid-template-columns: minmax(96px, 1.2fr) minmax(96px, 1.2fr) repeat(3, minmax(52px, 0.7fr)) auto;
+}
+
+.viewport-pipe-form {
+  grid-template-columns: repeat(4, minmax(86px, 1fr));
+}
+
+.viewport-node-form label,
+.viewport-pipe-form label {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
-.viewport-node-form span {
+.viewport-node-form span,
+.viewport-pipe-form span {
   color: #54615d;
   font-size: 11px;
 }
 
-.viewport-node-form input {
+.viewport-node-form input,
+.viewport-pipe-form input,
+.viewport-pipe-form select {
   width: 100%;
   min-width: 0;
   height: 30px;
@@ -682,7 +694,8 @@ button:focus-visible {
 }
 
 .viewport-intent-actions button,
-.viewport-node-form button {
+.viewport-node-form button,
+.viewport-pipe-form button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -696,12 +709,14 @@ button:focus-visible {
   cursor: pointer;
 }
 
-.viewport-node-form button {
+.viewport-node-form button,
+.viewport-pipe-form button {
   align-self: end;
   white-space: nowrap;
 }
 
-.viewport-node-form button:disabled {
+.viewport-node-form button:disabled,
+.viewport-pipe-form button:disabled {
   color: #7d8985;
   background: #eef2ef;
   cursor: not-allowed;
@@ -750,7 +765,8 @@ button:focus-visible {
 
 @media (max-width: 1040px) {
   .viewport-intents,
-  .viewport-node-form {
+  .viewport-node-form,
+  .viewport-pipe-form {
     grid-template-columns: 1fr;
   }
 }

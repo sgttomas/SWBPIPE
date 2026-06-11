@@ -89,6 +89,28 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-11 - TP-APP-R2-CONNECTPIPE-001 explicit straight-pipe connectivity
+
+- WORKING_ITEMS app-integration tranche connected explicit viewport
+  straight-pipe creation back into this deliverable's model
+  tree/property-inspector contract. After an accepted connect-pipe apply, the
+  created pipe becomes the active tree, viewport selection-layer, and
+  inspector selection.
+- The app test created `pipe:P-150` between `node:N-100` and `node:N-140`
+  with `material:invented-carbon-steel`, OD `0.114 m`, wall `0.006 m`, and
+  provenance `user_entered_local_preview`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_explicit_straight_pipe_connectivity.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-92. Validation passed:
+  `npm test --workspace apps/desktop` (33/33), `npm run build --workspace
+  apps/desktop`, Rust operation-applier tests (22/22), and
+  `npm run test:e2e:desktop` (1/1).
+- No endpoint-edit semantics were added to the property inspector. No
+  lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-11 - TP-APP-R2-LOADMGR-001 load-case primitive magnitude manager
 
 - WORKING_ITEMS app-integration tranche added a right-rail Load Cases manager

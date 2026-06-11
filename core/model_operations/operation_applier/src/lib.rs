@@ -479,6 +479,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_pipe: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "connect_pipe_run" {
+        created_pipe = resolve_connect_pipe_run(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
 
     let blocking = checker.blocking();
     let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
@@ -492,7 +506,7 @@ fn run(
             dimension: dimension.clone(),
             change_kind: change_kind.clone(),
         }]
-    } else if created_node.is_some() && !blocking {
+    } else if (created_node.is_some() || created_pipe.is_some()) && !blocking {
         vec![DiffPreviewRow {
             entity_ref: target_ref.clone(),
             object_type: object_type.clone(),
@@ -528,6 +542,15 @@ fn run(
         } else if let Some(node) = &created_node {
             let mut next_model = model.clone();
             if apply_created_node(&mut next_model, node) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(pipe) = &created_pipe {
+            let mut next_model = model.clone();
+            if apply_created_pipe(&mut next_model, pipe) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -745,7 +768,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         );
     }
 
-    if matches!(change_kind, "connect_pipe_run" | "insert_component_symbol") {
+    if matches!(change_kind, "insert_component_symbol") {
         checker.schema_blocked = true;
         checker.push(
             "OP-GEOMETRY-INPUT-INCOMPLETE",
@@ -912,6 +935,193 @@ fn resolve_create_node(
         "id": id,
         "label": label,
         "position": { "x": x.unwrap(), "y": y.unwrap(), "z": z.unwrap() },
+        "provenance": provenance,
+    }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_connect_pipe_run(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Element" || field_path != "pipe_segments" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CONNECT-PIPE-SHAPE-INVALID",
+            "blocking",
+            "Connect-pipe intents must target object_type `Element` with field_path `pipe_segments`.".to_string(),
+            "Refresh the viewport connect-pipe intent from the explicit pipe connectivity form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    let stored_unit = value_at(model, &["project", "units", "length"]).and_then(Value::as_str);
+    checker.unit_state = "passed";
+    let Some(stored_unit) = stored_unit else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project length unit metadata is missing; explicit pipe geometry cannot be accepted.".to_string(),
+            "Repair the model document's project.units.length metadata before creating pipe segments.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if unit != stored_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match project length unit `{stored_unit}`; unit conversion is unavailable until the units engine lands."),
+            "Enter pipe section dimensions in the project length unit; no silent conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "length" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Connect-pipe dimension `{dimension}` must be `length`."),
+            "Emit pipe section geometry with explicit length dimension metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "pipe_segments", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Pipe segment `{target_ref}` already exists in the current model."),
+            "Choose a new stable pipe id; connect operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            "Connect-pipe payload is not valid JSON.".to_string(),
+            "Emit the explicit pipe connectivity payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            "Connect-pipe payload must be a JSON object.".to_string(),
+            "Emit id, label, from, to, section, material, y_reference, and provenance fields for the new pipe segment.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let from = record
+        .get("from")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let to = record
+        .get("to")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let material = record
+        .get("material")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let outside_diameter = quantity_value(record, &["section", "outside_diameter"], stored_unit);
+    let wall_thickness = quantity_value(record, &["section", "wall_thickness"], stored_unit);
+    let y_reference = vector_value(record, "y_reference");
+
+    if id != target_ref
+        || label.is_empty()
+        || from.is_empty()
+        || to.is_empty()
+        || from == to
+        || material.is_empty()
+        || provenance.is_empty()
+        || outside_diameter.is_none()
+        || wall_thickness.is_none()
+        || y_reference.is_none()
+    {
+        checker.push(
+            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            "Connect-pipe payload must include matching id, non-empty label/from/to/material/provenance, distinct endpoint nodes, positive OD/wall quantities in the project length unit, and a non-zero y_reference vector.".to_string(),
+            "Refresh the viewport connect-pipe intent from explicit user-entered pipe fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "nodes", from).is_none() || find_entity(model, "nodes", to).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PIPE-ENDPOINT-NOT-FOUND",
+            "blocking",
+            format!("Pipe `{target_ref}` references endpoint nodes `{from}` and `{to}`, but at least one is absent from the current model."),
+            "Create or select existing endpoint nodes before connecting a pipe segment.",
+            vec![target_ref.to_string(), from.to_string(), to.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "materials", material).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PIPE-MATERIAL-NOT-FOUND",
+            "blocking",
+            format!("Pipe `{target_ref}` references material `{material}`, which is absent from the current model."),
+            "Select an existing material before connecting a pipe segment.",
+            vec![target_ref.to_string(), material.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    let (yrx, yry, yrz) = y_reference.unwrap();
+    Some(serde_json::json!({
+        "id": id,
+        "label": label,
+        "from": from,
+        "to": to,
+        "section": {
+            "outside_diameter": { "value": outside_diameter.unwrap(), "unit": stored_unit },
+            "wall_thickness": { "value": wall_thickness.unwrap(), "unit": stored_unit }
+        },
+        "material": material,
+        "y_reference": { "x": yrx, "y": yry, "z": yrz },
         "provenance": provenance,
     }))
 }
@@ -1343,6 +1553,14 @@ fn apply_created_node(model: &mut Value, node: &Value) -> bool {
     true
 }
 
+fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
+    let Some(pipes) = model.get_mut("pipe_segments").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    pipes.push(pipe.clone());
+    true
+}
+
 fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> ModelBasisEvidence {
     let backend_model_hash = format!("sha256:{}", sha256_hex(&canonical_json(model)));
     match claimed_model_hash {
@@ -1387,6 +1605,42 @@ fn is_primitive_magnitude_path(field_path: &str) -> bool {
         && !segments[1].is_empty()
         && segments[2] == "magnitude"
         && segments[3] == "value"
+}
+
+fn quantity_value(
+    record: &serde_json::Map<String, Value>,
+    path: &[&str],
+    expected_unit: &str,
+) -> Option<f64> {
+    let quantity = value_in_object(record, path)?.as_object()?;
+    let unit = quantity.get("unit").and_then(Value::as_str)?;
+    if unit != expected_unit {
+        return None;
+    }
+    let value = quantity.get("value").and_then(Value::as_f64)?;
+    (value.is_finite() && value > 0.0).then_some(value)
+}
+
+fn vector_value(record: &serde_json::Map<String, Value>, key: &str) -> Option<(f64, f64, f64)> {
+    let vector = record.get(key)?.as_object()?;
+    let x = vector.get("x").and_then(Value::as_f64)?;
+    let y = vector.get("y").and_then(Value::as_f64)?;
+    let z = vector.get("z").and_then(Value::as_f64)?;
+    if !x.is_finite() || !y.is_finite() || !z.is_finite() {
+        return None;
+    }
+    (x != 0.0 || y != 0.0 || z != 0.0).then_some((x, y, z))
+}
+
+fn value_in_object<'a>(
+    record: &'a serde_json::Map<String, Value>,
+    path: &[&str],
+) -> Option<&'a Value> {
+    let mut current = record.get(*path.first()?)?;
+    for segment in &path[1..] {
+        current = current.get(*segment)?;
+    }
+    Some(current)
 }
 
 fn find_entity<'a>(model: &'a Value, collection: &str, entity_ref: &str) -> Option<&'a Value> {
@@ -1759,6 +2013,91 @@ mod tests {
             outcome.professional_boundary["software_makes_approval_claim"],
             json!(false)
         );
+    }
+
+    #[test]
+    fn explicit_connect_pipe_payload_applies_without_mutating_input() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "pipe:P-2",
+            "label": "User pipe",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "section": {
+                "outside_diameter": { "value": 0.114, "unit": "m" },
+                "wall_thickness": { "value": 0.006, "unit": "m" }
+            },
+            "material": "material:steel",
+            "y_reference": { "x": 0.0, "y": 0.0, "z": 1.0 },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Element",
+            "pipe:P-2",
+            "connect_pipe_run",
+            "pipe_segments",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "m",
+            "length",
+        );
+        intent["operation_kind"] = json!("connect");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "pipe_segments");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["pipe_segments"]
+                .as_array()
+                .expect("pipe segments array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["pipe_segments"][1], payload);
+        assert_eq!(
+            outcome.professional_boundary["software_makes_approval_claim"],
+            json!(false)
+        );
+    }
+
+    #[test]
+    fn underspecified_connect_pipe_gesture_remains_blocked() {
+        let model = sample_model();
+        let mut intent = modify_intent(
+            "Element",
+            "pipe:viewport-preview:node:N-1-to-node:N-2",
+            "connect_pipe_run",
+            "viewport.connect_pipe_run",
+            "not_present",
+            "node:N-1 -> node:N-2",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("connect");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(codes(&outcome).contains(&"OP-CONNECT-PIPE-SHAPE-INVALID"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]

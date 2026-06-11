@@ -245,6 +245,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && changeKind === "create_node") {
     createdNode = resolveCreateNode(modelDocument, targetRef, intent, checker);
   }
+  let createdPipe: Record<string, unknown> | null = null;
+  if (!checker.schemaBlocked && changeKind === "connect_pipe_run") {
+    createdPipe = resolveConnectPipeRun(modelDocument, targetRef, intent, checker);
+  }
 
   const blocking = hasBlocking(checker);
   const diffPreview: OperationDiffPreviewRow[] =
@@ -258,10 +262,10 @@ async function runLocalOperation(
             after: intent.change.after,
             unit: intent.change.unit,
             dimension: intent.change.dimension,
-            change_kind: changeKind
-          }
-        ]
-      : createdNode && !blocking
+              change_kind: changeKind
+            }
+          ]
+      : (createdNode || createdPipe) && !blocking
         ? [
             {
               entity_ref: targetRef,
@@ -278,12 +282,14 @@ async function runLocalOperation(
 
   let appliedModel: PreviewModel | null = null;
   let appliedModelHash: string | null = null;
-  if (mode === "apply" && !blocking && (resolved || createdNode)) {
+  if (mode === "apply" && !blocking && (resolved || createdNode || createdPipe)) {
     const nextModel = JSON.parse(JSON.stringify(modelDocument)) as Record<string, unknown>;
     const applied = resolved
       ? applyResolvedField(nextModel, objectType, targetRef, resolved)
       : createdNode
         ? applyCreatedNode(nextModel, createdNode)
+        : createdPipe
+          ? applyCreatedPipe(nextModel, createdPipe)
         : false;
     if (applied) {
       appliedModelHash = await localHash(nextModel);
@@ -455,7 +461,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
       [operationId]
     );
   }
-  if (["connect_pipe_run", "insert_component_symbol"].includes(changeKind)) {
+  if (changeKind === "insert_component_symbol") {
     checker.schemaBlocked = true;
     pushDiagnostic(
       checker,
@@ -599,6 +605,174 @@ function resolveCreateNode(
     id,
     label,
     position: { x, y, z },
+    provenance
+  };
+}
+
+function resolveConnectPipeRun(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): Record<string, unknown> | null {
+  if (intent.target.object_type !== "Element" || intent.change.field_path !== "pipe_segments") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-CONNECT-PIPE-SHAPE-INVALID",
+      "blocking",
+      "Connect-pipe intents must target object_type `Element` with field_path `pipe_segments`.",
+      "Refresh the viewport connect-pipe intent from the explicit pipe connectivity form.",
+      [targetRef]
+    );
+    return null;
+  }
+  checkBefore("not_present", intent.change.before, targetRef, intent.change.field_path, checker);
+  const storedLengthUnit = valueAtSegments(model, ["project", "units", "length"]);
+  checker.unitState = "passed";
+  if (typeof storedLengthUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project length unit metadata is missing; explicit pipe geometry cannot be accepted.",
+      "Repair the model document's project.units.length metadata before creating pipe segments.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.unit !== storedLengthUnit) {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match project length unit \`${storedLengthUnit}\`; unit conversion is unavailable until the units engine lands.`,
+      "Enter pipe section dimensions in the project length unit; no silent conversion is performed.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "length") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Connect-pipe dimension \`${intent.change.dimension}\` must be \`length\`.`,
+      "Emit pipe section geometry with explicit length dimension metadata.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (findEntity(model, "pipe_segments", targetRef)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-ALREADY-EXISTS",
+      "blocking",
+      `Pipe segment \`${targetRef}\` already exists in the current model.`,
+      "Choose a new stable pipe id; connect operations never overwrite existing entities.",
+      [targetRef]
+    );
+    return null;
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(intent.change.after);
+  } catch {
+    pushDiagnostic(
+      checker,
+      "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+      "blocking",
+      "Connect-pipe payload is not valid JSON.",
+      "Emit the explicit pipe connectivity payload as JSON in change.after.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    pushDiagnostic(
+      checker,
+      "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+      "blocking",
+      "Connect-pipe payload must be a JSON object.",
+      "Emit id, label, from, to, section, material, y_reference, and provenance fields for the new pipe segment.",
+      [targetRef]
+    );
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const id = stringPayload(record, "id");
+  const label = stringPayload(record, "label");
+  const from = stringPayload(record, "from");
+  const to = stringPayload(record, "to");
+  const material = stringPayload(record, "material");
+  const provenance = stringPayload(record, "provenance");
+  const outsideDiameter = quantityPayload(record, ["section", "outside_diameter"], storedLengthUnit);
+  const wallThickness = quantityPayload(record, ["section", "wall_thickness"], storedLengthUnit);
+  const yReference = vectorPayload(record, "y_reference");
+  if (
+    id !== targetRef ||
+    !label ||
+    !from ||
+    !to ||
+    from === to ||
+    !material ||
+    !provenance ||
+    outsideDiameter === null ||
+    wallThickness === null ||
+    yReference === null
+  ) {
+    pushDiagnostic(
+      checker,
+      "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+      "blocking",
+      "Connect-pipe payload must include matching id, non-empty label/from/to/material/provenance, distinct endpoint nodes, positive OD/wall quantities in the project length unit, and a non-zero y_reference vector.",
+      "Refresh the viewport connect-pipe intent from explicit user-entered pipe fields.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (!findEntity(model, "nodes", from) || !findEntity(model, "nodes", to)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-PIPE-ENDPOINT-NOT-FOUND",
+      "blocking",
+      `Pipe \`${targetRef}\` references endpoint nodes \`${from}\` and \`${to}\`, but at least one is absent from the current model.`,
+      "Create or select existing endpoint nodes before connecting a pipe segment.",
+      [targetRef, from, to]
+    );
+    return null;
+  }
+  if (!findEntity(model, "materials", material)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-PIPE-MATERIAL-NOT-FOUND",
+      "blocking",
+      `Pipe \`${targetRef}\` references material \`${material}\`, which is absent from the current model.`,
+      "Select an existing material before connecting a pipe segment.",
+      [targetRef, material]
+    );
+    return null;
+  }
+  checker.referenceState = "passed";
+
+  return {
+    id,
+    label,
+    from,
+    to,
+    section: {
+      outside_diameter: { value: outsideDiameter, unit: storedLengthUnit },
+      wall_thickness: { value: wallThickness, unit: storedLengthUnit }
+    },
+    material,
+    y_reference: yReference,
     provenance
   };
 }
@@ -915,6 +1089,12 @@ function applyCreatedNode(model: Record<string, unknown>, node: Record<string, u
   return true;
 }
 
+function applyCreatedPipe(model: Record<string, unknown>, pipe: Record<string, unknown>): boolean {
+  if (!Array.isArray(model.pipe_segments)) return false;
+  model.pipe_segments.push(pipe);
+  return true;
+}
+
 function stepInto(value: unknown, segment: string): unknown {
   if (Array.isArray(value)) {
     const index = Number.parseInt(segment, 10);
@@ -934,6 +1114,28 @@ function stringPayload(record: Record<string, unknown>, key: string): string {
 function numericPayload(record: Record<string, unknown>, key: string): number | null {
   const value = record[key];
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function quantityPayload(record: Record<string, unknown>, path: string[], expectedUnit: string): number | null {
+  const quantity = valueAtSegments(record, path);
+  if (typeof quantity !== "object" || quantity === null || Array.isArray(quantity)) return null;
+  const quantityRecord = quantity as Record<string, unknown>;
+  const value = numericPayload(quantityRecord, "value");
+  const unit = stringPayload(quantityRecord, "unit");
+  if (value === null || value <= 0 || unit !== expectedUnit) return null;
+  return value;
+}
+
+function vectorPayload(record: Record<string, unknown>, key: string): { x: number; y: number; z: number } | null {
+  const vector = record[key];
+  if (typeof vector !== "object" || vector === null || Array.isArray(vector)) return null;
+  const vectorRecord = vector as Record<string, unknown>;
+  const x = numericPayload(vectorRecord, "x");
+  const y = numericPayload(vectorRecord, "y");
+  const z = numericPayload(vectorRecord, "z");
+  if (x === null || y === null || z === null) return null;
+  if (x === 0 && y === 0 && z === 0) return null;
+  return { x, y, z };
 }
 
 function isPrimitiveMagnitudePath(fieldPath: string): boolean {

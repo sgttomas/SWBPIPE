@@ -154,3 +154,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Boundary semantics remain unchanged: no direct input-model mutation, no
   silent unit conversion, no coordinate inference, no durable persistence, no
   protected/private data, and no professional/release/code-compliance claim.
+
+## 2026-06-11 - TP-APP-R2-CONNECTPIPE-001 explicit straight-pipe connectivity
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  `connect_pipe_run` intents.
+- Accepted connect-pipe intents must target `Element` with
+  `field_path=pipe_segments`, `before=not_present`, matching project length
+  unit, `dimension=length`, no duplicate pipe id, existing endpoint nodes and
+  material, positive OD/wall quantities, non-empty provenance, and a non-zero
+  `y_reference` vector.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_explicit_straight_pipe_connectivity.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-92. Validation passed:
+  Rust operation-applier tests 22/22, desktop Vitest 33/33, desktop build,
+  and desktop Playwright smoke 1/1.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no geometry inference, no durable persistence, no
+  protected/private data, and no professional/release/code-compliance claim.

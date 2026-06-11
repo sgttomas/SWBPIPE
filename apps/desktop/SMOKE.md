@@ -2681,3 +2681,31 @@ after the timestamp marker were absent.
   rule-code/default combinations, protected standards content, private data,
   release readiness, professional approval, certification, sealing,
   authentication, or code-compliance claims.
+
+## TP-MAC-92 explicit-straight-pipe-connectivity (2026-06-11)
+
+- Tranche: `TP-APP-R2-CONNECTPIPE-001` (completion plan Phase A3 fifth
+  sub-slice) adding explicit straight-pipe creation from the viewport editor.
+  The form captures pipe id, label, endpoint nodes, material, outside
+  diameter, wall thickness, non-zero local `y_reference`, and provenance, then
+  queues a structured `connect_pipe_run` operation for `pipe_segments`.
+- Edit path: applying
+  `op:viewport-connect-pipe-pipe:P-150-001` appends the explicit pipe payload
+  to the session model through the OperationApplyPanel. The created pipe row
+  becomes active in the model tree and viewport selection layer; the property
+  inspector shows the user-entered label, OD, wall thickness, material, and
+  provenance. Legacy one-click pipe-run intents remain blocked rather than
+  inventing connectivity or section geometry.
+- Local validation: `cargo test --manifest-path
+  core/model_operations/operation_applier/Cargo.toml` passed with 22/22 Rust
+  tests, including explicit pipe apply and underspecified pipe gesture
+  blocking; `npm test --workspace apps/desktop` passed with 33/33 Vitest
+  tests; `npm run build --workspace apps/desktop` passed through `tsc -b` and
+  Vite production build with the existing chunk-size warning; `npm run
+  test:e2e:desktop` passed with 1/1 Playwright tests.
+- Boundary: this A3 slice accepts only explicit straight-pipe payloads with
+  existing endpoint/material references and project-length-unit section
+  quantities. It does not implement canvas raycast capture, hidden geometry
+  defaults, unit conversion, durable persistence, protected standards content,
+  private data, release readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claims.

@@ -31,6 +31,7 @@ export type PreviewModel = {
     to: string;
     section: Record<string, { value: number; unit: string }>;
     material: string;
+    y_reference?: Vec3;
     provenance: string;
   }>;
   supports: Array<{ id: string; label: string; node: string; restraints: string[]; provenance: string }>;

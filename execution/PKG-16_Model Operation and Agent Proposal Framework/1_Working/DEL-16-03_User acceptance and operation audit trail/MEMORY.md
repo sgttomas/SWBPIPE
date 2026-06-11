@@ -119,3 +119,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - This is not durable persistence, release readiness, professional approval,
   certification, sealing, authentication, approval, code compliance, or
   protected/private data handling.
+
+## 2026-06-11 - TP-APP-R2-CONNECTPIPE-001 explicit straight-pipe connectivity
+
+- WORKING_ITEMS app-integration tranche verified that explicit connect-pipe
+  apply records the local acceptance/audit receipt for an in-session model
+  change.
+- The app test created `pipe:P-150` and confirmed receipt labels
+  `acceptance=user_initiated_apply_in_local_session`,
+  `persistence=session_state_only_not_yet_saved`, and
+  `professional_approval=false`; solve state remains reset for the edited
+  session model.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_explicit_straight_pipe_connectivity.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-92. Validation passed:
+  desktop Vitest 33/33, desktop build, desktop Playwright smoke 1/1, and Rust
+  operation-applier tests 22/22.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.

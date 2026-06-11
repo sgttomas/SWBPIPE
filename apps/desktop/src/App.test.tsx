@@ -5028,6 +5028,76 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=1; redo=0");
   });
 
+  it("queues and applies explicit straight pipe connectivity through the structured operation seam", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
+    const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-pipe-intent");
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-id"), {
+      target: { value: "pipe:P-150" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-label"), {
+      target: { value: "User preview pipe" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-from"), {
+      target: { value: "node:N-100" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-to"), {
+      target: { value: "node:N-140" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-material"), {
+      target: { value: "material:invented-carbon-steel" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-od"), {
+      target: { value: "0.114" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-wall"), {
+      target: { value: "0.006" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-yref-x"), {
+      target: { value: "0" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-yref-y"), {
+      target: { value: "0" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-yref-z"), {
+      target: { value: "1" }
+    });
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:viewport-connect-pipe-pipe:P-150-001"
+      )
+    );
+
+    const createdPipeRow = screen.getByTestId("tree-row-pipe:P-150");
+    expect(createdPipeRow.textContent).toContain("User preview pipe");
+    expect(createdPipeRow).toHaveClass("active");
+    expect(screen.getByTestId("viewport-select-pipe:P-150")).toHaveAttribute("aria-pressed", "true");
+    const inspector = screen.getByLabelText("Property inspector");
+    expect(inspector.textContent).toContain("User preview pipe");
+    expect(inspector.textContent).toContain("0.114 m");
+    expect(inspector.textContent).toContain("0.006 m");
+    expect(inspector.textContent).toContain("material:invented-carbon-steel");
+    expect(inspector.textContent).toContain("user_entered_local_preview");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
   it("blocks underspecified viewport node gestures at apply instead of inventing values", async () => {
     render(<App />);
 
