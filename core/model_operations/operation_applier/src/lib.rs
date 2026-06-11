@@ -181,44 +181,152 @@ const DEFERRED_FIELDS: [(&str, &str, &str); 5] = [
 fn field_rules(object_type: &str) -> &'static [FieldRule] {
     match object_type {
         "Material" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
-            FieldRule { field_path: "elastic_modulus.value", kind: FieldKind::Quantity { require_positive: true, unit_source: UnitSource::SiblingUnitField } },
-            FieldRule { field_path: "shear_modulus.value", kind: FieldKind::Quantity { require_positive: true, unit_source: UnitSource::SiblingUnitField } },
-            FieldRule { field_path: "thermal_expansion_coefficient.value", kind: FieldKind::Quantity { require_positive: false, unit_source: UnitSource::SiblingUnitField } },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "elastic_modulus.value",
+                kind: FieldKind::Quantity {
+                    require_positive: true,
+                    unit_source: UnitSource::SiblingUnitField,
+                },
+            },
+            FieldRule {
+                field_path: "shear_modulus.value",
+                kind: FieldKind::Quantity {
+                    require_positive: true,
+                    unit_source: UnitSource::SiblingUnitField,
+                },
+            },
+            FieldRule {
+                field_path: "thermal_expansion_coefficient.value",
+                kind: FieldKind::Quantity {
+                    require_positive: false,
+                    unit_source: UnitSource::SiblingUnitField,
+                },
+            },
         ],
         "Node" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
-            FieldRule { field_path: "position.x", kind: FieldKind::Quantity { require_positive: false, unit_source: UnitSource::ProjectUnits("length") } },
-            FieldRule { field_path: "position.y", kind: FieldKind::Quantity { require_positive: false, unit_source: UnitSource::ProjectUnits("length") } },
-            FieldRule { field_path: "position.z", kind: FieldKind::Quantity { require_positive: false, unit_source: UnitSource::ProjectUnits("length") } },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "position.x",
+                kind: FieldKind::Quantity {
+                    require_positive: false,
+                    unit_source: UnitSource::ProjectUnits("length"),
+                },
+            },
+            FieldRule {
+                field_path: "position.y",
+                kind: FieldKind::Quantity {
+                    require_positive: false,
+                    unit_source: UnitSource::ProjectUnits("length"),
+                },
+            },
+            FieldRule {
+                field_path: "position.z",
+                kind: FieldKind::Quantity {
+                    require_positive: false,
+                    unit_source: UnitSource::ProjectUnits("length"),
+                },
+            },
         ],
         "Element" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
-            FieldRule { field_path: "material", kind: FieldKind::EntityRef { collection: "materials" } },
-            FieldRule { field_path: "section.outside_diameter.value", kind: FieldKind::Quantity { require_positive: true, unit_source: UnitSource::SiblingUnitField } },
-            FieldRule { field_path: "section.wall_thickness.value", kind: FieldKind::Quantity { require_positive: true, unit_source: UnitSource::SiblingUnitField } },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "material",
+                kind: FieldKind::EntityRef {
+                    collection: "materials",
+                },
+            },
+            FieldRule {
+                field_path: "section.outside_diameter.value",
+                kind: FieldKind::Quantity {
+                    require_positive: true,
+                    unit_source: UnitSource::SiblingUnitField,
+                },
+            },
+            FieldRule {
+                field_path: "section.wall_thickness.value",
+                kind: FieldKind::Quantity {
+                    require_positive: true,
+                    unit_source: UnitSource::SiblingUnitField,
+                },
+            },
         ],
         "Support" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
-            FieldRule { field_path: "node", kind: FieldKind::EntityRef { collection: "nodes" } },
-            FieldRule { field_path: "restraints", kind: FieldKind::RestraintSet },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "node",
+                kind: FieldKind::EntityRef {
+                    collection: "nodes",
+                },
+            },
+            FieldRule {
+                field_path: "restraints",
+                kind: FieldKind::RestraintSet,
+            },
         ],
         "Component" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
-            FieldRule { field_path: "node", kind: FieldKind::EntityRef { collection: "nodes" } },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "node",
+                kind: FieldKind::EntityRef {
+                    collection: "nodes",
+                },
+            },
         ],
         "Load" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
         ],
         "Combination" => &[
-            FieldRule { field_path: "label", kind: FieldKind::Text },
-            FieldRule { field_path: "provenance", kind: FieldKind::Text },
+            FieldRule {
+                field_path: "label",
+                kind: FieldKind::Text,
+            },
+            FieldRule {
+                field_path: "provenance",
+                kind: FieldKind::Text,
+            },
         ],
         _ => &[],
     }
@@ -239,13 +347,21 @@ fn collection_for(object_type: &str) -> Option<&'static str> {
 
 /// Validate a structured editor-operation intent against a model document.
 /// Never mutates or returns a model.
-pub fn validate_operation(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>) -> OperationOutcome {
+pub fn validate_operation(
+    model: &Value,
+    intent: &Value,
+    claimed_model_hash: Option<&Value>,
+) -> OperationOutcome {
     run(model, intent, claimed_model_hash, Mode::ValidateOnly)
 }
 
 /// Validate and, when no blocking finding exists, apply the single change to
 /// a cloned model document. The input model is never mutated in place.
-pub fn apply_operation(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>) -> OperationOutcome {
+pub fn apply_operation(
+    model: &Value,
+    intent: &Value,
+    claimed_model_hash: Option<&Value>,
+) -> OperationOutcome {
     run(model, intent, claimed_model_hash, Mode::Apply)
 }
 
@@ -275,10 +391,19 @@ impl Checker {
     }
 
     fn blocking(&self) -> bool {
-        self.diagnostics.iter().any(|item| item.severity == "blocking")
+        self.diagnostics
+            .iter()
+            .any(|item| item.severity == "blocking")
     }
 
-    fn push(&mut self, code: &str, severity: &str, message: String, remediation: &str, affected: Vec<String>) {
+    fn push(
+        &mut self,
+        code: &str,
+        severity: &str,
+        message: String,
+        remediation: &str,
+        affected: Vec<String>,
+    ) {
         let id = format!(
             "diagnostic:operation-applier:{}:{:03}",
             code.to_ascii_lowercase(),
@@ -296,11 +421,18 @@ impl Checker {
     }
 }
 
-fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: Mode) -> OperationOutcome {
+fn run(
+    model: &Value,
+    intent: &Value,
+    claimed_model_hash: Option<&Value>,
+    mode: Mode,
+) -> OperationOutcome {
     let mut checker = Checker::new();
 
-    let operation_id = string_at(intent, &["operation_id"]).unwrap_or_else(|| "operation:unknown".to_string());
-    let change_id = string_at(intent, &["change", "change_id"]).unwrap_or_else(|| "change:unknown".to_string());
+    let operation_id =
+        string_at(intent, &["operation_id"]).unwrap_or_else(|| "operation:unknown".to_string());
+    let change_id =
+        string_at(intent, &["change", "change_id"]).unwrap_or_else(|| "change:unknown".to_string());
     let operation_kind = string_at(intent, &["operation_kind"]).unwrap_or_default();
     let change_kind = string_at(intent, &["change", "change_kind"]).unwrap_or_default();
     let object_type = string_at(intent, &["target", "object_type"]).unwrap_or_default();
@@ -317,9 +449,8 @@ fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: 
 
     let model_basis = model_basis_evidence(model, claimed_model_hash);
 
-    // Field-level resolution only proceeds for modify-style change kinds with
-    // an intact structure; viewport gesture kinds are blocked above with an
-    // explicit geometry finding rather than invented values.
+    // Field-level resolution proceeds only for supported structured payloads;
+    // underspecified viewport gestures are held rather than invented.
     let mut resolved: Option<ResolvedField> = None;
     if !checker.schema_blocked && is_modify_change_kind(&change_kind) {
         resolved = resolve_field(
@@ -334,10 +465,24 @@ fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: 
             &mut checker,
         );
     }
+    let mut created_node: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "create_node" {
+        created_node = resolve_create_node(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
 
     let blocking = checker.blocking();
-    let diff_preview = match (&resolved, blocking) {
-        (Some(field), false) => vec![DiffPreviewRow {
+    let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
+        vec![DiffPreviewRow {
             entity_ref: target_ref.clone(),
             object_type: object_type.clone(),
             field_path: field_path.clone(),
@@ -346,8 +491,20 @@ fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: 
             unit: unit.clone(),
             dimension: dimension.clone(),
             change_kind: change_kind.clone(),
-        }],
-        _ => Vec::new(),
+        }]
+    } else if created_node.is_some() && !blocking {
+        vec![DiffPreviewRow {
+            entity_ref: target_ref.clone(),
+            object_type: object_type.clone(),
+            field_path: field_path.clone(),
+            before: before.clone(),
+            after: after.clone(),
+            unit: unit.clone(),
+            dimension: dimension.clone(),
+            change_kind: change_kind.clone(),
+        }]
+    } else {
+        Vec::new()
     };
 
     let mut applied_model = None;
@@ -355,8 +512,26 @@ fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: 
     if mode == Mode::Apply && !blocking {
         if let Some(field) = &resolved {
             let mut next_model = model.clone();
-            if apply_resolved_field(&mut next_model, &object_type, &target_ref, field, &mut checker) {
-                applied_model_backend_hash = Some(format!("sha256:{}", sha256_hex(&canonical_json(&next_model))));
+            if apply_resolved_field(
+                &mut next_model,
+                &object_type,
+                &target_ref,
+                field,
+                &mut checker,
+            ) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(node) = &created_node {
+            let mut next_model = model.clone();
+            if apply_created_node(&mut next_model, node) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
                 applied_model = Some(next_model);
             }
         }
@@ -366,11 +541,21 @@ fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: 
     let applied = applied_model.is_some();
 
     let validation = ValidationStates {
-        schema_validation: if checker.schema_blocked { "blocked" } else { "passed" }.to_string(),
+        schema_validation: if checker.schema_blocked {
+            "blocked"
+        } else {
+            "passed"
+        }
+        .to_string(),
         reference_validation: checker.reference_state.to_string(),
         unit_validation: checker.unit_state.to_string(),
         before_state_validation: checker.before_state.to_string(),
-        diff_preview_status: if blocking_after_apply { "blocked_by_validation" } else { "generated" }.to_string(),
+        diff_preview_status: if blocking_after_apply {
+            "blocked_by_validation"
+        } else {
+            "generated"
+        }
+        .to_string(),
         application_status: match (mode, applied, blocking_after_apply) {
             (Mode::ValidateOnly, _, _) => "not_applied",
             (Mode::Apply, true, _) => "applied_to_session_model",
@@ -395,7 +580,8 @@ fn run(model: &Value, intent: &Value, claimed_model_hash: Option<&Value>, mode: 
 
     let mut diagnostics = checker.diagnostics;
     diagnostics.sort_by(|left, right| {
-        (left.code.as_str(), left.message.as_str()).cmp(&(right.code.as_str(), right.message.as_str()))
+        (left.code.as_str(), left.message.as_str())
+            .cmp(&(right.code.as_str(), right.message.as_str()))
     });
 
     OperationOutcome {
@@ -469,7 +655,10 @@ fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Chec
             checker.push(
                 "OP-INTENT-FIELD-MISSING",
                 "blocking",
-                format!("Operation intent is missing required field `{}`.", path.join(".")),
+                format!(
+                    "Operation intent is missing required field `{}`.",
+                    path.join(".")
+                ),
                 "Provide a complete structured editor-operation intent record.",
                 vec![operation_id.to_string()],
             );
@@ -515,14 +704,21 @@ fn is_modify_change_kind(change_kind: &str) -> bool {
 fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, checker: &mut Checker) {
     let supported_change = matches!(
         change_kind,
-        "set_field" | "update_load" | "update_support" | "create_node" | "connect_pipe_run" | "insert_component_symbol"
+        "set_field"
+            | "update_load"
+            | "update_support"
+            | "create_node"
+            | "connect_pipe_run"
+            | "insert_component_symbol"
     );
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
             "OP-KIND-UNSUPPORTED",
             "blocking",
-            format!("Change kind `{change_kind}` is outside the structured editor-operation taxonomy."),
+            format!(
+                "Change kind `{change_kind}` is outside the structured editor-operation taxonomy."
+            ),
             "Use a supported change kind from the structured operation contract.",
             vec![operation_id.to_string()],
         );
@@ -549,7 +745,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         );
     }
 
-    if matches!(change_kind, "create_node" | "connect_pipe_run" | "insert_component_symbol") {
+    if matches!(change_kind, "connect_pipe_run" | "insert_component_symbol") {
         checker.schema_blocked = true;
         checker.push(
             "OP-GEOMETRY-INPUT-INCOMPLETE",
@@ -561,6 +757,163 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             vec![operation_id.to_string()],
         );
     }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_node(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Node" || field_path != "nodes" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-NODE-SHAPE-INVALID",
+            "blocking",
+            "Create-node intents must target object_type `Node` with field_path `nodes`."
+                .to_string(),
+            "Refresh the viewport create-node intent from the explicit node geometry form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    let stored_unit = value_at(model, &["project", "units", "length"]).and_then(Value::as_str);
+    checker.unit_state = "passed";
+    let Some(stored_unit) = stored_unit else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project length unit metadata is missing; explicit node coordinates cannot be accepted.".to_string(),
+            "Repair the model document's project.units.length metadata before creating nodes.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if unit != stored_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match project length unit `{stored_unit}`; unit conversion is unavailable until the units engine lands."),
+            "Enter node coordinates in the project length unit; no silent conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "length" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-node dimension `{dimension}` must be `length`."),
+            "Emit create-node coordinates with explicit length dimension metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "nodes", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Node `{target_ref}` already exists in the current model."),
+            "Choose a new stable node id; create operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-NODE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-node payload is not valid JSON.".to_string(),
+            "Emit the explicit node geometry payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-NODE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-node payload must be a JSON object.".to_string(),
+            "Emit id, label, position, and provenance fields for the new node.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let position = record.get("position");
+    let Some(position) = position.and_then(Value::as_object) else {
+        checker.push(
+            "OP-CREATE-NODE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-node payload must include matching id, non-empty label, non-empty provenance, and position.".to_string(),
+            "Refresh the viewport create-node intent from explicit user-entered node fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let x = position
+        .get("x")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    let y = position
+        .get("y")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    let z = position
+        .get("z")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    if id != target_ref
+        || label.is_empty()
+        || provenance.is_empty()
+        || x.is_none()
+        || y.is_none()
+        || z.is_none()
+    {
+        checker.push(
+            "OP-CREATE-NODE-PAYLOAD-INVALID",
+            "blocking",
+            "Create-node payload must include matching id, non-empty label, non-empty provenance, and finite numeric x/y/z coordinates.".to_string(),
+            "Refresh the viewport create-node intent from explicit user-entered node fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    Some(serde_json::json!({
+        "id": id,
+        "label": label,
+        "position": { "x": x.unwrap(), "y": y.unwrap(), "z": z.unwrap() },
+        "provenance": provenance,
+    }))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -599,9 +952,12 @@ fn resolve_field(
         return None;
     };
 
-    if let Some((_, _, reason)) = DEFERRED_FIELDS
-        .iter()
-        .find(|(deferred_type, deferred_path, _)| *deferred_type == object_type && *deferred_path == field_path)
+    if let Some((_, _, reason)) =
+        DEFERRED_FIELDS
+            .iter()
+            .find(|(deferred_type, deferred_path, _)| {
+                *deferred_type == object_type && *deferred_path == field_path
+            })
     {
         checker.push(
             "OP-FIELD-EDIT-DEFERRED",
@@ -615,7 +971,10 @@ fn resolve_field(
 
     // Dynamic load-magnitude paths: primitive_loads.<index>.magnitude.value
     let rule_kind = if object_type == "Load" && is_primitive_magnitude_path(field_path) {
-        Some(FieldKind::Quantity { require_positive: false, unit_source: UnitSource::SiblingUnitField })
+        Some(FieldKind::Quantity {
+            require_positive: false,
+            unit_source: UnitSource::SiblingUnitField,
+        })
     } else {
         field_rules(object_type)
             .iter()
@@ -637,7 +996,9 @@ fn resolve_field(
 
     match kind {
         FieldKind::Text => {
-            let current = value_at_segments(entity, &segments).and_then(Value::as_str).map(str::to_string);
+            let current = value_at_segments(entity, &segments)
+                .and_then(Value::as_str)
+                .map(str::to_string);
             let Some(current) = current else {
                 checker.push(
                     "OP-FIELD-NOT-PRESENT",
@@ -667,7 +1028,10 @@ fn resolve_field(
                 segments,
             })
         }
-        FieldKind::Quantity { require_positive, unit_source } => {
+        FieldKind::Quantity {
+            require_positive,
+            unit_source,
+        } => {
             let value_node = value_at_segments(entity, &segments);
             let Some(current_number) = value_node.and_then(Value::as_f64) else {
                 checker.unit_state = "blocked";
@@ -750,7 +1114,9 @@ fn resolve_field(
                 checker.push(
                     "OP-VALUE-NOT-NUMERIC",
                     "blocking",
-                    format!("Replacement value `{after}` for `{field_path}` is not a finite number."),
+                    format!(
+                        "Replacement value `{after}` for `{field_path}` is not a finite number."
+                    ),
                     "Provide a finite numeric value in the stored unit.",
                     vec![target_ref.to_string()],
                 );
@@ -783,8 +1149,12 @@ fn resolve_field(
                 segments,
             })
         }
-        FieldKind::EntityRef { collection: ref_collection } => {
-            let current = value_at_segments(entity, &segments).and_then(Value::as_str).map(str::to_string);
+        FieldKind::EntityRef {
+            collection: ref_collection,
+        } => {
+            let current = value_at_segments(entity, &segments)
+                .and_then(Value::as_str)
+                .map(str::to_string);
             let Some(current) = current else {
                 checker.push(
                     "OP-FIELD-NOT-PRESENT",
@@ -875,7 +1245,13 @@ fn resolve_field(
     }
 }
 
-fn check_before(current: &str, claimed_before: &str, target_ref: &str, field_path: &str, checker: &mut Checker) {
+fn check_before(
+    current: &str,
+    claimed_before: &str,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) {
     if current == claimed_before {
         checker.before_state = "passed";
     } else {
@@ -892,10 +1268,18 @@ fn check_before(current: &str, claimed_before: &str, target_ref: &str, field_pat
     }
 }
 
-fn check_before_numeric(current: f64, claimed_before: &str, target_ref: &str, field_path: &str, checker: &mut Checker) {
+fn check_before_numeric(
+    current: f64,
+    claimed_before: &str,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) {
     // Numeric comparison avoids cross-language float formatting differences
     // between the UI (ECMAScript number-to-string) and this crate.
-    let matches = parse_finite_number(claimed_before).map(|claimed| claimed == current).unwrap_or(false);
+    let matches = parse_finite_number(claimed_before)
+        .map(|claimed| claimed == current)
+        .unwrap_or(false);
     if matches {
         checker.before_state = "passed";
     } else {
@@ -937,7 +1321,10 @@ fn apply_resolved_field(
         checker.push(
             "OP-FIELD-NOT-PRESENT",
             "blocking",
-            format!("Field path `{}` could not be resolved for write on `{target_ref}`.", field.segments.join(".")),
+            format!(
+                "Field path `{}` could not be resolved for write on `{target_ref}`.",
+                field.segments.join(".")
+            ),
             "Refresh the editor intent against the current model document.",
             vec![target_ref.to_string()],
         );
@@ -945,6 +1332,14 @@ fn apply_resolved_field(
     };
     *slot = field.applied_value.clone();
     let _ = field.kind;
+    true
+}
+
+fn apply_created_node(model: &mut Value, node: &Value) -> bool {
+    let Some(nodes) = model.get_mut("nodes").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    nodes.push(node.clone());
     true
 }
 
@@ -970,7 +1365,8 @@ fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> Mo
                 // The UI and backend canonicalize floats differently, so the
                 // two hashes are recorded side by side; equality across
                 // canonicalizations is not evaluated and not claimed.
-                binding_status: "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated".to_string(),
+                binding_status: "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated"
+                    .to_string(),
             }
         }
         _ => ModelBasisEvidence {
@@ -1001,7 +1397,11 @@ fn find_entity<'a>(model: &'a Value, collection: &str, entity_ref: &str) -> Opti
         .find(|item| item.get("id").and_then(Value::as_str) == Some(entity_ref))
 }
 
-fn find_entity_mut<'a>(model: &'a mut Value, collection: &str, entity_ref: &str) -> Option<&'a mut Value> {
+fn find_entity_mut<'a>(
+    model: &'a mut Value,
+    collection: &str,
+    entity_ref: &str,
+) -> Option<&'a mut Value> {
     model
         .get_mut(collection)?
         .as_array_mut()?
@@ -1018,7 +1418,9 @@ fn value_at<'a>(value: &'a Value, path: &[&str]) -> Option<&'a Value> {
 }
 
 fn string_at(value: &Value, path: &[&str]) -> Option<String> {
-    value_at(value, path).and_then(Value::as_str).map(str::to_string)
+    value_at(value, path)
+        .and_then(Value::as_str)
+        .map(str::to_string)
 }
 
 fn value_at_segments<'a>(value: &'a Value, segments: &[String]) -> Option<&'a Value> {
@@ -1150,7 +1552,16 @@ mod tests {
         })
     }
 
-    fn modify_intent(object_type: &str, target_ref: &str, change_kind: &str, field_path: &str, before: &str, after: &str, unit: &str, dimension: &str) -> Value {
+    fn modify_intent(
+        object_type: &str,
+        target_ref: &str,
+        change_kind: &str,
+        field_path: &str,
+        before: &str,
+        after: &str,
+        unit: &str,
+        dimension: &str,
+    ) -> Value {
         json!({
             "operation_id": format!("op:test-{}", field_path.replace('.', "-")),
             "operation_kind": "modify",
@@ -1194,17 +1605,37 @@ mod tests {
     }
 
     fn codes(outcome: &OperationOutcome) -> Vec<&str> {
-        outcome.diagnostics.iter().map(|item| item.code.as_str()).collect()
+        outcome
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect()
     }
 
     #[test]
     fn validate_passes_and_never_mutates_for_a_current_quantity_edit() {
         let model = sample_model();
         let before_snapshot = model.clone();
-        let intent = modify_intent("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "195000000000", "Pa", "stress");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "200000000000",
+            "195000000000",
+            "Pa",
+            "stress",
+        );
         let outcome = validate_operation(&model, &intent, None);
-        assert_eq!(model, before_snapshot, "validate must not mutate the input model");
-        assert!(outcome.diagnostics.is_empty(), "unexpected diagnostics: {:?}", outcome.diagnostics);
+        assert_eq!(
+            model, before_snapshot,
+            "validate must not mutate the input model"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
         assert_eq!(outcome.validation.application_status, "not_applied");
         assert_eq!(outcome.validation.diff_preview_status, "generated");
         assert_eq!(outcome.validation.before_state_validation, "passed");
@@ -1220,13 +1651,33 @@ mod tests {
     fn apply_returns_a_new_model_with_only_the_requested_field_changed() {
         let model = sample_model();
         let before_snapshot = model.clone();
-        let intent = modify_intent("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "195000000000", "Pa", "stress");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "200000000000",
+            "195000000000",
+            "Pa",
+            "stress",
+        );
         let outcome = apply_operation(&model, &intent, None);
-        assert_eq!(model, before_snapshot, "apply must not mutate the input model in place");
-        assert_eq!(outcome.validation.application_status, "applied_to_session_model");
-        assert_eq!(outcome.acceptance.acceptance_basis, "user_initiated_apply_in_local_session");
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(
+            outcome.acceptance.acceptance_basis,
+            "user_initiated_apply_in_local_session"
+        );
         assert!(!outcome.acceptance.acceptance_is_professional_approval);
-        let applied = outcome.applied_model.expect("applied model must be returned");
+        let applied = outcome
+            .applied_model
+            .expect("applied model must be returned");
         assert_eq!(
             applied["materials"][0]["elastic_modulus"]["value"],
             json!(195000000000.0)
@@ -1234,13 +1685,25 @@ mod tests {
         let mut expected = before_snapshot.clone();
         expected["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
         assert_eq!(applied, expected, "only the requested field may change");
-        assert!(outcome.applied_model_backend_hash.unwrap().starts_with("sha256:"));
+        assert!(outcome
+            .applied_model_backend_hash
+            .unwrap()
+            .starts_with("sha256:"));
     }
 
     #[test]
     fn apply_blocks_a_stale_before_value_without_application() {
         let model = sample_model();
-        let intent = modify_intent("Material", "material:steel", "set_field", "elastic_modulus.value", "123", "195000000000", "Pa", "stress");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "123",
+            "195000000000",
+            "Pa",
+            "stress",
+        );
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-STALE-BEFORE-VALUE"));
         assert_eq!(outcome.validation.application_status, "blocked");
@@ -1249,9 +1712,68 @@ mod tests {
     }
 
     #[test]
+    fn explicit_create_node_payload_applies_without_mutating_input() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "node:N-3",
+            "label": "New node",
+            "position": { "x": 4.5, "y": 1.25, "z": 0.75 },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Node",
+            "node:N-3",
+            "create_node",
+            "nodes",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "m",
+            "length",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "nodes");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["nodes"].as_array().expect("nodes array").len(), 3);
+        assert_eq!(applied["nodes"][2], payload);
+        assert_eq!(
+            outcome.professional_boundary["software_makes_approval_claim"],
+            json!(false)
+        );
+    }
+
+    #[test]
     fn apply_blocks_unit_mismatch_without_conversion() {
         let model = sample_model();
-        let intent = modify_intent("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "29000", "ksi", "stress");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "200000000000",
+            "29000",
+            "ksi",
+            "stress",
+        );
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
         assert_eq!(outcome.validation.unit_validation, "blocked");
@@ -1261,7 +1783,16 @@ mod tests {
     #[test]
     fn apply_blocks_unknown_dimension_tokens() {
         let model = sample_model();
-        let intent = modify_intent("Material", "material:steel", "set_field", "elastic_modulus.value", "200000000000", "195000000000", "Pa", "made_up_dimension");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "200000000000",
+            "195000000000",
+            "Pa",
+            "made_up_dimension",
+        );
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-UNIT-DIMENSION-UNKNOWN"));
         assert!(outcome.applied_model.is_none());
@@ -1270,11 +1801,29 @@ mod tests {
     #[test]
     fn apply_blocks_non_numeric_and_non_positive_quantities() {
         let model = sample_model();
-        let non_numeric = modify_intent("Element", "pipe:P-1", "set_field", "section.wall_thickness.value", "0.007", "thick", "m", "length");
+        let non_numeric = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "set_field",
+            "section.wall_thickness.value",
+            "0.007",
+            "thick",
+            "m",
+            "length",
+        );
         let outcome = apply_operation(&model, &non_numeric, None);
         assert!(codes(&outcome).contains(&"OP-VALUE-NOT-NUMERIC"));
 
-        let non_positive = modify_intent("Element", "pipe:P-1", "set_field", "section.wall_thickness.value", "0.007", "0", "m", "length");
+        let non_positive = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "set_field",
+            "section.wall_thickness.value",
+            "0.007",
+            "0",
+            "m",
+            "length",
+        );
         let outcome = apply_operation(&model, &non_positive, None);
         assert!(codes(&outcome).contains(&"OP-VALUE-NOT-POSITIVE"));
     }
@@ -1282,22 +1831,56 @@ mod tests {
     #[test]
     fn negative_load_magnitudes_remain_editable() {
         let model = sample_model();
-        let intent = modify_intent("Load", "load:L-1", "update_load", "primitive_loads.0.magnitude.value", "-190", "-240", "N/m", "force_per_length");
+        let intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "primitive_loads.0.magnitude.value",
+            "-190",
+            "-240",
+            "N/m",
+            "force_per_length",
+        );
         let outcome = apply_operation(&model, &intent, None);
-        assert!(outcome.diagnostics.is_empty(), "unexpected diagnostics: {:?}", outcome.diagnostics);
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
         let applied = outcome.applied_model.expect("applied model");
-        assert_eq!(applied["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"], json!(-240.0));
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"],
+            json!(-240.0)
+        );
     }
 
     #[test]
     fn apply_blocks_missing_targets_and_dangling_references() {
         let model = sample_model();
-        let missing_target = modify_intent("Material", "material:missing", "set_field", "label", "x", "y", "none", "dimensionless");
+        let missing_target = modify_intent(
+            "Material",
+            "material:missing",
+            "set_field",
+            "label",
+            "x",
+            "y",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &missing_target, None);
         assert!(codes(&outcome).contains(&"OP-TARGET-NOT-FOUND"));
         assert_eq!(outcome.validation.reference_validation, "blocked");
 
-        let dangling = modify_intent("Element", "pipe:P-1", "set_field", "material", "material:steel", "material:unknown", "none", "dimensionless");
+        let dangling = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "set_field",
+            "material",
+            "material:steel",
+            "material:unknown",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &dangling, None);
         assert!(codes(&outcome).contains(&"OP-REFERENCE-NOT-FOUND"));
         assert!(outcome.applied_model.is_none());
@@ -1306,28 +1889,68 @@ mod tests {
     #[test]
     fn support_restraints_apply_with_vocabulary_enforcement() {
         let model = sample_model();
-        let valid = modify_intent("Support", "support:S-1", "update_support", "restraints", "UX, UY, UZ", "UX, UZ", "none", "dimensionless");
+        let valid = modify_intent(
+            "Support",
+            "support:S-1",
+            "update_support",
+            "restraints",
+            "UX, UY, UZ",
+            "UX, UZ",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &valid, None);
-        assert!(outcome.diagnostics.is_empty(), "unexpected diagnostics: {:?}", outcome.diagnostics);
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
         let applied = outcome.applied_model.expect("applied model");
         assert_eq!(applied["supports"][0]["restraints"], json!(["UX", "UZ"]));
 
-        let invalid = modify_intent("Support", "support:S-1", "update_support", "restraints", "UX, UY, UZ", "UX, FLY", "none", "dimensionless");
+        let invalid = modify_intent(
+            "Support",
+            "support:S-1",
+            "update_support",
+            "restraints",
+            "UX, UY, UZ",
+            "UX, FLY",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &invalid, None);
         assert!(codes(&outcome).contains(&"OP-RESTRAINT-TOKEN-INVALID"));
 
-        let empty = modify_intent("Support", "support:S-1", "update_support", "restraints", "UX, UY, UZ", " ", "none", "dimensionless");
+        let empty = modify_intent(
+            "Support",
+            "support:S-1",
+            "update_support",
+            "restraints",
+            "UX, UY, UZ",
+            " ",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &empty, None);
         assert!(codes(&outcome).contains(&"OP-RESTRAINT-SET-EMPTY"));
     }
 
     #[test]
-    fn viewport_gesture_intents_block_with_geometry_finding_instead_of_invention() {
+    fn underspecified_viewport_node_gestures_block_instead_of_invention() {
         let model = sample_model();
-        let mut intent = modify_intent("Node", "node:viewport-preview-created", "create_node", "viewport.create_node", "not_present", "node:viewport-preview-created", "none", "dimensionless");
+        let mut intent = modify_intent(
+            "Node",
+            "node:viewport-preview-created",
+            "create_node",
+            "viewport.create_node",
+            "not_present",
+            "node:viewport-preview-created",
+            "none",
+            "dimensionless",
+        );
         intent["operation_kind"] = json!("create");
         let outcome = apply_operation(&model, &intent, None);
-        assert!(codes(&outcome).contains(&"OP-GEOMETRY-INPUT-INCOMPLETE"));
+        assert!(codes(&outcome).contains(&"OP-CREATE-NODE-SHAPE-INVALID"));
         assert_eq!(outcome.validation.application_status, "blocked");
         assert!(outcome.applied_model.is_none());
     }
@@ -1335,7 +1958,16 @@ mod tests {
     #[test]
     fn deferred_inspector_fields_block_with_explicit_scope_finding() {
         let model = sample_model();
-        let intent = modify_intent("Load", "load:L-1", "update_load", "status", "preview_only", "solved", "none", "dimensionless");
+        let intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "status",
+            "preview_only",
+            "solved",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-FIELD-EDIT-DEFERRED"));
         assert!(outcome.applied_model.is_none());
@@ -1344,7 +1976,16 @@ mod tests {
     #[test]
     fn direct_mutation_requests_are_blocked() {
         let model = sample_model();
-        let mut intent = modify_intent("Material", "material:steel", "set_field", "label", "Invented steel", "Renamed", "none", "dimensionless");
+        let mut intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "label",
+            "Invented steel",
+            "Renamed",
+            "none",
+            "dimensionless",
+        );
         intent["audit_boundary"]["direct_model_mutation_allowed"] = json!(true);
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-DIRECT-MUTATION-BLOCKED"));
@@ -1354,11 +1995,29 @@ mod tests {
     #[test]
     fn unsupported_field_paths_and_object_types_are_blocked() {
         let model = sample_model();
-        let unsupported_field = modify_intent("Node", "node:N-1", "set_field", "secret.path", "a", "b", "none", "dimensionless");
+        let unsupported_field = modify_intent(
+            "Node",
+            "node:N-1",
+            "set_field",
+            "secret.path",
+            "a",
+            "b",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &unsupported_field, None);
         assert!(codes(&outcome).contains(&"OP-FIELD-PATH-UNSUPPORTED"));
 
-        let unsupported_type = modify_intent("Diagnostic", "diagnostic:D-1", "set_field", "label", "a", "b", "none", "dimensionless");
+        let unsupported_type = modify_intent(
+            "Diagnostic",
+            "diagnostic:D-1",
+            "set_field",
+            "label",
+            "a",
+            "b",
+            "none",
+            "dimensionless",
+        );
         let outcome = apply_operation(&model, &unsupported_type, None);
         assert!(codes(&outcome).contains(&"OP-OBJECT-TYPE-UNSUPPORTED"));
     }
@@ -1372,11 +2031,26 @@ mod tests {
             "value": "sha256:abc123",
             "payload_scope": "model_payload"
         });
-        let intent = modify_intent("Material", "material:steel", "set_field", "label", "Invented steel", "Renamed steel", "none", "dimensionless");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "label",
+            "Invented steel",
+            "Renamed steel",
+            "none",
+            "dimensionless",
+        );
         let outcome = validate_operation(&model, &intent, Some(&claimed));
         assert_eq!(outcome.model_basis.claimed_model_hash, "sha256:abc123");
-        assert_eq!(outcome.model_basis.backend_canonicalization, BACKEND_CANONICALIZATION);
-        assert!(outcome.model_basis.backend_model_hash.starts_with("sha256:"));
+        assert_eq!(
+            outcome.model_basis.backend_canonicalization,
+            BACKEND_CANONICALIZATION
+        );
+        assert!(outcome
+            .model_basis
+            .backend_model_hash
+            .starts_with("sha256:"));
         assert_eq!(
             outcome.model_basis.binding_status,
             "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated"
@@ -1393,7 +2067,16 @@ mod tests {
     #[test]
     fn outcomes_are_deterministic_for_identical_inputs() {
         let model = sample_model();
-        let intent = modify_intent("Node", "node:N-2", "set_field", "position.x", "3.2", "3.5", "m", "length");
+        let intent = modify_intent(
+            "Node",
+            "node:N-2",
+            "set_field",
+            "position.x",
+            "3.2",
+            "3.5",
+            "m",
+            "length",
+        );
         let first_outcome = apply_operation(&model, &intent, None);
         assert_eq!(
             first_outcome.validation.application_status, "applied_to_session_model",
@@ -1410,10 +2093,23 @@ mod tests {
         let model = sample_model();
         let applied = apply_operation(
             &model,
-            &modify_intent("Node", "node:N-2", "set_field", "position.y", "0", "1.1", "m", "length"),
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                "1.1",
+                "m",
+                "length",
+            ),
             None,
         );
-        assert!(applied.diagnostics.is_empty(), "unexpected diagnostics: {:?}", applied.diagnostics);
+        assert!(
+            applied.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            applied.diagnostics
+        );
         assert_eq!(
             applied.applied_model.expect("applied model")["nodes"][1]["position"]["y"],
             json!(1.1)
@@ -1421,7 +2117,16 @@ mod tests {
 
         let mismatched = apply_operation(
             &model,
-            &modify_intent("Node", "node:N-2", "set_field", "position.y", "0", "3.6", "ft", "length"),
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                "3.6",
+                "ft",
+                "length",
+            ),
             None,
         );
         assert!(codes(&mismatched).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
@@ -1433,7 +2138,16 @@ mod tests {
             .remove("length");
         let missing = apply_operation(
             &unitless_model,
-            &modify_intent("Node", "node:N-2", "set_field", "position.y", "0", "1.1", "m", "length"),
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                "1.1",
+                "m",
+                "length",
+            ),
             None,
         );
         assert!(codes(&missing).contains(&"OP-UNIT-METADATA-MISSING"));
@@ -1444,7 +2158,13 @@ mod tests {
         let model = sample_model();
         let intent = json!({ "operation_id": "op:incomplete" });
         let outcome = validate_operation(&model, &intent, None);
-        assert!(codes(&outcome).iter().filter(|code| **code == "OP-INTENT-FIELD-MISSING").count() >= 5);
+        assert!(
+            codes(&outcome)
+                .iter()
+                .filter(|code| **code == "OP-INTENT-FIELD-MISSING")
+                .count()
+                >= 5
+        );
         assert_eq!(outcome.validation.schema_validation, "blocked");
         assert_eq!(outcome.validation.application_status, "not_applied");
     }
@@ -1452,9 +2172,24 @@ mod tests {
     #[test]
     fn professional_boundary_never_claims_compliance_or_approval() {
         let model = sample_model();
-        let intent = modify_intent("Material", "material:steel", "set_field", "label", "Invented steel", "Renamed", "none", "dimensionless");
-        for outcome in [validate_operation(&model, &intent, None), apply_operation(&model, &intent, None)] {
-            assert_eq!(outcome.professional_boundary["human_review_required"], json!(true));
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "label",
+            "Invented steel",
+            "Renamed",
+            "none",
+            "dimensionless",
+        );
+        for outcome in [
+            validate_operation(&model, &intent, None),
+            apply_operation(&model, &intent, None),
+        ] {
+            assert_eq!(
+                outcome.professional_boundary["human_review_required"],
+                json!(true)
+            );
             for claim in [
                 "software_makes_compliance_claim",
                 "software_makes_certification_claim",
@@ -1462,7 +2197,11 @@ mod tests {
                 "software_makes_approval_claim",
                 "software_makes_authentication_claim",
             ] {
-                assert_eq!(outcome.professional_boundary[claim], json!(false), "claim {claim} must stay false");
+                assert_eq!(
+                    outcome.professional_boundary[claim],
+                    json!(false),
+                    "claim {claim} must stay false"
+                );
             }
             assert!(!outcome.acceptance.acceptance_is_professional_approval);
         }
@@ -1475,7 +2214,16 @@ mod tests {
             .as_object_mut()
             .unwrap()
             .remove("thermal_expansion_coefficient");
-        let intent = modify_intent("Material", "material:steel", "set_field", "thermal_expansion_coefficient.value", "TBD", "0.000011", "TBD", "thermal_expansion_coefficient");
+        let intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "thermal_expansion_coefficient.value",
+            "TBD",
+            "0.000011",
+            "TBD",
+            "thermal_expansion_coefficient",
+        );
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-QUANTITY-OBJECT-MISSING"));
         assert!(outcome.applied_model.is_none());

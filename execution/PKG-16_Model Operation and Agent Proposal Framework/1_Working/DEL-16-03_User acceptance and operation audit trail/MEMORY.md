@@ -85,3 +85,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Evidence considered: explicit user acceptance requirement; blocked validation preventing accepted records; accepted model-state hash and operation current-hash requirements; accepted-state nonmutation; rejected-record audit-only behavior; visible `TBD` diagnostics for missing inputs; deterministic record/hash shape; and professional-boundary flags/tests that avoid approval, certification, sealing, authentication, and code-compliance claims.
 - Residual TBDs preserved: durable persistence container, long-term retention policy, final actor identity model beyond current fields, timestamp precision policy beyond current fixture evidence, operation application outside this audit slice, and human review dispositions.
 - Boundary controls: no code, schemas, fixtures, tests, status, review, dependency, or governance files were edited; public invented fixtures remain the only fixture evidence cited; no lifecycle transition or professional/code-compliance claim is implied.
+
+## 2026-06-10 - TP-APP-R2-CREATENODE-001 explicit node create operation
+
+- WORKING_ITEMS app-integration tranche verified that explicit create-node
+  apply records the local acceptance/audit receipt for an in-session model
+  change.
+- Browser smoke created `node:N-150` and confirmed receipt labels
+  `acceptance=user_initiated_apply_in_local_session`,
+  `persistence=session_state_only_not_yet_saved`, and
+  `professional_approval=false`; prior solve results are cleared after apply.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_explicit_node_create_operation.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-86. Validation passed:
+  desktop Vitest 28/28, desktop build, and Rust operation-applier tests 20/20.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, or code-compliance.

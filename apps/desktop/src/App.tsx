@@ -276,6 +276,8 @@ export function App() {
       };
       setAppliedOperations((current) => [receipt, ...current]);
       setModel(outcome.applied_model);
+      const appliedSelection = selectionForOperationOutcome(outcome);
+      if (appliedSelection) setSelection(appliedSelection);
       setEditorIntents((current) => current.filter((queued) => intentKey(queued) !== intentKey(intent)));
       // Earlier solve output no longer describes the edited model document;
       // keeping it visible would overstate what was computed.
@@ -804,6 +806,20 @@ function projectReviewContext(
   const total = editorIntents.length + proposalCount;
   const label = total === 1 ? "operation" : "operations";
   return ` Review context: ${total} pending ${label}; applied_operations=${appliedOperationCount}; editor_intents=${editorIntents.length}; agent_proposals=${proposalCount}.`;
+}
+
+function selectionForOperationOutcome(outcome: OperationOutcome): EntityRef | null {
+  const selectionTypeByObjectType: Record<string, EntityRef["type"]> = {
+    Material: "material",
+    Node: "node",
+    Element: "pipe",
+    Component: "component",
+    Support: "support",
+    Load: "load",
+    Combination: "combination"
+  };
+  const type = selectionTypeByObjectType[outcome.target_object_type];
+  return type ? { type, id: outcome.target_ref } : null;
 }
 
 const NO_BACKEND_JOB_TOKEN = "none_no_active_backend_job";

@@ -2501,3 +2501,39 @@ after the timestamp marker were absent.
   project data, access network/cloud/telemetry, or make release,
   professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-86 explicit-node-create-operation (2026-06-10)
+
+- Tranche: `TP-APP-R2-CREATENODE-001` (completion plan Phase A3 sub-slice)
+  adding explicit form-based node creation through the structured operation
+  seam. The viewport editor now captures user-entered node id, label, and
+  finite x/y/z coordinates in the project length unit, queues a
+  `create_node` intent with `field_path=nodes`, and applies it through the
+  existing validate/diff/apply path. The browser local engine and Rust
+  operation applier now accept only explicit node payloads, reject duplicate
+  node ids, require matching length-unit metadata, and keep underspecified
+  viewport gesture intents blocked rather than inventing geometry.
+- Local validation: `cargo test --manifest-path
+  core/model_operations/operation_applier/Cargo.toml` passed with 20/20
+  tests, including explicit create-node apply and underspecified gesture
+  blocking; `npm test --workspace apps/desktop` passed with 28/28 Vitest
+  tests, including the full viewport queue/apply flow; `npm run build
+  --workspace apps/desktop` passed through `tsc -b` and Vite production
+  build; targeted `git diff --check` on touched files passed. Browser smoke
+  against `http://127.0.0.1:5174/` entered `node:N-150`, `User preview
+  node`, and coordinates `8.4, 2.4, 2.8`; queue/apply produced
+  `Applied op:viewport-create-node-node:N-150-001`, active tree row
+  `tree-row-node:N-150`, inspector position `8.4, 2.4, 2.8 m`, review
+  context `applied_operations=1`, receipt
+  `acceptance=user_initiated_apply_in_local_session`,
+  `persistence=session_state_only_not_yet_saved`, and
+  `professional_approval=false`. Viewport targets increased from 14 to 15.
+  Timestamp-filtered browser warnings/errors after the final reload were
+  absent.
+- Boundary: this applies only to the in-session model document until the user
+  saves the local project. It does not perform unit conversion, infer
+  missing coordinates, create pipe connectivity, implement canvas raycast
+  geometry capture, implement undo/redo, include protected standards data,
+  include private project data, access network/cloud/telemetry, or make
+  release, professional approval, certification, sealing, authentication, or
+  code-compliance claims.

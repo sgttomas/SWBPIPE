@@ -130,6 +130,31 @@ describe("operationService browser-mode engine", () => {
     expect(outcome.applied_model).toBeNull();
   });
 
+  it("applies an explicit create-node payload without mutating the input", async () => {
+    const model = sampleModel();
+    const snapshot = JSON.parse(JSON.stringify(model));
+    const payload = {
+      id: "node:N-3",
+      label: "New node",
+      position: { x: 4.5, y: 1.25, z: 0.75 },
+      provenance: "user_entered_local_preview"
+    };
+    const intent = intentFor("Node", "node:N-3", "create_node", "nodes", "not_present", JSON.stringify(payload), "m", "length");
+    intent.operation_kind = "create";
+
+    const outcome = await applyModelOperation(model, intent, null);
+
+    expect(model).toEqual(snapshot);
+    expect(outcome.validation.application_status).toBe("applied_to_session_model");
+    expect(outcome.validation.reference_validation).toBe("passed");
+    expect(outcome.validation.unit_validation).toBe("passed");
+    expect(outcome.diff_preview).toHaveLength(1);
+    expect(outcome.diff_preview[0].field_path).toBe("nodes");
+    expect(outcome.applied_model?.nodes).toHaveLength(3);
+    expect(outcome.applied_model?.nodes[2]).toEqual(payload);
+    expect(outcome.professional_boundary.software_makes_approval_claim).toBe(false);
+  });
+
   it("blocks stale before-values, unit mismatches, and unknown dimensions", async () => {
     const model = sampleModel();
 
@@ -182,7 +207,7 @@ describe("operationService browser-mode engine", () => {
     expect(danglingRef.diagnostics.map((item) => item.code)).toContain("OP-REFERENCE-NOT-FOUND");
   });
 
-  it("blocks viewport gesture intents with an explicit geometry finding", async () => {
+  it("blocks underspecified viewport node gestures without inventing geometry", async () => {
     const model = sampleModel();
     const intent = intentFor("Node", "node:viewport-preview-created", "create_node", "viewport.create_node", "not_present", "node:x", "none", "dimensionless");
     intent.operation_kind = "create";
@@ -190,7 +215,7 @@ describe("operationService browser-mode engine", () => {
     const outcome = await applyModelOperation(model, intent, null);
 
     expect(outcome.validation.application_status).toBe("blocked");
-    expect(outcome.diagnostics.map((item) => item.code)).toContain("OP-GEOMETRY-INPUT-INCOMPLETE");
+    expect(outcome.diagnostics.map((item) => item.code)).toContain("OP-CREATE-NODE-SHAPE-INVALID");
   });
 
   it("echoes claimed model hashes without asserting cross-canonicalization equality", async () => {

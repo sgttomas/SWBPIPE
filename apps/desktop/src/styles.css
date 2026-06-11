@@ -496,6 +496,7 @@ button:focus-visible {
 
 .viewport-frame {
   position: relative;
+  z-index: 1;
   min-height: 240px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -598,14 +599,17 @@ button:focus-visible {
 }
 
 .viewport-intents {
+  position: relative;
+  z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 10px;
   padding: 10px 12px;
   border-top: 1px solid #c8d0cb;
   background: #fbfcfa;
 }
 
+.viewport-intent-controls,
 .viewport-intent-actions {
   display: flex;
   flex-wrap: wrap;
@@ -613,9 +617,40 @@ button:focus-visible {
   gap: 7px;
 }
 
-.viewport-intent-actions button {
+.viewport-node-form {
+  display: grid;
+  grid-template-columns: minmax(96px, 1.2fr) minmax(96px, 1.2fr) repeat(3, minmax(52px, 0.7fr)) auto;
+  gap: 7px;
+  width: 100%;
+}
+
+.viewport-node-form label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.viewport-node-form span {
+  color: #54615d;
+  font-size: 11px;
+}
+
+.viewport-node-form input {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  padding: 5px 7px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+}
+
+.viewport-intent-actions button,
+.viewport-node-form button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   min-height: 30px;
   padding: 5px 9px;
@@ -624,6 +659,17 @@ button:focus-visible {
   color: #263331;
   background: #ffffff;
   cursor: pointer;
+}
+
+.viewport-node-form button {
+  align-self: end;
+  white-space: nowrap;
+}
+
+.viewport-node-form button:disabled {
+  color: #7d8985;
+  background: #eef2ef;
+  cursor: not-allowed;
 }
 
 .viewport-intent-list {
@@ -665,6 +711,13 @@ button:focus-visible {
 .viewport-intent-list small {
   color: #5f6c68;
   font-size: 11px;
+}
+
+@media (max-width: 1040px) {
+  .viewport-intents,
+  .viewport-node-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 .record-list,
@@ -1443,13 +1496,26 @@ th {
   margin-bottom: 8px;
 }
 
+.operation-apply-panel {
+  min-height: 230px;
+  overflow: auto;
+}
+
+.operation-apply-panel .operation-record-list {
+  overflow: visible;
+}
+
 .operation-apply-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   gap: 8px;
   margin-top: 6px;
 }
 
 .operation-apply-actions button {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;

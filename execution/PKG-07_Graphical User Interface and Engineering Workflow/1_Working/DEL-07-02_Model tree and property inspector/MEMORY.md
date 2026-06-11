@@ -110,3 +110,23 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-10 - TP-APP-R2-CREATENODE-001 explicit node create operation
+
+- WORKING_ITEMS app-integration tranche connected explicit viewport node
+  creation back into this deliverable's shared model tree/property inspector
+  contract. After an accepted create-node apply, the created node becomes the
+  active tree and inspector selection.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_explicit_node_create_operation.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-86. Validation passed:
+  `npm test --workspace apps/desktop` (28/28), `npm run build --workspace
+  apps/desktop`, and the Rust operation-applier suite (20/20). Browser smoke
+  confirmed `tree-row-node:N-150` active, inspector position
+  `8.4, 2.4, 2.8 m`, and `applied_operations=1`.
+- The tranche also fixed live-browser hit-test layout issues for the viewport
+  intent row and Apply Operations panel so controls remain actionable.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

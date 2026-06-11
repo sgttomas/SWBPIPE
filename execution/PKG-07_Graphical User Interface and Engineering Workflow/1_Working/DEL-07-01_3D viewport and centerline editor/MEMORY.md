@@ -204,3 +204,28 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim, protected
   standards data, private project data, network path, telemetry path, or DAG
   authority changed.
+
+## 2026-06-10 - TP-APP-R2-CREATENODE-001 explicit node create operation
+
+- WORKING_ITEMS app-integration tranche added an explicit node-geometry form
+  to the viewport editor for user-entered node id, label, and finite x/y/z
+  coordinates in the project length unit.
+- The form queues `create_node` intents for the structured operation seam;
+  legacy one-click viewport node gestures remain blocked rather than
+  inventing geometry.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_explicit_node_create_operation.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-86. Validation passed:
+  `cargo test --manifest-path core/model_operations/operation_applier/Cargo.toml`
+  (20/20), `npm test --workspace apps/desktop` (28/28), and
+  `npm run build --workspace apps/desktop`. Browser smoke on
+  `http://127.0.0.1:5174/` created `node:N-150`, selected it, increased
+  viewport targets from 14 to 15, and had no timestamp-filtered warnings or
+  errors after the final reload.
+- Residual A3 scope remains: true canvas raycast/gesture geometry capture,
+  straight-pipe connectivity creation, undo/redo, and broader editor
+  coverage as new authoring surfaces land.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, or DAG
+  authority changed.

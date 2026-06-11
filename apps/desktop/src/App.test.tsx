@@ -4870,7 +4870,57 @@ describe("OpenPipeStress desktop preview", () => {
     expect(documentMigrationLine.textContent).toContain("ledger_records=0");
   });
 
-  it("blocks viewport gesture intents at apply with an explicit geometry finding instead of inventing values", async () => {
+  it("queues and applies explicit viewport node geometry through the structured operation seam", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
+    const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-node-intent");
+    expect(queueButton).toBeDisabled();
+
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-id"), {
+      target: { value: "node:N-150" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-label"), {
+      target: { value: "User preview node" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-x"), {
+      target: { value: "8.4" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-y"), {
+      target: { value: "2.4" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-z"), {
+      target: { value: "2.8" }
+    });
+    expect(queueButton).not.toBeDisabled();
+    fireEvent.click(queueButton);
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:viewport-create-node-node:N-150-001"
+      )
+    );
+
+    const createdNodeRow = screen.getByTestId("tree-row-node:N-150");
+    expect(createdNodeRow.textContent).toContain("User preview node");
+    expect(createdNodeRow).toHaveClass("active");
+    const inspector = screen.getByLabelText("Property inspector");
+    expect(inspector.textContent).toContain("User preview node");
+    expect(inspector.textContent).toContain("8.4, 2.4, 2.8 m");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
+  it("blocks underspecified viewport node gestures at apply instead of inventing values", async () => {
     render(<App />);
 
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
@@ -4883,8 +4933,8 @@ describe("OpenPipeStress desktop preview", () => {
       expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain("was not applied")
     );
     expect(
-      within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-GEOMETRY-INPUT-INCOMPLETE").textContent
-    ).toContain("does not yet carry explicit geometry/connectivity inputs");
+      within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-CREATE-NODE-SHAPE-INVALID").textContent
+    ).toContain("Create-node intents must target object_type");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
   });
 });

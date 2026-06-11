@@ -241,6 +241,10 @@ async function runLocalOperation(
   if (!checker.schemaBlocked && ["set_field", "update_load", "update_support"].includes(changeKind)) {
     resolved = resolveField(modelDocument, objectType, targetRef, fieldPath, intent, checker);
   }
+  let createdNode: Record<string, unknown> | null = null;
+  if (!checker.schemaBlocked && changeKind === "create_node") {
+    createdNode = resolveCreateNode(modelDocument, targetRef, intent, checker);
+  }
 
   const blocking = hasBlocking(checker);
   const diffPreview: OperationDiffPreviewRow[] =
@@ -257,13 +261,31 @@ async function runLocalOperation(
             change_kind: changeKind
           }
         ]
+      : createdNode && !blocking
+        ? [
+            {
+              entity_ref: targetRef,
+              object_type: objectType,
+              field_path: fieldPath,
+              before: intent.change.before,
+              after: intent.change.after,
+              unit: intent.change.unit,
+              dimension: intent.change.dimension,
+              change_kind: changeKind
+            }
+          ]
       : [];
 
   let appliedModel: PreviewModel | null = null;
   let appliedModelHash: string | null = null;
-  if (mode === "apply" && !blocking && resolved) {
+  if (mode === "apply" && !blocking && (resolved || createdNode)) {
     const nextModel = JSON.parse(JSON.stringify(modelDocument)) as Record<string, unknown>;
-    if (applyResolvedField(nextModel, objectType, targetRef, resolved)) {
+    const applied = resolved
+      ? applyResolvedField(nextModel, objectType, targetRef, resolved)
+      : createdNode
+        ? applyCreatedNode(nextModel, createdNode)
+        : false;
+    if (applied) {
       appliedModelHash = await localHash(nextModel);
       appliedModel = nextModel as unknown as PreviewModel;
     }
@@ -433,7 +455,7 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
       [operationId]
     );
   }
-  if (["create_node", "connect_pipe_run", "insert_component_symbol"].includes(changeKind)) {
+  if (["connect_pipe_run", "insert_component_symbol"].includes(changeKind)) {
     checker.schemaBlocked = true;
     pushDiagnostic(
       checker,
@@ -444,6 +466,141 @@ function checkKinds(operationKind: string, changeKind: string, operationId: stri
       [operationId]
     );
   }
+}
+
+function resolveCreateNode(
+  model: Record<string, unknown>,
+  targetRef: string,
+  intent: EditorOperationIntent,
+  checker: LocalChecker
+): Record<string, unknown> | null {
+  if (intent.target.object_type !== "Node" || intent.change.field_path !== "nodes") {
+    checker.schemaBlocked = true;
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-NODE-SHAPE-INVALID",
+      "blocking",
+      "Create-node intents must target object_type `Node` with field_path `nodes`.",
+      "Refresh the viewport create-node intent from the explicit node geometry form.",
+      [targetRef]
+    );
+    return null;
+  }
+  checkBefore("not_present", intent.change.before, targetRef, intent.change.field_path, checker);
+  const storedLengthUnit = valueAtSegments(model, ["project", "units", "length"]);
+  checker.unitState = "passed";
+  if (typeof storedLengthUnit !== "string") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-METADATA-MISSING",
+      "blocking",
+      "Project length unit metadata is missing; explicit node coordinates cannot be accepted.",
+      "Repair the model document's project.units.length metadata before creating nodes.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.unit !== storedLengthUnit) {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+      "blocking",
+      `Intent unit \`${intent.change.unit}\` does not match project length unit \`${storedLengthUnit}\`; unit conversion is unavailable until the units engine lands.`,
+      "Enter node coordinates in the project length unit; no silent conversion is performed.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (intent.change.dimension !== "length") {
+    checker.unitState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-UNIT-DIMENSION-UNKNOWN",
+      "blocking",
+      `Create-node dimension \`${intent.change.dimension}\` must be \`length\`.`,
+      "Emit create-node coordinates with explicit length dimension metadata.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (findEntity(model, "nodes", targetRef)) {
+    checker.referenceState = "blocked";
+    pushDiagnostic(
+      checker,
+      "OP-TARGET-ALREADY-EXISTS",
+      "blocking",
+      `Node \`${targetRef}\` already exists in the current model.`,
+      "Choose a new stable node id; create operations never overwrite existing entities.",
+      [targetRef]
+    );
+    return null;
+  }
+  checker.referenceState = "passed";
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(intent.change.after);
+  } catch {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-NODE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-node payload is not valid JSON.",
+      "Emit the explicit node geometry payload as JSON in change.after.",
+      [targetRef]
+    );
+    return null;
+  }
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-NODE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-node payload must be a JSON object.",
+      "Emit id, label, position, and provenance fields for the new node.",
+      [targetRef]
+    );
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const position = record.position;
+  const id = stringPayload(record, "id");
+  const label = stringPayload(record, "label");
+  const provenance = stringPayload(record, "provenance");
+  if (id !== targetRef || !label || !provenance || typeof position !== "object" || position === null || Array.isArray(position)) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-NODE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-node payload must include matching id, non-empty label, non-empty provenance, and position.",
+      "Refresh the viewport create-node intent from explicit user-entered node fields.",
+      [targetRef]
+    );
+    return null;
+  }
+  const positionRecord = position as Record<string, unknown>;
+  const x = numericPayload(positionRecord, "x");
+  const y = numericPayload(positionRecord, "y");
+  const z = numericPayload(positionRecord, "z");
+  if (x === null || y === null || z === null) {
+    pushDiagnostic(
+      checker,
+      "OP-CREATE-NODE-PAYLOAD-INVALID",
+      "blocking",
+      "Create-node position must include finite numeric x, y, and z coordinates.",
+      "Enter explicit finite coordinates in the project length unit.",
+      [targetRef]
+    );
+    return null;
+  }
+  return {
+    id,
+    label,
+    position: { x, y, z },
+    provenance
+  };
 }
 
 function resolveField(
@@ -752,6 +909,12 @@ function applyResolvedField(
   return false;
 }
 
+function applyCreatedNode(model: Record<string, unknown>, node: Record<string, unknown>): boolean {
+  if (!Array.isArray(model.nodes)) return false;
+  model.nodes.push(node);
+  return true;
+}
+
 function stepInto(value: unknown, segment: string): unknown {
   if (Array.isArray(value)) {
     const index = Number.parseInt(segment, 10);
@@ -761,6 +924,16 @@ function stepInto(value: unknown, segment: string): unknown {
     return (value as Record<string, unknown>)[segment];
   }
   return undefined;
+}
+
+function stringPayload(record: Record<string, unknown>, key: string): string {
+  const value = record[key];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function numericPayload(record: Record<string, unknown>, key: string): number | null {
+  const value = record[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function isPrimitiveMagnitudePath(fieldPath: string): boolean {

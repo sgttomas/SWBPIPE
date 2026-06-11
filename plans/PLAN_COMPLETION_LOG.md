@@ -11,6 +11,29 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-10 — A3 third sub-slice: explicit node create operation (`TP-APP-R2-CREATENODE-001`)
+
+The viewport editor now has an explicit node-geometry form for user-entered
+node id, label, and finite x/y/z coordinates in the project length unit. The
+form queues a structured `create_node` intent and applies it through the
+existing operation seam; the browser local engine and Rust applier accept only
+explicit node payloads, reject duplicate ids, and preserve the no-silent
+conversion/default posture. The applied target becomes the active model-tree
+and inspector selection. During browser smoke this tranche also fixed
+viewport/operation-panel hit-test layout issues so the new form and apply
+buttons are actionable in the live app.
+
+Residuals remain in the A3 row: true canvas raycast/gesture geometry capture,
+straight-pipe connectivity creation, undo/redo, and broader editor coverage
+as new authoring surfaces land.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-86;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-06-10_explicit_node_create_operation.md`,
+the same-named record under
+`DEL-07-02_Model tree and property inspector/_run_records/`, and same-named
+records under `DEL-16-02_Operation validation and diff preview/_run_records/`
+and `DEL-16-03_User acceptance and operation audit trail/_run_records/`.
+
 ## 2026-06-10 — A3 second sub-slice: property-inspector inline validation (`TP-APP-R2-INLINEVALID-001`)
 
 The property inspector now exposes validate-only feedback for draft editor

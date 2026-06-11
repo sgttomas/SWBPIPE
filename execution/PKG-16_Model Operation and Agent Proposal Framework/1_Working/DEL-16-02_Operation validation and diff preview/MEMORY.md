@@ -136,3 +136,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-10 - TP-APP-R2-CREATENODE-001 explicit node create operation
+
+- WORKING_ITEMS app-integration tranche extended the browser local operation
+  engine and Rust `operation_applier` to validate, diff, and apply explicit
+  `create_node` intents.
+- Accepted create-node intents must target `Node` with `field_path=nodes`,
+  `before=not_present`, matching project length unit, `dimension=length`, no
+  duplicate node id, and a JSON payload containing matching id, non-empty
+  label/provenance, and finite numeric x/y/z coordinates.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-10_explicit_node_create_operation.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-86. Validation passed:
+  Rust operation-applier tests 20/20, desktop Vitest 28/28, desktop build,
+  and targeted diff whitespace check.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no coordinate inference, no durable persistence, no
+  protected/private data, and no professional/release/code-compliance claim.
