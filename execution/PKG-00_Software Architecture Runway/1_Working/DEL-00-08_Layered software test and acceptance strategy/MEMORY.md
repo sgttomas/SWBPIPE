@@ -1,5 +1,18 @@
 # MEMORY: DEL-00-08
 
+## 2026-06-12 - TP-APP-R2-SAVEDPROJECT-SMOKE-001
+
+- WORKING_ITEMS landed the A8 saved-project backend smoke sub-slice.
+- `apps/desktop/src-tauri/src/lib.rs` now has
+  `r2_from_blank_saved_project_opens_solves_and_renders_report`, which applies
+  the A12 from-blank rehearsal steps, saves the authored model into the local
+  SQLite project store, reopens it by project id, solves the loaded model
+  through `run_preview_mechanics`, and renders through
+  `render_calculation_report`.
+- Validation passed: focused Tauri regression 1/1 and full
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` 31/31.
+- Residual A8 scope remains: broader SMOKE checklist parity.
+
 ## 2026-06-12 - TP-APP-R2-FROMBLANK-E2E-001
 
 - WORKING_ITEMS landed the next A8 Playwright harness sub-slice.

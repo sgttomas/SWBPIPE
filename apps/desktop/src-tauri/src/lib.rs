@@ -2036,6 +2036,99 @@ mod tests {
     }
 
     #[test]
+    fn r2_from_blank_saved_project_opens_solves_and_renders_report() {
+        let rehearsal =
+            read_fixture("r2_from_blank_rehearsal.json").expect("A12 rehearsal fixture loads");
+        let (model, receipts) = apply_rehearsal_steps(&rehearsal);
+        assert_eq!(
+            receipts.len(),
+            rehearsal["steps"].as_array().expect("steps").len()
+        );
+
+        let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        let migration =
+            apply_store_migrations(&connection).expect("project store migrations apply");
+        assert!(fts5_available(&connection));
+
+        let project_id = model["project"]["id"]
+            .as_str()
+            .expect("rehearsal project id");
+        let project_name = model["project"]["name"]
+            .as_str()
+            .expect("rehearsal project name");
+        upsert_project(
+            &mut connection,
+            project_id,
+            project_name,
+            &model,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &Value::Null,
+            &json!([]),
+        )
+        .expect("A12 authored model saves to local project store");
+
+        let loaded = load_project(&connection, Some(project_id))
+            .expect("saved A12 project loads")
+            .expect("saved A12 project exists");
+        assert_eq!(loaded.project_id, project_id);
+        assert_eq!(loaded.project_name, project_name);
+        assert_eq!(loaded.model, model);
+        assert_eq!(loaded.mechanics_result, Value::Null);
+        assert_eq!(loaded.analysis_run, Value::Null);
+
+        let solved = run_preview_mechanics(Some(loaded.model.clone()))
+            .expect("saved authored model solves through backend mechanics");
+        assert_eq!(solved["model_ref"], json!(project_id));
+        assert_eq!(
+            solved["status"]["mechanics"],
+            rehearsal["expected"]["mechanics_status"]
+        );
+        assert!(
+            solved["results"].as_array().expect("result rows").len()
+                >= rehearsal["expected"]["minimum_result_rows"]
+                    .as_u64()
+                    .unwrap() as usize
+        );
+
+        let rendered = render_calculation_report(rehearsal_report_input(&loaded.model, &solved))
+            .expect("saved-project report renders");
+        assert_eq!(
+            rendered["export_blocked"],
+            rehearsal["expected"]["report_export_blocked"]
+        );
+        assert_eq!(rendered["sha256_hex"].as_str().expect("hash").len(), 64);
+
+        let summary = project_summary(
+            loaded.project_id,
+            loaded.project_name,
+            PathBuf::from(":memory:"),
+            &migration,
+            &json!([]),
+            &Value::Null,
+            &Value::Null,
+            &solved,
+            &json!({
+                "analysis_run": {
+                    "run_id": solved["run_id"].clone()
+                }
+            }),
+            &Value::Null,
+            &Value::Null,
+            "Saved A12 authored project opened, solved, and rendered.".to_string(),
+        );
+        assert_eq!(summary.persisted_mechanics_result_count, 1);
+        assert_eq!(
+            summary.persisted_analysis_run_ref,
+            solved["run_id"].as_str().expect("run id")
+        );
+    }
+
+    #[test]
     fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         let migration =

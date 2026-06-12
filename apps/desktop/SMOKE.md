@@ -3870,3 +3870,22 @@ after the timestamp marker were absent.
   daemon, network, telemetry, protected content, repository-default
   private-data write, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-128 saved-project backend smoke (`TP-APP-R2-SAVEDPROJECT-SMOKE-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-SAVEDPROJECT-SMOKE-001` (completion-plan A8): added
+  Tauri regression `r2_from_blank_saved_project_opens_solves_and_renders_report`.
+- Automated coverage: applies the A12 from-blank rehearsal steps, saves the
+  authored model into the desktop local SQLite project store, reopens it by
+  project id, confirms mechanics/result payloads were not silently persisted
+  before solve, solves the loaded model through `run_preview_mechanics`, and
+  renders through `render_calculation_report`.
+- Automated evidence: focused Tauri regression passed 1/1; full
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` passed with
+  31/31 Rust tests.
+- Residual A8 hand-off: broader SMOKE checklist parity remains if every
+  manual smoke row needs automated assertion coverage. Boundary review:
+  invented public example only; in-memory local SQLite test store; no cloud,
+  daemon, network, telemetry, protected content, repository-default
+  private-data write, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

@@ -13,6 +13,27 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A8 saved-project backend smoke (`TP-APP-R2-SAVEDPROJECT-SMOKE-001`)
+
+The A8 saved-project residual now has a Tauri/backend regression. The new
+test `r2_from_blank_saved_project_opens_solves_and_renders_report` reuses the
+A12 rehearsal helpers, applies the from-blank script, saves the authored model
+into the desktop local SQLite project store, reopens it by project id, solves
+the loaded model through `run_preview_mechanics`, and renders through the A7
+`render_calculation_report` command. The test verifies the store did not
+silently persist mechanics or analysis-run payloads before solve, then records
+the solved run/report path after reopening.
+
+Evidence:
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_run_records/WORKING_ITEMS_RUN_2026-06-12_saved_project_backend_smoke.md`;
+`apps/desktop/SMOKE.md` TP-MAC-128. Validation: focused Tauri regression 1/1;
+full Tauri Rust suite 31/31.
+
+Residual hand-off: A8 still has broader SMOKE checklist parity if the project
+wants every manual smoke row represented by automated assertions. No lifecycle
+state, release readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim is created.
+
 ## 2026-06-12 - A8 from-blank GUI journey automation (`TP-APP-R2-FROMBLANK-E2E-001`)
 
 The A8 Playwright harness now automates the A12 from-blank rehearsal script
