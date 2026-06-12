@@ -93,3 +93,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   storage, protected data, standards-compliance claim, professional approval,
   certification, sealing, authentication, release-readiness, or `ISSUED`
   claim.
+
+## 2026-06-12 - TP-UNITS-B2-FRONTENDSVC-001 frontend unit-catalog service
+
+- Added `apps/desktop/src/services/unitCatalogService.ts`, the typed
+  frontend route to the desktop `get_unit_catalog` command.
+- Browser preview mode returns explicit `UNIT-CATALOG-DESKTOP-ONLY`
+  unavailability instead of synthesizing a fallback catalog; desktop mode
+  invokes the Tauri command.
+- Evidence is owned by DEL-02-02:
+  `execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_frontend_unit_catalog_service.md`;
+  SMOKE ledger row TP-MAC-130.
+- Validation: focused `unitCatalogService` Vitest passed 2/2; full
+  `npm test --workspace apps/desktop` passed with 215/215 tests; production
+  build passed with the existing Vite chunk-size warning.
+- Boundary preserved: no visible unit picker/display retrofit, no browser
+  fallback catalog, no private payload storage, protected data,
+  standards-compliance claim, professional approval, certification, sealing,
+  authentication, release-readiness, or `ISSUED` claim.

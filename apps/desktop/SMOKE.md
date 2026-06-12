@@ -3907,3 +3907,20 @@ after the timestamp marker were absent.
   content, private project data, unit defaulting, solver/report normalization,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-130 frontend unit catalog service (`TP-UNITS-B2-FRONTENDSVC-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-FRONTENDSVC-001` (completion-plan B2): added typed
+  frontend service `unitCatalogService.ts` for the desktop `get_unit_catalog`
+  command.
+- Desktop route: invokes `get_unit_catalog` and returns DEC-018 catalog
+  metadata for future unit picker/display controls. Browser preview route:
+  returns explicit `UNIT-CATALOG-DESKTOP-ONLY` unavailability and does not
+  synthesize a fallback unit catalog.
+- Automated evidence: focused `unitCatalogService` Vitest passed 2/2; full
+  `npm test --workspace apps/desktop` passed with 215/215 tests; production
+  build passed with the pre-existing Vite chunk-size warning.
+- Boundary review: no visible unit picker/display retrofit, browser fallback
+  catalog, unit defaulting, solver/report normalization, protected content,
+  private project data, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

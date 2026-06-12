@@ -148,3 +148,13 @@ Boundary note:
 - Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check` passed; `cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml --check` passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 13 unit tests and 0 doctests; focused Tauri command test passed 1/1; full `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` passed with 32 unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed.
 - Boundaries preserved: no visible desktop unit picker/display replacement, bulk form retrofit, solver-boundary normalization, report renderer change, import/export change, rule-pack evaluator change, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
 - Residual handoffs: B2 still owns visible app unit fields, solver-boundary normalization, report unit disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader conversion witness and tolerance corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-FRONTENDSVC-001 Frontend unit catalog service
+
+- Added `apps/desktop/src/services/unitCatalogService.ts` with typed unit-catalog payloads, `loadUnitCatalog`, and `acceptedUnits`.
+- Browser preview mode returns explicit `UNIT-CATALOG-DESKTOP-ONLY` unavailability instead of synthesizing a fallback catalog; desktop mode invokes Tauri `get_unit_catalog`.
+- Added Vitest coverage for browser unavailability, Tauri invocation, DEC-018 metadata, factor/offset/provenance fields, and boundary flags.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_frontend_unit_catalog_service.md`; `apps/desktop/SMOKE.md` TP-MAC-130.
+- Validation: `npm test --workspace apps/desktop -- unitCatalogService` passed with 2 tests; `npm test --workspace apps/desktop` passed with 215 tests across 9 files; `npm run build --workspace apps/desktop` passed with the pre-existing Vite chunk-size warning.
+- Boundaries preserved: no visible unit picker/display retrofit, solver-boundary normalization, report renderer change, import/export change, rule-pack evaluator change, browser fallback unit catalog, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
+- Residual handoffs: B2 still owns visible app unit fields, solver-boundary normalization, report unit disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader conversion witness and tolerance corpus coverage.

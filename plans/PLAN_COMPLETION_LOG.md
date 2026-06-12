@@ -13,6 +13,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 frontend unit catalog service (`TP-UNITS-B2-FRONTENDSVC-001`)
+
+The desktop frontend now has a typed service route to the reviewed unit
+catalog. `apps/desktop/src/services/unitCatalogService.ts` defines the catalog
+payload shape, `loadUnitCatalog`, and `acceptedUnits`. In desktop/Tauri mode
+the service invokes `get_unit_catalog`; in browser preview mode it returns an
+explicit `UNIT-CATALOG-DESKTOP-ONLY` unavailable route instead of inventing a
+fallback catalog.
+
+Vitest coverage pins both routes. The Tauri-route test verifies DEC-018
+metadata, entered-unit preservation, factor/offset text, conventional-public
+provenance, and boundary flags. This prepares visible unit-picker/display work
+without changing authoring forms in this tranche.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_frontend_unit_catalog_service.md`;
+`apps/desktop/SMOKE.md` TP-MAC-130. Validation:
+`npm test --workspace apps/desktop -- unitCatalogService` passed with 2
+tests; `npm test --workspace apps/desktop` passed with 215 tests across 9
+files; `npm run build --workspace apps/desktop` passed with the pre-existing
+Vite chunk-size warning.
+
+Residual hand-offs: visible app unit pickers/displays, solver-boundary
+normalization, report unit-system disclosures, imports/exports, and rule-pack
+unit I/O remain B2 work. B3 still owns broader mixed-unit round-trip,
+conversion-witness, incompatible-unit rejection, and D-04/DEC-026 tolerance
+coverage. No lifecycle state, release-readiness, professional approval,
+certification, sealing, authentication, protected-content, private-data, or
+code-compliance claim is created.
+
 ## 2026-06-12 - B2 desktop unit catalog command (`TP-UNITS-B2-CATALOGCMD-001`)
 
 The desktop backend now has a tested B2 binding to the DEC-018 units crate.
