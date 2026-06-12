@@ -117,3 +117,14 @@ Boundary note:
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-12 - TP-UNITS-B1-CATALOG-001 Unit catalog and conversion crate
+
+- Implemented the Phase B1 crate-side unit catalog in `core/units` after the D-01 human ruling recorded as `DEC-018`.
+- Added `open_pipe_stress_units` with canonical dimension identifiers, exponent-vector algebra, SI-canonical units, common display units, exact public definitional conversion constants, affine absolute-temperature conversion, interval-temperature conversion, and explicit gauge/absolute pressure conversion that requires caller-supplied reference provenance when pressure kind changes.
+- Tightened the quantity-kind conversion API during fan-in so temperature and pressure cannot use generic `UnitBearing` conversion to bypass explicit DEC-018 semantics.
+- Updated `core/units/README.md` from its pre-DEC-018 `TBD` posture to record the accepted B1 basis and preserve B2/B3 handoffs.
+- Evidence: `core/units/_run_records/TASK_RUN_2026-06-12_0136.md` and `_run_records/WORKING_ITEMS_RUN_2026-06-12_unit_catalog_conversion_crate.md`.
+- Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check` passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 11 unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed; `python3 -m pytest tests/test_units_schema.py` passed with 3 tests.
+- Boundaries preserved: no schema/app/solver/report unit I/O retrofit, no protected standards content, no proprietary vendor data, no private project data, no bundled engineering defaults, and no release-readiness, professional approval, certification, sealing, authentication, or code-compliance claim.
+- Residual handoffs: B2 must bind unit-aware I/O through schemas, desktop fields, solver normalization, reports, imports/exports, and rule-pack evaluation; B3 must add mixed-unit round-trip and conversion-witness/tolerance corpus evidence under DEC-026.

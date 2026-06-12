@@ -83,7 +83,7 @@ Phases are ordered by dependency, not strictly by execution: A and B can run in 
 
 | # | Tranche scope |
 |---|---|
-| B1 | **Unit catalog + conversion crate** in `core/units` (currently empty): decision-bound constants, dimension algebra, offset-temperature and gauge/absolute-pressure handling exactly as accepted in D-01 |
+| B1 | **Unit catalog + conversion crate - LANDED 2026-06-12** (`TP-UNITS-B1-CATALOG-001`): crate-side `core/units` now implements DEC-018 SI-canonical catalog/conversions, dimension algebra, absolute/interval temperature handling, and gauge/absolute pressure handling with explicit references. Detail: [completion log](PLAN_COMPLETION_LOG.md); evidence: DEL-02-02 run record and `core/units/_run_records/TASK_RUN_2026-06-12_0136.md`. Residual hand-offs: B2 schema/app/solver/report unit I/O and B3 conversion-witness/tolerance corpus |
 | B2 | **Unit-aware I/O**: schema field bindings, app input fields with unit display/entry, solver-boundary normalization, reports showing units used |
 | B3 | **Mixed-unit round-trip + tolerance tests**: conversion witnesses, rejection tests for incompatible units, tolerance policy per D-04 |
 

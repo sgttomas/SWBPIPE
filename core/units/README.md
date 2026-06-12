@@ -2,6 +2,21 @@
 
 DEL-02-02 defines the contract for unit-aware quantities and dimensional analysis in the domain core. This contract is structural: it does not ship protected standards data, proprietary dimensional tables, code-specific values, material allowables, SIF/flexibility factors, or vendor data.
 
+## B1 Implementation Status
+
+DEC-018 accepted the D-01 unit-catalog basis on 2026-06-10: SI-canonical internal units, a closed SI/US display catalog, reviewed public definitional conversion constants, dual absolute/interval temperature semantics, explicit gauge/absolute pressure quantity kinds with no silent atmospheric default, and a two-tier conversion-witness tolerance policy.
+
+This crate is the Phase B1 crate-side implementation of that ruling. It provides:
+
+- the canonical dimension vocabulary and exponent-vector algebra;
+- a deterministic unit catalog with SI-canonical units and common display units;
+- public definitional conversion constants recorded in code, not protected standards data;
+- affine absolute-temperature conversion and separate interval-temperature conversion;
+- explicit gauge/absolute pressure conversion that requires a caller-supplied pressure reference and provenance when the pressure kind changes;
+- finite-value and incompatible-dimension rejection.
+
+B1 does not wire units into schemas, application fields, solver boundaries, reports, imports, exports, or rule-pack evaluation. Those remain Phase B2/B3 handoffs.
+
 ## Storage Convention
 
 Every physical quantity that crosses a schema, solver, import/export, report, or rule-evaluation boundary must carry:
@@ -13,7 +28,7 @@ Every physical quantity that crosses a schema, solver, import/export, report, or
 - provenance for values that can affect engineering reliance;
 - a missing-unit behavior.
 
-Persisted project data should preserve the entered unit representation when available for audit and round-trip behavior. Downstream implementations may also maintain a canonical calculation representation, but the canonical basis, conversion constants, numeric representation, and tolerance policy remain `TBD` until accepted by a human review gate. JSON payloads that are hashed must use the project canonical JSON/JCS-compatible basis where applicable.
+Persisted project data should preserve the entered unit representation when available for audit and round-trip behavior. DEC-018 fixes the crate-side SI-canonical calculation basis and conversion semantics for B1; B2 must still bind that basis through schemas, application input/display fields, solver-boundary normalization, and reports. JSON payloads that are hashed must use the project canonical JSON/JCS-compatible basis where applicable.
 
 Dimensionless values are not a fallback for missing units. A value may be unitless only when its field is explicitly classified as dimensionless, ratio, percentage, or coefficient. Otherwise missing unit metadata is a diagnostic.
 
@@ -43,7 +58,7 @@ Required operation categories are:
 - boundary validation operations: schema validation, import validation, export validation, and rule evaluation;
 - explicit classification operations for dimensionless, ratio, percentage, and coefficient values.
 
-Unsupported operation semantics are represented as blocking diagnostics or `TBD` decisions. Deterministic conversion tests that require numeric conversion constants remain gated until the unit catalog, factor representation, and tolerance policy are accepted.
+Unsupported operation semantics are represented as blocking diagnostics or `TBD` decisions. B1 includes deterministic crate tests for the accepted catalog and special conversion semantics; B3 still owns the broader mixed-unit round-trip, conversion-witness, rejection, and D-04 tolerance corpus.
 
 ## Conversion Provenance
 
@@ -70,19 +85,22 @@ Missing solve-required or rule-check-required units are findings, never silent d
 
 The schema diagnostic codes include missing unit, unknown unit, ambiguous unit, dimension mismatch, unsupported conversion, missing conversion provenance, unresolved offset/reference semantics, required dimensionless classification, and suspected protected unit data.
 
-## Open Decisions
+## Accepted Decisions And Remaining Handoffs
 
-The following decisions remain contract-visible and must not be filled by implementation convenience:
+Accepted for B1 by DEC-018:
 
 - unit catalog and conversion source set;
 - base dimension vector and derived-dimension rules;
-- dimensionless, ratio, percentage, coefficient, angle, and rotation semantics;
-- numeric representation for magnitudes and conversion factors;
-- conversion tolerance policy;
 - offset temperature and gauge/absolute pressure behavior;
-- canonical calculation basis and storage shape;
-- schema file layout and diagnostic-code namespace;
-- human decision owner or review gate for these topics.
+- SI-canonical calculation basis and display-unit conversion transforms.
+
+The following handoffs remain contract-visible and must not be filled by implementation convenience:
+
+- B2 schema/app/solver/report integration for unit-bearing fields and entered-unit preservation;
+- B3 conversion-witness and tolerance corpus coverage under DEC-026;
+- angle and rotation behavior beyond cataloged `rad`/`deg` conversion;
+- schema file layout and diagnostic-code namespace updates outside this crate;
+- code-specific values, protected standards content, proprietary vendor data, material allowables, SIF/flexibility factors, release claims, professional claims, certification, sealing, authentication, and code-compliance claims.
 
 Each accepted decision that affects public schemas, persistent files, or external contracts should be recorded through the project ADR or equivalent decision-record discipline.
 
@@ -97,4 +115,4 @@ Solver, load, stress, rule-pack, report, GUI, API, and adapter implementations m
 - reports must disclose unit-system identity, diagnostics, assumptions, and provenance where relevant;
 - tests must cover schema parsing, required dimensions, required quantity fields, operation rules, incompatible dimensions, dimensionless classification, missing-unit diagnostics, alias ambiguity rejection once a namespace is approved, deterministic conversion behavior once constants are approved, and absence of silent defaults.
 
-Open decisions remain `TBD`: final unit catalog, conversion constants, numeric representation, tolerances, offset temperature behavior, gauge pressure behavior, angle/rotation treatment, code-specific values, release claims, professional claims, canonical calculation units, alias policy, and human decision owner.
+Remaining TBDs and handoffs are not waived by the B1 crate. Downstream work must continue to surface missing units, unsupported units, incompatible dimensions, unresolved schema bindings, missing provenance, and any professional or code-compliance claims as findings rather than defaults.

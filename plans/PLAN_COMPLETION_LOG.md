@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B1 unit catalog and conversion crate (`TP-UNITS-B1-CATALOG-001`)
+
+Phase B1 is now landed crate-side. `core/units` has its own Rust crate,
+`open_pipe_stress_units`, with a closed DEC-018 catalog surface: canonical
+dimension identifiers and exponent-vector algebra, SI-canonical units with
+common SI/US display units, exact public definitional conversion constants,
+finite-value checks, incompatible-dimension rejection, affine absolute
+temperature conversion, separate interval-temperature conversion, and explicit
+gauge/absolute pressure conversion that requires a caller-supplied pressure
+reference with provenance whenever the pressure kind changes.
+
+During fan-in, the generic quantity conversion API was tightened so
+temperature and pressure cannot silently bypass their special semantics through
+`QuantityKind::UnitBearing`; those dimensions now require explicit
+absolute/interval or absolute/relative quantity semantics. The unit README was
+also updated from its pre-DEC-018 posture so it records the accepted B1 basis
+and preserves the B2/B3 handoffs instead of listing ruled items as still open.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_unit_catalog_conversion_crate.md`;
+`core/units/_run_records/TASK_RUN_2026-06-12_0136.md`. Validation:
+`cargo fmt --manifest-path core/units/Cargo.toml --check` passed;
+`cargo test --manifest-path core/units/Cargo.toml` passed with 11 unit tests
+and 0 doctests; `python3 tests/test_units_schema.py` passed;
+`python3 -m pytest tests/test_units_schema.py` passed with 3 tests.
+
+Residual hand-offs: B2 must wire this crate into schema field bindings,
+desktop unit entry/display, solver-boundary normalization, reports, imports,
+exports, and rule-pack evaluation; B3 must add mixed-unit round-trip tests,
+conversion witnesses, rejection coverage, and D-04/DEC-026 tolerance evidence.
+Angle/rotation behavior beyond cataloged `rad`/`deg` conversion remains a
+future bounded decision/implementation topic. No lifecycle state,
+release-readiness, professional approval, certification, sealing,
+authentication, protected-content, private-data, or code-compliance claim is
+created.
+
 ## 2026-06-12 - A11 fourth sub-slice: load-case deletion authoring (`TP-APP-R2-DELLOADCASE-001`)
 
 The structured operation seam now accepts `delete_load_case` as a delete-kind
