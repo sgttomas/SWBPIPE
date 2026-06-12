@@ -182,6 +182,19 @@ struct FieldRule {
     kind: FieldKind,
 }
 
+/// Closed combination-basis set (TP-APP-R2-COMBEXPR-001). The tokens mirror
+/// `core/loads/load_case_algebra::AlgebraExpression` vocabulary:
+/// `mechanics` = linear combination over explicit terms;
+/// `result_state_subtraction` = `minuend_id` − `subtrahend_id`;
+/// `range_envelope` = `mode`-selected value across `operand_ids`.
+/// Code/rule and owner-basis combinations remain private/deferred.
+const COMBINATION_BASIS_CLOSED_SET: [&str; 3] =
+    ["mechanics", "result_state_subtraction", "range_envelope"];
+
+/// Closed range-envelope mode tokens, mirroring
+/// `core/loads/load_case_algebra::RangeMode`.
+const COMBINATION_RANGE_MODE_TOKENS: [&str; 4] = ["min", "max", "min_abs", "max_abs"];
+
 /// Inspector-offered fields whose application is deliberately deferred to a
 /// later completion-plan item. Returned as explicit blocked findings so the
 /// scope limit stays visible instead of silently half-working.
@@ -3219,6 +3232,142 @@ fn resolve_create_combination(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
+    if id != target_ref || label.is_empty() || provenance.is_empty() {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-combination payload must include matching id and non-empty label/provenance."
+                .to_string(),
+            "Refresh the combination creation intent from explicit user-entered combination fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if !COMBINATION_BASIS_CLOSED_SET.contains(&basis) {
+        checker.push(
+            "OP-COMBINATION-BASIS-UNSUPPORTED",
+            "blocking",
+            format!(
+                "Combination basis `{basis}` is outside the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`; code/rule and owner-basis combinations remain private/deferred."
+            ),
+            "Choose one of the closed-set bases in the Load Cases manager form.",
+            vec![target_ref.to_string(), basis.to_string()],
+        );
+        return None;
+    }
+
+    match basis {
+        "result_state_subtraction" => resolve_create_subtraction_combination(
+            model, record, target_ref, checker,
+        )
+        .map(|(minuend_id, subtrahend_id)| {
+            serde_json::json!({
+                "id": id,
+                "label": label,
+                "basis": basis,
+                "minuend_id": minuend_id,
+                "subtrahend_id": subtrahend_id,
+                "terms": [],
+                "provenance": provenance,
+            })
+        }),
+        "range_envelope" => resolve_create_range_combination(model, record, target_ref, checker)
+            .map(|(operand_ids, mode)| {
+                serde_json::json!({
+                    "id": id,
+                    "label": label,
+                    "basis": basis,
+                    "operand_ids": operand_ids,
+                    "mode": mode,
+                    "terms": [],
+                    "provenance": provenance,
+                })
+            }),
+        _ => {
+            resolve_create_mechanics_combination(model, record, target_ref, checker).map(|terms| {
+                serde_json::json!({
+                    "id": id,
+                    "label": label,
+                    "basis": basis,
+                    "terms": terms,
+                    "provenance": provenance,
+                })
+            })
+        }
+    }
+}
+
+/// Per-basis payload shape: blocks create payloads that carry fields
+/// belonging to a different basis, so applied records always match exactly
+/// one closed-set expression shape.
+fn check_combination_payload_shape(
+    record: &serde_json::Map<String, Value>,
+    basis: &str,
+    forbidden_fields: &[&str],
+    target_ref: &str,
+    checker: &mut Checker,
+) -> Option<()> {
+    let mut stray_fields = forbidden_fields
+        .iter()
+        .filter(|field| record.get(**field).is_some())
+        .copied()
+        .collect::<Vec<_>>();
+    if record
+        .get("terms")
+        .is_some_and(|terms| !terms.as_array().is_some_and(Vec::is_empty))
+        && basis != "mechanics"
+    {
+        stray_fields.push("terms");
+    }
+    if stray_fields.is_empty() {
+        return Some(());
+    }
+    checker.push(
+        "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+        "blocking",
+        format!(
+            "Create-combination payload for basis `{basis}` carries fields belonging to a different basis: {}.",
+            stray_fields.join(", ")
+        ),
+        "Emit exactly the fields of the selected basis: mechanics = terms; result_state_subtraction = minuend_id + subtrahend_id; range_envelope = operand_ids + mode.",
+        vec![target_ref.to_string()],
+    );
+    None
+}
+
+fn check_combination_operand_load_case(
+    model: &Value,
+    operand_ref: &str,
+    target_ref: &str,
+    checker: &mut Checker,
+) -> Option<()> {
+    if find_entity(model, "load_cases", operand_ref).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMBINATION-OPERAND-LOAD-NOT-FOUND",
+            "blocking",
+            format!("Combination operand references load case `{operand_ref}`, which is absent from the current model."),
+            "Select existing load cases before creating a combination.",
+            vec![target_ref.to_string(), operand_ref.to_string()],
+        );
+        return None;
+    }
+    Some(())
+}
+
+fn resolve_create_mechanics_combination(
+    model: &Value,
+    record: &serde_json::Map<String, Value>,
+    target_ref: &str,
+    checker: &mut Checker,
+) -> Option<Vec<Value>> {
+    check_combination_payload_shape(
+        record,
+        "mechanics",
+        &["minuend_id", "subtrahend_id", "operand_ids", "mode"],
+        target_ref,
+        checker,
+    )?;
     let Some(term_payloads) = record.get("terms").and_then(Value::as_array) else {
         checker.push(
             "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
@@ -3229,12 +3378,7 @@ fn resolve_create_combination(
         );
         return None;
     };
-    if id != target_ref
-        || label.is_empty()
-        || basis != "mechanics"
-        || provenance.is_empty()
-        || term_payloads.is_empty()
-    {
+    if term_payloads.is_empty() {
         checker.push(
             "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
             "blocking",
@@ -3300,13 +3444,128 @@ fn resolve_create_combination(
     }
 
     checker.reference_state = "passed";
-    Some(serde_json::json!({
-        "id": id,
-        "label": label,
-        "basis": basis,
-        "terms": terms,
-        "provenance": provenance,
-    }))
+    Some(terms)
+}
+
+fn resolve_create_subtraction_combination(
+    model: &Value,
+    record: &serde_json::Map<String, Value>,
+    target_ref: &str,
+    checker: &mut Checker,
+) -> Option<(String, String)> {
+    check_combination_payload_shape(
+        record,
+        "result_state_subtraction",
+        &["operand_ids", "mode"],
+        target_ref,
+        checker,
+    )?;
+    let minuend_id = record
+        .get("minuend_id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let subtrahend_id = record
+        .get("subtrahend_id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if minuend_id.is_empty() || subtrahend_id.is_empty() {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "result_state_subtraction payloads must include explicit non-empty minuend_id and subtrahend_id load-case references.".to_string(),
+            "Select a minuend and a subtrahend load case in the Load Cases manager form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if minuend_id == subtrahend_id {
+        checker.push(
+            "OP-COMBINATION-OPERAND-DUPLICATE",
+            "blocking",
+            format!("Combination `{target_ref}` subtracts load case `{minuend_id}` from itself; subtraction requires two distinct load cases."),
+            "Select two distinct load cases; self-subtraction is blocked.",
+            vec![target_ref.to_string(), minuend_id.to_string()],
+        );
+        return None;
+    }
+    check_combination_operand_load_case(model, minuend_id, target_ref, checker)?;
+    check_combination_operand_load_case(model, subtrahend_id, target_ref, checker)?;
+    checker.reference_state = "passed";
+    Some((minuend_id.to_string(), subtrahend_id.to_string()))
+}
+
+fn resolve_create_range_combination(
+    model: &Value,
+    record: &serde_json::Map<String, Value>,
+    target_ref: &str,
+    checker: &mut Checker,
+) -> Option<(Vec<String>, String)> {
+    check_combination_payload_shape(
+        record,
+        "range_envelope",
+        &["minuend_id", "subtrahend_id"],
+        target_ref,
+        checker,
+    )?;
+    let mode = record
+        .get("mode")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if !COMBINATION_RANGE_MODE_TOKENS.contains(&mode) {
+        checker.push(
+            "OP-COMBINATION-RANGE-MODE-UNKNOWN",
+            "blocking",
+            format!(
+                "Range-envelope mode `{mode}` is outside the explicit closed set `min`, `max`, `min_abs`, `max_abs`."
+            ),
+            "Choose one of the closed-set range modes in the Load Cases manager form.",
+            vec![target_ref.to_string(), mode.to_string()],
+        );
+        return None;
+    }
+    let operand_payloads = record
+        .get("operand_ids")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let mut operand_ids = Vec::new();
+    for operand in &operand_payloads {
+        let operand_ref = operand.as_str().unwrap_or("").trim();
+        if operand_ref.is_empty() {
+            operand_ids.clear();
+            break;
+        }
+        operand_ids.push(operand_ref.to_string());
+    }
+    if operand_ids.is_empty() {
+        checker.push(
+            "OP-CREATE-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            "range_envelope payloads must include operand_ids as a non-empty array of explicit load-case references.".to_string(),
+            "Select at least one operand load case in the Load Cases manager form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let mut seen_operands = std::collections::HashSet::new();
+    for operand_ref in &operand_ids {
+        if !seen_operands.insert(operand_ref.clone()) {
+            checker.push(
+                "OP-COMBINATION-OPERAND-DUPLICATE",
+                "blocking",
+                format!("Combination `{target_ref}` repeats load case `{operand_ref}` in its range-envelope operands."),
+                "List each operand load case once; duplicate operands are blocked.",
+                vec![target_ref.to_string(), operand_ref.to_string()],
+            );
+            return None;
+        }
+        check_combination_operand_load_case(model, operand_ref, target_ref, checker)?;
+    }
+    checker.reference_state = "passed";
+    Some((operand_ids, mode.to_string()))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -3369,6 +3628,22 @@ fn resolve_create_combination_term(
         );
         return None;
     };
+    let combination_basis = combination
+        .get("basis")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    if combination_basis != "mechanics" {
+        checker.push(
+            "OP-COMBINATION-TERM-BASIS-UNSUPPORTED",
+            "blocking",
+            format!(
+                "Combination `{target_ref}` has basis `{combination_basis}`; explicit terms belong to mechanics-basis combinations only."
+            ),
+            "Subtraction and range-envelope combinations carry their own operand references; create a mechanics combination for factored terms.",
+            vec![target_ref.to_string(), combination_basis.to_string()],
+        );
+        return None;
+    }
 
     let payload: Value = match serde_json::from_str(after) {
         Ok(payload) => payload,
@@ -4003,6 +4278,30 @@ fn resolve_field(
                     vec![target_ref.to_string()],
                 );
                 return None;
+            }
+            if object_type == "Combination" && field_path == "basis" {
+                if !COMBINATION_BASIS_CLOSED_SET.contains(&trimmed) {
+                    checker.push(
+                        "OP-COMBINATION-BASIS-UNSUPPORTED",
+                        "blocking",
+                        format!(
+                            "Combination basis `{trimmed}` is outside the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`; code/rule and owner-basis combinations remain private/deferred."
+                        ),
+                        "Choose one of the closed-set bases in the Load Cases manager.",
+                        vec![target_ref.to_string(), trimmed.to_string()],
+                    );
+                    return None;
+                }
+                if let Some(message) = combination_basis_shape_mismatch(entity, trimmed) {
+                    checker.push(
+                        "OP-COMBINATION-BASIS-SHAPE-MISMATCH",
+                        "blocking",
+                        format!("Combination `{target_ref}` cannot change basis to `{trimmed}`: {message}"),
+                        "Basis edits require the stored payload fields of the target basis; delete and recreate the combination to change its expression shape.",
+                        vec![target_ref.to_string(), trimmed.to_string()],
+                    );
+                    return None;
+                }
             }
             Some(ResolvedField {
                 kind,
@@ -4850,6 +5149,83 @@ fn load_case_delete_display(load_case: &Value) -> Option<String> {
     ))
 }
 
+/// Returns a blocking description when the stored combination record does not
+/// already carry exactly the payload fields the requested basis evaluates;
+/// `None` means the basis edit keeps the record honestly evaluable. Cross-
+/// shape basis changes are re-authoring (delete + create), not field edits.
+fn combination_basis_shape_mismatch(combination: &Value, target_basis: &str) -> Option<String> {
+    let terms_is_array = combination.get("terms").is_some_and(Value::is_array);
+    let has_terms = combination
+        .get("terms")
+        .and_then(Value::as_array)
+        .is_some_and(|terms| !terms.is_empty());
+    let has_field = |field: &str| {
+        combination
+            .get(field)
+            .and_then(Value::as_str)
+            .is_some_and(|value| !value.trim().is_empty())
+    };
+    let operand_ids = combination.get("operand_ids").and_then(Value::as_array);
+    let has_operands = operand_ids.is_some_and(|ids| {
+        !ids.is_empty()
+            && ids
+                .iter()
+                .all(|id| id.as_str().is_some_and(|value| !value.trim().is_empty()))
+    });
+    let has_subtraction_fields = has_field("minuend_id") || has_field("subtrahend_id");
+    let has_range_fields = operand_ids.is_some() || combination.get("mode").is_some();
+
+    match target_basis {
+        "mechanics" => {
+            if !terms_is_array {
+                return Some("the stored record has no terms array.".to_string());
+            }
+            if has_subtraction_fields || has_range_fields {
+                return Some(
+                    "the stored record carries subtraction or range-envelope fields that the mechanics basis does not evaluate."
+                        .to_string(),
+                );
+            }
+            None
+        }
+        "result_state_subtraction" => {
+            if has_terms || has_range_fields {
+                return Some(
+                    "the stored record carries terms or range-envelope fields that the subtraction basis does not evaluate."
+                        .to_string(),
+                );
+            }
+            if !(has_field("minuend_id") && has_field("subtrahend_id")) {
+                return Some(
+                    "the stored record does not carry the minuend_id and subtrahend_id load-case references the subtraction basis evaluates."
+                        .to_string(),
+                );
+            }
+            None
+        }
+        "range_envelope" => {
+            if has_terms || has_subtraction_fields {
+                return Some(
+                    "the stored record carries terms or subtraction fields that the range-envelope basis does not evaluate."
+                        .to_string(),
+                );
+            }
+            let mode_known = combination
+                .get("mode")
+                .and_then(Value::as_str)
+                .is_some_and(|mode| COMBINATION_RANGE_MODE_TOKENS.contains(&mode.trim()));
+            if !has_operands || !mode_known {
+                return Some(
+                    "the stored record does not carry the non-empty operand_ids list and closed-set mode the range-envelope basis evaluates."
+                        .to_string(),
+                );
+            }
+            None
+        }
+        _ => Some(format!("`{target_basis}` is not an evaluable basis.")),
+    }
+}
+
 fn combination_delete_display(combination: &Value) -> Option<String> {
     let id = combination.get("id").and_then(Value::as_str)?.trim();
     let label = combination
@@ -5279,13 +5655,24 @@ fn load_case_combination_references(model: &Value, load_case_ref: &str) -> Vec<S
             .get("id")
             .and_then(Value::as_str)
             .unwrap_or("combination:unknown");
-        let Some(terms) = combination.get("terms").and_then(Value::as_array) else {
-            continue;
-        };
-        for (index, term) in terms.iter().enumerate() {
-            let term_load_case = term.get("load_case").and_then(Value::as_str);
-            if term_load_case == Some(load_case_ref) {
-                references.push(format!("{combination_id}.terms.{index}"));
+        if let Some(terms) = combination.get("terms").and_then(Value::as_array) {
+            for (index, term) in terms.iter().enumerate() {
+                let term_load_case = term.get("load_case").and_then(Value::as_str);
+                if term_load_case == Some(load_case_ref) {
+                    references.push(format!("{combination_id}.terms.{index}"));
+                }
+            }
+        }
+        for field in ["minuend_id", "subtrahend_id"] {
+            if combination.get(field).and_then(Value::as_str) == Some(load_case_ref) {
+                references.push(format!("{combination_id}.{field}"));
+            }
+        }
+        if let Some(operand_ids) = combination.get("operand_ids").and_then(Value::as_array) {
+            for (index, operand) in operand_ids.iter().enumerate() {
+                if operand.as_str() == Some(load_case_ref) {
+                    references.push(format!("{combination_id}.operand_ids.{index}"));
+                }
             }
         }
     }
@@ -7290,20 +7677,25 @@ mod tests {
     }
 
     #[test]
-    fn combination_basis_applies_without_term_or_provenance_mutation() {
-        let model = sample_model();
+    fn combination_basis_edits_validate_the_closed_set_and_payload_shape() {
+        // Legacy repair path: a free-text basis recorded before the closed
+        // set existed can be set back to `mechanics` because the stored
+        // payload already carries the mechanics shape.
+        let mut model = sample_model();
+        model["combinations"][0]["basis"] = json!("mechanics_user_review");
+        model["combinations"][0]["terms"] = json!([{ "load_case": "load:L-1", "factor": 1.0 }]);
         let before_snapshot = model.clone();
-        let intent = modify_intent(
+        let repair = modify_intent(
             "Combination",
             "combination:C-OP",
             "update_load",
             "basis",
-            "mechanics",
             "mechanics_user_review",
+            "mechanics",
             "none",
             "dimensionless",
         );
-        let outcome = apply_operation(&model, &intent, None);
+        let outcome = apply_operation(&model, &repair, None);
         assert_eq!(
             model, before_snapshot,
             "apply must not mutate the input model in place"
@@ -7318,10 +7710,7 @@ mod tests {
             "applied_to_session_model"
         );
         let applied = outcome.applied_model.expect("applied model");
-        assert_eq!(
-            applied["combinations"][0]["basis"],
-            json!("mechanics_user_review")
-        );
+        assert_eq!(applied["combinations"][0]["basis"], json!("mechanics"));
         assert_eq!(
             applied["combinations"][0]["terms"],
             before_snapshot["combinations"][0]["terms"]
@@ -7331,12 +7720,45 @@ mod tests {
             before_snapshot["combinations"][0]["provenance"]
         );
 
+        // Free-text basis tokens are no longer accepted (behavior change
+        // recorded by TP-APP-R2-COMBEXPR-001): the closed set is
+        // mechanics / result_state_subtraction / range_envelope.
+        let free_text = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "update_load",
+            "basis",
+            "mechanics_user_review",
+            "owner_design_basis",
+            "none",
+            "dimensionless",
+        );
+        let blocked = apply_operation(&model, &free_text, None);
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-BASIS-UNSUPPORTED"));
+        assert!(blocked.applied_model.is_none());
+
+        // Cross-shape basis edits are re-authoring, not field edits: the
+        // stored mechanics payload has no minuend/subtrahend references.
+        let cross_shape = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "update_load",
+            "basis",
+            "mechanics_user_review",
+            "result_state_subtraction",
+            "none",
+            "dimensionless",
+        );
+        let blocked = apply_operation(&model, &cross_shape, None);
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-BASIS-SHAPE-MISMATCH"));
+        assert!(blocked.applied_model.is_none());
+
         let empty = modify_intent(
             "Combination",
             "combination:C-OP",
             "update_load",
             "basis",
-            "mechanics",
+            "mechanics_user_review",
             " ",
             "none",
             "dimensionless",
@@ -7565,6 +7987,287 @@ mod tests {
         let blocked = apply_operation(&model, &missing_term, None);
         assert!(codes(&blocked).contains(&"OP-COMBINATION-TERM-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    fn sample_model_with_second_load_case() -> Value {
+        let mut model = sample_model();
+        model["load_cases"].as_array_mut().unwrap().push(json!({
+            "id": "load:L-2",
+            "label": "Alternate",
+            "kind": "primitive_user_load",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "primitive_loads": []
+        }));
+        model
+    }
+
+    fn create_combination_intent(target_ref: &str, payload: &Value) -> Value {
+        let mut intent = modify_intent(
+            "Combination",
+            target_ref,
+            "create_combination",
+            "combinations",
+            "not_present",
+            &serde_json::to_string(payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("create");
+        intent
+    }
+
+    #[test]
+    fn explicit_create_subtraction_combination_creates_minuend_subtrahend_record() {
+        let model = sample_model_with_second_load_case();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "combination:C-DIFF",
+            "label": "User subtraction combination",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-1",
+            "subtrahend_id": "load:L-2",
+            "provenance": "user_entered_local_preview"
+        });
+
+        let outcome = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-DIFF", &payload),
+            None,
+        );
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["combinations"][1],
+            json!({
+                "id": "combination:C-DIFF",
+                "label": "User subtraction combination",
+                "basis": "result_state_subtraction",
+                "minuend_id": "load:L-1",
+                "subtrahend_id": "load:L-2",
+                "terms": [],
+                "provenance": "user_entered_local_preview"
+            })
+        );
+
+        let mut wrong_shape = payload.clone();
+        wrong_shape["id"] = json!("combination:C-DIFF-TERMS");
+        wrong_shape["terms"] = json!([{ "load_case": "load:L-1", "factor": 1.0 }]);
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-DIFF-TERMS", &wrong_shape),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-CREATE-COMBINATION-PAYLOAD-INVALID"));
+        assert!(blocked.applied_model.is_none());
+
+        let mut self_reference = payload.clone();
+        self_reference["id"] = json!("combination:C-DIFF-SELF");
+        self_reference["subtrahend_id"] = json!("load:L-1");
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-DIFF-SELF", &self_reference),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-OPERAND-DUPLICATE"));
+        assert!(blocked.applied_model.is_none());
+
+        let mut missing_ref = payload.clone();
+        missing_ref["id"] = json!("combination:C-DIFF-MISSING");
+        missing_ref["subtrahend_id"] = json!("load:missing");
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-DIFF-MISSING", &missing_ref),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-OPERAND-LOAD-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_range_envelope_combination_creates_operand_mode_record() {
+        let model = sample_model_with_second_load_case();
+        let payload = json!({
+            "id": "combination:C-ENV",
+            "label": "User range envelope combination",
+            "basis": "range_envelope",
+            "operand_ids": ["load:L-1", "load:L-2"],
+            "mode": "max_abs",
+            "provenance": "user_entered_local_preview"
+        });
+
+        let outcome = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-ENV", &payload),
+            None,
+        );
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["combinations"][1],
+            json!({
+                "id": "combination:C-ENV",
+                "label": "User range envelope combination",
+                "basis": "range_envelope",
+                "operand_ids": ["load:L-1", "load:L-2"],
+                "mode": "max_abs",
+                "terms": [],
+                "provenance": "user_entered_local_preview"
+            })
+        );
+
+        let mut unknown_mode = payload.clone();
+        unknown_mode["id"] = json!("combination:C-ENV-MODE");
+        unknown_mode["mode"] = json!("largest");
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-ENV-MODE", &unknown_mode),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-RANGE-MODE-UNKNOWN"));
+        assert!(blocked.applied_model.is_none());
+
+        let mut duplicate_operand = payload.clone();
+        duplicate_operand["id"] = json!("combination:C-ENV-DUP");
+        duplicate_operand["operand_ids"] = json!(["load:L-1", "load:L-1"]);
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-ENV-DUP", &duplicate_operand),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-OPERAND-DUPLICATE"));
+        assert!(blocked.applied_model.is_none());
+
+        let mut wrong_shape = payload.clone();
+        wrong_shape["id"] = json!("combination:C-ENV-SHAPE");
+        wrong_shape["minuend_id"] = json!("load:L-1");
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-ENV-SHAPE", &wrong_shape),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-CREATE-COMBINATION-PAYLOAD-INVALID"));
+        assert!(blocked.applied_model.is_none());
+
+        let mut empty_operands = payload.clone();
+        empty_operands["id"] = json!("combination:C-ENV-EMPTY");
+        empty_operands["operand_ids"] = json!([]);
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-ENV-EMPTY", &empty_operands),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-CREATE-COMBINATION-PAYLOAD-INVALID"));
+        assert!(blocked.applied_model.is_none());
+
+        let mut unknown_basis = payload.clone();
+        unknown_basis["id"] = json!("combination:C-ENV-BASIS");
+        unknown_basis["basis"] = json!("user_rule_pack");
+        let blocked = apply_operation(
+            &model,
+            &create_combination_intent("combination:C-ENV-BASIS", &unknown_basis),
+            None,
+        );
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-BASIS-UNSUPPORTED"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn combination_term_creation_requires_a_mechanics_basis_target() {
+        let mut model = sample_model_with_second_load_case();
+        model["combinations"] = json!([{
+            "id": "combination:C-DIFF",
+            "label": "User subtraction combination",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-1",
+            "subtrahend_id": "load:L-2",
+            "terms": [],
+            "provenance": "user_entered_local_preview"
+        }]);
+        let mut intent = modify_intent(
+            "Combination",
+            "combination:C-DIFF",
+            "create_combination_term",
+            "terms",
+            "not_present",
+            "{\"load_case\":\"load:L-1\",\"factor\":1.0}",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let blocked = apply_operation(&model, &intent, None);
+
+        assert!(codes(&blocked).contains(&"OP-COMBINATION-TERM-BASIS-UNSUPPORTED"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn load_case_delete_stays_blocked_for_subtraction_and_range_references() {
+        let mut model = sample_model_with_second_load_case();
+        model["combinations"] = json!([
+            {
+                "id": "combination:C-DIFF",
+                "label": "User subtraction combination",
+                "basis": "result_state_subtraction",
+                "minuend_id": "load:L-1",
+                "subtrahend_id": "load:L-2",
+                "terms": [],
+                "provenance": "user_entered_local_preview"
+            },
+            {
+                "id": "combination:C-ENV",
+                "label": "User range envelope combination",
+                "basis": "range_envelope",
+                "operand_ids": ["load:L-2"],
+                "mode": "max",
+                "terms": [],
+                "provenance": "user_entered_local_preview"
+            }
+        ]);
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-2",
+            "delete_load_case",
+            "load_cases",
+            "load:L-2; Alternate; primitive_user_load; preview_only; primitives=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let blocked = apply_operation(&model, &intent, None);
+
+        assert!(codes(&blocked).contains(&"OP-LOAD-CASE-DELETE-REFERENCED"));
+        assert!(blocked.applied_model.is_none());
+        assert!(blocked.diagnostics.iter().any(|item| {
+            item.code == "OP-LOAD-CASE-DELETE-REFERENCED"
+                && item.message.contains("combination:C-DIFF.subtrahend_id")
+                && item.message.contains("combination:C-ENV.operand_ids.0")
+        }));
     }
 
     #[test]

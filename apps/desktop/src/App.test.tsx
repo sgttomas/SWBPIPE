@@ -2445,7 +2445,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
-  it("queues and applies an existing combination basis through the manager panel", async () => {
+  it("queues a closed-set combination basis edit and surfaces the honest engine block for cross-shape changes", async () => {
+    // Behavior change (TP-APP-R2-COMBEXPR-001): basis edits validate the
+    // closed set {mechanics, result_state_subtraction, range_envelope} and
+    // block cross-shape changes instead of accepting free text.
     render(<App />);
 
     const manager = await screen.findByTestId("load-case-manager");
@@ -2462,15 +2465,21 @@ describe("OpenPipeStress desktop preview", () => {
       "current=mechanics"
     );
     expect(queueButton).toBeDisabled();
+    const basisSelect = within(manager).getByTestId("load-manager-combination-basis-value") as HTMLSelectElement;
+    expect(Array.from(basisSelect.options, (option) => option.value)).toEqual([
+      "mechanics",
+      "result_state_subtraction",
+      "range_envelope"
+    ]);
 
-    fireEvent.change(within(manager).getByTestId("load-manager-combination-basis-value"), {
-      target: { value: "mechanics_user_review" }
+    fireEvent.change(basisSelect, {
+      target: { value: "result_state_subtraction" }
     });
     expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
       "op:load-manager-combination:C-OPER-ALT-basis"
     );
     expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
-      "before=mechanics; after=mechanics_user_review"
+      "before=mechanics; after=result_state_subtraction"
     );
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
@@ -2480,17 +2489,18 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
     await waitFor(() =>
       expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
-        "Applied op:load-manager-combination:C-OPER-ALT-basis"
+        "Operation op:load-manager-combination:C-OPER-ALT-basis was not applied (blocked)"
       )
     );
 
+    expect(
+      within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-COMBINATION-BASIS-SHAPE-MISMATCH").textContent
+    ).toContain("blocking");
     expect(within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT").textContent).toContain(
-      "basis=mechanics_user_review"
+      "basis=mechanics"
     );
-    expect(screen.getByLabelText("Property inspector").textContent).toContain("Basismechanics_user_review");
-    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
-    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
-    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=0");
   });
 
   it("queues and applies an explicit combination term through the manager panel", async () => {
@@ -2597,6 +2607,127 @@ describe("OpenPipeStress desktop preview", () => {
       "persistence=session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
+  it("queues and applies an explicit subtraction combination creation through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-basis"), {
+      target: { value: "result_state_subtraction" }
+    });
+    expect(within(manager).getByTestId("load-manager-create-combination-minuend")).toHaveValue("load:L-100");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-subtrahend"), {
+      target: { value: "load:L-200" }
+    });
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-label"), {
+      target: { value: "User operating-minus-alternate subtraction" }
+    });
+    expect(within(manager).getByTestId("load-manager-create-combination-heading").textContent).toContain(
+      "basis=result_state_subtraction; minuend=load:L-100; subtrahend=load:L-200"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "op:load-manager-create-combination:C-300"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-create-combination-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "\"basis\":\"result_state_subtraction\""
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "\"minuend_id\":\"load:L-100\""
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-create-combination:C-300"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 7 primitive loads; 2 combinations"
+    );
+    const newCombination = within(manager).getByTestId("load-manager-combination-combination:C-300");
+    expect(newCombination.textContent).toContain("basis=result_state_subtraction");
+    expect(newCombination.textContent).toContain("minuend=load:L-100; subtrahend=load:L-200");
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
+  it("blocks the subtraction combination draft until the operands are distinct existing load cases", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-basis"), {
+      target: { value: "result_state_subtraction" }
+    });
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-subtrahend"), {
+      target: { value: "load:L-100" }
+    });
+
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeDisabled();
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "select distinct minuend/subtrahend load cases"
+    );
+  });
+
+  it("queues and applies an explicit range envelope combination creation through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-basis"), {
+      target: { value: "range_envelope" }
+    });
+    const operandSelect = within(manager).getByTestId(
+      "load-manager-create-combination-operands"
+    ) as HTMLSelectElement;
+    for (const option of Array.from(operandSelect.options)) {
+      option.selected = true;
+    }
+    fireEvent.change(operandSelect);
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-mode"), {
+      target: { value: "min_abs" }
+    });
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-label"), {
+      target: { value: "User envelope over both cases" }
+    });
+    expect(within(manager).getByTestId("load-manager-create-combination-heading").textContent).toContain(
+      "basis=range_envelope; mode=min_abs; operands=load:L-100, load:L-200"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "before=not_present; after=combination:C-300; mode=min_abs; operands=load:L-100, load:L-200; unit=none; dimensionless"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-create-combination-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "\"basis\":\"range_envelope\""
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "\"mode\":\"min_abs\""
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-create-combination:C-300"
+      )
+    );
+
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 7 primitive loads; 2 combinations"
+    );
+    const newCombination = within(manager).getByTestId("load-manager-combination-combination:C-300");
+    expect(newCombination.textContent).toContain("basis=range_envelope");
+    expect(newCombination.textContent).toContain("mode=min_abs; operands=load:L-100, load:L-200");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });

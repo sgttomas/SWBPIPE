@@ -340,3 +340,66 @@ Durable context preserved after PKG-02 grounded finding resolution:
   combination/default, rule-pack evaluator behavior, release claim,
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, or private data changed.
+
+## 2026-06-12 - TP-APP-R2-COMBEXPR-001 subtraction/range expression authoring
+
+- TASK app-integration tranche (completion-plan A4 residual) landed
+  authoring, seam validation, and solve evaluation for
+  `result_state_subtraction` and `range_envelope` load combinations. The
+  combination basis is now a closed set mirroring the
+  `core/loads/load_case_algebra` vocabulary (`mechanics`,
+  `result_state_subtraction` with `minuend_id`/`subtrahend_id`,
+  `range_envelope` with `operand_ids` + `mode` in
+  `min`/`max`/`min_abs`/`max_abs`). New record fields are strictly additive
+  and optional; the model-document schema version stays 0.1.0 and the
+  regenerated mechanics preview fixture is byte-identical.
+- `core/loads/load_case_algebra` gained only additive `RangeMode`
+  token helpers (`token`/`parse_token`); no existing operation semantics
+  changed. `core/product_physics` evaluates the two new bases over solved
+  result rows by reusing `evaluate_result_state_subtraction` and
+  `evaluate_range_envelope`, with per-basis pre-solve structural validation
+  (new named blocking codes `LOAD_COMBINATION_SHAPE_INVALID`,
+  `LOAD_COMBINATION_RANGE_MODE_UNKNOWN`,
+  `LOAD_COMBINATION_OPERANDS_EMPTY`) and per-basis result-metadata basis
+  values added additively to `schemas/results.schema.yaml`.
+- `core/model_operations/operation_applier` (sole engine, native + wasm per
+  DEC-020) validates per-basis create payload shapes with named blocking
+  diagnostics and now validates `Combination.basis` updates against the
+  same closed set. Behavior change recorded: basis edits were free text
+  since TP-APP-R2-COMBBASIS-001; unsupported tokens now block
+  (`OP-COMBINATION-BASIS-UNSUPPORTED`) and cross-shape changes block
+  (`OP-COMBINATION-BASIS-SHAPE-MISMATCH`); the first Playwright test's
+  `mechanics_user_review` fill was replaced by a closed-set selection.
+  Load-case deletion counts subtraction/range operand references.
+- Desktop Load Cases manager create form gained the closed-set basis
+  selector with conditional per-basis fields; the basis editor became a
+  closed-set selector; combination rows display per-basis expressions.
+  Existing intent/preview/queue/apply pattern and testids unchanged.
+- Contract corpus cases 58–65 added and blessed via the documented
+  workflow; README inventory extended with an explicit note that cases 58+
+  were added by TP-APP-R2-COMBEXPR-001 and are pending human review — they
+  do not ride the DEC-030 acceptance of the original 57 cases.
+  `schemas/model.schema.yaml` Combination gained the two basis tokens,
+  optional `minuend_ref`/`subtrahend_ref`/`operand_refs`/`mode`, and
+  per-basis conditional requires per the existing if/then convention.
+- Evidence is recorded in `_run_records/TASK_RUN_2026-06-12_1138.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-143. Validation passed: operation-applier
+  cargo tests 61/61, product_physics cargo tests 31/31, load_case_algebra
+  cargo tests 18/18, desktop Vitest 239/239, desktop build, Playwright e2e
+  2/2 (authors a subtraction combination through visible controls with the
+  wasm engine applying in real Chromium), src-tauri cargo tests 32/32
+  (untouched), repo Python suite 358/358, `cargo fmt --check` clean on the
+  three touched crates.
+- Residuals: corpus cases 58–65 pending human review; browser-mode solve of
+  edited models still requires the backend
+  (`BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`), so new-basis e2e
+  evidence stops at authoring/apply; cross-shape basis conversion is
+  intentionally delete-and-recreate. One write-boundary note for human
+  ruling: the per-basis solve validation required editing
+  `core/product_physics/src/validation.rs`, which the tranche whitelist did
+  not list explicitly (it listed `core/product_physics/src/lib.rs`); the
+  deviation is disclosed in the run record.
+- No lifecycle state, dependency/review disposition, code-specific
+  combination/default, rule-pack evaluator behavior, release claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, or private data changed.

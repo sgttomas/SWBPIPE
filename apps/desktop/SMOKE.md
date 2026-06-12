@@ -4335,3 +4335,115 @@ notes:
   certification, sealing, authentication, or code-compliance claim. The
   overlay remains a review-only display aid with its non-physical display
   scale explicitly disclosed.
+
+## TP-MAC-143 subtraction/range combination expression authoring (`TP-APP-R2-COMBEXPR-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-COMBEXPR-001` (completion-plan A4 residual): users can
+  now author result-state-subtraction and range-envelope load combinations
+  in the Load Cases manager, validated through the structured operation
+  seam and evaluated deterministically at solve. The combination basis is a
+  closed set mirroring `core/loads/load_case_algebra` vocabulary:
+  `mechanics` (linear terms, unchanged), `result_state_subtraction`
+  (`minuend_id` − `subtrahend_id`), `range_envelope` (`mode` over
+  `operand_ids`, modes `min`/`max`/`min_abs`/`max_abs`). New record fields
+  are strictly additive and optional; existing documents and fixtures stay
+  byte-valid (the regenerated mechanics preview fixture is byte-identical),
+  and the model-document schema version stays 0.1.0.
+- Seam behavior (`core/model_operations/operation_applier`, native + wasm —
+  sole engine per DEC-020): `create_combination` accepts the closed basis
+  set with per-basis payload-shape validation and named blocking
+  diagnostics — `OP-COMBINATION-BASIS-UNSUPPORTED` (token outside the
+  closed set), `OP-CREATE-COMBINATION-PAYLOAD-INVALID` (wrong per-basis
+  payload shape, including cross-basis stray fields and missing/empty
+  operand lists), `OP-COMBINATION-RANGE-MODE-UNKNOWN`,
+  `OP-COMBINATION-OPERAND-DUPLICATE` (duplicates and self-subtraction),
+  `OP-COMBINATION-OPERAND-LOAD-NOT-FOUND`. `create_combination_term` on a
+  non-mechanics combination blocks with
+  `OP-COMBINATION-TERM-BASIS-UNSUPPORTED`. Load-case deletion now also
+  counts `minuend_id`/`subtrahend_id`/`operand_ids` references in
+  `OP-LOAD-CASE-DELETE-REFERENCED`.
+- Behavior change (basis-edit validation): `Combination.basis` updates were
+  free text since `TP-APP-R2-COMBBASIS-001`; they now validate the same
+  closed set (`OP-COMBINATION-BASIS-UNSUPPORTED`) and block cross-shape
+  changes whose stored payload does not already carry the target basis
+  fields (`OP-COMBINATION-BASIS-SHAPE-MISMATCH`) — changing the expression
+  shape is delete + recreate, never a half-evaluable record. Legacy
+  free-text basis values remain repairable to a shape-matching closed-set
+  token. The first Playwright test previously filled
+  `mechanics_user_review` and asserted the proposed preview; it now selects
+  `result_state_subtraction` from the closed-set selector, and corpus cases
+  64/65 pin both blocked edit outcomes cross-engine.
+- Solve behavior (`core/product_physics`): per-basis structural validation
+  blocks pre-solve with named diagnostics
+  (`LOAD_COMBINATION_BASIS_UNSUPPORTED` message now names the closed set;
+  new `LOAD_COMBINATION_SHAPE_INVALID`,
+  `LOAD_COMBINATION_RANGE_MODE_UNKNOWN`,
+  `LOAD_COMBINATION_OPERANDS_EMPTY`; duplicates/self-subtraction reuse
+  `LOAD_COMBINATION_DUPLICATE_TERM`; unknown refs reuse
+  `LOAD_COMBINATION_LOAD_CASE_UNKNOWN`). Evaluation reuses
+  `core/loads/load_case_algebra` (`evaluate_result_state_subtraction`,
+  `evaluate_range_envelope`): subtraction = minuend − subtrahend; range =
+  mode-selected value across operands with the crate's sorted-operand
+  tie-break. Combination rows carry result-metadata basis
+  `explicit_user_result_state_subtraction` /
+  `explicit_user_range_envelope` (added additively to
+  `schemas/results.schema.yaml`), per-basis sign-convention text, and
+  deterministic `source_result_refs`. Missing/unsolvable source rows keep
+  the existing named-diagnostic-plus-withheld-row pattern
+  (`LOAD_COMBINATION_SOURCE_RESULT_MISSING` et al.) — structural problems
+  block the solve; evaluation-time gaps name the row and emit no value;
+  silent zeros/skips do not exist. The mechanics path is unchanged
+  (regenerated fixture byte-identical).
+- UI (`LoadCaseManagerPanel`): the create-combination form gains a
+  closed-set basis selector with conditional fields per basis (mechanics:
+  existing load/factor flow unchanged; subtraction: minuend + subtrahend
+  selectors; range: operand multi-select + mode selector), per-basis
+  intent payloads, preview text, and readiness validation (distinct
+  subtraction operands; unique existing range operands). The selected-
+  combination basis editor is now a closed-set selector that still renders
+  a legacy stored value honestly. Combination rows display the per-basis
+  expression. Intent/preview/queue/apply pattern, ids, and testids are
+  unchanged.
+- Contract corpus: cases 58–65 added (accepted subtraction create; accepted
+  range create pinning `max_abs` as one representative mode — not all four;
+  blocked wrong-shape per new basis; blocked unknown mode; blocked missing
+  operand ref; blocked free-text basis edit; blocked cross-shape basis
+  edit), blessed via `CORPUS_BLESS=1 cargo test --test contract_corpus` and
+  re-run through both engines. The README inventory notes cases 58+ are
+  pending human review and do not ride the DEC-030 acceptance.
+  `schemas/model.schema.yaml` Combination adds the two basis tokens,
+  optional `minuend_ref`/`subtrahend_ref`/`operand_refs`/`mode` fields, and
+  per-basis conditional requires using the schema's existing if/then
+  convention; every previously valid document remains valid.
+- Automated evidence: operation_applier cargo tests passed 61/61
+  (58 lib + 1 canonical-hash parity + 2 corpus runners over 65 cases);
+  product_physics cargo tests passed 31/31 (new: signed subtraction
+  determinism, all four range modes, named blocking diagnostics);
+  load_case_algebra cargo tests passed 18/18 (new: mode-token round-trip);
+  desktop Vitest passed 239/239 (new: subtraction and range create
+  draft→preview→queue→apply through the wasm engine, draft validation
+  surfacing, honest blocked basis-edit surfacing; corpus runner covers all
+  65 cases in both wasm lanes); Tauri Rust tests passed 32/32 (untouched);
+  desktop production build passed with the pre-existing chunk-size
+  warning; repo Python suite passed 358/358 (schema changes validated);
+  `cargo fmt --check` clean on the three touched crates.
+- H4 evidence posture: user-visible UI change ⇒ Playwright e2e extended as
+  default evidence — the first test authors a `result_state_subtraction`
+  combination through the visible create-form controls in real Chromium
+  and applies it through the wasm engine (route=local_wasm_engine
+  receipt), and exercises the closed-set basis editor proposal; e2e passed
+  2/2 after the wasm engine build. New React surface stays within the
+  existing panel, covered by Vitest at the slice's existing pattern.
+- Residuals: solve evaluation of the new bases is exercised natively
+  (product_physics tests); browser-mode solve of an edited model still
+  reports `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, so the e2e
+  evidence for new bases stops at authoring/apply (pre-existing limit, not
+  a new gap). Cross-shape basis conversion is intentionally
+  delete-and-recreate. Corpus cases 58–65 await human review.
+- Boundary review: invented values only; basis names stay code-neutral
+  mechanics vocabulary with no code-specific load-combination defaults; no
+  protected standards content or private project data; no network, cloud,
+  or telemetry surface; no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim. Combination results remain review-only preview mechanics
+  quantities requiring human engineering review.

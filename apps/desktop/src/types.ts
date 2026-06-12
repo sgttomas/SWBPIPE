@@ -58,8 +58,14 @@ export type PreviewModel = {
   combinations?: Array<{
     id: string;
     label: string;
+    /** Closed basis set mirroring core/loads/load_case_algebra vocabulary:
+     * "mechanics" | "result_state_subtraction" | "range_envelope". */
     basis: string;
     terms: Array<{ load_case: string; factor: number }>;
+    minuend_id?: string;
+    subtrahend_id?: string;
+    operand_ids?: string[];
+    mode?: string;
     provenance: string;
   }>;
   diagnostics: Diagnostic[];

@@ -13,6 +13,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A4 sub-slice landed: subtraction/range combination authoring (`TP-APP-R2-COMBEXPR-001`)
+
+Closed combination basis set landed end-to-end mirroring the
+`core/loads/load_case_algebra` contract vocabulary: `mechanics` (unchanged),
+`result_state_subtraction` (`minuend_id`/`subtrahend_id`), `range_envelope`
+(`operand_ids` + `mode` in `min|max|min_abs|max_abs`), carried as strictly
+additive optional model fields (schema_version held at 0.1.0; regenerable
+mechanics fixture byte-identical). Seam: per-basis create validation with
+named blocking codes (`OP-COMBINATION-BASIS-UNSUPPORTED`,
+`OP-CREATE-COMBINATION-PAYLOAD-INVALID`, `OP-COMBINATION-RANGE-MODE-UNKNOWN`,
+`OP-COMBINATION-OPERAND-DUPLICATE`, `OP-COMBINATION-OPERAND-LOAD-NOT-FOUND`,
+`OP-COMBINATION-TERM-BASIS-UNSUPPORTED`); load-case delete counts
+subtraction/range references. Solve: deterministic evaluation reusing
+`load_case_algebra` with pre-solve named blocks
+(`LOAD_COMBINATION_SHAPE_INVALID`, `_RANGE_MODE_UNKNOWN`, `_OPERANDS_EMPTY`)
+— no silent zeros or skips. UI: basis selector with conditional per-basis
+create fields; the combination basis editor moved from free text to the
+closed-set select with cross-shape edits blocked
+(`OP-COMBINATION-BASIS-SHAPE-MISMATCH`) — a recorded behavior change (the
+prior free-text edit was an implementation choice, not a DEC-recorded
+decision). Corpus cases 58–65 blessed and re-run through both engines;
+README inventory marks them pending human review (DEC-030 covers cases
+01–57 only). Disclosed write-scope deviation ratified at fan-in:
+`core/product_physics/src/validation.rs` (the pre-existing basis gate)
+required extension beyond the brief's named files. Validation: applier
+58+1+2 / 0 (65 corpus cases), product_physics 31/0, load_case_algebra 18/0,
+Vitest 239/0, e2e 2/2 (authors a subtraction combination through visible
+controls in real Chromium), pytest 358/0, build green, fmt clean.
+Open review items: corpus 58–65 human review; DEC-019 whether additive
+optional fields warrant a 0.2.0 document-version bump + no-op migration
+entry (held additive at 0.1.0).
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-143;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_run_records/TASK_RUN_2026-06-12_1138.md`.
+
 ## 2026-06-12 - A6 sub-slice landed: true directional deformed shape (`TP-APP-R2-DEFORMEDDIR-001`)
 
 `core/product_physics::solve_load_case` now emits signed per-node

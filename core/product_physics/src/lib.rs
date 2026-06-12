@@ -13,8 +13,9 @@ use open_pipe_stress_linear_supports::{
     prepare_boundary, FrameDof, LinearSupport, QuantityDimension, SupportFamily, SupportQuantity,
 };
 use open_pipe_stress_load_case_algebra::{
-    evaluate_linear_combination, AlgebraOperand, AlgebraQuantity,
-    AnalysisStatus as AlgebraAnalysisStatus, CombinationTerm, FindingCode,
+    evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction,
+    AlgebraOperand, AlgebraQuantity, AlgebraResult, AnalysisStatus as AlgebraAnalysisStatus,
+    CombinationTerm, FindingCode, RangeMode,
 };
 use open_pipe_stress_primitive_loads::{
     prepare_loads, LoadDimension, LoadDirection, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
@@ -136,9 +137,21 @@ pub struct PreviewCombination {
     #[serde(default)]
     #[allow(dead_code)]
     pub label: Option<String>,
+    /// Closed basis set: `mechanics` (linear terms),
+    /// `result_state_subtraction` (`minuend_id` − `subtrahend_id`), and
+    /// `range_envelope` (`mode` over `operand_ids`); vocabulary mirrors
+    /// `open_pipe_stress_load_case_algebra::AlgebraExpression`.
     pub basis: String,
     #[serde(default)]
     pub terms: Vec<PreviewCombinationTerm>,
+    #[serde(default)]
+    pub minuend_id: Option<String>,
+    #[serde(default)]
+    pub subtrahend_id: Option<String>,
+    #[serde(default)]
+    pub operand_ids: Option<Vec<String>>,
+    #[serde(default)]
+    pub mode: Option<String>,
     #[serde(default)]
     pub provenance: Option<String>,
 }
@@ -2123,6 +2136,135 @@ fn station_id_location(location: &str) -> &str {
     }
 }
 
+/// Per-basis combination expression over solved load-case result rows;
+/// the variants mirror `open_pipe_stress_load_case_algebra::AlgebraExpression`.
+enum CombinationExpression<'a> {
+    Mechanics {
+        terms: &'a [PreviewCombinationTerm],
+    },
+    ResultStateSubtraction {
+        minuend_id: &'a str,
+        subtrahend_id: &'a str,
+    },
+    RangeEnvelope {
+        ordered_operand_ids: Vec<String>,
+        mode: RangeMode,
+    },
+}
+
+impl<'a> CombinationExpression<'a> {
+    /// Structural shape problems are blocked pre-solve by
+    /// `validate_combinations`; an unresolvable shape here is unreachable for
+    /// solved models and is skipped exactly like the previous empty-terms
+    /// guard (the named blocking diagnostic already exists).
+    fn resolve(combination: &'a PreviewCombination) -> Option<Self> {
+        match combination.basis.as_str() {
+            "mechanics" => {
+                if combination.terms.is_empty() {
+                    return None;
+                }
+                Some(Self::Mechanics {
+                    terms: &combination.terms,
+                })
+            }
+            "result_state_subtraction" => Some(Self::ResultStateSubtraction {
+                minuend_id: combination.minuend_id.as_deref()?,
+                subtrahend_id: combination.subtrahend_id.as_deref()?,
+            }),
+            "range_envelope" => {
+                let mut ordered_operand_ids = combination.operand_ids.clone()?;
+                if ordered_operand_ids.is_empty() {
+                    return None;
+                }
+                ordered_operand_ids.sort_unstable();
+                Some(Self::RangeEnvelope {
+                    ordered_operand_ids,
+                    mode: RangeMode::parse_token(combination.mode.as_deref()?)?,
+                })
+            }
+            _ => None,
+        }
+    }
+
+    /// Operand load-case ids in the deterministic order used for source
+    /// lookup and `source_result_refs` (mechanics: authored term order;
+    /// subtraction: minuend then subtrahend; range: sorted operand ids,
+    /// matching the algebra crate's evaluation order).
+    fn operand_ids(&self) -> Vec<&str> {
+        match self {
+            Self::Mechanics { terms } => terms.iter().map(|term| term.load_case.as_str()).collect(),
+            Self::ResultStateSubtraction {
+                minuend_id,
+                subtrahend_id,
+            } => vec![minuend_id, subtrahend_id],
+            Self::RangeEnvelope {
+                ordered_operand_ids,
+                ..
+            } => ordered_operand_ids.iter().map(String::as_str).collect(),
+        }
+    }
+
+    /// The operand whose row supplies result identity (kind, unit, entity,
+    /// metadata) for the combined row.
+    fn reference_operand_id(&self) -> &str {
+        match self {
+            Self::Mechanics { terms } => terms[0].load_case.as_str(),
+            Self::ResultStateSubtraction { minuend_id, .. } => minuend_id,
+            Self::RangeEnvelope {
+                ordered_operand_ids,
+                ..
+            } => ordered_operand_ids[0].as_str(),
+        }
+    }
+
+    fn evaluate(&self, operand_by_id: &HashMap<&str, &AlgebraOperand>) -> AlgebraResult {
+        match self {
+            Self::Mechanics { terms } => {
+                let algebra_terms = terms
+                    .iter()
+                    .filter_map(|term| {
+                        CombinationTerm::new(term.load_case.clone(), term.factor).ok()
+                    })
+                    .collect::<Vec<_>>();
+                evaluate_linear_combination(operand_by_id, &algebra_terms)
+            }
+            Self::ResultStateSubtraction {
+                minuend_id,
+                subtrahend_id,
+            } => evaluate_result_state_subtraction(operand_by_id, minuend_id, subtrahend_id),
+            Self::RangeEnvelope {
+                ordered_operand_ids,
+                mode,
+            } => evaluate_range_envelope(operand_by_id, ordered_operand_ids, *mode),
+        }
+    }
+
+    fn result_metadata_basis(&self) -> &'static str {
+        match self {
+            Self::Mechanics { .. } => "explicit_user_linear_combination",
+            Self::ResultStateSubtraction { .. } => "explicit_user_result_state_subtraction",
+            Self::RangeEnvelope { .. } => "explicit_user_range_envelope",
+        }
+    }
+
+    fn result_sign_convention(&self) -> String {
+        match self {
+            Self::Mechanics { .. } => {
+                "positive value follows explicit user linear combination of matching source result sign conventions"
+                    .to_string()
+            }
+            Self::ResultStateSubtraction { .. } => {
+                "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions"
+                    .to_string()
+            }
+            Self::RangeEnvelope { mode, .. } => format!(
+                "value is the {} mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention",
+                mode.token()
+            ),
+        }
+    }
+}
+
 fn append_combination_results(
     model: &PreviewModel,
     rows_by_base_id: &HashMap<String, HashMap<String, ResultItem>>,
@@ -2133,24 +2275,24 @@ fn append_combination_results(
     base_ids.sort();
 
     for combination in &model.combinations {
+        let Some(expression) = CombinationExpression::resolve(combination) else {
+            continue;
+        };
         for base_id in &base_ids {
             let Some(source_rows) = rows_by_base_id.get(base_id) else {
                 continue;
             };
-            let Some(first_term) = combination.terms.first() else {
-                continue;
-            };
-            let Some(reference_row) = source_rows.get(&first_term.load_case) else {
+            let reference_operand_id = expression.reference_operand_id();
+            let Some(reference_row) = source_rows.get(reference_operand_id) else {
                 diagnostics.push(combination_diag(
                     combination,
                     base_id,
                     "LOAD_COMBINATION_SOURCE_RESULT_MISSING",
                     "warning",
                     format!(
-                        "combination source result {base_id} is not available for load case {}",
-                        first_term.load_case
+                        "combination source result {base_id} is not available for load case {reference_operand_id}"
                     ),
-                    vec![combination.id.clone(), first_term.load_case.clone()],
+                    vec![combination.id.clone(), reference_operand_id.to_string()],
                 ));
                 continue;
             };
@@ -2180,8 +2322,8 @@ fn append_combination_results(
             let mut operands = Vec::new();
             let mut source_result_refs = Vec::new();
             let mut source_identity_mismatch = false;
-            for term in &combination.terms {
-                let Some(source) = source_rows.get(&term.load_case) else {
+            for operand_id in expression.operand_ids() {
+                let Some(source) = source_rows.get(operand_id) else {
                     continue;
                 };
                 if !combination_source_identity_matches(reference_row, source) {
@@ -2201,8 +2343,8 @@ fn append_combination_results(
                     continue;
                 }
                 operands.push(AlgebraOperand::new(
-                    term.load_case.clone(),
-                    term.load_case.clone(),
+                    operand_id.to_string(),
+                    operand_id.to_string(),
                     AlgebraQuantity::new(source.value, dimension)
                         .expect("result values are finite preview mechanics outputs"),
                     vec![
@@ -2215,16 +2357,11 @@ fn append_combination_results(
             if source_identity_mismatch {
                 continue;
             }
-            let terms = combination
-                .terms
-                .iter()
-                .filter_map(|term| CombinationTerm::new(term.load_case.clone(), term.factor).ok())
-                .collect::<Vec<_>>();
             let operand_by_id = operands
                 .iter()
                 .map(|operand| (operand.operand_id.as_str(), operand))
                 .collect::<HashMap<_, _>>();
-            let algebra = evaluate_linear_combination(&operand_by_id, &terms);
+            let algebra = expression.evaluate(&operand_by_id);
             if algebra.is_blocked() {
                 for finding in algebra.findings {
                     diagnostics.push(combination_diag(
@@ -2250,10 +2387,8 @@ fn append_combination_results(
             });
             combined.source_result_refs = source_result_refs;
             if let Some(metadata) = combined.metadata.as_mut() {
-                metadata.basis = "explicit_user_linear_combination".to_string();
-                metadata.sign_convention =
-                    "positive value follows explicit user linear combination of matching source result sign conventions"
-                        .to_string();
+                metadata.basis = expression.result_metadata_basis().to_string();
+                metadata.sign_convention = expression.result_sign_convention();
             }
             results.push(combined);
         }
@@ -2998,7 +3133,13 @@ mod tests {
             .map(|item| item.id.as_str())
             .collect::<HashSet<_>>();
 
-        for node in ["node-N-100", "node-N-110", "node-N-120", "node-N-130", "node-N-140"] {
+        for node in [
+            "node-N-100",
+            "node-N-110",
+            "node-N-120",
+            "node-N-130",
+            "node-N-140",
+        ] {
             for tail in ["ux", "uy", "uz", "rx", "ry", "rz"] {
                 assert!(result_ids.contains(format!("result:disp:{node}:{tail}").as_str()));
                 assert!(result_ids
@@ -3056,8 +3197,7 @@ mod tests {
         // Component rows join the explicit user combination algebra exactly
         // like other supported scalar rows.
         let default_uy = result_value(&result, "result:disp:node-N-140:uy");
-        let alternate_uy =
-            result_value(&result, "result:loadcase:load-L-200:disp:node-N-140:uy");
+        let alternate_uy = result_value(&result, "result:loadcase:load-L-200:disp:node-N-140:uy");
         let combined_uy = result
             .results
             .iter()
@@ -3146,7 +3286,10 @@ mod tests {
         let tip_uy = result_value(&upward, "result:disp:node-N-110:uy");
         let tip_rz = result_value(&upward, "result:disp:node-N-110:rz");
         assert!(tip_uy > 0.0, "+Y tip force must displace the tip in +Y");
-        assert!(tip_rz > 0.0, "+Y tip force on a +X member must rotate about +Z");
+        assert!(
+            tip_rz > 0.0,
+            "+Y tip force on a +X member must rotate about +Z"
+        );
         assert_eq!(result_value(&upward, "result:disp:node-N-110:ux"), 0.0);
         assert_eq!(result_value(&upward, "result:disp:node-N-110:uz"), 0.0);
         assert_eq!(result_value(&upward, "result:disp:node-N-110:rx"), 0.0);
@@ -3155,8 +3298,14 @@ mod tests {
 
         let downward = solve(-350.0);
         assert_eq!(downward.status.mechanics, "MECHANICS_SOLVED");
-        assert_eq!(result_value(&downward, "result:disp:node-N-110:uy"), -tip_uy);
-        assert_eq!(result_value(&downward, "result:disp:node-N-110:rz"), -tip_rz);
+        assert_eq!(
+            result_value(&downward, "result:disp:node-N-110:uy"),
+            -tip_uy
+        );
+        assert_eq!(
+            result_value(&downward, "result:disp:node-N-110:rz"),
+            -tip_rz
+        );
         assert_eq!(
             result_value(&downward, "result:disp:node-N-110"),
             result_value(&upward, "result:disp:node-N-110"),
@@ -3664,7 +3813,6 @@ mod tests {
     #[test]
     fn invalid_combination_records_block_with_diagnostics() {
         let mut request = request();
-        request.model.combinations[0].basis = "owner_design_basis".to_string();
         request.model.combinations[0]
             .terms
             .push(PreviewCombinationTerm {
@@ -3676,6 +3824,21 @@ mod tests {
             label: None,
             basis: "mechanics".to_string(),
             terms: Vec::new(),
+            minuend_id: None,
+            subtrahend_id: None,
+            operand_ids: None,
+            mode: None,
+            provenance: Some("invented_example_user_defined_combination".to_string()),
+        });
+        request.model.combinations.push(PreviewCombination {
+            id: "combination:C-OWNER".to_string(),
+            label: None,
+            basis: "owner_design_basis".to_string(),
+            terms: Vec::new(),
+            minuend_id: None,
+            subtrahend_id: None,
+            operand_ids: None,
+            mode: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
         });
 
@@ -3692,6 +3855,238 @@ mod tests {
         assert!(codes.contains("LOAD_COMBINATION_FACTOR_INVALID"));
         assert!(codes.contains("LOAD_COMBINATION_TERMS_EMPTY"));
         assert!(codes.contains("EMPTY_ID"));
+        assert!(result.results.is_empty());
+    }
+
+    fn subtraction_combination(id: &str, minuend: &str, subtrahend: &str) -> PreviewCombination {
+        PreviewCombination {
+            id: id.to_string(),
+            label: Some("Invented subtraction preview".to_string()),
+            basis: "result_state_subtraction".to_string(),
+            terms: Vec::new(),
+            minuend_id: Some(minuend.to_string()),
+            subtrahend_id: Some(subtrahend.to_string()),
+            operand_ids: None,
+            mode: None,
+            provenance: Some(
+                "invented_example_user_defined_subtraction_no_code_default".to_string(),
+            ),
+        }
+    }
+
+    fn range_combination(id: &str, operand_ids: &[&str], mode: &str) -> PreviewCombination {
+        PreviewCombination {
+            id: id.to_string(),
+            label: Some("Invented range envelope preview".to_string()),
+            basis: "range_envelope".to_string(),
+            terms: Vec::new(),
+            minuend_id: None,
+            subtrahend_id: None,
+            operand_ids: Some(operand_ids.iter().map(|id| id.to_string()).collect()),
+            mode: Some(mode.to_string()),
+            provenance: Some(
+                "invented_example_user_defined_range_envelope_no_code_default".to_string(),
+            ),
+        }
+    }
+
+    #[test]
+    fn subtraction_combination_subtracts_solved_rows_with_signed_determinism() {
+        let mut request = request();
+        request.model.combinations = vec![
+            subtraction_combination("combination:C-SUB", "load:L-100", "load:L-200"),
+            subtraction_combination("combination:C-SUB-REV", "load:L-200", "load:L-100"),
+        ];
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let base = result_value(&result, "result:disp:node-N-130:uz");
+        let alternate = result_value(&result, "result:loadcase:load-L-200:disp:node-N-130:uz");
+        assert_ne!(
+            base, alternate,
+            "fixture load cases must differ at node N-130 uz"
+        );
+        let combination = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:combination:combination-C-SUB:disp:node-N-130:uz")
+            .expect("subtraction combination row should be emitted");
+        assert_eq!(combination.value, round6(base - alternate));
+        assert_eq!(
+            combination
+                .basis_ref
+                .as_ref()
+                .map(|basis| basis.ref_id.as_str()),
+            Some("combination:C-SUB")
+        );
+        assert_eq!(
+            combination.source_result_refs,
+            vec![
+                "result:disp:node-N-130:uz".to_string(),
+                "result:loadcase:load-L-200:disp:node-N-130:uz".to_string(),
+            ]
+        );
+        assert_eq!(
+            combination
+                .metadata
+                .as_ref()
+                .map(|metadata| metadata.basis.as_str()),
+            Some("explicit_user_result_state_subtraction")
+        );
+        let reversed = result_value(
+            &result,
+            "result:combination:combination-C-SUB-REV:disp:node-N-130:uz",
+        );
+        assert_eq!(reversed, round6(alternate - base));
+        assert_eq!(combination.value, -reversed);
+    }
+
+    #[test]
+    fn range_envelope_combination_selects_each_shipped_mode_deterministically() {
+        let mut request = request();
+        request.model.combinations = vec![
+            range_combination("combination:C-MIN", &["load:L-100", "load:L-200"], "min"),
+            range_combination("combination:C-MAX", &["load:L-100", "load:L-200"], "max"),
+            range_combination(
+                "combination:C-MINABS",
+                &["load:L-100", "load:L-200"],
+                "min_abs",
+            ),
+            range_combination(
+                "combination:C-MAXABS",
+                &["load:L-100", "load:L-200"],
+                "max_abs",
+            ),
+        ];
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        let base = result_value(&result, "result:disp:node-N-130:uz");
+        let alternate = result_value(&result, "result:loadcase:load-L-200:disp:node-N-130:uz");
+        assert_ne!(
+            base.abs(),
+            alternate.abs(),
+            "fixture load cases must produce distinct-magnitude rows for mode coverage"
+        );
+        let row_tail = "disp:node-N-130:uz";
+        assert_eq!(
+            result_value(
+                &result,
+                &format!("result:combination:combination-C-MIN:{row_tail}")
+            ),
+            if base <= alternate { base } else { alternate }
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                &format!("result:combination:combination-C-MAX:{row_tail}")
+            ),
+            if base >= alternate { base } else { alternate }
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                &format!("result:combination:combination-C-MINABS:{row_tail}")
+            ),
+            if base.abs() <= alternate.abs() {
+                base
+            } else {
+                alternate
+            }
+        );
+        let max_abs = result
+            .results
+            .iter()
+            .find(|item| item.id == format!("result:combination:combination-C-MAXABS:{row_tail}"))
+            .expect("max_abs combination row should be emitted");
+        assert_eq!(
+            max_abs.value,
+            if base.abs() >= alternate.abs() {
+                base
+            } else {
+                alternate
+            }
+        );
+        assert_eq!(
+            max_abs.source_result_refs,
+            vec![
+                "result:disp:node-N-130:uz".to_string(),
+                "result:loadcase:load-L-200:disp:node-N-130:uz".to_string(),
+            ]
+        );
+        assert_eq!(
+            max_abs
+                .metadata
+                .as_ref()
+                .map(|metadata| metadata.basis.as_str()),
+            Some("explicit_user_range_envelope")
+        );
+        assert!(max_abs
+            .metadata
+            .as_ref()
+            .is_some_and(|metadata| metadata.sign_convention.contains("max_abs")));
+    }
+
+    #[test]
+    fn invalid_subtraction_and_range_records_block_with_named_diagnostics() {
+        let mut request = request();
+        let mut mechanics_with_mode = request.model.combinations[0].clone();
+        mechanics_with_mode.id = "combination:C-SHAPE".to_string();
+        mechanics_with_mode.mode = Some("max".to_string());
+        let mut subtraction_with_terms =
+            subtraction_combination("combination:C-SUB-TERMS", "load:L-100", "load:L-200");
+        subtraction_with_terms.terms = vec![PreviewCombinationTerm {
+            load_case: "load:L-100".to_string(),
+            factor: 1.0,
+        }];
+        request.model.combinations = vec![
+            mechanics_with_mode,
+            subtraction_with_terms,
+            subtraction_combination("combination:C-SUB-SELF", "load:L-100", "load:L-100"),
+            subtraction_combination("combination:C-SUB-MISSING", "load:L-100", "load:missing"),
+            range_combination(
+                "combination:C-RANGE-MODE",
+                &["load:L-100", "load:L-200"],
+                "largest",
+            ),
+            range_combination(
+                "combination:C-RANGE-DUP",
+                &["load:L-100", "load:L-100"],
+                "max",
+            ),
+            range_combination("combination:C-RANGE-EMPTY", &[], "max"),
+        ];
+
+        let result = run_linear_static_preview(request);
+        let codes = result
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(codes.contains("LOAD_COMBINATION_SHAPE_INVALID"));
+        assert!(codes.contains("LOAD_COMBINATION_DUPLICATE_TERM"));
+        assert!(codes.contains("LOAD_COMBINATION_LOAD_CASE_UNKNOWN"));
+        assert!(codes.contains("LOAD_COMBINATION_RANGE_MODE_UNKNOWN"));
+        assert!(codes.contains("LOAD_COMBINATION_OPERANDS_EMPTY"));
+        assert!(result.diagnostics.iter().any(|item| item.code
+            == "LOAD_COMBINATION_SHAPE_INVALID"
+            && item
+                .affected_refs
+                .contains(&"combination:C-SHAPE".to_string())));
+        assert!(result.diagnostics.iter().any(|item| item.code
+            == "LOAD_COMBINATION_SHAPE_INVALID"
+            && item
+                .affected_refs
+                .contains(&"combination:C-SUB-TERMS".to_string())));
+        assert!(result.diagnostics.iter().any(|item| item.code
+            == "LOAD_COMBINATION_DUPLICATE_TERM"
+            && item
+                .affected_refs
+                .contains(&"combination:C-SUB-SELF".to_string())));
         assert!(result.results.is_empty());
     }
 

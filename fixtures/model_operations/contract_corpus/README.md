@@ -24,7 +24,7 @@ running the Rust engine, and the TypeScript engine is held to them.
 | provenance_class | `PUBLIC_DOMAIN_OR_ORIGINAL` |
 | contributor_certification | Nothing in this corpus derives from protected standards content, vendor-proprietary data, or real project data. No code-specific allowables, SIFs, flexibility factors, or load-combination defaults appear anywhere in the corpus; numeric values are arbitrary invented scalars used only to exercise validation mechanics. |
 | engineering_status | Non-engineering test data. The corpus makes no release-readiness, professional-approval, certification, sealing, authentication, or code-compliance claim. |
-| review_status | Human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12) |
+| review_status | Cases 01–57: human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12). Cases 58–65: added by `TP-APP-R2-COMBEXPR-001` (2026-06-12) and **pending human review** — they do NOT ride the DEC-030 acceptance; invented values only. |
 
 ## Case file format
 
@@ -170,7 +170,17 @@ files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
 reproduces all 57 cases exactly, with no alignment fixes.
 
-## Case inventory (57 cases)
+## Case inventory (65 cases)
+
+Cases 01–57 are the corpus accepted under `DEC-030`. Cases 58–65 were added
+by `TP-APP-R2-COMBEXPR-001` (subtraction/range combination authoring,
+2026-06-12) and are **pending human review**; they cover the closed
+combination-basis set (`mechanics`, `result_state_subtraction`,
+`range_envelope`), per-basis payload-shape blocks, the closed range-mode set
+(the accepted range case pins `max_abs` as one representative mode, not all
+four), operand-reference blocks, and the combination-basis update validation
+behavior change (free-text basis edits are now blocked; previously any
+non-empty text was applied).
 
 | File | Change kind | Mode | Expected application status | Blocking codes |
 |---|---|---|---|---|
@@ -231,3 +241,11 @@ reproduces all 57 cases exactly, with no alignment fixes.
 | `case_55_block_delete_pipe_run_referenced.json` | `delete_pipe_run` | apply | blocked | `OP-PIPE-DELETE-REFERENCED` |
 | `case_56_accept_delete_node.json` | `delete_node` | apply | applied_to_session_model | — |
 | `case_57_block_delete_node_referenced.json` | `delete_node` | apply | blocked | `OP-NODE-DELETE-REFERENCED` |
+| `case_58_accept_create_combination_subtraction.json` | `create_combination` | apply | applied_to_session_model | — |
+| `case_59_accept_create_combination_range_envelope.json` | `create_combination` | apply | applied_to_session_model | — |
+| `case_60_block_create_combination_subtraction_wrong_shape.json` | `create_combination` | apply | blocked | `OP-CREATE-COMBINATION-PAYLOAD-INVALID` |
+| `case_61_block_create_combination_range_wrong_shape.json` | `create_combination` | apply | blocked | `OP-CREATE-COMBINATION-PAYLOAD-INVALID` |
+| `case_62_block_create_combination_range_mode_unknown.json` | `create_combination` | apply | blocked | `OP-COMBINATION-RANGE-MODE-UNKNOWN` |
+| `case_63_block_create_combination_missing_operand_ref.json` | `create_combination` | apply | blocked | `OP-COMBINATION-OPERAND-LOAD-NOT-FOUND` |
+| `case_64_block_update_combination_basis_unsupported.json` | `update_load` | apply | blocked | `OP-COMBINATION-BASIS-UNSUPPORTED` |
+| `case_65_block_update_combination_basis_shape_mismatch.json` | `update_load` | apply | blocked | `OP-COMBINATION-BASIS-SHAPE-MISMATCH` |

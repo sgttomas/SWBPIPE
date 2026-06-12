@@ -1,8 +1,10 @@
 use crate::LoadTargetInput;
 use crate::{
     canonical_unit_symbol, diag, expected_load_dimension, parse_dof, stable_suffix,
-    unit_symbol_matches_dimension, Diagnostic, MaterialInput, PreviewModel, Quantity,
+    unit_symbol_matches_dimension, Diagnostic, MaterialInput, PreviewCombination, PreviewModel,
+    Quantity,
 };
+use open_pipe_stress_load_case_algebra::RangeMode;
 use open_pipe_stress_units::Dimension;
 use std::collections::{HashMap, HashSet};
 
@@ -443,57 +445,216 @@ fn validate_combinations(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>
         .collect::<HashSet<_>>();
 
     for combination in &model.combinations {
-        if combination.basis != "mechanics" {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:combination:{}:basis",
-                    stable_suffix(&combination.id)
-                ),
-                "LOAD_COMBINATION_BASIS_UNSUPPORTED",
-                "blocking",
-                "TP-MAC-08 supports only mechanics-basis user-defined load combinations; code/rule and owner-basis combinations remain private/deferred",
-                vec![combination.id.clone(), combination.basis.clone()],
-            ));
-        }
-        if combination.terms.is_empty() {
-            diagnostics.push(diag(
-                &format!(
-                    "diagnostic:combination:{}:terms-empty",
-                    stable_suffix(&combination.id)
-                ),
-                "LOAD_COMBINATION_TERMS_EMPTY",
-                "blocking",
-                "load combination requires at least one explicit load-case term",
-                vec![combination.id.clone()],
-            ));
-        }
-        for term in &combination.terms {
-            if !term.factor.is_finite() {
-                diagnostics.push(diag(
-                    &format!(
-                        "diagnostic:combination:{}:{}:factor",
-                        stable_suffix(&combination.id),
-                        stable_suffix(&term.load_case)
-                    ),
-                    "LOAD_COMBINATION_FACTOR_INVALID",
-                    "blocking",
-                    "load combination factor must be finite and explicitly user supplied",
-                    vec![combination.id.clone(), term.load_case.clone()],
-                ));
+        match combination.basis.as_str() {
+            "mechanics" => validate_mechanics_combination(combination, &load_case_ids, diagnostics),
+            "result_state_subtraction" => {
+                validate_subtraction_combination(combination, &load_case_ids, diagnostics)
             }
-            if !load_case_ids.contains(term.load_case.as_str()) {
+            "range_envelope" => {
+                validate_range_envelope_combination(combination, &load_case_ids, diagnostics)
+            }
+            _ => {
                 diagnostics.push(diag(
                     &format!(
-                        "diagnostic:combination:{}:{}:load-case",
-                        stable_suffix(&combination.id),
-                        stable_suffix(&term.load_case)
+                        "diagnostic:combination:{}:basis",
+                        stable_suffix(&combination.id)
                     ),
-                    "LOAD_COMBINATION_LOAD_CASE_UNKNOWN",
+                    "LOAD_COMBINATION_BASIS_UNSUPPORTED",
                     "blocking",
-                    "load combination term references a load case that is not present in the preview model",
-                    vec![combination.id.clone(), term.load_case.clone()],
+                    "load combination basis must be one of the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`; code/rule and owner-basis combinations remain private/deferred",
+                    vec![combination.id.clone(), combination.basis.clone()],
                 ));
             }
         }
+    }
+}
+
+fn combination_shape_diag(combination: &PreviewCombination, message: &str) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:combination:{}:shape",
+            stable_suffix(&combination.id)
+        ),
+        "LOAD_COMBINATION_SHAPE_INVALID",
+        "blocking",
+        message,
+        vec![combination.id.clone(), combination.basis.clone()],
+    )
+}
+
+fn expect_known_combination_load_case(
+    combination: &PreviewCombination,
+    load_case_ids: &HashSet<&str>,
+    load_case_ref: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if !load_case_ids.contains(load_case_ref) {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:combination:{}:{}:load-case",
+                stable_suffix(&combination.id),
+                stable_suffix(load_case_ref)
+            ),
+            "LOAD_COMBINATION_LOAD_CASE_UNKNOWN",
+            "blocking",
+            "load combination references a load case that is not present in the preview model",
+            vec![combination.id.clone(), load_case_ref.to_string()],
+        ));
+    }
+}
+
+fn validate_mechanics_combination(
+    combination: &PreviewCombination,
+    load_case_ids: &HashSet<&str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if combination.minuend_id.is_some()
+        || combination.subtrahend_id.is_some()
+        || combination.operand_ids.is_some()
+        || combination.mode.is_some()
+    {
+        diagnostics.push(combination_shape_diag(
+            combination,
+            "mechanics-basis combinations carry explicit terms only; minuend/subtrahend and range operand/mode fields belong to the subtraction and range-envelope bases",
+        ));
+    }
+    if combination.terms.is_empty() {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:combination:{}:terms-empty",
+                stable_suffix(&combination.id)
+            ),
+            "LOAD_COMBINATION_TERMS_EMPTY",
+            "blocking",
+            "load combination requires at least one explicit load-case term",
+            vec![combination.id.clone()],
+        ));
+    }
+    for term in &combination.terms {
+        if !term.factor.is_finite() {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:combination:{}:{}:factor",
+                    stable_suffix(&combination.id),
+                    stable_suffix(&term.load_case)
+                ),
+                "LOAD_COMBINATION_FACTOR_INVALID",
+                "blocking",
+                "load combination factor must be finite and explicitly user supplied",
+                vec![combination.id.clone(), term.load_case.clone()],
+            ));
+        }
+        expect_known_combination_load_case(
+            combination,
+            load_case_ids,
+            &term.load_case,
+            diagnostics,
+        );
+    }
+}
+
+fn validate_subtraction_combination(
+    combination: &PreviewCombination,
+    load_case_ids: &HashSet<&str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if !combination.terms.is_empty()
+        || combination.operand_ids.is_some()
+        || combination.mode.is_some()
+    {
+        diagnostics.push(combination_shape_diag(
+            combination,
+            "result_state_subtraction combinations carry exactly minuend_id and subtrahend_id; terms and range operand/mode fields belong to the mechanics and range-envelope bases",
+        ));
+    }
+    let minuend = combination.minuend_id.as_deref().unwrap_or("");
+    let subtrahend = combination.subtrahend_id.as_deref().unwrap_or("");
+    if minuend.is_empty() || subtrahend.is_empty() {
+        diagnostics.push(combination_shape_diag(
+            combination,
+            "result_state_subtraction combinations require explicit non-empty minuend_id and subtrahend_id load-case references",
+        ));
+        return;
+    }
+    if minuend == subtrahend {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:combination:{}:{}:duplicate",
+                stable_suffix(&combination.id),
+                stable_suffix(minuend)
+            ),
+            "LOAD_COMBINATION_DUPLICATE_TERM",
+            "blocking",
+            "result_state_subtraction requires two distinct load-case references; self-subtraction is blocked",
+            vec![combination.id.clone(), minuend.to_string()],
+        ));
+    }
+    expect_known_combination_load_case(combination, load_case_ids, minuend, diagnostics);
+    expect_known_combination_load_case(combination, load_case_ids, subtrahend, diagnostics);
+}
+
+fn validate_range_envelope_combination(
+    combination: &PreviewCombination,
+    load_case_ids: &HashSet<&str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if !combination.terms.is_empty()
+        || combination.minuend_id.is_some()
+        || combination.subtrahend_id.is_some()
+    {
+        diagnostics.push(combination_shape_diag(
+            combination,
+            "range_envelope combinations carry exactly operand_ids and mode; terms and minuend/subtrahend fields belong to the mechanics and subtraction bases",
+        ));
+    }
+    match combination.mode.as_deref() {
+        Some(mode) if RangeMode::parse_token(mode).is_some() => {}
+        other => {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:combination:{}:mode",
+                    stable_suffix(&combination.id)
+                ),
+                "LOAD_COMBINATION_RANGE_MODE_UNKNOWN",
+                "blocking",
+                "range_envelope combinations require an explicit mode from the closed set `min`, `max`, `min_abs`, `max_abs`",
+                vec![
+                    combination.id.clone(),
+                    other.unwrap_or("not_present").to_string(),
+                ],
+            ));
+        }
+    }
+    let operand_ids = combination.operand_ids.as_deref().unwrap_or(&[]);
+    if operand_ids.is_empty() {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:combination:{}:operands-empty",
+                stable_suffix(&combination.id)
+            ),
+            "LOAD_COMBINATION_OPERANDS_EMPTY",
+            "blocking",
+            "range_envelope combinations require at least one explicit load-case operand reference",
+            vec![combination.id.clone()],
+        ));
+        return;
+    }
+    let mut seen = HashSet::new();
+    for operand_id in operand_ids {
+        if !seen.insert(operand_id.as_str()) {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:combination:{}:{}:duplicate",
+                    stable_suffix(&combination.id),
+                    stable_suffix(operand_id)
+                ),
+                "LOAD_COMBINATION_DUPLICATE_TERM",
+                "blocking",
+                "range_envelope operand references must be unique; duplicate operands are blocked",
+                vec![combination.id.clone(), operand_id.clone()],
+            ));
+            continue;
+        }
+        expect_known_combination_load_case(combination, load_case_ids, operand_id, diagnostics);
     }
 }

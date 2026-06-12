@@ -39,6 +39,32 @@ pub enum RangeMode {
     MaxAbs,
 }
 
+impl RangeMode {
+    /// Canonical document token for this mode; the inverse of
+    /// [`RangeMode::parse_token`]. Document carriers (preview models,
+    /// operation payloads) must use exactly these tokens.
+    pub fn token(self) -> &'static str {
+        match self {
+            Self::Min => "min",
+            Self::Max => "max",
+            Self::MinAbs => "min_abs",
+            Self::MaxAbs => "max_abs",
+        }
+    }
+
+    /// Parse a canonical document token; unknown tokens return `None` so the
+    /// caller can emit a named diagnostic instead of guessing a mode.
+    pub fn parse_token(token: &str) -> Option<Self> {
+        match token {
+            "min" => Some(Self::Min),
+            "max" => Some(Self::Max),
+            "min_abs" => Some(Self::MinAbs),
+            "max_abs" => Some(Self::MaxAbs),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlgebraQuantity {
     pub value: f64,
@@ -925,6 +951,21 @@ mod tests {
             .findings
             .iter()
             .any(|finding| finding.code == FindingCode::MissingOperand));
+    }
+
+    #[test]
+    fn range_mode_tokens_round_trip() {
+        for mode in [
+            RangeMode::Min,
+            RangeMode::Max,
+            RangeMode::MinAbs,
+            RangeMode::MaxAbs,
+        ] {
+            assert_eq!(RangeMode::parse_token(mode.token()), Some(mode));
+        }
+        assert_eq!(RangeMode::parse_token("MAX"), None);
+        assert_eq!(RangeMode::parse_token("maxabs"), None);
+        assert_eq!(RangeMode::parse_token(""), None);
     }
 
     #[test]

@@ -528,6 +528,8 @@
             "interpolated_from_endpoint_resultants",
             "derived_from_user_entered_section_geometry",
             "explicit_user_linear_combination",
+            "explicit_user_result_state_subtraction",
+            "explicit_user_range_envelope",
             "stress_recovery_summary",
             "rule_pack_evaluation",
             "TBD"

@@ -144,12 +144,15 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "field=basis; current=mechanics"
   );
   await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText("current=mechanics");
-  await page.getByTestId("load-manager-combination-basis-value").fill("mechanics_user_review");
+  // TP-APP-R2-COMBEXPR-001 behavior change: the basis editor is a closed-set
+  // selector (mechanics | result_state_subtraction | range_envelope) instead
+  // of free text; cross-shape edits stay honest proposals the engine blocks.
+  await page.getByTestId("load-manager-combination-basis-value").selectOption("result_state_subtraction");
   await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
     "op:load-manager-combination:C-OPER-ALT-basis"
   );
   await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
-    "before=mechanics; after=mechanics_user_review"
+    "before=mechanics; after=result_state_subtraction"
   );
   await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
     "op:load-manager-combination:C-OPER-ALT-delete"
@@ -294,6 +297,33 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
+
+  // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
+  // through the visible create-form controls and apply it through the wasm
+  // engine in browser mode.
+  await page.getByTestId("load-manager-create-combination-basis").selectOption("result_state_subtraction");
+  await expect(page.getByTestId("load-manager-create-combination-minuend")).toHaveValue("load:L-100");
+  await page.getByTestId("load-manager-create-combination-subtrahend").selectOption("load:L-200");
+  await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
+  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
+    "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
+  );
+  await page.getByTestId("queue-create-combination-intent").click();
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 1 applied");
+  await page.getByTestId("apply-intent-editor-intent-2").click();
+  await expect(applyPanel.getByTestId("applied-operation-route-applied-2-editor-intent-2")).toContainText(
+    "route=local_wasm_engine"
+  );
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 2 applied");
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "2 load cases; 7 primitive loads; 2 combinations"
+  );
+  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
+    "basis=result_state_subtraction"
+  );
+  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
+    "minuend=load:L-100; subtrahend=load:L-200"
+  );
 });
 
 test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page }) => {

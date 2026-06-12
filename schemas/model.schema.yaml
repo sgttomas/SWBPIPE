@@ -124,11 +124,70 @@
     "Combination": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "basis"
+            ],
+            "properties": {
+              "basis": {
+                "enum": [
+                  "mechanics",
+                  "user_rule_pack",
+                  "owner_design_basis",
+                  "TBD"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "terms"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "basis"
+            ],
+            "properties": {
+              "basis": {
+                "const": "result_state_subtraction"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "minuend_ref",
+              "subtrahend_ref"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "basis"
+            ],
+            "properties": {
+              "basis": {
+                "const": "range_envelope"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "operand_refs",
+              "mode"
+            ]
+          }
+        }
+      ],
       "required": [
         "id",
         "name",
         "basis",
-        "terms",
         "provenance"
       ],
       "properties": {
@@ -148,6 +207,8 @@
             "mechanics",
             "user_rule_pack",
             "owner_design_basis",
+            "result_state_subtraction",
+            "range_envelope",
             "TBD"
           ]
         },
@@ -170,6 +231,29 @@
               }
             }
           }
+        },
+        "minuend_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "subtrahend_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "operand_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "min",
+            "max",
+            "min_abs",
+            "max_abs",
+            "TBD"
+          ]
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"
