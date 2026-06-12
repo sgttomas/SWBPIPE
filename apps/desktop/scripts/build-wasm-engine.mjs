@@ -5,9 +5,11 @@
 // `src/services/wasmEngine/__generated__/`. Generated artifacts are not
 // committed. Every missing prerequisite fails with the exact remediation
 // command — no silent fallback (operation-seam plan §3 T3; ADR-0001).
+// Glue is written to a temp directory and renamed into place so concurrent
+// readers never see a half-written artifact set (DEC-025 F-4 rider).
 
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,12 +113,35 @@ if (!existsSync(wasmArtifact)) {
   fail([`cargo build succeeded but the expected artifact is missing: ${wasmArtifact}`]);
 }
 
-// 5. Generate the web-target JS glue.
-console.log(`[build-wasm-engine] wasm-bindgen --target web --out-dir ${path.relative(desktopRoot, outDir)}`);
-const bindgen = tryRun(wasmBindgen, ["--target", "web", "--out-dir", outDir, wasmArtifact]);
+// 5. Generate the web-target JS glue into a sibling temp directory, then
+//    swap it into place with renames (DEC-025 F-4 rider). Writing directly
+//    into `__generated__/` left a window where a concurrent Vitest/dev-server
+//    read saw a half-written artifact set; the rename swap replaces the whole
+//    directory at once. Stale `.tmp-*`/`.old-*` siblings from interrupted
+//    runs are removed first.
+const generatedParent = path.dirname(outDir);
+const generatedName = path.basename(outDir);
+mkdirSync(generatedParent, { recursive: true });
+for (const entry of readdirSync(generatedParent)) {
+  if (entry.startsWith(`${generatedName}.tmp-`) || entry.startsWith(`${generatedName}.old-`)) {
+    rmSync(path.join(generatedParent, entry), { recursive: true, force: true });
+  }
+}
+const tmpDir = `${outDir}.tmp-${process.pid}`;
+const oldDir = `${outDir}.old-${process.pid}`;
+
+console.log(`[build-wasm-engine] wasm-bindgen --target web --out-dir ${path.relative(desktopRoot, tmpDir)}`);
+const bindgen = tryRun(wasmBindgen, ["--target", "web", "--out-dir", tmpDir, wasmArtifact]);
 if (!bindgen.ok) {
+  rmSync(tmpDir, { recursive: true, force: true });
   fail(["`wasm-bindgen` glue generation failed:", bindgen.stderr]);
 }
+
+if (existsSync(outDir)) {
+  renameSync(outDir, oldDir);
+}
+renameSync(tmpDir, outDir);
+rmSync(oldDir, { recursive: true, force: true });
 
 console.log(
   `[build-wasm-engine] OK — wasm operation engine generated at ${path.relative(desktopRoot, outDir)} ` +

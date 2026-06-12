@@ -158,8 +158,11 @@ certification claims, code-compliance claims, or professional reliance claims.
 - TBD: performance thresholds and permitted variance policy.
 - TBD: coverage thresholds for Rust, Python, GUI, validation, and
   protected-content gates.
-- TBD: CI provider, release matrix, signing, release attestation, and maintainer
-  quorum.
+- Ruled 2026-06-11: evidence-execution location (`DEC-025` — hosted CI
+  deferred; the five-surface local sweep `tools/release/run_evidence_sweep.py`
+  is the commit-bound merge gate; hosted CI re-decided at `D-05b` with D-06)
+  and maintainer quorum (`DEC-027` — sole maintainer and release authority).
+- TBD: release matrix, signing, and release attestation (D-06).
 - TBD: exact automation owners, gate owners, waiver approver roles, and command
   names.
 - TBD: release-note format for known limitations and accepted risks.

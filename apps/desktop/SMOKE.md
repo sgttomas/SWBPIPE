@@ -3375,3 +3375,34 @@ after the timestamp marker were absent.
   behavior change; local-only; no protected content; no release-readiness,
   professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## TP-MAC-112 DEC-025 evidence sweep + F-4 atomic wasm build (2026-06-11)
+
+- Tranche `TP-SWEEP-001`: implementation of the `DEC-025` ruling (D-05
+  Option D) — the five-surface local evidence sweep codified as one
+  deterministic entrypoint, `tools/release/run_evidence_sweep.py`, plus
+  the F-4 atomic temp-write-and-rename fix in
+  `apps/desktop/scripts/build-wasm-engine.mjs`.
+- The sweep runs sequentially in F-4-safe order: cargo crate sweep,
+  pytest, desktop Vitest (wasm engine built first), Playwright e2e,
+  desktop production build. Fail-fast; unexecuted surfaces are recorded
+  `not_run`. Each execute run writes a commit-bound JSON summary to
+  `validation/evidence/sweeps/` (exit 0 only when all five pass). This
+  sweep is the required pre-push/fan-in merge gate for parallel agent
+  development branches (`docs/BUILD_AND_RELEASE.md` §5.1).
+- F-4: wasm-bindgen glue is generated into a sibling `.tmp-<pid>` staging
+  dir and renamed into place, so concurrent readers never observe a
+  half-written `__generated__/` artifact set; stale staging dirs are
+  cleaned on the next build.
+- Local validation (single sweep run, working tree, exit 0): cargo crate
+  sweep pass; pytest pass (includes 11 new
+  `tests/test_evidence_sweep.py` tests); Vitest pass; Playwright e2e 1/1
+  (17.5s); production build green (index chunk at the standing ~536 kB
+  baseline with the chunk-size warning). Summary artifact:
+  `validation/evidence/sweeps/SWEEP_20260612T031241Z_0f402fc48424-dirty.json`.
+  The post-commit gate run at the clean tranche HEAD adds the clean
+  summary alongside it.
+- Boundary review: local-only evidence tooling; no hosted CI workflow,
+  network, or telemetry surface; invented data only; no protected
+  standards content; no release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claims.

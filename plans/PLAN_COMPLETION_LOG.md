@@ -13,6 +13,29 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — DEC-025 evidence sweep + F-4 atomic wasm build landed (`TP-SWEEP-001`)
+
+Implementation of the D-05 ruling (`DEC-025`, packet Option D): new
+deterministic entrypoint `tools/release/run_evidence_sweep.py` runs the five
+evidence surfaces sequentially in F-4-safe order (cargo crate sweep, pytest,
+desktop Vitest with the wasm engine built first, Playwright e2e, desktop
+production build), fail-fast with `not_run` accounting, and writes a
+commit-bound machine-readable summary to `validation/evidence/sweeps/`. The
+sweep is the required pre-push/fan-in merge gate for parallel agent branches
+(`docs/BUILD_AND_RELEASE.md` §5.1; gate pattern: commit → sweep at clean
+HEAD → evidence-only closeout commit → push). F-4 rider: the wasm build now
+writes glue to a sibling staging dir and renames it into place; staging dirs
+gitignored. Docs: BUILD_AND_RELEASE §2/§3/§5.1/§7/§9 and
+RELEASE_QUALITY_GATES §10 record the ruling; the CI-provider TBD closes with
+the `D-05b` follow-up pointer. 11 focused tests in
+`tests/test_evidence_sweep.py`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-112; validation-run summary
+`validation/evidence/sweeps/SWEEP_20260612T031241Z_0f402fc48424-dirty.json`
+(all five surfaces pass, exit 0) plus the clean gate-run summary committed
+at closeout;
+`execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/_run_records/WORKING_ITEMS_RUN_2026-06-11_TP-SWEEP-001_evidence_sweep.md`.
+
 ## 2026-06-11 — Seam-verification regression repair: F-1 Playwright budget, F-2 NUL bytes (`TP-SEAM-FIX-001`)
 
 Human-instructed repair tranche for the open findings in the independent

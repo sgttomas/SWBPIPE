@@ -237,3 +237,21 @@ decisions, or code-compliance decisions.
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-11 - TP-SWEEP-001 (DEC-025 evidence sweep + F-4 rider)
+
+- The D-05 ruling (`DEC-025`, SOFTWARE_DECOMP §12) is implemented: hosted CI
+  deferred; `tools/release/run_evidence_sweep.py` is the deterministic
+  five-surface local evidence entrypoint and the commit-bound pre-push/fan-in
+  merge gate for parallel agent branches. Summary artifacts land in
+  `validation/evidence/sweeps/SWEEP_<utc>_<commit12>[-dirty].json`.
+- F-4 rider landed: `apps/desktop/scripts/build-wasm-engine.mjs` now writes
+  wasm-bindgen glue to a sibling staging dir and renames it into place.
+- Documentation: `docs/BUILD_AND_RELEASE.md` §2/§3/§5.1/§7/§9 and
+  `docs/RELEASE_QUALITY_GATES.md` §10 updated; §9's CI-provider TBD closed
+  with the `D-05b` follow-up pointer (public sanitized-export CI, with D-06).
+- Focused tests: `tests/test_evidence_sweep.py` (11 tests).
+- Local run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_TP-SWEEP-001_evidence_sweep.md`
+- Boundary: development-evidence tooling only; no hosted workflow file; no
+  lifecycle, release, professional, certification, or code-compliance claims.
