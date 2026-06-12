@@ -1,0 +1,257 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.technical_preview.r2_from_blank_rehearsal",
+  "rehearsal_id": "TP-APP-R2-FROMBLANK-REHEARSAL-001",
+  "basis": [
+    "PRD 22.3 R2 GUI MVP: create, solve, and report a small piping model without editing raw files",
+    "Completion plan A12: scripted input to A8 end-to-end automation"
+  ],
+  "boundary": {
+    "data_class": "invented_public_example",
+    "protected_content_included": false,
+    "private_payload_included": false,
+    "professional_or_release_claim": false
+  },
+  "blank_model": {
+    "schema_version": "0.1.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "data_boundary": {
+      "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
+      "protected_source_policy": "no_protected_standards_content_inserted",
+      "private_data_policy": "local_user_document_not_committed_to_repository",
+      "professional_boundary": "human_review_required_no_software_approval_claim"
+    },
+    "project": {
+      "id": "project:r2-from-blank-rehearsal",
+      "name": "R2 From Blank Rehearsal",
+      "description": "Invented small model authored from an empty local document through structured operations.",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "moment": "N*m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "C",
+        "angle": "rad"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "materials": [],
+    "sections": [],
+    "nodes": [],
+    "pipe_segments": [],
+    "supports": [],
+    "components": [],
+    "load_cases": [],
+    "combinations": [],
+    "diagnostics": [
+      {
+        "id": "diagnostic:r2-from-blank:authoring-target",
+        "code": "BLANK_PROJECT_AUTHORING_TARGET",
+        "severity": "blocking",
+        "source": "fixtures/product_preview/r2_from_blank_rehearsal.json",
+        "affected_refs": ["project:r2-from-blank-rehearsal"],
+        "message": "The rehearsal starts from an intentionally incomplete blank local model; every solve-required entity below is added by a structured operation step."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "operation_id": "op:r2-rehearsal-create-node-100",
+      "operation_kind": "create",
+      "target": { "object_type": "Node", "ref": "node:R2-100" },
+      "change_kind": "create_node",
+      "field_label": "R2 start node",
+      "field_path": "nodes",
+      "before": "not_present",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "explicit user-entered node geometry for A12 rehearsal",
+      "payload": {
+        "id": "node:R2-100",
+        "label": "R2 anchored node",
+        "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-node-110",
+      "operation_kind": "create",
+      "target": { "object_type": "Node", "ref": "node:R2-110" },
+      "change_kind": "create_node",
+      "field_label": "R2 free node",
+      "field_path": "nodes",
+      "before": "not_present",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "explicit user-entered node geometry for A12 rehearsal",
+      "payload": {
+        "id": "node:R2-110",
+        "label": "R2 loaded node",
+        "position": { "x": 3.0, "y": 0.0, "z": 0.0 },
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-material",
+      "operation_kind": "create",
+      "target": { "object_type": "Material", "ref": "material:r2-carbon-steel" },
+      "change_kind": "create_material",
+      "field_label": "R2 user material",
+      "field_path": "materials",
+      "before": "not_present",
+      "unit": "Pa",
+      "dimension": "stress",
+      "source_note": "explicit user-entered material moduli for A12 rehearsal",
+      "payload": {
+        "id": "material:r2-carbon-steel",
+        "label": "R2 invented carbon-steel-like material",
+        "elastic_modulus": { "value": 200000000000.0, "unit": "Pa" },
+        "shear_modulus": { "value": 77000000000.0, "unit": "Pa" },
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-section",
+      "operation_kind": "create",
+      "target": { "object_type": "Section", "ref": "section:r2-pipe" },
+      "change_kind": "create_section",
+      "field_label": "R2 user pipe section",
+      "field_path": "sections",
+      "before": "not_present",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "explicit user-entered pipe section geometry for A12 rehearsal",
+      "payload": {
+        "id": "section:r2-pipe",
+        "name": "R2 invented pipe section",
+        "section_type": "pipe",
+        "properties": {
+          "outside_diameter": { "value": 0.114, "unit": "m" },
+          "wall_thickness": { "value": 0.006, "unit": "m" }
+        },
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-connect-pipe",
+      "operation_kind": "connect",
+      "target": { "object_type": "Element", "ref": "pipe:R2-100" },
+      "change_kind": "connect_pipe_run",
+      "field_label": "R2 straight pipe run",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "explicit user-entered straight-pipe connectivity and section geometry for A12 rehearsal",
+      "payload": {
+        "id": "pipe:R2-100",
+        "label": "R2 invented straight pipe",
+        "from": "node:R2-100",
+        "to": "node:R2-110",
+        "section": {
+          "outside_diameter": { "value": 0.114, "unit": "m" },
+          "wall_thickness": { "value": 0.006, "unit": "m" }
+        },
+        "material": "material:r2-carbon-steel",
+        "y_reference": { "x": 0.0, "y": 0.0, "z": 1.0 },
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-support",
+      "operation_kind": "create",
+      "target": { "object_type": "Support", "ref": "support:R2-anchor" },
+      "change_kind": "create_support",
+      "field_label": "R2 anchor support",
+      "field_path": "supports",
+      "before": "not_present",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "explicit user-entered support restraint for A12 rehearsal",
+      "payload": {
+        "id": "support:R2-anchor",
+        "label": "R2 user anchor",
+        "node": "node:R2-100",
+        "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-load-case",
+      "operation_kind": "create",
+      "target": { "object_type": "Load", "ref": "load:R2-L-100" },
+      "change_kind": "create_load_case",
+      "field_label": "R2 load case",
+      "field_path": "load_cases",
+      "before": "not_present",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "explicit user-entered load case shell for A12 rehearsal",
+      "payload": {
+        "id": "load:R2-L-100",
+        "label": "R2 invented operating load",
+        "kind": "primitive_user_load",
+        "status": "preview_only",
+        "provenance": "invented_a12_rehearsal_user_input",
+        "primitive_loads": []
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-primitive-load",
+      "operation_kind": "create",
+      "target": { "object_type": "Load", "ref": "load:R2-L-100" },
+      "change_kind": "create_primitive_load",
+      "field_label": "R2 nodal force",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "unit": "N",
+      "dimension": "force",
+      "source_note": "explicit user-entered concentrated nodal force for A12 rehearsal",
+      "payload": {
+        "id": "load:R2-L-100-FY",
+        "category": "concentrated_force",
+        "target": { "type": "node", "node": "node:R2-110" },
+        "direction": "global_y",
+        "magnitude": { "value": 250.0, "unit": "N" },
+        "dimension": "force",
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    },
+    {
+      "operation_id": "op:r2-rehearsal-create-combination",
+      "operation_kind": "create",
+      "target": { "object_type": "Combination", "ref": "combination:R2-C-100" },
+      "change_kind": "create_combination",
+      "field_label": "R2 mechanics combination",
+      "field_path": "combinations",
+      "before": "not_present",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "explicit user-entered mechanics combination for A12 rehearsal",
+      "payload": {
+        "id": "combination:R2-C-100",
+        "label": "R2 invented operating combination",
+        "basis": "mechanics",
+        "terms": [{ "load_case": "load:R2-L-100", "factor": 1.0 }],
+        "provenance": "invented_a12_rehearsal_user_input"
+      }
+    }
+  ],
+  "expected": {
+    "nodes": 2,
+    "pipe_segments": 1,
+    "supports": 1,
+    "materials": 1,
+    "sections": 1,
+    "load_cases": 1,
+    "combinations": 1,
+    "mechanics_status": "MECHANICS_SOLVED",
+    "minimum_result_rows": 1,
+    "report_export_blocked": false
+  }
+}

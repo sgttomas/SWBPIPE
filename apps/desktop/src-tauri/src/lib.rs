@@ -822,13 +822,10 @@ fn render_calculation_report(input: Value) -> Result<Value, String> {
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
     let renderable: open_pipe_stress_report_renderer::RenderableReportInput =
-        serde_json::from_value(input)
-            .map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
+        serde_json::from_value(input).map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    let derived_print_html = open_pipe_stress_report_renderer::derived_print_view(
-        &outcome.html,
-        &outcome.sha256_hex,
-    );
+    let derived_print_html =
+        open_pipe_stress_report_renderer::derived_print_view(&outcome.html, &outcome.sha256_hex);
     let mut payload = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
     payload["derived_print_html"] = Value::String(derived_print_html);
     Ok(payload)
@@ -1686,12 +1683,356 @@ mod tests {
             .as_str()
             .expect("html")
             .starts_with("<!DOCTYPE html>"));
-        let derived = outcome["derived_print_html"].as_str().expect("derived view");
+        let derived = outcome["derived_print_html"]
+            .as_str()
+            .expect("derived view");
         assert!(derived.contains("DERIVED VIEW"));
         assert!(derived.contains(outcome["sha256_hex"].as_str().expect("hash")));
 
         let rejected = render_calculation_report(json!({"report_title": "broken"}));
-        assert!(rejected.expect_err("invalid input").starts_with("RENDER-INPUT-INVALID"));
+        assert!(rejected
+            .expect_err("invalid input")
+            .starts_with("RENDER-INPUT-INVALID"));
+    }
+
+    fn rehearsal_step_text<'a>(step: &'a Value, key: &str) -> &'a str {
+        step.get(key)
+            .and_then(Value::as_str)
+            .unwrap_or_else(|| panic!("rehearsal step missing string field `{key}`"))
+    }
+
+    fn rehearsal_intent(step: &Value) -> Value {
+        let payload = step
+            .get("payload")
+            .unwrap_or_else(|| panic!("rehearsal step {} missing payload", step["operation_id"]));
+        json!({
+            "operation_id": rehearsal_step_text(step, "operation_id"),
+            "operation_kind": rehearsal_step_text(step, "operation_kind"),
+            "operation_status": "proposed",
+            "author_type": "user",
+            "source": {
+                "source_ref": "fixtures/product_preview/r2_from_blank_rehearsal.json",
+                "source_channel": "local_desktop_preview",
+                "source_role": "a12_rehearsal_script"
+            },
+            "target": step["target"].clone(),
+            "change": {
+                "change_id": format!(
+                    "change:{}",
+                    rehearsal_step_text(step, "operation_id").trim_start_matches("op:")
+                ),
+                "change_kind": rehearsal_step_text(step, "change_kind"),
+                "field_label": rehearsal_step_text(step, "field_label"),
+                "field_path": rehearsal_step_text(step, "field_path"),
+                "before": rehearsal_step_text(step, "before"),
+                "after": serde_json::to_string(payload).expect("rehearsal payload serializes"),
+                "unit": rehearsal_step_text(step, "unit"),
+                "dimension": rehearsal_step_text(step, "dimension"),
+                "source_note": rehearsal_step_text(step, "source_note")
+            },
+            "validation": {
+                "schema_validation": "not_run",
+                "constraint_validation": "not_run",
+                "unit_validation": "not_run",
+                "diff_preview_status": "not_generated",
+                "application_status": "not_applied"
+            },
+            "audit_boundary": {
+                "mutation_route": "structured_operations_only",
+                "direct_model_mutation_allowed": false,
+                "requires_user_acceptance": true,
+                "mutates_accepted_model_state": false
+            },
+            "professional_boundary": {
+                "human_review_required": true,
+                "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false,
+                "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false,
+                "software_makes_authentication_claim": false
+            },
+            "rationale": "A12 from-blank rehearsal step; proves the structured-operation seam composes without raw model-file editing."
+        })
+    }
+
+    fn apply_rehearsal_steps(rehearsal: &Value) -> (Value, Vec<Value>) {
+        let mut model = rehearsal["blank_model"].clone();
+        let mut receipts = Vec::new();
+        let steps = rehearsal["steps"]
+            .as_array()
+            .expect("rehearsal steps array");
+        for step in steps {
+            let intent = rehearsal_intent(step);
+            let outcome = apply_model_operation(model, intent, None)
+                .unwrap_or_else(|error| panic!("rehearsal operation command failed: {error}"));
+            assert_eq!(
+                outcome["validation"]["application_status"],
+                json!("applied_to_session_model"),
+                "rehearsal step {} should apply; diagnostics={:?}",
+                step["operation_id"],
+                outcome["diagnostics"]
+            );
+            assert_eq!(
+                outcome["acceptance"]["acceptance_is_professional_approval"],
+                json!(false)
+            );
+            model = outcome["applied_model"].clone();
+            receipts.push(outcome);
+        }
+        (model, receipts)
+    }
+
+    fn count_array(value: &Value, key: &str) -> usize {
+        value
+            .get(key)
+            .and_then(Value::as_array)
+            .unwrap_or_else(|| panic!("missing array `{key}`"))
+            .len()
+    }
+
+    fn read_report_fixture() -> Value {
+        let fixture_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../fixtures/reports/invented/calculation_report_fixture.json");
+        serde_json::from_str(&std::fs::read_to_string(fixture_path).expect("fixture read"))
+            .expect("fixture parses")
+    }
+
+    fn provenance(source_location: &str) -> Value {
+        json!({
+            "source_name": "OpenPipeStress A12 from-blank rehearsal",
+            "source_location": source_location,
+            "source_license": "project_fixture",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "Invented non-engineering data only.",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "accepted",
+            "privacy_classification": "invented_public_example"
+        })
+    }
+
+    fn report_row_from_result(result: &Value) -> Value {
+        let row_id = result["id"].as_str().unwrap_or("result:unknown");
+        let kind = result["kind"].as_str().unwrap_or("result");
+        let unit = result["unit"].as_str().unwrap_or("unit");
+        let value = result["value"]
+            .as_f64()
+            .map(|number| number.to_string())
+            .unwrap_or_else(|| "TBD".to_string());
+        let case_ref = result
+            .get("basis_ref")
+            .and_then(Value::as_object)
+            .map(|basis| {
+                format!(
+                    "{}:{}",
+                    basis
+                        .get("ref_type")
+                        .and_then(Value::as_str)
+                        .unwrap_or("basis"),
+                    basis.get("ref_id").and_then(Value::as_str).unwrap_or("TBD")
+                )
+            })
+            .unwrap_or_else(|| "TBD".to_string());
+        json!({
+            "row_id": format!("row:{row_id}"),
+            "label": kind,
+            "case_ref": case_ref,
+            "quantity_display": format!("{value} {unit}"),
+            "source_ref": format!("result:{row_id}")
+        })
+    }
+
+    fn rehearsal_report_input(model: &Value, solved: &Value) -> Value {
+        let mut fixture = read_report_fixture();
+        let model_id = model["project"]["id"].as_str().expect("rehearsal model id");
+        let project_name = model["project"]["name"]
+            .as_str()
+            .expect("rehearsal project name");
+        let run_id = solved["run_id"].as_str().expect("rehearsal run id");
+        let source_location = "fixtures/product_preview/r2_from_blank_rehearsal.json";
+        let provenance = provenance(source_location);
+
+        fixture["calculation_report"]["report_id"] = json!(format!("report:{run_id}"));
+        fixture["calculation_report"]["model_input_summary"]["project_ref"] =
+            json!({"ref_type": "project", "ref_id": model_id});
+        fixture["calculation_report"]["model_input_summary"]["model_ref"] =
+            json!({"ref_type": "model", "ref_id": model_id});
+        fixture["calculation_report"]["model_input_summary"]["persistence_ref"] = json!({"ref_type": "project_persistence", "ref_id": "session_state_only_not_yet_saved"});
+        fixture["calculation_report"]["model_input_summary"]["unit_system_ref"] =
+            json!({"ref_type": "unit_system", "ref_id": "a12-rehearsal-si-local"});
+        fixture["calculation_report"]["model_input_summary"]["provenance"] = provenance.clone();
+        fixture["calculation_report"]["load_case_summary"] = Value::Array(
+            model["load_cases"]
+                .as_array()
+                .expect("rehearsal load cases")
+                .iter()
+                .map(|load_case| {
+                    json!({
+                        "load_ref": {
+                            "ref_type": "load_case",
+                            "ref_id": load_case["id"].as_str().unwrap_or("load:TBD")
+                        },
+                        "label": load_case["label"].as_str().unwrap_or("TBD"),
+                        "basis": load_case["kind"].as_str().unwrap_or("TBD"),
+                        "source": { "ref_type": "model", "ref_id": model_id },
+                        "provenance": provenance.clone()
+                    })
+                })
+                .collect(),
+        );
+        fixture["calculation_report"]["analysis_status"] = json!([
+            "HUMAN_REVIEW_REQUIRED",
+            solved["status"]["mechanics"]
+                .as_str()
+                .unwrap_or("MODEL_INCOMPLETE"),
+            solved["status"]["rule_check"]
+                .as_str()
+                .unwrap_or("RULE_INPUTS_INCOMPLETE")
+        ]);
+        fixture["calculation_report"]["provenance"] = provenance.clone();
+
+        let first_result = solved["results"]
+            .as_array()
+            .and_then(|rows| rows.first())
+            .expect("rehearsal solve emits at least one result row");
+        let report_sections = json!({
+            "report_section_id": format!("sections:{run_id}"),
+            "model_ref": {"ref_type": "model", "ref_id": model_id},
+            "run_ref": {"ref_type": "analysis_run", "ref_id": run_id},
+            "diagnostics": [],
+            "analysis_status_disclosures": [
+                {
+                    "status": solved["status"]["mechanics"].as_str().unwrap_or("MECHANICS_SOLVED"),
+                    "source": {"ref_type": "analysis_run", "ref_id": run_id},
+                    "affected_object": {"ref_type": "model", "ref_id": model_id},
+                    "explanation": "A12 invented from-blank rehearsal solved through the backend preview mechanics command.",
+                    "human_review_required": true,
+                    "human_acceptance_ref": null
+                },
+                {
+                    "status": "HUMAN_REVIEW_REQUIRED",
+                    "source": {"ref_type": "report_renderer", "ref_id": format!("report:{run_id}")},
+                    "affected_object": {"ref_type": "report", "ref_id": format!("report:{run_id}")},
+                    "explanation": "Human professional review is required before any reliance.",
+                    "human_review_required": true,
+                    "human_acceptance_ref": null
+                }
+            ],
+            "provenance_notes": [provenance.clone()],
+            "user_supplied_values": [],
+            "assumptions": [],
+            "limitations": [
+                {
+                    "limitation_id": format!("limitation:{run_id}:technical-preview"),
+                    "source": {"ref_type": "report_renderer", "ref_id": format!("report:{run_id}")},
+                    "affected_scope": {"ref_type": "model", "ref_id": model_id},
+                    "statement": "Technical-preview output over invented user-local data; not validated engineering output.",
+                    "effect": {
+                        "mechanics_solve_qualified": true,
+                        "user_rule_check_qualified": false,
+                        "report_completeness": "qualified",
+                        "human_review_required": true
+                    },
+                    "provenance": provenance.clone()
+                }
+            ],
+            "unresolved_tbds": [],
+            "professional_boundary": {
+                "human_review_required": true,
+                "software_makes_compliance_claim": false,
+                "software_makes_certification_claim": false,
+                "software_makes_sealing_claim": false,
+                "software_makes_approval_claim": false,
+                "software_makes_authentication_claim": false
+            }
+        });
+
+        json!({
+            "report_title": format!("{project_name} - Calculation Report (Technical Preview)"),
+            "calculation_report": fixture["calculation_report"].clone(),
+            "report_sections": report_sections,
+            "result_rows": [report_row_from_result(first_result)]
+        })
+    }
+
+    #[test]
+    fn r2_from_blank_rehearsal_authors_solves_and_renders_report() {
+        let rehearsal =
+            read_fixture("r2_from_blank_rehearsal.json").expect("A12 rehearsal fixture loads");
+        assert_eq!(
+            rehearsal["boundary"]["protected_content_included"],
+            json!(false)
+        );
+        assert_eq!(
+            rehearsal["boundary"]["private_payload_included"],
+            json!(false)
+        );
+
+        let (model, receipts) = apply_rehearsal_steps(&rehearsal);
+        assert_eq!(
+            receipts.len(),
+            rehearsal["steps"].as_array().expect("steps").len()
+        );
+        let expected = &rehearsal["expected"];
+        assert_eq!(
+            count_array(&model, "nodes"),
+            expected["nodes"].as_u64().unwrap() as usize
+        );
+        assert_eq!(
+            count_array(&model, "pipe_segments"),
+            expected["pipe_segments"].as_u64().unwrap() as usize
+        );
+        assert_eq!(
+            count_array(&model, "supports"),
+            expected["supports"].as_u64().unwrap() as usize
+        );
+        assert_eq!(
+            count_array(&model, "materials"),
+            expected["materials"].as_u64().unwrap() as usize
+        );
+        assert_eq!(
+            count_array(&model, "sections"),
+            expected["sections"].as_u64().unwrap() as usize
+        );
+        assert_eq!(
+            count_array(&model, "load_cases"),
+            expected["load_cases"].as_u64().unwrap() as usize
+        );
+        assert_eq!(
+            count_array(&model, "combinations"),
+            expected["combinations"].as_u64().unwrap() as usize
+        );
+
+        let solved = run_preview_mechanics(Some(model.clone()))
+            .expect("from-blank authored model solves through backend mechanics");
+        assert_eq!(solved["model_ref"], model["project"]["id"]);
+        assert_eq!(
+            solved["status"]["mechanics"], expected["mechanics_status"],
+            "unexpected rehearsal solve status; diagnostics={:?}",
+            solved["diagnostics"]
+        );
+        assert!(
+            solved["results"].as_array().expect("result rows").len()
+                >= expected["minimum_result_rows"].as_u64().unwrap() as usize
+        );
+        assert!(solved["results"]
+            .as_array()
+            .expect("result rows")
+            .iter()
+            .any(|row| row["basis_ref"]["ref_id"] == json!("combination:R2-C-100")));
+
+        let report_input = rehearsal_report_input(&model, &solved);
+        let rendered =
+            render_calculation_report(report_input).expect("A7 renderer accepts rehearsal report");
+        assert_eq!(
+            rendered["export_blocked"],
+            expected["report_export_blocked"]
+        );
+        assert_eq!(rendered["sha256_hex"].as_str().expect("hash").len(), 64);
+        let html = rendered["html"].as_str().expect("rendered html");
+        assert!(html.contains("R2 From Blank Rehearsal"));
+        assert!(html.contains("human_review_required"));
+        assert!(!html.contains("<script"));
+        assert!(!html.contains("code compliant"));
     }
 
     #[test]
@@ -2316,7 +2657,8 @@ mod tests {
             "diagnostics": []
         });
 
-        let solved = run_preview_mechanics(Some(blank)).expect("blank model produces an honest result envelope");
+        let solved = run_preview_mechanics(Some(blank))
+            .expect("blank model produces an honest result envelope");
         let diagnostics = solved["diagnostics"]
             .as_array()
             .expect("diagnostics should be present");

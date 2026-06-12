@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A12 from-blank R2 exit rehearsal (`TP-APP-R2-FROMBLANK-REHEARSAL-001`)
+
+A12 is landed as a backend-backed rehearsal script and regression for the PRD
+R2 exit chain. The new invented fixture
+`fixtures/product_preview/r2_from_blank_rehearsal.json` starts from a blank
+local model and lists structured authoring steps for two nodes, one material,
+one standalone section, one straight pipe run, one anchor support, one load
+case, one primitive load, and one mechanics combination. The Tauri regression
+`r2_from_blank_rehearsal_authors_solves_and_renders_report` consumes that
+fixture, converts each step to a structured operation envelope, applies the
+steps through `apply_model_operation`, solves the authored model through
+`run_preview_mechanics`, and renders the deterministic A7 HTML report through
+`render_calculation_report`.
+
+The rehearsal exposed and closed a real A4-to-A5 integration gap:
+operation-authored primitive-load categories were stored as
+`concentrated_force`, `concentrated_moment`, and `distributed_force`, while the
+product-physics adapter only accepted the older preview labels. The adapter
+now maps concentrated force/moment to the existing equivalent-static
+`Occasional` mechanics category and distributed force to `Weight`, with direct
+product-physics regression coverage.
+
+Evidence:
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_run_records/WORKING_ITEMS_RUN_2026-06-12_from_blank_rehearsal.md`;
+`apps/desktop/SMOKE.md` TP-MAC-126. Validation: rehearsal fixture JSON parses;
+product_physics cargo tests 24/24; Tauri Rust tests 30/30; desktop Vitest
+213/213; desktop production build green; Playwright R2 smoke 1/1 after wasm
+engine build.
+
+Residual hand-off: A8 must automate this A12 script as the GUI/e2e journey
+evidence backbone. Browser fixture mode still honestly refuses solved rows for
+edited models without the Tauri backend, so A12 does not claim browser-mode
+edited-model solving. No lifecycle state, release readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim is
+created.
+
 ## 2026-06-12 - A11 final sub-slice: node deletion authoring (`TP-APP-R2-DELNODE-001`)
 
 The structured operation seam now accepts `delete_node` as a delete-kind

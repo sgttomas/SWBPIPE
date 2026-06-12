@@ -2228,12 +2228,14 @@ fn parse_direction(value: &str) -> Result<LoadDirection, String> {
 fn parse_category(value: &str) -> Result<PrimitiveLoadCategory, String> {
     match value {
         "weight" => Ok(PrimitiveLoadCategory::Weight),
+        "distributed_force" => Ok(PrimitiveLoadCategory::Weight),
         "pressure" => Ok(PrimitiveLoadCategory::Pressure),
         "thermal" => Ok(PrimitiveLoadCategory::Thermal),
         "hydrotest" => Ok(PrimitiveLoadCategory::Hydrotest),
         "wind" => Ok(PrimitiveLoadCategory::Wind),
         "seismic" => Ok(PrimitiveLoadCategory::Seismic),
         "occasional" => Ok(PrimitiveLoadCategory::Occasional),
+        "concentrated_force" | "concentrated_moment" => Ok(PrimitiveLoadCategory::Occasional),
         _ => Err(format!("unsupported load category {value}")),
     }
 }
@@ -2475,6 +2477,44 @@ mod tests {
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
         assert!(!result.results.is_empty());
         assert!(result.summary.max_displacement.as_ref().unwrap().value > 0.0);
+        assert!(result
+            .results
+            .iter()
+            .any(|item| item.id == "result:disp:node-N-140"));
+    }
+
+    #[test]
+    fn operation_authored_primitive_categories_map_to_preview_mechanics() {
+        assert_eq!(
+            parse_category("concentrated_force").unwrap(),
+            PrimitiveLoadCategory::Occasional
+        );
+        assert_eq!(
+            parse_category("concentrated_moment").unwrap(),
+            PrimitiveLoadCategory::Occasional
+        );
+        assert_eq!(
+            parse_category("distributed_force").unwrap(),
+            PrimitiveLoadCategory::Weight
+        );
+
+        let mut request = request();
+        request.model.load_cases.truncate(1);
+        request.model.combinations.clear();
+        let primitive = request.model.load_cases[0]
+            .primitive_loads
+            .iter_mut()
+            .find(|load| load.id == "load:L-100-Y")
+            .expect("fixture carries a nodal force primitive");
+        primitive.category = "concentrated_force".to_string();
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result
+            .diagnostics
+            .iter()
+            .all(|diagnostic| diagnostic.code != "LOAD_INPUT_INVALID"));
         assert!(result
             .results
             .iter()

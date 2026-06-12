@@ -3810,3 +3810,35 @@ after the timestamp marker were absent.
   daemon, network, telemetry, protected content, repository-default
   private-data write, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-126 from-blank R2 exit rehearsal (`TP-APP-R2-FROMBLANK-REHEARSAL-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-FROMBLANK-REHEARSAL-001` (completion-plan A12): added
+  invented script fixture
+  `fixtures/product_preview/r2_from_blank_rehearsal.json` and Tauri
+  regression `r2_from_blank_rehearsal_authors_solves_and_renders_report`.
+  The script starts from a blank local model and applies structured operation
+  steps for nodes, material, standalone section, pipe run, support, load case,
+  primitive load, and mechanics combination.
+- Backend rehearsal evidence: every fixture step applies through
+  `apply_model_operation` with `applied_to_session_model` and no professional
+  approval claim; the authored model solves through `run_preview_mechanics`
+  with `MECHANICS_SOLVED`, emits combination-basis result rows, and renders
+  through the A7 `render_calculation_report` command with export gates
+  unblocked and a 64-character canonical HTML SHA-256.
+- Integration repair found by the rehearsal: product physics now maps
+  operation-authored primitive-load categories `concentrated_force`,
+  `concentrated_moment`, and `distributed_force` into the existing equivalent
+  static preview mechanics categories, so A4-created primitives can feed the
+  A5 backend solve path.
+- Automated evidence: `python3 -m json.tool` on the rehearsal fixture;
+  product_physics cargo tests 24/24; Tauri Rust tests 30/30; desktop Vitest
+  213/213; desktop production build green; Playwright R2 smoke 1/1 after
+  wasm engine build.
+- Residual A8 hand-off: browser fixture mode still intentionally refuses to
+  publish solved rows for edited models without the Tauri backend. The next
+  harness tranche should automate this A12 script as the GUI/e2e journey
+  backbone. Boundary review: invented public example only; no cloud, daemon,
+  network, telemetry, protected content, repository-default private-data
+  write, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim.

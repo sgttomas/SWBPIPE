@@ -150,3 +150,30 @@ Durable context preserved after PKG-02 grounded finding resolution:
   and in `apps/desktop/SMOKE.md` TP-MAC-116. No lifecycle state, release,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-12 - TP-APP-R2-FROMBLANK-REHEARSAL-001 backend rehearsal
+
+- WORKING_ITEMS app-integration tranche landed the A12 from-blank rehearsal as
+  invented fixture `fixtures/product_preview/r2_from_blank_rehearsal.json`
+  plus Tauri regression
+  `r2_from_blank_rehearsal_authors_solves_and_renders_report`.
+- The regression applies structured operation steps for two nodes, one
+  material, one standalone section, one pipe run, one support, one load case,
+  one primitive load, and one mechanics combination from a blank model. The
+  authored model solves through `run_preview_mechanics` with
+  `MECHANICS_SOLVED`, emits combination-basis result rows, and renders through
+  the A7 `render_calculation_report` command with export gates unblocked.
+- A real A4-to-A5 adapter gap was found and closed: product physics now maps
+  operation-authored primitive-load categories `concentrated_force`,
+  `concentrated_moment`, and `distributed_force` into the existing equivalent
+  static preview mechanics categories.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_from_blank_rehearsal.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-126. Validation passed: product_physics
+  cargo tests 24/24; Tauri Rust tests 30/30; desktop Vitest 213/213; desktop
+  production build green; Playwright R2 smoke 1/1.
+- Residual hand-off: browser fixture mode still honestly blocks solved rows
+  for edited models without the Tauri backend, so A8 must automate the A12
+  script as the GUI/e2e journey evidence backbone. No lifecycle state,
+  release, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
