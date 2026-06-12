@@ -5775,6 +5775,59 @@ describe("OpenPipeStress desktop preview", () => {
     expect(documentMigrationLine.textContent).toContain("ledger_records=0");
   });
 
+  it("queues and applies explicit material creation through the structured operation seam", async () => {
+    render(<App />);
+
+    const inspector = await screen.findByLabelText("Property inspector");
+    const createMaterialPanel = within(inspector).getByLabelText("Create material intent");
+    expect(within(createMaterialPanel).getByTestId("queue-create-material-intent")).toBeDisabled();
+
+    fireEvent.change(within(createMaterialPanel).getByTestId("create-material-id"), {
+      target: { value: "material:M-300" }
+    });
+    fireEvent.change(within(createMaterialPanel).getByTestId("create-material-label"), {
+      target: { value: "User alloy material" }
+    });
+    fireEvent.change(within(createMaterialPanel).getByTestId("create-material-elastic"), {
+      target: { value: "125000000000" }
+    });
+    fireEvent.change(within(createMaterialPanel).getByTestId("create-material-shear"), {
+      target: { value: "48000000000" }
+    });
+    fireEvent.change(within(createMaterialPanel).getByTestId("create-material-thermal"), {
+      target: { value: "0.00001" }
+    });
+    expect(within(createMaterialPanel).getByTestId("queue-create-material-intent")).not.toBeDisabled();
+    expect(within(createMaterialPanel).getByTestId("editor-operation-preview").textContent).toContain("create_material");
+
+    fireEvent.click(within(createMaterialPanel).getByTestId("queue-create-material-intent"));
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:create-material-material:M-300"
+      )
+    );
+
+    const createdMaterialRow = screen.getByTestId("tree-row-material:M-300");
+    expect(createdMaterialRow.textContent).toContain("User alloy material");
+    expect(createdMaterialRow).toHaveClass("active");
+    const materialInspector = screen.getByLabelText("Property inspector");
+    expect(materialInspector.textContent).toContain("125000000000 Pa");
+    expect(materialInspector.textContent).toContain("48000000000 Pa");
+    expect(materialInspector.textContent).toContain("0.00001 1/degC");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
   it("queues and applies explicit support creation through the structured operation seam", async () => {
     render(<App />);
 

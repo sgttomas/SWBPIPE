@@ -25,6 +25,7 @@ export function PropertyInspector({
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(editableFields[0]?.before ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
+  const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const operationIntent = selectedField
@@ -36,6 +37,7 @@ export function PropertyInspector({
         selection
       })
     : null;
+  const materialCreateIntent = isMaterialDraftValid(model, materialDraft) ? buildCreateMaterialIntent(materialDraft, model) : null;
   const supportCreateIntent = isSupportDraftValid(model, supportDraft) ? buildCreateSupportIntent(supportDraft, model) : null;
   const inlineValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
@@ -53,6 +55,10 @@ export function PropertyInspector({
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents));
   }, [model.project.id, model.nodes.length, model.supports.length, selection.id]);
 
+  useEffect(() => {
+    setMaterialDraft(defaultMaterialDraft(model, queuedIntents));
+  }, [model.project.id, model.materials?.length]);
+
   function handleFieldChange(fieldPath: string) {
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
@@ -68,6 +74,16 @@ export function PropertyInspector({
     if (!supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
     setSupportDraft(defaultSupportDraftWithReserved(model, selection, [...queuedIntents, supportCreateIntent]));
+  }
+
+  function handleQueueMaterialIntent() {
+    if (!materialCreateIntent) return;
+    onQueueIntent(materialCreateIntent);
+    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent]));
+  }
+
+  function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
+    setMaterialDraft((current) => ({ ...current, [key]: value }));
   }
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
@@ -164,6 +180,79 @@ export function PropertyInspector({
             Select an editable model entity to draft a structured operation intent.
           </p>
         )}
+      </section>
+      <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
+        <h3>Create material</h3>
+        <div className="editor-intent-controls">
+          <label>
+            <span>Material ID</span>
+            <input
+              aria-label="New material ID"
+              data-testid="create-material-id"
+              onChange={(event) => updateMaterialDraft("id", event.target.value)}
+              value={materialDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New material label"
+              data-testid="create-material-label"
+              onChange={(event) => updateMaterialDraft("label", event.target.value)}
+              value={materialDraft.label}
+            />
+          </label>
+          <label>
+            <span>Elastic modulus ({stressUnit(model)})</span>
+            <input
+              aria-label="New material elastic modulus"
+              data-testid="create-material-elastic"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("elasticModulus", event.target.value)}
+              value={materialDraft.elasticModulus}
+            />
+          </label>
+          <label>
+            <span>Shear modulus ({stressUnit(model)})</span>
+            <input
+              aria-label="New material shear modulus"
+              data-testid="create-material-shear"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("shearModulus", event.target.value)}
+              value={materialDraft.shearModulus}
+            />
+          </label>
+          <label>
+            <span>Thermal expansion ({thermalExpansionUnit(model)})</span>
+            <input
+              aria-label="New material thermal expansion"
+              data-testid="create-material-thermal"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("thermalExpansion", event.target.value)}
+              value={materialDraft.thermalExpansion}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New material provenance"
+              data-testid="create-material-provenance"
+              onChange={(event) => updateMaterialDraft("provenance", event.target.value)}
+              value={materialDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-material-intent"
+            disabled={!materialCreateIntent}
+            onClick={handleQueueMaterialIntent}
+            title="Queue material create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue material
+          </button>
+        </div>
+        {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
       </section>
       <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
         <h3>Create support</h3>
@@ -298,6 +387,15 @@ type SupportDraft = {
   label: string;
   node: string;
   restraints: string[];
+  provenance: string;
+};
+
+type MaterialDraft = {
+  id: string;
+  label: string;
+  elasticModulus: string;
+  shearModulus: string;
+  thermalExpansion: string;
   provenance: string;
 };
 
@@ -588,6 +686,68 @@ function buildOperationIntent({
   };
 }
 
+function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): EditorOperationIntent {
+  const materialId = draft.id.trim();
+  const payload: Record<string, unknown> = {
+    id: materialId,
+    label: draft.label.trim(),
+    elastic_modulus: { value: Number(draft.elasticModulus), unit: stressUnit(model) },
+    shear_modulus: { value: Number(draft.shearModulus), unit: stressUnit(model) },
+    provenance: draft.provenance.trim()
+  };
+  if (draft.thermalExpansion.trim()) {
+    payload.thermal_expansion_coefficient = { value: Number(draft.thermalExpansion), unit: thermalExpansionUnit(model) };
+  }
+  return {
+    operation_id: `op:create-material-${safeToken(materialId)}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Material",
+      ref: materialId
+    },
+    change: {
+      change_id: `change:create-material:${safeToken(materialId)}`,
+      change_kind: "create_material",
+      field_label: "Explicit material",
+      field_path: "materials",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: stressUnit(model),
+      dimension: "stress",
+      source_note: "explicit user-entered material quantities"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered material for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
 function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): EditorOperationIntent {
   const supportId = draft.id.trim();
   const payload = {
@@ -673,6 +833,22 @@ function operationIntentKey(intent: EditorOperationIntent): string {
   return intent.queue_id ?? intent.operation_id;
 }
 
+function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
+  return defaultMaterialDraftWithReserved(model, queuedIntents);
+}
+
+function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
+  const id = nextMaterialId(model, queuedIntents);
+  return {
+    id,
+    label: `Material ${shortEntityToken(id)}`,
+    elasticModulus: "",
+    shearModulus: "",
+    thermalExpansion: "",
+    provenance: "user_entered_local_preview"
+  };
+}
+
 function defaultSupportDraft(model: PreviewModel, selection: EntityRef, queuedIntents: EditorOperationIntent[]): SupportDraft {
   return defaultSupportDraftWithReserved(model, selection, queuedIntents);
 }
@@ -708,6 +884,32 @@ function nextSupportId(model: PreviewModel, queuedIntents: EditorOperationIntent
   return "support:S-TBD";
 }
 
+function nextMaterialId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set((model.materials ?? []).map((material) => material.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_material") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `material:M-${index}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "material:M-TBD";
+}
+
+function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolean {
+  const thermalProvided = draft.thermalExpansion.trim() !== "";
+  return (
+    Boolean(draft.id.trim() && draft.label.trim() && draft.provenance.trim()) &&
+    stressUnit(model) !== "TBD" &&
+    isPositiveInput(draft.elasticModulus) &&
+    isPositiveInput(draft.shearModulus) &&
+    (!thermalProvided || (thermalExpansionUnit(model) !== "TBD" && isFiniteInput(draft.thermalExpansion))) &&
+    !(model.materials ?? []).some((material) => material.id === draft.id.trim())
+  );
+}
+
 function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean {
   return (
     Boolean(draft.id.trim() && draft.label.trim() && draft.node.trim() && draft.provenance.trim()) &&
@@ -716,6 +918,23 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
     draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
     !model.supports.some((support) => support.id === draft.id.trim())
   );
+}
+
+function stressUnit(model: PreviewModel): string {
+  return model.project.units.pressure ?? "TBD";
+}
+
+function thermalExpansionUnit(model: PreviewModel): string {
+  const temperature = model.project.units.temperature;
+  return temperature ? `1/${temperature}` : "TBD";
+}
+
+function isFiniteInput(value: string): boolean {
+  return value.trim() !== "" && Number.isFinite(Number(value));
+}
+
+function isPositiveInput(value: string): boolean {
+  return isFiniteInput(value) && Number(value) > 0;
 }
 
 function shortEntityToken(value: string): string {

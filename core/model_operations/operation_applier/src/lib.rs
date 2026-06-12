@@ -628,6 +628,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_material: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "create_material" {
+        created_material = resolve_create_material(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_support: Option<Value> = None;
     if !checker.schema_blocked && change_kind == "create_support" {
         created_support = resolve_create_support(
@@ -727,6 +741,7 @@ fn run(
         }]
     } else if (created_node.is_some()
         || created_pipe.is_some()
+        || created_material.is_some()
         || created_support.is_some()
         || created_load_case.is_some()
         || created_primitive_load.is_some()
@@ -779,6 +794,15 @@ fn run(
         } else if let Some(pipe) = &created_pipe {
             let mut next_model = model.clone();
             if apply_created_pipe(&mut next_model, pipe) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(material) = &created_material {
+            let mut next_model = model.clone();
+            if apply_created_material(&mut next_model, material) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1014,6 +1038,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "update_support"
             | "create_node"
             | "connect_pipe_run"
+            | "create_material"
             | "create_support"
             | "create_load_case"
             | "create_primitive_load"
@@ -1039,6 +1064,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" => "modify",
         "create_node"
+        | "create_material"
         | "create_support"
         | "create_load_case"
         | "create_primitive_load"
@@ -1418,6 +1444,189 @@ fn resolve_connect_pipe_run(
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
         "provenance": provenance,
     }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_material(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Material" || field_path != "materials" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-MATERIAL-SHAPE-INVALID",
+            "blocking",
+            "Create-material intents must target object_type `Material` with field_path `materials`.".to_string(),
+            "Refresh the material creation intent from the explicit material authoring form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    let stored_stress_unit =
+        value_at(model, &["project", "units", "pressure"]).and_then(Value::as_str);
+    checker.unit_state = "passed";
+    let Some(stored_stress_unit) = stored_stress_unit else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project pressure/stress unit metadata is missing; explicit material moduli cannot be accepted.".to_string(),
+            "Repair the model document's project.units.pressure metadata before creating materials.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if unit != stored_stress_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match project stress unit `{stored_stress_unit}`; unit conversion is unavailable until the units engine lands."),
+            "Enter material modulus values in the project stress unit; no silent conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "stress" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-material dimension `{dimension}` must be `stress`."),
+            "Emit material creation intents with stress dimension metadata for modulus quantities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if model.get("materials").is_some() && !model.get("materials").is_some_and(Value::is_array) {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-MATERIAL-COLLECTION-MISSING",
+            "blocking",
+            "Model document does not expose a materials array.".to_string(),
+            "Repair the model document before creating materials.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "materials", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Material `{target_ref}` already exists in the current model."),
+            "Choose a new stable material id; create operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
+            "blocking",
+            "Create-material payload is not valid JSON.".to_string(),
+            "Emit the explicit material payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
+            "blocking",
+            "Create-material payload must be a JSON object.".to_string(),
+            "Emit id, label, elastic_modulus, shear_modulus, optional thermal_expansion_coefficient, and provenance fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let elastic_modulus = quantity_value(record, &["elastic_modulus"], stored_stress_unit);
+    let shear_modulus = quantity_value(record, &["shear_modulus"], stored_stress_unit);
+    if id != target_ref
+        || label.is_empty()
+        || provenance.is_empty()
+        || elastic_modulus.is_none()
+        || shear_modulus.is_none()
+    {
+        checker.push(
+            "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
+            "blocking",
+            "Create-material payload must include matching id, non-empty label/provenance, and positive elastic/shear modulus quantities in the project stress unit.".to_string(),
+            "Refresh the material creation intent from explicit user-entered material fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let mut material = serde_json::json!({
+        "id": id,
+        "label": label,
+        "elastic_modulus": { "value": elastic_modulus.unwrap(), "unit": stored_stress_unit },
+        "shear_modulus": { "value": shear_modulus.unwrap(), "unit": stored_stress_unit },
+        "provenance": provenance,
+    });
+    if record.get("thermal_expansion_coefficient").is_some() {
+        let Some(stored_temperature_unit) =
+            value_at(model, &["project", "units", "temperature"]).and_then(Value::as_str)
+        else {
+            checker.unit_state = "blocked";
+            checker.push(
+                "OP-UNIT-METADATA-MISSING",
+                "blocking",
+                "Project temperature unit metadata is missing; thermal expansion cannot be accepted.".to_string(),
+                "Repair the model document's project.units.temperature metadata before creating thermal expansion quantities.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        };
+        let expected_thermal_unit = format!("1/{stored_temperature_unit}");
+        let Some(thermal) = quantity_value_any_sign(
+            record,
+            &["thermal_expansion_coefficient"],
+            &expected_thermal_unit,
+        ) else {
+            checker.push(
+                "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
+                "blocking",
+                format!("Thermal expansion must be a finite quantity in unit `{expected_thermal_unit}`."),
+                "Enter thermal expansion in the reciprocal project temperature unit, or omit it.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        };
+        material["thermal_expansion_coefficient"] = serde_json::json!({
+            "value": thermal,
+            "unit": expected_thermal_unit,
+        });
+    }
+
+    Some(material)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -3103,6 +3312,17 @@ fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
     true
 }
 
+fn apply_created_material(model: &mut Value, material: &Value) -> bool {
+    if model.get("materials").is_none() {
+        model["materials"] = Value::Array(Vec::new());
+    }
+    let Some(materials) = model.get_mut("materials").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    materials.push(material.clone());
+    true
+}
+
 fn apply_created_support(model: &mut Value, support: &Value) -> bool {
     let Some(supports) = model.get_mut("supports").and_then(Value::as_array_mut) else {
         return false;
@@ -3266,6 +3486,20 @@ fn quantity_value(
     }
     let value = quantity.get("value").and_then(Value::as_f64)?;
     (value.is_finite() && value > 0.0).then_some(value)
+}
+
+fn quantity_value_any_sign(
+    record: &serde_json::Map<String, Value>,
+    path: &[&str],
+    expected_unit: &str,
+) -> Option<f64> {
+    let quantity = value_in_object(record, path)?.as_object()?;
+    let unit = quantity.get("unit").and_then(Value::as_str)?;
+    if unit != expected_unit {
+        return None;
+    }
+    let value = quantity.get("value").and_then(Value::as_f64)?;
+    value.is_finite().then_some(value)
 }
 
 fn vector_value(record: &serde_json::Map<String, Value>, key: &str) -> Option<(f64, f64, f64)> {
@@ -3706,6 +3940,110 @@ mod tests {
             outcome.professional_boundary["software_makes_approval_claim"],
             json!(false)
         );
+    }
+
+    #[test]
+    fn explicit_create_material_payload_applies_without_mutating_input() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "material:user-alloy",
+            "label": "User alloy",
+            "elastic_modulus": { "value": 125000000000.0, "unit": "Pa" },
+            "shear_modulus": { "value": 48000000000.0, "unit": "Pa" },
+            "thermal_expansion_coefficient": { "value": 0.000010, "unit": "1/degC" },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Material",
+            "material:user-alloy",
+            "create_material",
+            "materials",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "Pa",
+            "stress",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "materials");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["materials"]
+                .as_array()
+                .expect("materials array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["materials"][1], payload);
+    }
+
+    #[test]
+    fn create_material_blocks_duplicate_id_and_invalid_quantity_payloads() {
+        let model = sample_model();
+        let duplicate_payload = json!({
+            "id": "material:steel",
+            "label": "Duplicate material",
+            "elastic_modulus": { "value": 125000000000.0, "unit": "Pa" },
+            "shear_modulus": { "value": 48000000000.0, "unit": "Pa" },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut duplicate = modify_intent(
+            "Material",
+            "material:steel",
+            "create_material",
+            "materials",
+            "not_present",
+            &serde_json::to_string(&duplicate_payload).expect("payload json"),
+            "Pa",
+            "stress",
+        );
+        duplicate["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &duplicate, None);
+        assert!(codes(&outcome).contains(&"OP-TARGET-ALREADY-EXISTS"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+
+        let invalid_payload = json!({
+            "id": "material:user-alloy",
+            "label": "Invalid material",
+            "elastic_modulus": { "value": -1.0, "unit": "Pa" },
+            "shear_modulus": { "value": 48000000000.0, "unit": "Pa" },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut invalid = modify_intent(
+            "Material",
+            "material:user-alloy",
+            "create_material",
+            "materials",
+            "not_present",
+            &serde_json::to_string(&invalid_payload).expect("payload json"),
+            "Pa",
+            "stress",
+        );
+        invalid["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &invalid, None);
+        assert!(codes(&outcome).contains(&"OP-CREATE-MATERIAL-PAYLOAD-INVALID"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]

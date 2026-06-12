@@ -1,0 +1,203 @@
+{
+  "base_model": {
+    "analysis_status": {
+      "mechanics": "ready",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed"
+    },
+    "components": [],
+    "data_boundary": {
+      "private_data_policy": "no_private_project_data",
+      "professional_boundary": "technical_preview_requires_human_engineering_review",
+      "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+      "public_examples_policy": "invented_or_cleared_data_only"
+    },
+    "diagnostics": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [],
+    "materials": [],
+    "nodes": [],
+    "pipe_segments": [],
+    "project": {
+      "description": "Invented preview-model derivative for create-material corpus coverage.",
+      "id": "project:corpus-material",
+      "name": "Contract corpus material model",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.1.0",
+    "supports": []
+  },
+  "case_id": "accept-create-material",
+  "claimed_model_hash": null,
+  "description": "create_material accepted apply with explicit invented material quantities.",
+  "expected": {
+    "applied_model": {
+      "analysis_status": {
+        "mechanics": "ready",
+        "professional_acceptance": "not_provided",
+        "rule_check": "not_performed"
+      },
+      "components": [],
+      "data_boundary": {
+        "private_data_policy": "no_private_project_data",
+        "professional_boundary": "technical_preview_requires_human_engineering_review",
+        "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+        "public_examples_policy": "invented_or_cleared_data_only"
+      },
+      "diagnostics": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 125000000000.0
+          },
+          "id": "material:user-alloy",
+          "label": "Corpus user alloy",
+          "provenance": "user_entered_local_preview",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 48000000000.0
+          },
+          "thermal_expansion_coefficient": {
+            "unit": "1/degC",
+            "value": 0.00001
+          }
+        }
+      ],
+      "nodes": [],
+      "pipe_segments": [],
+      "project": {
+        "description": "Invented preview-model derivative for create-material corpus coverage.",
+        "id": "project:corpus-material",
+        "name": "Contract corpus material model",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "supports": []
+    },
+    "applied_model_canonical_sha256": "sha256:d65dde69d03a6f71776c12d222575691b27b79703ec6920f87c83675720ff5e8",
+    "outcome": {
+      "acceptance": {
+        "acceptance_basis": "user_initiated_apply_in_local_session",
+        "acceptance_is_professional_approval": false,
+        "persistence_status": "session_state_only_not_yet_saved"
+      },
+      "applied": true,
+      "audit_boundary": {
+        "applied_model_is_new_document": true,
+        "direct_model_mutation_allowed": false,
+        "input_model_mutated_in_place": false,
+        "mutation_route": "structured_operations_only",
+        "requires_user_acceptance": true
+      },
+      "change_id": "change:corpus-accept-create-material",
+      "change_kind": "create_material",
+      "deliverable_refs": [
+        "DEL-16-02",
+        "DEL-16-03"
+      ],
+      "diagnostics": [],
+      "diff_preview": [
+        {
+          "after": "{\"id\":\"material:user-alloy\",\"label\":\"Corpus user alloy\",\"elastic_modulus\":{\"value\":125000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":48000000000,\"unit\":\"Pa\"},\"thermal_expansion_coefficient\":{\"value\":0.00001,\"unit\":\"1/degC\"},\"provenance\":\"user_entered_local_preview\"}",
+          "before": "not_present",
+          "change_kind": "create_material",
+          "dimension": "stress",
+          "entity_ref": "material:user-alloy",
+          "field_path": "materials",
+          "object_type": "Material",
+          "unit": "Pa"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.operation_outcome",
+      "input_model_unchanged": true,
+      "mode": "apply",
+      "model_basis": {
+        "backend_canonicalization": "rfc8785_jcs",
+        "backend_model_hash": "sha256:53e0f71dd124c4bc3e0fbf18d3085442a74345e16ab05c8dac068fcb8ec9ad67",
+        "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+        "claimed_hash_canonicalization": "not_provided",
+        "claimed_model_hash": "not_provided"
+      },
+      "operation_id": "op:corpus-accept-create-material",
+      "operation_kind": "create",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_compliance_claim": false,
+        "software_makes_sealing_claim": false
+      },
+      "schema_version": "0.1.0",
+      "target_object_type": "Material",
+      "target_ref": "material:user-alloy",
+      "validation": {
+        "application_status": "applied_to_session_model",
+        "before_state_validation": "passed",
+        "diff_preview_status": "generated",
+        "reference_validation": "passed",
+        "schema_validation": "passed",
+        "unit_validation": "passed"
+      }
+    }
+  },
+  "intent": {
+    "audit_boundary": {
+      "direct_model_mutation_allowed": false,
+      "mutates_accepted_model_state": false,
+      "mutation_route": "structured_operations_only",
+      "requires_user_acceptance": true
+    },
+    "author_type": "user",
+    "change": {
+      "after": "{\"id\":\"material:user-alloy\",\"label\":\"Corpus user alloy\",\"elastic_modulus\":{\"value\":125000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":48000000000,\"unit\":\"Pa\"},\"thermal_expansion_coefficient\":{\"value\":0.00001,\"unit\":\"1/degC\"},\"provenance\":\"user_entered_local_preview\"}",
+      "before": "not_present",
+      "change_id": "change:corpus-accept-create-material",
+      "change_kind": "create_material",
+      "dimension": "stress",
+      "field_label": "materials",
+      "field_path": "materials",
+      "source_note": "contract_corpus_invented",
+      "unit": "Pa"
+    },
+    "operation_id": "op:corpus-accept-create-material",
+    "operation_kind": "create",
+    "operation_status": "proposed",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "rationale": "invented contract corpus case",
+    "target": {
+      "object_type": "Material",
+      "ref": "material:user-alloy"
+    },
+    "validation": {
+      "application_status": "not_applied",
+      "constraint_validation": "not_run",
+      "diff_preview_status": "not_generated",
+      "schema_validation": "not_run",
+      "unit_validation": "not_run"
+    }
+  },
+  "mode": "apply"
+}

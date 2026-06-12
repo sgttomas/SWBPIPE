@@ -3563,3 +3563,33 @@ after the timestamp marker were absent.
   telemetry, protected content, repository-default private-data write,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-118 material creation authoring (`TP-APP-R2-CREATEMATERIAL-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-CREATEMATERIAL-001` (completion-plan Phase A10 second
+  sub-slice): the structured operation seam now accepts `create_material`
+  intents, validates explicit material payloads, blocks duplicate material
+  ids, requires elastic/shear quantities in the project pressure unit, and
+  accepts an optional thermal-expansion coefficient in `1/{temperature_unit}`.
+  The contract corpus now has 46 cases and requires an accepted
+  `create_material` apply in both Rust and browser wasm lanes.
+- Property Inspector smoke at `http://127.0.0.1:5173/` authored
+  `material:M-301` with label `Browser alloy material`, elastic modulus
+  `125000000000 Pa`, shear modulus `48000000000 Pa`, thermal expansion
+  `0.00001 1/degC`, and provenance `user_entered_local_preview`, then queued
+  and applied the intent through the Apply Operations panel.
+- Live browser evidence showed the created material row active in the model
+  tree, the inspector showing the elastic, shear, and thermal-expansion
+  quantities, review context `0 pending operations; applied_operations=1`,
+  acceptance `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live Chrome smoke reported zero browser console
+  errors.
+- Automated evidence: operation_applier cargo suites green (38 unit tests,
+  canonical hash parity, 46-case corpus); desktop operationContractCorpus
+  Vitest 95/95; focused App Vitest 1/1; full desktop Vitest 180/180; desktop
+  production build green; Tauri Rust tests 29/29; Playwright R2 smoke 1/1.
+- Boundary review: local-only; invented values; no cloud, daemon, network,
+  telemetry, protected content, repository-default private-data write,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

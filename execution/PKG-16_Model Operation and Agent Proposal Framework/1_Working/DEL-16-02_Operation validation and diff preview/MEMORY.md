@@ -387,6 +387,35 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-12 - TP-APP-R2-CREATEMATERIAL-001 material creation authoring
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` with `create_material`.
+- Accepted intents must target object type `Material` with
+  `field_path=materials`, `operation_kind=create`, `before=not_present`, the
+  project pressure unit, dimension `stress`, and an explicit JSON payload
+  carrying matching id, label, elastic modulus, shear modulus, optional
+  thermal expansion coefficient, and provenance.
+- Duplicate material ids, invalid or non-positive elastic/shear quantities,
+  invalid thermal-expansion quantities, wrong unit/dimension metadata, and
+  malformed materials collections are blocked. No material defaults or unit
+  conversions are applied.
+- Contract corpus coverage now includes
+  `fixtures/model_operations/contract_corpus/case_46_accept_create_material.json`;
+  both Rust and browser wasm corpus runners require accepted
+  `create_material` coverage.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_create_material_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-118. Validation passed:
+  operation-applier cargo suites (38 unit + canonical hash + 46-case corpus),
+  corpus bless/rerun, desktop operationContractCorpus 95/95, full desktop
+  Vitest 180/180, desktop build, src-tauri Rust tests 29/29, Playwright smoke
+  1/1, and live Chrome material-create smoke with zero console errors.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden material defaults, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.
+
 ## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
 
 - WORKING_ITEMS app-integration tranche extended the browser local operation

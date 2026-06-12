@@ -375,6 +375,7 @@ export type EditorOperationIntent = {
       | "update_support"
       | "create_node"
       | "connect_pipe_run"
+      | "create_material"
       | "create_support"
       | "create_load_case"
       | "create_primitive_load"

@@ -109,6 +109,27 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-12 - TP-APP-R2-CREATEMATERIAL-001 material creation inspector form
+
+- WORKING_ITEMS app-integration tranche added a Property Inspector
+  `Create material` form with material id, label, elastic modulus, shear
+  modulus, optional thermal expansion coefficient, provenance, and
+  `Queue material`.
+- The form emits a review-only structured `create_material` operation intent;
+  it does not mutate the session model directly.
+- Applying the queued intent through the existing Apply Operations panel
+  selects the created material in the model tree and shows the material
+  quantities in the inspector.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_create_material_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-118. Validation passed:
+  focused App Vitest 1/1, full desktop Vitest 180/180, desktop build,
+  Playwright smoke 1/1, and live Chrome smoke with zero console errors.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
 
 - WORKING_ITEMS app-integration tranche extended the Load Cases manager with a
