@@ -11,7 +11,10 @@ use std::collections::{BTreeMap, HashMap};
 /// Project-local deterministic JSON value used for hash inputs.
 ///
 /// Object keys are ordered by `BTreeMap` serialization. Number strings are
-/// caller-supplied and are not normalized under RFC 8785/JCS rules.
+/// caller-supplied and are not normalized under RFC 8785/JCS rules. Callers
+/// that need RFC 8785 number rendering should produce their text through the
+/// project's shared renderer at `core/serialization/canonical_json`
+/// (completion-plan hardening row H5) before supplying number strings here.
 #[derive(Debug, Clone, PartialEq)]
 pub enum CanonicalJson {
     Null,

@@ -136,3 +136,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   and `git diff --check`.
 - Lifecycle state remains `IN_PROGRESS`; no review disposition, dependency,
   DAG, release, professional-approval, or code-compliance claim was changed.
+
+## 2026-06-11 - H5 RFC 8785 canonical rendering (TP-H5-JCSRENDER-001)
+
+- The project's canonical JSON is now true RFC 8785 (JCS) via the shared
+  `core/serialization/canonical_json` crate (ECMAScript number rendering
+  with ryu digit selection, UTF-16 code-unit key sort,
+  `JSON.stringify`-identical escaping); `operation_applier::canonical_json`
+  re-exports it and the headless runner checksums consume it. This
+  resolves the 2026-06-06 hardening note's "Full JCS/RFC 8785
+  canonicalization remains deferred" TBD at the engine/hash seams.
+- This crate's `CanonicalJson` is intentionally unchanged: numbers stay
+  caller-supplied strings; the doc comment now names the shared crate as
+  the project's RFC 8785 number renderer.
+- Canonicalization labels on engine-computed hashes are unified to
+  `rfc8785_jcs` (was `serde_json_sorted_keys_not_rfc8785` backend /
+  `jcs_like_sorted_object_keys` frontend / aspirational `"JCS"` headless).
+- Hash evidence corpora re-blessed under the new rendering
+  (`fixtures/canonical_hash/` 20 cases; 44 contract-corpus cases with
+  backend hashes byte-equality-compared across all lanes).
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-11_h5_rfc8785_rendering.md`.
+  Lifecycle state unchanged (`CHECKING`); no review disposition, release,
+  professional-approval, or code-compliance claim.

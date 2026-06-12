@@ -6,11 +6,12 @@
 //! filesystem, run GUI/report/adapter/local-FEA workflows, or emit professional
 //! or code-compliance claims.
 
+use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview, LinearStaticPreviewRequest, MechanicsEnvelope,
 };
 use serde::Serialize;
-use serde_json::{Map, Value};
+use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -136,7 +137,7 @@ pub struct ChecksumRef {
 impl ChecksumRef {
     fn is_complete(&self) -> bool {
         matches!(self.algorithm.trim(), "sha256" | "sha512")
-            && matches!(self.canonicalization.trim(), "JCS" | "NONE")
+            && matches!(self.canonicalization.trim(), "rfc8785_jcs" | "NONE")
             && self.payload_ref.is_complete()
             && !self.value.trim().is_empty()
             && !self.value.trim().eq_ignore_ascii_case("TBD")
@@ -780,33 +781,17 @@ fn validate_shared_boundaries(
     }
 }
 
+/// Checksum evidence over the shared RFC 8785 (JCS) canonical JSON text from
+/// `core/serialization/canonical_json` (completion-plan hardening row H5), so
+/// the headless runner hashes the same canonical bytes as every other
+/// OpenPipeStress hash seam.
 fn checksum_ref<T: Serialize>(ref_type: &str, ref_id: &str, value: &T) -> ChecksumRef {
+    let payload = serde_json::to_value(value).expect("runner values must serialize");
     ChecksumRef {
         algorithm: "sha256".to_string(),
-        canonicalization: "JCS".to_string(),
+        canonicalization: "rfc8785_jcs".to_string(),
         payload_ref: Reference::new(ref_type, ref_id),
-        value: sha256_hex(&canonical_json(value)),
-    }
-}
-
-fn canonical_json<T: Serialize>(value: &T) -> String {
-    let value = serde_json::to_value(value).expect("runner values must serialize");
-    serde_json::to_string(&sort_json(value)).expect("runner values must encode as JSON")
-}
-
-fn sort_json(value: Value) -> Value {
-    match value {
-        Value::Array(items) => Value::Array(items.into_iter().map(sort_json).collect()),
-        Value::Object(object) => {
-            let mut sorted = Map::new();
-            let mut entries = object.into_iter().collect::<Vec<_>>();
-            entries.sort_by(|left, right| left.0.cmp(&right.0));
-            for (key, value) in entries {
-                sorted.insert(key, sort_json(value));
-            }
-            Value::Object(sorted)
-        }
-        scalar => scalar,
+        value: sha256_hex(&canonical_json(&payload)),
     }
 }
 
@@ -838,7 +823,7 @@ mod tests {
     fn checksum(id: &str) -> ChecksumRef {
         ChecksumRef {
             algorithm: "sha256".to_string(),
-            canonicalization: "JCS".to_string(),
+            canonicalization: "rfc8785_jcs".to_string(),
             payload_ref: Reference::new("payload", id),
             value: format!("{id}-hash"),
         }
@@ -847,7 +832,7 @@ mod tests {
     fn result_envelope_checksum(id: &str) -> ChecksumRef {
         ChecksumRef {
             algorithm: "sha256".to_string(),
-            canonicalization: "JCS".to_string(),
+            canonicalization: "rfc8785_jcs".to_string(),
             payload_ref: Reference::new("result_envelope", id),
             value: format!("{id}-hash"),
         }
@@ -961,7 +946,7 @@ mod tests {
                 checksum("runner-input"),
                 ChecksumRef {
                     algorithm: "sha256".to_string(),
-                    canonicalization: "JCS".to_string(),
+                    canonicalization: "rfc8785_jcs".to_string(),
                     payload_ref: Reference::new(
                         "result_envelope",
                         "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",

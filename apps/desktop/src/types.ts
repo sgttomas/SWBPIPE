@@ -566,7 +566,7 @@ export type LocalProjectIndexEntry = {
 
 export type ModelHashEvidence = {
   algorithm: "sha256";
-  canonicalization: "jcs_like_sorted_object_keys";
+  canonicalization: "rfc8785_jcs";
   payload_scope: "model_payload";
   payload_ref: string;
   value: string;
@@ -583,7 +583,7 @@ export type ModelHashIntegrityEvidence = {
 
 export type ProjectEnvelopeHashEvidence = {
   algorithm: "sha256";
-  canonicalization: "jcs_like_sorted_object_keys";
+  canonicalization: "rfc8785_jcs";
   payload_scope: "project_envelope_payload";
   payload_excludes: "storage_summary_and_envelope_hash_carrier_fields";
   payload_ref: string;
@@ -601,7 +601,7 @@ export type ProjectEnvelopeHashIntegrityEvidence = {
 
 export type PackageHashEvidence = {
   algorithm: "sha256";
-  canonicalization: "jcs_like_sorted_object_keys";
+  canonicalization: "rfc8785_jcs";
   payload_scope: "package_review_payload";
   payload_excludes:
     | "validation_report_package_hash_fields"

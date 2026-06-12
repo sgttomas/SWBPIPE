@@ -165,7 +165,7 @@
   "case_id": "accept-claimed-hash-echo",
   "claimed_model_hash": {
     "algorithm": "sha256",
-    "canonicalization": "jcs_like_sorted_object_keys",
+    "canonicalization": "rfc8785_jcs",
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus",
     "payload_scope": "model_payload",
@@ -374,9 +374,10 @@
       "input_model_unchanged": true,
       "mode": "apply",
       "model_basis": {
-        "backend_canonicalization": "serde_json_sorted_keys_not_rfc8785",
+        "backend_canonicalization": "rfc8785_jcs",
+        "backend_model_hash": "sha256:10d61d50ba7bb4d3dc459b5e889f6044237553c7fff19dfc1b65893889022944",
         "binding_status": "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated",
-        "claimed_hash_canonicalization": "jcs_like_sorted_object_keys",
+        "claimed_hash_canonicalization": "rfc8785_jcs",
         "claimed_model_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
       },
       "operation_id": "op:corpus-accept-claimed-hash-echo",

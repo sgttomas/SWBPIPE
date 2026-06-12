@@ -102,7 +102,7 @@
         "canonicalization": {
           "type": "string",
           "enum": [
-            "JCS",
+            "rfc8785_jcs",
             "NONE",
             "TBD"
           ]

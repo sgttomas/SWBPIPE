@@ -251,8 +251,8 @@ def main():
 
     checksum = defs["ChecksumRef"]["properties"]
     assert set(checksum["algorithm"]["enum"]) == {"sha256", "sha512", "TBD"}
-    assert set(checksum["canonicalization"]["enum"]) == {"JCS", "NONE", "TBD"}
-    assert "JCS" in checksum["canonicalization"]["enum"]
+    assert set(checksum["canonicalization"]["enum"]) == {"rfc8785_jcs", "NONE", "TBD"}
+    assert "rfc8785_jcs" in checksum["canonicalization"]["enum"]
     assert "NONE" in checksum["canonicalization"]["enum"]
     assert defs["HeadlessRunnerResult"]["properties"]["checksums"]["minItems"] == 1
 

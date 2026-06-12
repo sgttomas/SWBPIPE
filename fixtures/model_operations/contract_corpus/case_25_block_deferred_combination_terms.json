@@ -212,7 +212,8 @@
       "input_model_unchanged": true,
       "mode": "apply",
       "model_basis": {
-        "backend_canonicalization": "serde_json_sorted_keys_not_rfc8785",
+        "backend_canonicalization": "rfc8785_jcs",
+        "backend_model_hash": "sha256:4ef42d8bf982183f724050a4580b1628a3e927cab7cbef1bf4cfc8679af75674",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

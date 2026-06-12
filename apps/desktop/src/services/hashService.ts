@@ -40,7 +40,7 @@ export async function computeModelHash(model: PreviewModel): Promise<ModelHashEv
   const hex = await canonicalSha256Hex(model);
   return {
     algorithm: "sha256",
-    canonicalization: "jcs_like_sorted_object_keys",
+    canonicalization: "rfc8785_jcs",
     payload_scope: "model_payload",
     payload_ref: model.project.id,
     value: `sha256:${hex}`,
@@ -67,7 +67,7 @@ export async function computeProjectEnvelopeHash(
   const hex = await canonicalSha256Hex(payload);
   return {
     algorithm: "sha256",
-    canonicalization: "jcs_like_sorted_object_keys",
+    canonicalization: "rfc8785_jcs",
     payload_scope: "project_envelope_payload",
     payload_excludes: "storage_summary_and_envelope_hash_carrier_fields",
     payload_ref: payload.model.project.id,
@@ -84,7 +84,7 @@ export async function computePackageHash(
   const hex = await canonicalSha256Hex(packetPayload);
   return {
     algorithm: "sha256",
-    canonicalization: "jcs_like_sorted_object_keys",
+    canonicalization: "rfc8785_jcs",
     payload_scope: "package_review_payload",
     payload_excludes: payloadExcludes,
     payload_ref: packageId,

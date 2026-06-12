@@ -11,27 +11,24 @@
 // - exact equality on semantic fields; diagnostics compared as
 //   code/severity/blocking/affected_refs records, order-insensitively;
 // - engine-identity fields excluded only via the documented allowlist
-//   (application_route, model_basis.backend_model_hash,
-//   applied_model_backend_hash blessed-value comparison, diagnostics[].id,
-//   diagnostics[].source, diagnostics[].message, diagnostics[].remediation
-//   — see the corpus README). Tightened at TP-H1-HASHUNIFY-001:
-//   model_basis.backend_canonicalization is compared (invariant label) and
-//   every lane asserts engine self-consistency — applied_model_backend_hash
-//   must equal the engine hash of the returned applied document. Backend
-//   hash VALUES stay excluded from blessed comparison for a measured
-//   reason: JS transport renders 200.0 as 200, so input-text-derived
-//   hashes legitimately differ between the native-file lane and JS-fed
-//   lanes (see the corpus README);
-// - applied model documents compared BOTH by parsed-JSON deep equality AND by
-//   the corpus-harness canonical hash (ECMA-compatible number rendering — a
-//   transport-invariant harness normalization mirrored in the Rust runner;
-//   NOT a production hash path: production hashing is the wasm engine via
-//   hashService.ts, pinned by fixtures/canonical_hash/).
+//   (application_route, diagnostics[].id, diagnostics[].source,
+//   diagnostics[].message, diagnostics[].remediation — see the corpus
+//   README). Tightened at TP-H1-HASHUNIFY-001 (backend_canonicalization
+//   label compared) and again at H5: the engine canonicalization is
+//   RFC 8785 (JCS), so model_basis.backend_model_hash and
+//   applied_model_backend_hash VALUES are full byte-equality comparisons
+//   in every lane — JS transport (200.0 → 200) no longer shifts the
+//   canonical bytes, which is what kept those values excluded between
+//   TP-H1-HASHUNIFY-001 and H5;
+// - applied model documents compared BOTH by parsed-JSON deep equality AND
+//   by the engine's own canonical hash through the wasm exports (the ECMA
+//   harness renderer twins that previously approximated transport
+//   invariance are retired — the engine rendering IS transport-invariant,
+//   pinned by fixtures/canonical_hash/).
 //
 // All corpus data is invented (PUBLIC_DOMAIN_OR_ORIGINAL); no protected
 // standards content; no compliance/certification/approval claims.
 
-import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -145,10 +142,11 @@ function semanticOutcome(outcome: OperationOutcome): Record<string, unknown> {
       claimed_model_hash: outcome.model_basis.claimed_model_hash,
       claimed_hash_canonicalization: outcome.model_basis.claimed_hash_canonicalization,
       binding_status: outcome.model_basis.binding_status,
-      // Compared since TP-H1-HASHUNIFY-001 (invariant label); the
-      // backend_model_hash VALUE stays excluded — input-text-dependent
-      // (JS renders 200.0 as 200). See the corpus README.
-      backend_canonicalization: outcome.model_basis.backend_canonicalization
+      // Label compared since TP-H1-HASHUNIFY-001; the VALUE joined the
+      // compared surface at H5 — RFC 8785 rendering made input-text hashes
+      // transport-invariant, retiring the measured exclusion.
+      backend_canonicalization: outcome.model_basis.backend_canonicalization,
+      backend_model_hash: outcome.model_basis.backend_model_hash
     },
     input_model_unchanged: outcome.input_model_unchanged,
     acceptance: outcome.acceptance,
@@ -158,32 +156,14 @@ function semanticOutcome(outcome: OperationOutcome): Record<string, unknown> {
   };
 }
 
-// Corpus-harness ECMA canonical rendering (sorted object keys, JS number
-// rendering). Harness-only, mirrored line-for-line by canonical_json_ecma in
-// the Rust runner — NOT a production hash path (production hashing is the
-// wasm engine via hashService.ts). It exists because JS transport erases the
-// textual 200.0/200 distinction, so only an ECMA-normalized rendering can
-// hash identically across the native-file lane and JS-fed lanes.
-function ecmaCanonicalJson(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map((item) => ecmaCanonicalJson(item)).join(",")}]`;
-  const entries = Object.entries(value as Record<string, unknown>)
-    .filter(([, entryValue]) => entryValue !== undefined)
-    .sort(([first], [second]) => (first < second ? -1 : first > second ? 1 : 0));
-  return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${ecmaCanonicalJson(entryValue)}`).join(",")}}`;
-}
-
+// The engine's own canonical hash through the wasm exports (RFC 8785 since
+// H5). Transport-invariant: identical values hash identically whether they
+// arrived as raw case-file text or through JSON.stringify, so this single
+// formula replaced the retired TS ECMA harness renderer and serves the
+// blessed-value comparison in every lane.
 function corpusCanonicalHash(value: unknown): string {
-  return `sha256:${createHash("sha256").update(ecmaCanonicalJson(value), "utf8").digest("hex")}`;
+  return `sha256:${harnessEngine.canonicalSha256Hex(JSON.stringify(value))}`;
 }
-
-// Measured at TP-H1-HASHUNIFY-001: the engine's applied_model_backend_hash
-// is verifiable only Rust-side. The engine hashes its in-process document,
-// where self-produced integral doubles render as `...0.0`; that text cannot
-// survive a JS round-trip (JSON.stringify strips the `.0`), so no JS-side
-// recomputation can reproduce the value. The native runner asserts the
-// self-consistency formula; these lanes assert presence plus the
-// transport-invariant harness hash.
 
 function isDynamicPrimitiveMagnitudePath(fieldPath: string): boolean {
   return /^primitive_loads\.\d+\.magnitude\.value$/.test(fieldPath);
@@ -259,8 +239,8 @@ describe("operation contract corpus — browser-mode adapter lane (wasm engine v
         expect(corpusCanonicalHash(outcome.applied_model)).toBe(expected.applied_model_canonical_sha256);
         expect(
           outcome.applied_model_backend_hash,
-          "accepted applies must carry the engine-internal backend hash (Rust-side verifiable only; see harness note)"
-        ).not.toBeNull();
+          "the engine's applied_model_backend_hash must byte-equal the blessed canonical hash in every lane (H5 full byte-equality)"
+        ).toBe(expected.applied_model_canonical_sha256);
       }
     });
   }
@@ -322,8 +302,8 @@ describe("operation contract corpus — wasm engine lane (native↔wasm parity)"
         expect(corpusCanonicalHash(outcome.applied_model)).toBe(expected.applied_model_canonical_sha256);
         expect(
           outcome.applied_model_backend_hash,
-          "accepted applies must carry the engine-internal backend hash (Rust-side verifiable only; see harness note)"
-        ).not.toBeNull();
+          "the engine's applied_model_backend_hash must byte-equal the blessed canonical hash in every lane (H5 full byte-equality)"
+        ).toBe(expected.applied_model_canonical_sha256);
       }
     });
   }

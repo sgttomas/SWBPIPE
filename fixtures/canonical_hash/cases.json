@@ -38,8 +38,8 @@
     },
     {
       "case_id": "number-exponent-form",
-      "expected_canonical": "1000000000.0",
-      "expected_sha256": "e3e9511be66c9055442b9b502bb997b98692301b9945a5858d2f2b8c9b11f4ed",
+      "expected_canonical": "1000000000",
+      "expected_sha256": "52a5d4a071d82caea87329868d22f6b8390ac3d227c6fde0d4525e69510ec479",
       "input_json": "1e9"
     },
     {
@@ -74,15 +74,51 @@
     },
     {
       "case_id": "nested-invented-model-slice",
-      "expected_canonical": "{\"nodes\":[{\"id\":\"node:N-1\",\"x\":0.0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2.0,\"y\":0.0,\"z\":0.0}],\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}",
-      "expected_sha256": "27de8c3c24b2a46339a50cf363ac467ae83e3b21a5b47a637f6e64046ac9bd2c",
+      "expected_canonical": "{\"nodes\":[{\"id\":\"node:N-1\",\"x\":0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2,\"y\":0,\"z\":0}],\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}",
+      "expected_sha256": "2adea024e7dc14c9784b107b60f852f38ea5dcc423048c14bcaa5a1faa9e51f7",
       "input_json": "{\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"nodes\":[{\"id\":\"node:N-1\",\"x\":0.0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2.0,\"y\":0.0,\"z\":0.0}],\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}"
     },
     {
-      "case_id": "key-sort-is-codepoint-order",
+      "case_id": "key-sort-ascii-keys",
       "expected_canonical": "{\"10\":4,\"2\":5,\"B\":1,\"_underscore\":3,\"a\":2}",
       "expected_sha256": "8138af18a134c5d0c1152403bc80c92d7bf51f7654100a95c3183857fa467bd0",
       "input_json": "{\"B\":1,\"a\":2,\"_underscore\":3,\"10\":4,\"2\":5}"
+    },
+    {
+      "case_id": "number-float-integral-renders-integer",
+      "expected_canonical": "{\"transported\":200,\"value\":200}",
+      "expected_sha256": "cd053f655eb7bcb8ec8aa064479c829ffd371b95cc8d0bda0710a553797d649f",
+      "input_json": "{\"value\": 200.0, \"transported\": 200}"
+    },
+    {
+      "case_id": "number-negative-zero-renders-zero",
+      "expected_canonical": "[0,0,0]",
+      "expected_sha256": "2a08979e8002252124e861b2816490b04fe03b6b779f9287fb7c25652bbc4052",
+      "input_json": "[-0.0, 0.0, 0]"
+    },
+    {
+      "case_id": "number-ecma-notation-boundaries",
+      "expected_canonical": "[100000000000000000000,1e+21,0.000001,1e-7,0.000001234,1.23e+21,-1.5e+25]",
+      "expected_sha256": "eea3674aa2476c9bc78fd2396beea3f01fbc65764f72071fe5cb0568e99fc022",
+      "input_json": "[1e20, 1e21, 1e-6, 1e-7, 0.000001234, 1.23e21, -1.5e25]"
+    },
+    {
+      "case_id": "number-shortest-tie-rounds-to-even",
+      "expected_canonical": "[2153998317200749.2,1837336310915449.2]",
+      "expected_sha256": "cdae7dc6910bf39b045e8176b901cca598700b9c7ba33a798cb61b78feaf1d82",
+      "input_json": "[2153998317200749.3, 1837336310915449.3]"
+    },
+    {
+      "case_id": "number-beyond-2-53-integer-kept-exact",
+      "expected_canonical": "{\"i_json_envelope_note\":\"raw-text u64 beyond 2^53 keeps exact digits; a JS lane cannot produce this text distinct from its rounded double\",\"value\":9007199254740993}",
+      "expected_sha256": "1ca9e22320536f7594a46039aed21a0350db96629fc2ed61d977289d8103dbcb",
+      "input_json": "{\"i_json_envelope_note\": \"raw-text u64 beyond 2^53 keeps exact digits; a JS lane cannot produce this text distinct from its rounded double\", \"value\": 9007199254740993}"
+    },
+    {
+      "case_id": "key-sort-utf16-code-units",
+      "expected_canonical": "{\"a\":1,\"😀\":\"supplementary plane\",\"ｚ\":\"BMP private-use-adjacent\"}",
+      "expected_sha256": "adc24289a5548c56d3cd2b34808eff6aec67150d6db7be36ecffd1ed08ed11e5",
+      "input_json": "{\"\\uff5a\": \"BMP private-use-adjacent\", \"\\ud83d\\ude00\": \"supplementary plane\", \"a\": 1}"
     }
   ],
   "document_kind": "openpipestress.fixtures.canonical_hash_parity_corpus",

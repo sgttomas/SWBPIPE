@@ -1,0 +1,16 @@
+[package]
+name = "open_pipe_stress_canonical_json"
+version = "0.1.0"
+edition = "2021"
+description = "RFC 8785 (JCS) canonical JSON serialization shared by every OpenPipeStress hash seam"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde_json = "1"
+# Digit source for ECMAScript-equal shortest round-trip rendering (closest
+# candidate, exact ties to even — the std formatter breaks ties differently).
+# Already in the dependency closure: serde_json formats floats through ryu.
+ryu = "1"

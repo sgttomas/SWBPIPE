@@ -4448,7 +4448,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(nativePackagePacket.validation_report.package_shape_status).toBe("review_manifest_complete");
     expect(nativePackagePacket.validation_report.model_hash_status).toBe("computed_local_preview_sha256");
     expect(nativePackagePacket.validation_report.model_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
-    expect(nativePackagePacket.validation_report.model_hash.canonicalization).toBe("jcs_like_sorted_object_keys");
+    expect(nativePackagePacket.validation_report.model_hash.canonicalization).toBe("rfc8785_jcs");
     expect(nativePackagePacket.validation_report.model_hash.payload_ref).toBe("project:invented-loop-01");
     expect(nativePackagePacket.manifest.source_model_version_or_hash_basis).toMatch(/^sha256:[0-9a-f]{64}$/);
     expect(
@@ -4461,7 +4461,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(nativePackagePacket.validation_report.package_hash.value).not.toBe(
       nativePackagePacket.validation_report.model_hash.value
     );
-    expect(nativePackagePacket.validation_report.package_hash.canonicalization).toBe("jcs_like_sorted_object_keys");
+    expect(nativePackagePacket.validation_report.package_hash.canonicalization).toBe("rfc8785_jcs");
     expect(nativePackagePacket.validation_report.package_hash.payload_scope).toBe("package_review_payload");
     expect(nativePackagePacket.validation_report.package_hash.payload_excludes).toBe(
       "validation_report_package_hash_fields"

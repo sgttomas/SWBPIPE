@@ -13,6 +13,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — H5: RFC 8785 canonical number rendering in `canonical_json` (`TP-H5-JCSRENDER-001`)
+
+The engine's canonical JSON is true RFC 8785 (JCS), closing the DEC-010
+"JCS-compatible hashing" alignment gap H1 measured. New shared crate
+`core/serialization/canonical_json`: ECMAScript `Number::toString` number
+rendering with ryu digit selection (std's formatter breaks exact
+shortest-representation ties differently from ECMAScript — measured, 7 in
+20k random doubles; ryu matched node on 112,220 fuzz vectors), UTF-16
+code-unit key sort, `JSON.stringify`-identical escaping; one documented
+divergence (raw-text integers beyond 2^53 keep exact i64/u64 precision —
+outside the I-JSON envelope, unreachable via JS transport).
+`operation_applier::canonical_json` re-exports it;
+`BACKEND_CANONICALIZATION` and every engine-hash label across the
+frontend, schema enum, and headless runner unified to `rfc8785_jcs`.
+
+Both `TP-H1-HASHUNIFY-001` refutations are resolved: JS transport no
+longer shifts canonical bytes, so the corpus ECMA harness renderer twins
+and their number-range constraint are deleted, and backend hash VALUES
+(`backend_model_hash`, `applied_model_backend_hash`) joined the
+full-byte-equality compared surface in every lane. `fixtures/canonical_hash/`
+extended 14 → 20 cases (notation boundaries, tie-to-even, −0, beyond-2^53,
+UTF-16 sort; floor 12 → 20) and all 44 contract-corpus cases re-blessed.
+Headless runner checksums render through the shared crate (TASK subscope;
+its previously aspirational `"JCS"` label is now true); audit_manifest
+checked — caller-supplied number strings, doc pointer added, no behavior
+change. Residual hand-offs (vocabulary-only label sites in
+`primitive_loads`/`result_export`/fixtures; Python persistence truth-label
+wording; possible future claimed-vs-backend equality evaluation) recorded
+in the run record.
+
+Evidence: `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_run_records/WORKING_ITEMS_RUN_2026-06-11_h5_rfc8785_rendering.md`
+(TASK sub-record in DEL-10-05 `_run_records/`); suites: canonical_json 8,
+applier 34+20+44×2, Vitest 172/172, headless 11, audit_manifest 13,
+src-tauri 28, pytest 353; DEC-025 sweep at the closing commit.
+
 ## 2026-06-11 — H1: canonical-hash unification through the wasm engine (`TP-H1-HASHUNIFY-001`)
 
 Frontend hashing is single-sourced: `hashService.ts` now calls the wasm

@@ -104,7 +104,7 @@ export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<
         hash_refs: [
           {
             algorithm: "sha256" as const,
-            canonicalization: "JCS",
+            canonicalization: "rfc8785_jcs",
             payload_ref: ref("Result", item.id),
             payload_scope: "result_value",
             value: await sha256(canonicalJson(item))
@@ -145,7 +145,7 @@ export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<
       hashes: [
         {
           algorithm: "sha256",
-          canonicalization: "JCS",
+          canonicalization: "rfc8785_jcs",
           payload_ref: runRef,
           payload_scope: "analysis_run_record",
           value: await sha256(
@@ -161,7 +161,7 @@ export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<
         },
         {
           algorithm: "sha256",
-          canonicalization: "JCS",
+          canonicalization: "rfc8785_jcs",
           payload_ref: resultEnvelopeRef,
           payload_scope: "result_envelope",
           value: await sha256(canonicalJson(result))

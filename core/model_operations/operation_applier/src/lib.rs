@@ -15,12 +15,15 @@
 //!   or code-compliance claim.
 
 use serde::Serialize;
-use serde_json::{Map, Number, Value};
+use serde_json::{Number, Value};
 use sha2::{Digest, Sha256};
 
 pub const OPERATION_APPLIER_VERSION: &str = "0.1.0";
 pub const OUTCOME_DOCUMENT_KIND: &str = "openpipestress.desktop.operation_outcome";
-pub const BACKEND_CANONICALIZATION: &str = "serde_json_sorted_keys_not_rfc8785";
+/// Canonicalization label carried in hash evidence. True RFC 8785 (JCS)
+/// since completion-plan H5: ECMAScript number rendering, UTF-16 key sort,
+/// `JSON.stringify` string escaping — see `core/serialization/canonical_json`.
+pub const BACKEND_CANONICALIZATION: &str = "rfc8785_jcs";
 const ENGINE_SOURCE: &str = "core/model_operations/operation_applier";
 
 /// Restraint direction vocabulary used by the preview model documents.
@@ -479,10 +482,10 @@ mod wasm_api {
         })
     }
 
-    /// Canonicalize a JSON document with the engine's canonical form
-    /// (recursively sorted object keys, serde serialization) — the same
-    /// function the engine uses for model hashes. H1 / F-5a hash seam:
-    /// the desktop frontend has no canonicalization of its own.
+    /// Canonicalize a JSON document with the engine's canonical form —
+    /// RFC 8785 (JCS) since completion-plan H5 — the same function the
+    /// engine uses for model hashes. H1 / F-5a hash seam: the desktop
+    /// frontend has no canonicalization of its own.
     #[wasm_bindgen]
     pub fn canonical_json_string(value_json: &str) -> Result<String, JsError> {
         Ok(super::canonical_json(&parse_value(value_json)?))
@@ -3028,9 +3031,11 @@ fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> Mo
                 claimed_hash_canonicalization: claimed_canonicalization,
                 backend_model_hash,
                 backend_canonicalization: BACKEND_CANONICALIZATION.to_string(),
-                // The UI and backend canonicalize floats differently, so the
-                // two hashes are recorded side by side; equality across
-                // canonicalizations is not evaluated and not claimed.
+                // Both lanes share the RFC 8785 form since H5, but a claimed
+                // hash may still describe an older document state or an older
+                // canonicalization, so the two hashes are recorded side by
+                // side; equality is not evaluated and not claimed — the
+                // before-state check remains the staleness guard.
                 binding_status: "claimed_hash_echoed_cross_canonicalization_equality_not_evaluated"
                     .to_string(),
             }
@@ -3198,31 +3203,18 @@ fn display_number(value: f64) -> String {
     }
 }
 
-/// The engine's canonical JSON form: recursively sorted object keys, arrays
-/// in order, serde serialization. Public because it is the single
-/// canonicalization for every frontend hash seam (completion-plan H1 /
-/// verification F-5a): the `wasm_api` exports wrap it and the desktop
-/// `hashService` consumes those exports — no TypeScript canonicalization
-/// exists.
-pub fn canonical_json(value: &Value) -> String {
-    serde_json::to_string(&sort_json(value.clone())).expect("model documents must encode as JSON")
-}
-
-fn sort_json(value: Value) -> Value {
-    match value {
-        Value::Array(items) => Value::Array(items.into_iter().map(sort_json).collect()),
-        Value::Object(object) => {
-            let mut entries = object.into_iter().collect::<Vec<_>>();
-            entries.sort_by(|left, right| left.0.cmp(&right.0));
-            let mut sorted = Map::new();
-            for (key, item) in entries {
-                sorted.insert(key, sort_json(item));
-            }
-            Value::Object(sorted)
-        }
-        scalar => scalar,
-    }
-}
+/// The engine's canonical JSON form — RFC 8785 (JCS) since completion-plan
+/// H5: object keys sorted by UTF-16 code units, ECMAScript `Number::toString`
+/// number rendering, `JSON.stringify` string escaping. Identical values now
+/// produce identical canonical bytes in every lane (JS `JSON.stringify`
+/// transport, raw-file serde parse, engine-internal serde value). Public
+/// because it is the single canonicalization for every frontend hash seam
+/// (completion-plan H1 / verification F-5a): the `wasm_api` exports wrap it
+/// and the desktop `hashService` consumes those exports — no TypeScript
+/// canonicalization exists. Implemented by the shared
+/// `open_pipe_stress_canonical_json` crate, which the headless runner
+/// checksums also use.
+pub use open_pipe_stress_canonical_json::canonical_json;
 
 /// Lowercase-hex SHA-256. Public for the same H1 / F-5a hash seam as
 /// [`canonical_json`].
@@ -4808,7 +4800,7 @@ mod tests {
         let model = sample_model();
         let claimed = json!({
             "algorithm": "sha256",
-            "canonicalization": "jcs_like_sorted_object_keys",
+            "canonicalization": "rfc8785_jcs",
             "value": "sha256:abc123",
             "payload_scope": "model_payload"
         });

@@ -1,7 +1,8 @@
-//! Canonical-hash parity corpus (H1 / verification F-5a).
+//! Canonical-hash parity corpus (H1 / verification F-5a; RFC 8785 since H5).
 //!
 //! `fixtures/canonical_hash/cases.json` pins the engine's canonical JSON
-//! form and SHA-256 for invented inputs. This native test is the blessing
+//! form — RFC 8785 (JCS): UTF-16-sorted keys, ECMAScript number rendering —
+//! and its SHA-256 for invented inputs. This native test is the blessing
 //! authority: run `CANONICAL_HASH_BLESS=1 cargo test` in this crate to
 //! regenerate the expectations, then review the diff. The desktop Vitest
 //! suite replays the same cases through the wasm exports
@@ -9,9 +10,9 @@
 //! native and wasm lanes agree byte-for-byte on the same input text.
 //!
 //! Cases carry their input as a raw JSON *string* so both lanes parse the
-//! identical text — number normalization (`1e9` → `1000000000.0`) is part
-//! of the pinned behavior, so feeding pre-parsed values would erase what
-//! the corpus exists to pin.
+//! identical text — number rendering (`1e9` → `1000000000`, `200.0` →
+//! `200`) is part of the pinned behavior, so feeding pre-parsed values
+//! would erase what the corpus exists to pin.
 
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use serde_json::Value;
@@ -34,8 +35,8 @@ fn canonical_hash_corpus_matches_native_engine() {
         .expect("corpus.cases must be an array")
         .clone();
     assert!(
-        cases.len() >= 12,
-        "coverage floor violated: the parity corpus must keep at least 12 cases"
+        cases.len() >= 20,
+        "coverage floor violated: the parity corpus must keep at least 20 cases"
     );
 
     let mut blessed = Vec::with_capacity(cases.len());

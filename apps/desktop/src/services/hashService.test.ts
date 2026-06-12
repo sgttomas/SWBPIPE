@@ -74,7 +74,7 @@ describe("hashService adapter (wasm-engine-backed)", () => {
     expect(hash?.value).toMatch(/^sha256:[0-9a-f]{64}$/);
     expect(hash?.value).toBe(reorderedHash?.value);
     expect(hash?.value).not.toBe(changedHash?.value);
-    expect(hash?.canonicalization).toBe("jcs_like_sorted_object_keys");
+    expect(hash?.canonicalization).toBe("rfc8785_jcs");
     expect(hash?.hash_status).toBe("computed_local_preview");
   });
 

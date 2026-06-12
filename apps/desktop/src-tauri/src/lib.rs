@@ -1765,7 +1765,7 @@ mod tests {
         });
         let model_hash = json!({
             "algorithm": "sha256",
-            "canonicalization": "jcs_like_sorted_object_keys",
+            "canonicalization": "rfc8785_jcs",
             "payload_scope": "model_payload",
             "payload_ref": "project:test-local",
             "value": "sha256:0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd0123abcd",
@@ -1773,7 +1773,7 @@ mod tests {
         });
         let project_envelope_hash = json!({
             "algorithm": "sha256",
-            "canonicalization": "jcs_like_sorted_object_keys",
+            "canonicalization": "rfc8785_jcs",
             "payload_scope": "project_envelope_payload",
             "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
             "payload_ref": "project:test-local",

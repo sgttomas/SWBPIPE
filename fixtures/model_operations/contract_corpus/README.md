@@ -39,7 +39,7 @@ Each `case_*.json` carries:
 | `claimed_model_hash` | Optional claimed-hash evidence passed to the engine, or `null`. |
 | `expected.outcome` | The semantic outcome projection both engines must produce (see comparison rules). |
 | `expected.applied_model` | The full applied model document for accepted applies, else `null`. |
-| `expected.applied_model_canonical_sha256` | Corpus-harness canonical hash of the applied model, else `null`. |
+| `expected.applied_model_canonical_sha256` | The engine's canonical hash (RFC 8785 `canonical_json` + sha256) of the applied model, else `null`. Byte-equal to `applied_model_backend_hash` in every lane since H5. |
 
 ## Comparison rules (identical in both runners)
 
@@ -48,9 +48,10 @@ Each `case_*.json` carries:
    `target_object_type`, `target_ref`, `schema_version`, `document_kind`,
    `deliverable_refs`), all six `validation` states, `diff_preview` rows
    (all eight columns), `acceptance`, `audit_boundary`,
-   `professional_boundary`, `input_model_unchanged`, the claim-echo subset of
-   `model_basis` (`claimed_model_hash`, `claimed_hash_canonicalization`,
-   `binding_status`), and the derived `applied` flag.
+   `professional_boundary`, `input_model_unchanged`, the `model_basis`
+   evidence (`claimed_model_hash`, `claimed_hash_canonicalization`,
+   `binding_status`, `backend_canonicalization`, and — since H5 —
+   `backend_model_hash` by value), and the derived `applied` flag.
 2. **Diagnostics** are compared **order-insensitively** as semantic records
    `{code, severity, blocking, affected_refs}`, sorted by
    `code + affected_refs + severity` (plain codepoint order) in both
@@ -58,44 +59,35 @@ Each `case_*.json` carries:
 3. **Applied model documents** are compared **both** ways:
    - parsed-JSON deep equality against `expected.applied_model` (numbers
      compared by value, so `1` and `1.0` literals are equal); and
-   - the corpus-harness canonical hash must equal
+   - the engine's canonical hash must equal
      `expected.applied_model_canonical_sha256` from **both** engines'
-     outputs. This hash parity is the guarantee under test: it catches
-     number-serialization or precision drift that deep equality may mask.
+     outputs, and the engine's own `applied_model_backend_hash` must
+     byte-equal the same blessed value in **every** lane. This hash parity
+     is the guarantee under test: it catches number-serialization or
+     precision drift that deep equality may mask.
 4. **Input model immutability** is asserted in both runners (the engines must
    never mutate the input document).
 
-### Corpus-harness canonical hash
+### Canonical hash (engine-owned since H5)
 
-`sha256` over a canonical JSON encoding: lexicographically sorted object
-keys, arrays in original order, UTF-8, numbers rendered
-ECMAScript-`ToString`-compatible (integral doubles render without a
-trailing `.0`, i.e. `1` not `1.0`). Both runners carry the renderer as
-**harness-only** code (Rust `canonical_json_ecma`; an 8-line twin in the
-Vitest runner) — it is NOT a production hash path and NOT the engine
-canonicalization.
+`sha256` over the engine's `canonical_json` — RFC 8785 (JCS): object keys
+sorted by UTF-16 code units, arrays in original order, ECMAScript
+`Number::toString` number rendering, `JSON.stringify` string escaping
+(implementation: `core/serialization/canonical_json`, pinned by
+`fixtures/canonical_hash/cases.json`). RFC 8785 rendering is
+transport-invariant — identical values hash identically whether they
+arrived as raw case-file text or through a JS `JSON.stringify` lane — so
+the corpus uses the engine hash directly in all lanes.
 
-**Why it survived `TP-H1-HASHUNIFY-001` (measured, 2026-06-11):** the
-unification tranche attempted to retire this rendering in favor of the
-engine's own `canonical_json` and measured two refutations. (1) JS
-transport (`JSON.stringify`) erases the textual `200.0` → `200`
-distinction that raw case-file text preserves, so an engine-rendered hash
-can never agree between the native-file lane and the JS-fed wasm lanes on
-the same case. (2) One level deeper, the engine's own
-`applied_model_backend_hash` covers in-process text where self-produced
-integral doubles render as `...0.0` — unreproducible after any JS
-round-trip, so it is Rust-side-verifiable evidence only. The
-ECMA-normalized harness hash is therefore the only transport-invariant
-cross-lane hash, which is exactly the corpus's job. The engine's real
-canonicalization is pinned separately by
-`fixtures/canonical_hash/cases.json`, and production frontend hashing is
-the engine itself via the wasm exports (`hashService.ts` holds no
-canonicalization).
-
-**Number-range constraint:** corpus numbers must stay finite with
-`|v| < 1e15` and (`v == 0` or `|v| >= 1e-6`), and corpus strings stay
-ASCII, so ECMAScript and Rust shortest-round-trip renderings agree. The
-Rust harness asserts the range and fails loudly on violations.
+**History.** Before H5 the corpus carried a harness-only ECMA renderer
+pair (Rust `canonical_json_ecma` + a TS twin) with a plain-decimal range
+constraint (`|v| < 1e15`, `|v| >= 1e-6` or `0`), because the engine then
+rendered serde-style text (`200.0`) that JS transport erased — measured at
+`TP-H1-HASHUNIFY-001` as the reason engine hashes could not be compared
+across lanes. Completion-plan row H5 (2026-06-11) made the engine
+rendering itself RFC 8785, which retired both harness renderers and the
+range constraint, and promoted the backend hash values into the compared
+surface.
 
 ### Engine-identity exclusion allowlist
 
@@ -106,8 +98,6 @@ internal canonicalization, not the operation semantics:
 | Excluded field | Why excluded |
 |---|---|
 | `application_route` | Honest engine-route label by design: `tauri_backend_apply` (native command route) vs `local_wasm_engine` (in-process wasm route). Same engine code since `TP-SEAM-SWAP-001`; the label identifies the route, not the semantics. |
-| `model_basis.backend_model_hash` | Input-text-dependent: the engine hashes the model text it receives, and JS transport renders `200.0` as `200`, so the native-file lane and JS-fed lanes legitimately differ (measured at `TP-H1-HASHUNIFY-001`). Cross-lane hash parity is asserted through the corpus-harness hash instead. |
-| `applied_model_backend_hash` (blessed-value comparison) | Engine-internal evidence, Rust-side-verifiable only (see the harness-hash section). The native runner asserts the self-consistency formula (`canonical_json` + `sha256_hex` over the returned applied document); JS lanes assert presence and the harness hash. |
 | `diagnostics[].id` | Embeds the engine's internal diagnostic generation counter; not semantic. |
 | `diagnostics[].source` | Engine self-identification path; not semantic. |
 | `diagnostics[].message`, `diagnostics[].remediation` | Prose, not contract. Compared fields are always `code`, `severity`, `blocking`, and `affected_refs`. (The original rationale — TS-mirror branch splits — retired with the TS lane at `TP-SEAM-SWAP-001`; prose stays excluded so expectations pin semantics, not wording.) |
@@ -116,9 +106,17 @@ internal canonicalization, not the operation semantics:
 
 | Change | Assertion |
 |---|---|
-| `model_basis.backend_canonicalization` now compared | Part of the blessed semantic projection (`serde_json_sorted_keys_not_rfc8785`); engine-invariant label. |
+| `model_basis.backend_canonicalization` now compared | Part of the blessed semantic projection; engine-invariant label. |
 | Native engine self-consistency | The Rust runner asserts `applied_model_backend_hash` equals `canonical_json` + `sha256_hex` over the returned applied document. |
-| JS lanes | Assert `applied_model_backend_hash` presence for accepted applies (null for blocked) plus the harness-hash equality both lanes already carry. |
+| JS lanes | Assert `applied_model_backend_hash` presence for accepted applies (null for blocked) plus the harness-hash equality both lanes then carried. |
+
+**Tightened at H5 (2026-06-11, RFC 8785 engine rendering):**
+
+| Change | Assertion |
+|---|---|
+| `model_basis.backend_model_hash` now compared by value | RFC 8785 rendering is transport-invariant, so the input-text hash is identical across the native-file lane and JS-fed lanes; the `TP-H1-HASHUNIFY-001` exclusion row is retired. |
+| `applied_model_backend_hash` now compared against the blessed value in every lane | Byte-equal to `expected.applied_model_canonical_sha256` (one engine hash; the harness renderers are deleted). |
+| `backend_canonicalization` label | `rfc8785_jcs` (previously the honest `serde_json_sorted_keys_not_rfc8785`). |
 
 ## Coverage floor (enforced by both runners, not just documented)
 

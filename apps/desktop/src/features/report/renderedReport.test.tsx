@@ -104,7 +104,7 @@ function inventedRun(): AnalysisRunEnvelope {
           hash_refs: [
             {
               algorithm: "sha256",
-              canonicalization: "JCS",
+              canonicalization: "rfc8785_jcs",
               payload_ref: { object_type: "Result", ref: "result:disp:node-1" },
               payload_scope: "result_value",
               value: "invented-result-hash"
@@ -116,14 +116,14 @@ function inventedRun(): AnalysisRunEnvelope {
       hashes: [
         {
           algorithm: "sha256",
-          canonicalization: "JCS",
+          canonicalization: "rfc8785_jcs",
           payload_ref: { object_type: "AnalysisRun", ref: "run:render-test-001" },
           payload_scope: "analysis_run_record",
           value: "invented-run-record-hash"
         },
         {
           algorithm: "sha256",
-          canonicalization: "JCS",
+          canonicalization: "rfc8785_jcs",
           payload_ref: { object_type: "ResultEnvelope", ref: "result-envelope:run:render-test-001" },
           payload_scope: "result_envelope",
           value: "invented-result-envelope-hash"

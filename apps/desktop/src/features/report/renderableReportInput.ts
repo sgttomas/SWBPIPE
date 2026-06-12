@@ -168,7 +168,7 @@ export async function buildRenderableReportInput({
 
   const checksum = (payloadRef: Ref, value: string | undefined) => ({
     algorithm: "sha256",
-    canonicalization: "JCS",
+    canonicalization: "rfc8785_jcs",
     payload_ref: payloadRef,
     value: value || "TBD"
   });
