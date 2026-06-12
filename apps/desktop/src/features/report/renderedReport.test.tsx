@@ -210,6 +210,9 @@ describe("buildRenderableReportInput", () => {
       "RULE_INPUTS_INCOMPLETE"
     ]);
     expect(input.calculation_report.model_input_summary.persistence_ref.ref_id).toBe("TBD");
+    expect(input.calculation_report.model_input_summary.unit_system_ref.ref_id).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
     expect(input.calculation_report.load_case_summary).toHaveLength(1);
     expect(input.calculation_report.audit_manifest_refs[0].checksum.value).toBe(
       "invented-run-record-hash"

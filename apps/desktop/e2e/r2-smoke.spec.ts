@@ -257,11 +257,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   const report = page.getByLabel("Report packet");
   await expect(report).toContainText("run:preview-linear-static-001");
+  await expect(report.getByTestId("report-unit-system")).toContainText(
+    "unit-system:dec-018-si-dual-display"
+  );
+  await expect(report.getByTestId("report-unit-system")).toContainText("length=m");
+  await expect(report.getByTestId("report-unit-system")).toContainText("conversion=false");
   const reportHref = await report.getByTestId("report-export-link").getAttribute("href");
   expect(reportHref).toBeTruthy();
   const reportPacket = JSON.parse(decodeURIComponent(reportHref!.split(",", 2)[1]));
   expect(reportPacket.document_kind).toBe("openpipestress.technical_preview.report_packet_export");
   expect(reportPacket.run_audit.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
+  expect(reportPacket.unit_system_disclosure.unit_system_ref.ref_id).toBe(
+    "unit-system:dec-018-si-dual-display"
+  );
+  expect(reportPacket.unit_system_disclosure.conversion_performed).toBe(false);
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);

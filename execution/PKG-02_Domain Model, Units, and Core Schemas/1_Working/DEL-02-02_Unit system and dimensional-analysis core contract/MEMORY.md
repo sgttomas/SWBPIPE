@@ -184,3 +184,27 @@ Boundary note:
   solver-boundary normalization, report unit-system disclosure,
   imports/exports, and rule-pack unit I/O; B3 still owns broader conversion
   witness and tolerance corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-REPORTUNITS-001 report unit-system disclosure
+
+- Added the accepted DEC-018 unit-system reference
+  `unit-system:dec-018-si-dual-display` to the rendered-report adapter's
+  existing `model_input_summary.unit_system_ref`.
+- Added Report Packet `unit_system_disclosure` with model units, distinct
+  result-row units, entered-unit preservation posture, and
+  `conversion_performed=false`.
+- Added a visible Report Packet `Unit system` line so users can see the unit
+  system reference and units used before exporting JSON.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_report_unit_system_disclosure.md`;
+  corresponding DEL-08-01 run record; `apps/desktop/SMOKE.md` TP-MAC-132.
+- Validation: focused report/App Vitest 53/53; Playwright R2 smoke 2/2 after
+  wasm engine build; full desktop Vitest 216/216; desktop build passed.
+- Boundaries preserved: no unit conversion, solver-boundary normalization,
+  unit picker, import/export unit conversion, rule-pack unit I/O, report
+  schema expansion, fallback browser catalog, protected-content ingestion,
+  private-data ingestion, professional approval, certification, sealing,
+  authentication, release-readiness, or code-compliance claim.
+- Residual handoffs: B2 still owns broader visible unit entry/pickers,
+  solver-boundary normalization, report renderer body expansion beyond packet
+  disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader
+  conversion witness and tolerance corpus coverage.

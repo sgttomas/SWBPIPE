@@ -154,3 +154,24 @@ Durable context preserved after reconciliation review:
   (evidence, boundary review, residuals: browser-mode render seam → A8,
   rule-pack refs → Phase C, report-hash persistence follow-up, D-10b PDF
   emitter at the R5 lead-up).
+
+## 2026-06-12 - TP-UNITS-B2-REPORTUNITS-001 report unit-system disclosure
+
+- WORKING_ITEMS B2 app-integration tranche added explicit unit-system
+  disclosure to the frontend Report Packet panel and JSON export.
+- The report packet now names `unit-system:dec-018-si-dual-display`, exports
+  the model unit map, exports distinct result-row units, records
+  entered-unit preservation, and records `conversion_performed=false`.
+- The rendered-report adapter now uses the DEC-018 unit-system reference in
+  the existing strict `model_input_summary.unit_system_ref` field. The
+  report-generator schema was not widened.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_report_unit_system_disclosure.md`,
+  the corresponding DEL-02-02 run record, and `apps/desktop/SMOKE.md`
+  TP-MAC-132. Validation passed: focused report/App Vitest 53/53, Playwright
+  R2 smoke 2/2, full desktop Vitest 216/216, and desktop build.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, unit conversion, or report-schema expansion
+  changed.

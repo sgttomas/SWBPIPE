@@ -12,6 +12,7 @@ import type {
   PreviewComparison,
   SelectedReviewTarget
 } from "../../types";
+import { DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
 
 export function ReportPanel({
   model,
@@ -40,6 +41,7 @@ export function ReportPanel({
 }) {
   const resultRefs = result ? selectedResultRefs(result) : [];
   const diagnostics = result ? reportDiagnostics({ model, knowledge, result }) : [];
+  const unitSystemDisclosure = result ? reportUnitSystemDisclosure(model, result) : null;
   const severitySummary = countDiagnosticsBySeverity(diagnostics);
   const run = analysisRun?.analysis_run;
   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
@@ -65,6 +67,7 @@ export function ReportPanel({
         persistenceEvidence,
         proposal,
         selectedReviewTarget,
+        unitSystemDisclosure,
         resultRefs,
         diagnostics
       })
@@ -95,6 +98,13 @@ export function ReportPanel({
           </div>
           <div className="report-list" data-testid="report-packet-body">
             <ReportLine label="Model" value={result.model_ref} />
+            {unitSystemDisclosure ? (
+              <ReportLine
+                label="Unit system"
+                value={formatUnitSystemDisclosure(unitSystemDisclosure)}
+                testId="report-unit-system"
+              />
+            ) : null}
             <ReportLine label="Mechanics" value={result.status.mechanics.replaceAll("_", " ")} />
             <ReportLine label="Rule check" value={result.status.rule_check.replaceAll("_", " ")} />
             <ReportLine label="Professional acceptance" value={result.status.professional_acceptance.replaceAll("_", " ")} />
@@ -297,6 +307,7 @@ function reportExportPacket({
   persistenceEvidence,
   proposal,
   selectedReviewTarget,
+  unitSystemDisclosure,
   resultRefs,
   diagnostics
 }: {
@@ -308,6 +319,7 @@ function reportExportPacket({
   persistenceEvidence: ReturnType<typeof reportPersistenceEvidence>;
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
+  unitSystemDisclosure: ReturnType<typeof reportUnitSystemDisclosure> | null;
   resultRefs: string[];
   diagnostics: Diagnostic[];
 }) {
@@ -358,6 +370,7 @@ function reportExportPacket({
       by_severity: diagnosticSummary
     },
     load_basis_refs: run?.load_basis_refs.map((item) => item.ref) ?? [],
+    unit_system_disclosure: unitSystemDisclosure ?? reportUnitSystemDisclosure(model, result),
     hash_refs: {
       result_value_count: run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0,
       envelope_hash_scopes: run?.hashes.map((item) => item.payload_scope) ?? []
@@ -386,6 +399,37 @@ function reportExportPacket({
     protected_content_included: false,
     release_or_professional_claim: false
   };
+}
+
+function reportUnitSystemDisclosure(model: PreviewModel, result: MechanicsResult) {
+  return {
+    unit_system_ref: DEC018_UNIT_SYSTEM_REF,
+    catalog_ref: DEC018_UNIT_SYSTEM_REF,
+    catalog_status: "DEC-018 accepted catalog reference; report packet preserves entered/result units",
+    storage_convention: "entered_units_preserved",
+    model_units: Object.fromEntries(
+      Object.entries(model.project.units).sort(([left], [right]) => left.localeCompare(right))
+    ),
+    result_units: Array.from(new Set(result.results.map((item) => item.unit).filter(Boolean))).sort(),
+    quantity_display_policy: "display result-row values with their explicit units; no report-time conversion",
+    conversion_performed: false,
+    private_payload_included: false,
+    protected_content_included: false,
+    release_or_professional_claim: false
+  };
+}
+
+function formatUnitSystemDisclosure(disclosure: ReturnType<typeof reportUnitSystemDisclosure>): string {
+  const modelUnits = Object.entries(disclosure.model_units)
+    .map(([dimension, unit]) => `${dimension}=${unit}`)
+    .join(", ");
+  const resultUnits = disclosure.result_units.join(", ") || "none";
+  return [
+    disclosure.unit_system_ref.ref_id,
+    `model_units=${modelUnits || "none"}`,
+    `result_units=${resultUnits}`,
+    `conversion=${String(disclosure.conversion_performed)}`
+  ].join("; ");
 }
 
 function reportPersistenceEvidence({

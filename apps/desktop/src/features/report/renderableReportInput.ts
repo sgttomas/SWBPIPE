@@ -42,6 +42,11 @@ const PROFESSIONAL_BOUNDARY = {
   software_makes_authentication_claim: false
 };
 
+export const DEC018_UNIT_SYSTEM_REF = {
+  ref_type: "unit_system",
+  ref_id: "unit-system:dec-018-si-dual-display"
+};
+
 type Ref = { ref_type: string; ref_id: string };
 
 function sessionProvenance(model: PreviewModel) {
@@ -190,7 +195,7 @@ export async function buildRenderableReportInput({
         ref_type: "project_persistence",
         ref_id: projectSummary ? `local_sqlite:${projectSummary.project_id}` : "TBD"
       },
-      unit_system_ref: { ref_type: "unit_system", ref_id: "preview-display-label-set" },
+      unit_system_ref: DEC018_UNIT_SYSTEM_REF,
       model_hash: checksum({ ref_type: "model", ref_id: model.project.id }, modelHashValue),
       input_manifest_ref: mapObjectRef(run.reproducibility.input_manifest_refs[0], "audit_manifest"),
       provenance

@@ -2662,6 +2662,12 @@ describe("OpenPipeStress desktop preview", () => {
       "scale=normalized_display_offset_not_physical_length"
     );
     expect(await within(report).findByTestId("report-editor-intent-summary")).toHaveTextContent("1 queued");
+    expect(within(report).getByTestId("report-unit-system").textContent).toContain(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(within(report).getByTestId("report-unit-system").textContent).toContain("length=m");
+    expect(within(report).getByTestId("report-unit-system").textContent).toContain("stress=MPa");
+    expect(within(report).getByTestId("report-unit-system").textContent).toContain("conversion=false");
     expect(within(report).getByTestId("report-editor-intent-operation").textContent).toContain(
       "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
     );
@@ -2683,6 +2689,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.editor_intent_summary.mutates_accepted_model_state).toBe(false);
     expect(exportPacket.editor_intent_summary.direct_model_mutation_allowed).toBe(false);
     expect(exportPacket.editor_intent_summary.release_or_professional_claim).toBe(false);
+    expect(exportPacket.unit_system_disclosure.unit_system_ref.ref_id).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(exportPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(exportPacket.unit_system_disclosure.model_units.stress).toBe("MPa");
+    expect(exportPacket.unit_system_disclosure.result_units).toContain("mm");
+    expect(exportPacket.unit_system_disclosure.result_units).toContain("MPa");
+    expect(exportPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(exportPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(exportPacket.editor_operation_intents[0].queue_id).toBe("editor-intent-1");
     expect(exportPacket.editor_operation_intents[0].change.field_path).toBe("elastic_modulus.value");
     expect(exportPacket.editor_operation_intents[0].change.after).toBe("210000000000");

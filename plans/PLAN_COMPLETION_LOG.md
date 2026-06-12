@@ -13,6 +13,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 report unit-system disclosure (`TP-UNITS-B2-REPORTUNITS-001`)
+
+The Report Packet panel and JSON export now disclose the unit system used by
+the current model/result packet. The visible report line names
+`unit-system:dec-018-si-dual-display`, lists model units, lists distinct
+result-row units, and records `conversion=false`. The exported report JSON
+adds `unit_system_disclosure` with the model unit map, result-unit inventory,
+entered-unit preservation posture, and no report-time conversion claim.
+
+The rendered-report adapter also replaces the old placeholder
+`preview-display-label-set` with `unit-system:dec-018-si-dual-display` in the
+existing strict `model_input_summary.unit_system_ref` field. The
+report-generator schema was not widened.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_report_unit_system_disclosure.md`;
+`execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-06-12_report_unit_system_disclosure.md`;
+`apps/desktop/SMOKE.md` TP-MAC-132. Validation: focused report/App Vitest
+passed 53/53; Playwright R2 smoke passed 2/2 after wasm engine build; full
+desktop Vitest passed 216/216; desktop build passed with the pre-existing
+Vite chunk-size warning.
+
+Residual hand-offs: broader visible unit entry/pickers, solver-boundary
+normalization, report renderer body expansion beyond packet disclosure,
+imports/exports, and rule-pack unit I/O remain B2 work. B3 still owns broader
+mixed-unit round-trip, conversion-witness, incompatible-unit rejection, and
+D-04/DEC-026 tolerance coverage. No lifecycle state, release-readiness,
+professional approval, certification, sealing, authentication,
+protected-content, private-data, or code-compliance claim is created.
+
 ## 2026-06-12 - B2 Property Inspector unit basis labels (`TP-UNITS-B2-INSPECTORLABELS-001`)
 
 The desktop Property Inspector now has the first visible B2 unit display

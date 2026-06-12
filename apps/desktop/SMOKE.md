@@ -3944,3 +3944,27 @@ after the timestamp marker were absent.
   normalization, import/export unit handling, rule-pack unit I/O, protected
   content, private project data, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-132 Report packet unit-system disclosure (`TP-UNITS-B2-REPORTUNITS-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-REPORTUNITS-001` (completion-plan B2): added visible
+  unit-system disclosure to the Report Packet panel and JSON export.
+- Visible report behavior: `data-testid="report-unit-system"` names
+  `unit-system:dec-018-si-dual-display`, lists model units such as
+  `length=m`, lists distinct result-row units, and records
+  `conversion=false`.
+- Export behavior: the report JSON carries `unit_system_disclosure` with
+  model units, result units, entered-unit preservation, and
+  `conversion_performed=false`.
+- Rendered-report adapter behavior: the strict `model_input_summary` keeps
+  the existing `unit_system_ref` field and now points it at the DEC-018 unit
+  system id; no report-generator schema expansion was made.
+- Automated evidence: focused report/App Vitest passed 53/53; full desktop
+  Vitest passed 216/216; desktop production build passed with the
+  pre-existing Vite chunk-size warning; Playwright R2 smoke passed 2/2 after
+  wasm engine build and asserted the report unit-system disclosure.
+- Boundary review: no unit conversion, solver-boundary normalization, unit
+  picker, import/export unit conversion, rule-pack unit I/O, browser fallback
+  catalog, protected content, private project data, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.
