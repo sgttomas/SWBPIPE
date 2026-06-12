@@ -3465,3 +3465,40 @@ after the timestamp marker were absent.
 - Boundary review: local-only; invented values; no protected content; no
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claims.
+
+## TP-MAC-115 H5 RFC 8785 canonical rendering (2026-06-11)
+
+- Tranche `TP-H5-JCSRENDER-001` (completion-plan hardening lane H5,
+  human-directed; DEC-010 JCS alignment): the engine's `canonical_json`
+  is true RFC 8785 (JCS) via the new shared
+  `core/serialization/canonical_json` crate — ECMAScript
+  `Number::toString` rendering (ryu digit selection; ties to even),
+  UTF-16 code-unit key sort, `JSON.stringify` escaping. All three
+  JSON-text producers (JS transport, raw-file serde parse, engine-internal
+  rendering) now emit identical canonical bytes for identical values.
+- Both `TP-H1-HASHUNIFY-001` measured exclusions are retired: the corpus
+  ECMA harness renderer twins and the number-range constraint are
+  deleted; `backend_model_hash` and `applied_model_backend_hash` values
+  are byte-equality-compared against blessed expectations in every lane.
+  `fixtures/canonical_hash/` extended 14 -> 20 cases (notation
+  boundaries, shortest-tie-to-even, −0, beyond-2^53 integer pin, UTF-16
+  key sort); all 44 contract cases re-blessed. Canonicalization labels
+  unified to `rfc8785_jcs` (engine constant, hashService/types,
+  previewService, report input, headless runner + schema enum).
+- No interactive desktop behavior changed; per the H4 evidence posture
+  the user-visible deltas (hash values and the `rfc8785_jcs` label inside
+  evidence packets) are pinned by unit suites and the cross-lane corpus,
+  so no Playwright spec extension was made — existing e2e specs assert
+  behavior, not hash vocabulary.
+- Local validation: canonical_json crate 8 tests (RFC 8785 Appendix B
+  vectors node-verified; one-shot 112,220-vector node fuzz clean);
+  operation_applier suites green at re-blessed expectations; desktop
+  Vitest 172/172; headless 11, audit_manifest 13, src-tauri 28, pytest
+  353. DEC-025 five-surface sweep at `0b7a24c93`: overall pass (cargo
+  sweep across 28 manifests incl. the new crate, pytest, Vitest with
+  fresh wasm artifact, Playwright e2e, production build; summary
+  `validation/evidence/sweeps/SWEEP_20260612T053738Z_0b7a24c93e2c-dirty.json`
+  — dirty delta is solely the human-owned `init/init-prompt.md`).
+- Boundary review: local-only; invented values; no protected content; no
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claims.
