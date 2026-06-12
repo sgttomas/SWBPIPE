@@ -13,6 +13,29 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — Seam-verification regression repair: F-1 Playwright budget, F-2 NUL bytes (`TP-SEAM-FIX-001`)
+
+Human-instructed repair tranche for the open findings in the independent
+post-closure verification
+([VERIFICATION_2026-06-11_operation_seam_unification.md](VERIFICATION_2026-06-11_operation_seam_unification.md)).
+F-1: the default `test:e2e` failed at the 30s per-test budget; measurement
+showed the ~10× runtime growth is the Playwright trace recorder
+(`retain-on-failure` records every run and discards on pass — 8.8s trace
+off vs 21.6s warm / 37.4s cold with trace on, ~21s of it in trace
+finalization at `browser.close`), not the wasm engine (engine-ready wait
+<1s, artifact ~330 kB); the T4 apply-flow steps run against the heaviest
+DOM state, multiplying per-action snapshot cost. Fixed by raising the
+budget to 120s with the measurements recorded in the config comment;
+tracing kept; spec not split. F-2: the two literal NUL separators in
+`operationContractCorpus.test.ts` replaced with string escapes, making the
+file text again for git diff review. F-3 (corpus fixture review
+disposition) remains with the human; F-4 stands as an operational note for
+`D-05`. Full evidence set re-run sequentially: e2e 1/1 at 18.8s under the
+default command, Vitest 140/140, cargo sweep exit 0, pytest 342/342,
+production build green. Run record:
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_run_records/WORKING_ITEMS_RUN_2026-06-11_seam_verification_regression_repair.md`;
+SMOKE entry `TP-MAC-111`.
+
 ## 2026-06-11 — Operation-seam plan T4 and plan closure: wasm route swap, TS engine deleted (`TP-SEAM-SWAP-001`)
 
 The structured editor-operation seam is now implemented exactly once. In

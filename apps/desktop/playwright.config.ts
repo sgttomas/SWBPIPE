@@ -12,7 +12,11 @@ const executablePath =
 
 export default defineConfig({
   testDir: "./e2e",
-  timeout: 30_000,
+  // 120s budget: with `trace: "retain-on-failure"` the recorder snapshots the
+  // DOM after every action, and the smoke spec's late steps run against the
+  // heaviest DOM state (solved 647-row results). Measured 2026-06-11: ~9s with
+  // trace off, ~22s warm / ~37s cold with trace on. 30s was a flaky margin.
+  timeout: 120_000,
   expect: {
     timeout: 10_000
   },

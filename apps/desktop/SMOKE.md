@@ -3347,3 +3347,31 @@ after the timestamp marker were absent.
   certification, sealing, authentication, or code-compliance claims. The
   plan §5 freeze rule was honored through the swap and is lifted at this
   landing: browser-mode operation work now lands in the single Rust engine.
+
+## TP-MAC-111 seam-verification regression repair (2026-06-11)
+
+- Tranche `TP-SEAM-FIX-001`: human-instructed repair of findings F-1/F-2
+  from `plans/VERIFICATION_2026-06-11_operation_seam_unification.md`
+  (post-closure verification of the operation-seam plan). F-3 (corpus
+  fixture review disposition) remains a human action; F-4 stands as an
+  operational note for `D-05`.
+- F-1 (Playwright 30s timeout exceeded): root cause measured — the trace
+  recorder (`trace: "retain-on-failure"`), not the wasm engine. Spec runs
+  8.8s with trace off vs 21.6s warm / 37.4s cold with trace on;
+  `DEBUG=pw:api` attributed ~21s of the cold run to trace finalization in
+  `browser.close`, with the engine-ready wait under 1s. Fixed by raising
+  the per-test budget to 120s in `playwright.config.ts` (comment records
+  the measurements); tracing retained for failure diagnosis; spec not
+  split (its ordering encodes the apply-clears-solve-results design).
+- F-2 (raw NUL bytes): the two literal `0x00` separators in
+  `operationContractCorpus.test.ts` `diagnosticSortKey` are now `\u0000`
+  escapes; the file contains zero NUL bytes, so git diffs of future
+  changes render as reviewable text.
+- Local validation (sequential): `npm run test:e2e` 1/1 at 18.8s under the
+  default command and config; Vitest 140/140; cargo profile sweep exit 0
+  with zero failing test-result lines; pytest 342/342; desktop production
+  build green.
+- Boundary review: test-infrastructure-only; no engine, fixture, or UI
+  behavior change; local-only; no protected content; no release-readiness,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claims.
