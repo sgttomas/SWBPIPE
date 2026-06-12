@@ -3989,3 +3989,29 @@ after the timestamp marker were absent.
   protected content, private project data, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-134 Property Inspector unit selectors (`TP-UNITS-B2-UNITPICKERS-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-UNITPICKERS-001` (completion-plan B2): added visible
+  unit selectors to the Property Inspector material and pipe-section creation
+  forms.
+- Visible authoring behavior: section creation now has a `Length unit`
+  selector; material creation now has `Modulus unit` and `Thermal expansion
+  unit` selectors. Browser preview keeps one-option selectors from model
+  metadata and does not synthesize a fallback catalog; desktop/Tauri mode uses
+  accepted DEC-018 catalog entries.
+- Operation-seam behavior: `core/model_operations/operation_applier` now
+  accepts DEC-018-compatible entered units for create-section length
+  quantities and create-material stress/thermal-expansion quantities, while
+  preserving entered units in the applied session model. Incompatible
+  dimensions still block.
+- Automated evidence: operation-applier cargo suites passed 51 unit tests plus
+  canonical-hash and contract-corpus tests; Tauri Rust tests passed 32/32;
+  focused desktop Vitest passed 165/165; full desktop Vitest passed 216/216;
+  desktop production build passed with the pre-existing Vite chunk-size
+  warning; Playwright R2 smoke passed 2/2 after wasm engine build.
+- Boundary review: no project-wide unit-system picker, existing field-edit
+  unit picker, node/pipe/load unit picker, import/export unit conversion,
+  rule-pack unit I/O, browser fallback catalog, protected content, private
+  project data, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

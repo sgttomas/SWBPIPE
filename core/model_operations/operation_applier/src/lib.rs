@@ -9,11 +9,12 @@
 //! Boundary rules carried from the PKG-16 contracts:
 //! - the input model document is never mutated in place;
 //! - blocked operations are findings, not silent fallbacks (no invented
-//!   values, no unit conversion, no geometry defaults);
+//!   values, no ungoverned unit conversion, no geometry defaults);
 //! - receipts record a user-initiated local-session acceptance basis only and
 //!   never a professional, certification, sealing, approval, authentication,
 //!   or code-compliance claim.
 
+use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension};
 use serde::Serialize;
 use serde_json::{Number, Value};
 use sha2::{Digest, Sha256};
@@ -137,6 +138,12 @@ pub struct OperationOutcome {
     pub acceptance: AcceptanceRecord,
     pub audit_boundary: Value,
     pub professional_boundary: Value,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct EnteredQuantity {
+    value: f64,
+    unit: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -1877,13 +1884,24 @@ fn resolve_create_section(
         );
         return None;
     };
-    if unit != stored_unit {
+    if !unit_symbol_matches_dimension(stored_unit, Dimension::Length) {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
             "blocking",
-            format!("Intent unit `{unit}` does not match project length unit `{stored_unit}`; unit conversion is unavailable until the units engine lands."),
-            "Enter section dimensions in the project length unit; no silent conversion is performed.",
+            format!("Project length unit metadata `{stored_unit}` is not an accepted DEC-018 length unit."),
+            "Repair the model document's project.units.length metadata before creating sections.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if !unit_symbol_matches_dimension(unit, Dimension::Length) {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` is not an accepted DEC-018 length unit; project length metadata is `{stored_unit}`."),
+            "Select an accepted length unit from the DEC-018 catalog; no hidden fallback unit is supplied.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -1963,8 +1981,18 @@ fn resolve_create_section(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
-    let outside_diameter = quantity_value(record, &["properties", "outside_diameter"], stored_unit);
-    let wall_thickness = quantity_value(record, &["properties", "wall_thickness"], stored_unit);
+    let outside_diameter = dimensioned_quantity(
+        record,
+        &["properties", "outside_diameter"],
+        Dimension::Length,
+        true,
+    );
+    let wall_thickness = dimensioned_quantity(
+        record,
+        &["properties", "wall_thickness"],
+        Dimension::Length,
+        true,
+    );
     if id != target_ref
         || name.is_empty()
         || section_type != "pipe"
@@ -1975,7 +2003,7 @@ fn resolve_create_section(
         checker.push(
             "OP-CREATE-SECTION-PAYLOAD-INVALID",
             "blocking",
-            "Create-section payload must include matching id, non-empty name/provenance, section_type `pipe`, and positive OD/wall quantities in the project length unit.".to_string(),
+            "Create-section payload must include matching id, non-empty name/provenance, section_type `pipe`, and positive OD/wall quantities in accepted DEC-018 length units.".to_string(),
             "Refresh the section creation intent from explicit user-entered section fields.",
             vec![target_ref.to_string()],
         );
@@ -1983,7 +2011,33 @@ fn resolve_create_section(
     }
     let outside_diameter = outside_diameter.unwrap();
     let wall_thickness = wall_thickness.unwrap();
-    if wall_thickness >= outside_diameter / 2.0 {
+    let Some(outside_diameter_for_check) =
+        quantity_value_in_unit(&outside_diameter, stored_unit, Dimension::Length)
+    else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            "Outside-diameter unit could not be converted through the accepted DEC-018 length catalog.".to_string(),
+            "Select an accepted length unit from the DEC-018 catalog.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(wall_thickness_for_check) =
+        quantity_value_in_unit(&wall_thickness, stored_unit, Dimension::Length)
+    else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            "Wall-thickness unit could not be converted through the accepted DEC-018 length catalog.".to_string(),
+            "Select an accepted length unit from the DEC-018 catalog.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if wall_thickness_for_check >= outside_diameter_for_check / 2.0 {
         checker.push(
             "OP-CREATE-SECTION-PAYLOAD-INVALID",
             "blocking",
@@ -2000,8 +2054,8 @@ fn resolve_create_section(
         "name": name,
         "section_type": "pipe",
         "properties": {
-            "outside_diameter": { "value": outside_diameter, "unit": stored_unit },
-            "wall_thickness": { "value": wall_thickness, "unit": stored_unit }
+            "outside_diameter": { "value": outside_diameter.value, "unit": outside_diameter.unit },
+            "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
         },
         "provenance": provenance,
     }))
@@ -2046,13 +2100,24 @@ fn resolve_create_material(
         );
         return None;
     };
-    if unit != stored_stress_unit {
+    if !unit_symbol_matches_dimension(stored_stress_unit, Dimension::Stress) {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
             "blocking",
-            format!("Intent unit `{unit}` does not match project stress unit `{stored_stress_unit}`; unit conversion is unavailable until the units engine lands."),
-            "Enter material modulus values in the project stress unit; no silent conversion is performed.",
+            format!("Project pressure/stress unit metadata `{stored_stress_unit}` is not an accepted DEC-018 stress unit."),
+            "Repair the model document's project.units.pressure metadata before creating materials.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if !unit_symbol_matches_dimension(unit, Dimension::Stress) {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` is not an accepted DEC-018 stress unit; project stress metadata is `{stored_stress_unit}`."),
+            "Select an accepted stress unit from the DEC-018 catalog; no hidden fallback unit is supplied.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -2127,8 +2192,9 @@ fn resolve_create_material(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
-    let elastic_modulus = quantity_value(record, &["elastic_modulus"], stored_stress_unit);
-    let shear_modulus = quantity_value(record, &["shear_modulus"], stored_stress_unit);
+    let elastic_modulus =
+        dimensioned_quantity(record, &["elastic_modulus"], Dimension::Stress, true);
+    let shear_modulus = dimensioned_quantity(record, &["shear_modulus"], Dimension::Stress, true);
     if id != target_ref
         || label.is_empty()
         || provenance.is_empty()
@@ -2138,18 +2204,20 @@ fn resolve_create_material(
         checker.push(
             "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
             "blocking",
-            "Create-material payload must include matching id, non-empty label/provenance, and positive elastic/shear modulus quantities in the project stress unit.".to_string(),
+            "Create-material payload must include matching id, non-empty label/provenance, and positive elastic/shear modulus quantities in accepted DEC-018 stress units.".to_string(),
             "Refresh the material creation intent from explicit user-entered material fields.",
             vec![target_ref.to_string()],
         );
         return None;
     }
+    let elastic_modulus = elastic_modulus.unwrap();
+    let shear_modulus = shear_modulus.unwrap();
 
     let mut material = serde_json::json!({
         "id": id,
         "label": label,
-        "elastic_modulus": { "value": elastic_modulus.unwrap(), "unit": stored_stress_unit },
-        "shear_modulus": { "value": shear_modulus.unwrap(), "unit": stored_stress_unit },
+        "elastic_modulus": { "value": elastic_modulus.value, "unit": elastic_modulus.unit },
+        "shear_modulus": { "value": shear_modulus.value, "unit": shear_modulus.unit },
         "provenance": provenance,
     });
     if record.get("thermal_expansion_coefficient").is_some() {
@@ -2166,24 +2234,35 @@ fn resolve_create_material(
             );
             return None;
         };
+        if !unit_symbol_matches_dimension(stored_temperature_unit, Dimension::Temperature) {
+            checker.unit_state = "blocked";
+            checker.push(
+                "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                "blocking",
+                format!("Project temperature unit metadata `{stored_temperature_unit}` is not an accepted DEC-018 temperature unit."),
+                "Repair the model document's project.units.temperature metadata before creating thermal expansion quantities.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
         let expected_thermal_unit = format!("1/{stored_temperature_unit}");
-        let Some(thermal) = quantity_value_any_sign(
+        let Some(thermal) = dimensioned_quantity_any_sign(
             record,
             &["thermal_expansion_coefficient"],
-            &expected_thermal_unit,
+            Dimension::ThermalExpansionCoefficient,
         ) else {
             checker.push(
                 "OP-CREATE-MATERIAL-PAYLOAD-INVALID",
                 "blocking",
-                format!("Thermal expansion must be a finite quantity in unit `{expected_thermal_unit}`."),
-                "Enter thermal expansion in the reciprocal project temperature unit, or omit it.",
+                format!("Thermal expansion must be a finite quantity in an accepted DEC-018 thermal-expansion unit; project reciprocal temperature metadata is `{expected_thermal_unit}`."),
+                "Select an accepted thermal-expansion coefficient unit, or omit the coefficient.",
                 vec![target_ref.to_string()],
             );
             return None;
         };
         material["thermal_expansion_coefficient"] = serde_json::json!({
-            "value": thermal,
-            "unit": expected_thermal_unit,
+            "value": thermal.value,
+            "unit": thermal.unit,
         });
     }
 
@@ -4704,18 +4783,47 @@ fn quantity_value(
     (value.is_finite() && value > 0.0).then_some(value)
 }
 
-fn quantity_value_any_sign(
+fn dimensioned_quantity(
     record: &serde_json::Map<String, Value>,
     path: &[&str],
-    expected_unit: &str,
-) -> Option<f64> {
+    dimension: Dimension,
+    require_positive: bool,
+) -> Option<EnteredQuantity> {
     let quantity = value_in_object(record, path)?.as_object()?;
-    let unit = quantity.get("unit").and_then(Value::as_str)?;
-    if unit != expected_unit {
+    let unit = quantity.get("unit").and_then(Value::as_str)?.trim();
+    if !unit_symbol_matches_dimension(unit, dimension) {
         return None;
     }
     let value = quantity.get("value").and_then(Value::as_f64)?;
-    value.is_finite().then_some(value)
+    if !value.is_finite() || (require_positive && value <= 0.0) {
+        return None;
+    }
+    Some(EnteredQuantity {
+        value,
+        unit: unit.to_string(),
+    })
+}
+
+fn dimensioned_quantity_any_sign(
+    record: &serde_json::Map<String, Value>,
+    path: &[&str],
+    dimension: Dimension,
+) -> Option<EnteredQuantity> {
+    dimensioned_quantity(record, path, dimension, false)
+}
+
+fn quantity_value_in_unit(
+    quantity: &EnteredQuantity,
+    target_unit: &str,
+    dimension: Dimension,
+) -> Option<f64> {
+    let from = unit_by_symbol(&quantity.unit, dimension).ok()?;
+    let to = unit_by_symbol(target_unit, dimension).ok()?;
+    convert_for_dimension(quantity.value, dimension, from, to).ok()
+}
+
+fn unit_symbol_matches_dimension(symbol: &str, dimension: Dimension) -> bool {
+    unit_by_symbol(symbol, dimension).is_ok()
 }
 
 fn vector_value(record: &serde_json::Map<String, Value>, key: &str) -> Option<(f64, f64, f64)> {
@@ -5554,6 +5662,45 @@ mod tests {
     }
 
     #[test]
+    fn explicit_create_material_payload_preserves_compatible_entered_units() {
+        let model = sample_model();
+        let payload = json!({
+            "id": "material:user-mpa-alloy",
+            "label": "User MPa alloy",
+            "elastic_modulus": { "value": 125000.0, "unit": "MPa" },
+            "shear_modulus": { "value": 48000.0, "unit": "MPa" },
+            "thermal_expansion_coefficient": { "value": 0.000010, "unit": "1/K" },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Material",
+            "material:user-mpa-alloy",
+            "create_material",
+            "materials",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "MPa",
+            "stress",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["materials"][1], payload);
+    }
+
+    #[test]
     fn create_material_blocks_duplicate_id_and_invalid_quantity_payloads() {
         let model = sample_model();
         let duplicate_payload = json!({
@@ -5599,6 +5746,29 @@ mod tests {
         invalid["operation_kind"] = json!("create");
         let outcome = apply_operation(&model, &invalid, None);
         assert!(codes(&outcome).contains(&"OP-CREATE-MATERIAL-PAYLOAD-INVALID"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+
+        let incompatible_payload = json!({
+            "id": "material:user-length-alloy",
+            "label": "Invalid material unit",
+            "elastic_modulus": { "value": 125000.0, "unit": "m" },
+            "shear_modulus": { "value": 48000.0, "unit": "m" },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut incompatible = modify_intent(
+            "Material",
+            "material:user-length-alloy",
+            "create_material",
+            "materials",
+            "not_present",
+            &serde_json::to_string(&incompatible_payload).expect("payload json"),
+            "m",
+            "stress",
+        );
+        incompatible["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &incompatible, None);
+        assert!(codes(&outcome).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
         assert_eq!(outcome.validation.application_status, "blocked");
         assert!(outcome.applied_model.is_none());
     }
@@ -5656,6 +5826,47 @@ mod tests {
                 .len(),
             1
         );
+        assert_eq!(applied["sections"][0], payload);
+    }
+
+    #[test]
+    fn explicit_create_section_payload_preserves_compatible_entered_length_unit() {
+        let model = sample_model();
+        let payload = json!({
+            "id": "section:user-mm-pipe",
+            "name": "User millimeter pipe section",
+            "section_type": "pipe",
+            "properties": {
+                "outside_diameter": { "value": 114.0, "unit": "mm" },
+                "wall_thickness": { "value": 6.0, "unit": "mm" }
+            },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Section",
+            "section:user-mm-pipe",
+            "create_section",
+            "sections",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "mm",
+            "length",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
         assert_eq!(applied["sections"][0], payload);
     }
 

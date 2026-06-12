@@ -13,6 +13,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 Property Inspector unit selectors (`TP-UNITS-B2-UNITPICKERS-001`)
+
+The Property Inspector material and pipe-section creation forms now have the
+first B2 visible unit entry controls. Section creation has a `Length unit`
+selector, material creation has `Modulus unit` and `Thermal expansion unit`
+selectors, and the existing field labels/status panel follow the selected
+unit basis. Browser preview remains honest with one-option selectors from
+model metadata and no synthesized fallback catalog; desktop/Tauri mode draws
+accepted options from the DEC-018 catalog route.
+
+The structured operation seam now accepts DEC-018-compatible entered units for
+create-section length quantities and create-material stress /
+thermal-expansion quantities, preserving entered units in the applied session
+model. Native Rust regressions cover `MPa` material moduli, `1/K` thermal
+expansion, `mm` section geometry, and incompatible material-unit rejection.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`;
+`apps/desktop/SMOKE.md` TP-MAC-134. Validation:
+operation-applier cargo suites passed 51 unit tests plus canonical-hash and
+contract-corpus tests; Tauri Rust tests passed 32/32; focused desktop Vitest
+passed 165/165; full desktop Vitest passed 216/216; desktop build passed with
+the pre-existing Vite chunk-size warning; Playwright R2 smoke passed 2/2
+after wasm engine build.
+
+Residual hand-offs: broader app unit entry/pickers outside these material and
+section create forms, report renderer body expansion beyond packet
+disclosure, imports/exports, and rule-pack unit I/O remain B2 work. B3 still
+owns broader mixed-unit round-trip, conversion-witness, incompatible-unit
+rejection, and D-04/DEC-026 tolerance coverage outside the witnesses named
+above. No lifecycle state, release-readiness, professional approval,
+certification, sealing, authentication, protected-content, private-data, or
+code-compliance claim is created.
+
 ## 2026-06-12 - B2 solver-boundary unit normalization (`TP-UNITS-B2-SOLVERNORM-001`)
 
 The preview mechanics adapter now uses the accepted DEC-018 unit catalog at

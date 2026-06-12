@@ -140,6 +140,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
 
+## 2026-06-12 - TP-UNITS-B2-UNITPICKERS-001 unit selector apply receipts
+
+- WORKING_ITEMS app-integration tranche verified that selected material and
+  section units travel through the existing queue/apply route as structured
+  operation metadata and payload fields.
+- Accepted create-material/create-section operations still mutate only the
+  local session model and retain the existing user-initiated acceptance basis;
+  entered units are preserved in the applied model.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-134. Validation passed: focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, Tauri Rust tests 32/32, and
+  Playwright R2 smoke 2/2.
+
 ## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
 
 - WORKING_ITEMS app-integration tranche verified that full-combination

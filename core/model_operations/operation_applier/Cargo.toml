@@ -20,6 +20,7 @@ wasm = ["dep:wasm-bindgen"]
 # RFC 8785 (JCS) canonical JSON text — the single canonicalization for every
 # hash seam (completion-plan H5); this crate re-exports its `canonical_json`.
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+open_pipe_stress_units = { path = "../../units" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"

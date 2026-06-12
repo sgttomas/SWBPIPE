@@ -538,6 +538,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-12 - TP-UNITS-B2-UNITPICKERS-001 create-material/section compatible units
+
+- WORKING_ITEMS app-integration tranche connected create-section and
+  create-material operation validation to `core/units` for DEC-018-compatible
+  entered units.
+- Section geometry accepts compatible length units and checks wall thickness
+  against outside diameter after converting to the project length basis for
+  comparison. Material creation accepts compatible stress units and
+  thermal-expansion coefficient units. Applied records preserve entered units.
+- Incompatible dimensions remain blocking operation diagnostics; no hidden
+  unit fallback or protected/private lookup was added.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-134. Validation passed:
+  operation-applier cargo suites (51 unit tests plus canonical-hash and
+  contract-corpus tests), wasm build, focused desktop Vitest 165/165, full
+  desktop Vitest 216/216, and Playwright R2 smoke 2/2.
+
 ## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
 
 - WORKING_ITEMS app-integration tranche extended the Rust/wasm

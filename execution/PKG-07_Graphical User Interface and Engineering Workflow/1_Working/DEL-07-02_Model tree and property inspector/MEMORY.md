@@ -89,6 +89,26 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-12 - TP-UNITS-B2-UNITPICKERS-001 Property Inspector unit selectors
+
+- WORKING_ITEMS app-integration tranche added unit selectors to the Property
+  Inspector material and pipe-section creation forms: `Length unit`,
+  `Modulus unit`, and `Thermal expansion unit`.
+- Browser preview remains model-metadata-only with no synthesized fallback
+  catalog; desktop/Tauri mode can show accepted DEC-018 catalog-backed
+  options.
+- Applying the created material/section operations preserves entered units in
+  the local session model after operation-seam validation.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-134. Validation passed:
+  operation-applier cargo suites, src-tauri Rust tests 32/32, focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, desktop build, and Playwright
+  R2 smoke 2/2.
+- No lifecycle state, release-readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim,
+  protected/private data, network path, or telemetry path changed.
+
 ## 2026-06-12 - TP-UNITS-B2-INSPECTORLABELS-001 property-inspector unit basis labels
 
 - WORKING_ITEMS app-integration tranche added a visible `Unit basis` panel to

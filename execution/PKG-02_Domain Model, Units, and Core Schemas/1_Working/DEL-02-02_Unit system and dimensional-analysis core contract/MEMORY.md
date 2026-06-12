@@ -233,3 +233,23 @@ Boundary note:
   renderer body expansion beyond packet disclosure, imports/exports, and
   rule-pack unit I/O; B3 still owns broader conversion witness and tolerance
   corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-UNITPICKERS-001 Property Inspector unit selectors
+
+- Added visible unit selectors to Property Inspector material and section
+  create forms, backed by accepted DEC-018 catalog options in desktop mode and
+  explicit model-metadata-only behavior in browser preview.
+- `core/model_operations/operation_applier` now validates compatible
+  create-section length units and create-material stress / thermal-expansion
+  units through `core/units`, preserving entered units in the applied session
+  model and blocking incompatible dimensions.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_selectors.md`;
+  corresponding DEL-07-02, DEL-16-02, and DEL-16-03 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-134.
+- Validation: operation-applier cargo suites passed; Tauri Rust tests 32/32;
+  focused desktop Vitest 165/165; full desktop Vitest 216/216; desktop build
+  passed; Playwright R2 smoke 2/2.
+- Residual handoffs: B2 still owns broader app unit entry/pickers outside
+  material/section create forms, report renderer body expansion beyond packet
+  disclosure, imports/exports, and rule-pack unit I/O.

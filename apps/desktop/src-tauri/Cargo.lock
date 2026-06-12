@@ -2116,6 +2116,7 @@ name = "open_pipe_stress_operation_applier"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
+ "open_pipe_stress_units",
  "serde",
  "serde_json",
  "sha2",

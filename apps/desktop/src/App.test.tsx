@@ -5980,6 +5980,8 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("Pa, model metadata");
     expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("1/degC, model metadata");
+    expect(within(createMaterialPanel).getByTestId("create-material-stress-unit")).toHaveValue("Pa");
+    expect(within(createMaterialPanel).getByTestId("create-material-thermal-unit")).toHaveValue("1/degC");
     expect(within(createMaterialPanel).getByText("Elastic modulus (Pa, model metadata)")).toBeInTheDocument();
     expect(within(createMaterialPanel).getByText("Thermal expansion (1/degC, model metadata)")).toBeInTheDocument();
     expect(within(createMaterialPanel).getByTestId("queue-create-material-intent")).toBeDisabled();
@@ -6041,6 +6043,7 @@ describe("OpenPipeStress desktop preview", () => {
       )
     );
     expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("m, model metadata");
+    expect(within(createSectionPanel).getByTestId("create-section-length-unit")).toHaveValue("m");
     expect(within(createSectionPanel).getByText("Outside diameter (m, model metadata)")).toBeInTheDocument();
     expect(within(createSectionPanel).getByText("Wall thickness (m, model metadata)")).toBeInTheDocument();
     expect(within(createSectionPanel).getByTestId("queue-create-section-intent")).toBeDisabled();

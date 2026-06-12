@@ -2,9 +2,11 @@ import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import {
+  acceptedUnits,
   describeUnitBasis,
   loadUnitCatalog,
   type UnitBasisDisplay,
+  type UnitCatalogEntry,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
@@ -38,12 +40,19 @@ export function PropertyInspector({
   const selectedNode = selection.type === "node" ? model.nodes.find((node) => node.id === selection.id) : null;
   const selectedPipe = selection.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === selection.id) : null;
   const selectedSupport = selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
-  const lengthBasis = describeUnitBasis(unitCatalogRoute, lengthUnit(model), "length");
-  const stressBasis = describeUnitBasis(unitCatalogRoute, stressUnit(model), "stress");
+  const lengthBasis = describeUnitBasis(unitCatalogRoute, sectionDraft.lengthUnit, "length");
+  const stressBasis = describeUnitBasis(unitCatalogRoute, materialDraft.stressUnit, "stress");
   const thermalExpansionBasis = describeUnitBasis(
     unitCatalogRoute,
-    thermalExpansionUnit(model),
+    materialDraft.thermalExpansionUnit,
     "thermal_expansion_coefficient"
+  );
+  const lengthUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
+  const stressUnitOptions = unitOptions(unitCatalogRoute, "stress", stressUnit(model));
+  const thermalExpansionUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "thermal_expansion_coefficient",
+    thermalExpansionUnit(model)
   );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const operationIntent = selectedField
@@ -284,6 +293,21 @@ export function PropertyInspector({
             </select>
           </label>
           <label>
+            <span>Length unit</span>
+            <select
+              aria-label="New section length unit"
+              data-testid="create-section-length-unit"
+              onChange={(event) => updateSectionDraft("lengthUnit", event.target.value)}
+              value={sectionDraft.lengthUnit}
+            >
+              {lengthUnitOptions.map((option) => (
+                <option key={option.symbol} value={option.symbol}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             <span>Outside diameter ({lengthBasis.label})</span>
             <input
               aria-label="New section outside diameter"
@@ -347,6 +371,21 @@ export function PropertyInspector({
             />
           </label>
           <label>
+            <span>Modulus unit</span>
+            <select
+              aria-label="New material modulus unit"
+              data-testid="create-material-stress-unit"
+              onChange={(event) => updateMaterialDraft("stressUnit", event.target.value)}
+              value={materialDraft.stressUnit}
+            >
+              {stressUnitOptions.map((option) => (
+                <option key={option.symbol} value={option.symbol}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             <span>Elastic modulus ({stressBasis.label})</span>
             <input
               aria-label="New material elastic modulus"
@@ -365,6 +404,21 @@ export function PropertyInspector({
               onChange={(event) => updateMaterialDraft("shearModulus", event.target.value)}
               value={materialDraft.shearModulus}
             />
+          </label>
+          <label>
+            <span>Thermal expansion unit</span>
+            <select
+              aria-label="New material thermal expansion unit"
+              data-testid="create-material-thermal-unit"
+              onChange={(event) => updateMaterialDraft("thermalExpansionUnit", event.target.value)}
+              value={materialDraft.thermalExpansionUnit}
+            >
+              {thermalExpansionUnitOptions.map((option) => (
+                <option key={option.symbol} value={option.symbol}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             <span>Thermal expansion ({thermalExpansionBasis.label})</span>
@@ -588,8 +642,10 @@ type SupportDraft = {
 type MaterialDraft = {
   id: string;
   label: string;
+  stressUnit: string;
   elasticModulus: string;
   shearModulus: string;
+  thermalExpansionUnit: string;
   thermalExpansion: string;
   provenance: string;
 };
@@ -598,9 +654,15 @@ type SectionDraft = {
   id: string;
   name: string;
   sectionType: string;
+  lengthUnit: string;
   outsideDiameter: string;
   wallThickness: string;
   provenance: string;
+};
+
+type UnitOption = {
+  symbol: string;
+  label: string;
 };
 
 const RESTRAINT_OPTIONS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
@@ -700,6 +762,53 @@ function UnitCatalogPanel({
       </div>
     </section>
   );
+}
+
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
+  const fallbackBasis = describeUnitBasis(route, fallbackSymbol, dimensionId);
+  const fallback = {
+    symbol: fallbackBasis.symbol,
+    label: fallbackBasis.label
+  };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const basis = describeUnitBasis(route, entry.symbol, dimensionId);
+      return {
+        symbol: entry.symbol,
+        label: basis.label
+      };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) {
+    options.unshift(fallback);
+  }
+  return options.length ? options : [fallback];
+}
+
+function unitEntryMatchesDimension(entry: UnitCatalogEntry, dimensionId: string): boolean {
+  if (entry.dimension_id === dimensionId) return true;
+  return equivalentUnitDimensions(dimensionId).includes(entry.dimension_id);
+}
+
+function equivalentUnitDimensions(dimensionId: string): string[] {
+  switch (dimensionId) {
+    case "stress":
+      return ["pressure"];
+    case "displacement":
+      return ["length"];
+    case "rotation":
+      return ["angle"];
+    case "linear_stiffness":
+      return ["force_per_length"];
+    case "volume_per_length":
+      return ["area"];
+    default:
+      return [];
+  }
 }
 
 function unitCatalogStatus(route: UnitCatalogRoute | null): string {
@@ -925,8 +1034,8 @@ function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): Edi
     name: draft.name.trim(),
     section_type: draft.sectionType.trim(),
     properties: {
-      outside_diameter: { value: Number(draft.outsideDiameter), unit: lengthUnit(model) },
-      wall_thickness: { value: Number(draft.wallThickness), unit: lengthUnit(model) }
+      outside_diameter: { value: Number(draft.outsideDiameter), unit: draft.lengthUnit },
+      wall_thickness: { value: Number(draft.wallThickness), unit: draft.lengthUnit }
     },
     provenance: draft.provenance.trim()
   };
@@ -951,9 +1060,9 @@ function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): Edi
       field_path: "sections",
       before: "not_present",
       after: JSON.stringify(payload),
-      unit: lengthUnit(model),
+      unit: draft.lengthUnit,
       dimension: "length",
-      source_note: "explicit user-entered pipe section geometry"
+      source_note: "explicit user-entered pipe section geometry; entered unit preserved"
     },
     validation: {
       schema_validation: "not_run",
@@ -985,12 +1094,12 @@ function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): E
   const payload: Record<string, unknown> = {
     id: materialId,
     label: draft.label.trim(),
-    elastic_modulus: { value: Number(draft.elasticModulus), unit: stressUnit(model) },
-    shear_modulus: { value: Number(draft.shearModulus), unit: stressUnit(model) },
+    elastic_modulus: { value: Number(draft.elasticModulus), unit: draft.stressUnit },
+    shear_modulus: { value: Number(draft.shearModulus), unit: draft.stressUnit },
     provenance: draft.provenance.trim()
   };
   if (draft.thermalExpansion.trim()) {
-    payload.thermal_expansion_coefficient = { value: Number(draft.thermalExpansion), unit: thermalExpansionUnit(model) };
+    payload.thermal_expansion_coefficient = { value: Number(draft.thermalExpansion), unit: draft.thermalExpansionUnit };
   }
   return {
     operation_id: `op:create-material-${safeToken(materialId)}`,
@@ -1013,9 +1122,9 @@ function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): E
       field_path: "materials",
       before: "not_present",
       after: JSON.stringify(payload),
-      unit: stressUnit(model),
+      unit: draft.stressUnit,
       dimension: "stress",
-      source_note: "explicit user-entered material quantities"
+      source_note: "explicit user-entered material quantities; entered units preserved"
     },
     validation: {
       schema_validation: "not_run",
@@ -1295,6 +1404,7 @@ function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: Edi
     id,
     name: `Section ${shortEntityToken(id)}`,
     sectionType: "pipe",
+    lengthUnit: lengthUnit(model),
     outsideDiameter: "",
     wallThickness: "",
     provenance: "user_entered_local_preview"
@@ -1310,8 +1420,10 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
   return {
     id,
     label: `Material ${shortEntityToken(id)}`,
+    stressUnit: stressUnit(model),
     elasticModulus: "",
     shearModulus: "",
+    thermalExpansionUnit: thermalExpansionUnit(model),
     thermalExpansion: "",
     provenance: "user_entered_local_preview"
   };
@@ -1386,7 +1498,7 @@ function isSectionDraftValid(model: PreviewModel, draft: SectionDraft): boolean 
   return (
     Boolean(draft.id.trim() && draft.name.trim() && draft.provenance.trim()) &&
     draft.sectionType === "pipe" &&
-    lengthUnit(model) !== "TBD" &&
+    draft.lengthUnit !== "TBD" &&
     isPositiveInput(draft.outsideDiameter) &&
     isPositiveInput(draft.wallThickness) &&
     wallThickness < outsideDiameter / 2 &&
@@ -1398,10 +1510,10 @@ function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolea
   const thermalProvided = draft.thermalExpansion.trim() !== "";
   return (
     Boolean(draft.id.trim() && draft.label.trim() && draft.provenance.trim()) &&
-    stressUnit(model) !== "TBD" &&
+    draft.stressUnit !== "TBD" &&
     isPositiveInput(draft.elasticModulus) &&
     isPositiveInput(draft.shearModulus) &&
-    (!thermalProvided || (thermalExpansionUnit(model) !== "TBD" && isFiniteInput(draft.thermalExpansion))) &&
+    (!thermalProvided || (draft.thermalExpansionUnit !== "TBD" && isFiniteInput(draft.thermalExpansion))) &&
     !(model.materials ?? []).some((material) => material.id === draft.id.trim())
   );
 }
