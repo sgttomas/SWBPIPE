@@ -98,6 +98,10 @@ export function unitCatalogEntryForSymbol(
   );
 }
 
+export function unitEntryMatchesDimension(entry: UnitCatalogEntry, dimensionId: string): boolean {
+  return dimensionMatches(entry.dimension_id, normalizeDimension(dimensionId));
+}
+
 export function describeUnitBasis(
   route: UnitCatalogRoute | null,
   symbol: string,

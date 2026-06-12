@@ -2044,6 +2044,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-create-primitive-load-case")).toHaveValue("load:L-100");
     expect(within(manager).getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
     expect(within(manager).getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_x");
+    expect(within(manager).getByTestId("load-manager-create-primitive-unit")).toHaveValue("Pa");
+    expect(within(manager).getByText("Magnitude (Pa, model metadata)")).toBeInTheDocument();
     expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
       "op:load-manager-load:L-100-load:L-100-P300-primitive"
     );
@@ -2098,6 +2100,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-create-primitive-load-case")).toHaveValue("load:L-100");
     expect(within(manager).getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
     expect(within(manager).getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
+    expect(within(manager).getByTestId("load-manager-create-primitive-unit")).toHaveValue("degC");
+    expect(within(manager).getByText("Magnitude (degC, model metadata)")).toBeInTheDocument();
     expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
       "op:load-manager-load:L-100-load:L-100-T300-primitive"
     );

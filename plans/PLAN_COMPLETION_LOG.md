@@ -13,6 +13,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 primitive-load unit selectors (`TP-UNITS-B2-LOADPICKERS-001`)
+
+The Load Cases manager primitive-load creation form now has visible unit
+selection for the entered magnitude. Browser preview remains honest with a
+single model-metadata option; desktop/Tauri mode loads accepted DEC-018 unit
+catalog entries for the selected primitive-load dimension and labels
+canonical/display options explicitly. Category and direction changes reset the
+selector to the model's default unit for that load family.
+
+The structured operation seam now accepts DEC-018-compatible entered units for
+created primitive loads while preserving the entered unit in the applied
+session model. Native regressions cover a concentrated force entered in `lbf`,
+a pressure load entered in `kPa`, and incompatible `mm` rejection for a force
+load. Existing primitive-load magnitude edits remain out of scope because
+changing a numeric `.value` without a sibling `.unit` update path would create
+ambiguous partial edits.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`;
+`execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`;
+`apps/desktop/SMOKE.md` TP-MAC-136. Validation:
+operation-applier cargo suites passed 52 unit tests plus canonical-hash and
+contract-corpus tests; Tauri Rust tests passed 32/32; focused desktop Vitest
+passed 165/165; full desktop Vitest passed 216/216; desktop build passed with
+the pre-existing Vite chunk-size warning; Playwright R2 smoke passed 2/2
+after wasm engine build.
+
+Residual hand-offs: broader app unit entry/pickers outside material/section
+and primitive-load create forms, imports/exports, rule-pack unit I/O, and
+existing primitive-load magnitude-edit unit handling remain B2 work. B3 still
+owns broader mixed-unit round-trip, conversion-witness, incompatible-unit
+rejection, and D-04/DEC-026 tolerance coverage outside the witnesses named
+above. No lifecycle state, release-readiness, professional approval,
+certification, sealing, authentication, protected-content, private-data, or
+code-compliance claim is created.
+
 ## 2026-06-12 - B2 rendered report body unit disclosure (`TP-UNITS-B2-REPORTBODY-001`)
 
 The hash-bound rendered report body now carries explicit unit evidence instead

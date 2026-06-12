@@ -407,3 +407,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Remaining DEL-05-05 residuals include imposed displacements, final
   result-envelope/API/persistence/report integration, production tolerance
   policy, release thresholds, and professional reliance.
+
+## 2026-06-12 - TP-UNITS-B2-LOADPICKERS-001 primitive-load unit selectors
+
+- WORKING_ITEMS app-integration tranche added visible unit selection to
+  primitive-load creation in the desktop Load Cases manager. No
+  `core/loads/user_loads` source behavior changed.
+- The creation form now selects a magnitude unit for concentrated force,
+  distributed force, moment, pressure, temperature, and imposed-displacement
+  primitives. Browser preview uses the model metadata unit only; desktop/Tauri
+  mode can offer accepted DEC-018 units for the selected primitive-load
+  dimension.
+- The operation seam now accepts compatible entered primitive-load units and
+  preserves those units in the local session model. Rust regressions cover
+  `lbf` concentrated force, `kPa` pressure, and incompatible `mm` rejection
+  for a force load.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-136. Validation passed:
+  operation-applier cargo suites, src-tauri Rust tests 32/32, focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, desktop build, and Playwright
+  R2 smoke 2/2.
+- Remaining DEL-05-05 residuals include existing primitive-load magnitude-edit
+  unit handling, final result-envelope/API/persistence/report integration,
+  production tolerance policy, release thresholds, and professional reliance.

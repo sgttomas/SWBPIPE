@@ -556,6 +556,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
   contract-corpus tests), wasm build, focused desktop Vitest 165/165, full
   desktop Vitest 216/216, and Playwright R2 smoke 2/2.
 
+## 2026-06-12 - TP-UNITS-B2-LOADPICKERS-001 primitive-load unit selectors
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` primitive-load creation path to validate entered load
+  units by DEC-018 dimension compatibility rather than exact project-unit
+  equality.
+- Accepted create-primitive-load intents still require matching payload
+  `magnitude.unit`, intent unit, dimension, target, direction, finite value,
+  and provenance. Compatible entered units are preserved in the applied
+  session model; incompatible dimensions remain blocked by
+  `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-136. Validation passed:
+  operation-applier cargo suites (52 unit tests plus canonical-hash and
+  contract-corpus tests), src-tauri Rust tests 32/32, focused desktop Vitest
+  165/165, full desktop Vitest 216/216, desktop build, and Playwright R2 smoke
+  2/2.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  hidden deletion cascade, no durable persistence, no protected/private data,
+  and no professional, release, or code-compliance claim.
+
 ## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
 
 - WORKING_ITEMS app-integration tranche extended the Rust/wasm

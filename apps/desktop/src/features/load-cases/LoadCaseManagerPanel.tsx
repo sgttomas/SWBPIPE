@@ -1,6 +1,13 @@
 import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  unitEntryMatchesDimension,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
 
 type LoadCase = PreviewModel["load_cases"][number];
 type Combination = NonNullable<PreviewModel["combinations"]>[number];
@@ -44,6 +51,7 @@ type PrimitiveLoadDraft = {
   targetSupport: string;
   direction: string;
   magnitude: string;
+  unit: string;
   provenance: string;
 };
 
@@ -62,6 +70,11 @@ type CombinationDraft = {
   factor: string;
   provenance: string;
   rationale: string;
+};
+
+type UnitOption = {
+  symbol: string;
+  label: string;
 };
 
 type LoadMetadataField = "status" | "kind";
@@ -128,6 +141,7 @@ export function LoadCaseManagerPanel({
   const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
     defaultPrimitiveLoadDraft(model, model.load_cases[0]?.id ?? "")
   );
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const changed = selectedPrimitive ? proposedMagnitude.trim() !== currentMagnitude : false;
   const intent =
     selectedPrimitive && changed
@@ -232,7 +246,14 @@ export function LoadCaseManagerPanel({
         draft: primitiveLoadDraft
       })
     : null;
-  const primitiveDraftUnit = primitiveLoadDraftUnit(model, primitiveLoadDraft.category, primitiveLoadDraft.direction);
+  const primitiveDraftDimension = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
+  const primitiveDraftUnit = primitiveLoadDraft.unit;
+  const primitiveDraftUnitBasis = describeUnitBasis(unitCatalogRoute, primitiveDraftUnit, primitiveDraftDimension);
+  const primitiveDraftUnitOptions = unitOptions(
+    unitCatalogRoute,
+    primitiveDraftDimension,
+    primitiveLoadDefaultUnit(model, primitiveLoadDraft.category, primitiveLoadDraft.direction)
+  );
   const primitiveDraftTarget = primitiveLoadDraftTargetDisplay(primitiveLoadDraft);
 
   useEffect(() => {
@@ -244,6 +265,24 @@ export function LoadCaseManagerPanel({
       setSelectedPrimitiveKey(primitiveKey(primitiveLoads[0]));
     }
   }, [primitiveLoads, selectedPrimitiveKey]);
+
+  useEffect(() => {
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => {
+        if (active) setUnitCatalogRoute(route);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: `UNIT-CATALOG-LOAD-FAILED: ${String(error)}`
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     setProposedMagnitude(currentMagnitude);
@@ -316,6 +355,9 @@ export function LoadCaseManagerPanel({
       if (field === "loadCaseId" || field === "category") {
         nextDraft.direction = defaultPrimitiveLoadDirection(nextDraft.category);
         nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
+      }
+      if (field === "category" || field === "direction") {
+        nextDraft.unit = primitiveLoadDefaultUnit(model, nextDraft.category, nextDraft.direction);
       }
       return nextDraft;
     });
@@ -557,7 +599,22 @@ export function LoadCaseManagerPanel({
             </select>
           </label>
           <label>
-            <span>Magnitude</span>
+            <span>Magnitude unit</span>
+            <select
+              aria-label="Primitive load unit"
+              data-testid="load-manager-create-primitive-unit"
+              onChange={(event) => updatePrimitiveLoadDraft("unit", event.target.value)}
+              value={primitiveLoadDraft.unit}
+            >
+              {primitiveDraftUnitOptions.map((option) => (
+                <option key={option.symbol} value={option.symbol}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
             <input
               aria-label="Primitive load magnitude"
               data-testid="load-manager-create-primitive-magnitude"
@@ -1216,15 +1273,18 @@ function defaultLoadCaseDraft(id: string): LoadCaseDraft {
 }
 
 function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): PrimitiveLoadDraft {
+  const category = "concentrated_force";
+  const direction = defaultPrimitiveLoadDirection(category);
   return {
     loadCaseId,
-    id: nextPrimitiveLoadIdentifier(model, loadCaseId, "concentrated_force"),
-    category: "concentrated_force",
+    id: nextPrimitiveLoadIdentifier(model, loadCaseId, category),
+    category,
     targetNode: model.nodes[0]?.id ?? "",
     targetPipe: model.pipe_segments[0]?.id ?? "",
     targetSupport: model.supports[0]?.id ?? "",
-    direction: defaultPrimitiveLoadDirection("concentrated_force"),
+    direction,
     magnitude: "250",
+    unit: primitiveLoadDefaultUnit(model, category, direction),
     provenance: "user_entered_local_preview"
   };
 }
@@ -1290,7 +1350,6 @@ function isLoadCaseDraftReady(model: PreviewModel, draft: LoadCaseDraft): boolea
 function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraft): boolean {
   const id = draft.id.trim();
   const magnitude = parseFiniteNumber(draft.magnitude);
-  const unit = primitiveLoadDraftUnit(model, draft.category, draft.direction);
   const targetExists =
     primitiveLoadUsesSupportTarget(draft.category)
       ? model.supports.some((support) => support.id === draft.targetSupport)
@@ -1307,7 +1366,8 @@ function isPrimitiveLoadDraftReady(model: PreviewModel, draft: PrimitiveLoadDraf
       magnitude !== null &&
       magnitude !== 0 &&
       draft.provenance.trim() &&
-      unit !== "TBD"
+      draft.unit.trim() &&
+      draft.unit.trim() !== "TBD"
   );
 }
 
@@ -1476,7 +1536,7 @@ function buildCreatePrimitiveLoadIntent({
   model: PreviewModel;
   draft: PrimitiveLoadDraft;
 }): EditorOperationIntent {
-  const unit = primitiveLoadDraftUnit(model, draft.category, draft.direction);
+  const unit = draft.unit.trim() || "TBD";
   const dimension = primitiveLoadDraftDimension(draft.category, draft.direction);
   const magnitude = parseFiniteNumber(draft.magnitude) ?? 0;
   const payload = {
@@ -2223,6 +2283,20 @@ function primitiveUnit(load: PrimitiveLoad): string {
   return optionalString((magnitude as Record<string, unknown>).unit) ?? "TBD";
 }
 
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
+  const fallback = { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
+  if (!fallbackSymbol || fallbackSymbol === "TBD") return [fallback];
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .map((entry) => ({
+      symbol: entry.symbol,
+      label: `${entry.symbol}${entry.canonical ? " (DEC-018 canonical)" : " (DEC-018 display)"}`
+    }));
+  if (!options.some((option) => option.symbol === fallbackSymbol)) options.unshift(fallback);
+  return options;
+}
+
 function projectForceUnit(model: PreviewModel): string {
   return optionalString(model.project.units.force) ?? "TBD";
 }
@@ -2255,7 +2329,7 @@ function projectRotationUnit(model: PreviewModel): string {
   return optionalString(model.project.units.angle) ?? "TBD";
 }
 
-function primitiveLoadDraftUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
+function primitiveLoadDefaultUnit(model: PreviewModel, category: PrimitiveLoadCategory, direction: string): string {
   if (category === "distributed_force") return projectDistributedForceUnit(model);
   if (category === "concentrated_moment") return projectMomentUnit(model);
   if (category === "pressure") return projectPressureUnit(model);

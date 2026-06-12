@@ -278,3 +278,33 @@ Boundary note:
 - Residual handoffs: B2 still owns broader app unit entry/pickers outside
   material/section create forms, imports/exports, and rule-pack unit I/O; B3
   still owns broader conversion witness and tolerance corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-LOADPICKERS-001 primitive-load unit selectors
+
+- Added DEC-018-backed unit option filtering for Load Cases manager
+  primitive-load creation by exposing `unitEntryMatchesDimension` from the
+  frontend unit-catalog service.
+- The primitive-load creation form now has a visible `Magnitude unit` selector
+  and labels the magnitude field with the selected unit basis. Browser preview
+  remains model-metadata-only; desktop/Tauri mode can use accepted catalog
+  entries for the selected primitive-load dimension.
+- `core/model_operations/operation_applier` now validates compatible entered
+  units for created primitive loads and preserves those units in the applied
+  session model.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`;
+  corresponding DEL-05-05, DEL-07-02, and DEL-16-02 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-136.
+- Validation: operation-applier cargo suites passed 52 unit tests plus
+  canonical-hash and contract-corpus tests; Tauri Rust tests 32/32; focused
+  desktop Vitest 165/165; full desktop Vitest 216/216; desktop build passed;
+  Playwright R2 smoke 2/2.
+- Boundaries preserved: no report-time unit conversion, project-wide
+  unit-system picker, existing primitive-load magnitude-edit unit handling,
+  import/export unit conversion, rule-pack unit I/O, protected standards
+  content, private project data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.
+- Residual handoffs: B2 still owns broader app unit entry/pickers outside
+  material/section/primitive-load create forms, imports/exports, rule-pack
+  unit I/O, and existing primitive-load magnitude-edit unit handling; B3 still
+  owns broader conversion witness and tolerance corpus coverage.

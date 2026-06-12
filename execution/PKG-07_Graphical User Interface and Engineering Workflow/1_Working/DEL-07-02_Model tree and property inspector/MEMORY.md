@@ -109,6 +109,27 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim,
   protected/private data, network path, or telemetry path changed.
 
+## 2026-06-12 - TP-UNITS-B2-LOADPICKERS-001 primitive-load unit selectors
+
+- WORKING_ITEMS app-integration tranche added visible unit selection to the
+  Load Cases manager primitive-load creation form. The selector follows the
+  selected category/direction and labels the magnitude field with the current
+  unit basis.
+- Browser preview remains model-metadata-only. Desktop/Tauri mode can show
+  accepted DEC-018 catalog options filtered to the selected primitive-load
+  dimension.
+- Applying created primitive-load operations preserves entered units in the
+  local session model after operation-seam validation.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_unit_selectors.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-136. Validation passed:
+  operation-applier cargo suites, src-tauri Rust tests 32/32, focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, desktop build, and Playwright
+  R2 smoke 2/2.
+- No lifecycle state, release-readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim,
+  protected/private data, network path, or telemetry path changed.
+
 ## 2026-06-12 - TP-UNITS-B2-INSPECTORLABELS-001 property-inspector unit basis labels
 
 - WORKING_ITEMS app-integration tranche added a visible `Unit basis` panel to

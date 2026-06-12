@@ -2847,6 +2847,20 @@ fn resolve_create_primitive_load(
     } else {
         "force"
     };
+    let expected_dimension_enum = match Dimension::from_schema_value(expected_dimension) {
+        Ok(dimension) => dimension,
+        Err(error) => {
+            checker.unit_state = "blocked";
+            checker.push(
+                "OP-UNIT-DIMENSION-UNKNOWN",
+                "blocking",
+                format!("Create-primitive-load dimension `{expected_dimension}` is not accepted by the DEC-018 catalog: {error}."),
+                "Refresh the primitive-load creation intent from the governed dimension vocabulary.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+    };
     let stored_force_unit = value_at(model, &["project", "units", "force"]).and_then(Value::as_str);
     let stored_length_unit =
         value_at(model, &["project", "units", "length"]).and_then(Value::as_str);
@@ -2942,13 +2956,13 @@ fn resolve_create_primitive_load(
     } else {
         stored_force_unit.unwrap_or("").to_string()
     };
-    if unit != expected_unit {
+    if unit != expected_unit && !unit_symbol_matches_dimension(unit, expected_dimension_enum) {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
             "blocking",
-            format!("Intent unit `{unit}` does not match expected primitive-load unit `{expected_unit}`; unit conversion is unavailable until the units engine lands."),
-            "Enter primitive load values in the project unit basis; no silent conversion is performed.",
+            format!("Intent unit `{unit}` is not an accepted DEC-018 unit for primitive-load dimension `{expected_dimension}`; project unit basis is `{expected_unit}`."),
+            "Select an accepted unit from the DEC-018 catalog; no hidden fallback unit is supplied.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -2984,14 +2998,14 @@ fn resolve_create_primitive_load(
                 || target_dof != direction
                 || !matches!(direction, "UX" | "UY" | "UZ" | "RX" | "RY" | "RZ")))
         || magnitude_value.is_none()
-        || magnitude_unit != expected_unit
+        || magnitude_unit != unit
         || payload_dimension != expected_dimension
         || provenance.is_empty()
     {
         checker.push(
             "OP-CREATE-PRIMITIVE-LOAD-PAYLOAD-INVALID",
             "blocking",
-            "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node, pipe, or support target, compatible direction, finite magnitude in the expected unit, and matching dimension.".to_string(),
+            "Create-primitive-load payload must include non-empty id/provenance, a supported category with matching node, pipe, or support target, compatible direction, finite magnitude whose unit matches the intent unit, and matching dimension.".to_string(),
             "Refresh the primitive-load creation intent from explicit user-entered primitive-load fields.",
             vec![target_ref.to_string()],
         );
@@ -3073,7 +3087,7 @@ fn resolve_create_primitive_load(
             "category": category,
             "target": target,
             "direction": direction,
-            "magnitude": { "value": magnitude_value.unwrap(), "unit": expected_unit },
+            "magnitude": { "value": magnitude_value.unwrap(), "unit": magnitude_unit },
             "dimension": expected_dimension,
             "provenance": provenance,
         }),
@@ -6592,6 +6606,106 @@ mod tests {
         missing_support["operation_kind"] = json!("create");
         let blocked = apply_operation(&model, &missing_support, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_primitive_load_preserves_compatible_entered_units() {
+        let model = sample_model();
+        let force_payload = json!({
+            "id": "load:L-1-F2",
+            "category": "concentrated_force",
+            "target": { "type": "node", "node": "node:N-2" },
+            "direction": "global_y",
+            "magnitude": { "value": 55.0, "unit": "lbf" },
+            "dimension": "force",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut force_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&force_payload).expect("payload json"),
+            "lbf",
+            "force",
+        );
+        force_intent["operation_kind"] = json!("create");
+
+        let force_outcome = apply_operation(&model, &force_intent, None);
+
+        assert!(
+            force_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            force_outcome.diagnostics
+        );
+        assert_eq!(force_outcome.validation.unit_validation, "passed");
+        let force_applied = force_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            force_applied["load_cases"][0]["primitive_loads"][1],
+            force_payload
+        );
+
+        let pressure_payload = json!({
+            "id": "load:L-1-P2",
+            "category": "pressure",
+            "target": { "type": "element", "pipe": "pipe:P-1" },
+            "direction": "global_x",
+            "magnitude": { "value": 850.0, "unit": "kPa" },
+            "dimension": "pressure",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut pressure_intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&pressure_payload).expect("payload json"),
+            "kPa",
+            "pressure",
+        );
+        pressure_intent["operation_kind"] = json!("create");
+
+        let pressure_outcome = apply_operation(&force_applied, &pressure_intent, None);
+
+        assert!(
+            pressure_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            pressure_outcome.diagnostics
+        );
+        assert_eq!(pressure_outcome.validation.unit_validation, "passed");
+        let pressure_applied = pressure_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            pressure_applied["load_cases"][0]["primitive_loads"][2],
+            pressure_payload
+        );
+
+        let incompatible_payload = json!({
+            "id": "load:L-1-F3",
+            "category": "concentrated_force",
+            "target": { "type": "node", "node": "node:N-2" },
+            "direction": "global_y",
+            "magnitude": { "value": 55.0, "unit": "mm" },
+            "dimension": "force",
+            "provenance": "user_entered_local_preview"
+        });
+        let mut incompatible = modify_intent(
+            "Load",
+            "load:L-1",
+            "create_primitive_load",
+            "primitive_loads",
+            "not_present",
+            &serde_json::to_string(&incompatible_payload).expect("payload json"),
+            "mm",
+            "force",
+        );
+        incompatible["operation_kind"] = json!("create");
+
+        let blocked = apply_operation(&model, &incompatible, None);
+        assert!(codes(&blocked).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        assert_eq!(blocked.validation.unit_validation, "blocked");
         assert!(blocked.applied_model.is_none());
     }
 
