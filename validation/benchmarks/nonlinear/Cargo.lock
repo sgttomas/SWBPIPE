@@ -45,4 +45,9 @@ dependencies = [
  "open_pipe_stress_frame_kernel",
  "open_pipe_stress_linear_supports",
  "open_pipe_stress_primitive_loads",
+ "open_pipe_stress_sparse_direct",
 ]
+
+[[package]]
+name = "open_pipe_stress_sparse_direct"
+version = "0.1.0"
