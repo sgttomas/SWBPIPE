@@ -28,6 +28,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("operation-engine-status")).toContainText(
     "engine_route=local_wasm_engine; engine_state=ready"
   );
+  await expect(page.getByTestId("property-unit-catalog-status")).toContainText(
+    "browser preview uses model metadata"
+  );
+  await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
+  await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");

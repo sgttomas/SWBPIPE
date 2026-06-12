@@ -89,6 +89,27 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-12 - TP-UNITS-B2-INSPECTORLABELS-001 property-inspector unit basis labels
+
+- WORKING_ITEMS app-integration tranche added a visible `Unit basis` panel to
+  the Property Inspector and connected material/section creation labels to
+  catalog-aware frontend helpers.
+- Browser preview now states that it is using model metadata only for these
+  labels (`m, model metadata`, `Pa, model metadata`, `1/degC, model
+  metadata`) instead of implying a reviewed desktop catalog is available.
+- The operation payload units remain unchanged and still come from the model
+  document; no unit picker or conversion behavior was added.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_basis_labels.md`,
+  the corresponding DEL-02-02 run record, and `apps/desktop/SMOKE.md`
+  TP-MAC-131. Validation passed: focused unit-catalog/App Vitest 48/48,
+  Playwright R2 smoke 2/2, full desktop Vitest 216/216, and desktop build.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, fallback browser catalog, unit conversion, or
+  hidden engineering default changed.
+
 ## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
 
 - WORKING_ITEMS app-integration tranche extended the Load Cases manager with

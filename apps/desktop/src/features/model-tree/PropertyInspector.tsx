@@ -1,6 +1,12 @@
 import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, OperationOutcome, PreviewModel } from "../../types";
+import {
+  describeUnitBasis,
+  loadUnitCatalog,
+  type UnitBasisDisplay,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
 
 export function PropertyInspector({
@@ -28,9 +34,17 @@ export function PropertyInspector({
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const selectedNode = selection.type === "node" ? model.nodes.find((node) => node.id === selection.id) : null;
   const selectedPipe = selection.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === selection.id) : null;
   const selectedSupport = selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
+  const lengthBasis = describeUnitBasis(unitCatalogRoute, lengthUnit(model), "length");
+  const stressBasis = describeUnitBasis(unitCatalogRoute, stressUnit(model), "stress");
+  const thermalExpansionBasis = describeUnitBasis(
+    unitCatalogRoute,
+    thermalExpansionUnit(model),
+    "thermal_expansion_coefficient"
+  );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const operationIntent = selectedField
     ? buildOperationIntent({
@@ -70,6 +84,24 @@ export function PropertyInspector({
   useEffect(() => {
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
   }, [model.project.id]);
+
+  useEffect(() => {
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => {
+        if (active) setUnitCatalogRoute(route);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: `UNIT-CATALOG-LOAD-FAILED: ${String(error)}`
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function handleFieldChange(fieldPath: string) {
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
@@ -149,6 +181,7 @@ export function PropertyInspector({
           </div>
         ))}
       </dl>
+      <UnitCatalogPanel route={unitCatalogRoute} bases={[lengthBasis, stressBasis, thermalExpansionBasis]} />
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
         <h3>Review-only edit intent</h3>
         {operationIntent ? (
@@ -251,7 +284,7 @@ export function PropertyInspector({
             </select>
           </label>
           <label>
-            <span>Outside diameter ({lengthUnit(model)})</span>
+            <span>Outside diameter ({lengthBasis.label})</span>
             <input
               aria-label="New section outside diameter"
               data-testid="create-section-od"
@@ -261,7 +294,7 @@ export function PropertyInspector({
             />
           </label>
           <label>
-            <span>Wall thickness ({lengthUnit(model)})</span>
+            <span>Wall thickness ({lengthBasis.label})</span>
             <input
               aria-label="New section wall thickness"
               data-testid="create-section-wall"
@@ -314,7 +347,7 @@ export function PropertyInspector({
             />
           </label>
           <label>
-            <span>Elastic modulus ({stressUnit(model)})</span>
+            <span>Elastic modulus ({stressBasis.label})</span>
             <input
               aria-label="New material elastic modulus"
               data-testid="create-material-elastic"
@@ -324,7 +357,7 @@ export function PropertyInspector({
             />
           </label>
           <label>
-            <span>Shear modulus ({stressUnit(model)})</span>
+            <span>Shear modulus ({stressBasis.label})</span>
             <input
               aria-label="New material shear modulus"
               data-testid="create-material-shear"
@@ -334,7 +367,7 @@ export function PropertyInspector({
             />
           </label>
           <label>
-            <span>Thermal expansion ({thermalExpansionUnit(model)})</span>
+            <span>Thermal expansion ({thermalExpansionBasis.label})</span>
             <input
               aria-label="New material thermal expansion"
               data-testid="create-material-thermal"
@@ -645,6 +678,34 @@ function IntentFact({ label, value, testId }: { label: string; value: string; te
       <strong>{value}</strong>
     </div>
   );
+}
+
+function UnitCatalogPanel({
+  bases,
+  route
+}: {
+  bases: UnitBasisDisplay[];
+  route: UnitCatalogRoute | null;
+}) {
+  return (
+    <section className="editor-intent" aria-label="Unit catalog status" data-testid="property-unit-catalog-panel">
+      <h3>Unit basis</h3>
+      <div className="editor-intent-meta">
+        <IntentFact label="Catalog" value={unitCatalogStatus(route)} testId="property-unit-catalog-status" />
+        <IntentFact
+          label="Field units"
+          value={bases.map((basis) => basis.label).join("; ")}
+          testId="property-unit-basis-summary"
+        />
+      </div>
+    </section>
+  );
+}
+
+function unitCatalogStatus(route: UnitCatalogRoute | null): string {
+  if (!route) return "loading DEC-018 catalog";
+  if (route.route === "unavailable_browser_preview") return "browser preview uses model metadata; no fallback catalog";
+  return `${route.catalog.decision_basis}; ${route.catalog.entry_count} entries; ${route.catalog.storage_convention}`;
 }
 
 function editorFieldOptions(model: PreviewModel, selection: EntityRef): EditableField[] {

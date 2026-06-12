@@ -13,6 +13,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 Property Inspector unit basis labels (`TP-UNITS-B2-INSPECTORLABELS-001`)
+
+The desktop Property Inspector now has the first visible B2 unit display
+retrofit. `unitCatalogService.ts` exposes catalog lookup/display helpers that
+match DEC-018 entries by symbol and dimension, including display-only
+equivalents needed by current fields such as `stress` through pressure units.
+The helpers do not normalize values; browser-preview unavailability and
+catalog misses are explicit states.
+
+The Property Inspector loads the unit-catalog route once, renders a compact
+`Unit basis` panel, and annotates material and pipe-section creation labels
+with their unit source. Browser preview shows `m, model metadata`, `Pa, model
+metadata`, and `1/degC, model metadata`; desktop/Tauri mode can display the
+DEC-018 catalog basis from the `get_unit_catalog` command.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_basis_labels.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_basis_labels.md`;
+`apps/desktop/SMOKE.md` TP-MAC-131. Validation: focused
+unit-catalog/App Vitest passed 48/48; Playwright R2 smoke passed 2/2 after
+wasm engine build; full desktop Vitest passed 216/216; desktop build passed
+with the pre-existing Vite chunk-size warning.
+
+Residual hand-offs: broader visible unit entry/pickers, solver-boundary
+normalization, report unit-system disclosures, imports/exports, and rule-pack
+unit I/O remain B2 work. B3 still owns broader mixed-unit round-trip,
+conversion-witness, incompatible-unit rejection, and D-04/DEC-026 tolerance
+coverage. No lifecycle state, release-readiness, professional approval,
+certification, sealing, authentication, protected-content, private-data, or
+code-compliance claim is created.
+
 ## 2026-06-12 - B2 frontend unit catalog service (`TP-UNITS-B2-FRONTENDSVC-001`)
 
 The desktop frontend now has a typed service route to the reviewed unit

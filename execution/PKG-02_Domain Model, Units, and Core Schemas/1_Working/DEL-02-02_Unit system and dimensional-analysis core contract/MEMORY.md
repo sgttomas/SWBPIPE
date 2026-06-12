@@ -158,3 +158,29 @@ Boundary note:
 - Validation: `npm test --workspace apps/desktop -- unitCatalogService` passed with 2 tests; `npm test --workspace apps/desktop` passed with 215 tests across 9 files; `npm run build --workspace apps/desktop` passed with the pre-existing Vite chunk-size warning.
 - Boundaries preserved: no visible unit picker/display retrofit, solver-boundary normalization, report renderer change, import/export change, rule-pack evaluator change, browser fallback unit catalog, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
 - Residual handoffs: B2 still owns visible app unit fields, solver-boundary normalization, report unit disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader conversion witness and tolerance corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-INSPECTORLABELS-001 Property Inspector unit basis labels
+
+- Added catalog-aware unit display helpers to the frontend unit-catalog
+  service: `unitCatalogEntryForSymbol` and `describeUnitBasis`.
+- The helpers match DEC-018 catalog entries by symbol/dimension, support
+  display-only equivalents needed by current app fields such as `stress`
+  through pressure units, and report browser-preview unavailability or catalog
+  misses explicitly.
+- Bound the Property Inspector material/section creation labels to these
+  helpers and added a visible `Unit basis` status panel. Browser preview shows
+  model metadata only; desktop/Tauri mode can show DEC-018 catalog basis when
+  the backend command is present.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_unit_basis_labels.md`;
+  corresponding DEL-07-02 run record; `apps/desktop/SMOKE.md` TP-MAC-131.
+- Validation: focused unit-catalog/App Vitest 48/48; Playwright R2 smoke 2/2
+  after wasm engine build; full desktop Vitest 216/216; desktop build passed.
+- Boundaries preserved: no unit picker, conversion, solver-boundary
+  normalization, report unit-system disclosure, import/export unit handling,
+  rule-pack unit I/O, fallback browser catalog, protected-content ingestion,
+  private-data ingestion, professional approval, certification, sealing,
+  authentication, release-readiness, or code-compliance claim.
+- Residual handoffs: B2 still owns broader visible unit entry/pickers,
+  solver-boundary normalization, report unit-system disclosure,
+  imports/exports, and rule-pack unit I/O; B3 still owns broader conversion
+  witness and tolerance corpus coverage.

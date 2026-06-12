@@ -3924,3 +3924,23 @@ after the timestamp marker were absent.
   catalog, unit defaulting, solver/report normalization, protected content,
   private project data, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-131 Property Inspector unit basis labels (`TP-UNITS-B2-INSPECTORLABELS-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-INSPECTORLABELS-001` (completion-plan B2): connected
+  the Property Inspector's material and pipe-section creation labels to
+  catalog-aware unit-basis display helpers.
+- Visible browser-preview behavior: the new `Unit basis` panel reports
+  `browser preview uses model metadata; no fallback catalog`, and the field
+  labels show `m, model metadata`, `Pa, model metadata`, and `1/degC, model
+  metadata`.
+- Desktop/Tauri path remains backed by the `get_unit_catalog` command from
+  TP-MAC-129; browser mode still does not synthesize a fallback catalog.
+- Automated evidence: focused unit-catalog/App Vitest passed 48/48; full
+  desktop Vitest passed 216/216; desktop production build passed with the
+  pre-existing Vite chunk-size warning; Playwright R2 smoke passed 2/2 after
+  wasm engine build and asserted the visible unit-basis status.
+- Boundary review: no unit picker, unit conversion, solver/report
+  normalization, import/export unit handling, rule-pack unit I/O, protected
+  content, private project data, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim.

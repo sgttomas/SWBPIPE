@@ -4,7 +4,7 @@ import type { UnitCatalog } from "./unitCatalogService";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
-import { acceptedUnits, loadUnitCatalog } from "./unitCatalogService";
+import { acceptedUnits, describeUnitBasis, loadUnitCatalog, unitCatalogEntryForSymbol } from "./unitCatalogService";
 
 const catalogFixture: UnitCatalog = {
   schema_version: "0.1.0",
@@ -12,7 +12,7 @@ const catalogFixture: UnitCatalog = {
   decision_basis: "DEC-018",
   calculation_basis: "si_canonical",
   storage_convention: "entered_units_preserved",
-  entry_count: 4,
+  entry_count: 5,
   entries: [
     {
       unit_id: "unit:meter",
@@ -45,6 +45,17 @@ const catalogFixture: UnitCatalog = {
       factor_representation: "5/9 K/degF interval, exact by definition",
       offset_representation: "(459.67 * 5/9) K at 0 degF, exact by definition",
       provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pascal",
+      symbol: "Pa",
+      dimension_id: "pressure",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 Pa/Pa, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
       review_status: "accepted"
     },
     {
@@ -106,5 +117,44 @@ describe("unitCatalogService", () => {
       "conventional_public_constant"
     );
     expect(acceptedUnits(route.catalog)).toHaveLength(route.catalog.entry_count);
+  });
+
+  it("describes model-unit fields against the reviewed catalog without inventing browser units", () => {
+    const tauriRoute = { route: "tauri_unit_catalog" as const, catalog: catalogFixture };
+
+    expect(unitCatalogEntryForSymbol(catalogFixture, "m", "length")?.unit_id).toBe("unit:meter");
+    expect(unitCatalogEntryForSymbol(catalogFixture, "Pa", "stress")?.unit_id).toBe("unit:pascal");
+
+    expect(describeUnitBasis(tauriRoute, "m", "length")).toMatchObject({
+      label: "m, DEC-018 canonical",
+      source: "dec018_catalog_accepted",
+      unit_id: "unit:meter",
+      review_status: "accepted",
+      canonical: true
+    });
+    expect(describeUnitBasis(tauriRoute, "Pa", "stress")).toMatchObject({
+      label: "Pa, DEC-018 canonical",
+      source: "dec018_catalog_accepted",
+      unit_id: "unit:pascal"
+    });
+    expect(describeUnitBasis(tauriRoute, "C", "temperature")).toMatchObject({
+      label: "C, catalog mismatch",
+      source: "dec018_catalog_miss",
+      unit_id: null
+    });
+    expect(
+      describeUnitBasis(
+        {
+          route: "unavailable_browser_preview",
+          diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: browser preview does not synthesize a fallback catalog."
+        },
+        "m",
+        "length"
+      )
+    ).toMatchObject({
+      label: "m, model metadata",
+      source: "browser_preview_model_metadata",
+      unit_id: null
+    });
   });
 });

@@ -2617,6 +2617,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(intentPanel).getByTestId("editor-intent-queue-empty").textContent).toContain(
       "No transient editor intents queued"
     );
+    await waitFor(() =>
+      expect(screen.getByTestId("property-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("m, model metadata");
+    expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("Pa, model metadata");
   });
 
   it("does not claim professional or release acceptance", async () => {
@@ -5951,6 +5958,15 @@ describe("OpenPipeStress desktop preview", () => {
 
     const inspector = await screen.findByLabelText("Property inspector");
     const createMaterialPanel = within(inspector).getByLabelText("Create material intent");
+    await waitFor(() =>
+      expect(screen.getByTestId("property-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("Pa, model metadata");
+    expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("1/degC, model metadata");
+    expect(within(createMaterialPanel).getByText("Elastic modulus (Pa, model metadata)")).toBeInTheDocument();
+    expect(within(createMaterialPanel).getByText("Thermal expansion (1/degC, model metadata)")).toBeInTheDocument();
     expect(within(createMaterialPanel).getByTestId("queue-create-material-intent")).toBeDisabled();
 
     fireEvent.change(within(createMaterialPanel).getByTestId("create-material-id"), {
@@ -6004,6 +6020,14 @@ describe("OpenPipeStress desktop preview", () => {
 
     const inspector = await screen.findByLabelText("Property inspector");
     const createSectionPanel = within(inspector).getByLabelText("Create section intent");
+    await waitFor(() =>
+      expect(screen.getByTestId("property-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("m, model metadata");
+    expect(within(createSectionPanel).getByText("Outside diameter (m, model metadata)")).toBeInTheDocument();
+    expect(within(createSectionPanel).getByText("Wall thickness (m, model metadata)")).toBeInTheDocument();
     expect(within(createSectionPanel).getByTestId("queue-create-section-intent")).toBeDisabled();
 
     fireEvent.change(within(createSectionPanel).getByTestId("create-section-id"), {
