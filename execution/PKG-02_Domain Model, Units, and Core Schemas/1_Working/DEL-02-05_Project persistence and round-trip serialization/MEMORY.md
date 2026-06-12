@@ -300,3 +300,39 @@ Boundaries preserved:
   Phase A implementation item; A11 deletion and packaged-Tauri blank-project
   smoke remain open. No lifecycle state, release, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-12 - TP-APP-R2-DOCVER-020-001 DEC-033 model document version 0.1.0 -> 0.2.0
+
+- Implemented the DEC-033 ruling (SOFTWARE_DECOMP §12, 2026-06-12): the model
+  document supported schema version moved 0.1.0 -> 0.2.0 because
+  TP-APP-R2-COMBEXPR-001 added optional combination shape fields; the ruled
+  policy is minor bump for any change to what a document can contain, patch
+  reserved for non-shape changes.
+- Both evaluation surfaces now publish the same chain entry
+  `model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop` (documented no-op
+  transform; the chain walker stamps the version; the save-time ledger record
+  carries the id per DEC-019): the Rust authority in
+  `apps/desktop/src-tauri/src/model_document_migration.rs` and the browser
+  mirror in `apps/desktop/src/services/projectService.ts` (pending H2
+  unification). Blank local documents are authored at 0.2.0.
+- Browser-preview persistence keeps stored snapshot bytes unchanged for
+  migrated documents (no migration ledger exists in the browser preview, so a
+  rewrite would be unevidenced) and reports the migration as in-memory
+  evidence; the desktop SQLite path persists migrated bytes with a ledger
+  record as before.
+- Fixtures: `fixtures/product_preview/**` model documents and the
+  `r2_from_blank_rehearsal.json` blank_model were left at 0.1.0 as
+  0.1.0-era documents that exercise the migration path; the
+  `model_operations` contract corpus is byte-identical (the applier does not
+  version-gate; corpus suite green unchanged). `schemas/model.schema.yaml`
+  pattern-validates schema_version and needed no edit.
+- Evidence: `_run_records/TASK_RUN_2026-06-12_1407.md`. Validation passed:
+  src-tauri Rust tests 33/33, operation_applier 58+1+2 green with corpus
+  byte-identical, desktop Vitest 241/241 (9 files), desktop production build,
+  repo pytest 358/358, cargo fmt clean. Playwright deliberately not run
+  (sibling tranche owns the build pipeline; e2e spec untouched).
+- Residuals for H2: feature panels hard-code "0.1.0" version-check literals
+  (ProjectValidationPanel, ExportReviewPanel, ReportPanel) and
+  open-time hash verification compares stored hashes against the migrated
+  document. No lifecycle state, release, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

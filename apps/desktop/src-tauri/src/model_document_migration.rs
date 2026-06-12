@@ -15,7 +15,10 @@ use serde::Serialize;
 use serde_json::{json, Value};
 
 /// Current model-document schema version this application can author.
-pub const SUPPORTED_MODEL_SCHEMA_VERSION: &str = "0.1.0";
+/// DEC-033 (2026-06-12): 0.2.0 adds the optional combination shape fields
+/// introduced by TP-APP-R2-COMBEXPR-001; any change to what a document can
+/// contain bumps minor, with patch reserved for non-shape changes.
+pub const SUPPORTED_MODEL_SCHEMA_VERSION: &str = "0.2.0";
 /// Framework label fixed by `schemas/project_persistence.schema.yaml` and
 /// accepted in DEC-019.
 pub const MODEL_MIGRATION_FRAMEWORK: &str = "application_service_separate_db_and_product_schema";
@@ -27,11 +30,20 @@ pub struct ModelDocumentMigration {
     pub apply: fn(&Value) -> Result<Value, String>,
 }
 
-/// Published transform chain. `0.1.0` is the only model-document schema
-/// version ever published, so the chain is empty; the machinery is exercised
-/// with injected chains in tests so the first real bump lands on proven rails.
+/// Published transform chain.
+///
+/// `0.1.0 -> 0.2.0` (DEC-033): the 0.2.0 shape only adds optional combination
+/// members (algebraic combination shape fields per TP-APP-R2-COMBEXPR-001), so
+/// every valid 0.1.0 document is a valid 0.2.0 document unchanged. The
+/// transform is a documented no-op; the chain walker stamps the target
+/// `schema_version`, and the ledger record on save carries this migration id.
 pub fn model_document_migrations() -> Vec<ModelDocumentMigration> {
-    Vec::new()
+    vec![ModelDocumentMigration {
+        source_version: "0.1.0",
+        target_version: "0.2.0",
+        migration_id: "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop",
+        apply: |document| Ok(document.clone()),
+    }]
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -260,8 +272,11 @@ mod tests {
         })
     }
 
+    /// Injected pre-`0.1.0` test steps composed with the published chain so
+    /// the established `0.0.x` fixtures keep exercising multi-step walks up to
+    /// the supported version.
     fn test_chain() -> Vec<ModelDocumentMigration> {
-        vec![
+        let mut chain = vec![
             ModelDocumentMigration {
                 source_version: "0.0.8",
                 target_version: "0.0.9",
@@ -278,7 +293,9 @@ mod tests {
                     Ok(next)
                 },
             },
-        ]
+        ];
+        chain.extend(model_document_migrations());
+        chain
     }
 
     #[test]
@@ -300,7 +317,7 @@ mod tests {
 
     #[test]
     fn newer_documents_are_refused_without_down_migration() {
-        for version in ["0.2.0", "1.0.0", "0.1.1"] {
+        for version in ["0.3.0", "1.0.0", "0.2.1"] {
             let evaluated = evaluate_model_document(&document(version), &test_chain());
             assert_eq!(
                 evaluated.status.status, "newer_than_supported",
@@ -337,7 +354,8 @@ mod tests {
             evaluated.status.applied_migration_ids,
             vec![
                 "model-doc-0.0.8-to-0.0.9-test-step".to_string(),
-                "model-doc-0.0.9-to-0.1.0-test-rename".to_string()
+                "model-doc-0.0.9-to-0.1.0-test-rename".to_string(),
+                "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop".to_string()
             ]
         );
         let migrated = evaluated.migrated_document.expect("migrated document");
@@ -346,6 +364,27 @@ mod tests {
             json!(SUPPORTED_MODEL_SCHEMA_VERSION)
         );
         assert_eq!(migrated["migrated_marker"], json!(true));
+    }
+
+    #[test]
+    fn published_chain_migrates_0_1_0_documents_with_the_dec_033_noop_entry() {
+        let doc = document("0.1.0");
+        let evaluated = evaluate_model_document(&doc, &model_document_migrations());
+        assert_eq!(evaluated.status.status, "migrated");
+        assert_eq!(evaluated.status.source_schema_version, "0.1.0");
+        assert_eq!(
+            evaluated.status.target_schema_version,
+            SUPPORTED_MODEL_SCHEMA_VERSION
+        );
+        assert_eq!(
+            evaluated.status.applied_migration_ids,
+            vec!["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop".to_string()]
+        );
+        let migrated = evaluated.migrated_document.expect("migrated document");
+        // DEC-033 no-op: the document is unchanged except the version stamp.
+        let mut expected = doc.clone();
+        expected["schema_version"] = json!(SUPPORTED_MODEL_SCHEMA_VERSION);
+        assert_eq!(migrated, expected);
     }
 
     #[test]

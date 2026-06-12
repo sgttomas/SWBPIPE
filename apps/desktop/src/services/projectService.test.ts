@@ -35,8 +35,35 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(status.applied_migration_ids).toEqual([]);
   });
 
+  it("migrates 0.1.0 documents in memory through the mirrored DEC-033 no-op chain entry", () => {
+    const status = evaluateModelDocumentLocal(sampleModel("0.1.0"));
+    expect(status.status).toBe("migrated");
+    expect(status.source_schema_version).toBe("0.1.0");
+    expect(status.target_schema_version).toBe(SUPPORTED_MODEL_SCHEMA_VERSION);
+    expect(status.applied_migration_ids).toEqual([
+      "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"
+    ]);
+  });
+
+  it("accepts 0.1.0 documents with migrated evidence while keeping stored snapshot bytes unchanged", async () => {
+    const created = await createLocalProject(sampleModel("0.1.0"));
+    expect(created.model_document_migration?.status).toBe("migrated");
+    expect(created.model_document_migration?.applied_migration_ids).toEqual([
+      "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"
+    ]);
+    expect(created.model_document_migration?.target_schema_version).toBe(SUPPORTED_MODEL_SCHEMA_VERSION);
+    // No migration ledger exists in the browser preview, so stored bytes are
+    // never rewritten; the migration remains in-memory evidence.
+    expect(created.model.schema_version).toBe("0.1.0");
+    expect(created.model_document_migration?.detail).toContain("stored bytes unchanged");
+
+    const opened = await openLocalProject("project:doc-migration-test");
+    expect(opened?.model.schema_version).toBe("0.1.0");
+    expect(opened?.model_document_migration?.status).toBe("migrated");
+  });
+
   it("refuses newer-than-supported and invalid versions without coercion", () => {
-    const newer = evaluateModelDocumentLocal(sampleModel("0.2.0"));
+    const newer = evaluateModelDocumentLocal(sampleModel("0.3.0"));
     expect(newer.status).toBe("newer_than_supported");
     expect(newer.detail).toContain("no down-migration");
 
@@ -63,6 +90,7 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
 
   it("builds and persists an explicit blank local authoring document", async () => {
     const blank = buildBlankLocalModelDocument(new Date("2026-06-12T00:00:00Z"));
+    expect(blank.schema_version).toBe(SUPPORTED_MODEL_SCHEMA_VERSION);
     expect(blank.project.id).toBe("project:blank-local-20260612t000000z");
     expect(blank.project.name).toBe("Blank Local Model");
     expect(blank.analysis_status.mechanics).toBe("MODEL_INCOMPLETE");

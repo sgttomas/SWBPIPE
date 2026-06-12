@@ -3894,9 +3894,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.store_migration.migration_scope).toBe(
       "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019"
     );
-    expect(validationPacket.model_document_migration.status).toBe("current");
+    // DEC-033: the bundled preview model is a 0.1.0-era document; under the
+    // supported 0.2.0 version it carries migrated in-memory evidence and the
+    // browser preview keeps stored bytes unchanged (no ledger exists here).
+    expect(validationPacket.model_document_migration.status).toBe("migrated");
     expect(validationPacket.model_document_migration.evidence_source).toBe("persistence_operation_envelope");
-    expect(validationPacket.model_document_migration.persistence_state).toBe("stored_document_current");
+    expect(validationPacket.model_document_migration.persistence_state).toBe("in_memory_only_not_yet_saved");
     expect(validationPacket.model_document_migration.ledger_record_count).toBe(0);
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
     expect(validationPacket.store_migration.destructive_migration_performed).toBe(false);
@@ -6264,10 +6267,11 @@ describe("OpenPipeStress desktop preview", () => {
       )
     );
 
-    // DEC-019 evidence: the saved (edited) model document carries current
-    // schema-version evidence with the in-document version authority.
+    // DEC-019/DEC-033 evidence: the saved (edited) 0.1.0-era model document
+    // carries migrated in-memory schema-version evidence with the in-document
+    // version authority; the browser preview has no migration ledger.
     const documentMigrationLine = screen.getByTestId("project-validation-model-document-migration");
-    expect(documentMigrationLine.textContent).toContain("status=current");
+    expect(documentMigrationLine.textContent).toContain("status=migrated");
     expect(documentMigrationLine.textContent).toContain("framework=application_service_separate_db_and_product_schema");
     expect(documentMigrationLine.textContent).toContain("ledger_records=0");
   });

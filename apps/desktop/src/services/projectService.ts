@@ -30,8 +30,31 @@ function hasTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
-export const SUPPORTED_MODEL_SCHEMA_VERSION = "0.1.0";
+// DEC-033 (2026-06-12): 0.2.0 adds the optional combination shape fields from
+// TP-APP-R2-COMBEXPR-001; minor bumps for any change to what a document can
+// contain. Mirrors apps/desktop/src-tauri/src/model_document_migration.rs.
+export const SUPPORTED_MODEL_SCHEMA_VERSION = "0.2.0";
 const MODEL_MIGRATION_FRAMEWORK = "application_service_separate_db_and_product_schema";
+
+type LocalModelDocumentMigration = {
+  source_version: string;
+  target_version: string;
+  migration_id: string;
+  apply: (model: PreviewModel) => PreviewModel;
+};
+
+// Browser-preview mirror of the backend published transform chain.
+// 0.1.0 -> 0.2.0 (DEC-033): the 0.2.0 shape only adds optional combination
+// members, so every valid 0.1.0 document is a valid 0.2.0 document unchanged;
+// the transform is a documented no-op and the chain walker stamps the version.
+const MODEL_DOCUMENT_MIGRATIONS_LOCAL: LocalModelDocumentMigration[] = [
+  {
+    source_version: "0.1.0",
+    target_version: "0.2.0",
+    migration_id: "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop",
+    apply: (model) => model
+  }
+];
 
 function parseSemver(raw: string): [number, number, number] | null {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(raw.trim());
@@ -39,10 +62,17 @@ function parseSemver(raw: string): [number, number, number] | null {
   return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
 
-// Browser-preview mirror of the backend DEC-019 evaluation. No transform
-// chain exists in the browser store; documents are current, refused as newer
-// than supported, or refused as unsupported.
+// Browser-preview mirror of the backend DEC-019 evaluation: documents are
+// current, migrated in memory along the mirrored transform chain, refused as
+// newer than supported, or refused as unsupported.
 export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentMigrationStatus {
+  return migrateModelDocumentLocal(model).status;
+}
+
+function migrateModelDocumentLocal(model: PreviewModel): {
+  model: PreviewModel;
+  status: ModelDocumentMigrationStatus;
+} {
   const raw = typeof model.schema_version === "string" ? model.schema_version : "";
   const documentVersion = parseSemver(raw);
   const supported = parseSemver(SUPPORTED_MODEL_SCHEMA_VERSION);
@@ -55,50 +85,92 @@ export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentMi
   };
   if (!documentVersion || !supported) {
     return {
-      ...base,
-      status: "unsupported_schema",
-      product_schema_migration_status: "unsupported_schema",
-      persistence_state: "not_applicable_document_refused",
-      detail: "Model document has no valid semver schema_version; refusing without coercion."
+      model,
+      status: {
+        ...base,
+        status: "unsupported_schema",
+        product_schema_migration_status: "unsupported_schema",
+        persistence_state: "not_applicable_document_refused",
+        detail: "Model document has no valid semver schema_version; refusing without coercion."
+      }
     };
   }
   const compare =
     documentVersion[0] - supported[0] || documentVersion[1] - supported[1] || documentVersion[2] - supported[2];
   if (compare === 0) {
     return {
-      ...base,
-      status: "current",
-      product_schema_migration_status: "current",
-      persistence_state: "stored_document_current",
-      detail: "Model document schema_version matches the supported version; no migration applied."
+      model,
+      status: {
+        ...base,
+        status: "current",
+        product_schema_migration_status: "current",
+        persistence_state: "stored_document_current",
+        detail: "Model document schema_version matches the supported version; no migration applied."
+      }
     };
   }
   if (compare > 0) {
     return {
-      ...base,
-      status: "newer_than_supported",
-      product_schema_migration_status: "newer_than_supported",
-      persistence_state: "not_applicable_document_refused",
-      detail: `Model document schema_version ${raw} is newer than the supported ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration).`
+      model,
+      status: {
+        ...base,
+        status: "newer_than_supported",
+        product_schema_migration_status: "newer_than_supported",
+        persistence_state: "not_applicable_document_refused",
+        detail: `Model document schema_version ${raw} is newer than the supported ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing to open for editing (no down-migration).`
+      }
     };
   }
-  return {
-    ...base,
-    status: "unsupported_schema",
-    product_schema_migration_status: "unsupported_schema",
-    persistence_state: "not_applicable_document_refused",
-    detail: `No migration path exists in the browser preview from ${raw} to ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing without coercion.`
-  };
+  // Older than supported: walk the mirrored transform chain in memory.
+  let currentModel = model;
+  let currentVersionRaw = raw;
+  const appliedMigrationIds: string[] = [];
+  for (;;) {
+    if (currentVersionRaw === SUPPORTED_MODEL_SCHEMA_VERSION) {
+      return {
+        model: currentModel,
+        status: {
+          ...base,
+          applied_migration_ids: appliedMigrationIds,
+          status: "migrated",
+          product_schema_migration_status: "migrated",
+          persistence_state: "in_memory_only_not_yet_saved",
+          detail: `Model document migrated in memory from ${raw} to ${SUPPORTED_MODEL_SCHEMA_VERSION}; stored bytes are unchanged until save.`
+        }
+      };
+    }
+    const step = MODEL_DOCUMENT_MIGRATIONS_LOCAL.find((item) => item.source_version === currentVersionRaw);
+    if (!step) {
+      return {
+        model,
+        status: {
+          ...base,
+          applied_migration_ids: appliedMigrationIds,
+          status: "unsupported_schema",
+          product_schema_migration_status: "unsupported_schema",
+          persistence_state: "not_applicable_document_refused",
+          detail: `No migration path exists in the browser preview from ${currentVersionRaw} to ${SUPPORTED_MODEL_SCHEMA_VERSION}; refusing without coercion.`
+        }
+      };
+    }
+    currentModel = { ...step.apply(cloneModel(currentModel)), schema_version: step.target_version };
+    appliedMigrationIds.push(step.migration_id);
+    currentVersionRaw = step.target_version;
+  }
 }
 
-function requireEditableModelDocument(model: PreviewModel): ModelDocumentMigrationStatus {
-  const status = evaluateModelDocumentLocal(model);
-  if (status.status !== "current") {
+function requireEditableModelDocument(model: PreviewModel): {
+  model: PreviewModel;
+  status: ModelDocumentMigrationStatus;
+} {
+  const evaluation = migrateModelDocumentLocal(model);
+  if (evaluation.status.status !== "current" && evaluation.status.status !== "migrated") {
+    const status = evaluation.status;
     throw new Error(
       `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}`
     );
   }
-  return status;
+  return evaluation;
 }
 
 function localOnlyCapability(): LocalStorageCapability {
@@ -135,6 +207,15 @@ function envelope(
   projectEnvelopeHash: ProjectEnvelopeHashEvidence | null,
   message: string
 ): LocalProjectEnvelope {
+  // DEC-019/DEC-033 mirror: older documents migrate in memory along the
+  // mirrored chain and newer/unsupported documents are refused. The browser
+  // preview has no migration ledger, so it never persists rewritten bytes:
+  // the snapshot stores the document bytes as given and the migration remains
+  // in-memory evidence (no silent destructive rewrite without a ledger).
+  const documentStatus = { ...requireEditableModelDocument(model).status };
+  if (documentStatus.status === "migrated") {
+    documentStatus.detail = `Model document migrates in memory from ${documentStatus.source_schema_version} to ${documentStatus.target_schema_version}; the browser-memory snapshot keeps the stored bytes unchanged because no migration ledger exists in the browser preview.`;
+  }
   const snapshot = cloneModel(model);
   return {
     summary: {
@@ -170,7 +251,7 @@ function envelope(
     analysis_run: cloneJson(analysisRun),
     model_hash: cloneJson(modelHash),
     project_envelope_hash: cloneJson(projectEnvelopeHash),
-    model_document_migration: requireEditableModelDocument(model),
+    model_document_migration: documentStatus,
     model_migration_ledger: []
   };
 }

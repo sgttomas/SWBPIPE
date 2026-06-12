@@ -3302,10 +3302,24 @@ mod tests {
             &Value::Null,
             &json!({ "value": "sha256:edited-load-roundtrip-model" }),
         )
-        .expect("edited current model document is ready to persist");
-        assert_eq!(document_status.status, "current");
-        assert_eq!(document_status.persistence_state, "stored_document_current");
-        assert_eq!(ledger, json!([]));
+        .expect("edited 0.1.0-era model document is ready to persist");
+        // The bundled fixture is a 0.1.0-era document: persisting it walks the
+        // published DEC-033 no-op chain entry and appends a ledger record.
+        assert_eq!(document_status.status, "migrated");
+        assert_eq!(
+            document_status.persistence_state,
+            "persisted_with_ledger_record"
+        );
+        assert_eq!(
+            model_to_persist["schema_version"],
+            json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION)
+        );
+        let ledger_records = ledger.as_array().expect("ledger array");
+        assert_eq!(ledger_records.len(), 1);
+        assert_eq!(
+            ledger_records[0]["applied_migration_ids"],
+            json!(["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"])
+        );
 
         upsert_project(
             &mut connection,
@@ -3363,7 +3377,7 @@ mod tests {
         apply_store_migrations(&connection).expect("store migrations apply");
         let _ = &mut connection;
 
-        let newer = json!({ "schema_version": "0.2.0", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.3.0", "project": { "id": "project:newer", "name": "Newer" } });
         let error = prepare_model_document_for_persist(
             &connection,
             "project:newer",
@@ -3391,7 +3405,7 @@ mod tests {
     fn persist_preparation_keeps_current_documents_without_ledger_records() {
         let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         apply_store_migrations(&connection).expect("store migrations apply");
-        let model = json!({ "schema_version": "0.1.0", "project": { "id": "project:current", "name": "Current" } });
+        let model = json!({ "schema_version": model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
         let (persisted, status, ledger) = prepare_model_document_for_persist(
             &connection,
             "project:current",
@@ -3410,7 +3424,7 @@ mod tests {
     fn saving_an_open_time_migrated_document_appends_a_ledger_record_with_pre_and_post_hashes() {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         apply_store_migrations(&connection).expect("store migrations apply");
-        let stored_model = json!({ "schema_version": "0.1.0", "project": { "id": "project:migrated", "name": "Migrated" } });
+        let stored_model = json!({ "schema_version": model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION, "project": { "id": "project:migrated", "name": "Migrated" } });
         upsert_project(
             &mut connection,
             "project:migrated",
@@ -3429,9 +3443,9 @@ mod tests {
 
         let open_time_status = json!({
             "status": "migrated",
-            "source_schema_version": "0.0.9",
-            "target_schema_version": "0.1.0",
-            "applied_migration_ids": ["model-doc-0.0.9-to-0.1.0-test"]
+            "source_schema_version": "0.1.0",
+            "target_schema_version": "0.2.0",
+            "applied_migration_ids": ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"]
         });
         let (persisted, status, ledger) = prepare_model_document_for_persist(
             &connection,
@@ -3455,10 +3469,10 @@ mod tests {
             records[0]["post_migration_model_hash"],
             json!("sha256:post-migration")
         );
-        assert_eq!(records[0]["source_schema_version"], json!("0.0.9"));
+        assert_eq!(records[0]["source_schema_version"], json!("0.1.0"));
         assert_eq!(
             records[0]["applied_migration_ids"],
-            json!(["model-doc-0.0.9-to-0.1.0-test"])
+            json!(["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"])
         );
         assert_eq!(records[0]["destructive_rewrite"], json!(false));
         assert_eq!(
