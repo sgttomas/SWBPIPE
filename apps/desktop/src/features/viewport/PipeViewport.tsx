@@ -1104,7 +1104,7 @@ function toVector(position: Vec3) {
   return new THREE.Vector3(position.x, position.y, position.z);
 }
 
-function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | null): DeformationOverlay {
+export function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | null): DeformationOverlay {
   if (!result) {
     return {
       state: "not_started",
@@ -1123,12 +1123,12 @@ function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | 
   }
 
   const nodeIds = new Set(model.nodes.map((node) => node.id));
-  const nodeValues = new Map<string, { value: number; unit: string }>();
+  const nodeValues = new Map<string, { value: number; unit: string; basisKey: string }>();
   for (const row of result.results) {
     if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
     const current = nodeValues.get(row.entity_ref);
     if (!current || Math.abs(row.value) > Math.abs(current.value)) {
-      nodeValues.set(row.entity_ref, { value: row.value, unit: row.unit });
+      nodeValues.set(row.entity_ref, { value: row.value, unit: row.unit, basisKey: rowBasisKey(row) });
     }
   }
   if (nodeValues.size === 0) {
@@ -1140,32 +1140,80 @@ function buildDeformationOverlay(model: PreviewModel, result: MechanicsResult | 
     };
   }
 
+  // Signed global-cartesian translation components (ux/uy/uz rows) grouped by
+  // node and result basis, so each node's direction comes from the same load
+  // case or combination as its governing magnitude row.
+  const nodeComponentVectors = new Map<string, Map<string, Partial<Record<"x" | "y" | "z", number>>>>();
+  for (const row of result.results) {
+    const axis = DISPLACEMENT_COMPONENT_AXES[row.kind];
+    if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
+    const perBasis: Map<string, Partial<Record<"x" | "y" | "z", number>>> =
+      nodeComponentVectors.get(row.entity_ref) ?? new Map();
+    const vector = perBasis.get(rowBasisKey(row)) ?? {};
+    vector[axis] = row.value;
+    perBasis.set(rowBasisKey(row), vector);
+    nodeComponentVectors.set(row.entity_ref, perBasis);
+  }
+  const nodeDirections = new Map<string, Vec3>();
+  let directional = true;
+  for (const [nodeId, info] of nodeValues) {
+    const vector = nodeComponentVectors.get(nodeId)?.get(info.basisKey);
+    if (!vector || vector.x === undefined || vector.y === undefined || vector.z === undefined) {
+      directional = false;
+      break;
+    }
+    nodeDirections.set(nodeId, unitVector({ x: vector.x, y: vector.y, z: vector.z }));
+  }
+
   const values = Array.from(nodeValues.values());
   const maxValue = Math.max(...values.map((item) => Math.abs(item.value)));
   const units = Array.from(new Set(values.map((item) => item.unit))).sort();
   const unit = units.length === 1 ? units[0] : "mixed";
   const displayOffset = 0.65;
+  const fallbackDirection: Vec3 = { x: 0, y: 1, z: 0 };
   const nodePositions = new Map(
     model.nodes.map((node) => {
       const value = nodeValues.get(node.id)?.value ?? 0;
       const normalizedOffset = maxValue > 0 ? (Math.abs(value) / maxValue) * displayOffset : 0;
+      const direction = directional ? (nodeDirections.get(node.id) ?? fallbackDirection) : fallbackDirection;
       return [
         node.id,
         {
-          x: node.position.x,
-          y: node.position.y + normalizedOffset,
-          z: node.position.z
+          x: node.position.x + direction.x * normalizedOffset,
+          y: node.position.y + direction.y * normalizedOffset,
+          z: node.position.z + direction.z * normalizedOffset
         }
       ] as const;
     })
   );
 
+  const vectorDirection = directional
+    ? "global_cartesian_displacement_components"
+    : "vertical_display_axis_fallback_component_rows_unavailable";
   return {
     state: "available",
     summary: `available; nodes=${nodeValues.size}; max=${formatNumber(maxValue)} ${unit}`,
-    boundary: `scale=normalized_display_offset_not_physical_length; vector_direction=TBD; unit_basis=${unit}; professional_claim=false`,
+    boundary: `scale=normalized_display_offset_not_physical_length; vector_direction=${vectorDirection}; unit_basis=${unit}; professional_claim=false`,
     nodePositions
   };
+}
+
+const DISPLACEMENT_COMPONENT_AXES: Record<string, "x" | "y" | "z" | undefined> = {
+  global_nodal_displacement_x: "x",
+  global_nodal_displacement_y: "y",
+  global_nodal_displacement_z: "z"
+};
+
+function rowBasisKey(row: MechanicsResult["results"][number]): string {
+  return row.basis_ref ? `${row.basis_ref.ref_type}:${row.basis_ref.ref_id}` : "unspecified";
+}
+
+function unitVector(vector: Vec3): Vec3 {
+  const length = Math.hypot(vector.x, vector.y, vector.z);
+  if (!Number.isFinite(length) || length === 0) {
+    return { x: 0, y: 0, z: 0 };
+  }
+  return { x: vector.x / length, y: vector.y / length, z: vector.z / length };
 }
 
 function formatStatus(value: string): string {

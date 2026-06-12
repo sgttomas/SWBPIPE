@@ -102,3 +102,38 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, telemetry path, or DAG authority changed.
+
+## 2026-06-12 - TP-APP-R2-DEFORMEDDIR-001 true directional deformed shape
+
+- TASK app-integration tranche (completion-plan A6 residual) made the
+  deformed-shape overlay directionally true end-to-end. `core/product_physics`
+  `solve_load_case` now appends signed per-node displacement component rows
+  for all six DOF after the `displacement_magnitude` rows —
+  `result:disp:<node>:{ux,uy,uz,rx,ry,rz}`, translations in mm, rotations in
+  rad, metadata `coordinate_system=global`, `location=node`,
+  `basis=solved_from_global_linear_system`. Existing rows are byte-identical;
+  `rad` joined the combination dimension map so rotation rows combine like
+  other scalar rows. The regenerated canned fixture went 647 → 737 rows with
+  0 changed and 0 removed.
+- `PipeViewport.buildDeformationOverlay` consumes ux/uy/uz (same result basis
+  as each node's governing magnitude row), moves nodes along the true unit
+  vector scaled by the existing normalized display offset, and replaces
+  `vector_direction=TBD` with
+  `vector_direction=global_cartesian_displacement_components`. Without
+  component rows it falls back to the previous vertical display offset and
+  discloses
+  `vector_direction=vertical_display_axis_fallback_component_rows_unavailable`.
+- Evidence is recorded in `_run_records/TASK_RUN_2026-06-12_1110.md` and
+  `apps/desktop/SMOKE.md` TP-MAC-142. Validation passed: product_physics
+  cargo tests 28/28, Tauri cargo tests 32/32, desktop Vitest 220/220,
+  desktop production build, Playwright e2e 2/2 (real-browser directional
+  disclosure after solve), repo Python suite 358/358.
+- Residuals: governing-ratio views still pending ratio rows; rotational
+  deformation (rx/ry/rz) is emitted but not visualized — no curvature
+  rendering; the results schema `ResultMetadata.basis` enum does not yet
+  list `solved_from_global_linear_system` (preview rows are not
+  schema-validated; left for the schema owner).
+- No lifecycle state, review finding disposition, release readiness,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, or DAG authority changed.

@@ -83,6 +83,546 @@
       }
     },
     {
+      "id": "result:disp:node-N-100:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -1.771233,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.000731,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.00147,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-120:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-120:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-120:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-120:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.00054,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-120:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.003964,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-120:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-130:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.798887,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-130:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-130:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -22.605585,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-130:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": -0.001374,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-130:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.005724,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-130:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-140:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 13.392504,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-140:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 3.562536,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-140:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -22.605585,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-140:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": -0.001742,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-140:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.005724,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-140:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
       "id": "result:reaction:support-S-100",
       "kind": "reaction_resultant",
       "value": 691.181058,
@@ -3905,6 +4445,546 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:disp:node-N-100:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-100:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-100:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-100:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-110:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-110:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-110:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -1.055842,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-110:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.000409,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-110:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.000815,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-110:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-120:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-120:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-120:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-120:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.000384,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-120:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.002062,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-120:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-130:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.069443,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-130:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-130:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -11.653884,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-130:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": -0.0003,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-130:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.002942,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-130:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-140:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 6.541798,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-140:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.853031,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-140:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -11.653884,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-140:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": -0.000432,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-140:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.002942,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:disp:node-N-140:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:reaction:support-S-100",
       "kind": "reaction_resultant",
       "value": 397.42149,
@@ -7687,6 +8767,138 @@
       ]
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-100:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-100:rx",
+        "result:loadcase:load-L-200:disp:node-N-100:rx"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-100:ry",
+        "result:loadcase:load-L-200:disp:node-N-100:ry"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-100:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-100:rz",
+        "result:loadcase:load-L-200:disp:node-N-100:rz"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-100:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-100:ux",
+        "result:loadcase:load-L-200:disp:node-N-100:ux"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-100:uy",
+        "result:loadcase:load-L-200:disp:node-N-100:uy"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-100:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-100:uz",
+        "result:loadcase:load-L-200:disp:node-N-100:uz"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110",
       "kind": "displacement_magnitude",
       "value": 2.299154,
@@ -7700,6 +8912,138 @@
         "result:disp:node-N-110",
         "result:loadcase:load-L-200:disp:node-N-110"
       ]
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.000936,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-110:rx",
+        "result:loadcase:load-L-200:disp:node-N-110:rx"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.001877,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-110:ry",
+        "result:loadcase:load-L-200:disp:node-N-110:ry"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-110:rz",
+        "result:loadcase:load-L-200:disp:node-N-110:rz"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-110:ux",
+        "result:loadcase:load-L-200:disp:node-N-110:ux"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-110:uy",
+        "result:loadcase:load-L-200:disp:node-N-110:uy"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-110:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -2.299154,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-110:uz",
+        "result:loadcase:load-L-200:disp:node-N-110:uz"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
     },
     {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120",
@@ -7717,6 +9061,138 @@
       ]
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.000732,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-120:rx",
+        "result:loadcase:load-L-200:disp:node-N-120:rx"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.004995,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-120:ry",
+        "result:loadcase:load-L-200:disp:node-N-120:ry"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-120:rz",
+        "result:loadcase:load-L-200:disp:node-N-120:rz"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-120:ux",
+        "result:loadcase:load-L-200:disp:node-N-120:ux"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-120:uy",
+        "result:loadcase:load-L-200:disp:node-N-120:uy"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-120:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-120",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-120:uz",
+        "result:loadcase:load-L-200:disp:node-N-120:uz"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130",
       "kind": "displacement_magnitude",
       "value": 28.446743,
@@ -7732,6 +9208,138 @@
       ]
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": -0.001524,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-130:rx",
+        "result:loadcase:load-L-200:disp:node-N-130:rx"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.007195,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-130:ry",
+        "result:loadcase:load-L-200:disp:node-N-130:ry"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-130:rz",
+        "result:loadcase:load-L-200:disp:node-N-130:rz"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.833609,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-130:ux",
+        "result:loadcase:load-L-200:disp:node-N-130:ux"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-130:uy",
+        "result:loadcase:load-L-200:disp:node-N-130:uy"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-130:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -28.432527,
+      "unit": "mm",
+      "entity_ref": "node:N-130",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-130:uz",
+        "result:loadcase:load-L-200:disp:node-N-130:uz"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140",
       "kind": "displacement_magnitude",
       "value": 33.211157,
@@ -7745,6 +9353,138 @@
         "result:disp:node-N-140",
         "result:loadcase:load-L-200:disp:node-N-140"
       ]
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": -0.001958,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-140:rx",
+        "result:loadcase:load-L-200:disp:node-N-140:rx"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.007195,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-140:ry",
+        "result:loadcase:load-L-200:disp:node-N-140:ry"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-140:rz",
+        "result:loadcase:load-L-200:disp:node-N-140:rz"
+      ],
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 16.663403,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-140:ux",
+        "result:loadcase:load-L-200:disp:node-N-140:ux"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 3.989052,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-140:uy",
+        "result:loadcase:load-L-200:disp:node-N-140:uy"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": -28.432527,
+      "unit": "mm",
+      "entity_ref": "node:N-140",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:disp:node-N-140:uz",
+        "result:loadcase:load-L-200:disp:node-N-140:uz"
+      ],
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
     },
     {
       "id": "result:combination:combination-C-OPER-ALT:force:pipe-P-100:axial",

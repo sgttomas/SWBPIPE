@@ -226,28 +226,34 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=647");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=33.211157 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
+  );
+  // TP-APP-R2-DEFORMEDDIR-001: the canned preview fixture now carries signed
+  // global ux/uy/uz rows, so the overlay must disclose true directional
+  // rendering instead of vector_direction=TBD.
+  await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
+    "vector_direction=global_cartesian_displacement_components"
   );
 
   const solvedCanvas = await canvas.screenshot();
   expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);
 
   await expect(page.getByTestId("results-panel")).toBeVisible();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("647 of 647 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
   await page.getByTestId("result-family-reaction").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 647 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("9 of 737 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 9 of 9 matching results; page 1 of 1"
   );
   await expect(page.getByTestId("result-row-result:reaction:support-S-120")).toBeVisible();
   await page.getByTestId("result-family-all").click();
-  await expect(page.getByTestId("result-filter-summary")).toContainText("647 of 647 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
   await page.getByTestId("result-filter-input").fill("pipe-P-120");
-  await expect(page.getByTestId("result-filter-summary")).toContainText("167 of 647 results match filter");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("167 of 737 results match filter");
   await expect(page.getByTestId("result-page-summary")).toContainText(
     "Showing 1 to 50 of 167 matching results; page 1 of 4"
   );

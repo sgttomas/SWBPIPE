@@ -13,6 +13,32 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A6 sub-slice landed: true directional deformed shape (`TP-APP-R2-DEFORMEDDIR-001`)
+
+`core/product_physics::solve_load_case` now emits signed per-node
+displacement component rows for all six DOF (ids
+`result:disp:<node>:{ux,uy,uz,rx,ry,rz}`, kinds
+`global_nodal_displacement_{x,y,z}` / `global_nodal_rotation_{x,y,z}`, mm/rad,
+metadata per the established force-row pattern) after the existing
+`displacement_magnitude` rows; existing rows byte-identical; `rad` joined the
+combination algebra dimensions so combination rotation rows evaluate instead
+of warning. `PipeViewport.buildDeformationOverlay` moves nodes along the true
+(ux,uy,uz) unit vector scaled by the retained normalized display offset;
+boundary discloses `vector_direction=global_cartesian_displacement_components`
+(previously `TBD`), with an honest disclosed magnitude-only fallback when
+component rows are absent. Canned browser fixture regenerated through the
+documented workflow and independently verified purely additive (647 rows
+preserved in order, 90 component rows added); first Playwright e2e asserts
+the directional disclosure after solve in real Chromium (H4 default posture,
+no exception). Validation: product_physics 28/28, src-tauri 32/32, Vitest
+220/220, e2e 2/2, pytest 358/358, desktop build green. Residuals stay in the
+A6 row; two convention calls recorded for review in the run record (basis
+token `solved_from_global_linear_system` not yet in the results-schema enum;
+`rad` combination-dimension mapping).
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-142;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_run_records/TASK_RUN_2026-06-12_1110.md`.
+
 ## 2026-06-12 - Evidence-sweep git-state hardening (`TP-R2VERIFY-FIX-002`)
 
 Repair of verification finding F-2

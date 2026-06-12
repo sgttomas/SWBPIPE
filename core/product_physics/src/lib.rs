@@ -584,6 +584,15 @@ fn solve_load_case(
             metadata: None,
         });
     }
+    for node in &model.nodes {
+        let node_index = node_index(&model, &node.id).unwrap();
+        append_node_displacement_component_results(
+            &mut results,
+            &node.id,
+            &displacements,
+            node_index,
+        );
+    }
 
     let reactions = multiply_matrix_vector(&stiffness, &displacements)
         .into_iter()
@@ -1531,6 +1540,90 @@ fn append_element_force_results(
     }
 }
 
+fn append_node_displacement_component_results(
+    results: &mut Vec<ResultItem>,
+    node_id: &str,
+    displacements: &[f64],
+    node_index: usize,
+) {
+    let suffix = stable_suffix(node_id);
+    let base = node_index * DOF_PER_NODE;
+    let components = [
+        (
+            "ux",
+            "global_nodal_displacement_x",
+            "nodal_displacement_x",
+            UX,
+            1000.0,
+            "mm",
+            "positive value follows the global cartesian X axis displacement of the node",
+        ),
+        (
+            "uy",
+            "global_nodal_displacement_y",
+            "nodal_displacement_y",
+            UY,
+            1000.0,
+            "mm",
+            "positive value follows the global cartesian Y axis displacement of the node",
+        ),
+        (
+            "uz",
+            "global_nodal_displacement_z",
+            "nodal_displacement_z",
+            UZ,
+            1000.0,
+            "mm",
+            "positive value follows the global cartesian Z axis displacement of the node",
+        ),
+        (
+            "rx",
+            "global_nodal_rotation_x",
+            "nodal_rotation_x",
+            RX,
+            1.0,
+            "rad",
+            "positive value follows the right-hand-rule rotation about the global cartesian X axis",
+        ),
+        (
+            "ry",
+            "global_nodal_rotation_y",
+            "nodal_rotation_y",
+            RY,
+            1.0,
+            "rad",
+            "positive value follows the right-hand-rule rotation about the global cartesian Y axis",
+        ),
+        (
+            "rz",
+            "global_nodal_rotation_z",
+            "nodal_rotation_z",
+            RZ,
+            1.0,
+            "rad",
+            "positive value follows the right-hand-rule rotation about the global cartesian Z axis",
+        ),
+    ];
+    for (id_tail, kind, component, dof, scale, unit, sign_convention) in components {
+        results.push(ResultItem {
+            id: format!("result:disp:{suffix}:{id_tail}"),
+            kind: kind.to_string(),
+            value: round6(displacements[base + dof] * scale),
+            unit: unit.to_string(),
+            entity_ref: node_id.to_string(),
+            basis_ref: None,
+            source_result_refs: Vec::new(),
+            metadata: Some(ResultMetadata {
+                component: component.to_string(),
+                coordinate_system: "global".to_string(),
+                location: "node".to_string(),
+                basis: "solved_from_global_linear_system".to_string(),
+                sign_convention: sign_convention.to_string(),
+            }),
+        });
+    }
+}
+
 fn station_grid_resultants_from_endpoints(local_forces: &[f64]) -> [StationResultants; 3] {
     [
         StationResultants {
@@ -2177,6 +2270,7 @@ fn combination_source_identity_matches(reference: &ResultItem, candidate: &Resul
 fn algebra_dimension(result: &ResultItem) -> Option<LoadDimension> {
     match result.unit.as_str() {
         "mm" => Some(LoadDimension::Displacement),
+        "rad" => Some(LoadDimension::Rotation),
         "N" => Some(LoadDimension::Force),
         "N*m" => Some(LoadDimension::Moment),
         "MPa" => Some(LoadDimension::Pressure),
@@ -2896,6 +2990,188 @@ mod tests {
     }
 
     #[test]
+    fn valid_invented_model_exposes_global_displacement_components() {
+        let result = run_linear_static_preview(request());
+        let result_ids = result
+            .results
+            .iter()
+            .map(|item| item.id.as_str())
+            .collect::<HashSet<_>>();
+
+        for node in ["node-N-100", "node-N-110", "node-N-120", "node-N-130", "node-N-140"] {
+            for tail in ["ux", "uy", "uz", "rx", "ry", "rz"] {
+                assert!(result_ids.contains(format!("result:disp:{node}:{tail}").as_str()));
+                assert!(result_ids
+                    .contains(format!("result:loadcase:load-L-200:disp:{node}:{tail}").as_str()));
+                assert!(result_ids.contains(
+                    format!("result:combination:combination-C-OPER-ALT:disp:{node}:{tail}")
+                        .as_str()
+                ));
+            }
+        }
+
+        assert!(result.results.iter().any(|item| {
+            item.id == "result:disp:node-N-140:uy"
+                && item.kind == "global_nodal_displacement_y"
+                && item.unit == "mm"
+                && item.entity_ref == "node:N-140"
+                && item
+                    .metadata
+                    .as_ref()
+                    .map(|metadata| {
+                        metadata.component == "nodal_displacement_y"
+                            && metadata.coordinate_system == "global"
+                            && metadata.location == "node"
+                            && metadata.basis == "solved_from_global_linear_system"
+                            && metadata.sign_convention.contains("global cartesian Y axis")
+                    })
+                    .unwrap_or(false)
+        }));
+        assert!(result.results.iter().any(|item| {
+            item.id == "result:disp:node-N-140:rz"
+                && item.kind == "global_nodal_rotation_z"
+                && item.unit == "rad"
+                && item.entity_ref == "node:N-140"
+                && item
+                    .metadata
+                    .as_ref()
+                    .map(|metadata| {
+                        metadata.component == "nodal_rotation_z"
+                            && metadata.coordinate_system == "global"
+                            && metadata.location == "node"
+                            && metadata.basis == "solved_from_global_linear_system"
+                            && metadata.sign_convention.contains("right-hand-rule")
+                    })
+                    .unwrap_or(false)
+        }));
+
+        // Translation components reassemble the published magnitude row within
+        // round6 tolerance.
+        let ux = result_value(&result, "result:disp:node-N-140:ux");
+        let uy = result_value(&result, "result:disp:node-N-140:uy");
+        let uz = result_value(&result, "result:disp:node-N-140:uz");
+        let magnitude = result_value(&result, "result:disp:node-N-140");
+        assert!(((ux * ux + uy * uy + uz * uz).sqrt() - magnitude).abs() < 5.0e-6);
+
+        // Component rows join the explicit user combination algebra exactly
+        // like other supported scalar rows.
+        let default_uy = result_value(&result, "result:disp:node-N-140:uy");
+        let alternate_uy =
+            result_value(&result, "result:loadcase:load-L-200:disp:node-N-140:uy");
+        let combined_uy = result
+            .results
+            .iter()
+            .find(|item| item.id == "result:combination:combination-C-OPER-ALT:disp:node-N-140:uy")
+            .expect("combination displacement component row should be emitted");
+        assert_eq!(combined_uy.value, round6(default_uy + 0.5 * alternate_uy));
+        assert_eq!(
+            combined_uy
+                .metadata
+                .as_ref()
+                .map(|metadata| metadata.basis.as_str()),
+            Some("explicit_user_linear_combination")
+        );
+
+        // Deterministic emission position: all magnitude rows first, then the
+        // component block, then reaction rows, per load case.
+        let index_of = |id: &str| {
+            result
+                .results
+                .iter()
+                .position(|item| item.id == id)
+                .unwrap_or_else(|| panic!("missing result {id}"))
+        };
+        assert!(index_of("result:disp:node-N-140") < index_of("result:disp:node-N-100:ux"));
+        assert!(index_of("result:disp:node-N-140:rz") < index_of("result:reaction:support-S-100"));
+    }
+
+    #[test]
+    fn displacement_component_rows_carry_signed_global_directions() {
+        let solve = |magnitude: f64| {
+            let mut request = request();
+            request.model.nodes.truncate(2);
+            request.model.nodes[0].id = "node:N-100".to_string();
+            request.model.nodes[0].position = Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
+            request.model.nodes[1].id = "node:N-110".to_string();
+            request.model.nodes[1].position = Vec3 {
+                x: 2.0,
+                y: 0.0,
+                z: 0.0,
+            };
+            request.model.pipe_segments.truncate(1);
+            request.model.pipe_segments[0].id = "pipe:P-100".to_string();
+            request.model.pipe_segments[0].from = "node:N-100".to_string();
+            request.model.pipe_segments[0].to = "node:N-110".to_string();
+            request.model.pipe_segments[0].y_reference = Some(Vec3 {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            });
+            request.model.supports.truncate(1);
+            request.model.supports[0].id = "support:S-100".to_string();
+            request.model.supports[0].node = "node:N-100".to_string();
+            request.model.supports[0].restraints = vec![
+                "UX".to_string(),
+                "UY".to_string(),
+                "UZ".to_string(),
+                "RX".to_string(),
+                "RY".to_string(),
+                "RZ".to_string(),
+            ];
+            request.model.load_cases.truncate(1);
+            request.model.combinations.clear();
+            request.model.load_cases[0].primitive_loads = vec![PreviewPrimitiveLoad {
+                id: "load:L-TIP-Y".to_string(),
+                category: "occasional".to_string(),
+                target: LoadTargetInput::Node {
+                    node: "node:N-110".to_string(),
+                },
+                direction: "global_y".to_string(),
+                magnitude: Quantity {
+                    value: magnitude,
+                    unit: "N".to_string(),
+                },
+                dimension: "force".to_string(),
+                provenance: Some("invented_example_user_input".to_string()),
+            }];
+            run_linear_static_preview(request)
+        };
+
+        let upward = solve(350.0);
+        assert_eq!(upward.status.mechanics, "MECHANICS_SOLVED");
+        let tip_uy = result_value(&upward, "result:disp:node-N-110:uy");
+        let tip_rz = result_value(&upward, "result:disp:node-N-110:rz");
+        assert!(tip_uy > 0.0, "+Y tip force must displace the tip in +Y");
+        assert!(tip_rz > 0.0, "+Y tip force on a +X member must rotate about +Z");
+        assert_eq!(result_value(&upward, "result:disp:node-N-110:ux"), 0.0);
+        assert_eq!(result_value(&upward, "result:disp:node-N-110:uz"), 0.0);
+        assert_eq!(result_value(&upward, "result:disp:node-N-110:rx"), 0.0);
+        assert_eq!(result_value(&upward, "result:disp:node-N-110:ry"), 0.0);
+        assert_eq!(result_value(&upward, "result:disp:node-N-100:uy"), 0.0);
+
+        let downward = solve(-350.0);
+        assert_eq!(downward.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(result_value(&downward, "result:disp:node-N-110:uy"), -tip_uy);
+        assert_eq!(result_value(&downward, "result:disp:node-N-110:rz"), -tip_rz);
+        assert_eq!(
+            result_value(&downward, "result:disp:node-N-110"),
+            result_value(&upward, "result:disp:node-N-110"),
+            "magnitude row stays unsigned while component rows carry sign"
+        );
+    }
+
+    #[test]
+    fn displacement_component_rows_are_deterministic_across_runs() {
+        let first = serde_json::to_string(&run_linear_static_preview(request())).unwrap();
+        let second = serde_json::to_string(&run_linear_static_preview(request())).unwrap();
+        assert_eq!(first, second);
+    }
+
+    #[test]
     fn valid_invented_model_exposes_endpoint_stress_components() {
         let result = run_linear_static_preview(request());
         let result_ids = result
@@ -3279,6 +3555,16 @@ mod tests {
             fixture_stress_end_j["metadata"]["basis"],
             "recovered_from_open_mechanics_stress_components"
         );
+        let generated_disp_uy = find_result(&generated, "result:disp:node-N-140:uy");
+        let fixture_disp_uy = find_result(&fixture, "result:disp:node-N-140:uy");
+        assert_eq!(generated_disp_uy["kind"], fixture_disp_uy["kind"]);
+        assert_eq!(generated_disp_uy["unit"], fixture_disp_uy["unit"]);
+        assert_eq!(generated_disp_uy["value"], fixture_disp_uy["value"]);
+        assert_eq!(generated_disp_uy["metadata"], fixture_disp_uy["metadata"]);
+        assert_eq!(fixture_disp_uy["metadata"]["coordinate_system"], "global");
+        let fixture_disp_rz = find_result(&fixture, "result:disp:node-N-140:rz");
+        assert_eq!(fixture_disp_rz["kind"], "global_nodal_rotation_z");
+        assert_eq!(fixture_disp_rz["unit"], "rad");
     }
 
     #[test]

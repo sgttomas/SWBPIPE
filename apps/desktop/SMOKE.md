@@ -4270,3 +4270,68 @@ notes:
   data stays in local storage and is never committed; no lifecycle state
   change, stage advancement, release readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-142 true directional deformed-shape overlay (`TP-APP-R2-DEFORMEDDIR-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DEFORMEDDIR-001` (completion-plan A6 residual): the
+  deformed-shape overlay is now directionally true end-to-end. The solver
+  bridge emits signed per-node displacement component rows for all six DOF,
+  and the viewport applies the real global-cartesian displacement direction
+  instead of the previous Y-only normalized offset.
+- Solver-bridge behavior (`core/product_physics`): after the existing
+  `displacement_magnitude` rows, each load case appends
+  `result:disp:<node>:{ux,uy,uz,rx,ry,rz}` rows — translations in mm
+  (round6 of m×1000), rotations in rad (round6), signed values from the
+  6-DOF kernel displacement vector. Rows carry the existing metadata
+  vocabulary: component `nodal_displacement_*`/`nodal_rotation_*`,
+  coordinate_system `global`, location `node`, basis
+  `solved_from_global_linear_system`, explicit global-cartesian
+  sign-convention text. Existing row ids, kinds, values, and relative order
+  are unchanged (verified: regenerated fixture has 0 changed, 0 removed,
+  90 appended rows). `rad` was added to the load-combination dimension map
+  so the new rotation rows join the explicit user combination algebra like
+  every other emitted scalar row instead of raising spurious
+  unsupported-dimension warnings.
+- Viewport behavior (`PipeViewport.buildDeformationOverlay`): each node's
+  displaced marker now moves along the unit vector of its (ux, uy, uz) rows
+  — taken from the same load-case/combination basis as the node's governing
+  magnitude row — scaled by the existing normalized display offset. The
+  boundary line replaces `vector_direction=TBD` with
+  `vector_direction=global_cartesian_displacement_components`; when
+  component rows are absent or incomplete the overlay falls back to the
+  previous magnitude-only vertical display offset and the boundary line says
+  `vector_direction=vertical_display_axis_fallback_component_rows_unavailable`.
+  Rotational DOF rows are emitted but intentionally not visualized
+  (no curvature rendering claim). The normalized display scale remains
+  disclosed as not physical length.
+- Canned browser fixture: `invented_mechanics_result.json` regenerated
+  through the documented workflow
+  (`npm run generate:product-preview-mechanics`); invented values only,
+  produced by the same solver emission (647 → 737 rows; displacement family
+  15 → 105).
+- Automated evidence: product_physics cargo tests passed 28/28 (new:
+  six-DOF row pinning with metadata, signed cantilever direction check for
+  +Y/−Y tip loads, byte-stable determinism across runs, fixture-consistency
+  for component rows); Tauri Rust tests passed 32/32 (no count pins needed
+  updating — assertions are minimum-row based); desktop Vitest passed
+  220/220 (new: directional offset math against fixture geometry, basis
+  mismatch fallback, component-rows-absent fallback, DOM disclosure of the
+  fallback status line); desktop production build passed with the
+  pre-existing Vite chunk-size warning; repo Python suite passed 358/358
+  (fixture schema spot-checks unaffected).
+- H4 evidence posture: the browser-mode preview-fixture solve path carries
+  the new component rows (regenerated canned fixture), and the first
+  Playwright e2e test now asserts the deformation overlay boundary discloses
+  `vector_direction=global_cartesian_displacement_components` after solve in
+  a real Chromium browser; e2e passed 2/2 after the wasm engine build.
+- Residuals: governing-ratio views still pending (no ratio rows exist);
+  rotational deformation is not visualized; the results schema's
+  `ResultMetadata.basis` enum does not yet list
+  `solved_from_global_linear_system` (preview rows are not schema-validated
+  today; flagged for the schema owner rather than edited here).
+- Boundary review: invented values only; no network, cloud, or telemetry
+  surface; no protected standards content or private project data; no
+  lifecycle state change, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim. The
+  overlay remains a review-only display aid with its non-physical display
+  scale explicitly disclosed.
