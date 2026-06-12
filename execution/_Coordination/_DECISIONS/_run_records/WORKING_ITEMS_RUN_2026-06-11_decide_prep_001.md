@@ -93,3 +93,33 @@ register rows D-02..D-05 → RULED with pointers; packet status headers;
 completion-plan §2 rows. No lifecycle state changed; no release,
 professional, certification, or code-compliance claim is created by any of
 this.
+
+## Part 4 — D-04 Part 1 revised on human reconsideration (same day)
+
+After a discussion of the two recommendation divergences — specifically
+the compounding interaction between the `DEC-023` in-house solver choice
+(which makes benchmark sensitivity the principal defect detector) and
+T-B's recorded drift residuals — the human project authority re-opened
+D-04 Part 1 and ruled **T-C with two riders**, recorded as `DEC-026`
+(superseding the T-B portion of `DEC-024`; the C-C coverage portion
+stands):
+
+- class-tiered governed tolerances (analytic / cross-engine-exact /
+  regression-golden-exact) with per-quantity-kind values recorded as
+  governed **relative+absolute pairs** (the absolute member is the
+  explicit near-zero floor);
+- analytic class seeded at the measured 1.0e-9; unmeasured values stay
+  `TBD` with `tolerance_policy_tbd_diagnostic` continuing to fire;
+- fixture-local `tolerance_policy` overrides may only **tighten**; any
+  loosening of a governed value is a governance event recorded in the
+  governed tolerance record, never a fixture-local edit.
+
+D-03 (`DEC-023`) stands as ruled, with a non-binding implementation
+suggestion recorded here for the future solver tranche: retain the
+existing dense kernel as a verification reference so dense↔skyline
+agreement on identical models becomes a standing cross-solver evidence
+gate.
+
+Recording surfaces updated: `SOFTWARE_DECOMP.md` §12 (`DEC-026` added;
+`DEC-024` outcome notes the partial supersession), register row D-04,
+packet status header, completion-plan §2 row.
