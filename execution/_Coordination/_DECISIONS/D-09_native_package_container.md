@@ -1,6 +1,6 @@
 # D-09 — Native Package Physical Container Format (Single-File Project Container, Public Transport Form)
 
-**Status:** AWAITING_RULING
+**Status:** RULED — 2026-06-11 the human project authority selected **Option C** (multi-member archive package per the PKG-17 export-package manifest contracts; canonical-JSON members carry the truth; evidence binds to members and manifest per-member JCS hashes, not container bytes; archive mechanics are implementation work; naming lands with D-06). Recorded as `DEC-028` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row updated.
 **Prepared:** 2026-06-11 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-DECIDE-PREP-002 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-09.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-09.

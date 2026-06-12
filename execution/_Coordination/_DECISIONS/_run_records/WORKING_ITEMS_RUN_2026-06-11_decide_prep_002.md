@@ -46,3 +46,19 @@ the external-scope rule (human file; not staged, not modified).
 Packet is PROPOSAL-only; invented examples; no protected content; no
 network; no release/professional/certification/code-compliance claims.
 Rulings remain human records per K-AUTH-1.
+
+## Part 3 — D-09 ruled (human authority, same day)
+
+The human project authority selected **Option C**: the native project
+package and public transport form is a multi-member archive package per
+the PKG-17 export-package manifest contracts (member inventory, manifest,
+per-member JCS hashes). Canonical-JSON members carry the domain truth
+(DEC-017 posture preserved; the SQLite store stays a rebuildable local
+projection); evidence binds to the canonical members and the manifest's
+per-member hashes, not to raw archive container bytes — the packet's
+recorded Option C trade-off, accepted knowingly. Archive mechanics
+(deterministic ordering, atomic save, compatibility window) remain
+bounded-tranche implementation work; extension/document-kind naming lands
+with D-06. Recorded as `DEC-028`; register, packet header, and plan rows
+updated. This diverged from the packet's Option B recommendation, which
+is the human's prerogative and is recorded without reconciliation.
