@@ -323,7 +323,9 @@ bounded tranche.
    history: compress landed items to one line — `LANDED <date>`, tranche id,
    residual hand-offs, and pointers to the run record and
    `plans/PLAN_COMPLETION_LOG.md` — and move the narrative detail to that
-   log; partially-landed items keep remaining scope in the row. Then stage,
+   log; partially-landed items keep remaining scope in the row. Before
+   pushing, run `python3 tools/release/run_evidence_sweep.py --execute` at
+   the committed HEAD and commit the summary (DEC-025). Then stage,
    commit, and push the validated tranche to the tracked remote branch, keeping
    the commit message scoped to the app tranche and any explicitly authorized
    coordination-instruction edits. Do not advance lifecycle state, make release
