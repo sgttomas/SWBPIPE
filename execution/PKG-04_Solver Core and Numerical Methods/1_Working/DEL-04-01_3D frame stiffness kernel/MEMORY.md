@@ -261,3 +261,37 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Validation: Frame-kernel format check passed; locked crate tests passed with 34 unit tests and 0 doctests.
 - Residual boundaries: Sparse solver library, production tolerance policy, release thresholds, final result-envelope integration, and professional reliance remain explicit downstream or human-governed TBDs.
 - No release, professional approval, certification, sealing, authentication, code-compliance claim, protected standards data, or private data was introduced.
+
+## 2026-06-11 - DEC-023 sparse skyline solver, first bounded slice (TP-D03-SPARSE-001)
+
+- Implemented the human ruling `DEC-023` (D-03 Option C) first slice: new crate
+  `core/solver/sparse_direct` with deterministic reverse Cuthill-McKee
+  ordering, skyline (profile) storage, and in-repo LDL^T profile factorization
+  and solve — std only, zero new dependencies, single-threaded fixed operation
+  order, repeat-run bitwise determinism asserted.
+- Singularity/conditioning reporting integrated with the diagnostics taxonomy:
+  located singular pivots (ordered + original reduced indices), a documented
+  pivot-ratio conditioning proxy, and a new `NonPositivePivot` warning code;
+  `sparse_solver_tbd_diagnostic` reworded to record that selection is resolved
+  by DEC-023 while live solve-path adoption remains TBD (code unchanged);
+  `tolerance_policy_tbd_diagnostic` unchanged per DEC-026.
+- Performance harness extended: sparse path measured alongside dense on the
+  same reduced systems (`SparseSolveObservation`: profile/bandwidth, pivots,
+  parity delta, residual, repeat determinism, elapsed nanos; plus dense solve
+  timing), new invented grid-frame fixture, suite-level sparse aggregates.
+  Measurement only; thresholds remain governed by D-04.
+- Parity evidence vs the dense oracle within the DEC-026 analytic-class
+  relative seed (1.0e-9, scaled by dense solution magnitude) on invented
+  chains (4, 60 elements), grid frames (4x3, 6x8 — 252 reduced DOFs), plus an
+  exact hand-checked LDL^T case.
+- Validation green: sparse_direct 18 tests; diagnostics 24; performance
+  harness 18; frame_kernel 34 (code untouched; one README sentence updated to
+  DEC-023-aware wording); nonlinear_supports 16 (sanity).
+- Live frame_kernel/product_physics integration was out of tranche (not a
+  small safe seam); handoff plan recorded in
+  `_run_records/TASK_RUN_2026-06-11_TP-D03-SPARSE-001.md`, including the
+  remaining assembly-side sparsity follow-up for PRD §20 thousands-of-nodes
+  memory scale.
+- No schema, app, governance, plan, coordination, decomposition, or fixture
+  file was changed; no thresholds invented; no protected content; no
+  commit/push.

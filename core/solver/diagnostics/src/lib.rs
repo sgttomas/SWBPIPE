@@ -13,6 +13,7 @@ use open_pipe_stress_linear_supports::{
 use open_pipe_stress_primitive_loads::{
     FindingCode as LoadFindingCode, LoadFinding, PrimitiveLoadError,
 };
+use open_pipe_stress_sparse_direct::{FactorizationReport, SparseDirectError};
 use std::error::Error;
 use std::fmt;
 
@@ -141,6 +142,7 @@ pub enum SolverDiagnosticCode {
     InvalidModelTopology,
     InvalidNumericInput,
     NonConvergence,
+    NonPositivePivot,
     SparseSolverTbd,
     TolerancePolicyTbd,
 }
@@ -523,13 +525,101 @@ pub fn convergence_diagnostic(
     )))
 }
 
+/// Resolution-status diagnostic for the sparse solver adoption state.
+///
+/// The sparse solver *selection* is resolved by the human ruling `DEC-023`
+/// (D-03 Option C: in-repo skyline LDL^T direct solver,
+/// `core/solver/sparse_direct`). What remains `TBD` is binding the live
+/// product solve path to that solver; until then the dense solve path remains
+/// the live path and this diagnostic keeps that state explicit.
 pub fn sparse_solver_tbd_diagnostic() -> SolverDiagnostic {
     SolverDiagnostic::new(
         SolverDiagnosticCode::SparseSolverTbd,
         DiagnosticSeverity::Warning,
         DiagnosticSource::SolverConfiguration,
-        "sparse numerical solver selection remains TBD; dense solve path is for bounded verification only",
+        "sparse solver strategy is resolved by DEC-023 (in-repo skyline LDLT direct solver, core/solver/sparse_direct); live solve-path adoption remains TBD",
     )
+}
+
+/// Maps an in-repo sparse skyline solver error into a solver diagnostic.
+///
+/// A singular pivot is reported with both its profile-ordered location and
+/// the original (pre-ordering) reduced index so the failure can be traced
+/// back to a model degree of freedom.
+pub fn diagnostic_from_sparse_error(error: &SparseDirectError) -> SolverDiagnostic {
+    match error {
+        SparseDirectError::SingularPivot {
+            ordered_index,
+            original_index,
+        } => SolverDiagnostic::new(
+            SolverDiagnosticCode::SingularSystem,
+            DiagnosticSeverity::Failure,
+            DiagnosticSource::MechanicsSolver,
+            format!(
+                "sparse profile factorization found a singular pivot at ordered index {ordered_index} (original reduced index {original_index})"
+            ),
+        )
+        .with_affected_ref(reduced_dof_ref(*original_index)),
+        SparseDirectError::InvalidMatrixDimensions { rows, cols } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidNumericInput,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::MechanicsSolver,
+            format!("sparse stiffness matrix must be square, got {rows} by {cols}"),
+        ),
+        SparseDirectError::InvalidVectorLength { expected, actual } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidNumericInput,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::MechanicsSolver,
+            format!("sparse solve vector length must be {expected}, got {actual}"),
+        ),
+        SparseDirectError::NonFiniteInput { name, value } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidNumericInput,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::ModelValidation,
+            format!("{name} must be finite, got {value}"),
+        ),
+        SparseDirectError::InvalidOrdering { detail } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidNumericInput,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::MechanicsSolver,
+            format!("invalid sparse ordering: {detail}"),
+        ),
+    }
+}
+
+/// Maps a completed sparse factorization report into deterministic solver
+/// diagnostics. Ordering is fixed: the nonpositive-pivot diagnostic (when
+/// present) is emitted first and is currently the only report-derived
+/// diagnostic; conditioning classification stays threshold-driven through
+/// [`classify_condition_ratio`] because conditioning thresholds remain
+/// governed by D-04.
+pub fn diagnostics_from_factorization_report(
+    report: &FactorizationReport,
+) -> Vec<SolverDiagnostic> {
+    let mut diagnostics = Vec::new();
+    if report.nonpositive_pivot_count > 0 {
+        let location_detail = match &report.first_nonpositive_pivot {
+            Some(location) => format!(
+                "; first at ordered index {} (original reduced index {})",
+                location.ordered_index, location.original_index
+            ),
+            None => String::new(),
+        };
+        let mut diagnostic = SolverDiagnostic::new(
+            SolverDiagnosticCode::NonPositivePivot,
+            DiagnosticSeverity::Warning,
+            DiagnosticSource::MechanicsSolver,
+            format!(
+                "sparse profile factorization accepted {} nonpositive pivot(s); the reduced stiffness is not positive definite{location_detail}",
+                report.nonpositive_pivot_count
+            ),
+        );
+        if let Some(location) = &report.first_nonpositive_pivot {
+            diagnostic = diagnostic.with_affected_ref(reduced_dof_ref(location.original_index));
+        }
+        diagnostics.push(diagnostic);
+    }
+    diagnostics
 }
 
 pub fn tolerance_policy_tbd_diagnostic() -> SolverDiagnostic {
@@ -581,7 +671,10 @@ fn diagnostic_class_for(
 fn default_remediation(code: SolverDiagnosticCode, severity: DiagnosticSeverity) -> &'static str {
     match code {
         SolverDiagnosticCode::SparseSolverTbd => {
-            "Bind the solve path to an accepted sparse-solver adapter before external performance reliance."
+            "Bind the live solve path to the DEC-023 in-repo sparse skyline solver before external performance reliance."
+        }
+        SolverDiagnosticCode::NonPositivePivot => {
+            "Review restraint and stiffness definitions; a nonpositive pivot means the reduced stiffness system is not positive definite."
         }
         SolverDiagnosticCode::TolerancePolicyTbd => {
             "Bind the solve path to an accepted tolerance policy before release-quality claims."
@@ -651,6 +744,10 @@ fn dof_ref(dof: usize) -> String {
     format!("dof:{dof}")
 }
 
+fn reduced_dof_ref(reduced_dof: usize) -> String {
+    format!("reduced-dof:{reduced_dof}")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -658,6 +755,7 @@ mod tests {
         FindingCode as SupportFindingCode, SupportApplicationError, SupportFinding,
     };
     use open_pipe_stress_primitive_loads::{FindingCode as LoadFindingCode, LoadFinding};
+    use open_pipe_stress_sparse_direct::PivotLocation;
 
     #[test]
     fn maps_singular_frame_error_to_failure_diagnostic() {
@@ -911,6 +1009,122 @@ mod tests {
         assert_eq!(diagnostic.severity, DiagnosticSeverity::Warning);
         assert_eq!(diagnostic.analysis_boundary_class(), "TBD");
         assert!(!diagnostic.is_blocking());
+    }
+
+    #[test]
+    fn sparse_solver_status_reflects_dec023_resolution_and_pending_adoption() {
+        let diagnostic = sparse_solver_tbd_diagnostic();
+
+        assert!(diagnostic.message.contains("DEC-023"));
+        assert!(diagnostic.message.contains("core/solver/sparse_direct"));
+        assert!(diagnostic
+            .message
+            .contains("live solve-path adoption remains TBD"));
+        assert!(diagnostic
+            .remediation
+            .as_deref()
+            .unwrap()
+            .contains("DEC-023"));
+    }
+
+    #[test]
+    fn maps_sparse_singular_pivot_to_failure_with_both_locations() {
+        let diagnostic = diagnostic_from_sparse_error(&SparseDirectError::SingularPivot {
+            ordered_index: 7,
+            original_index: 3,
+        });
+
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::SingularSystem);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Failure);
+        assert_eq!(diagnostic.source, DiagnosticSource::MechanicsSolver);
+        assert!(diagnostic.message.contains("ordered index 7"));
+        assert!(diagnostic.message.contains("original reduced index 3"));
+        assert_eq!(diagnostic.affected_ref.as_deref(), Some("reduced-dof:3"));
+        assert!(diagnostic.is_blocking());
+    }
+
+    #[test]
+    fn maps_sparse_invalid_inputs_to_blocking_numeric_diagnostics() {
+        let dimensions =
+            diagnostic_from_sparse_error(&SparseDirectError::InvalidMatrixDimensions {
+                rows: 4,
+                cols: 2,
+            });
+        assert_eq!(dimensions.code, SolverDiagnosticCode::InvalidNumericInput);
+        assert_eq!(dimensions.severity, DiagnosticSeverity::Blocking);
+
+        let length = diagnostic_from_sparse_error(&SparseDirectError::InvalidVectorLength {
+            expected: 6,
+            actual: 5,
+        });
+        assert_eq!(length.code, SolverDiagnosticCode::InvalidNumericInput);
+        assert_eq!(length.severity, DiagnosticSeverity::Blocking);
+
+        let ordering = diagnostic_from_sparse_error(&SparseDirectError::InvalidOrdering {
+            detail: "ordering repeats an index",
+        });
+        assert_eq!(ordering.code, SolverDiagnosticCode::InvalidNumericInput);
+        assert!(ordering.message.contains("ordering repeats an index"));
+
+        let non_finite = diagnostic_from_sparse_error(&SparseDirectError::NonFiniteInput {
+            name: "matrix entry",
+            value: f64::INFINITY,
+        });
+        assert_eq!(non_finite.code, SolverDiagnosticCode::InvalidNumericInput);
+        assert_eq!(non_finite.source, DiagnosticSource::ModelValidation);
+    }
+
+    #[test]
+    fn nonpositive_pivot_report_yields_located_warning_diagnostic() {
+        let report = FactorizationReport {
+            dimension: 5,
+            profile_entry_count: 9,
+            max_half_bandwidth: 1,
+            min_abs_pivot: Some(0.5),
+            max_abs_pivot: Some(4.0),
+            pivot_condition_ratio_estimate: Some(8.0),
+            nonpositive_pivot_count: 2,
+            first_nonpositive_pivot: Some(PivotLocation {
+                ordered_index: 2,
+                original_index: 4,
+            }),
+        };
+
+        let diagnostics = diagnostics_from_factorization_report(&report);
+
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].code, SolverDiagnosticCode::NonPositivePivot);
+        assert_eq!(diagnostics[0].severity, DiagnosticSeverity::Warning);
+        assert_eq!(
+            diagnostics[0].analysis_boundary_class(),
+            "ASSUMPTION_WARNING"
+        );
+        assert!(!diagnostics[0].is_blocking());
+        assert!(diagnostics[0].message.contains("2 nonpositive pivot(s)"));
+        assert!(diagnostics[0].message.contains("ordered index 2"));
+        assert!(diagnostics[0].message.contains("original reduced index 4"));
+        assert_eq!(
+            diagnostics[0].affected_ref.as_deref(),
+            Some("reduced-dof:4")
+        );
+    }
+
+    #[test]
+    fn positive_definite_factorization_report_yields_no_diagnostics() {
+        let report = FactorizationReport {
+            dimension: 3,
+            profile_entry_count: 5,
+            max_half_bandwidth: 1,
+            min_abs_pivot: Some(3.75),
+            max_abs_pivot: Some(4.0),
+            pivot_condition_ratio_estimate: Some(4.0 / 3.75),
+            nonpositive_pivot_count: 0,
+            first_nonpositive_pivot: None,
+        };
+
+        let diagnostics = diagnostics_from_factorization_report(&report);
+
+        assert!(diagnostics.is_empty());
     }
 
     #[test]

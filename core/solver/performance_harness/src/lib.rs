@@ -9,11 +9,19 @@ use open_pipe_stress_frame_kernel::{
     FrameKernelError, FrameKernelUnitBasis, FrameNode, FrameSection, UnitSystemRef, DOF_PER_NODE,
 };
 use open_pipe_stress_solver_diagnostics::{
-    classify_condition_ratio, diagnostic_from_frame_error, sparse_solver_tbd_diagnostic,
+    classify_condition_ratio, diagnostic_from_frame_error, diagnostic_from_sparse_error,
+    diagnostics_from_factorization_report, sparse_solver_tbd_diagnostic,
     tolerance_policy_tbd_diagnostic, DiagnosticsError, SolverDiagnostic,
 };
+use open_pipe_stress_sparse_direct::{solve_symmetric_system, SparseDirectError};
 use std::error::Error;
 use std::fmt;
+use std::time::Instant;
+
+/// Identifier of the deterministic ordering algorithm used by the sparse
+/// path (see `core/solver/sparse_direct` README for its determinism
+/// properties).
+pub const SPARSE_ORDERING_ALGORITHM_ID: &str = "reverse-cuthill-mckee-deterministic";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FixtureProvenanceStatus {
@@ -68,6 +76,36 @@ pub struct ConditioningObservation {
     pub diagonal_condition_ratio_estimate: Option<f64>,
 }
 
+/// Sparse-path (DEC-023 in-repo skyline LDL^T solver) observations recorded
+/// alongside the dense path for the same fixture. All fields are
+/// measurements; no thresholds are asserted (thresholds remain governed by
+/// D-04).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SparseSolveObservation {
+    pub ordering_algorithm: String,
+    pub reduced_dofs: usize,
+    pub original_max_half_bandwidth: usize,
+    pub ordered_max_half_bandwidth: usize,
+    pub original_profile_entry_count: usize,
+    pub ordered_profile_entry_count: usize,
+    pub min_abs_pivot: Option<f64>,
+    pub max_abs_pivot: Option<f64>,
+    /// Pivot-ratio conditioning proxy from the factorization report
+    /// (`max |d| / min |d|`); documented proxy, not a true condition number.
+    pub pivot_condition_ratio_estimate: Option<f64>,
+    pub nonpositive_pivot_count: usize,
+    /// Max-abs delta between the sparse solution and the dense first
+    /// solution on the same reduced system; `None` when the dense solve
+    /// failed and no parity oracle exists for the run.
+    pub max_abs_sparse_dense_solution_delta: Option<f64>,
+    pub max_abs_residual: f64,
+    pub repeat_count: usize,
+    pub max_abs_repeat_solution_delta: f64,
+    /// Wall-clock measurement of the first sparse order+factor+solve;
+    /// environment-dependent, recorded for measurement only.
+    pub first_solve_elapsed_nanos: u128,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct HarnessRunRecord {
     pub fixture_id: String,
@@ -87,6 +125,10 @@ pub struct HarnessRunRecord {
     pub repeat_observations: Vec<RepeatRunObservation>,
     pub conditioning_observation: ConditioningObservation,
     pub condition_ratio_estimate: Option<f64>,
+    /// Wall-clock measurement of the first dense solve attempt;
+    /// environment-dependent, recorded for measurement only.
+    pub dense_first_solve_elapsed_nanos: u128,
+    pub sparse_observation: Option<SparseSolveObservation>,
     pub diagnostics: Vec<SolverDiagnostic>,
     pub assumptions: Vec<String>,
     pub limitations: Vec<String>,
@@ -124,6 +166,11 @@ pub struct HarnessSuiteSummary {
     pub max_reduced_dofs: usize,
     pub max_abs_solution_delta: f64,
     pub max_abs_residual: f64,
+    pub records_with_sparse_observation_count: usize,
+    pub total_original_profile_entry_count: usize,
+    pub total_ordered_profile_entry_count: usize,
+    pub max_abs_sparse_dense_solution_delta: f64,
+    pub max_abs_sparse_residual: f64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -138,6 +185,7 @@ pub enum HarnessError {
     },
     FrameKernel(FrameKernelError),
     Diagnostics(DiagnosticsError),
+    SparseDirect(SparseDirectError),
 }
 
 impl fmt::Display for HarnessError {
@@ -152,6 +200,7 @@ impl fmt::Display for HarnessError {
             }
             Self::FrameKernel(error) => write!(f, "{error}"),
             Self::Diagnostics(error) => write!(f, "{error}"),
+            Self::SparseDirect(error) => write!(f, "{error}"),
         }
     }
 }
@@ -167,6 +216,12 @@ impl From<FrameKernelError> for HarnessError {
 impl From<DiagnosticsError> for HarnessError {
     fn from(error: DiagnosticsError) -> Self {
         Self::Diagnostics(error)
+    }
+}
+
+impl From<SparseDirectError> for HarnessError {
+    fn from(error: SparseDirectError) -> Self {
+        Self::SparseDirect(error)
     }
 }
 
@@ -233,6 +288,83 @@ pub fn invented_cantilever_chain_fixture(
     })
 }
 
+/// Invented planar grid frame fixture (synthetic geometry only). Nodes are
+/// numbered row-major; horizontal and vertical frame elements connect grid
+/// neighbors; the bottom row is fully restrained and an invented lateral
+/// load acts at the last top-row node. Grid fixtures give the sparse path a
+/// banded-but-not-chain structure so ordering and profile observations are
+/// meaningful.
+pub fn invented_grid_frame_fixture(
+    x_count: usize,
+    y_count: usize,
+) -> Result<BenchmarkFixture, HarnessError> {
+    if x_count < 2 || y_count < 2 {
+        return Err(HarnessError::InvalidSetting {
+            name: "grid_dimensions",
+            detail: "x_count and y_count must each be at least two",
+        });
+    }
+
+    let section = FrameSection::new(2.0e11, 7.7e10, 0.01, 8.0e-6, 8.0e-6, 1.6e-5)?;
+    let node_count = x_count * y_count;
+    let mut nodes = Vec::with_capacity(node_count);
+    for y_index in 0..y_count {
+        for x_index in 0..x_count {
+            nodes.push(FrameNode::new(
+                y_index * x_count + x_index,
+                [x_index as f64, y_index as f64, 0.0],
+            )?);
+        }
+    }
+
+    let mut elements = Vec::new();
+    for y_index in 0..y_count {
+        for x_index in 0..x_count {
+            let index = y_index * x_count + x_index;
+            if x_index + 1 < x_count {
+                elements.push(FrameElement::new(
+                    nodes[index],
+                    nodes[index + 1],
+                    section,
+                    [0.0, 1.0, 0.0],
+                )?);
+            }
+            if y_index + 1 < y_count {
+                elements.push(FrameElement::new(
+                    nodes[index],
+                    nodes[index + x_count],
+                    section,
+                    [0.0, 0.0, 1.0],
+                )?);
+            }
+        }
+    }
+
+    let mut force = vec![0.0; node_count * DOF_PER_NODE];
+    force[(node_count - 1) * DOF_PER_NODE] = 1.0e3;
+    let restrained_dofs: Vec<usize> = (0..x_count * DOF_PER_NODE).collect();
+
+    Ok(BenchmarkFixture {
+        fixture_id: format!("invented-grid-frame-{x_count}x{y_count}"),
+        name: format!("Invented planar grid frame with {x_count} by {y_count} nodes"),
+        provenance: FixtureProvenance {
+            source_name: "OpenPipeStress invented mechanics fixture".to_string(),
+            source_location: "core/solver/performance_harness".to_string(),
+            redistribution_status: FixtureProvenanceStatus::InventedPublic,
+            review_note: "Original synthetic fixture; no protected standards or vendor data."
+                .to_string(),
+        },
+        unit_basis: invented_frame_unit_basis().ok_or(HarnessError::InvalidSetting {
+            name: "fixture.unit_basis",
+            detail: "must declare explicit unit-system and unit identifiers",
+        })?,
+        node_count,
+        elements,
+        force,
+        restrained_dofs,
+    })
+}
+
 pub fn run_default_invented_fixture_suite(
     settings: &HarnessSettings,
 ) -> Result<HarnessSuiteRunRecord, HarnessError> {
@@ -259,6 +391,17 @@ pub fn run_invented_fixture_suite(
     ))
 }
 
+/// Runs the dense path and the DEC-023 sparse skyline path on the same
+/// reduced system and records both. Diagnostic ordering in the record is
+/// fixed and deterministic:
+/// 1. sparse-solver adoption-status diagnostic (`SparseSolverTbd` code),
+/// 2. tolerance-policy `TBD` diagnostic,
+/// 3. dense diagonal conditioning classification (when thresholds are set),
+/// 4. dense solve failure diagnostic (when the dense solve fails),
+/// 5. sparse factorization-report diagnostics (nonpositive pivots),
+/// 6. sparse pivot-ratio conditioning classification (when thresholds are
+///    set),
+/// 7. sparse solve failure diagnostic (when the sparse path fails).
 pub fn run_fixture_repeat(
     fixture: &BenchmarkFixture,
     settings: &HarnessSettings,
@@ -285,10 +428,17 @@ pub fn run_fixture_repeat(
         }
     }
 
-    let first_solution = match solve_dense(&reduced.stiffness, &reduced.force) {
+    let dense_solve_started = Instant::now();
+    let dense_first_result = solve_dense(&reduced.stiffness, &reduced.force);
+    let dense_first_solve_elapsed_nanos = dense_solve_started.elapsed().as_nanos();
+
+    let first_solution = match dense_first_result {
         Ok(solution) => solution,
         Err(error) => {
             diagnostics.push(diagnostic_from_frame_error(&error));
+            let (sparse_observation, sparse_diagnostics) =
+                observe_sparse_path(&reduced.stiffness, &reduced.force, settings, None)?;
+            diagnostics.extend(sparse_diagnostics);
             let force_nonzero_count = reduced
                 .force
                 .iter()
@@ -305,6 +455,8 @@ pub fn run_fixture_repeat(
                 Vec::new(),
                 conditioning_observation,
                 condition_ratio_estimate,
+                dense_first_solve_elapsed_nanos,
+                sparse_observation,
                 diagnostics,
             ));
         }
@@ -333,6 +485,14 @@ pub fn run_fixture_repeat(
         .map(|observation| observation.max_abs_residual)
         .fold(0.0, f64::max);
 
+    let (sparse_observation, sparse_diagnostics) = observe_sparse_path(
+        &reduced.stiffness,
+        &reduced.force,
+        settings,
+        Some(&first_solution),
+    )?;
+    diagnostics.extend(sparse_diagnostics);
+
     Ok(run_record(
         fixture,
         settings,
@@ -348,8 +508,70 @@ pub fn run_fixture_repeat(
         repeat_observations,
         conditioning_observation,
         condition_ratio_estimate,
+        dense_first_solve_elapsed_nanos,
+        sparse_observation,
         diagnostics,
     ))
+}
+
+/// Measures the DEC-023 sparse skyline path on the reduced system. Returns
+/// the observation (when the sparse solve completes) and the sparse-path
+/// diagnostics in deterministic order: factorization-report diagnostics,
+/// then pivot-ratio conditioning classification (when thresholds are set),
+/// then a failure diagnostic when the path fails.
+fn observe_sparse_path(
+    reduced_stiffness: &DenseMatrix,
+    reduced_force: &[f64],
+    settings: &HarnessSettings,
+    dense_first_solution: Option<&[f64]>,
+) -> Result<(Option<SparseSolveObservation>, Vec<SolverDiagnostic>), HarnessError> {
+    let started = Instant::now();
+    let first = match solve_symmetric_system(reduced_stiffness, reduced_force) {
+        Ok(result) => result,
+        Err(error) => {
+            return Ok((None, vec![diagnostic_from_sparse_error(&error)]));
+        }
+    };
+    let first_solve_elapsed_nanos = started.elapsed().as_nanos();
+
+    let mut diagnostics = diagnostics_from_factorization_report(&first.factorization);
+    if let (Some(warning), Some(failure), Some(ratio)) = (
+        settings.condition_warning_threshold,
+        settings.condition_failure_threshold,
+        first.factorization.pivot_condition_ratio_estimate,
+    ) {
+        if let Some(diagnostic) = classify_condition_ratio(ratio, warning, failure)? {
+            diagnostics.push(diagnostic);
+        }
+    }
+
+    let mut max_abs_repeat_solution_delta: f64 = 0.0;
+    for _ in 1..settings.repeat_count {
+        let repeat = solve_symmetric_system(reduced_stiffness, reduced_force)?;
+        max_abs_repeat_solution_delta =
+            max_abs_repeat_solution_delta.max(max_abs_delta(&first.solution, &repeat.solution));
+    }
+
+    let observation = SparseSolveObservation {
+        ordering_algorithm: SPARSE_ORDERING_ALGORITHM_ID.to_string(),
+        reduced_dofs: first.solution.len(),
+        original_max_half_bandwidth: first.original_max_half_bandwidth,
+        ordered_max_half_bandwidth: first.ordered_max_half_bandwidth,
+        original_profile_entry_count: first.original_profile_entry_count,
+        ordered_profile_entry_count: first.ordered_profile_entry_count,
+        min_abs_pivot: first.factorization.min_abs_pivot,
+        max_abs_pivot: first.factorization.max_abs_pivot,
+        pivot_condition_ratio_estimate: first.factorization.pivot_condition_ratio_estimate,
+        nonpositive_pivot_count: first.factorization.nonpositive_pivot_count,
+        max_abs_sparse_dense_solution_delta: dense_first_solution
+            .map(|dense| max_abs_delta(dense, &first.solution)),
+        max_abs_residual: max_abs_residual(reduced_stiffness, &first.solution, reduced_force),
+        repeat_count: settings.repeat_count,
+        max_abs_repeat_solution_delta,
+        first_solve_elapsed_nanos,
+    };
+
+    Ok((Some(observation), diagnostics))
 }
 
 fn suite_record(
@@ -385,7 +607,7 @@ fn suite_record(
         limitations: vec![
             "fixture sizes are explicit invented coverage points, not approved practical-size bands"
                 .to_string(),
-            "sparse numerical library remains TBD".to_string(),
+            "live solve-path adoption of the DEC-023 sparse skyline solver remains TBD".to_string(),
             "release timing, memory, conditioning, and CI thresholds remain TBD".to_string(),
         ],
         provenance_notes,
@@ -450,6 +672,30 @@ fn suite_summary(
             .iter()
             .map(|record| record.max_abs_residual)
             .fold(0.0, f64::max),
+        records_with_sparse_observation_count: fixture_records
+            .iter()
+            .filter(|record| record.sparse_observation.is_some())
+            .count(),
+        total_original_profile_entry_count: fixture_records
+            .iter()
+            .filter_map(|record| record.sparse_observation.as_ref())
+            .map(|observation| observation.original_profile_entry_count)
+            .sum(),
+        total_ordered_profile_entry_count: fixture_records
+            .iter()
+            .filter_map(|record| record.sparse_observation.as_ref())
+            .map(|observation| observation.ordered_profile_entry_count)
+            .sum(),
+        max_abs_sparse_dense_solution_delta: fixture_records
+            .iter()
+            .filter_map(|record| record.sparse_observation.as_ref())
+            .filter_map(|observation| observation.max_abs_sparse_dense_solution_delta)
+            .fold(0.0, f64::max),
+        max_abs_sparse_residual: fixture_records
+            .iter()
+            .filter_map(|record| record.sparse_observation.as_ref())
+            .map(|observation| observation.max_abs_residual)
+            .fold(0.0, f64::max),
     }
 }
 
@@ -464,6 +710,8 @@ fn run_record(
     repeat_observations: Vec<RepeatRunObservation>,
     conditioning_observation: ConditioningObservation,
     condition_ratio_estimate: Option<f64>,
+    dense_first_solve_elapsed_nanos: u128,
+    sparse_observation: Option<SparseSolveObservation>,
     diagnostics: Vec<SolverDiagnostic>,
 ) -> HarnessRunRecord {
     HarnessRunRecord {
@@ -484,17 +732,23 @@ fn run_record(
         repeat_observations,
         conditioning_observation,
         condition_ratio_estimate,
+        dense_first_solve_elapsed_nanos,
+        sparse_observation,
         diagnostics,
         assumptions: vec![
             "fixture uses invented mechanics quantities".to_string(),
             "fixture unit identifiers declare the calculation basis without conversion constants"
                 .to_string(),
-            "frame-kernel dense solve path is a verification stand-in for future sparse adapter"
+            "frame-kernel dense solve path serves as the parity oracle for the DEC-023 sparse skyline path"
+                .to_string(),
+            "sparse-path observations use the in-repo skyline LDLT solver (core/solver/sparse_direct) selected by DEC-023"
                 .to_string(),
         ],
         limitations: vec![
-            "sparse numerical library remains TBD".to_string(),
+            "live solve-path adoption of the DEC-023 sparse skyline solver remains TBD".to_string(),
             "release timing, memory, and conditioning thresholds remain TBD".to_string(),
+            "elapsed-time observations are environment-dependent measurements, not asserted thresholds"
+                .to_string(),
             "hardware-normalized performance gates are not claimed".to_string(),
         ],
         provenance_notes: vec![fixture.provenance.review_note.clone()],
@@ -914,6 +1168,165 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == SolverDiagnosticCode::SparseSolverTbd));
+    }
+
+    #[test]
+    fn singular_fixture_records_located_sparse_singular_diagnostic() {
+        let mut fixture = invented_cantilever_chain_fixture(1).unwrap();
+        fixture.restrained_dofs = vec![0];
+
+        let record = run_fixture_repeat(&fixture, &HarnessSettings::default()).unwrap();
+
+        // The sparse path fails before producing an observation, and its
+        // singular-pivot diagnostic carries both the ordered location and the
+        // original reduced DOF index.
+        assert!(record.sparse_observation.is_none());
+        let sparse_singular = record
+            .diagnostics
+            .iter()
+            .find(|diagnostic| {
+                diagnostic.code == SolverDiagnosticCode::SingularSystem
+                    && diagnostic.message.contains("sparse profile factorization")
+            })
+            .expect("sparse singular diagnostic must be recorded");
+        assert!(sparse_singular.message.contains("ordered index 2"));
+        assert!(sparse_singular.message.contains("original reduced index 2"));
+        assert_eq!(
+            sparse_singular.affected_ref.as_deref(),
+            Some("reduced-dof:2")
+        );
+    }
+
+    #[test]
+    fn sparse_path_parity_is_observed_for_invented_chain_fixture() {
+        let fixture = invented_cantilever_chain_fixture(4).unwrap();
+        let settings = HarnessSettings {
+            solver_version: "test-solver".to_string(),
+            repeat_count: 3,
+            ..HarnessSettings::default()
+        };
+
+        let record = run_fixture_repeat(&fixture, &settings).unwrap();
+        let observation = record.sparse_observation.as_ref().unwrap();
+
+        // Independent dense reference for the parity scale.
+        let stiffness = assemble_global_stiffness(fixture.node_count, &fixture.elements).unwrap();
+        let reduced = reduce_system(&stiffness, &fixture.force, &fixture.restrained_dofs).unwrap();
+        let dense_solution = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+        let scale = dense_solution
+            .iter()
+            .map(|value| value.abs())
+            .fold(0.0, f64::max);
+
+        assert_eq!(observation.ordering_algorithm, SPARSE_ORDERING_ALGORITHM_ID);
+        assert_eq!(observation.reduced_dofs, record.reduced_dofs);
+        assert_eq!(observation.repeat_count, 3);
+        // Repeat sparse solves are deterministic.
+        assert_eq!(observation.max_abs_repeat_solution_delta, 0.0);
+        // Parity tolerance basis: DEC-026 (SOFTWARE_DECOMP.md §12) seeds the
+        // analytic reference-result class at 1.0e-9 relative; the seed is
+        // scaled by the dense reference solution magnitude rather than
+        // inventing a new tolerance.
+        assert!(scale > 0.0);
+        assert!(observation.max_abs_sparse_dense_solution_delta.unwrap() <= 1.0e-9 * scale);
+        assert!(observation.max_abs_residual < 1.0e-6);
+        assert_eq!(observation.nonpositive_pivot_count, 0);
+        assert!(observation.pivot_condition_ratio_estimate.unwrap() >= 1.0);
+        // Chain numbering is already contiguous, so ordering must not grow
+        // the profile.
+        assert!(
+            observation.ordered_profile_entry_count <= observation.original_profile_entry_count
+        );
+        assert!(observation.ordered_max_half_bandwidth <= observation.original_max_half_bandwidth);
+    }
+
+    #[test]
+    fn grid_fixture_supports_sparse_measurement_alongside_dense() {
+        let fixture = invented_grid_frame_fixture(4, 3).unwrap();
+
+        assert_eq!(fixture.fixture_id, "invented-grid-frame-4x3");
+        assert_eq!(fixture.node_count, 12);
+        // Horizontal: (4 - 1) * 3 = 9; vertical: 4 * (3 - 1) = 8.
+        assert_eq!(fixture.elements.len(), 17);
+        assert_eq!(fixture.restrained_dofs.len(), 4 * DOF_PER_NODE);
+
+        let record = run_fixture_repeat(&fixture, &HarnessSettings::default()).unwrap();
+        let observation = record.sparse_observation.as_ref().unwrap();
+
+        assert_eq!(record.reduced_dofs, 8 * DOF_PER_NODE);
+        assert_eq!(observation.reduced_dofs, record.reduced_dofs);
+        assert!(observation.ordered_profile_entry_count > 0);
+        assert!(observation.max_abs_sparse_dense_solution_delta.is_some());
+        assert_eq!(observation.nonpositive_pivot_count, 0);
+        assert!(record
+            .diagnostics
+            .iter()
+            .all(|diagnostic| diagnostic.code != SolverDiagnosticCode::NonPositivePivot));
+        assert!(record
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("DEC-023")));
+    }
+
+    #[test]
+    fn larger_generated_banded_grid_parity_stays_within_dec026_seed() {
+        // Larger generated banded model (invented/synthetic geometry only):
+        // 6 x 8 grid, 48 nodes, 288 total DOFs, 252 reduced DOFs.
+        let fixture = invented_grid_frame_fixture(6, 8).unwrap();
+        let record = run_fixture_repeat(&fixture, &HarnessSettings::default()).unwrap();
+        let observation = record.sparse_observation.as_ref().unwrap();
+
+        assert_eq!(record.total_dofs, 288);
+        assert_eq!(record.reduced_dofs, 252);
+
+        let stiffness = assemble_global_stiffness(fixture.node_count, &fixture.elements).unwrap();
+        let reduced = reduce_system(&stiffness, &fixture.force, &fixture.restrained_dofs).unwrap();
+        let dense_solution = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
+        let scale = dense_solution
+            .iter()
+            .map(|value| value.abs())
+            .fold(0.0, f64::max);
+
+        // Parity tolerance basis: DEC-026 analytic-class relative seed
+        // (1.0e-9), scaled by the dense reference solution magnitude.
+        assert!(scale > 0.0);
+        assert!(observation.max_abs_sparse_dense_solution_delta.unwrap() <= 1.0e-9 * scale);
+        assert_eq!(observation.max_abs_repeat_solution_delta, 0.0);
+        assert_eq!(observation.nonpositive_pivot_count, 0);
+    }
+
+    #[test]
+    fn grid_fixture_rejects_degenerate_dimensions() {
+        let error = invented_grid_frame_fixture(1, 5).unwrap_err();
+
+        assert_eq!(
+            error,
+            HarnessError::InvalidSetting {
+                name: "grid_dimensions",
+                detail: "x_count and y_count must each be at least two"
+            }
+        );
+    }
+
+    #[test]
+    fn suite_summary_aggregates_sparse_observations() {
+        let suite = run_invented_fixture_suite(&[2, 4], &HarnessSettings::default()).unwrap();
+
+        assert_eq!(suite.summary.records_with_sparse_observation_count, 2);
+        assert!(suite.summary.total_ordered_profile_entry_count > 0);
+        assert!(
+            suite.summary.total_ordered_profile_entry_count
+                <= suite.summary.total_original_profile_entry_count
+        );
+        assert!(suite.summary.max_abs_sparse_residual < 1.0e-6);
+        for record in &suite.fixture_records {
+            let observation = record.sparse_observation.as_ref().unwrap();
+            assert_eq!(observation.repeat_count, record.repeat_count);
+        }
+        assert!(suite
+            .limitations
+            .iter()
+            .any(|limitation| limitation.contains("DEC-023")));
     }
 
     #[test]

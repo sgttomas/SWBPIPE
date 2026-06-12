@@ -25,7 +25,7 @@ Use `node_dof_index`, `element_dof_map`, `FrameDof`, and `NODE_DOF_ORDER` when e
 
 ## Current Limitation
 
-The dense matrix and dense solve functions are interim interfaces. They are suitable for focused kernel verification and small tests only. The project sparse numerical library remains `TBD`; this crate intentionally introduces no external numerical dependency.
+The dense matrix and dense solve functions are interim interfaces. They are suitable for focused kernel verification and small tests only. The project sparse solver strategy is resolved by `DEC-023` as the in-repo skyline LDLᵀ direct solver (`core/solver/sparse_direct`); binding this crate's live solve boundary to that solver remains `TBD` as a separate bounded tranche, and the dense path additionally serves as the parity oracle for the sparse path. This crate intentionally introduces no external numerical dependency.
 
 Inputs to this crate are numeric mechanics quantities that upstream schema and unit layers must already have validated for unit compatibility. The crate validates finite, positive, nondegenerate, orientation, node-index, boundary-condition, and singular-system conditions, but it does not define the project unit catalog, conversion constants, or solver tolerance policy.
 

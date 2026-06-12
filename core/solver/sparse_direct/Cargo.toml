@@ -1,0 +1,14 @@
+[package]
+name = "open_pipe_stress_sparse_direct"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral in-repo sparse skyline direct solver for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]
+open_pipe_stress_frame_kernel = { path = "../frame_kernel" }

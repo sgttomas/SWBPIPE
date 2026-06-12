@@ -11,3 +11,4 @@ path = "src/lib.rs"
 [dependencies]
 open_pipe_stress_frame_kernel = { path = "../frame_kernel" }
 open_pipe_stress_solver_diagnostics = { path = "../diagnostics" }
+open_pipe_stress_sparse_direct = { path = "../sparse_direct" }

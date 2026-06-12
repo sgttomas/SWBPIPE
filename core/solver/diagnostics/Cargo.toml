@@ -12,3 +12,4 @@ path = "src/lib.rs"
 open_pipe_stress_frame_kernel = { path = "../frame_kernel" }
 open_pipe_stress_linear_supports = { path = "../linear_supports" }
 open_pipe_stress_primitive_loads = { path = "../../loads/primitive_loads" }
+open_pipe_stress_sparse_direct = { path = "../sparse_direct" }
