@@ -6133,6 +6133,102 @@ describe("OpenPipeStress desktop preview", () => {
     expect(receipt.textContent).toContain("professional_approval=false");
   });
 
+  it("queues and applies explicit node deletion through the structured operation seam", async () => {
+    render(<App />);
+
+    expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-id"), {
+      target: { value: "node:N-150" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-label"), {
+      target: { value: "Delete target node" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-x"), {
+      target: { value: "9" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-y"), {
+      target: { value: "1" }
+    });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-z"), {
+      target: { value: "0" }
+    });
+    fireEvent.click(within(viewportIntentPanel).getByTestId("queue-explicit-node-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:viewport-create-node-node:N-150-001"
+      )
+    );
+
+    const tree = screen.getByLabelText("Model tree");
+    const nodeRow = within(tree).getByTestId("tree-row-node:N-150");
+    expect(nodeRow.textContent).toContain("Delete target node");
+    expect(nodeRow).toHaveClass("active");
+
+    const inspector = screen.getByLabelText("Property inspector");
+    const deleteNodePanel = within(inspector).getByLabelText("Delete node intent");
+    expect(within(deleteNodePanel).getByTestId("editor-operation-preview").textContent).toContain("delete_node");
+    expect(within(deleteNodePanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "before=Delete target node; x=9; y=1; z=0"
+    );
+    expect(within(deleteNodePanel).getByTestId("editor-operation-preview").textContent).toContain("after=not_present");
+
+    fireEvent.click(within(deleteNodePanel).getByTestId("queue-delete-node-intent"));
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain("not_present");
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-2"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:delete-node-node:N-150"
+      )
+    );
+
+    expect(screen.queryByTestId("tree-row-node:N-150")).toBeNull();
+    expect(screen.getByTestId("tree-row-project:invented-loop-01")).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("project:invented-loop-01");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=2");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-2-editor-intent-2");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
+  it("blocks node deletion while model entities still reference it", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    const nodeRow = within(tree).getByTestId("tree-row-node:N-120");
+    expect(nodeRow.textContent).toContain("Riser elbow");
+    fireEvent.click(nodeRow);
+
+    const deleteNodePanel = within(screen.getByLabelText("Property inspector")).getByLabelText("Delete node intent");
+    expect(within(deleteNodePanel).getByTestId("editor-operation-preview").textContent).toContain("delete_node");
+    fireEvent.click(within(deleteNodePanel).getByTestId("queue-delete-node-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Operation op:delete-node-node:N-120 was not applied (blocked); see its diagnostics."
+      )
+    );
+
+    expect(within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-NODE-DELETE-REFERENCED").textContent).toContain(
+      "pipe:P-120"
+    );
+    expect(screen.getByTestId("tree-row-node:N-120")).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("Riser elbow");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=0");
+  });
+
   it("queues and applies explicit pipe deletion through the structured operation seam", async () => {
     render(<App />);
 

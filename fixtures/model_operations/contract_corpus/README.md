@@ -122,10 +122,11 @@ internal canonicalization, not the operation semantics:
 
 - Every operation kind has at least one accepted-apply case: `set_field`,
   `update_load`, `update_support`, `create_node`, `connect_pipe_run`,
-  `delete_pipe_run`, `create_section`, `create_material`, `create_support`,
-  `create_load_case`, `delete_load_case`, `create_primitive_load`,
-  `delete_primitive_load`, `create_combination`, `delete_combination`,
-  `create_combination_term`, `delete_support`, `delete_combination_term`.
+  `delete_node`, `delete_pipe_run`, `create_section`, `create_material`,
+  `create_support`, `create_load_case`, `delete_load_case`,
+  `create_primitive_load`, `delete_primitive_load`, `create_combination`,
+  `delete_combination`, `create_combination_term`, `delete_support`,
+  `delete_combination_term`.
 - Block classes covered: duplicate id (`OP-TARGET-ALREADY-EXISTS`), missing
   target (`OP-TARGET-NOT-FOUND`), unit mismatch
   (`OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`), invalid dimension
@@ -133,6 +134,7 @@ internal canonicalization, not the operation semantics:
   (`OP-STALE-BEFORE-VALUE`), deferred field (`OP-FIELD-EDIT-DEFERRED`),
   unsupported field path (`OP-FIELD-PATH-UNSUPPORTED`), non-finite magnitude
   (`OP-VALUE-NOT-NUMERIC`), empty required text (`OP-VALUE-EMPTY`),
+  node deletion with dependent model entities (`OP-NODE-DELETE-REFERENCED`),
   support deletion with dependent loads (`OP-SUPPORT-DELETE-REFERENCED`), load
   case deletion with dependent combinations
   (`OP-LOAD-CASE-DELETE-REFERENCED`), and pipe deletion with dependent
@@ -166,9 +168,9 @@ itself looks wrong), the case file moves to `_quarantine/` with a `TBD` note
 and is excluded from both runners (they only read top-level `case_*.json`
 files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
-reproduces all 55 cases exactly, with no alignment fixes.
+reproduces all 57 cases exactly, with no alignment fixes.
 
-## Case inventory (55 cases)
+## Case inventory (57 cases)
 
 | File | Change kind | Mode | Expected application status | Blocking codes |
 |---|---|---|---|---|
@@ -227,3 +229,5 @@ reproduces all 55 cases exactly, with no alignment fixes.
 | `case_53_block_delete_load_case_referenced.json` | `delete_load_case` | apply | blocked | `OP-LOAD-CASE-DELETE-REFERENCED` |
 | `case_54_accept_delete_pipe_run.json` | `delete_pipe_run` | apply | applied_to_session_model | — |
 | `case_55_block_delete_pipe_run_referenced.json` | `delete_pipe_run` | apply | blocked | `OP-PIPE-DELETE-REFERENCED` |
+| `case_56_accept_delete_node.json` | `delete_node` | apply | applied_to_session_model | — |
+| `case_57_block_delete_node_referenced.json` | `delete_node` | apply | blocked | `OP-NODE-DELETE-REFERENCED` |

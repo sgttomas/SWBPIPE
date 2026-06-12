@@ -324,7 +324,11 @@ export function App() {
       setRedoStack([]);
       setModel(outcome.applied_model);
       const appliedSelection = selectionForOperationOutcome(outcome);
-      if (outcome.change_kind === "delete_support" || outcome.change_kind === "delete_pipe_run") {
+      if (
+        outcome.change_kind === "delete_support" ||
+        outcome.change_kind === "delete_pipe_run" ||
+        outcome.change_kind === "delete_node"
+      ) {
         setSelection(defaultSelection(outcome.applied_model));
       } else if (appliedSelection) {
         setSelection(appliedSelection);

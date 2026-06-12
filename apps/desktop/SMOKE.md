@@ -3779,3 +3779,34 @@ after the timestamp marker were absent.
   network, telemetry, protected content, repository-default private-data
   write, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim.
+
+## TP-MAC-125 node deletion authoring (`TP-APP-R2-DELNODE-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DELNODE-001` (completion-plan Phase A11 final
+  sub-slice): the structured operation seam now accepts `delete_node`
+  intents, validates whole node deletion metadata, refuses deletion while any
+  pipe endpoint, support, component symbol, or primitive load still references
+  the node, and removes only the selected unreferenced node from the model.
+  The contract corpus now has 57 cases and requires accepted `delete_node`
+  plus blocking `OP-NODE-DELETE-REFERENCED` coverage in both Rust and browser
+  wasm lanes.
+- Property Inspector smoke at `http://127.0.0.1:5173/` created
+  `node:N-160`, queued `op:delete-node-node:N-160`, and applied the intent
+  through the Apply Operations panel.
+- Live browser evidence showed `node:N-160` removed from the model tree, the
+  project row active as the post-delete selection fallback, review context
+  `0 pending operations; applied_operations=2`, acceptance
+  `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live in-app browser smoke reported zero browser
+  console errors.
+- Automated evidence: operation_applier cargo suites green (49 unit tests,
+  canonical hash parity, 57-case corpus); desktop operationContractCorpus
+  Vitest 117/117; focused App Vitest 2/2; full desktop Vitest 213/213;
+  desktop production build green; Tauri Rust tests 29/29; Playwright R2 smoke
+  1/1 with node delete preview coverage.
+- Boundary review: local-only; invented values; whole-node deletion only for
+  unreferenced nodes; no hidden pipe/support/component/load cascade; no cloud,
+  daemon, network, telemetry, protected content, repository-default
+  private-data write, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

@@ -386,6 +386,7 @@ export type EditorOperationIntent = {
       | "update_load"
       | "update_support"
       | "create_node"
+      | "delete_node"
       | "connect_pipe_run"
       | "delete_pipe_run"
       | "create_section"

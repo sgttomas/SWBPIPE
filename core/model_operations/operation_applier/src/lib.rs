@@ -614,6 +614,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut deleted_node: Option<String> = None;
+    if !checker.schema_blocked && change_kind == "delete_node" {
+        deleted_node = resolve_delete_node(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_pipe: Option<Value> = None;
     if !checker.schema_blocked && change_kind == "connect_pipe_run" {
         created_pipe = resolve_connect_pipe_run(
@@ -824,6 +838,7 @@ fn run(
             change_kind: change_kind.clone(),
         }]
     } else if (created_node.is_some()
+        || deleted_node.is_some()
         || created_pipe.is_some()
         || deleted_pipe.is_some()
         || created_section.is_some()
@@ -875,6 +890,15 @@ fn run(
         } else if let Some(node) = &created_node {
             let mut next_model = model.clone();
             if apply_created_node(&mut next_model, node) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(node_id) = &deleted_node {
+            let mut next_model = model.clone();
+            if apply_deleted_node(&mut next_model, node_id) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1181,6 +1205,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "update_load"
             | "update_support"
             | "create_node"
+            | "delete_node"
             | "connect_pipe_run"
             | "delete_pipe_run"
             | "create_section"
@@ -1221,6 +1246,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         | "create_primitive_load"
         | "create_combination"
         | "create_combination_term" => "create",
+        "delete_node" => "delete",
         "delete_load_case" => "delete",
         "delete_primitive_load" => "delete",
         "delete_combination" => "delete",
@@ -1413,6 +1439,111 @@ fn resolve_create_node(
         "position": { "x": x.unwrap(), "y": y.unwrap(), "z": z.unwrap() },
         "provenance": provenance,
     }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_delete_node(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<String> {
+    if object_type != "Node" || field_path != "nodes" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-NODE-SHAPE-INVALID",
+            "blocking",
+            "Delete-node intents must target object_type `Node` with field_path `nodes`."
+                .to_string(),
+            "Refresh the node delete intent from the selected node row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if after != "not_present" {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-DELETE-AFTER-VALUE-INVALID",
+            "blocking",
+            "Delete-node intents must use after-value `not_present`.".to_string(),
+            "Re-queue the delete intent from the selected node row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for node deletion."),
+            "Delete node records with unit `none`; no unit conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Delete-node dimension `{dimension}` must be `dimensionless`."),
+            "Emit node deletion with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(node) = find_entity(model, "nodes", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Node `{target_ref}` was not found in the current model."),
+            "Select an existing node before deleting it.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let current_display = node_delete_display(node);
+    if current_display.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-NODE-PAYLOAD-INVALID",
+            "blocking",
+            format!("Node `{target_ref}` does not expose a valid deletion summary."),
+            "Repair the model document before deleting node records.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let references = node_references(model, target_ref);
+    if !references.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-NODE-DELETE-REFERENCED",
+            "blocking",
+            format!(
+                "Node `{target_ref}` is still referenced by model entities: {}.",
+                references.join(", ")
+            ),
+            "Delete or retarget dependent pipes, supports, components, and primitive loads before deleting the node.",
+            std::iter::once(target_ref.to_string())
+                .chain(references)
+                .collect(),
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+    check_before(&current_display, before, target_ref, field_path, checker);
+    Some(target_ref.to_string())
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -4161,6 +4292,20 @@ fn apply_created_node(model: &mut Value, node: &Value) -> bool {
     true
 }
 
+fn apply_deleted_node(model: &mut Value, node_id: &str) -> bool {
+    let Some(nodes) = model.get_mut("nodes").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    let Some(index) = nodes
+        .iter()
+        .position(|node| node.get("id").and_then(Value::as_str) == Some(node_id))
+    else {
+        return false;
+    };
+    nodes.remove(index);
+    true
+}
+
 fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
     let Some(pipes) = model.get_mut("pipe_segments").and_then(Value::as_array_mut) else {
         return false;
@@ -4654,6 +4799,115 @@ fn find_primitive_load<'a>(model: &'a Value, primitive_ref: &str) -> Option<&'a 
         .find(|item| item.get("id").and_then(Value::as_str) == Some(primitive_ref))
 }
 
+fn node_references(model: &Value, node_ref: &str) -> Vec<String> {
+    let mut references = Vec::new();
+
+    if let Some(pipes) = model.get("pipe_segments").and_then(Value::as_array) {
+        for pipe in pipes {
+            let pipe_id = pipe
+                .get("id")
+                .and_then(Value::as_str)
+                .unwrap_or("pipe:unknown");
+            let from = pipe.get("from").and_then(Value::as_str);
+            let to = pipe.get("to").and_then(Value::as_str);
+            if from == Some(node_ref) || to == Some(node_ref) {
+                references.push(pipe_id.to_string());
+            }
+        }
+    }
+
+    if let Some(supports) = model.get("supports").and_then(Value::as_array) {
+        for support in supports {
+            let support_node = support.get("node").and_then(Value::as_str);
+            if support_node == Some(node_ref) {
+                references.push(
+                    support
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .unwrap_or("support:unknown")
+                        .to_string(),
+                );
+            }
+        }
+    }
+
+    if let Some(components) = model.get("components").and_then(Value::as_array) {
+        for component in components {
+            let component_node = component.get("node").and_then(Value::as_str);
+            if component_node == Some(node_ref) {
+                references.push(
+                    component
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .unwrap_or("component:unknown")
+                        .to_string(),
+                );
+            }
+        }
+    }
+
+    if let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) {
+        for load_case in load_cases {
+            let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
+            else {
+                continue;
+            };
+            for primitive_load in primitive_loads {
+                let target_node = primitive_load
+                    .get("target")
+                    .and_then(Value::as_object)
+                    .and_then(|target| target.get("node"))
+                    .and_then(Value::as_str);
+                if target_node == Some(node_ref) {
+                    references.push(
+                        primitive_load
+                            .get("id")
+                            .and_then(Value::as_str)
+                            .unwrap_or("primitive_load:unknown")
+                            .to_string(),
+                    );
+                }
+            }
+        }
+    }
+
+    references.sort();
+    references.dedup();
+    references
+}
+
+fn node_delete_display(node: &Value) -> String {
+    let label = node
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let Some(position) = node.get("position").and_then(Value::as_object) else {
+        return String::new();
+    };
+    let x = position
+        .get("x")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    let y = position
+        .get("y")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    let z = position
+        .get("z")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite());
+    if label.is_empty() || x.is_none() || y.is_none() || z.is_none() {
+        return String::new();
+    }
+    format!(
+        "{label}; x={}; y={}; z={}",
+        display_number(x.unwrap()),
+        display_number(y.unwrap()),
+        display_number(z.unwrap())
+    )
+}
+
 fn support_primitive_load_references(model: &Value, support_ref: &str) -> Vec<String> {
     let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) else {
         return Vec::new();
@@ -5122,6 +5376,126 @@ mod tests {
         assert_eq!(
             outcome.professional_boundary["software_makes_approval_claim"],
             json!(false)
+        );
+    }
+
+    #[test]
+    fn explicit_delete_node_removes_unreferenced_node_only() {
+        let mut model = sample_model();
+        model["nodes"]
+            .as_array_mut()
+            .expect("nodes array")
+            .push(json!({
+                "id": "node:N-3",
+                "label": "Free node",
+                "position": { "x": 4.0, "y": 1.5, "z": 0.0 },
+                "provenance": "invented_example"
+            }));
+        let before_snapshot = model.clone();
+        let mut intent = modify_intent(
+            "Node",
+            "node:N-3",
+            "delete_node",
+            "nodes",
+            "Free node; x=4; y=1.5; z=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "nodes");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["nodes"].as_array().expect("nodes array").len(), 2);
+        assert!(find_entity(&applied, "nodes", "node:N-3").is_none());
+
+        let mut stale = modify_intent(
+            "Node",
+            "node:N-3",
+            "delete_node",
+            "nodes",
+            "Renamed node; x=4; y=1.5; z=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        stale["operation_kind"] = json!("delete");
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+
+        let mut missing = modify_intent(
+            "Node",
+            "node:missing",
+            "delete_node",
+            "nodes",
+            "Missing node; x=0; y=0; z=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        missing["operation_kind"] = json!("delete");
+        let blocked = apply_operation(&model, &missing, None);
+        assert!(codes(&blocked).contains(&"OP-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn delete_node_blocks_model_references() {
+        let mut model = sample_model();
+        model["components"][0]["node"] = json!("node:N-1");
+        model["load_cases"][0]["primitive_loads"][0] = json!({
+            "id": "load:L-1-Y",
+            "category": "concentrated_force",
+            "target": { "type": "node", "node": "node:N-1" },
+            "direction": "global_y",
+            "magnitude": { "value": 12.0, "unit": "N" },
+            "dimension": "force",
+            "provenance": "invented_example"
+        });
+        let mut intent = modify_intent(
+            "Node",
+            "node:N-1",
+            "delete_node",
+            "nodes",
+            "Anchor; x=0; y=0; z=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(codes(&outcome).contains(&"OP-NODE-DELETE-REFERENCED"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+        assert_eq!(
+            outcome.diagnostics[0].affected_refs,
+            vec![
+                "node:N-1".to_string(),
+                "component:C-1".to_string(),
+                "load:L-1-Y".to_string(),
+                "pipe:P-1".to_string(),
+                "support:S-1".to_string(),
+            ]
         );
     }
 

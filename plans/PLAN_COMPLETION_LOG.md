@@ -13,6 +13,53 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A11 final sub-slice: node deletion authoring (`TP-APP-R2-DELNODE-001`)
+
+The structured operation seam now accepts `delete_node` as a delete-kind
+operation. `core/model_operations/operation_applier` validates whole-node
+deletion intents with no direct mutation, requires `object_type=Node`,
+`field_path=nodes`, `after=not_present`, current node label/x/y/z
+before-state display, unit `none`, and dimension `dimensionless`. Apply
+removes exactly one unreferenced node and returns a new model document.
+Deletion is refused while any pipe endpoint, support, component symbol, or
+primitive nodal load still references the node, with
+`OP-NODE-DELETE-REFERENCED`; there is no hidden cascade into dependent model
+entities. The cross-engine contract corpus added
+`case_56_accept_delete_node.json` and
+`case_57_block_delete_node_referenced.json`; both native Rust and browser
+wasm lanes require accepted `delete_node` and referenced-node blocking
+coverage.
+
+The desktop Property Inspector now exposes a `Queue delete node` action for
+the selected node. The action queues a review-only structured operation with
+the selected node summary as the before-state guard. Applying the queued
+operation uses the existing Apply Operations panel, records the same
+local-session acceptance receipt, clears stale solve/report state, removes
+the node row, and falls back to the project row after the deleted selection
+disappears.
+
+Evidence:
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_node_authoring.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_node_authoring.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_node_authoring.md`;
+`apps/desktop/SMOKE.md` TP-MAC-125. Validation: operation_applier cargo
+suites 49 unit + canonical hash + 57-case corpus; corpus bless and rerun
+green; desktop operationContractCorpus Vitest 117/117; focused App Vitest
+2/2; full desktop Vitest 213/213; desktop production build green; Tauri Rust
+tests 29/29; Playwright R2 smoke 1/1 with node delete preview coverage; local
+in-app browser create-then-delete node smoke at `http://127.0.0.1:5173/` with
+zero console errors.
+
+A11 is complete: support deletion, primitive-load deletion, full-combination
+deletion, load-case deletion, pipe-run deletion, node deletion, and the
+previously landed combination-term deletion all route through the structured
+operation seam with accepted/refusal corpus coverage. Residual hand-offs:
+A12 must rehearse the full from-blank create -> solve -> report path, and the
+A8 journey automation should become the R2 exit-evidence backbone immediately
+after that rehearsal. No lifecycle state, release readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim is
+created.
+
 ## 2026-06-12 - A11 fifth sub-slice: pipe-run deletion authoring (`TP-APP-R2-DELPIPE-001`)
 
 The structured operation seam now accepts `delete_pipe_run` as a delete-kind

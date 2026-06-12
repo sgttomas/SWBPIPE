@@ -46,11 +46,12 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const REQUIRED_ACCEPTED_KINDS: [&str; 18] = [
+const REQUIRED_ACCEPTED_KINDS: [&str; 19] = [
     "set_field",
     "update_load",
     "update_support",
     "create_node",
+    "delete_node",
     "connect_pipe_run",
     "delete_pipe_run",
     "create_section",
@@ -67,7 +68,7 @@ const REQUIRED_ACCEPTED_KINDS: [&str; 18] = [
     "delete_combination_term",
 ];
 
-const REQUIRED_BLOCK_CODES: [&str; 13] = [
+const REQUIRED_BLOCK_CODES: [&str; 14] = [
     "OP-TARGET-ALREADY-EXISTS",                // duplicate id
     "OP-TARGET-NOT-FOUND",                     // missing target
     "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE", // unit mismatch
@@ -78,6 +79,7 @@ const REQUIRED_BLOCK_CODES: [&str; 13] = [
     "OP-VALUE-NOT-NUMERIC",                    // non-finite magnitude
     "OP-VALUE-EMPTY",                          // empty required text
     "OP-UNIT-DIMENSION-MISMATCH",              // dynamic terms.N.factor block
+    "OP-NODE-DELETE-REFERENCED",               // node still referenced by model entities
     "OP-SUPPORT-DELETE-REFERENCED",            // support still referenced by primitive load
     "OP-LOAD-CASE-DELETE-REFERENCED",          // load case still referenced by combination
     "OP-PIPE-DELETE-REFERENCED",               // pipe still referenced by primitive load

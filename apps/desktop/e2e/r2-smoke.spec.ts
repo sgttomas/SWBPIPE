@@ -164,6 +164,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
     "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
   );
+  await page.getByTestId("tree-row-node:N-120").click();
+  await expect(page.getByTestId("delete-node-intent-panel")).toContainText("delete_node");
+  await expect(page.getByTestId("delete-node-intent-panel")).toContainText(
+    "before=Riser elbow; x=3.2; y=2.4; z=0"
+  );
+  await expect(page.getByTestId("delete-node-intent-panel")).toContainText("after=not_present");
   await page.getByTestId("tree-row-pipe:P-130").click();
   await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("delete_pipe_run");
   await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText(
