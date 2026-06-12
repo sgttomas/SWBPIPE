@@ -140,6 +140,32 @@ Durable context preserved after PKG-02 grounded finding resolution:
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
 
+## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
+
+- WORKING_ITEMS app-integration tranche verified that full-combination
+  deletion enters the session model only after the user queues and applies a
+  structured operation in the local session.
+- The app test applies
+  `op:load-manager-combination:C-OPER-ALT-delete` through
+  `OperationApplyPanel`, updates the session model, clears stale solve
+  results, leaves persistence at `session_state_only_not_yet_saved`, and
+  records no professional approval or code-compliance claim.
+- The Playwright R2 smoke now asserts the rendered whole-combination delete
+  preview in a real browser path. Live in-app browser smoke applied the
+  operation, confirmed `0 combinations`, `0 pending operations`,
+  `applied_operations=1`, and zero console errors.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_combination_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-122. Validation passed:
+  operation-applier cargo suites, desktop operationContractCorpus 105/105,
+  focused App Vitest 1/1, full desktop Vitest 195/195, desktop build,
+  src-tauri Rust tests 29/29, Playwright smoke 1/1, and in-app browser
+  full-combination delete smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.
+
 ## 2026-06-12 - TP-APP-R2-DELPRIMLOAD-001 primitive-load deletion authoring
 
 - WORKING_ITEMS app-integration tranche verified that primitive-load deletion

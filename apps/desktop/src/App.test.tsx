@@ -2479,6 +2479,50 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an explicit combination deletion through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    const combinationRow = within(manager).getByTestId("load-manager-combination-combination:C-OPER-ALT");
+    expect(combinationRow.textContent).toContain("load:L-100 x 1");
+    expect(combinationRow.textContent).toContain("load:L-200 x 0.5");
+    fireEvent.click(within(manager).getByTestId("load-manager-combination-select-combination:C-OPER-ALT"));
+
+    expect(within(manager).getByTestId("load-manager-combination-entity-delete-preview").textContent).toContain(
+      "op:load-manager-combination:C-OPER-ALT-delete"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-entity-delete-preview").textContent).toContain(
+      "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-delete-combination-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "op:load-manager-combination:C-OPER-ALT-delete"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain("combinations");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "not_present"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-combination:C-OPER-ALT-delete"
+      )
+    );
+
+    expect(screen.queryByTestId("load-manager-combination-combination:C-OPER-ALT")).toBeNull();
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 7 primitive loads; 0 combinations"
+    );
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
   it("renders an empty editor-intent queue when no app queue has been materialized", async () => {
     const model = await loadPreviewModel();
 

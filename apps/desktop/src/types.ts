@@ -394,6 +394,7 @@ export type EditorOperationIntent = {
       | "create_primitive_load"
       | "delete_primitive_load"
       | "create_combination"
+      | "delete_combination"
       | "create_combination_term"
       | "delete_support"
       | "delete_combination_term"

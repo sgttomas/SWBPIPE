@@ -89,6 +89,28 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with
+  a full-combination `Queue delete combo` control in the selected-combination
+  editor.
+- The UI queues a structured `delete_combination` operation with the selected
+  combination id/label/basis/terms as the before-state guard and does not
+  mutate the model directly.
+- Applying the operation through `OperationApplyPanel` removes the
+  combination row and updates the summary to `0 combinations`; the existing
+  term-level delete path remains separate as `delete_combination_term`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_combination_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-122. Validation passed:
+  focused App Vitest 1/1, full desktop Vitest 195/195, desktop build,
+  Playwright smoke 1/1 with delete-preview coverage, and in-app browser
+  full-combination delete smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-12 - TP-APP-R2-DELPRIMLOAD-001 primitive-load deletion authoring
 
 - WORKING_ITEMS app-integration tranche extended the Load Cases manager with a

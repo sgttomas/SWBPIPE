@@ -123,6 +123,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
     "before=mechanics; after=mechanics_user_review"
   );
+  await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-delete"
+  );
+  await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
+    "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5"
+  );
   await expect(page.getByTestId("load-manager-create-combination-term-heading")).toContainText(
     "combination:C-OPER-ALT"
   );

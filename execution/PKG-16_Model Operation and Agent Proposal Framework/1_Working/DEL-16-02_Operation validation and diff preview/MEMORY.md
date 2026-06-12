@@ -538,6 +538,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` to validate, diff, and apply explicit
+  `delete_combination` operations.
+- Accepted intents must target an existing `Combination` with
+  `field_path=combinations`, use `operation_kind=delete`, carry the current
+  combination id/label/basis/terms display as `before`, carry
+  `after=not_present`, use unit `none`, and use dimension `dimensionless`.
+- Missing combinations, stale before-values, malformed combination records,
+  and wrong unit/dimension metadata are blocked. There is no hidden cascade
+  and no load-case or primitive-load deletion.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_combination_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-122. Validation passed:
+  operation-applier cargo suites (44 unit + canonical hash + 51-case corpus),
+  corpus bless/rerun, desktop operationContractCorpus 105/105, full desktop
+  Vitest 195/195, desktop build, src-tauri Rust tests 29/29, Playwright smoke
+  1/1 with delete-preview coverage, and live in-app browser full-combination
+  delete smoke with zero console errors.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden deletion cascade, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.
+
 ## 2026-06-12 - TP-APP-R2-DELPRIMLOAD-001 primitive-load deletion authoring
 
 - WORKING_ITEMS app-integration tranche extended the Rust/wasm

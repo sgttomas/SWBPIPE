@@ -46,7 +46,7 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const REQUIRED_ACCEPTED_KINDS: [&str; 15] = [
+const REQUIRED_ACCEPTED_KINDS: [&str; 16] = [
     "set_field",
     "update_load",
     "update_support",
@@ -59,6 +59,7 @@ const REQUIRED_ACCEPTED_KINDS: [&str; 15] = [
     "create_primitive_load",
     "delete_primitive_load",
     "create_combination",
+    "delete_combination",
     "create_combination_term",
     "delete_support",
     "delete_combination_term",

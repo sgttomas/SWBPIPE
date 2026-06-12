@@ -3685,3 +3685,34 @@ after the timestamp marker were absent.
   no cloud, daemon, network, telemetry, protected content, repository-default
   private-data write, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-122 full-combination deletion authoring (`TP-APP-R2-DELCOMBINATION-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DELCOMBINATION-001` (completion-plan Phase A11 third
+  sub-slice): the structured operation seam now accepts `delete_combination`
+  intents, validates whole-combination deletion metadata, and removes only
+  the selected combination from the model. The contract corpus now has 51
+  cases and requires accepted `delete_combination` in both Rust and browser
+  wasm lanes.
+- Load Cases manager smoke at `http://127.0.0.1:5173/` selected
+  `combination:C-OPER-ALT`, queued
+  `op:load-manager-combination:C-OPER-ALT-delete`, and applied the intent
+  through the Apply Operations panel.
+- Live browser evidence showed `combination:C-OPER-ALT` removed from the
+  combination list, load-case summary changed to `2 load cases; 7 primitive
+  loads; 0 combinations`, review context `0 pending operations;
+  applied_operations=1`, acceptance `user_initiated_apply_in_local_session`,
+  persistence `session_state_only_not_yet_saved`, and
+  `professional_approval=false`.
+- Console review during the live in-app browser smoke reported zero browser
+  console errors.
+- Automated evidence: operation_applier cargo suites green (44 unit tests,
+  canonical hash parity, 51-case corpus); desktop operationContractCorpus
+  Vitest 105/105; focused App Vitest 1/1; full desktop Vitest 195/195;
+  desktop production build green; Tauri Rust tests 29/29; Playwright R2 smoke
+  1/1 with whole-combination delete preview coverage.
+- Boundary review: local-only; invented values; whole-combination deletion
+  only; no cloud, daemon, network, telemetry, protected content,
+  repository-default private-data write, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.

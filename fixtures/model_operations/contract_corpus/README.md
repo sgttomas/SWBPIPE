@@ -124,7 +124,8 @@ internal canonicalization, not the operation semantics:
   `update_load`, `update_support`, `create_node`, `connect_pipe_run`,
   `create_section`, `create_material`, `create_support`, `create_load_case`,
   `create_primitive_load`, `delete_primitive_load`, `create_combination`,
-  `create_combination_term`, `delete_support`, `delete_combination_term`.
+  `delete_combination`, `create_combination_term`, `delete_support`,
+  `delete_combination_term`.
 - Block classes covered: duplicate id (`OP-TARGET-ALREADY-EXISTS`), missing
   target (`OP-TARGET-NOT-FOUND`), unit mismatch
   (`OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`), invalid dimension
@@ -162,9 +163,9 @@ itself looks wrong), the case file moves to `_quarantine/` with a `TBD` note
 and is excluded from both runners (they only read top-level `case_*.json`
 files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
-reproduces all 50 cases exactly, with no alignment fixes.
+reproduces all 51 cases exactly, with no alignment fixes.
 
-## Case inventory (50 cases)
+## Case inventory (51 cases)
 
 | File | Change kind | Mode | Expected application status | Blocking codes |
 |---|---|---|---|---|
@@ -218,3 +219,4 @@ reproduces all 50 cases exactly, with no alignment fixes.
 | `case_48_accept_delete_support.json` | `delete_support` | apply | applied_to_session_model | — |
 | `case_49_block_delete_support_referenced.json` | `delete_support` | apply | blocked | `OP-SUPPORT-DELETE-REFERENCED` |
 | `case_50_accept_delete_primitive_load.json` | `delete_primitive_load` | apply | applied_to_session_model | — |
+| `case_51_accept_delete_combination.json` | `delete_combination` | apply | applied_to_session_model | — |

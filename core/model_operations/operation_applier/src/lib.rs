@@ -726,6 +726,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut deleted_combination: Option<String> = None;
+    if !checker.schema_blocked && change_kind == "delete_combination" {
+        deleted_combination = resolve_delete_combination(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_combination_term: Option<(String, Value)> = None;
     if !checker.schema_blocked && change_kind == "create_combination_term" {
         created_combination_term = resolve_create_combination_term(
@@ -790,6 +804,7 @@ fn run(
         || created_primitive_load.is_some()
         || deleted_primitive_load.is_some()
         || created_combination.is_some()
+        || deleted_combination.is_some()
         || created_combination_term.is_some()
         || deleted_combination_term.is_some()
         || deleted_support.is_some())
@@ -902,6 +917,15 @@ fn run(
         } else if let Some(combination) = &created_combination {
             let mut next_model = model.clone();
             if apply_created_combination(&mut next_model, combination) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(combination_id) = &deleted_combination {
+            let mut next_model = model.clone();
+            if apply_deleted_combination(&mut next_model, combination_id) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1117,6 +1141,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "create_primitive_load"
             | "delete_primitive_load"
             | "create_combination"
+            | "delete_combination"
             | "create_combination_term"
             | "delete_support"
             | "delete_combination_term"
@@ -1147,6 +1172,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         | "create_combination"
         | "create_combination_term" => "create",
         "delete_primitive_load" => "delete",
+        "delete_combination" => "delete",
         "delete_support" => "delete",
         "delete_combination_term" => "delete",
         "connect_pipe_run" => "connect",
@@ -3042,6 +3068,96 @@ fn resolve_delete_primitive_load(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn resolve_delete_combination(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<String> {
+    if object_type != "Combination" || field_path != "combinations" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-COMBINATION-SHAPE-INVALID",
+            "blocking",
+            "Delete-combination intents must target object_type `Combination` with field_path `combinations`."
+                .to_string(),
+            "Refresh the combination delete intent from the selected combination row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if after != "not_present" {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-DELETE-AFTER-VALUE-INVALID",
+            "blocking",
+            "Delete-combination intents must use after-value `not_present`.".to_string(),
+            "Re-queue the delete intent from the selected combination row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!(
+                "Intent unit `{unit}` does not match stored unit `none` for combination deletion."
+            ),
+            "Delete combination records with unit `none`; term factors are dimensionless scalars.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Delete-combination dimension `{dimension}` must be `dimensionless`."),
+            "Emit combination deletion with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(combination) = find_entity(model, "combinations", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Combination `{target_ref}` was not found in the current model."),
+            "Select an existing combination before deleting it.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(current_display) = combination_delete_display(combination) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-COMBINATION-PAYLOAD-INVALID",
+            "blocking",
+            format!("Combination `{target_ref}` is not a valid deletable combination record."),
+            "Repair the model document before deleting combinations.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    checker.reference_state = "passed";
+    check_before(&current_display, before, target_ref, field_path, checker);
+    Some(target_ref.to_string())
+}
+
+#[allow(clippy::too_many_arguments)]
 fn resolve_delete_combination_term(
     model: &Value,
     target_ref: &str,
@@ -3881,6 +3997,19 @@ fn apply_created_combination(model: &mut Value, combination: &Value) -> bool {
     true
 }
 
+fn apply_deleted_combination(model: &mut Value, combination_id: &str) -> bool {
+    let Some(combinations) = model.get_mut("combinations").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    let Some(index) = combinations.iter().position(|combination| {
+        combination.get("id").and_then(Value::as_str) == Some(combination_id)
+    }) else {
+        return false;
+    };
+    combinations.remove(index);
+    true
+}
+
 fn apply_created_combination_term(model: &mut Value, combination_id: &str, term: &Value) -> bool {
     let Some(combination) = find_entity_mut(model, "combinations", combination_id) else {
         return false;
@@ -4009,6 +4138,38 @@ fn primitive_load_index_from_field_path(field_path: &str) -> Option<usize> {
 
 fn combination_term_display(load_case: &str, factor: f64) -> String {
     format!("{load_case} x {}", display_number(factor))
+}
+
+fn combination_delete_display(combination: &Value) -> Option<String> {
+    let id = combination.get("id").and_then(Value::as_str)?.trim();
+    let label = combination
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let basis = combination
+        .get("basis")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let terms = combination.get("terms").and_then(Value::as_array)?;
+    let mut term_items = Vec::new();
+    for term in terms {
+        let load_case = term.get("load_case").and_then(Value::as_str)?.trim();
+        let factor = term.get("factor").and_then(Value::as_f64)?;
+        if load_case.is_empty() || !factor.is_finite() {
+            return None;
+        }
+        term_items.push(combination_term_display(load_case, factor));
+    }
+    let term_display = if term_items.is_empty() {
+        "none".to_string()
+    } else {
+        term_items.join("; ")
+    };
+    Some(format!(
+        "{id}; {label}; basis={basis}; terms={term_display}"
+    ))
 }
 
 fn primitive_load_delete_display(primitive_load: &Value) -> Option<(String, String, String)> {
@@ -6020,6 +6181,107 @@ mod tests {
         missing_term["operation_kind"] = json!("delete");
         let blocked = apply_operation(&model, &missing_term, None);
         assert!(codes(&blocked).contains(&"OP-COMBINATION-TERM-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_delete_combination_removes_one_combination_only() {
+        let mut model = sample_model();
+        model["combinations"] = json!([
+            {
+                "id": "combination:C-OP",
+                "label": "Operating",
+                "basis": "mechanics",
+                "terms": [
+                    { "load_case": "load:L-1", "factor": 0.25 },
+                    { "load_case": "load:L-2", "factor": 1.0 }
+                ],
+                "provenance": "invented_example"
+            },
+            {
+                "id": "combination:C-KEEP",
+                "label": "Keep",
+                "basis": "mechanics",
+                "terms": [
+                    { "load_case": "load:L-1", "factor": 1.0 }
+                ],
+                "provenance": "invented_example"
+            }
+        ]);
+        let before_snapshot = model.clone();
+        let mut intent = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "delete_combination",
+            "combinations",
+            "combination:C-OP; Operating; basis=mechanics; terms=load:L-1 x 0.25; load:L-2 x 1",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["combinations"],
+            json!([
+                {
+                    "id": "combination:C-KEEP",
+                    "label": "Keep",
+                    "basis": "mechanics",
+                    "terms": [
+                        { "load_case": "load:L-1", "factor": 1.0 }
+                    ],
+                    "provenance": "invented_example"
+                }
+            ])
+        );
+
+        let mut stale = modify_intent(
+            "Combination",
+            "combination:C-OP",
+            "delete_combination",
+            "combinations",
+            "combination:C-OP; Operating; basis=mechanics; terms=load:L-1 x 1",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        stale["operation_kind"] = json!("delete");
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+
+        let mut missing = modify_intent(
+            "Combination",
+            "combination:C-MISSING",
+            "delete_combination",
+            "combinations",
+            "combination:C-MISSING; Missing; basis=mechanics; terms=none",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        missing["operation_kind"] = json!("delete");
+        let blocked = apply_operation(&model, &missing, None);
+        assert!(codes(&blocked).contains(&"OP-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }
 
