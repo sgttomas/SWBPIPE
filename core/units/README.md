@@ -73,6 +73,19 @@ Conversion declarations are records, not hidden constants. Each conversion decla
 
 Public conversion data must satisfy the project IP and data-boundary policy. If a conversion source appears to come from protected standards content, proprietary vendor data, or undocumented commercial data, ingestion stops and the record is quarantined for human/legal review.
 
+The crate exposes this schema-facing metadata on each `UnitDefinition` as
+`factor_representation`, optional `offset_representation`, explicit
+`ConversionProvenance`, and `ReviewStatus`. This is the B2 binding point for
+schema/app/report records that need to show where a conversion factor came
+from instead of deriving provenance from a hidden SI-vs-display binary.
+
+`ConversionProvenance::ConventionalPublicConstant` is used where the transform
+depends on a reviewed conventional public constant, such as lbf/psi-family
+conversions through standard gravity. `ConversionProvenance::ProjectGovernedDecision`
+is used for project-governed semantic canonical bindings, such as linear or
+rotational stiffness display units whose dimensional meaning is owned by the
+OpenPipeStress schema.
+
 ## Missing-Unit Handling
 
 Missing solve-required or rule-check-required units are findings, never silent defaults. The expected handling is:

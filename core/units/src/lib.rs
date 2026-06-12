@@ -56,6 +56,39 @@ pub enum Dimension {
     Tbd,
 }
 
+pub const DIMENSIONS: &[Dimension] = &[
+    Dimension::Dimensionless,
+    Dimension::Length,
+    Dimension::Mass,
+    Dimension::Time,
+    Dimension::Temperature,
+    Dimension::TemperatureInterval,
+    Dimension::Angle,
+    Dimension::Rotation,
+    Dimension::Force,
+    Dimension::ForcePerLength,
+    Dimension::Moment,
+    Dimension::Pressure,
+    Dimension::Stress,
+    Dimension::Area,
+    Dimension::Volume,
+    Dimension::Density,
+    Dimension::LinearStiffness,
+    Dimension::RotationalStiffness,
+    Dimension::Displacement,
+    Dimension::Velocity,
+    Dimension::Acceleration,
+    Dimension::ThermalConductivity,
+    Dimension::SpecificHeat,
+    Dimension::ThermalExpansionCoefficient,
+    Dimension::SecondMomentArea,
+    Dimension::SectionModulus,
+    Dimension::MassPerLength,
+    Dimension::VolumePerLength,
+    Dimension::Slope,
+    Dimension::Tbd,
+];
+
 impl Dimension {
     pub fn as_str(self) -> &'static str {
         match self {
@@ -563,7 +596,10 @@ pub struct UnitDefinition {
     pub dimension: Dimension,
     pub transform_to_canonical: Transform,
     pub canonical: bool,
+    pub factor_representation: &'static str,
+    pub offset_representation: Option<&'static str>,
     pub provenance: ConversionProvenance,
+    pub review_status: ReviewStatus,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -612,6 +648,15 @@ pub enum ConversionProvenance {
     ExactPublicDefinition,
     ConventionalPublicConstant,
     ProjectGovernedDecision,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReviewStatus {
+    Accepted,
+    Pending,
+    Rejected,
+    Quarantined,
+    Tbd,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1014,11 +1059,113 @@ fn def(
         dimension,
         transform_to_canonical,
         canonical,
-        provenance: if canonical {
-            ConversionProvenance::SiCanonical
-        } else {
-            ConversionProvenance::ExactPublicDefinition
-        },
+        factor_representation: factor_representation(id),
+        offset_representation: offset_representation(id),
+        provenance: conversion_provenance(id, canonical),
+        review_status: ReviewStatus::Accepted,
+    }
+}
+
+fn conversion_provenance(id: UnitId, canonical: bool) -> ConversionProvenance {
+    match id {
+        UnitId::PoundForce
+        | UnitId::PoundForcePerFoot
+        | UnitId::PoundForcePerInch
+        | UnitId::PoundForceInch
+        | UnitId::PoundForceFoot
+        | UnitId::Psi
+        | UnitId::Ksi => ConversionProvenance::ConventionalPublicConstant,
+        UnitId::NewtonPerMeterLinear
+        | UnitId::NewtonMeterPerRadian
+        | UnitId::SquareMeterPerMeter => ConversionProvenance::ProjectGovernedDecision,
+        _ if canonical => ConversionProvenance::SiCanonical,
+        _ => ConversionProvenance::ExactPublicDefinition,
+    }
+}
+
+fn offset_representation(id: UnitId) -> Option<&'static str> {
+    match id {
+        UnitId::DegreeCelsius => Some("273.15 K at 0 degC, exact by definition"),
+        UnitId::DegreeFahrenheit => Some("(459.67 * 5/9) K at 0 degF, exact by definition"),
+        _ => None,
+    }
+}
+
+fn factor_representation(id: UnitId) -> &'static str {
+    match id {
+        UnitId::One => "1, dimensionless identity",
+        UnitId::Meter => "1 m/m, SI canonical identity",
+        UnitId::Millimeter => "0.001 m/mm, exact SI prefix definition",
+        UnitId::Inch => "25.4 mm/in, exact by definition",
+        UnitId::Foot => "12 in/ft * 25.4 mm/in, exact by definition",
+        UnitId::Kilogram => "1 kg/kg, SI canonical identity",
+        UnitId::PoundMass => "0.45359237 kg/lb, exact public definition",
+        UnitId::Second => "1 s/s, SI canonical identity",
+        UnitId::Kelvin => "1 K/K, SI canonical identity",
+        UnitId::DegreeCelsius => "1 K/degC interval, exact by definition",
+        UnitId::DegreeFahrenheit => "5/9 K/degF interval, exact by definition",
+        UnitId::DegreeRankine => "5/9 K/degR, exact by definition",
+        UnitId::KelvinInterval => "1 K/K interval, SI canonical identity",
+        UnitId::DegreeCelsiusInterval => "1 K/degC interval, exact by definition",
+        UnitId::DegreeFahrenheitInterval => "5/9 K/degF interval, exact by definition",
+        UnitId::DegreeRankineInterval => "5/9 K/degR interval, exact by definition",
+        UnitId::Radian => "1 rad/rad, SI canonical identity",
+        UnitId::Degree => "pi/180 rad/deg, mathematical identity",
+        UnitId::Newton => "1 N/N, SI canonical identity",
+        UnitId::PoundForce => {
+            "0.45359237 kg/lb * 9.80665 m/s^2 per lbf, conventional standard gravity"
+        }
+        UnitId::NewtonPerMeter => "1 (N/m)/(N/m), SI canonical identity",
+        UnitId::PoundForcePerFoot => {
+            "4.4482216152605 N/lbf / 0.3048 m/ft, conventional standard gravity"
+        }
+        UnitId::PoundForcePerInch => {
+            "4.4482216152605 N/lbf / 0.0254 m/in, conventional standard gravity"
+        }
+        UnitId::NewtonMeter => "1 (N*m)/(N*m), SI canonical identity",
+        UnitId::PoundForceInch => {
+            "4.4482216152605 N/lbf * 0.0254 m/in, conventional standard gravity"
+        }
+        UnitId::PoundForceFoot => {
+            "4.4482216152605 N/lbf * 0.3048 m/ft, conventional standard gravity"
+        }
+        UnitId::Pascal => "1 Pa/Pa, SI canonical identity",
+        UnitId::Kilopascal => "1000 Pa/kPa, exact SI prefix definition",
+        UnitId::Megapascal => "1000000 Pa/MPa, exact SI prefix definition",
+        UnitId::Psi => "4.4482216152605 N/lbf / (0.0254 m/in)^2, conventional standard gravity",
+        UnitId::Ksi => "1000 psi/ksi, conventional public pressure unit",
+        UnitId::SquareMeter => "1 m^2/m^2, SI canonical identity",
+        UnitId::SquareMillimeter => "(0.001 m/mm)^2, exact SI prefix definition",
+        UnitId::SquareInch => "(0.0254 m/in)^2, exact by definition",
+        UnitId::CubicMeter => "1 m^3/m^3, SI canonical identity",
+        UnitId::CubicInch => "(0.0254 m/in)^3, exact by definition",
+        UnitId::KilogramPerCubicMeter => "1 (kg/m^3)/(kg/m^3), SI canonical identity",
+        UnitId::PoundMassPerCubicInch => {
+            "0.45359237 kg/lb / (0.0254 m/in)^3, exact public definition"
+        }
+        UnitId::NewtonPerMeterLinear => {
+            "1 (N/m)/(N/m), project-governed canonical linear-stiffness binding"
+        }
+        UnitId::NewtonMeterPerRadian => {
+            "1 (N*m/rad)/(N*m/rad), project-governed canonical rotational-stiffness binding"
+        }
+        UnitId::MeterPerSecond => "1 (m/s)/(m/s), SI canonical identity",
+        UnitId::MeterPerSecondSquared => "1 (m/s^2)/(m/s^2), SI canonical identity",
+        UnitId::WattPerMeterKelvin => "1 (W/(m*K))/(W/(m*K)), SI canonical identity",
+        UnitId::JoulePerKilogramKelvin => "1 (J/(kg*K))/(J/(kg*K)), SI canonical identity",
+        UnitId::PerKelvin => "1 (1/K)/(1/K), SI canonical identity",
+        UnitId::PerDegreeCelsius => "1 (1/degC)/(1/K), exact Celsius interval definition",
+        UnitId::MeterFourth => "1 m^4/m^4, SI canonical identity",
+        UnitId::MillimeterFourth => "(0.001 m/mm)^4, exact SI prefix definition",
+        UnitId::InchFourth => "(0.0254 m/in)^4, exact by definition",
+        UnitId::MeterCubed => "1 m^3/m^3, SI canonical identity",
+        UnitId::MillimeterCubed => "(0.001 m/mm)^3, exact SI prefix definition",
+        UnitId::InchCubed => "(0.0254 m/in)^3, exact by definition",
+        UnitId::KilogramPerMeter => "1 (kg/m)/(kg/m), SI canonical identity",
+        UnitId::PoundMassPerFoot => "0.45359237 kg/lb / 0.3048 m/ft, exact public definition",
+        UnitId::SquareMeterPerMeter => {
+            "1 (m^3/m)/(m^3/m), project-governed canonical volume-per-length binding"
+        }
     }
 }
 
@@ -1055,8 +1202,10 @@ fn unit_supports_dimension(unit_dimension: Dimension, requested: Dimension) -> b
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeSet;
 
     const REL_TOL: f64 = 1.0e-12;
+    const UNITS_SCHEMA: &str = include_str!("../../../schemas/units.schema.yaml");
 
     fn assert_close(actual: f64, expected: f64) {
         let scale = expected.abs().max(1.0);
@@ -1064,6 +1213,71 @@ mod tests {
             (actual - expected).abs() <= REL_TOL * scale,
             "actual={actual}, expected={expected}"
         );
+    }
+
+    fn assert_unique(values: &[String], label: &str) {
+        let unique = values.iter().collect::<BTreeSet<_>>();
+        assert_eq!(
+            unique.len(),
+            values.len(),
+            "{label} contains duplicate values"
+        );
+    }
+
+    #[test]
+    fn schema_dimension_enum_matches_crate_vocabulary() {
+        let schema: serde_json::Value =
+            serde_json::from_str(UNITS_SCHEMA).expect("units schema is strict JSON");
+        let schema_values = schema["$defs"]["DimensionId"]["enum"]
+            .as_array()
+            .expect("DimensionId enum is present")
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .expect("DimensionId enum value is a string")
+                    .to_string()
+            })
+            .collect::<Vec<_>>();
+        let crate_values = DIMENSIONS
+            .iter()
+            .map(|dimension| dimension.as_str().to_string())
+            .collect::<Vec<_>>();
+
+        assert_unique(&schema_values, "schema DimensionId enum");
+        assert_unique(&crate_values, "crate Dimension vocabulary");
+
+        let schema_set = schema_values.iter().collect::<BTreeSet<_>>();
+        let crate_set = crate_values.iter().collect::<BTreeSet<_>>();
+        assert_eq!(schema_set, crate_set);
+    }
+
+    #[test]
+    fn catalog_definitions_carry_schema_facing_conversion_metadata() {
+        let definitions = catalog_definitions().collect::<Vec<_>>();
+        for definition in &definitions {
+            assert!(
+                !definition.factor_representation.trim().is_empty(),
+                "{:?} is missing factor representation",
+                definition.id
+            );
+            assert_eq!(definition.review_status, ReviewStatus::Accepted);
+            if definition.transform_to_canonical.kind == TransformKind::Affine {
+                assert!(
+                    definition.offset_representation.is_some(),
+                    "{:?} is missing affine offset representation",
+                    definition.id
+                );
+            }
+        }
+
+        assert!(definitions
+            .iter()
+            .any(|definition| definition.provenance
+                == ConversionProvenance::ConventionalPublicConstant));
+        assert!(definitions.iter().any(
+            |definition| definition.provenance == ConversionProvenance::ProjectGovernedDecision
+        ));
     }
 
     #[test]
@@ -1099,6 +1313,22 @@ mod tests {
         assert_eq!(
             UnitId::PerDegreeCelsius.definition().provenance,
             ConversionProvenance::ExactPublicDefinition
+        );
+        assert_eq!(
+            UnitId::PoundForce.definition().provenance,
+            ConversionProvenance::ConventionalPublicConstant
+        );
+        assert_eq!(
+            UnitId::NewtonPerMeterLinear.definition().provenance,
+            ConversionProvenance::ProjectGovernedDecision
+        );
+        assert!(UnitId::Inch
+            .definition()
+            .factor_representation
+            .contains("25.4 mm/in"));
+        assert_eq!(
+            UnitId::Inch.definition().review_status,
+            ReviewStatus::Accepted
         );
         assert_eq!(
             unit_by_symbol("psi", Dimension::Pressure).unwrap(),

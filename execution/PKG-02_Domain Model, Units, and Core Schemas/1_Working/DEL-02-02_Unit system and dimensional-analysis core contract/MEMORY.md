@@ -128,3 +128,13 @@ Boundary note:
 - Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check` passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 11 unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed; `python3 -m pytest tests/test_units_schema.py` passed with 3 tests.
 - Boundaries preserved: no schema/app/solver/report unit I/O retrofit, no protected standards content, no proprietary vendor data, no private project data, no bundled engineering defaults, and no release-readiness, professional approval, certification, sealing, authentication, or code-compliance claim.
 - Residual handoffs: B2 must bind unit-aware I/O through schemas, desktop fields, solver normalization, reports, imports/exports, and rule-pack evaluation; B3 must add mixed-unit round-trip and conversion-witness/tolerance corpus evidence under DEC-026.
+
+## 2026-06-12 - TP-UNITS-B2B3-CONTRACT-001 Schema/crate contract rider
+
+- Added crate-visible conversion metadata to `UnitDefinition`: `factor_representation`, optional `offset_representation`, explicit `ConversionProvenance`, and `ReviewStatus`.
+- Replaced the previous binary provenance derivation with explicit provenance assignment, including `ConventionalPublicConstant` for lbf/psi-family conversions and `ProjectGovernedDecision` for project-governed semantic canonical bindings.
+- Added the `DIMENSIONS` crate vocabulary constant and a Rust schema-parity regression that parses `schemas/units.schema.yaml` and asserts set equality against the schema `DimensionId` enum.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_units_schema_crate_contract.md`.
+- Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check` passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 13 unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed; `python3 -m pytest tests/test_units_schema.py` passed with 3 tests.
+- Boundaries preserved: no full B2 desktop unit picker/display retrofit, solver-boundary normalization, report rendering change, import/export change, rule-pack unit evaluator change, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
+- Residual handoffs: B2 still owns app/solver/report/import/export/rule-pack unit I/O; B3 still owns the broader mixed-unit round-trip, conversion-witness, incompatible-unit rejection, and D-04/DEC-026 tolerance corpus.

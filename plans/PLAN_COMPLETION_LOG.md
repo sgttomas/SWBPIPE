@@ -13,6 +13,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2/B3 units schema-crate contract rider (`TP-UNITS-B2B3-CONTRACT-001`)
+
+The units lane now has an executable schema/crate contract for the two
+2026-06-12 findings routed after B1. `core/units` exposes
+`factor_representation`, optional `offset_representation`, explicit
+`ConversionProvenance`, and `ReviewStatus` on each `UnitDefinition`, so B2
+schema/app/report bindings have a crate-side place to preserve per-constant
+derivation text and review state. Provenance is no longer derived as a
+SI-canonical vs display-unit binary: lbf/psi-family conversions are marked as
+`ConventionalPublicConstant`, and project-owned semantic canonical bindings
+are marked as `ProjectGovernedDecision`.
+
+B3 also gained the requested executable drift guard. A new Rust regression
+parses `schemas/units.schema.yaml` and asserts set equality between the schema
+`DimensionId` enum and the crate `DIMENSIONS` vocabulary, preventing the
+current hand-checked identifier match from silently drifting.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_units_schema_crate_contract.md`.
+Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check`
+passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 13
+unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed;
+`python3 -m pytest tests/test_units_schema.py` passed with 3 tests.
+
+Residual hand-offs: this is not full B2 closure. B2 still must bind unit-aware
+I/O through schemas, desktop fields, solver-boundary normalization, reports,
+imports, exports, and rule-pack evaluation. B3 still must add broader
+mixed-unit round-trip, conversion-witness, incompatible-unit rejection, and
+D-04/DEC-026 tolerance corpus coverage. No lifecycle state, release-readiness,
+professional approval, certification, sealing, authentication,
+protected-content, private-data, or code-compliance claim is created.
+
 ## 2026-06-12 - A8 saved-project backend smoke (`TP-APP-R2-SAVEDPROJECT-SMOKE-001`)
 
 The A8 saved-project residual now has a Tauri/backend regression. The new
