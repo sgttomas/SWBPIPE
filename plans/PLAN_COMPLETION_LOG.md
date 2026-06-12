@@ -13,6 +13,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A10 third sub-slice: section creation authoring (`TP-APP-R2-CREATESECTION-001`)
+
+The structured operation seam now accepts `create_section` as a create-kind
+operation. `core/model_operations/operation_applier` validates explicit pipe
+section payloads with no direct mutation, no engineering defaults, no unit
+conversion, duplicate-id blocking, project length-unit alignment for outside
+diameter and wall thickness, and a physical geometry guard that requires wall
+thickness to be less than the outside-diameter radius. The cross-engine
+contract corpus added `case_47_accept_create_section.json`; both native Rust
+and browser wasm lanes require `create_section` in the accepted-operation
+coverage floor.
+
+The desktop model tree and Property Inspector now expose a local preview
+`sections` collection and a compact section creation form: section id, name,
+type, outside diameter, wall thickness, provenance, and a `Queue section`
+action that emits a review-only structured operation. Applying the queued
+intent uses the same operation-apply panel, records the local-session
+acceptance receipt, selects the newly created section in the model tree, and
+clears stale solve/report state like other applied model edits.
+
+Evidence:
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_create_section_authoring.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_create_section_authoring.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_create_section_authoring.md`;
+`apps/desktop/SMOKE.md` TP-MAC-119. Validation: operation_applier cargo
+suites 40 unit + canonical hash + 47-case corpus; corpus bless and rerun
+green; desktop operationContractCorpus Vitest 97/97; focused App Vitest 1/1;
+blank-project service Vitest 5/5; full desktop Vitest 183/183; desktop
+production build green; Tauri Rust tests 29/29; Playwright R2 smoke 1/1;
+local Chrome smoke at `http://127.0.0.1:5173/` with zero console errors.
+
+Residual hand-offs: A11 deletion coverage remains open, and A12 must still
+rehearse the full from-blank create -> solve -> report path. Optional later
+pipe-form reuse of standalone section refs is not claimed by this tranche.
+No lifecycle state, release readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim is created.
+
 ## 2026-06-12 - A10 second sub-slice: material creation authoring (`TP-APP-R2-CREATEMATERIAL-001`)
 
 The structured operation seam now accepts `create_material` as a create-kind

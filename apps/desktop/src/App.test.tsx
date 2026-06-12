@@ -5828,6 +5828,55 @@ describe("OpenPipeStress desktop preview", () => {
     expect(receipt.textContent).toContain("professional_approval=false");
   });
 
+  it("queues and applies explicit section creation through the structured operation seam", async () => {
+    render(<App />);
+
+    const inspector = await screen.findByLabelText("Property inspector");
+    const createSectionPanel = within(inspector).getByLabelText("Create section intent");
+    expect(within(createSectionPanel).getByTestId("queue-create-section-intent")).toBeDisabled();
+
+    fireEvent.change(within(createSectionPanel).getByTestId("create-section-id"), {
+      target: { value: "section:S-300" }
+    });
+    fireEvent.change(within(createSectionPanel).getByTestId("create-section-name"), {
+      target: { value: "User pipe section" }
+    });
+    fireEvent.change(within(createSectionPanel).getByTestId("create-section-od"), {
+      target: { value: "0.114" }
+    });
+    fireEvent.change(within(createSectionPanel).getByTestId("create-section-wall"), {
+      target: { value: "0.006" }
+    });
+    expect(within(createSectionPanel).getByTestId("queue-create-section-intent")).not.toBeDisabled();
+    expect(within(createSectionPanel).getByTestId("editor-operation-preview").textContent).toContain("create_section");
+
+    fireEvent.click(within(createSectionPanel).getByTestId("queue-create-section-intent"));
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:create-section-section:S-300"
+      )
+    );
+
+    const createdSectionRow = screen.getByTestId("tree-row-section:S-300");
+    expect(createdSectionRow.textContent).toContain("User pipe section");
+    expect(createdSectionRow).toHaveClass("active");
+    const sectionInspector = screen.getByLabelText("Property inspector");
+    expect(sectionInspector.textContent).toContain("0.114 m");
+    expect(sectionInspector.textContent).toContain("0.006 m");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
   it("queues and applies explicit support creation through the structured operation seam", async () => {
     render(<App />);
 

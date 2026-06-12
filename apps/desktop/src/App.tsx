@@ -986,6 +986,7 @@ function projectReviewContext(
 function selectionForOperationOutcome(outcome: OperationOutcome): EntityRef | null {
   const selectionTypeByObjectType: Record<string, EntityRef["type"]> = {
     Material: "material",
+    Section: "section",
     Node: "node",
     Element: "pipe",
     Component: "component",

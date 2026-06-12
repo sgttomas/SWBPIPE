@@ -7,13 +7,14 @@ export function defaultSelection(model: PreviewModel): EntityRef {
 export function entityLabel(model: PreviewModel, id: string): string {
   const entity =
     model.materials?.find((item) => item.id === id) ??
+    model.sections?.find((item) => item.id === id) ??
     model.nodes.find((item) => item.id === id) ??
     model.pipe_segments.find((item) => item.id === id) ??
     model.supports.find((item) => item.id === id) ??
     model.components.find((item) => item.id === id) ??
     model.load_cases.find((item) => item.id === id) ??
     model.combinations?.find((item) => item.id === id);
-  return entity?.label ?? id;
+  return entityDisplayLabel(entity) ?? id;
 }
 
 export function selectedProperties(model: PreviewModel, selection: EntityRef): Array<[string, string]> {
@@ -39,6 +40,17 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
           : "TBD"
       ],
       ["Provenance", material.provenance]
+    ];
+  }
+  const section = model.sections?.find((item) => item.id === selection.id);
+  if (section) {
+    return [
+      ["ID", section.id],
+      ["Name", section.name],
+      ["Type", section.section_type],
+      ["OD", quantityDisplay(section.properties.outside_diameter)],
+      ["Wall", quantityDisplay(section.properties.wall_thickness)],
+      ["Provenance", provenanceDisplay(section.provenance)]
     ];
   }
   const node = model.nodes.find((item) => item.id === selection.id);
@@ -103,6 +115,18 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
     ];
   }
   return [["Selection", selection.id]];
+}
+
+function quantityDisplay(quantity: { value: number; unit: string } | undefined): string {
+  return quantity ? `${quantity.value} ${quantity.unit}` : "TBD";
+}
+
+function provenanceDisplay(provenance: string | Record<string, unknown>): string {
+  return typeof provenance === "string" ? provenance : JSON.stringify(provenance);
+}
+
+function entityDisplayLabel(entity: { label?: string; name?: string } | undefined): string | undefined {
+  return entity?.label ?? entity?.name;
 }
 
 function primitiveLoadCategories(loads: Array<Record<string, unknown>>): string {

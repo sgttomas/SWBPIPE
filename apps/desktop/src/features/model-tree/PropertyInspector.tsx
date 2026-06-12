@@ -25,6 +25,7 @@ export function PropertyInspector({
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(editableFields[0]?.before ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
+  const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
@@ -37,6 +38,7 @@ export function PropertyInspector({
         selection
       })
     : null;
+  const sectionCreateIntent = isSectionDraftValid(model, sectionDraft) ? buildCreateSectionIntent(sectionDraft, model) : null;
   const materialCreateIntent = isMaterialDraftValid(model, materialDraft) ? buildCreateMaterialIntent(materialDraft, model) : null;
   const supportCreateIntent = isSupportDraftValid(model, supportDraft) ? buildCreateSupportIntent(supportDraft, model) : null;
   const inlineValidationOutcome = operationIntent
@@ -59,6 +61,10 @@ export function PropertyInspector({
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents));
   }, [model.project.id, model.materials?.length]);
 
+  useEffect(() => {
+    setSectionDraft(defaultSectionDraft(model, queuedIntents));
+  }, [model.project.id]);
+
   function handleFieldChange(fieldPath: string) {
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
@@ -80,6 +86,16 @@ export function PropertyInspector({
     if (!materialCreateIntent) return;
     onQueueIntent(materialCreateIntent);
     setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent]));
+  }
+
+  function handleQueueSectionIntent() {
+    if (!sectionCreateIntent) return;
+    onQueueIntent(sectionCreateIntent);
+    setSectionDraft(defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]));
+  }
+
+  function updateSectionDraft<K extends keyof SectionDraft>(key: K, value: SectionDraft[K]) {
+    setSectionDraft((current) => ({ ...current, [key]: value }));
   }
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
@@ -180,6 +196,80 @@ export function PropertyInspector({
             Select an editable model entity to draft a structured operation intent.
           </p>
         )}
+      </section>
+      <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
+        <h3>Create section</h3>
+        <div className="editor-intent-controls">
+          <label>
+            <span>Section ID</span>
+            <input
+              aria-label="New section ID"
+              data-testid="create-section-id"
+              onChange={(event) => updateSectionDraft("id", event.target.value)}
+              value={sectionDraft.id}
+            />
+          </label>
+          <label>
+            <span>Name</span>
+            <input
+              aria-label="New section name"
+              data-testid="create-section-name"
+              onChange={(event) => updateSectionDraft("name", event.target.value)}
+              value={sectionDraft.name}
+            />
+          </label>
+          <label>
+            <span>Type</span>
+            <select
+              aria-label="New section type"
+              data-testid="create-section-type"
+              onChange={(event) => updateSectionDraft("sectionType", event.target.value)}
+              value={sectionDraft.sectionType}
+            >
+              <option value="pipe">pipe</option>
+            </select>
+          </label>
+          <label>
+            <span>Outside diameter ({lengthUnit(model)})</span>
+            <input
+              aria-label="New section outside diameter"
+              data-testid="create-section-od"
+              inputMode="decimal"
+              onChange={(event) => updateSectionDraft("outsideDiameter", event.target.value)}
+              value={sectionDraft.outsideDiameter}
+            />
+          </label>
+          <label>
+            <span>Wall thickness ({lengthUnit(model)})</span>
+            <input
+              aria-label="New section wall thickness"
+              data-testid="create-section-wall"
+              inputMode="decimal"
+              onChange={(event) => updateSectionDraft("wallThickness", event.target.value)}
+              value={sectionDraft.wallThickness}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New section provenance"
+              data-testid="create-section-provenance"
+              onChange={(event) => updateSectionDraft("provenance", event.target.value)}
+              value={sectionDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-section-intent"
+            disabled={!sectionCreateIntent}
+            onClick={handleQueueSectionIntent}
+            title="Queue section create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue section
+          </button>
+        </div>
+        {sectionCreateIntent ? <OperationIntentPreview intent={sectionCreateIntent} /> : null}
       </section>
       <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
         <h3>Create material</h3>
@@ -396,6 +486,15 @@ type MaterialDraft = {
   elasticModulus: string;
   shearModulus: string;
   thermalExpansion: string;
+  provenance: string;
+};
+
+type SectionDraft = {
+  id: string;
+  name: string;
+  sectionType: string;
+  outsideDiameter: string;
+  wallThickness: string;
   provenance: string;
 };
 
@@ -686,6 +785,68 @@ function buildOperationIntent({
   };
 }
 
+function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): EditorOperationIntent {
+  const sectionId = draft.id.trim();
+  const payload = {
+    id: sectionId,
+    name: draft.name.trim(),
+    section_type: draft.sectionType.trim(),
+    properties: {
+      outside_diameter: { value: Number(draft.outsideDiameter), unit: lengthUnit(model) },
+      wall_thickness: { value: Number(draft.wallThickness), unit: lengthUnit(model) }
+    },
+    provenance: draft.provenance.trim()
+  };
+  return {
+    operation_id: `op:create-section-${safeToken(sectionId)}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Section",
+      ref: sectionId
+    },
+    change: {
+      change_id: `change:create-section:${safeToken(sectionId)}`,
+      change_kind: "create_section",
+      field_label: "Explicit pipe section",
+      field_path: "sections",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: lengthUnit(model),
+      dimension: "length",
+      source_note: "explicit user-entered pipe section geometry"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered pipe section for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
 function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): EditorOperationIntent {
   const materialId = draft.id.trim();
   const payload: Record<string, unknown> = {
@@ -833,6 +994,22 @@ function operationIntentKey(intent: EditorOperationIntent): string {
   return intent.queue_id ?? intent.operation_id;
 }
 
+function defaultSectionDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[]): SectionDraft {
+  return defaultSectionDraftWithReserved(model, queuedIntents);
+}
+
+function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[]): SectionDraft {
+  const id = nextSectionId(model, queuedIntents);
+  return {
+    id,
+    name: `Section ${shortEntityToken(id)}`,
+    sectionType: "pipe",
+    outsideDiameter: "",
+    wallThickness: "",
+    provenance: "user_entered_local_preview"
+  };
+}
+
 function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[]): MaterialDraft {
   return defaultMaterialDraftWithReserved(model, queuedIntents);
 }
@@ -898,6 +1075,34 @@ function nextMaterialId(model: PreviewModel, queuedIntents: EditorOperationInten
   return "material:M-TBD";
 }
 
+function nextSectionId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set((model.sections ?? []).map((section) => section.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_section") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `section:S-${index}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "section:S-TBD";
+}
+
+function isSectionDraftValid(model: PreviewModel, draft: SectionDraft): boolean {
+  const outsideDiameter = Number(draft.outsideDiameter);
+  const wallThickness = Number(draft.wallThickness);
+  return (
+    Boolean(draft.id.trim() && draft.name.trim() && draft.provenance.trim()) &&
+    draft.sectionType === "pipe" &&
+    lengthUnit(model) !== "TBD" &&
+    isPositiveInput(draft.outsideDiameter) &&
+    isPositiveInput(draft.wallThickness) &&
+    wallThickness < outsideDiameter / 2 &&
+    !(model.sections ?? []).some((section) => section.id === draft.id.trim())
+  );
+}
+
 function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolean {
   const thermalProvided = draft.thermalExpansion.trim() !== "";
   return (
@@ -918,6 +1123,10 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
     draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
     !model.supports.some((support) => support.id === draft.id.trim())
   );
+}
+
+function lengthUnit(model: PreviewModel): string {
+  return model.project.units.length ?? "TBD";
 }
 
 function stressUnit(model: PreviewModel): string {

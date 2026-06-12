@@ -52,6 +52,7 @@ const REQUIRED_ACCEPTED_KINDS = [
   "update_support",
   "create_node",
   "connect_pipe_run",
+  "create_section",
   "create_material",
   "create_support",
   "create_load_case",

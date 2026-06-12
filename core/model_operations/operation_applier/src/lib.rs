@@ -628,6 +628,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_section: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "create_section" {
+        created_section = resolve_create_section(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_material: Option<Value> = None;
     if !checker.schema_blocked && change_kind == "create_material" {
         created_material = resolve_create_material(
@@ -741,6 +755,7 @@ fn run(
         }]
     } else if (created_node.is_some()
         || created_pipe.is_some()
+        || created_section.is_some()
         || created_material.is_some()
         || created_support.is_some()
         || created_load_case.is_some()
@@ -794,6 +809,15 @@ fn run(
         } else if let Some(pipe) = &created_pipe {
             let mut next_model = model.clone();
             if apply_created_pipe(&mut next_model, pipe) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(section) = &created_section {
+            let mut next_model = model.clone();
+            if apply_created_section(&mut next_model, section) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1038,6 +1062,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "update_support"
             | "create_node"
             | "connect_pipe_run"
+            | "create_section"
             | "create_material"
             | "create_support"
             | "create_load_case"
@@ -1064,6 +1089,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" => "modify",
         "create_node"
+        | "create_section"
         | "create_material"
         | "create_support"
         | "create_load_case"
@@ -1442,6 +1468,175 @@ fn resolve_connect_pipe_run(
         },
         "material": material,
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
+        "provenance": provenance,
+    }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_section(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Section" || field_path != "sections" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-SECTION-SHAPE-INVALID",
+            "blocking",
+            "Create-section intents must target object_type `Section` with field_path `sections`."
+                .to_string(),
+            "Refresh the section creation intent from the explicit section authoring form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    let stored_unit = value_at(model, &["project", "units", "length"]).and_then(Value::as_str);
+    checker.unit_state = "passed";
+    let Some(stored_unit) = stored_unit else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-METADATA-MISSING",
+            "blocking",
+            "Project length unit metadata is missing; explicit section geometry cannot be accepted.".to_string(),
+            "Repair the model document's project.units.length metadata before creating sections.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if unit != stored_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match project length unit `{stored_unit}`; unit conversion is unavailable until the units engine lands."),
+            "Enter section dimensions in the project length unit; no silent conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "length" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-section dimension `{dimension}` must be `length`."),
+            "Emit section creation intents with length dimension metadata for OD and wall quantities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if model.get("sections").is_some() && !model.get("sections").is_some_and(Value::is_array) {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-SECTION-COLLECTION-MISSING",
+            "blocking",
+            "Model document does not expose a sections array.".to_string(),
+            "Repair the model document before creating sections.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "sections", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Section `{target_ref}` already exists in the current model."),
+            "Choose a new stable section id; create operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-SECTION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-section payload is not valid JSON.".to_string(),
+            "Emit the explicit section payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-SECTION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-section payload must be a JSON object.".to_string(),
+            "Emit id, name, section_type, properties.outside_diameter, properties.wall_thickness, and provenance fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let name = record
+        .get("name")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let section_type = record
+        .get("section_type")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let outside_diameter = quantity_value(record, &["properties", "outside_diameter"], stored_unit);
+    let wall_thickness = quantity_value(record, &["properties", "wall_thickness"], stored_unit);
+    if id != target_ref
+        || name.is_empty()
+        || section_type != "pipe"
+        || provenance.is_empty()
+        || outside_diameter.is_none()
+        || wall_thickness.is_none()
+    {
+        checker.push(
+            "OP-CREATE-SECTION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-section payload must include matching id, non-empty name/provenance, section_type `pipe`, and positive OD/wall quantities in the project length unit.".to_string(),
+            "Refresh the section creation intent from explicit user-entered section fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let outside_diameter = outside_diameter.unwrap();
+    let wall_thickness = wall_thickness.unwrap();
+    if wall_thickness >= outside_diameter / 2.0 {
+        checker.push(
+            "OP-CREATE-SECTION-PAYLOAD-INVALID",
+            "blocking",
+            "Create-section wall thickness must be less than the outside-diameter radius."
+                .to_string(),
+            "Enter physically possible pipe section dimensions before creating the section.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    Some(serde_json::json!({
+        "id": id,
+        "name": name,
+        "section_type": "pipe",
+        "properties": {
+            "outside_diameter": { "value": outside_diameter, "unit": stored_unit },
+            "wall_thickness": { "value": wall_thickness, "unit": stored_unit }
+        },
         "provenance": provenance,
     }))
 }
@@ -3312,6 +3507,17 @@ fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
     true
 }
 
+fn apply_created_section(model: &mut Value, section: &Value) -> bool {
+    if model.get("sections").is_none() {
+        model["sections"] = Value::Array(Vec::new());
+    }
+    let Some(sections) = model.get_mut("sections").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    sections.push(section.clone());
+    true
+}
+
 fn apply_created_material(model: &mut Value, material: &Value) -> bool {
     if model.get("materials").is_none() {
         model["materials"] = Value::Array(Vec::new());
@@ -4042,6 +4248,130 @@ mod tests {
         invalid["operation_kind"] = json!("create");
         let outcome = apply_operation(&model, &invalid, None);
         assert!(codes(&outcome).contains(&"OP-CREATE-MATERIAL-PAYLOAD-INVALID"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_create_section_payload_applies_without_mutating_input() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "section:user-pipe",
+            "name": "User pipe section",
+            "section_type": "pipe",
+            "properties": {
+                "outside_diameter": { "value": 0.114, "unit": "m" },
+                "wall_thickness": { "value": 0.006, "unit": "m" }
+            },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Section",
+            "section:user-pipe",
+            "create_section",
+            "sections",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "m",
+            "length",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "sections");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["sections"]
+                .as_array()
+                .expect("sections array")
+                .len(),
+            1
+        );
+        assert_eq!(applied["sections"][0], payload);
+    }
+
+    #[test]
+    fn create_section_blocks_duplicate_id_and_invalid_geometry_payloads() {
+        let mut model = sample_model();
+        model["sections"] = json!([
+            {
+                "id": "section:existing",
+                "name": "Existing pipe section",
+                "section_type": "pipe",
+                "properties": {
+                    "outside_diameter": { "value": 0.114, "unit": "m" },
+                    "wall_thickness": { "value": 0.006, "unit": "m" }
+                },
+                "provenance": "invented_example"
+            }
+        ]);
+        let duplicate_payload = json!({
+            "id": "section:existing",
+            "name": "Duplicate section",
+            "section_type": "pipe",
+            "properties": {
+                "outside_diameter": { "value": 0.114, "unit": "m" },
+                "wall_thickness": { "value": 0.006, "unit": "m" }
+            },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut duplicate = modify_intent(
+            "Section",
+            "section:existing",
+            "create_section",
+            "sections",
+            "not_present",
+            &serde_json::to_string(&duplicate_payload).expect("payload json"),
+            "m",
+            "length",
+        );
+        duplicate["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &duplicate, None);
+        assert!(codes(&outcome).contains(&"OP-TARGET-ALREADY-EXISTS"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+
+        let invalid_payload = json!({
+            "id": "section:user-pipe",
+            "name": "Invalid pipe section",
+            "section_type": "pipe",
+            "properties": {
+                "outside_diameter": { "value": 0.114, "unit": "m" },
+                "wall_thickness": { "value": 0.06, "unit": "m" }
+            },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut invalid = modify_intent(
+            "Section",
+            "section:user-pipe",
+            "create_section",
+            "sections",
+            "not_present",
+            &serde_json::to_string(&invalid_payload).expect("payload json"),
+            "m",
+            "length",
+        );
+        invalid["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &invalid, None);
+        assert!(codes(&outcome).contains(&"OP-CREATE-SECTION-PAYLOAD-INVALID"));
         assert_eq!(outcome.validation.application_status, "blocked");
         assert!(outcome.applied_model.is_none());
     }

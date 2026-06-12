@@ -266,6 +266,7 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
       professional_acceptance: "NOT_PROVIDED"
     },
     materials: [],
+    sections: [],
     nodes: [],
     pipe_segments: [],
     supports: [],

@@ -3593,3 +3593,35 @@ after the timestamp marker were absent.
   telemetry, protected content, repository-default private-data write,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-119 section creation authoring (`TP-APP-R2-CREATESECTION-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-CREATESECTION-001` (completion-plan Phase A10 third
+  sub-slice): the structured operation seam now accepts `create_section`
+  intents, validates explicit pipe-section payloads, blocks duplicate section
+  ids, requires outside-diameter and wall-thickness quantities in the project
+  length unit, and blocks wall thickness at or beyond the outside-diameter
+  radius. The contract corpus now has 47 cases and requires an accepted
+  `create_section` apply in both Rust and browser wasm lanes.
+- Property Inspector smoke at `http://127.0.0.1:5173/` authored
+  `section:S-301` with name `Browser pipe section`, type `pipe`, outside
+  diameter `0.114 m`, wall thickness `0.006 m`, and provenance
+  `user_entered_local_preview`, then queued and applied the intent through the
+  Apply Operations panel.
+- Live browser evidence showed the created section row active in the model
+  tree, the inspector showing the section name and OD/wall quantities, review
+  context `0 pending operations; applied_operations=1`, acceptance
+  `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live Chrome smoke reported zero browser console
+  errors.
+- Automated evidence: operation_applier cargo suites green (40 unit tests,
+  canonical hash parity, 47-case corpus); desktop operationContractCorpus
+  Vitest 97/97; focused App Vitest 1/1; blank-project service Vitest 5/5; full
+  desktop Vitest 183/183; desktop production build green; Tauri Rust tests
+  29/29; Playwright R2 smoke 1/1.
+- Boundary review: local-only; invented values; standalone section creation
+  only; no cloud, daemon, network, telemetry, protected content,
+  repository-default private-data write, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.

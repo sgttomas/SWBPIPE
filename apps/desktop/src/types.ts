@@ -23,6 +23,17 @@ export type PreviewModel = {
     thermal_expansion_coefficient?: { value: number; unit: string };
     provenance: string;
   }>;
+  sections?: Array<{
+    id: string;
+    name: string;
+    section_type: "pipe" | "rigid" | "custom" | "TBD" | string;
+    properties: {
+      outside_diameter?: { value: number; unit: string };
+      wall_thickness?: { value: number; unit: string };
+      [key: string]: { value: number; unit: string } | undefined;
+    };
+    provenance: string | Record<string, unknown>;
+  }>;
   nodes: Array<{ id: string; label: string; position: Vec3; provenance: string }>;
   pipe_segments: Array<{
     id: string;
@@ -343,6 +354,7 @@ export type AgentProposal = {
 
 export type EditorOperationObjectType =
   | "Material"
+  | "Section"
   | "Node"
   | "Element"
   | "Component"
@@ -375,6 +387,7 @@ export type EditorOperationIntent = {
       | "update_support"
       | "create_node"
       | "connect_pipe_run"
+      | "create_section"
       | "create_material"
       | "create_support"
       | "create_load_case"
@@ -505,6 +518,7 @@ export type EntityRef = {
   type:
     | "project"
     | "material"
+    | "section"
     | "node"
     | "pipe"
     | "support"

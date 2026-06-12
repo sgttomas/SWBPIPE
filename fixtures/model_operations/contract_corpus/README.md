@@ -122,7 +122,7 @@ internal canonicalization, not the operation semantics:
 
 - Every operation kind has at least one accepted-apply case: `set_field`,
   `update_load`, `update_support`, `create_node`, `connect_pipe_run`,
-  `create_material`, `create_support`, `create_load_case`,
+  `create_section`, `create_material`, `create_support`, `create_load_case`,
   `create_primitive_load`, `create_combination`, `create_combination_term`,
   `delete_combination_term`.
 - Block classes covered: duplicate id (`OP-TARGET-ALREADY-EXISTS`), missing
@@ -161,9 +161,9 @@ itself looks wrong), the case file moves to `_quarantine/` with a `TBD` note
 and is excluded from both runners (they only read top-level `case_*.json`
 files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
-reproduces all 46 cases exactly, with no alignment fixes.
+reproduces all 47 cases exactly, with no alignment fixes.
 
-## Case inventory (46 cases)
+## Case inventory (47 cases)
 
 | File | Change kind | Mode | Expected application status | Blocking codes |
 |---|---|---|---|---|
@@ -213,3 +213,4 @@ reproduces all 46 cases exactly, with no alignment fixes.
 | `case_44_block_quantity_object_missing.json` | `set_field` | apply | blocked | `OP-QUANTITY-OBJECT-MISSING` |
 | `case_45_accept_create_support.json` | `create_support` | apply | applied_to_session_model | — |
 | `case_46_accept_create_material.json` | `create_material` | apply | applied_to_session_model | — |
+| `case_47_accept_create_section.json` | `create_section` | apply | applied_to_session_model | — |

@@ -141,6 +141,26 @@ function buildTree(model: PreviewModel): TreeModel {
         })) ?? []
     },
     {
+      title: "Sections",
+      items:
+        model.sections?.map((section) => ({
+          id: section.id,
+          type: "section" as const,
+          label: section.name,
+          detail: section.id,
+          icon: <Box size={14} aria-hidden="true" />,
+          keywords: [
+            section.id,
+            section.name,
+            section.section_type,
+            provenanceKeyword(section.provenance),
+            "section",
+            "sections",
+            "pipe section"
+          ]
+        })) ?? []
+    },
+    {
       title: "Nodes",
       items: model.nodes.map((node) => ({
         id: node.id,
@@ -214,6 +234,10 @@ function buildTree(model: PreviewModel): TreeModel {
     groups,
     count: 1 + groups.reduce((count, group) => count + group.items.length, 0)
   };
+}
+
+function provenanceKeyword(provenance: string | Record<string, unknown>): string {
+  return typeof provenance === "string" ? provenance : JSON.stringify(provenance);
 }
 
 function filterTree(tree: TreeModel, filterText: string): FilteredTreeModel {

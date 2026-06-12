@@ -71,6 +71,7 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(blank.pipe_segments).toEqual([]);
     expect(blank.supports).toEqual([]);
     expect(blank.materials).toEqual([]);
+    expect(blank.sections).toEqual([]);
     expect(blank.load_cases).toEqual([]);
     expect(blank.combinations).toEqual([]);
     expect(blank.data_boundary.private_data_policy).toContain("not_committed_to_repository");

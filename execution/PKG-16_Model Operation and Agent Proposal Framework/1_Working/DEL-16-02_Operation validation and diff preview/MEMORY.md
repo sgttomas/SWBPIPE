@@ -416,6 +416,35 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-12 - TP-APP-R2-CREATESECTION-001 section creation authoring
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` with `create_section`.
+- Accepted intents must target object type `Section` with
+  `field_path=sections`, `operation_kind=create`, `before=not_present`, the
+  project length unit, dimension `length`, and an explicit JSON payload
+  carrying matching id, name, `section_type=pipe`, outside diameter, wall
+  thickness, and provenance.
+- Duplicate section ids, invalid or non-positive OD/wall quantities, wall
+  thickness at or beyond OD radius, wrong unit/dimension metadata, and
+  malformed sections collections are blocked. No section defaults or unit
+  conversions are applied.
+- Contract corpus coverage now includes
+  `fixtures/model_operations/contract_corpus/case_47_accept_create_section.json`;
+  both Rust and browser wasm corpus runners require accepted
+  `create_section` coverage.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_create_section_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-119. Validation passed:
+  operation-applier cargo suites (40 unit + canonical hash + 47-case corpus),
+  corpus bless/rerun, desktop operationContractCorpus 97/97, full desktop
+  Vitest 183/183, desktop build, src-tauri Rust tests 29/29, Playwright smoke
+  1/1, and live Chrome section-create smoke with zero console errors.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden section defaults, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.
+
 ## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
 
 - WORKING_ITEMS app-integration tranche extended the browser local operation
