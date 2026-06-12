@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 desktop unit catalog command (`TP-UNITS-B2-CATALOGCMD-001`)
+
+The desktop backend now has a tested B2 binding to the DEC-018 units crate.
+`openpipestress-desktop` depends on `open_pipe_stress_units` and exposes a
+`get_unit_catalog` Tauri command. The command returns schema-facing catalog
+records with stable `unit:*` ids, symbols, dimension ids, canonical flags,
+transform kinds, factor representation, optional offset representation,
+provenance, review status, and boundary flags. This gives the app a durable
+source for future unit picker/display controls instead of copying unit labels
+into each authoring surface.
+
+The units crate now also exposes stable catalog IDs and string values for
+transform kind, conversion provenance, and review status. Focused Tauri
+coverage pins the important B2 metadata: `DEC-018`, entered-unit preservation,
+the inch factor text, Fahrenheit offset text, lbf conventional-public-constant
+provenance, project-governed semantic binding, and no protected/private data
+or professional/code-compliance claim.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_desktop_unit_catalog_binding.md`;
+`apps/desktop/SMOKE.md` TP-MAC-129. Validation:
+`cargo fmt --manifest-path core/units/Cargo.toml --check` passed;
+`cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml --check`
+passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 13
+unit tests and 0 doctests; focused Tauri command test passed 1/1; full
+`cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` passed with 32
+unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed.
+
+Residual hand-offs: visible app unit pickers/displays, solver-boundary
+normalization, report unit-system disclosures, imports/exports, and rule-pack
+unit I/O remain B2 work. B3 still owns broader mixed-unit round-trip,
+conversion-witness, incompatible-unit rejection, and D-04/DEC-026 tolerance
+coverage. No lifecycle state, release-readiness, professional approval,
+certification, sealing, authentication, protected-content, private-data, or
+code-compliance claim is created.
+
 ## 2026-06-12 - B2/B3 units schema-crate contract rider (`TP-UNITS-B2B3-CONTRACT-001`)
 
 The units lane now has an executable schema/crate contract for the two

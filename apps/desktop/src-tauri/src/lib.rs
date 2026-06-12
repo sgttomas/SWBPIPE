@@ -6,6 +6,7 @@ use model_document_migration::{
 };
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
+use open_pipe_stress_units::{catalog_definitions, UnitDefinition};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -38,6 +39,84 @@ fn read_fixture(file_name: &str) -> Result<Value, String> {
     let path = fixture_path(file_name)?;
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
     serde_json::from_str(&text).map_err(|error| error.to_string())
+}
+
+#[derive(Debug, Serialize)]
+struct UnitCatalogResponse {
+    schema_version: &'static str,
+    catalog_id: &'static str,
+    decision_basis: &'static str,
+    calculation_basis: &'static str,
+    storage_convention: &'static str,
+    entry_count: usize,
+    entries: Vec<UnitCatalogEntry>,
+    boundary: UnitCatalogBoundary,
+}
+
+#[derive(Debug, Serialize)]
+struct UnitCatalogEntry {
+    unit_id: &'static str,
+    symbol: &'static str,
+    dimension_id: &'static str,
+    canonical: bool,
+    transform_kind: &'static str,
+    factor_representation: &'static str,
+    offset_representation: Option<&'static str>,
+    provenance: &'static str,
+    review_status: &'static str,
+}
+
+#[derive(Debug, Serialize)]
+struct UnitCatalogBoundary {
+    source: &'static str,
+    protected_content_included: bool,
+    private_project_data_included: bool,
+    professional_approval_claimed: bool,
+    code_compliance_claimed: bool,
+}
+
+fn unit_transform_kind(definition: &UnitDefinition) -> &'static str {
+    if definition.canonical {
+        "identity"
+    } else {
+        definition.transform_to_canonical.kind.as_schema_value()
+    }
+}
+
+fn unit_catalog_entry(definition: UnitDefinition) -> UnitCatalogEntry {
+    UnitCatalogEntry {
+        unit_id: definition.id.catalog_id(),
+        symbol: definition.symbol,
+        dimension_id: definition.dimension.as_str(),
+        canonical: definition.canonical,
+        transform_kind: unit_transform_kind(&definition),
+        factor_representation: definition.factor_representation,
+        offset_representation: definition.offset_representation,
+        provenance: definition.provenance.as_schema_value(),
+        review_status: definition.review_status.as_schema_value(),
+    }
+}
+
+fn desktop_unit_catalog() -> UnitCatalogResponse {
+    let entries = catalog_definitions()
+        .map(unit_catalog_entry)
+        .collect::<Vec<_>>();
+    UnitCatalogResponse {
+        schema_version: "0.1.0",
+        catalog_id: "unit-system:dec-018-si-dual-display",
+        decision_basis: "DEC-018",
+        calculation_basis: "si_canonical",
+        storage_convention: "entered_units_preserved",
+        entry_count: entries.len(),
+        entries,
+        boundary: UnitCatalogBoundary {
+            source: "core/units open_pipe_stress_units catalog",
+            protected_content_included: false,
+            private_project_data_included: false,
+            professional_approval_claimed: false,
+            code_compliance_claimed: false,
+        },
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -817,6 +896,11 @@ fn project_summary(
 }
 
 #[tauri::command]
+fn get_unit_catalog() -> UnitCatalogResponse {
+    desktop_unit_catalog()
+}
+
+#[tauri::command]
 fn render_calculation_report(input: Value) -> Result<Value, String> {
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
@@ -1578,6 +1662,7 @@ pub fn run() {
             sample_agent_proposal,
             validate_model_operation,
             apply_model_operation,
+            get_unit_catalog,
             get_local_storage_capability,
             create_local_project,
             open_local_project,
@@ -1592,6 +1677,79 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeSet;
+
+    fn unit_entry<'a>(catalog: &'a UnitCatalogResponse, unit_id: &str) -> &'a UnitCatalogEntry {
+        catalog
+            .entries
+            .iter()
+            .find(|entry| entry.unit_id == unit_id)
+            .unwrap_or_else(|| panic!("unit catalog entry not found: {unit_id}"))
+    }
+
+    #[test]
+    fn get_unit_catalog_exposes_b2_schema_facing_metadata() {
+        let catalog = get_unit_catalog();
+
+        assert_eq!(catalog.decision_basis, "DEC-018");
+        assert_eq!(catalog.calculation_basis, "si_canonical");
+        assert_eq!(catalog.storage_convention, "entered_units_preserved");
+        assert_eq!(catalog.entry_count, catalog.entries.len());
+        assert_eq!(catalog.entry_count, open_pipe_stress_units::catalog().len());
+        assert!(!catalog.boundary.protected_content_included);
+        assert!(!catalog.boundary.private_project_data_included);
+        assert!(!catalog.boundary.professional_approval_claimed);
+        assert!(!catalog.boundary.code_compliance_claimed);
+
+        let ids = catalog
+            .entries
+            .iter()
+            .map(|entry| entry.unit_id)
+            .collect::<BTreeSet<_>>();
+        assert_eq!(ids.len(), catalog.entries.len());
+        assert!(catalog
+            .entries
+            .iter()
+            .all(|entry| !entry.factor_representation.trim().is_empty()));
+        assert!(catalog
+            .entries
+            .iter()
+            .all(|entry| entry.review_status == "accepted"));
+
+        let inch = unit_entry(&catalog, "unit:inch");
+        assert_eq!(inch.symbol, "in");
+        assert_eq!(inch.dimension_id, "length");
+        assert_eq!(inch.transform_kind, "multiplicative");
+        assert!(inch.factor_representation.contains("25.4 mm/in"));
+        assert_eq!(inch.provenance, "exact_public_definition");
+
+        let fahrenheit = unit_entry(&catalog, "unit:degree_fahrenheit");
+        assert_eq!(fahrenheit.transform_kind, "affine");
+        assert!(fahrenheit
+            .offset_representation
+            .expect("fahrenheit offset")
+            .contains("459.67"));
+
+        assert_eq!(
+            unit_entry(&catalog, "unit:pound_force").provenance,
+            "conventional_public_constant"
+        );
+        assert_eq!(
+            unit_entry(&catalog, "unit:newton_per_meter_linear").provenance,
+            "project_governed_decision"
+        );
+        assert_eq!(
+            unit_entry(&catalog, "unit:meter").transform_kind,
+            "identity"
+        );
+
+        let payload = serde_json::to_value(&catalog).expect("catalog serializes");
+        assert_eq!(payload["entries"][0]["unit_id"].is_string(), true);
+        assert_eq!(
+            payload["boundary"]["code_compliance_claimed"],
+            Value::Bool(false)
+        );
+    }
 
     #[test]
     fn render_calculation_report_command_renders_fixture_unblocked() {

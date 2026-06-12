@@ -138,3 +138,13 @@ Boundary note:
 - Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check` passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 13 unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed; `python3 -m pytest tests/test_units_schema.py` passed with 3 tests.
 - Boundaries preserved: no full B2 desktop unit picker/display retrofit, solver-boundary normalization, report rendering change, import/export change, rule-pack unit evaluator change, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
 - Residual handoffs: B2 still owns app/solver/report/import/export/rule-pack unit I/O; B3 still owns the broader mixed-unit round-trip, conversion-witness, incompatible-unit rejection, and D-04/DEC-026 tolerance corpus.
+
+## 2026-06-12 - TP-UNITS-B2-CATALOGCMD-001 Desktop unit catalog binding
+
+- Added stable unit catalog IDs and stable string values for transform kind, conversion provenance, and review status in `core/units`.
+- Added the desktop backend `get_unit_catalog` command, backed by `open_pipe_stress_units`, returning unit id, symbol, dimension id, canonical flag, transform kind, factor representation, optional offset representation, provenance, review status, and boundary flags.
+- Added Tauri coverage proving the command preserves `DEC-018`, entered-unit preservation, inch factor text, Fahrenheit offset text, lbf conventional provenance, project-governed semantic binding, and no protected/private/professional/code-compliance claim.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_desktop_unit_catalog_binding.md`; `apps/desktop/SMOKE.md` TP-MAC-129.
+- Validation: `cargo fmt --manifest-path core/units/Cargo.toml --check` passed; `cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml --check` passed; `cargo test --manifest-path core/units/Cargo.toml` passed with 13 unit tests and 0 doctests; focused Tauri command test passed 1/1; full `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` passed with 32 unit tests and 0 doctests; `python3 tests/test_units_schema.py` passed.
+- Boundaries preserved: no visible desktop unit picker/display replacement, bulk form retrofit, solver-boundary normalization, report renderer change, import/export change, rule-pack evaluator change, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
+- Residual handoffs: B2 still owns visible app unit fields, solver-boundary normalization, report unit disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader conversion witness and tolerance corpus coverage.

@@ -327,6 +327,66 @@ pub enum UnitId {
 }
 
 impl UnitId {
+    pub fn catalog_id(self) -> &'static str {
+        match self {
+            Self::One => "unit:one",
+            Self::Meter => "unit:meter",
+            Self::Millimeter => "unit:millimeter",
+            Self::Inch => "unit:inch",
+            Self::Foot => "unit:foot",
+            Self::Kilogram => "unit:kilogram",
+            Self::PoundMass => "unit:pound_mass",
+            Self::Second => "unit:second",
+            Self::Kelvin => "unit:kelvin",
+            Self::DegreeCelsius => "unit:degree_celsius",
+            Self::DegreeFahrenheit => "unit:degree_fahrenheit",
+            Self::DegreeRankine => "unit:degree_rankine",
+            Self::KelvinInterval => "unit:kelvin_interval",
+            Self::DegreeCelsiusInterval => "unit:degree_celsius_interval",
+            Self::DegreeFahrenheitInterval => "unit:degree_fahrenheit_interval",
+            Self::DegreeRankineInterval => "unit:degree_rankine_interval",
+            Self::Radian => "unit:radian",
+            Self::Degree => "unit:degree",
+            Self::Newton => "unit:newton",
+            Self::PoundForce => "unit:pound_force",
+            Self::NewtonPerMeter => "unit:newton_per_meter",
+            Self::PoundForcePerFoot => "unit:pound_force_per_foot",
+            Self::PoundForcePerInch => "unit:pound_force_per_inch",
+            Self::NewtonMeter => "unit:newton_meter",
+            Self::PoundForceInch => "unit:pound_force_inch",
+            Self::PoundForceFoot => "unit:pound_force_foot",
+            Self::Pascal => "unit:pascal",
+            Self::Kilopascal => "unit:kilopascal",
+            Self::Megapascal => "unit:megapascal",
+            Self::Psi => "unit:psi",
+            Self::Ksi => "unit:ksi",
+            Self::SquareMeter => "unit:square_meter",
+            Self::SquareMillimeter => "unit:square_millimeter",
+            Self::SquareInch => "unit:square_inch",
+            Self::CubicMeter => "unit:cubic_meter",
+            Self::CubicInch => "unit:cubic_inch",
+            Self::KilogramPerCubicMeter => "unit:kilogram_per_cubic_meter",
+            Self::PoundMassPerCubicInch => "unit:pound_mass_per_cubic_inch",
+            Self::NewtonPerMeterLinear => "unit:newton_per_meter_linear",
+            Self::NewtonMeterPerRadian => "unit:newton_meter_per_radian",
+            Self::MeterPerSecond => "unit:meter_per_second",
+            Self::MeterPerSecondSquared => "unit:meter_per_second_squared",
+            Self::WattPerMeterKelvin => "unit:watt_per_meter_kelvin",
+            Self::JoulePerKilogramKelvin => "unit:joule_per_kilogram_kelvin",
+            Self::PerKelvin => "unit:per_kelvin",
+            Self::PerDegreeCelsius => "unit:per_degree_celsius",
+            Self::MeterFourth => "unit:meter_fourth",
+            Self::MillimeterFourth => "unit:millimeter_fourth",
+            Self::InchFourth => "unit:inch_fourth",
+            Self::MeterCubed => "unit:meter_cubed",
+            Self::MillimeterCubed => "unit:millimeter_cubed",
+            Self::InchCubed => "unit:inch_cubed",
+            Self::KilogramPerMeter => "unit:kilogram_per_meter",
+            Self::PoundMassPerFoot => "unit:pound_mass_per_foot",
+            Self::SquareMeterPerMeter => "unit:square_meter_per_meter",
+        }
+    }
+
     pub fn definition(self) -> UnitDefinition {
         match self {
             Self::One => def(self, "1", Dimension::Dimensionless, Transform::linear(1.0)),
@@ -642,12 +702,33 @@ pub enum TransformKind {
     Affine,
 }
 
+impl TransformKind {
+    pub fn as_schema_value(self) -> &'static str {
+        match self {
+            Self::Identity => "identity",
+            Self::Multiplicative => "multiplicative",
+            Self::Affine => "affine",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConversionProvenance {
     SiCanonical,
     ExactPublicDefinition,
     ConventionalPublicConstant,
     ProjectGovernedDecision,
+}
+
+impl ConversionProvenance {
+    pub fn as_schema_value(self) -> &'static str {
+        match self {
+            Self::SiCanonical => "si_canonical",
+            Self::ExactPublicDefinition => "exact_public_definition",
+            Self::ConventionalPublicConstant => "conventional_public_constant",
+            Self::ProjectGovernedDecision => "project_governed_decision",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -657,6 +738,18 @@ pub enum ReviewStatus {
     Rejected,
     Quarantined,
     Tbd,
+}
+
+impl ReviewStatus {
+    pub fn as_schema_value(self) -> &'static str {
+        match self {
+            Self::Accepted => "accepted",
+            Self::Pending => "pending",
+            Self::Rejected => "rejected",
+            Self::Quarantined => "quarantined",
+            Self::Tbd => "TBD",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1255,6 +1348,11 @@ mod tests {
     #[test]
     fn catalog_definitions_carry_schema_facing_conversion_metadata() {
         let definitions = catalog_definitions().collect::<Vec<_>>();
+        let catalog_ids = definitions
+            .iter()
+            .map(|definition| definition.id.catalog_id().to_string())
+            .collect::<Vec<_>>();
+        assert_unique(&catalog_ids, "unit catalog ids");
         for definition in &definitions {
             assert!(
                 !definition.factor_representation.trim().is_empty(),

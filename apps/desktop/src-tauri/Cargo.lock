@@ -2188,12 +2188,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_units"
+version = "0.1.0"
+
+[[package]]
 name = "openpipestress-desktop"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_operation_applier",
  "open_pipe_stress_product_physics",
  "open_pipe_stress_report_renderer",
+ "open_pipe_stress_units",
  "rusqlite",
  "serde",
  "serde_json",

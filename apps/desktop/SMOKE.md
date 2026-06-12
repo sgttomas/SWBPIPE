@@ -3889,3 +3889,21 @@ after the timestamp marker were absent.
   daemon, network, telemetry, protected content, repository-default
   private-data write, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-129 desktop unit catalog command (`TP-UNITS-B2-CATALOGCMD-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-CATALOGCMD-001` (completion-plan B2): added desktop
+  backend command `get_unit_catalog`, backed by `core/units`, as the
+  application binding point for DEC-018 unit metadata.
+- Command payload coverage: stable unit ids, symbols, dimensions, canonical
+  flags, transform kinds, factor representation text, optional offset
+  representation text, provenance, review status, and boundary flags.
+- Automated evidence: focused Tauri command test passed 1/1; full
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` passed with
+  32/32 Rust tests; `cargo test --manifest-path core/units/Cargo.toml` passed
+  with 13/13 Rust tests; `python3 tests/test_units_schema.py` passed.
+- No browser smoke was run because this tranche adds a backend command
+  contract, not visible unit picker/display UI. Boundary review: no protected
+  content, private project data, unit defaulting, solver/report normalization,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

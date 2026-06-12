@@ -74,3 +74,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Recommendation is `MOVE_TO_CHECKING` for formal review readiness only, subject to explicit human Gate 5 lifecycle action. `_STATUS.md` remains unchanged.
 - Six active upstream dependency rows remain `PENDING` in `Dependencies.csv`; they stay visible as CHECKING review inputs and are not closed by this addendum.
 - This addendum makes no release, professional, code-compliance, certification, sealing, authentication, approval, external compatibility, or `ISSUED` claim.
+
+## 2026-06-12 - TP-UNITS-B2-CATALOGCMD-001 unit-catalog backend binding
+
+- Desktop backend now exposes `get_unit_catalog`, a Tauri command backed by
+  `core/units`, as the bounded B2 binding point for future material, section,
+  component, load, and rule-pack unit entry/display controls.
+- The command returns DEC-018 catalog metadata with stable unit ids, symbols,
+  dimensions, canonical flags, transform kinds, factor/offset representation
+  text, provenance, review status, and boundary flags.
+- Evidence is owned by DEL-02-02:
+  `execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_desktop_unit_catalog_binding.md`;
+  SMOKE ledger row TP-MAC-129.
+- Validation: focused Tauri command test passed 1/1; full
+  `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` passed with
+  32 unit tests and 0 doctests.
+- Boundary preserved: no visible unit picker/display retrofit, private payload
+  storage, protected data, standards-compliance claim, professional approval,
+  certification, sealing, authentication, release-readiness, or `ISSUED`
+  claim.
