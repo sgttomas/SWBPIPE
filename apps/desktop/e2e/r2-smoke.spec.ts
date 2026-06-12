@@ -112,6 +112,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
     "op:load-manager-load:L-100-kind"
   );
+  await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
+    "op:load-manager-load:L-100-delete"
+  );
+  await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
+    "before=load:L-100; Invented operating gravity and pressure preview; primitive_user_load; preview_only; primitives=4; after=not_present; unit=none; dimensionless"
+  );
   await expect(page.getByTestId("load-manager-selected-combination")).toContainText(
     "field=basis; current=mechanics"
   );

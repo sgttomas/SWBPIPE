@@ -3716,3 +3716,36 @@ after the timestamp marker were absent.
   repository-default private-data write, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-123 load-case deletion authoring (`TP-APP-R2-DELLOADCASE-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DELLOADCASE-001` (completion-plan Phase A11 fourth
+  sub-slice): the structured operation seam now accepts `delete_load_case`
+  intents, validates whole-load-case deletion metadata, refuses deletion while
+  any combination term still references the load case, and removes only the
+  selected unreferenced load case from the model. The contract corpus now has
+  53 cases and requires accepted `delete_load_case` plus blocking
+  `OP-LOAD-CASE-DELETE-REFERENCED` coverage in both Rust and browser wasm
+  lanes.
+- Load Cases manager smoke at `http://127.0.0.1:5173/` created
+  `load:L-300`, selected that unreferenced load case, queued
+  `op:load-manager-load:L-300-delete`, and applied the intent through the
+  Apply Operations panel.
+- Live browser evidence showed the load-case summary move from `2 load
+  cases; 7 primitive loads; 1 combinations` to `3 load cases; 7 primitive
+  loads; 1 combinations`, then back to `2 load cases; 7 primitive loads; 1
+  combinations`; review context `0 pending operations; applied_operations=2`;
+  acceptance `user_initiated_apply_in_local_session`; persistence
+  `session_state_only_not_yet_saved`; and `professional_approval=false`.
+- Console review during the live in-app browser smoke reported zero browser
+  console errors.
+- Automated evidence: operation_applier cargo suites green (45 unit tests,
+  canonical hash parity, 53-case corpus); desktop operationContractCorpus
+  Vitest 109/109; focused App Vitest 2/2; full desktop Vitest 201/201;
+  desktop production build green; Tauri Rust tests 29/29; Playwright R2 smoke
+  1/1 with load-case delete preview coverage.
+- Boundary review: local-only; invented values; whole-load-case deletion only
+  for unreferenced load cases; no hidden combination-term cascade; no cloud,
+  daemon, network, telemetry, protected content, repository-default
+  private-data write, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

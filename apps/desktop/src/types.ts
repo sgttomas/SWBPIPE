@@ -391,6 +391,7 @@ export type EditorOperationIntent = {
       | "create_material"
       | "create_support"
       | "create_load_case"
+      | "delete_load_case"
       | "create_primitive_load"
       | "delete_primitive_load"
       | "create_combination"

@@ -56,6 +56,7 @@ const REQUIRED_ACCEPTED_KINDS = [
   "create_material",
   "create_support",
   "create_load_case",
+  "delete_load_case",
   "create_primitive_load",
   "delete_primitive_load",
   "create_combination",
@@ -76,7 +77,8 @@ const REQUIRED_BLOCK_CODES = [
   "OP-VALUE-NOT-NUMERIC", // non-finite magnitude
   "OP-VALUE-EMPTY", // empty required text
   "OP-UNIT-DIMENSION-MISMATCH", // dynamic terms.N.factor block
-  "OP-SUPPORT-DELETE-REFERENCED" // support still referenced by primitive load
+  "OP-SUPPORT-DELETE-REFERENCED", // support still referenced by primitive load
+  "OP-LOAD-CASE-DELETE-REFERENCED" // load case still referenced by combination
 ] as const;
 
 type SemanticDiagnostic = {

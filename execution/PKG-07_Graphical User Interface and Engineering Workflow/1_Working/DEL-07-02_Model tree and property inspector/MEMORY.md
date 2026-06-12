@@ -595,3 +595,24 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-12 - TP-APP-R2-DELLOADCASE-001 load-case deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with
+  a `Queue delete case` intent section for the selected load-case row.
+- The UI queues a structured `delete_load_case` operation with the selected
+  load-case id/label/kind/status/primitive-count display as the before-state
+  guard and does not mutate the model directly.
+- Applying an unreferenced load-case deletion through `OperationApplyPanel`
+  removes the load-case row and updates the manager count; referenced load
+  cases are refused by the operation seam and surfaced through operation
+  diagnostics.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_load_case_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-123. Validation passed:
+  focused App Vitest 2/2, full desktop Vitest 201/201, desktop build,
+  Playwright smoke 1/1, and in-app browser load-case create/delete smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

@@ -46,7 +46,7 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const REQUIRED_ACCEPTED_KINDS: [&str; 16] = [
+const REQUIRED_ACCEPTED_KINDS: [&str; 17] = [
     "set_field",
     "update_load",
     "update_support",
@@ -56,6 +56,7 @@ const REQUIRED_ACCEPTED_KINDS: [&str; 16] = [
     "create_material",
     "create_support",
     "create_load_case",
+    "delete_load_case",
     "create_primitive_load",
     "delete_primitive_load",
     "create_combination",
@@ -65,7 +66,7 @@ const REQUIRED_ACCEPTED_KINDS: [&str; 16] = [
     "delete_combination_term",
 ];
 
-const REQUIRED_BLOCK_CODES: [&str; 11] = [
+const REQUIRED_BLOCK_CODES: [&str; 12] = [
     "OP-TARGET-ALREADY-EXISTS",                // duplicate id
     "OP-TARGET-NOT-FOUND",                     // missing target
     "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE", // unit mismatch
@@ -77,6 +78,7 @@ const REQUIRED_BLOCK_CODES: [&str; 11] = [
     "OP-VALUE-EMPTY",                          // empty required text
     "OP-UNIT-DIMENSION-MISMATCH",              // dynamic terms.N.factor block
     "OP-SUPPORT-DELETE-REFERENCED",            // support still referenced by primitive load
+    "OP-LOAD-CASE-DELETE-REFERENCED",          // load case still referenced by combination
 ];
 
 fn corpus_dir() -> PathBuf {

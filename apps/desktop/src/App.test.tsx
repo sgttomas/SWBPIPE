@@ -1797,6 +1797,85 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an explicit load-case deletion through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-load-label"), {
+      target: { value: "Temporary user case" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-load-case-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-create-load:L-300"
+      )
+    );
+
+    fireEvent.click(within(manager).getByTestId("load-manager-case-load:L-300"));
+    expect(within(manager).getByTestId("load-manager-load-case-delete-preview").textContent).toContain(
+      "op:load-manager-load:L-300-delete"
+    );
+    expect(within(manager).getByTestId("load-manager-load-case-delete-preview").textContent).toContain(
+      "before=load:L-300; Temporary user case; primitive_user_load; draft; primitives=0; after=not_present; unit=none; dimensionless"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-delete-load-case-intent"));
+
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain(
+      "load_cases"
+    );
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-2"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-300-delete"
+      )
+    );
+
+    expect(screen.queryByTestId("load-manager-case-load:L-300")).toBeNull();
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 7 primitive loads; 1 combinations"
+    );
+    expect(within(applyPanel).getByTestId("applied-operation-route-applied-2-editor-intent-2").textContent).toContain(
+      "persistence=session_state_only_not_yet_saved"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=2");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+  });
+
+  it("blocks load-case deletion while a combination term still references it", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.click(within(manager).getByTestId("load-manager-case-load:L-100"));
+    expect(within(manager).getByTestId("load-manager-load-case-delete-preview").textContent).toContain(
+      "op:load-manager-load:L-100-delete"
+    );
+    expect(within(manager).getByTestId("load-manager-load-case-delete-preview").textContent).toContain(
+      "before=load:L-100; Invented operating gravity and pressure preview; primitive_user_load; preview_only; primitives=4"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-delete-load-case-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Operation op:load-manager-load:L-100-delete was not applied (blocked); see its diagnostics."
+      )
+    );
+
+    expect(within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-LOAD-CASE-DELETE-REFERENCED").textContent).toContain(
+      "combination:C-OPER-ALT.terms.0"
+    );
+    expect(within(manager).getByTestId("load-manager-case-load:L-100").textContent).toContain(
+      "load:L-100; primitive_user_load; preview_only; primitives=4"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=0");
+  });
+
   it("queues and applies a concentrated-force primitive load through the manager panel", async () => {
     render(<App />);
 

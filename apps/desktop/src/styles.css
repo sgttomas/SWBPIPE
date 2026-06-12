@@ -1102,6 +1102,7 @@ button:focus-visible {
 .combination-basis-controls,
 .combination-factor-controls,
 .combination-delete-controls,
+.load-case-delete-controls,
 .combination-create-controls,
 .combination-term-create-controls,
 .load-case-create-controls,
@@ -1128,7 +1129,8 @@ button:focus-visible {
   grid-template-columns: minmax(118px, 0.9fr) minmax(130px, 1fr) minmax(92px, 0.7fr) minmax(104px, 0.8fr) minmax(74px, 0.5fr) minmax(0, 1fr) minmax(0, 1fr) auto;
 }
 
-.combination-delete-controls {
+.combination-delete-controls,
+.load-case-delete-controls {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
@@ -1141,6 +1143,7 @@ button:focus-visible {
 .combination-basis-controls label,
 .combination-factor-controls label,
 .combination-delete-controls label,
+.load-case-delete-controls label,
 .combination-create-controls label,
 .combination-term-create-controls label,
 .load-case-create-controls label,
@@ -1155,6 +1158,7 @@ button:focus-visible {
 .combination-basis-controls span,
 .combination-factor-controls span,
 .combination-delete-controls span,
+.load-case-delete-controls span,
 .combination-create-controls span,
 .combination-term-create-controls span,
 .load-case-create-controls span,
@@ -1169,6 +1173,7 @@ button:focus-visible {
 .combination-basis-controls input,
 .combination-factor-controls input,
 .combination-delete-controls input,
+.load-case-delete-controls input,
 .combination-create-controls input,
 .combination-create-controls select,
 .combination-term-create-controls input,
@@ -1190,6 +1195,7 @@ button:focus-visible {
 .combination-basis-controls button,
 .combination-factor-controls button,
 .combination-delete-controls button,
+.load-case-delete-controls button,
 .combination-create-controls button,
 .combination-term-create-controls button,
 .load-case-create-controls button,
@@ -1213,6 +1219,7 @@ button:focus-visible {
 .combination-basis-controls button:disabled,
 .combination-factor-controls button:disabled,
 .combination-delete-controls button:disabled,
+.load-case-delete-controls button:disabled,
 .combination-create-controls button:disabled,
 .combination-term-create-controls button:disabled,
 .load-case-create-controls button:disabled,

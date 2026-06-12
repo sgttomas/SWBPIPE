@@ -105,6 +105,9 @@ export function LoadCaseManagerPanel({
   const currentMetadataValue = selectedLoadCase ? loadCaseMetadataValue(selectedLoadCase, metadataField) : "";
   const [proposedMetadataValue, setProposedMetadataValue] = useState(currentMetadataValue);
   const [metadataRationale, setMetadataRationale] = useState("user_entered_load_case_metadata_preview_change");
+  const [loadCaseDeleteRationale, setLoadCaseDeleteRationale] = useState(
+    "user_entered_load_case_delete_preview_change"
+  );
   const currentCombinationFactor = selectedCombinationTerm ? combinationTermFactorDisplay(selectedCombinationTerm.term) : "";
   const [proposedCombinationFactor, setProposedCombinationFactor] = useState(currentCombinationFactor);
   const [combinationRationale, setCombinationRationale] = useState("user_entered_combination_factor_preview_change");
@@ -154,6 +157,14 @@ export function LoadCaseManagerPanel({
           field: metadataField,
           proposedValue: proposedMetadataValue,
           rationale: metadataRationale
+        })
+      : null;
+  const loadCaseDeleteIntent =
+    selectedLoadCase && loadCaseDeleteRationale.trim()
+      ? buildDeleteLoadCaseIntent({
+          model,
+          loadCase: selectedLoadCase,
+          rationale: loadCaseDeleteRationale
         })
       : null;
   const metadataOptions = loadMetadataOptions(model, metadataField, currentMetadataValue);
@@ -243,6 +254,7 @@ export function LoadCaseManagerPanel({
   useEffect(() => {
     setProposedMetadataValue(currentMetadataValue);
     setMetadataRationale("user_entered_load_case_metadata_preview_change");
+    setLoadCaseDeleteRationale("user_entered_load_case_delete_preview_change");
   }, [currentMetadataValue, metadataField, selectedLoadCase?.id]);
 
   useEffect(() => {
@@ -763,6 +775,32 @@ export function LoadCaseManagerPanel({
               ? `${metadataIntent.operation_id}; before=${metadataIntent.change.before}; after=${metadataIntent.change.after}; unit=${metadataIntent.change.unit}; ${metadataIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentMetadataValue}; no changed ${metadataField} queued`}
           </p>
+          <div className="load-case-delete-controls">
+            <label>
+              <span>Delete rationale</span>
+              <input
+                aria-label="Load case delete rationale"
+                data-testid="load-manager-load-case-delete-rationale"
+                onChange={(event) => setLoadCaseDeleteRationale(event.target.value)}
+                value={loadCaseDeleteRationale}
+              />
+            </label>
+            <button
+              data-testid="queue-delete-load-case-intent"
+              disabled={!loadCaseDeleteIntent}
+              onClick={() => loadCaseDeleteIntent && onQueueIntent(loadCaseDeleteIntent)}
+              title="Queue load-case delete operation"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete case
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-load-case-delete-preview">
+            {loadCaseDeleteIntent
+              ? `${loadCaseDeleteIntent.operation_id}; before=${loadCaseDeleteIntent.change.before}; after=${loadCaseDeleteIntent.change.after}; unit=${loadCaseDeleteIntent.change.unit}; ${loadCaseDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : "select a load case and provide rationale to queue deletion"}
+          </p>
         </section>
       ) : null}
 
@@ -1140,6 +1178,12 @@ export function LoadCaseManagerPanel({
 
 function loadCaseMetadataValue(loadCase: LoadCase, field: LoadMetadataField): string {
   return loadCase[field];
+}
+
+function loadCaseDisplay(loadCase: LoadCase): string {
+  return `${loadCase.id}; ${loadCase.label}; ${loadCase.kind}; ${loadCase.status}; primitives=${
+    loadCase.primitive_loads?.length ?? 0
+  }`;
 }
 
 function loadMetadataOptions(model: PreviewModel, field: LoadMetadataField, currentValue: string): string[] {
@@ -1626,6 +1670,66 @@ function buildLoadMetadataIntent({
       software_makes_authentication_claim: false
     },
     rationale: rationale.trim() || `load case metadata edit intent for ${model.project.id}`
+  };
+}
+
+function buildDeleteLoadCaseIntent({
+  model,
+  loadCase,
+  rationale
+}: {
+  model: PreviewModel;
+  loadCase: LoadCase;
+  rationale: string;
+}): EditorOperationIntent {
+  const operationToken = `${safeToken(loadCase.id)}-delete`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "delete",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Load",
+      ref: loadCase.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "delete_load_case",
+      field_label: `${loadCase.label} load case`,
+      field_path: "load_cases",
+      before: loadCaseDisplay(loadCase),
+      after: "not_present",
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered load-case deletion; whole load-case entity only"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `load-case delete intent for ${model.project.id}`
   };
 }
 

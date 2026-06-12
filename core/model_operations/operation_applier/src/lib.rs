@@ -684,6 +684,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut deleted_load_case: Option<String> = None;
+    if !checker.schema_blocked && change_kind == "delete_load_case" {
+        deleted_load_case = resolve_delete_load_case(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_primitive_load: Option<(String, Value)> = None;
     if !checker.schema_blocked && change_kind == "create_primitive_load" {
         created_primitive_load = resolve_create_primitive_load(
@@ -801,6 +815,7 @@ fn run(
         || created_material.is_some()
         || created_support.is_some()
         || created_load_case.is_some()
+        || deleted_load_case.is_some()
         || created_primitive_load.is_some()
         || deleted_primitive_load.is_some()
         || created_combination.is_some()
@@ -890,6 +905,15 @@ fn run(
         } else if let Some(load_case) = &created_load_case {
             let mut next_model = model.clone();
             if apply_created_load_case(&mut next_model, load_case) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(load_case_id) = &deleted_load_case {
+            let mut next_model = model.clone();
+            if apply_deleted_load_case(&mut next_model, load_case_id) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1138,6 +1162,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "create_material"
             | "create_support"
             | "create_load_case"
+            | "delete_load_case"
             | "create_primitive_load"
             | "delete_primitive_load"
             | "create_combination"
@@ -1171,6 +1196,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         | "create_primitive_load"
         | "create_combination"
         | "create_combination_term" => "create",
+        "delete_load_case" => "delete",
         "delete_primitive_load" => "delete",
         "delete_combination" => "delete",
         "delete_support" => "delete",
@@ -2203,6 +2229,112 @@ fn resolve_create_load_case(
         "provenance": provenance,
         "primitive_loads": []
     }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_delete_load_case(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<String> {
+    if object_type != "Load" || field_path != "load_cases" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-LOAD-CASE-SHAPE-INVALID",
+            "blocking",
+            "Delete-load-case intents must target object_type `Load` with field_path `load_cases`."
+                .to_string(),
+            "Refresh the load-case delete intent from the selected load-case row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if after != "not_present" {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-DELETE-AFTER-VALUE-INVALID",
+            "blocking",
+            "Delete-load-case intents must use after-value `not_present`.".to_string(),
+            "Re-queue the delete intent from the selected load-case row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for load-case deletion."),
+            "Delete load-case records with unit `none`; primitive-load quantities are nested records.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Delete-load-case dimension `{dimension}` must be `dimensionless`."),
+            "Emit load-case deletion with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(load_case) = find_entity(model, "load_cases", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Load case `{target_ref}` was not found in the current model."),
+            "Select an existing load case before deleting it.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(current_display) = load_case_delete_display(load_case) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-LOAD-CASE-PAYLOAD-INVALID",
+            "blocking",
+            format!("Load case `{target_ref}` is not a valid deletable load-case record."),
+            "Repair the model document before deleting load cases.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    let references = load_case_combination_references(model, target_ref);
+    if !references.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-LOAD-CASE-DELETE-REFERENCED",
+            "blocking",
+            format!(
+                "Load case `{target_ref}` is still referenced by combinations: {}.",
+                references.join(", ")
+            ),
+            "Delete or retarget dependent combination terms before deleting the load case.",
+            std::iter::once(target_ref.to_string())
+                .chain(references)
+                .collect(),
+        );
+        return None;
+    }
+
+    checker.reference_state = "passed";
+    check_before(&current_display, before, target_ref, field_path, checker);
+    Some(target_ref.to_string())
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -3944,6 +4076,20 @@ fn apply_created_load_case(model: &mut Value, load_case: &Value) -> bool {
     true
 }
 
+fn apply_deleted_load_case(model: &mut Value, load_case_id: &str) -> bool {
+    let Some(load_cases) = model.get_mut("load_cases").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    let Some(index) = load_cases
+        .iter()
+        .position(|load_case| load_case.get("id").and_then(Value::as_str) == Some(load_case_id))
+    else {
+        return false;
+    };
+    load_cases.remove(index);
+    true
+}
+
 fn apply_created_primitive_load(
     model: &mut Value,
     load_case_id: &str,
@@ -4138,6 +4284,35 @@ fn primitive_load_index_from_field_path(field_path: &str) -> Option<usize> {
 
 fn combination_term_display(load_case: &str, factor: f64) -> String {
     format!("{load_case} x {}", display_number(factor))
+}
+
+fn load_case_delete_display(load_case: &Value) -> Option<String> {
+    let id = load_case.get("id").and_then(Value::as_str)?.trim();
+    let label = load_case
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let kind = load_case
+        .get("kind")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let status = load_case
+        .get("status")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let primitive_count = load_case
+        .get("primitive_loads")
+        .and_then(Value::as_array)?
+        .len();
+    if id.is_empty() {
+        return None;
+    }
+    Some(format!(
+        "{id}; {label}; {kind}; {status}; primitives={primitive_count}"
+    ))
 }
 
 fn combination_delete_display(combination: &Value) -> Option<String> {
@@ -4358,6 +4533,31 @@ fn support_primitive_load_references(model: &Value, support_ref: &str) -> Vec<St
                         .unwrap_or("primitive_load:unknown")
                         .to_string(),
                 );
+            }
+        }
+    }
+    references.sort();
+    references.dedup();
+    references
+}
+
+fn load_case_combination_references(model: &Value, load_case_ref: &str) -> Vec<String> {
+    let Some(combinations) = model.get("combinations").and_then(Value::as_array) else {
+        return Vec::new();
+    };
+    let mut references = Vec::new();
+    for combination in combinations {
+        let combination_id = combination
+            .get("id")
+            .and_then(Value::as_str)
+            .unwrap_or("combination:unknown");
+        let Some(terms) = combination.get("terms").and_then(Value::as_array) else {
+            continue;
+        };
+        for (index, term) in terms.iter().enumerate() {
+            let term_load_case = term.get("load_case").and_then(Value::as_str);
+            if term_load_case == Some(load_case_ref) {
+                references.push(format!("{combination_id}.terms.{index}"));
             }
         }
     }
@@ -6380,6 +6580,103 @@ mod tests {
         missing_load["operation_kind"] = json!("delete");
         let blocked = apply_operation(&model, &missing_load, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_delete_load_case_removes_unreferenced_case_only() {
+        let mut model = sample_model();
+        model["load_cases"] = json!([
+            {
+                "id": "load:L-1",
+                "label": "Weight",
+                "kind": "primitive_user_load",
+                "status": "preview_only",
+                "provenance": "invented_example",
+                "primitive_loads": []
+            },
+            {
+                "id": "load:L-2",
+                "label": "Alternate",
+                "kind": "primitive_user_load",
+                "status": "preview_only",
+                "provenance": "invented_example",
+                "primitive_loads": [
+                    {
+                        "id": "load:L-2-Y",
+                        "category": "concentrated_force",
+                        "target": { "type": "node", "node": "node:N-2" },
+                        "direction": "global_y",
+                        "magnitude": { "value": 125.0, "unit": "N" },
+                        "dimension": "force",
+                        "provenance": "invented_example"
+                    }
+                ]
+            }
+        ]);
+        model["combinations"][0]["terms"] = json!([{ "load_case": "load:L-1", "factor": 1.0 }]);
+        let before_snapshot = model.clone();
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-2",
+            "delete_load_case",
+            "load_cases",
+            "load:L-2; Alternate; primitive_user_load; preview_only; primitives=1",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["load_cases"].as_array().unwrap().len(), 1);
+        assert_eq!(applied["load_cases"][0]["id"], json!("load:L-1"));
+
+        let mut stale = modify_intent(
+            "Load",
+            "load:L-2",
+            "delete_load_case",
+            "load_cases",
+            "load:L-2; Alternate; primitive_user_load; preview_only; primitives=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        stale["operation_kind"] = json!("delete");
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+
+        let mut referenced = modify_intent(
+            "Load",
+            "load:L-1",
+            "delete_load_case",
+            "load_cases",
+            "load:L-1; Weight; primitive_user_load; preview_only; primitives=0",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        referenced["operation_kind"] = json!("delete");
+        let blocked = apply_operation(&model, &referenced, None);
+        assert!(codes(&blocked).contains(&"OP-LOAD-CASE-DELETE-REFERENCED"));
         assert!(blocked.applied_model.is_none());
     }
 

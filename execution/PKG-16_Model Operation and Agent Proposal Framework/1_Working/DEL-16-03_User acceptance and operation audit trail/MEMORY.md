@@ -578,3 +578,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
+
+## 2026-06-12 - TP-APP-R2-DELLOADCASE-001 load-case deletion authoring
+
+- WORKING_ITEMS app-integration tranche verified that whole-load-case deletion
+  enters the session model only after the user queues and applies a structured
+  operation in the local session.
+- The app test creates `load:L-300`, applies
+  `op:load-manager-load:L-300-delete` through `OperationApplyPanel`, updates
+  the session model, clears stale solve results, leaves persistence at
+  `session_state_only_not_yet_saved`, and records no professional approval or
+  code-compliance claim.
+- The blocking app test verifies deletion of referenced `load:L-100` is
+  refused with `OP-LOAD-CASE-DELETE-REFERENCED` while
+  `combination:C-OPER-ALT.terms.0` still points at it.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_load_case_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-123. Validation passed:
+  operation-applier cargo suites, desktop operationContractCorpus 109/109,
+  focused App Vitest 2/2, full desktop Vitest 201/201, desktop build,
+  src-tauri Rust tests 29/29, Playwright smoke 1/1, and in-app browser
+  load-case create/delete smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.
