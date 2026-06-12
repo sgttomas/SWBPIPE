@@ -4256,8 +4256,28 @@ row (Apply button). After each apply, expect the apply summary to show
 
 ### Human execution record (fill in when performed — human entry per DEC-029)
 
+**Attempt 1 — 2026-06-12, human project authority, binary at `cc3b16cbd`:
+FAIL at step 2.** Clicking `New blank` produced: "Blank create failed:
+Error: WASM-ENGINE-ASSET-ABSENT: generated glue module import failed:
+TypeError: 'text/html' is not a valid JavaScript MIME type. — the wasm
+operation engine is required in browser mode (DEC-020 / ADR-0001) and no
+fallback engine exists." Root cause: the production build never shipped the
+generated wasm engine assets (frontend hashing requires them in every mode
+per H1/F-5a) and `tauri build` never built them. Repaired by
+`TP-APP-R2-WASMPKG-001` (see TP-MAC-144): assets now emitted via the Vite
+publicDir into `dist/`, `beforeBuildCommand` chains the wasm build, a
+build-time guard fails loudly on absence, and a production-dist Playwright
+lane replays this exact regression. The bundle is rebuilt with the fix;
+the checklist is unchanged.
+
+- Rebuilt binary provenance: commit `0b674b2e5` (contains
+  `TP-APP-R2-WASMPKG-001` and the `DEC-033` document-version bump),
+  `npm run tauri -- build --bundles app` (now self-sufficient — it builds
+  the wasm engine itself). Same bundle path as above.
+
 ```
-performed: NO (kit prepared 2026-06-12; awaiting human pass)
+performed: NO (attempt 1 failed on the packaged-asset defect, repaired;
+  awaiting human re-run against the 0b674b2e5 bundle)
 date:
 performed_by:
 binary commit:
@@ -4440,6 +4460,7 @@ notes:
   evidence for new bases stops at authoring/apply (pre-existing limit, not
   a new gap). Cross-shape basis conversion is intentionally
   delete-and-recreate. Corpus cases 58–65 await human review.
+  (Review recorded 2026-06-12: `DEC-032` accepted cases 58–65.)
 - Boundary review: invented values only; basis names stay code-neutral
   mechanics vocabulary with no code-specific load-combination defaults; no
   protected standards content or private project data; no network, cloud,
@@ -4447,3 +4468,59 @@ notes:
   professional, certification, sealing, authentication, or code-compliance
   claim. Combination results remain review-only preview mechanics
   quantities requiring human engineering review.
+
+## TP-MAC-144 packaged builds ship the wasm engine (`TP-APP-R2-WASMPKG-001`, 2026-06-12, regression repair)
+
+- Defect: the human TP-MAC-141 packaged pass (attempt 1) failed at `New
+  blank` with `WASM-ENGINE-ASSET-ABSENT` — frontend hashing requires the
+  wasm engine in every mode (H1/F-5a, no fallback), but the generated
+  assets were loaded via a vite-ignored dynamic import only the dev server
+  resolves; `dist/` never shipped them and `tauri build` never built them,
+  so the packaged asset protocol served `index.html` (`text/html` MIME) to
+  the module import.
+- Fix: `build-wasm-engine.mjs` emits into `apps/desktop/public/wasm-engine/`
+  (dev-served at root AND copied verbatim into `dist/`; DEC-025 F-4 atomic
+  rename preserved); loader browser lane imports a fully-qualified root URL
+  (valid under Vite dev, `vite preview`, and `tauri://localhost/`);
+  node/vitest lane probes the new disk candidates; `WASM-ENGINE-ASSET-ABSENT`
+  text and remediation unchanged, no fallback engine added.
+  `tauri.conf.json` `beforeBuildCommand` chains `npm run build:wasm`, so
+  `tauri build` is self-sufficient. New `wasm-engine-dist-guard` vite plugin
+  fails the production build loudly when assets are absent (demonstrated
+  during validation, then restored).
+- New evidence lane: `npm run test:e2e:dist --workspace apps/desktop` runs
+  Playwright against the production `dist/` via `vite preview` and replays
+  the exact regression (shell loads, engine ready, `New blank` succeeds).
+  The DEC-025 sweep runs it as a second command inside the existing
+  `desktop_playwright_e2e` surface (five surfaces unchanged).
+- Validation: Vitest 241/241; dev e2e 2/2; dist e2e 1/1; pytest 358/358;
+  production build green with `dist/wasm-engine/` shipped; rebuilt bundle
+  boot-checked clean. Honest residual: the `tauri://` protocol itself is
+  exercised only by the human TP-MAC-141 packaged pass.
+- Evidence: DEL-00-08 run record `TASK_RUN_2026-06-12_1355.md`.
+- Boundary review: no network, cloud, or telemetry surface; no lifecycle
+  state change; no release-readiness, professional, certification, sealing,
+  authentication, or code-compliance claim.
+
+## TP-MAC-145 model document version 0.2.0 per DEC-033 (`TP-APP-R2-DOCVER-020-001`, 2026-06-12)
+
+- Implements the `DEC-033` ruling: additive shape changes bump the minor
+  document version. `SUPPORTED_MODEL_SCHEMA_VERSION` is 0.2.0 on both
+  evaluation surfaces (src-tauri authority and the projectService mirror,
+  pending H2 unification), with published no-op transform
+  `model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop` (0.2.0 only
+  adds optional combination members). Blank documents author 0.2.0; opening
+  a 0.1.0 document migrates in memory with the migration id in the DEC-019
+  ledger; browser preview keeps stored snapshot bytes unchanged for
+  migrated documents (no unevidenced rewrite). Bundled preview fixtures stay
+  0.1.0-era and now exercise the real migration path; contract corpus
+  byte-identical (the applier does not version-gate documents).
+- Validation: src-tauri 33/33; applier 58+1+2/0; Vitest 241/241; pytest
+  358/358; build green; fmt clean.
+- Residuals routed to the plan's H2 row: panel-level `"0.1.0"` display
+  literals are stale for old-version session documents; desktop-save
+  hash-integrity edge for migrated bytes.
+- Evidence: DEL-02-05 run record `TASK_RUN_2026-06-12_1407.md`.
+- Boundary review: no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

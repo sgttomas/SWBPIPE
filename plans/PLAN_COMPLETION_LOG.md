@@ -13,6 +13,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - Regression repair: packaged builds ship the wasm engine (`TP-APP-R2-WASMPKG-001`)
+
+The first human TP-MAC-141 packaged pass failed at `New blank` with
+`WASM-ENGINE-ASSET-ABSENT` — the F-4 seam doing its job. Root cause: frontend
+hashing requires the wasm engine in every mode (H1/F-5a, no fallback), but
+the generated assets rode a vite-ignored dynamic import only the dev server
+resolves; `dist/` never shipped them and `tauri build` never built them.
+Fix: assets emit into the Vite publicDir (`public/wasm-engine/`, atomic
+rename preserved), the loader imports a fully-qualified root URL valid in
+dev/preview/`tauri://` lanes plus node fs candidates,
+`beforeBuildCommand` chains the wasm build (self-sufficient `tauri build`),
+a `wasm-engine-dist-guard` vite plugin fails production builds loudly on
+absence (demonstrated), and a new production-dist Playwright lane
+(`test:e2e:dist`) replays the regression against `vite preview` — run by the
+DEC-025 sweep as a second command inside the existing e2e surface (five
+surfaces unchanged). Validation: Vitest 241/241, dev e2e 2/2, dist e2e 1/1,
+pytest 358/358, build green, rebuilt bundle boot-checked. Honest residual:
+the `tauri://` protocol itself is exercised only by the human packaged pass.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-144 and the TP-MAC-141 attempt-1
+failure record; DEL-00-08 run record `TASK_RUN_2026-06-12_1355.md`.
+
+## 2026-06-12 - DEC-033 implemented: model document 0.2.0 (`TP-APP-R2-DOCVER-020-001`)
+
+`SUPPORTED_MODEL_SCHEMA_VERSION` 0.1.0 → 0.2.0 on both evaluation surfaces
+(src-tauri authority + projectService mirror, pending H2 unification) with
+published no-op transform `model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop`.
+Blank documents author 0.2.0; 0.1.0 documents migrate in memory with the
+migration id in the DEC-019 ledger; browser preview keeps stored snapshot
+bytes unchanged for migrated documents. Bundled preview fixtures deliberately
+stay 0.1.0-era and now exercise the real migration path; contract corpus
+byte-identical. Validation: src-tauri 33/33, applier 58+1+2/0, Vitest
+241/241, pytest 358/358, build green. Residuals routed to the H2 row (panel
+version-literal display staleness; migrated-bytes hash-integrity edge).
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-145; DEL-02-05 run record
+`TASK_RUN_2026-06-12_1407.md`.
+
 ## 2026-06-12 - A4 sub-slice landed: subtraction/range combination authoring (`TP-APP-R2-COMBEXPR-001`)
 
 Closed combination basis set landed end-to-end mirroring the
