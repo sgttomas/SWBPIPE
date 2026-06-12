@@ -1,4 +1,5 @@
 import { CheckCheck, PlayCircle, Redo2, SearchCheck, Undo2 } from "lucide-react";
+import type { OperationEngineStatus } from "../../services/operationService";
 import type { AppliedOperationReceipt, EditorOperationIntent, OperationOutcome } from "../../types";
 
 export function OperationApplyPanel({
@@ -9,6 +10,7 @@ export function OperationApplyPanel({
   redoCount,
   busy,
   message,
+  engineStatus,
   onValidate,
   onApply,
   onUndo,
@@ -21,6 +23,7 @@ export function OperationApplyPanel({
   redoCount: number;
   busy: boolean;
   message: string | null;
+  engineStatus: OperationEngineStatus;
   onValidate: (intent: EditorOperationIntent) => void;
   onApply: (intent: EditorOperationIntent) => void;
   onUndo: () => void;
@@ -36,6 +39,10 @@ export function OperationApplyPanel({
         {queuedIntents.length} queued; {appliedOperations.length} applied this session. Applying validates through the
         structured-operation seam and replaces the session model document; saving the project stores it locally.
       </p>
+      <small className="muted" data-testid="operation-engine-status">
+        engine_route={engineStatus.route}; engine_state={engineStatus.state}
+        {engineStatus.detail ? `; ${engineStatus.detail}` : ""}
+      </small>
       <div className="operation-history-actions" aria-label="Session edit history">
         <button
           data-testid="undo-session-model-edit"

@@ -3298,3 +3298,52 @@ after the timestamp marker were absent.
   sealing, authentication, or code-compliance claims. The plan §5 freeze
   rule was honored: no new operation kinds or field rules entered the TS
   engine.
+
+## TP-MAC-110 wasm-engine-swap (2026-06-11)
+
+- Tranche: `TP-SEAM-WASM-001` (T3) + `TP-SEAM-SWAP-001` (T4) of the
+  operation-seam unification plan (`DEC-020` / ADR-0001): the wasm32 build
+  of `core/model_operations/operation_applier` is now the sole browser-mode
+  operation engine, and the TypeScript engine no longer exists.
+- Engine swap checks: `operationService.ts` reduced from 2,280 lines (full
+  validation/diff/apply engine with private field-rule, dimension, and
+  restraint tables) to a 112-line thin routing adapter — Tauri present →
+  `invoke` (authoritative, unchanged); otherwise the wasm engine. Net
+  deletion across the engine and its superseded 17-test engine spec: −3,114
+  lines, +200 lines (adapter + 6 thin adapter tests covering routing, the
+  wasm input-error envelope as an explicit thrown error, and engine-status
+  reporting). Intent builders, types, and UI are retained.
+- Honest receipts: browser-mode `application_route` is now
+  `local_wasm_engine` (type union updated; UI receipt line and App test
+  assertion updated). The Apply Operations panel reports
+  `engine_route`/`engine_state` via the new `operation-engine-status`
+  testid; an absent wasm artifact reports `unavailable` with the
+  `WASM-ENGINE-ASSET-ABSENT` diagnostic and exact build command — no
+  fallback engine exists.
+- Corpus continuity: the 44-case contract corpus now runs two browser lanes
+  — through the public adapter seam (wasm-backed) and through the wasm
+  engine directly — against the Rust-blessed native reference, preserving
+  semantic and canonical-hash parity as the permanent native↔wasm
+  regression surface. Vitest setup pre-warms the engine; `test:e2e` builds
+  the wasm artifact first.
+- Playwright extension: the smoke spec waits on the engine-ready status,
+  then applies the prepared explicit viewport node intent in a real Chrome
+  browser and asserts the `route=local_wasm_engine` receipt and the
+  by-design clearing of stale solve results.
+- Local validation: cargo profile sweep
+  (`tools/release/check_release_readiness.py --profile cargo --execute`)
+  passed across all 25 discovered crate manifests (51 green test-result
+  lines, exit 0); `python3 -m pytest -q tests` passed 342/342 (unaffected);
+  `npm test --workspace apps/desktop` passed 140/140 across 7 files (was
+  151: −17 superseded engine tests, +6 adapter tests); `npm run
+  test:e2e:desktop` passed 1/1 including the new engine-route assertions;
+  `npm run build --workspace apps/desktop` passed through `tsc -b` and Vite
+  production build (index chunk at the existing ~577 kB baseline with the
+  standing chunk-size warning; the wasm engine loads dynamically and is not
+  bundled).
+- Boundary review: wasm runs in-process (local-only; no cloud, daemon,
+  network, or telemetry surface); invented corpus and fixture data only; no
+  protected standards content; no release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claims. The
+  plan §5 freeze rule was honored through the swap and is lifted at this
+  landing: browser-mode operation work now lands in the single Rust engine.

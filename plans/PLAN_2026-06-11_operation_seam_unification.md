@@ -7,6 +7,8 @@
 
 **Plan acceptance (RULED 2026-06-11):** the human project authority accepted this plan as the active hardening-lane selection and **authorized the executing agent to add this plan's pointer to the Active Surface list in [_COORDINATION.md](../execution/_Coordination/_COORDINATION.md)** (one-line edit alongside the completion-plan pointer, to be removed when this plan closes). The handoff agent performs that edit as its first coordination action, then executes T1→T4 in order. The §5 freeze rule is in force as of acceptance.
 
+**PLAN CLOSED 2026-06-11:** T1–T4 all LANDED (see §3 rows); §4 exit criteria met; §5 freeze rule lifted at the T4 landing; the Active Surface pointer was removed per the acceptance authorization above. This file remains as history; narrative lives in [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). Deferred items roll forward per §9 into the next development-plan revision.
+
 ---
 
 ## 1. Problem and basis (FACT unless labeled)
@@ -53,14 +55,7 @@ The mirror was a deliberate, code-level choice (its header names the Rust crate 
 
 ### T4 — `TP-SEAM-SWAP-001`: route browser mode through wasm; delete the TS engine (proceeds after T2 transcription)
 
-**Scope.**
-- `operationService.ts` becomes a thin adapter (target ≤ ~250 lines): Tauri present → `invoke` (authoritative, unchanged); otherwise → wasm module. Receipts stay honest: `application_route` browser value becomes `local_wasm_engine`; UI copy and tests updated.
-- **Delete** the TS validation/diff/apply logic and its private tables (field rules, dimension set, restraint tokens). Intent builders, types, and UI are retained.
-- Test migration: the 17 engine tests are superseded by the corpus (T1) plus thin adapter tests; App-level Vitest tests run against the wasm engine (async engine init in test setup); Playwright spec passes unchanged plus a new engine-route assertion (engine-ready testid guards init timing).
-- Closeout: corpus comparisons retire the TS lane and continue as native↔wasm parity + regression fixtures; SMOKE entry; completion-log entry; plan rows compressed; lift the §5 freeze rule.
-
-**Write targets:** `apps/desktop/src/**`, `apps/desktop/e2e/**`, `apps/desktop/SMOKE.md`, run records.
-**Evidence:** full surfaces green — `cargo` profile sweep, `npm test --workspace apps/desktop`, `npm run test:e2e:desktop`, desktop production build; line-count evidence of the deletion. Run records to DEL-16-02, DEL-16-03, DEL-07-02, DEL-00-08.
+**LANDED 2026-06-11** — `TP-SEAM-SWAP-001`: `operationService.ts` is a 112-line thin routing adapter (Tauri `invoke` else wasm; ≤ ~250 target met); TS engine + private tables deleted, 17 engine tests superseded by corpus + 6 adapter tests (net −3,114/+200 lines); browser route receipt now `local_wasm_engine`; apply panel reports engine status (`operation-engine-status`); corpus continues as native↔wasm parity (adapter lane + direct lane); Playwright extended with engine-ready wait + real-browser apply route assertion; full surfaces green (cargo sweep exit 0 across 25 manifests; pytest 342/342; Vitest 140/140; Playwright 1/1; production build, index chunk at baseline). §5 freeze rule lifted at this landing. No residuals. Evidence: `apps/desktop/SMOKE.md` TP-MAC-110; DEL-16-02 `_run_records/WORKING_ITEMS_RUN_2026-06-11_t4_wasm_engine_swap.md` (fan-out: DEL-16-03, DEL-07-02, DEL-00-08); narrative in [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md).
 
 ## 4. Exit criteria
 
@@ -70,7 +65,7 @@ The mirror was a deliberate, code-level choice (its header names the Rust crate 
 4. `LocalFeaHandoffPanel` fixture fallback replaced by an explicit finding.
 5. All test surfaces green at closeout (pytest unaffected; cargo; Vitest; Playwright; production build), SMOKE/run-record/completion-log evidence recorded, tranches committed and pushed per the loop.
 
-## 5. Interim guardrails (from plan acceptance until T4 lands)
+## 5. Interim guardrails (from plan acceptance until T4 lands — **lifted 2026-06-11 at the T4 landing**)
 
 - **Freeze rule:** no new operation kinds or field rules enter the TS engine. If an urgent authoring slice must land mid-window, it ships Tauri-only with an explicit browser block (named diagnostic, e.g. `BROWSER_OPERATION_BACKEND_REQUIRED`, following the existing edited-model solve-guard pattern) — an honest finding, never a silent divergence.
 - All standing boundary prohibitions hold: invented fixtures only with provenance; no protected standards content; no network/daemon/cloud surfaces (wasm runs in-process; local-first intact); no compliance/certification/approval language; deferred fields stay deferred (the corpus encodes blocked-stays-blocked); semantics are preserved — this plan changes *where* validation runs, never *what* it accepts.

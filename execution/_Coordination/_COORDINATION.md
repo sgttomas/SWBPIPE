@@ -19,7 +19,6 @@ Primary pointers:
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 - `docs/_Registers/*.csv`
 - `plans/PLAN_2026-06-10_prd_completion.md`
-- `plans/PLAN_2026-06-11_operation_seam_unification.md`
 - `execution/_Coordination/_DECISIONS/_REGISTER.md`
 - `package.json`
 - `apps/desktop/package.json`

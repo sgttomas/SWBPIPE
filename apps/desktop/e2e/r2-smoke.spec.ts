@@ -6,6 +6,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await expect(page.getByRole("heading", { name: "OpenPipeStress Technical Preview" })).toBeVisible();
+  // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
+  // through the wasm32 operation_applier build; wait for init before edits.
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
@@ -214,6 +219,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);
+
+  // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
+  // node intent through the structured-operation seam in a real browser and
+  // verify the honest wasm-engine route on the applied receipt. Runs last:
+  // applying clears earlier solve results by design.
+  await page.getByTestId("queue-explicit-node-intent").click();
+  const applyPanel = page.getByTestId("operation-apply-panel");
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
+  await page.getByTestId("apply-intent-editor-intent-1").click();
+  await expect(applyPanel.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText(
+    "route=local_wasm_engine"
+  );
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 });
 
 type PngImage = {

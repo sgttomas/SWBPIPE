@@ -5608,7 +5608,7 @@ describe("OpenPipeStress desktop preview", () => {
 
     // Applied receipt with honest route, acceptance, and persistence labels.
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("route=browser_fixture_local_apply");
+    expect(receipt.textContent).toContain("route=local_wasm_engine");
     expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
     expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
     expect(receipt.textContent).toContain("professional_approval=false");

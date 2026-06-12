@@ -13,6 +13,50 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — Operation-seam plan T4 and plan closure: wasm route swap, TS engine deleted (`TP-SEAM-SWAP-001`)
+
+The structured editor-operation seam is now implemented exactly once. In
+every environment — packaged Tauri, Vite dev browser, jsdom Vitest,
+Playwright Chrome — validation and apply outcomes are produced by
+`core/model_operations/operation_applier` (native via the Tauri commands,
+wasm32 otherwise). The TypeScript engine and its private semantic tables
+(field rules, canonical dimension set, restraint tokens, deferred fields,
+collections) no longer exist in the tree.
+
+`operationService.ts` shrank from a 2,280-line engine to a 112-line thin
+routing adapter (Tauri `invoke` else wasm; wasm input-error envelope
+surfaces as an explicit thrown error; honest engine-status reporting). Its
+17 engine tests (911 lines) are superseded by the contract corpus + 6
+adapter tests; net deletion −3,114/+200 lines. Browser receipts now read
+`route=local_wasm_engine`; the apply panel reports engine readiness via
+`operation-engine-status` with the named `WASM-ENGINE-ASSET-ABSENT`
+diagnostic and exact build command when the artifact is missing. The corpus
+TS lane retired with the engine: the Vitest runner keeps two lanes (public
+adapter seam, wasm engine direct) against the Rust-blessed reference as the
+permanent native↔wasm parity + regression surface. Vitest setup pre-warms
+the engine; `test:e2e` builds the artifact first; the Playwright spec waits
+on engine-ready and ends with a real-browser apply asserting the wasm route
+receipt.
+
+Evidence: cargo profile sweep exit 0 (25 manifests, zero failures); pytest
+342/342; Vitest 140/140; Playwright 1/1; production build green (index
+chunk at the ~577 kB baseline — the engine loads dynamically).
+`apps/desktop/SMOKE.md` TP-MAC-110; primary run record at DEL-16-02
+`_run_records/WORKING_ITEMS_RUN_2026-06-11_t4_wasm_engine_swap.md` (fan-out
+records at DEL-16-03, DEL-07-02, DEL-00-08).
+
+**Plan closure.** With T4 landed, all §4 exit criteria of
+[PLAN_2026-06-11_operation_seam_unification.md](PLAN_2026-06-11_operation_seam_unification.md)
+are met: one engine; corpus executing in both `cargo test` and `npm test`
+with hash parity; D-13 RULED → `DEC-020` with ADR-0001 accepted on the
+stood-up ADR surface; the `LocalFeaHandoffPanel` fallback replaced; all
+test surfaces green with evidence recorded. The §5 freeze rule is lifted;
+the plan's Active Surface pointer in `_COORDINATION.md` was removed per the
+acceptance authorization. Deferred items (plan §9) — including the R2
+from-scratch authoring set and Phase B B2, both deliberately sequenced
+after this unification — roll forward to completion-plan selection, which
+now resumes.
+
 ## 2026-06-11 — Operation-seam plan T3: wasm build enablement (`TP-SEAM-WASM-001`)
 
 The wasm32 build of `core/model_operations/operation_applier` is now a

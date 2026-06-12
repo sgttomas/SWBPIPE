@@ -71,7 +71,13 @@ import type {
   BackendSolveJobStatus,
   SolveJobStartReceipt
 } from "./services/previewService";
-import { applyModelOperation, validateModelOperation } from "./services/operationService";
+import {
+  applyModelOperation,
+  initialOperationEngineStatus,
+  validateModelOperation,
+  warmupOperationEngine,
+  type OperationEngineStatus
+} from "./services/operationService";
 import {
   createLocalProject,
   getLocalStorageCapability,
@@ -140,6 +146,9 @@ export function App() {
   const [redoStack, setRedoStack] = useState<SessionModelCheckpoint[]>([]);
   const [operationBusy, setOperationBusy] = useState(false);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
+  const [operationEngineStatus, setOperationEngineStatus] = useState<OperationEngineStatus>(() =>
+    initialOperationEngineStatus()
+  );
   const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
@@ -173,6 +182,19 @@ export function App() {
       active = false;
     };
   }, [model]);
+
+  // Warm up the operation engine and report its honest route/readiness.
+  // Browser mode lazily loads the wasm32 operation_applier build; an absent
+  // artifact surfaces as an explicit unavailable status, never a fallback.
+  useEffect(() => {
+    let active = true;
+    warmupOperationEngine().then((status) => {
+      if (active) setOperationEngineStatus(status);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function handleRun() {
     setRunning(true);
@@ -672,6 +694,7 @@ export function App() {
             redoCount={redoStack.length}
             busy={operationBusy}
             message={operationMessage}
+            engineStatus={operationEngineStatus}
             onValidate={handleValidateIntent}
             onApply={handleApplyIntent}
             onUndo={handleUndoSessionModelEdit}

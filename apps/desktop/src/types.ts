@@ -462,7 +462,7 @@ export type OperationOutcome = {
   document_kind: string;
   deliverable_refs: string[];
   mode: "validate_only" | "apply";
-  application_route: "tauri_backend_apply" | "browser_fixture_local_apply";
+  application_route: "tauri_backend_apply" | "local_wasm_engine";
   operation_id: string;
   change_id: string;
   operation_kind: string;
