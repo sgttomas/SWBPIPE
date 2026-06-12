@@ -4275,9 +4275,30 @@ the checklist is unchanged.
   `npm run tauri -- build --bundles app` (now self-sufficient — it builds
   the wasm engine itself). Same bundle path as above.
 
+**Attempt 2 — 2026-06-12, human project authority, binary at `0b674b2e5`
+(recorded by the coordinating agent on the human's explicit stated
+authority): NOT COMPLETED — abandoned for usability.** Step 1–2 passed on
+the repaired binary: launch clean, `New blank` created the blank document
+("Created blank local model document without fixture entities or external
+file copies."), and model-hash persistence ran (observed status:
+`persisted_model_hashes=1;
+persisted_model_hash_ref=sha256:cff048ccb87de950e14e6ca83a53a871dbdb76b702515311eed0c36cff6c1bff`).
+The authoring journey (steps 3–18) was not completed. Human verdict,
+verbatim: "no it's impossible to use, but the button did reset some stuff.
+There's a long way to go development wise and the interface is so confusing
+and poorly laid out that I can't even get through that checklist. I'm not
+telling you that we have to halt progress, either. Following a line of
+development according to plan has merit, so long as there aren't blockers
+or significant risks." No report was rendered; no report SHA-256 exists for
+this attempt. **F-4 remains open.** Finding recorded to the completion
+plan's A3 row: the packaged-runtime functional chain is repaired, but
+authoring-journey usability now blocks the human pass — the R2 criterion's
+"a user can create, solve, and report" is not yet humanly demonstrable
+end-to-end, independent of mechanical correctness.
+
 ```
-performed: NO (attempt 1 failed on the packaged-asset defect, repaired;
-  awaiting human re-run against the 0b674b2e5 bundle)
+performed: NO (attempt 2 abandoned for usability; F-4 open;
+  re-run after authoring-UX work makes the journey completable)
 date:
 performed_by:
 binary commit:
