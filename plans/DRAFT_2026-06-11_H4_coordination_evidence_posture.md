@@ -1,12 +1,10 @@
 # DRAFT — H4 evidence-posture amendments to `_COORDINATION.md`
 
-**Status:** `PROPOSAL` (non-governing draft). Plan row H4
-(`plans/PLAN_2026-06-10_prd_completion.md` §Hardening lane; seam plan §9.2
-roll-forward) calls for these coordination-record amendments and requires
-explicit human approval before any edit to
-`execution/_Coordination/_COORDINATION.md`. This file is the draft wording
-only. It changes nothing until a human approves and the edit is applied in
-a recorded tranche.
+**Status:** APPROVED and APPLIED — the human project authority approved
+this wording on 2026-06-11 ("I approve the 'H4' amendments"); the insertion
+landed in `execution/_Coordination/_COORDINATION.md` step 8 the same day
+(tranche `TP-H4-EVIDENCE-POSTURE-001`). This file is retained as the draft
+basis and approval pointer; the live coordination record is authoritative.
 
 ## Proposed insertion
 

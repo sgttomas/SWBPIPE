@@ -301,6 +301,20 @@ bounded tranche.
    expected evidence usually includes `npm test --workspace apps/desktop`,
    `npm run build --workspace apps/desktop`, applicable Rust/Python checks,
    and browser/smoke evidence when UI behavior changes.
+   UI evidence posture: when a tranche changes user-visible desktop
+   behavior, the default evidence is an extension of the Playwright e2e
+   spec(s) exercising the changed behavior in a real browser; a manual
+   live-browser smoke note in `apps/desktop/SMOKE.md` without a spec
+   extension is the exception and must record why automation was not
+   extended. New React components land with unit tests (Vitest) at or above
+   the slice's existing coverage pattern; a component with no unit test is a
+   recorded evidence gap, not a silent omission. Homogeneous UI slices
+   (several near-identical forms, rows, or panels produced from one
+   template) may record one template-level test plus per-instance smoke
+   assertions instead of duplicating the full suite per instance, provided
+   the run record names every instance covered by the template rule.
+   (Inserted 2026-06-11 per the human-approved H4 amendment; draft basis
+   `plans/DRAFT_2026-06-11_H4_coordination_evidence_posture.md`.)
 9. **Handoff and git closeout.** Record completed work, residual app gaps,
    validation state, and boundary review in the touched app/evidence surfaces
    and any explicitly selected deliverable memory/review files. Update the
