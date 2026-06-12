@@ -13,6 +13,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A11 second sub-slice: primitive-load deletion authoring (`TP-APP-R2-DELPRIMLOAD-001`)
+
+The structured operation seam now accepts `delete_primitive_load` as a
+delete-kind operation. `core/model_operations/operation_applier` validates
+indexed primitive-load deletion intents with no direct mutation, requires
+`field_path=primitive_loads.N`, `after=not_present`, current primitive
+before-state display, and matching primitive unit/dimension metadata. Apply
+removes exactly one primitive load from the owning load case and returns a
+new model document. The cross-engine contract corpus added
+`case_50_accept_delete_primitive_load.json`; both native Rust and browser wasm
+lanes require accepted `delete_primitive_load` coverage.
+
+The desktop Load Cases manager now exposes a `Queue delete` action for the
+selected primitive load. The action queues a review-only structured operation
+with the selected primitive id/category/target/direction/magnitude as the
+before-state guard. Applying the queued operation uses the existing Apply
+Operations panel, records the same local-session acceptance receipt, clears
+stale solve/report state, and updates the primitive-load list/counts without
+inventing any replacement load.
+
+Evidence:
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_primitive_load_authoring.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_primitive_load_authoring.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_primitive_load_authoring.md`;
+`apps/desktop/SMOKE.md` TP-MAC-121. Validation: operation_applier cargo
+suites 43 unit + canonical hash + 50-case corpus; corpus bless and rerun
+green; desktop operationContractCorpus Vitest 103/103; focused App Vitest
+1/1; full desktop Vitest 192/192; desktop production build green; Tauri Rust
+tests 29/29; Playwright R2 smoke 1/1; local Chrome primitive-load delete
+smoke at `http://127.0.0.1:5173/` with zero console errors.
+
+Residual hand-offs: A11 remains open for node, pipe run, load case, and full
+combination entity deletion; `delete_combination_term` remains the existing
+term-level deletion operation. A12 must still rehearse the full from-blank
+create -> solve -> report path. No lifecycle state, release readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim is created.
+
 ## 2026-06-12 - A11 first sub-slice: support deletion authoring (`TP-APP-R2-DELSUPPORT-001`)
 
 The structured operation seam now accepts `delete_support` as a delete-kind

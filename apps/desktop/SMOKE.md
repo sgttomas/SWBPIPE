@@ -3655,3 +3655,33 @@ after the timestamp marker were absent.
   cloud, daemon, network, telemetry, protected content, repository-default
   private-data write, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-121 primitive-load deletion authoring (`TP-APP-R2-DELPRIMLOAD-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DELPRIMLOAD-001` (completion-plan Phase A11 second
+  sub-slice): the structured operation seam now accepts
+  `delete_primitive_load` intents, validates indexed primitive-load deletion
+  metadata, and removes only the selected primitive load from the owning load
+  case. The contract corpus now has 50 cases and requires accepted
+  `delete_primitive_load` in both Rust and browser wasm lanes.
+- Load Cases manager smoke at `http://127.0.0.1:5173/` selected
+  `load:L-100-Y`, queued
+  `op:load-manager-load:L-100-load:L-100-Y-delete`, and applied the intent
+  through the Apply Operations panel.
+- Live browser evidence showed `load:L-100-Y` removed from the primitive-load
+  list, load-case summary changed to `2 load cases; 6 primitive loads; 1
+  combinations`, `load:L-100` primitive count changed to `3`, review context
+  `0 pending operations; applied_operations=1`, acceptance
+  `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live Chrome smoke reported zero browser console
+  errors.
+- Automated evidence: operation_applier cargo suites green (43 unit tests,
+  canonical hash parity, 50-case corpus); desktop operationContractCorpus
+  Vitest 103/103; focused App Vitest 1/1; full desktop Vitest 192/192;
+  desktop production build green; Tauri Rust tests 29/29; Playwright R2 smoke
+  1/1.
+- Boundary review: local-only; invented values; primitive-load deletion only;
+  no cloud, daemon, network, telemetry, protected content, repository-default
+  private-data write, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

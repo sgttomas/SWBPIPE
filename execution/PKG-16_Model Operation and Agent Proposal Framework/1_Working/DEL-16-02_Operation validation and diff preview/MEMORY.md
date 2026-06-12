@@ -537,3 +537,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no hidden deletion cascade, no durable persistence,
   no protected/private data, and no professional, release, or code-compliance
   claim.
+
+## 2026-06-12 - TP-APP-R2-DELPRIMLOAD-001 primitive-load deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` to validate, diff, and apply explicit
+  `delete_primitive_load` operations.
+- Accepted intents must target an existing `Load` with
+  `field_path=primitive_loads.N`, use `operation_kind=delete`, carry the
+  current primitive id/category/target/direction/magnitude display as
+  `before`, carry `after=not_present`, and use the selected primitive load's
+  current unit and dimension metadata.
+- Missing load cases, missing primitive arrays, out-of-range primitive
+  indices, stale before-values, and wrong unit/dimension metadata are blocked.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_primitive_load_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-121. Validation passed:
+  operation-applier cargo suites (43 unit + canonical hash + 50-case corpus),
+  corpus bless/rerun, desktop operationContractCorpus 103/103, full desktop
+  Vitest 192/192, desktop build, src-tauri Rust tests 29/29, Playwright smoke
+  1/1, and live Chrome primitive-load delete smoke with zero console errors.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden deletion cascade, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.

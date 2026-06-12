@@ -2116,6 +2116,54 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
   });
 
+  it("queues and applies an explicit primitive load deletion through the manager panel", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    const primitiveRow = within(manager).getByTestId("load-manager-primitive-load:L-100-Y");
+    expect(primitiveRow.textContent).toContain("occasional; 350 N");
+    fireEvent.click(primitiveRow);
+
+    expect(within(manager).getByTestId("load-manager-primitive-delete-preview").textContent).toContain(
+      "op:load-manager-load:L-100-load:L-100-Y-delete"
+    );
+    expect(within(manager).getByTestId("load-manager-primitive-delete-preview").textContent).toContain(
+      "before=load:L-100-Y; occasional; node:node:N-140; global_y; 350 N; force"
+    );
+    fireEvent.click(within(manager).getByTestId("queue-delete-primitive-load-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "primitive_loads.1"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "not_present"
+    );
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-Y-delete"
+      )
+    );
+
+    expect(screen.queryByTestId("load-manager-primitive-load:L-100-Y")).toBeNull();
+    expect(within(manager).getByTestId("load-case-manager-summary").textContent).toContain(
+      "2 load cases; 6 primitive loads; 1 combinations"
+    );
+    expect(within(manager).getByTestId("load-manager-case-load:L-100").textContent).toContain(
+      "load:L-100; primitive_user_load; preview_only; primitives=3"
+    );
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
   it("queues and applies load-case status metadata through the manager panel", async () => {
     render(<App />);
 

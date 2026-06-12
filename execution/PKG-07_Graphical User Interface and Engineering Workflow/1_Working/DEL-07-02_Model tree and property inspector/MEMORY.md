@@ -89,6 +89,25 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-12 - TP-APP-R2-DELPRIMLOAD-001 primitive-load deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Load Cases manager with a
+  primitive-load `Queue delete` intent for the selected primitive row.
+- The UI queues a structured `delete_primitive_load` operation with the
+  selected primitive load's display and unit/dimension metadata as guards and
+  does not mutate the model directly.
+- Applying the operation through `OperationApplyPanel` removes the primitive
+  row and updates load-case summary counts.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_primitive_load_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-121. Validation passed:
+  focused App Vitest 1/1, full desktop Vitest 192/192, desktop build,
+  Playwright smoke 1/1, and in-app browser primitive-load delete smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.
+
 ## 2026-06-12 - TP-APP-R2-CREATESUPPORT-001 support creation inspector form
 
 - WORKING_ITEMS app-integration tranche added a Property Inspector

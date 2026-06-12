@@ -698,6 +698,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut deleted_primitive_load: Option<(String, usize)> = None;
+    if !checker.schema_blocked && change_kind == "delete_primitive_load" {
+        deleted_primitive_load = resolve_delete_primitive_load(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_combination: Option<Value> = None;
     if !checker.schema_blocked && change_kind == "create_combination" {
         created_combination = resolve_create_combination(
@@ -774,6 +788,7 @@ fn run(
         || created_support.is_some()
         || created_load_case.is_some()
         || created_primitive_load.is_some()
+        || deleted_primitive_load.is_some()
         || created_combination.is_some()
         || created_combination_term.is_some()
         || deleted_combination_term.is_some()
@@ -869,6 +884,15 @@ fn run(
         } else if let Some((load_case_id, primitive_load)) = &created_primitive_load {
             let mut next_model = model.clone();
             if apply_created_primitive_load(&mut next_model, load_case_id, primitive_load) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some((load_case_id, primitive_index)) = &deleted_primitive_load {
+            let mut next_model = model.clone();
+            if apply_deleted_primitive_load(&mut next_model, load_case_id, *primitive_index) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1091,6 +1115,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "create_support"
             | "create_load_case"
             | "create_primitive_load"
+            | "delete_primitive_load"
             | "create_combination"
             | "create_combination_term"
             | "delete_support"
@@ -1121,6 +1146,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         | "create_primitive_load"
         | "create_combination"
         | "create_combination_term" => "create",
+        "delete_primitive_load" => "delete",
         "delete_support" => "delete",
         "delete_combination_term" => "delete",
         "connect_pipe_run" => "connect",
@@ -2894,6 +2920,128 @@ fn resolve_create_combination_term(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn resolve_delete_primitive_load(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<(String, usize)> {
+    if object_type != "Load" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-PRIMITIVE-LOAD-SHAPE-INVALID",
+            "blocking",
+            "Delete-primitive-load intents must target object_type `Load`.".to_string(),
+            "Refresh the primitive-load delete intent from the explicit Load Cases manager row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let Some(primitive_index) = primitive_load_index_from_field_path(field_path) else {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-PRIMITIVE-LOAD-SHAPE-INVALID",
+            "blocking",
+            "Delete-primitive-load intents must target an indexed field_path like `primitive_loads.2`.".to_string(),
+            "Refresh the primitive-load delete intent from the selected primitive load row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if after != "not_present" {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-DELETE-AFTER-VALUE-INVALID",
+            "blocking",
+            "Delete-primitive-load intents must use after-value `not_present`.".to_string(),
+            "Re-queue the delete intent from the selected primitive load row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(load_case) = find_entity(model, "load_cases", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Load case `{target_ref}` was not found in the current model."),
+            "Select an existing load case before deleting a primitive load.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOADS-MISSING",
+            "blocking",
+            format!("Load case `{target_ref}` does not expose a primitive_loads array."),
+            "Repair the model document before deleting primitive loads.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(primitive_load) = primitive_loads.get(primitive_index) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOAD-NOT-FOUND",
+            "blocking",
+            format!("Load case `{target_ref}` does not have a primitive load at index {primitive_index}."),
+            "Re-queue the delete intent from the current primitive-load list.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some((current_display, current_unit, current_dimension)) =
+        primitive_load_delete_display(primitive_load)
+    else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-LOAD-PAYLOAD-INVALID",
+            "blocking",
+            format!("Load case `{target_ref}` primitive load {primitive_index} is not a valid primitive-load record."),
+            "Repair the model document before deleting primitive loads.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+
+    checker.unit_state = "passed";
+    if unit != current_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `{current_unit}` for primitive-load deletion."),
+            "Re-queue primitive-load deletion from the current row; no unit conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != current_dimension {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Delete-primitive-load dimension `{dimension}` does not match stored dimension `{current_dimension}`."),
+            "Emit primitive-load deletion with the selected load's current dimension metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    checker.reference_state = "passed";
+    check_before(&current_display, before, target_ref, field_path, checker);
+    Some((target_ref.to_string(), primitive_index))
+}
+
+#[allow(clippy::too_many_arguments)]
 fn resolve_delete_combination_term(
     model: &Value,
     target_ref: &str,
@@ -3701,6 +3849,27 @@ fn apply_created_primitive_load(
     true
 }
 
+fn apply_deleted_primitive_load(
+    model: &mut Value,
+    load_case_id: &str,
+    primitive_index: usize,
+) -> bool {
+    let Some(load_case) = find_entity_mut(model, "load_cases", load_case_id) else {
+        return false;
+    };
+    let Some(primitive_loads) = load_case
+        .get_mut("primitive_loads")
+        .and_then(Value::as_array_mut)
+    else {
+        return false;
+    };
+    if primitive_index >= primitive_loads.len() {
+        return false;
+    }
+    primitive_loads.remove(primitive_index);
+    true
+}
+
 fn apply_created_combination(model: &mut Value, combination: &Value) -> bool {
     if model.get("combinations").is_none() {
         model["combinations"] = Value::Array(Vec::new());
@@ -3825,8 +3994,74 @@ fn combination_term_index_from_field_path(field_path: &str) -> Option<usize> {
     }
 }
 
+fn primitive_load_index_from_field_path(field_path: &str) -> Option<usize> {
+    let segments: Vec<&str> = field_path.split('.').collect();
+    if segments.len() == 2
+        && segments[0] == "primitive_loads"
+        && segments[1].chars().all(|ch| ch.is_ascii_digit())
+        && !segments[1].is_empty()
+    {
+        segments[1].parse::<usize>().ok()
+    } else {
+        None
+    }
+}
+
 fn combination_term_display(load_case: &str, factor: f64) -> String {
     format!("{load_case} x {}", display_number(factor))
+}
+
+fn primitive_load_delete_display(primitive_load: &Value) -> Option<(String, String, String)> {
+    let id = primitive_load.get("id").and_then(Value::as_str)?.trim();
+    let category = primitive_load
+        .get("category")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let target = primitive_load_target_display(primitive_load);
+    let direction = primitive_load
+        .get("direction")
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .trim();
+    let dimension = primitive_load
+        .get("dimension")
+        .and_then(Value::as_str)?
+        .trim();
+    let magnitude = primitive_load.get("magnitude")?.as_object()?;
+    let value = magnitude.get("value")?.as_f64()?;
+    if !value.is_finite() {
+        return None;
+    }
+    let unit = magnitude.get("unit").and_then(Value::as_str)?.trim();
+    if id.is_empty() || dimension.is_empty() || unit.is_empty() {
+        return None;
+    }
+    Some((
+        format!(
+            "{id}; {category}; {target}; {direction}; {} {unit}; {dimension}",
+            display_number(value)
+        ),
+        unit.to_string(),
+        dimension.to_string(),
+    ))
+}
+
+fn primitive_load_target_display(primitive_load: &Value) -> String {
+    let Some(target) = primitive_load.get("target").and_then(Value::as_object) else {
+        return "target:TBD".to_string();
+    };
+    let target_type = target
+        .get("type")
+        .and_then(Value::as_str)
+        .unwrap_or("target")
+        .trim();
+    for key in ["pipe", "node", "support"] {
+        if let Some(value) = target.get(key).and_then(Value::as_str) {
+            return format!("{target_type}:{}", value.trim());
+        }
+    }
+    format!("{target_type}:TBD")
 }
 
 fn quantity_value(
@@ -5785,6 +6020,104 @@ mod tests {
         missing_term["operation_kind"] = json!("delete");
         let blocked = apply_operation(&model, &missing_term, None);
         assert!(codes(&blocked).contains(&"OP-COMBINATION-TERM-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_delete_primitive_load_removes_one_indexed_load_only() {
+        let mut model = sample_model();
+        model["load_cases"][0]["primitive_loads"] = json!([
+            {
+                "id": "load:L-1-Z",
+                "category": "distributed_force",
+                "target": { "type": "element", "pipe": "pipe:P-1" },
+                "direction": "global_z",
+                "magnitude": { "value": -190.0, "unit": "N/m" },
+                "dimension": "force_per_length",
+                "provenance": "invented_example"
+            },
+            {
+                "id": "load:L-1-Y",
+                "category": "concentrated_force",
+                "target": { "type": "node", "node": "node:N-2" },
+                "direction": "global_y",
+                "magnitude": { "value": 125.0, "unit": "N" },
+                "dimension": "force",
+                "provenance": "invented_example"
+            }
+        ]);
+        let before_snapshot = model.clone();
+        let mut intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "delete_primitive_load",
+            "primitive_loads.0",
+            "load:L-1-Z; distributed_force; element:pipe:P-1; global_z; -190 N/m; force_per_length",
+            "not_present",
+            "N/m",
+            "force_per_length",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"],
+            json!([{
+                "id": "load:L-1-Y",
+                "category": "concentrated_force",
+                "target": { "type": "node", "node": "node:N-2" },
+                "direction": "global_y",
+                "magnitude": { "value": 125.0, "unit": "N" },
+                "dimension": "force",
+                "provenance": "invented_example"
+            }])
+        );
+
+        let mut stale = modify_intent(
+            "Load",
+            "load:L-1",
+            "delete_primitive_load",
+            "primitive_loads.0",
+            "load:L-1-Z; distributed_force; element:pipe:P-1; global_z; -95 N/m; force_per_length",
+            "not_present",
+            "N/m",
+            "force_per_length",
+        );
+        stale["operation_kind"] = json!("delete");
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+
+        let mut missing_load = modify_intent(
+            "Load",
+            "load:L-1",
+            "delete_primitive_load",
+            "primitive_loads.9",
+            "load:L-1-X; distributed_force; element:pipe:P-1; global_z; -95 N/m; force_per_length",
+            "not_present",
+            "N/m",
+            "force_per_length",
+        );
+        missing_load["operation_kind"] = json!("delete");
+        let blocked = apply_operation(&model, &missing_load, None);
+        assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
     }
 

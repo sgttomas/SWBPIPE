@@ -100,6 +100,7 @@ export function LoadCaseManagerPanel({
   const currentMagnitude = selectedPrimitive ? primitiveMagnitudeDisplay(selectedPrimitive.load) : "";
   const [proposedMagnitude, setProposedMagnitude] = useState(currentMagnitude);
   const [rationale, setRationale] = useState("user_entered_load_case_preview_change");
+  const [primitiveDeleteRationale, setPrimitiveDeleteRationale] = useState("user_entered_primitive_load_delete_preview_change");
   const [metadataField, setMetadataField] = useState<LoadMetadataField>("status");
   const currentMetadataValue = selectedLoadCase ? loadCaseMetadataValue(selectedLoadCase, metadataField) : "";
   const [proposedMetadataValue, setProposedMetadataValue] = useState(currentMetadataValue);
@@ -129,6 +130,14 @@ export function LoadCaseManagerPanel({
           primitive: selectedPrimitive,
           proposedMagnitude,
           rationale
+        })
+      : null;
+  const primitiveDeleteIntent =
+    selectedPrimitive && primitiveDeleteRationale.trim()
+      ? buildDeletePrimitiveLoadIntent({
+          model,
+          primitive: selectedPrimitive,
+          rationale: primitiveDeleteRationale
         })
       : null;
   const metadataChanged = selectedLoadCase
@@ -217,6 +226,7 @@ export function LoadCaseManagerPanel({
   useEffect(() => {
     setProposedMagnitude(currentMagnitude);
     setRationale("user_entered_load_case_preview_change");
+    setPrimitiveDeleteRationale("user_entered_primitive_load_delete_preview_change");
   }, [currentMagnitude, selectedPrimitiveKey]);
 
   useEffect(() => {
@@ -807,6 +817,32 @@ export function LoadCaseManagerPanel({
             {intent
               ? `${intent.operation_id}; before=${intent.change.before}; after=${intent.change.after}; unit=${intent.change.unit}; ${intent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentMagnitude} ${primitiveUnit(selectedPrimitive.load)}; no changed magnitude queued`}
+          </p>
+          <div className="primitive-load-delete-controls">
+            <label>
+              <span>Delete rationale</span>
+              <input
+                aria-label="Primitive load delete rationale"
+                data-testid="load-manager-primitive-delete-rationale"
+                onChange={(event) => setPrimitiveDeleteRationale(event.target.value)}
+                value={primitiveDeleteRationale}
+              />
+            </label>
+            <button
+              data-testid="queue-delete-primitive-load-intent"
+              disabled={!primitiveDeleteIntent}
+              onClick={() => primitiveDeleteIntent && onQueueIntent(primitiveDeleteIntent)}
+              title="Queue primitive-load delete operation"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete
+            </button>
+          </div>
+          <p className="muted load-edit-preview" data-testid="load-manager-primitive-delete-preview">
+            {primitiveDeleteIntent
+              ? `${primitiveDeleteIntent.operation_id}; before=${primitiveDeleteIntent.change.before}; after=${primitiveDeleteIntent.change.after}; unit=${primitiveDeleteIntent.change.unit}; ${primitiveDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              : "select a primitive load and provide rationale to queue deletion"}
           </p>
         </section>
       ) : (
@@ -1852,6 +1888,67 @@ function buildLoadMagnitudeIntent({
   };
 }
 
+function buildDeletePrimitiveLoadIntent({
+  model,
+  primitive,
+  rationale
+}: {
+  model: PreviewModel;
+  primitive: PrimitiveLoadView;
+  rationale: string;
+}): EditorOperationIntent {
+  const fieldPath = `primitive_loads.${primitive.index}`;
+  const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-delete`;
+  return {
+    operation_id: `op:load-manager-${operationToken}`,
+    operation_kind: "delete",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "load_case_manager",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Load",
+      ref: primitive.loadCase.id
+    },
+    change: {
+      change_id: `change:load-manager-${operationToken}`,
+      change_kind: "delete_primitive_load",
+      field_label: `${primitiveCategory(primitive.load)} primitive load`,
+      field_path: fieldPath,
+      before: primitiveLoadDisplay(primitive.load),
+      after: "not_present",
+      unit: primitiveUnit(primitive.load),
+      dimension: primitiveDimension(primitive.load),
+      source_note: "explicit user-entered primitive load deletion; existing indexed primitive only"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `primitive-load delete intent for ${model.project.id}`
+  };
+}
+
 function primitiveKey(primitive: PrimitiveLoadView): string {
   return `${primitive.loadCase.id}::${primitive.index}::${primitiveId(primitive.load)}`;
 }
@@ -1900,6 +1997,10 @@ function primitiveTarget(load: PrimitiveLoad): string {
   if (node) return `${type}:${node}`;
   if (support) return `${type}:${support}`;
   return `${type}:TBD`;
+}
+
+function primitiveLoadDisplay(load: PrimitiveLoad): string {
+  return `${primitiveId(load)}; ${primitiveCategory(load)}; ${primitiveTarget(load)}; ${primitiveDirection(load)}; ${primitiveMagnitudeDisplay(load)} ${primitiveUnit(load)}; ${primitiveDimension(load)}`;
 }
 
 function primitiveMagnitudeDisplay(load: PrimitiveLoad): string {
