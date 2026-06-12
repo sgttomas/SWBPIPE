@@ -24,7 +24,7 @@ running the Rust engine, and the TypeScript engine is held to them.
 | provenance_class | `PUBLIC_DOMAIN_OR_ORIGINAL` |
 | contributor_certification | Nothing in this corpus derives from protected standards content, vendor-proprietary data, or real project data. No code-specific allowables, SIFs, flexibility factors, or load-combination defaults appear anywhere in the corpus; numeric values are arbitrary invented scalars used only to exercise validation mechanics. |
 | engineering_status | Non-engineering test data. The corpus makes no release-readiness, professional-approval, certification, sealing, authentication, or code-compliance claim. |
-| review_status | pending human review |
+| review_status | Human-reviewed and accepted 2026-06-12 (`DEC-030` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12) |
 
 ## Case file format
 

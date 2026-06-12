@@ -164,3 +164,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   derived unit-ref composition convention, Select branch compatibility rule).
 - No lifecycle promotion, release claim, or professional/code-compliance
   claim is implied; evidence is `CHECKING` state only.
+
+## 2026-06-12 - DEC-031: the three C1 grammar ASSUMPTIONs ruled accepted
+
+- Human ruling `DEC-031` (`execution/_Decomposition/SOFTWARE_DECOMP.md` §12,
+  companion disposition 2 of the D-14 sitting) accepted all three labeled
+  ASSUMPTIONs from `TP-C1-GRAMMAR-001` as drafted:
+  1. the enumerated `DIMENSION_PRODUCTS` closed-enum table contents
+     (18 standard mechanics relations, e.g. Force×Length→Moment,
+     Stress×SectionModulus→Moment, α×ΔT→dimensionless);
+  2. derived unit-reference composition for dimensional products/quotients
+     (`a*b` sorted / `a/b` / `ratio`) per the crate's ratio-synthesis
+     precedent, pending Phase B conversion integration;
+  3. the conservative Select branch-compatibility freeze (branches must be
+     type/dimension/unit-compatible even though only one branch is returned).
+- These are now ruled dispositions for formal review, no longer open
+  assumptions. Grammar v1.0.0 content unchanged; no code edit was needed.
+- No lifecycle promotion, release claim, or professional/code-compliance
+  claim is implied; evidence is `CHECKING` state only.
