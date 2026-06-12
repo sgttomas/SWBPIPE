@@ -1,5 +1,25 @@
 # MEMORY: DEL-00-08
 
+## 2026-06-12 - TP-APP-R2-FROMBLANK-E2E-001
+
+- WORKING_ITEMS landed the next A8 Playwright harness sub-slice.
+- `apps/desktop/e2e/r2-smoke.spec.ts` now includes a second browser e2e test
+  that clicks `New blank`, uses the A12 fixture values, authors two nodes,
+  material, section, pipe, support, load case, primitive load, and combination
+  through visible GUI controls, and applies all nine operations through the
+  structured-operation seam.
+- The test asserts local wasm operation application and
+  `professional_approval=false` for every applied intent.
+- Browser mode then honestly reports the current desktop/backend boundary:
+  edited-model mechanics returns zero rows with
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, and rendered report
+  remains `REPORT-RENDERER-DESKTOP-ONLY`.
+- Validation passed: `npm run test:e2e --workspace apps/desktop` 2/2
+  Playwright tests, `npm test --workspace apps/desktop` 213/213 Vitest tests,
+  and `npm run build --workspace apps/desktop`.
+- Residual A8 scope remains: packaged Tauri/backend saved-project solve +
+  render smoke and broader SMOKE checklist parity.
+
 ## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
 
 - WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-00-08`.

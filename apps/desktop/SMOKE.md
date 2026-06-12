@@ -3842,3 +3842,31 @@ after the timestamp marker were absent.
   network, telemetry, protected content, repository-default private-data
   write, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim.
+
+## TP-MAC-127 from-blank GUI journey automation (`TP-APP-R2-FROMBLANK-E2E-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-FROMBLANK-E2E-001` (completion-plan A8): extended the
+  Playwright harness with a second browser e2e test that reads
+  `fixtures/product_preview/r2_from_blank_rehearsal.json`, clicks `New blank`,
+  and authors the A12 script through visible viewport, property-inspector, and
+  load-manager controls.
+- Automated coverage: two nodes, one material, one standalone section, one
+  pipe run, one support, one load case, one primitive load, and one mechanics
+  combination are queued and applied through the Apply Operations panel. Each
+  applied operation asserts `route=local_wasm_engine` and
+  `professional_approval=false`.
+- Browser boundary evidence: after the authored model is run in browser mode,
+  the harness asserts `result_rows=0` and
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, then clicks rendered
+  report and asserts `REPORT-RENDERER-DESKTOP-ONLY`. This is an honest
+  browser harness boundary, not a backend solve/render claim.
+- Automated evidence: `npm run test:e2e --workspace apps/desktop` passed with
+  2/2 Playwright tests after wasm engine build; `npm test --workspace
+  apps/desktop` passed with 213/213 Vitest tests; `npm run build --workspace
+  apps/desktop` passed with the pre-existing Vite chunk-size warning.
+- Residual A8 hand-off: packaged Tauri/backend saved-project solve + render
+  smoke remains the next harness slice for true GUI-authored backend
+  completion. Boundary review: invented public example only; no cloud,
+  daemon, network, telemetry, protected content, repository-default
+  private-data write, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

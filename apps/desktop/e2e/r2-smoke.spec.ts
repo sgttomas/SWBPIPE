@@ -1,5 +1,22 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
+
+type RehearsalStep = {
+  change_kind: string;
+  payload: Record<string, any>;
+  target?: {
+    ref: string;
+  };
+};
+
+type RehearsalFixture = {
+  steps: RehearsalStep[];
+};
+
+const rehearsal = JSON.parse(
+  readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
+) as RehearsalFixture;
 
 test("R2 desktop preview smoke covers solve, results, report, and viewport overlay", async ({ page }) => {
   await page.goto("/");
@@ -258,6 +275,150 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 });
+
+test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+  await page.getByRole("button", { name: "New blank" }).click();
+  await expect(page.getByTestId("local-project-message")).toContainText(
+    "Created blank local model document without fixture entities or external file copies."
+  );
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "0 load cases; 0 primitive loads; 0 combinations"
+  );
+
+  const startNode = stepPayload("create_node", "node:R2-100");
+  await fillNodeDraft(page, startNode);
+  await page.getByTestId("queue-explicit-node-intent").click();
+  await applyQueuedIntent(page, 1, startNode.id);
+
+  const loadedNode = stepPayload("create_node", "node:R2-110");
+  await fillNodeDraft(page, loadedNode);
+  await page.getByTestId("queue-explicit-node-intent").click();
+  await applyQueuedIntent(page, 2, loadedNode.id);
+
+  const material = stepPayload("create_material", "material:r2-carbon-steel");
+  await page.getByTestId("create-material-id").fill(material.id);
+  await page.getByTestId("create-material-label").fill(material.label);
+  await page.getByTestId("create-material-elastic").fill(String(material.elastic_modulus.value));
+  await page.getByTestId("create-material-shear").fill(String(material.shear_modulus.value));
+  await page.getByTestId("create-material-provenance").fill(material.provenance);
+  await page.getByTestId("queue-create-material-intent").click();
+  await applyQueuedIntent(page, 3, material.id);
+
+  const section = stepPayload("create_section", "section:r2-pipe");
+  await page.getByTestId("create-section-id").fill(section.id);
+  await page.getByTestId("create-section-name").fill(section.name);
+  await page.getByTestId("create-section-od").fill(String(section.properties.outside_diameter.value));
+  await page.getByTestId("create-section-wall").fill(String(section.properties.wall_thickness.value));
+  await page.getByTestId("create-section-provenance").fill(section.provenance);
+  await page.getByTestId("queue-create-section-intent").click();
+  await applyQueuedIntent(page, 4, section.id);
+
+  const pipe = stepPayload("connect_pipe_run", "pipe:R2-100");
+  await page.getByTestId("viewport-create-pipe-id").fill(pipe.id);
+  await page.getByTestId("viewport-create-pipe-label").fill(pipe.label);
+  await page.getByTestId("viewport-create-pipe-from").selectOption(pipe.from);
+  await page.getByTestId("viewport-create-pipe-to").selectOption(pipe.to);
+  await page.getByTestId("viewport-create-pipe-material").selectOption(pipe.material);
+  await page.getByTestId("viewport-create-pipe-od").fill(String(pipe.section.outside_diameter.value));
+  await page.getByTestId("viewport-create-pipe-wall").fill(String(pipe.section.wall_thickness.value));
+  await page.getByTestId("viewport-create-pipe-yref-x").fill(String(pipe.y_reference.x));
+  await page.getByTestId("viewport-create-pipe-yref-y").fill(String(pipe.y_reference.y));
+  await page.getByTestId("viewport-create-pipe-yref-z").fill(String(pipe.y_reference.z));
+  await page.getByTestId("viewport-create-pipe-provenance").fill(pipe.provenance);
+  await page.getByTestId("queue-explicit-pipe-intent").click();
+  await applyQueuedIntent(page, 5, pipe.id);
+
+  const support = stepPayload("create_support", "support:R2-anchor");
+  await page.getByTestId("create-support-id").fill(support.id);
+  await page.getByTestId("create-support-label").fill(support.label);
+  await page.getByTestId("create-support-node").selectOption(support.node);
+  for (const restraint of ["RX", "RY", "RZ"]) {
+    await page.getByTestId(`create-support-restraint-${restraint}`).setChecked(true);
+  }
+  await page.getByTestId("create-support-provenance").fill(support.provenance);
+  await page.getByTestId("queue-create-support-intent").click();
+  await applyQueuedIntent(page, 6, support.id);
+
+  const loadCase = stepPayload("create_load_case", "load:R2-L-100");
+  await page.getByTestId("load-manager-create-load-id").fill(loadCase.id);
+  await page.getByTestId("load-manager-create-load-label").fill(loadCase.label);
+  await page.getByTestId("load-manager-create-load-kind").fill(loadCase.kind);
+  await page.getByTestId("load-manager-create-load-status").fill(loadCase.status);
+  await page.getByTestId("load-manager-create-load-provenance").fill(loadCase.provenance);
+  await page.getByTestId("queue-create-load-case-intent").click();
+  await applyQueuedIntent(page, 7, loadCase.id);
+
+  const primitive = stepPayload("create_primitive_load", "load:R2-L-100-FY");
+  await page.getByTestId("load-manager-create-primitive-load-case").selectOption(loadCase.id);
+  await page.getByTestId("load-manager-create-primitive-category").selectOption(primitive.category);
+  await page.getByTestId("load-manager-create-primitive-id").fill(primitive.id);
+  await page.getByTestId("load-manager-create-primitive-node").selectOption(primitive.target.node);
+  await page.getByTestId("load-manager-create-primitive-direction").selectOption(primitive.direction);
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill(String(primitive.magnitude.value));
+  await page.getByTestId("load-manager-create-primitive-provenance").fill(primitive.provenance);
+  await page.getByTestId("queue-create-primitive-intent").click();
+  await applyQueuedIntent(page, 8, primitive.id);
+
+  const combination = stepPayload("create_combination", "combination:R2-C-100");
+  await page.getByTestId("load-manager-create-combination-id").fill(combination.id);
+  await page.getByTestId("load-manager-create-combination-label").fill(combination.label);
+  await page.getByTestId("load-manager-create-combination-load-case").selectOption(combination.terms[0].load_case);
+  await page.getByTestId("load-manager-create-combination-factor").fill(String(combination.terms[0].factor));
+  await page.getByTestId("load-manager-create-combination-provenance").fill(combination.provenance);
+  await page.getByTestId("load-manager-create-combination-rationale").fill("A8 GUI replay of the A12 invented rehearsal.");
+  await page.getByTestId("queue-create-combination-intent").click();
+  await applyQueuedIntent(page, 9, combination.id);
+
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "1 load cases; 1 primitive loads; 1 combinations"
+  );
+  await page.getByTestId("run-mechanics-preview").click();
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
+    "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
+  );
+  await expect(page.getByTestId("rendered-report-render")).toBeEnabled();
+  await page.getByTestId("rendered-report-render").click();
+  await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
+});
+
+function stepPayload(changeKind: string, ref: string): any {
+  const step = rehearsal.steps.find(
+    (candidate) =>
+      candidate.change_kind === changeKind && (candidate.target?.ref === ref || candidate.payload.id === ref)
+  );
+  if (!step) throw new Error(`missing rehearsal step ${changeKind} ${ref}`);
+  return step.payload;
+}
+
+async function fillNodeDraft(page: Page, payload: any): Promise<void> {
+  await page.getByTestId("viewport-create-node-id").fill(payload.id);
+  await page.getByTestId("viewport-create-node-label").fill(payload.label);
+  await page.getByTestId("viewport-create-node-x").fill(String(payload.position.x));
+  await page.getByTestId("viewport-create-node-y").fill(String(payload.position.y));
+  await page.getByTestId("viewport-create-node-z").fill(String(payload.position.z));
+}
+
+async function applyQueuedIntent(page: Page, sequence: number, expectedOperation: string): Promise<void> {
+  const key = `editor-intent-${sequence}`;
+  const row = page.getByTestId(`operation-apply-row-${key}`);
+  await expect(row).toContainText(expectedOperation);
+  await page.getByTestId(`apply-intent-${key}`).click();
+  await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${sequence} applied`);
+  await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
+    "route=local_wasm_engine"
+  );
+  await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
+    "professional_approval=false"
+  );
+}
 
 type PngImage = {
   bytesPerPixel: number;

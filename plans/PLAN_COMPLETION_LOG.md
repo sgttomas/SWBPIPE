@@ -13,6 +13,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A8 from-blank GUI journey automation (`TP-APP-R2-FROMBLANK-E2E-001`)
+
+The A8 Playwright harness now automates the A12 from-blank rehearsal script
+through visible browser GUI controls. The new e2e test reads
+`fixtures/product_preview/r2_from_blank_rehearsal.json`, clicks `New blank`,
+fills the viewport/property-inspector/load-manager forms for the two nodes,
+material, standalone section, pipe run, support, load case, primitive load,
+and mechanics combination, and applies all nine operations through the Apply
+Operations panel. Each applied receipt is asserted as
+`route=local_wasm_engine` with `professional_approval=false`.
+
+The test also records the current browser harness boundary. Browser mode does
+not publish solved rows for an edited model; it emits
+`BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`. Browser mode also keeps the
+hash-bound report renderer desktop-only and emits
+`REPORT-RENDERER-DESKTOP-ONLY` instead of using a fallback renderer. The true
+backend create -> solve -> render proof remains covered by the A12 Tauri
+regression; A8 still needs the packaged Tauri saved-project smoke to bind the
+GUI-authored project path to the backend desktop command seams.
+
+Evidence:
+`execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_run_records/WORKING_ITEMS_RUN_2026-06-12_from_blank_gui_journey.md`;
+`apps/desktop/SMOKE.md` TP-MAC-127. Validation: Playwright e2e 2/2 after
+wasm engine build; desktop Vitest 213/213; desktop production build green
+with the pre-existing Vite chunk-size warning.
+
+Residual hand-offs: packaged Tauri/backend saved-project solve + render smoke
+and broader SMOKE checklist parity remain in A8. Phase B2/B3 riders from the
+2026-06-12 human findings are routed in the completion plan: preserve
+per-constant unit derivation/provenance text, add executable schema-to-crate
+unit vocabulary parity, and keep future process records in deliverable-local
+evidence folders.
+
 ## 2026-06-12 - A12 from-blank R2 exit rehearsal (`TP-APP-R2-FROMBLANK-REHEARSAL-001`)
 
 A12 is landed as a backend-backed rehearsal script and regression for the PRD
