@@ -24,6 +24,7 @@ use open_pipe_stress_stress_recovery::{
     recover_stresses, AnalysisStatus, ForceResultants, PressureBasis, StressComponents,
     StressRecoveryInput, StressSectionProperties,
 };
+use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::f64::consts::PI;
@@ -310,8 +311,8 @@ struct DerivedSection {
 }
 
 pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> MechanicsEnvelope {
-    let model = request.model;
-    let materials = if request.materials.is_empty() {
+    let mut model = request.model;
+    let mut materials = if request.materials.is_empty() {
         model.materials.clone()
     } else {
         request.materials
@@ -337,6 +338,11 @@ pub fn run_linear_static_preview(request: LinearStaticPreviewRequest) -> Mechani
             vec!["model".to_string()],
         ));
     }
+    if has_blocking(&diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
+
+    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -953,6 +959,176 @@ fn build_model(
         supports,
         sections,
     })
+}
+
+fn normalize_model_units(
+    model: &mut PreviewModel,
+    materials: &mut [MaterialInput],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    for material in materials {
+        normalize_quantity(
+            &mut material.elastic_modulus,
+            Dimension::Stress,
+            &format!(
+                "diagnostic:unit-conversion:material:{}:elastic-modulus",
+                stable_suffix(&material.id)
+            ),
+            vec![material.id.clone(), "elastic_modulus".to_string()],
+            diagnostics,
+        );
+        normalize_quantity(
+            &mut material.shear_modulus,
+            Dimension::Stress,
+            &format!(
+                "diagnostic:unit-conversion:material:{}:shear-modulus",
+                stable_suffix(&material.id)
+            ),
+            vec![material.id.clone(), "shear_modulus".to_string()],
+            diagnostics,
+        );
+        if let Some(coefficient) = &mut material.thermal_expansion_coefficient {
+            normalize_quantity(
+                coefficient,
+                Dimension::ThermalExpansionCoefficient,
+                &format!(
+                    "diagnostic:unit-conversion:material:{}:thermal-expansion",
+                    stable_suffix(&material.id)
+                ),
+                vec![
+                    material.id.clone(),
+                    "thermal_expansion_coefficient".to_string(),
+                ],
+                diagnostics,
+            );
+        }
+    }
+
+    for pipe in &mut model.pipe_segments {
+        normalize_quantity(
+            &mut pipe.section.outside_diameter,
+            Dimension::Length,
+            &format!(
+                "diagnostic:unit-conversion:pipe:{}:outside-diameter",
+                stable_suffix(&pipe.id)
+            ),
+            vec![pipe.id.clone(), "outside_diameter".to_string()],
+            diagnostics,
+        );
+        normalize_quantity(
+            &mut pipe.section.wall_thickness,
+            Dimension::Length,
+            &format!(
+                "diagnostic:unit-conversion:pipe:{}:wall-thickness",
+                stable_suffix(&pipe.id)
+            ),
+            vec![pipe.id.clone(), "wall_thickness".to_string()],
+            diagnostics,
+        );
+    }
+
+    for support in &mut model.supports {
+        let Some(stiffness) = &mut support.stiffness else {
+            continue;
+        };
+        let Some(dimension) = parse_dof(&stiffness.dof).ok().map(|dof| {
+            if dof.is_translational() {
+                Dimension::LinearStiffness
+            } else {
+                Dimension::RotationalStiffness
+            }
+        }) else {
+            continue;
+        };
+        normalize_quantity(
+            &mut stiffness.value,
+            dimension,
+            &format!(
+                "diagnostic:unit-conversion:support:{}:stiffness",
+                stable_suffix(&support.id)
+            ),
+            vec![support.id.clone(), "stiffness".to_string()],
+            diagnostics,
+        );
+    }
+
+    for load in model
+        .load_cases
+        .iter_mut()
+        .flat_map(|case| case.primitive_loads.iter_mut())
+    {
+        if let Some(dimension) = expected_load_dimension(&load.dimension) {
+            normalize_quantity(
+                &mut load.magnitude,
+                dimension,
+                &format!(
+                    "diagnostic:unit-conversion:load:{}:magnitude",
+                    stable_suffix(&load.id)
+                ),
+                vec![load.id.clone(), "magnitude".to_string()],
+                diagnostics,
+            );
+        }
+    }
+}
+
+fn normalize_quantity(
+    quantity: &mut Quantity,
+    dimension: Dimension,
+    diagnostic_id: &str,
+    affected_refs: Vec<String>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if !quantity.value.is_finite() {
+        return;
+    }
+    let from = match unit_by_symbol(&quantity.unit, dimension) {
+        Ok(unit) => unit,
+        Err(error) => {
+            diagnostics.push(unit_conversion_diag(
+                diagnostic_id,
+                error.to_string(),
+                affected_refs,
+            ));
+            return;
+        }
+    };
+    let Some(to) = canonical_unit(dimension) else {
+        diagnostics.push(unit_conversion_diag(
+            diagnostic_id,
+            format!("no canonical unit is accepted for {}", dimension.as_str()),
+            affected_refs,
+        ));
+        return;
+    };
+    match convert_for_dimension(quantity.value, dimension, from, to) {
+        Ok(converted) => {
+            quantity.value = converted;
+            quantity.unit = to.definition().symbol.to_string();
+        }
+        Err(error) => diagnostics.push(unit_conversion_diag(
+            diagnostic_id,
+            error.to_string(),
+            affected_refs,
+        )),
+    }
+}
+
+fn unit_conversion_diag(
+    diagnostic_id: &str,
+    message: impl Into<String>,
+    affected_refs: Vec<String>,
+) -> Diagnostic {
+    diag(
+        diagnostic_id,
+        "UNIT_CONVERSION_UNAVAILABLE",
+        "blocking",
+        format!(
+            "preview mechanics could not normalize unit-bearing input to the DEC-018 SI-canonical solver boundary: {}",
+            message.into()
+        ),
+        affected_refs,
+    )
 }
 
 fn build_load_case_primitive_loads(
@@ -2254,6 +2430,33 @@ fn parse_load_dimension(value: &str) -> Result<LoadDimension, String> {
     }
 }
 
+pub(crate) fn expected_load_dimension(value: &str) -> Option<Dimension> {
+    match value {
+        "force" => Some(Dimension::Force),
+        "moment" => Some(Dimension::Moment),
+        "force_per_length" => Some(Dimension::ForcePerLength),
+        "pressure" => Some(Dimension::Pressure),
+        "temperature_change" | "temperature_interval" => Some(Dimension::TemperatureInterval),
+        "acceleration" => Some(Dimension::Acceleration),
+        "displacement" => Some(Dimension::Displacement),
+        "rotation" => Some(Dimension::Rotation),
+        _ => None,
+    }
+}
+
+pub(crate) fn unit_symbol_matches_dimension(
+    unit_symbol: &str,
+    dimension: Dimension,
+) -> Result<(), String> {
+    unit_by_symbol(unit_symbol, dimension)
+        .map(|_| ())
+        .map_err(|error| error.to_string())
+}
+
+pub(crate) fn canonical_unit_symbol(dimension: Dimension) -> Option<&'static str> {
+    canonical_unit(dimension).map(|unit| unit.definition().symbol)
+}
+
 fn is_temperature_change_dimension(value: &str) -> bool {
     matches!(value, "temperature_change" | "temperature_interval")
 }
@@ -2354,6 +2557,15 @@ mod tests {
             .iter()
             .find(|item| item["id"] == id)
             .unwrap_or_else(|| panic!("missing result {id}"))
+    }
+
+    fn result_value(envelope: &MechanicsEnvelope, id: &str) -> f64 {
+        envelope
+            .results
+            .iter()
+            .find(|item| item.id == id)
+            .unwrap_or_else(|| panic!("missing result {id}"))
+            .value
     }
 
     fn fixed_fixed_thermal_request(direction: &str) -> LinearStaticPreviewRequest {
@@ -3167,9 +3379,80 @@ mod tests {
     }
 
     #[test]
-    fn invalid_material_unit_blocks_with_diagnostic() {
+    fn mixed_units_are_normalized_at_preview_mechanics_boundary() {
+        let baseline = run_linear_static_preview(request());
         let mut request = request();
-        request.materials[0].elastic_modulus.unit = "MPa".to_string();
+        request.materials[0].elastic_modulus = Quantity {
+            value: 200_000.0,
+            unit: "MPa".to_string(),
+        };
+        request.materials[0].shear_modulus = Quantity {
+            value: 77_000.0,
+            unit: "MPa".to_string(),
+        };
+        for pipe in &mut request.model.pipe_segments {
+            pipe.section.outside_diameter = Quantity {
+                value: 168.0,
+                unit: "mm".to_string(),
+            };
+            pipe.section.wall_thickness = Quantity {
+                value: 7.0,
+                unit: "mm".to_string(),
+            };
+        }
+        for load in request
+            .model
+            .load_cases
+            .iter_mut()
+            .flat_map(|case| case.primitive_loads.iter_mut())
+            .filter(|load| load.dimension == "pressure")
+        {
+            load.magnitude.value /= 1_000.0;
+            load.magnitude.unit = "kPa".to_string();
+        }
+
+        let result = run_linear_static_preview(request);
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result
+            .diagnostics
+            .iter()
+            .all(|item| item.code != "UNIT_INPUT_INVALID"));
+        assert_eq!(result.results.len(), baseline.results.len());
+        assert_eq!(
+            result
+                .summary
+                .max_displacement
+                .as_ref()
+                .map(|item| item.value),
+            baseline
+                .summary
+                .max_displacement
+                .as_ref()
+                .map(|item| item.value)
+        );
+        assert_eq!(
+            result
+                .summary
+                .max_open_formula_stress
+                .as_ref()
+                .map(|item| item.value),
+            baseline
+                .summary
+                .max_open_formula_stress
+                .as_ref()
+                .map(|item| item.value)
+        );
+        assert_eq!(
+            result_value(&result, "result:stress:pipe-P-120:end-i:pressure-hoop"),
+            result_value(&baseline, "result:stress:pipe-P-120:end-i:pressure-hoop")
+        );
+    }
+
+    #[test]
+    fn incompatible_material_unit_blocks_with_diagnostic() {
+        let mut request = request();
+        request.materials[0].elastic_modulus.unit = "m".to_string();
 
         let result = run_linear_static_preview(request);
 

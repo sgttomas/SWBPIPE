@@ -2139,6 +2139,7 @@ dependencies = [
  "open_pipe_stress_primitive_loads",
  "open_pipe_stress_straight_pipe",
  "open_pipe_stress_stress_recovery",
+ "open_pipe_stress_units",
  "serde",
  "serde_json",
 ]

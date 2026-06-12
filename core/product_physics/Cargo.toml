@@ -15,5 +15,6 @@ open_pipe_stress_linear_supports = { path = "../solver/linear_supports" }
 open_pipe_stress_primitive_loads = { path = "../loads/primitive_loads" }
 open_pipe_stress_straight_pipe = { path = "../solver/straight_pipe" }
 open_pipe_stress_stress_recovery = { path = "../loads/stress_recovery" }
+open_pipe_stress_units = { path = "../units" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

@@ -13,6 +13,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 solver-boundary unit normalization (`TP-UNITS-B2-SOLVERNORM-001`)
+
+The preview mechanics adapter now uses the accepted DEC-018 unit catalog at
+the solver boundary. `core/product_physics` depends on `core/units`, validates
+unit-bearing inputs by dimension compatibility instead of exact canonical
+strings, and normalizes compatible quantities to SI-canonical values before
+building the frame model, supports, sections, thermal loads, pressure thrust,
+and primitive loads.
+
+The product-physics regression suite now includes a mixed-unit equivalence
+witness: material moduli entered in `MPa`, pipe dimensions in `mm`, and
+pressure loads in `kPa` solve to the same rounded result surface as the
+original SI fixture. Incompatible material and load units still block with
+`UNIT_INPUT_INVALID`; unexpected conversion failures surface as
+`UNIT_CONVERSION_UNAVAILABLE`.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_solver_boundary_unit_normalization.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_run_records/WORKING_ITEMS_RUN_2026-06-12_solver_boundary_unit_normalization.md`;
+`apps/desktop/SMOKE.md` TP-MAC-133. Validation: product_physics cargo tests
+passed 25/25; Tauri Rust tests passed 32/32; headless runner cargo tests
+passed 11/11; focused desktop Vitest passed 56/56; Playwright R2 smoke passed
+2/2 after wasm engine build; full desktop Vitest passed 216/216; desktop build
+passed with the pre-existing Vite chunk-size warning.
+
+Residual hand-offs: broader visible unit entry/pickers, report renderer body
+expansion beyond packet disclosure, imports/exports, and rule-pack unit I/O
+remain B2 work. B3 still owns the broader conversion-witness and
+D-04/DEC-026 tolerance corpus beyond this product-physics boundary witness.
+No lifecycle state, release-readiness, professional approval, certification,
+sealing, authentication, protected-content, private-data, or code-compliance
+claim is created.
+
 ## 2026-06-12 - B2 report unit-system disclosure (`TP-UNITS-B2-REPORTUNITS-001`)
 
 The Report Packet panel and JSON export now disclose the unit system used by

@@ -177,3 +177,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   script as the GUI/e2e journey evidence backbone. No lifecycle state,
   release, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-12 - TP-UNITS-B2-SOLVERNORM-001 solver-boundary unit normalization
+
+- WORKING_ITEMS app/core tranche updated the preview mechanics solve boundary
+  so `core/product_physics` validates units through the accepted `core/units`
+  catalog and normalizes compatible values to SI-canonical quantities before
+  solver assembly.
+- Product-physics regression coverage proves a mixed-unit input surface
+  (`MPa` moduli, `mm` pipe dimensions, `kPa` pressure loads) solves to the
+  same rounded result rows as the SI fixture, while incompatible material/load
+  units still block with `UNIT_INPUT_INVALID`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_solver_boundary_unit_normalization.md`
+  and corresponding DEL-02-02 run record; `apps/desktop/SMOKE.md` TP-MAC-133.
+- Validation: product_physics cargo tests 25/25; Tauri Rust tests 32/32;
+  headless runner cargo tests 11/11; focused desktop Vitest 56/56; Playwright
+  R2 smoke 2/2; full desktop Vitest 216/216; desktop build passed.
+- This does not add GUI unit pickers, report-time conversion, import/export
+  conversion, rule-pack unit I/O, browser-mode edited-model solving, release
+  readiness, professional approval, certification, sealing, authentication, or
+  code-compliance claims.

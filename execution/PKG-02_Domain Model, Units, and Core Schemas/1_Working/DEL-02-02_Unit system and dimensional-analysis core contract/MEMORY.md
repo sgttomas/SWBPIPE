@@ -208,3 +208,28 @@ Boundary note:
   solver-boundary normalization, report renderer body expansion beyond packet
   disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader
   conversion witness and tolerance corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-SOLVERNORM-001 solver-boundary unit normalization
+
+- `core/product_physics` now depends on `core/units` and uses DEC-018 catalog
+  dimension compatibility at the preview mechanics boundary.
+- Compatible mixed-unit inputs are normalized to SI-canonical solver values
+  before assembly: regression coverage includes material moduli in `MPa`,
+  pipe dimensions in `mm`, and pressure loads in `kPa` solving to the same
+  rounded result surface as the SI fixture.
+- Incompatible unit dimensions remain blocking through `UNIT_INPUT_INVALID`;
+  unexpected normalization failures use `UNIT_CONVERSION_UNAVAILABLE`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_solver_boundary_unit_normalization.md`
+  and corresponding DEL-07-07 run record; `apps/desktop/SMOKE.md` TP-MAC-133.
+- Validation: product_physics cargo tests 25/25; Tauri Rust tests 32/32;
+  headless runner cargo tests 11/11; focused desktop Vitest 56/56; Playwright
+  R2 smoke 2/2; full desktop Vitest 216/216; desktop build passed.
+- Boundaries preserved: no visible unit picker controls, report-time
+  conversion, import/export unit conversion, rule-pack unit I/O, protected
+  standards content, private data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.
+- Residual handoffs: B2 still owns broader visible unit entry/pickers, report
+  renderer body expansion beyond packet disclosure, imports/exports, and
+  rule-pack unit I/O; B3 still owns broader conversion witness and tolerance
+  corpus coverage.

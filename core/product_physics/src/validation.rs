@@ -1,5 +1,9 @@
 use crate::LoadTargetInput;
-use crate::{diag, parse_dof, stable_suffix, Diagnostic, MaterialInput, PreviewModel, Quantity};
+use crate::{
+    canonical_unit_symbol, diag, expected_load_dimension, parse_dof, stable_suffix,
+    unit_symbol_matches_dimension, Diagnostic, MaterialInput, PreviewModel, Quantity,
+};
+use open_pipe_stress_units::Dimension;
 use std::collections::{HashMap, HashSet};
 
 pub(crate) fn validate_model_inputs(
@@ -178,7 +182,7 @@ fn validate_units(
     for material in materials {
         expect_unit(
             &material.elastic_modulus,
-            "Pa",
+            Dimension::Stress,
             &format!(
                 "diagnostic:unit:material:{}:elastic-modulus",
                 stable_suffix(&material.id)
@@ -188,7 +192,7 @@ fn validate_units(
         );
         expect_unit(
             &material.shear_modulus,
-            "Pa",
+            Dimension::Stress,
             &format!(
                 "diagnostic:unit:material:{}:shear-modulus",
                 stable_suffix(&material.id)
@@ -199,7 +203,7 @@ fn validate_units(
         if let Some(coefficient) = &material.thermal_expansion_coefficient {
             expect_unit(
                 coefficient,
-                "1/degC",
+                Dimension::ThermalExpansionCoefficient,
                 &format!(
                     "diagnostic:unit:material:{}:thermal-expansion",
                     stable_suffix(&material.id)
@@ -215,7 +219,7 @@ fn validate_units(
     for pipe in &model.pipe_segments {
         expect_unit(
             &pipe.section.outside_diameter,
-            "m",
+            Dimension::Length,
             &format!(
                 "diagnostic:unit:pipe:{}:outside-diameter",
                 stable_suffix(&pipe.id)
@@ -225,7 +229,7 @@ fn validate_units(
         );
         expect_unit(
             &pipe.section.wall_thickness,
-            "m",
+            Dimension::Length,
             &format!(
                 "diagnostic:unit:pipe:{}:wall-thickness",
                 stable_suffix(&pipe.id)
@@ -237,8 +241,8 @@ fn validate_units(
     for support in &model.supports {
         if let Some(stiffness) = &support.stiffness {
             let expected = match parse_dof(&stiffness.dof) {
-                Ok(dof) if dof.is_translational() => Some("N/m"),
-                Ok(_) => Some("N*m/rad"),
+                Ok(dof) if dof.is_translational() => Some(Dimension::LinearStiffness),
+                Ok(_) => Some(Dimension::RotationalStiffness),
                 Err(message) => {
                     diagnostics.push(diag(
                         &format!(
@@ -253,10 +257,10 @@ fn validate_units(
                     None
                 }
             };
-            if let Some(unit) = expected {
+            if let Some(dimension) = expected {
                 expect_unit(
                     &stiffness.value,
-                    unit,
+                    dimension,
                     &format!(
                         "diagnostic:unit:support:{}:stiffness",
                         stable_suffix(&support.id)
@@ -272,10 +276,10 @@ fn validate_units(
         .iter()
         .flat_map(|case| case.primitive_loads.iter())
     {
-        if let Some(unit) = expected_load_unit(&load.dimension) {
+        if let Some(dimension) = expected_load_dimension(&load.dimension) {
             expect_unit(
                 &load.magnitude,
-                unit,
+                dimension,
                 &format!("diagnostic:unit:load:{}:magnitude", stable_suffix(&load.id)),
                 vec![load.id.clone(), "magnitude".to_string()],
                 diagnostics,
@@ -352,36 +356,24 @@ fn provenance_diag(entity: &str, id: &str) -> Diagnostic {
 
 fn expect_unit(
     quantity: &Quantity,
-    expected: &str,
+    dimension: Dimension,
     diagnostic_id: &str,
     affected_refs: Vec<String>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
-    if quantity.unit != expected {
+    if let Err(message) = unit_symbol_matches_dimension(&quantity.unit, dimension) {
+        let canonical = canonical_unit_symbol(dimension).unwrap_or("TBD");
         diagnostics.push(diag(
             diagnostic_id,
             "UNIT_INPUT_INVALID",
             "blocking",
             format!(
-                "preview mechanics input requires unit {expected}; got {}",
+                "preview mechanics input requires a unit compatible with {} (canonical {canonical}); got {}: {message}",
+                dimension.as_str(),
                 quantity.unit
             ),
             affected_refs,
         ));
-    }
-}
-
-fn expected_load_unit(dimension: &str) -> Option<&'static str> {
-    match dimension {
-        "force" => Some("N"),
-        "moment" => Some("N*m"),
-        "force_per_length" => Some("N/m"),
-        "pressure" => Some("Pa"),
-        "temperature_change" => Some("degC"),
-        "acceleration" => Some("m/s^2"),
-        "displacement" => Some("m"),
-        "rotation" => Some("rad"),
-        _ => None,
     }
 }
 

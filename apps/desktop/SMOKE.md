@@ -3968,3 +3968,24 @@ after the timestamp marker were absent.
   catalog, protected content, private project data, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-133 solver-boundary unit normalization (`TP-UNITS-B2-SOLVERNORM-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-SOLVERNORM-001` (completion-plan B2): connected
+  `core/product_physics` to `core/units` so the preview mechanics boundary
+  accepts DEC-018-compatible unit symbols and normalizes to SI-canonical
+  solver quantities before assembly.
+- Automated product-physics evidence: a mixed-unit preview model with `MPa`
+  material moduli, `mm` pipe dimensions, and `kPa` pressure loads solves to
+  the same rounded result surface as the SI fixture; incompatible material and
+  load units still block with `UNIT_INPUT_INVALID`.
+- Automated app evidence: `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`
+  passed 32/32; focused desktop Vitest passed 56/56; Playwright R2 smoke
+  passed 2/2 after wasm engine build; full desktop Vitest passed 216/216;
+  desktop production build passed with the pre-existing Vite chunk-size
+  warning.
+- Boundary review: no visible unit picker, report-time conversion,
+  import/export conversion, rule-pack unit I/O, browser fallback catalog,
+  protected content, private project data, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.
