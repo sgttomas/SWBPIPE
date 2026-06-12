@@ -198,3 +198,18 @@ Durable context preserved after PKG-02 grounded finding resolution:
   conversion, rule-pack unit I/O, browser-mode edited-model solving, release
   readiness, professional approval, certification, sealing, authentication, or
   code-compliance claims.
+
+## 2026-06-12 - TP-R2VERIFY-FIX-001 authored-load category mapping disclosure
+
+- Repair of R2 verification finding F-1
+  (`plans/VERIFICATION_2026-06-12_r2_exit_chain.md`): the product-physics
+  adapter's coercion of authored categories
+  (`concentrated_force`/`concentrated_moment` → `occasional`,
+  `distributed_force` → `weight`) now surfaces as a per-load `warning`
+  diagnostic `LOAD_CATEGORY_PREVIEW_MAPPED`; native categories emit nothing;
+  solve status unchanged.
+- Validation: product_physics 25/25 with the extended regression pinning
+  code, severity, refs, and the native-category negative case.
+- Handoff: revisit first-class authored categories when combination-basis
+  semantics or Phase D depth make category mechanically load-bearing.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_category_mapping_disclosure.md`.

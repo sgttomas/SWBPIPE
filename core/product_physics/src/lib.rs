@@ -1158,6 +1158,21 @@ fn build_load_case_primitive_loads(
             let dimension = parse_load_dimension(&load.dimension);
             match (category, direction, dimension) {
                 (Ok(category), Ok(direction), Ok(dimension)) => {
+                    if let Some(preview) = authored_category_preview_mapping(&load.category) {
+                        diagnostics.push(diag(
+                            &format!(
+                                "diagnostic:load:{}:category-mapping",
+                                stable_suffix(&load.id)
+                            ),
+                            "LOAD_CATEGORY_PREVIEW_MAPPED",
+                            "warning",
+                            format!(
+                                "authored load category {} is applied under the equivalent-static preview category {preview}; the preview classification is not a user-selected engineering classification",
+                                load.category
+                            ),
+                            vec![load.id.clone(), load_case.id.clone()],
+                        ));
+                    }
                     let Ok(quantity) = LoadQuantity::new(load.magnitude.value, dimension) else {
                         diagnostics.push(diag(
                             &format!("diagnostic:load:{}:quantity", stable_suffix(&load.id)),
@@ -2416,6 +2431,14 @@ fn parse_category(value: &str) -> Result<PrimitiveLoadCategory, String> {
     }
 }
 
+fn authored_category_preview_mapping(value: &str) -> Option<&'static str> {
+    match value {
+        "concentrated_force" | "concentrated_moment" => Some("occasional"),
+        "distributed_force" => Some("weight"),
+        _ => None,
+    }
+}
+
 fn parse_load_dimension(value: &str) -> Result<LoadDimension, String> {
     match value {
         "force" => Ok(LoadDimension::Force),
@@ -2731,6 +2754,29 @@ mod tests {
             .results
             .iter()
             .any(|item| item.id == "result:disp:node-N-140"));
+
+        let mapping = result
+            .diagnostics
+            .iter()
+            .find(|diagnostic| diagnostic.code == "LOAD_CATEGORY_PREVIEW_MAPPED")
+            .expect("authored category mapping must surface as a named diagnostic");
+        assert_eq!(mapping.severity, "warning");
+        assert!(mapping.message.contains("concentrated_force"));
+        assert!(mapping.message.contains("occasional"));
+        assert!(mapping
+            .affected_refs
+            .iter()
+            .any(|reference| reference == "load:L-100-Y"));
+
+        let native = run_linear_static_preview(self::request());
+        assert_eq!(native.status.mechanics, "MECHANICS_SOLVED");
+        assert!(
+            native
+                .diagnostics
+                .iter()
+                .all(|diagnostic| diagnostic.code != "LOAD_CATEGORY_PREVIEW_MAPPED"),
+            "native preview categories must not emit the mapping diagnostic"
+        );
     }
 
     #[test]
