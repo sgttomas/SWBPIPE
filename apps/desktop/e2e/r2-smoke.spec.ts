@@ -164,6 +164,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
     "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
   );
+  await page.getByTestId("tree-row-pipe:P-130").click();
+  await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("delete_pipe_run");
+  await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText(
+    "before=Tie-in rise; node:N-130->node:N-140; material=material:invented-carbon-steel"
+  );
+  await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("after=not_present");
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();

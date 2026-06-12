@@ -628,6 +628,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut deleted_pipe: Option<String> = None;
+    if !checker.schema_blocked && change_kind == "delete_pipe_run" {
+        deleted_pipe = resolve_delete_pipe_run(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_section: Option<Value> = None;
     if !checker.schema_blocked && change_kind == "create_section" {
         created_section = resolve_create_section(
@@ -811,6 +825,7 @@ fn run(
         }]
     } else if (created_node.is_some()
         || created_pipe.is_some()
+        || deleted_pipe.is_some()
         || created_section.is_some()
         || created_material.is_some()
         || created_support.is_some()
@@ -869,6 +884,15 @@ fn run(
         } else if let Some(pipe) = &created_pipe {
             let mut next_model = model.clone();
             if apply_created_pipe(&mut next_model, pipe) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(pipe_id) = &deleted_pipe {
+            let mut next_model = model.clone();
+            if apply_deleted_pipe(&mut next_model, pipe_id) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1158,6 +1182,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "update_support"
             | "create_node"
             | "connect_pipe_run"
+            | "delete_pipe_run"
             | "create_section"
             | "create_material"
             | "create_support"
@@ -1201,6 +1226,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         "delete_combination" => "delete",
         "delete_support" => "delete",
         "delete_combination_term" => "delete",
+        "delete_pipe_run" => "delete",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
         _ => unreachable!("supported_change guarantees a known change kind"),
@@ -1574,6 +1600,111 @@ fn resolve_connect_pipe_run(
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
         "provenance": provenance,
     }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_delete_pipe_run(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<String> {
+    if object_type != "Element" || field_path != "pipe_segments" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-PIPE-SHAPE-INVALID",
+            "blocking",
+            "Delete-pipe intents must target object_type `Element` with field_path `pipe_segments`."
+                .to_string(),
+            "Refresh the pipe delete intent from the selected pipe segment row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if after != "not_present" {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-DELETE-AFTER-VALUE-INVALID",
+            "blocking",
+            "Delete-pipe intents must use after-value `not_present`.".to_string(),
+            "Re-queue the delete intent from the selected pipe segment row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for pipe deletion."),
+            "Delete pipe records with unit `none`; no unit conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Delete-pipe dimension `{dimension}` must be `dimensionless`."),
+            "Emit pipe deletion with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(pipe) = find_entity(model, "pipe_segments", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Pipe segment `{target_ref}` was not found in the current model."),
+            "Select an existing pipe segment before deleting it.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let current_display = pipe_delete_display(pipe);
+    if current_display.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            format!("Pipe segment `{target_ref}` does not expose a valid deletion summary."),
+            "Repair the model document before deleting pipe records.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let references = pipe_primitive_load_references(model, target_ref);
+    if !references.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-PIPE-DELETE-REFERENCED",
+            "blocking",
+            format!(
+                "Pipe segment `{target_ref}` is still referenced by primitive loads: {}.",
+                references.join(", ")
+            ),
+            "Delete or retarget dependent primitive loads before deleting the pipe segment.",
+            std::iter::once(target_ref.to_string())
+                .chain(references)
+                .collect(),
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+    check_before(&current_display, before, target_ref, field_path, checker);
+    Some(target_ref.to_string())
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -4038,6 +4169,20 @@ fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
     true
 }
 
+fn apply_deleted_pipe(model: &mut Value, pipe_id: &str) -> bool {
+    let Some(pipes) = model.get_mut("pipe_segments").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    let Some(index) = pipes
+        .iter()
+        .position(|pipe| pipe.get("id").and_then(Value::as_str) == Some(pipe_id))
+    else {
+        return false;
+    };
+    pipes.remove(index);
+    true
+}
+
 fn apply_created_section(model: &mut Value, section: &Value) -> bool {
     if model.get("sections").is_none() {
         model["sections"] = Value::Array(Vec::new());
@@ -4539,6 +4684,61 @@ fn support_primitive_load_references(model: &Value, support_ref: &str) -> Vec<St
     references.sort();
     references.dedup();
     references
+}
+
+fn pipe_primitive_load_references(model: &Value, pipe_ref: &str) -> Vec<String> {
+    let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) else {
+        return Vec::new();
+    };
+    let mut references = Vec::new();
+    for load_case in load_cases {
+        let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
+        else {
+            continue;
+        };
+        for primitive_load in primitive_loads {
+            let target_pipe = primitive_load
+                .get("target")
+                .and_then(Value::as_object)
+                .and_then(|target| target.get("pipe"))
+                .and_then(Value::as_str);
+            if target_pipe == Some(pipe_ref) {
+                references.push(
+                    primitive_load
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .unwrap_or("primitive_load:unknown")
+                        .to_string(),
+                );
+            }
+        }
+    }
+    references.sort();
+    references.dedup();
+    references
+}
+
+fn pipe_delete_display(pipe: &Value) -> String {
+    let label = pipe
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let from = pipe
+        .get("from")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let to = pipe.get("to").and_then(Value::as_str).unwrap_or("").trim();
+    let material = pipe
+        .get("material")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if label.is_empty() || from.is_empty() || to.is_empty() || material.is_empty() {
+        return String::new();
+    }
+    format!("{label}; {from}->{to}; material={material}")
 }
 
 fn load_case_combination_references(model: &Value, load_case_ref: &str) -> Vec<String> {
@@ -6678,6 +6878,122 @@ mod tests {
         let blocked = apply_operation(&model, &referenced, None);
         assert!(codes(&blocked).contains(&"OP-LOAD-CASE-DELETE-REFERENCED"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_delete_pipe_run_removes_unreferenced_pipe_only() {
+        let mut model = sample_model();
+        model["load_cases"][0]["primitive_loads"] = json!([]);
+        model["pipe_segments"].as_array_mut().unwrap().push(json!({
+            "id": "pipe:P-2",
+            "label": "Branch run",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "section": {
+                "outside_diameter": { "value": 0.114, "unit": "m" },
+                "wall_thickness": { "value": 0.006, "unit": "m" }
+            },
+            "material": "material:steel",
+            "provenance": "invented_example"
+        }));
+        let before_snapshot = model.clone();
+        let mut intent = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "delete_pipe_run",
+            "pipe_segments",
+            "Run; node:N-1->node:N-2; material=material:steel",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["pipe_segments"].as_array().unwrap().len(), 1);
+        assert_eq!(applied["pipe_segments"][0]["id"], json!("pipe:P-2"));
+
+        let mut stale = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "delete_pipe_run",
+            "pipe_segments",
+            "Renamed run; node:N-1->node:N-2; material=material:steel",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        stale["operation_kind"] = json!("delete");
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+
+        let mut missing = modify_intent(
+            "Element",
+            "pipe:P-missing",
+            "delete_pipe_run",
+            "pipe_segments",
+            "Missing run; node:N-1->node:N-2; material=material:steel",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        missing["operation_kind"] = json!("delete");
+        let blocked = apply_operation(&model, &missing, None);
+        assert!(codes(&blocked).contains(&"OP-TARGET-NOT-FOUND"));
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn delete_pipe_run_blocks_primitive_load_reference() {
+        let mut model = sample_model();
+        model["load_cases"][0]["primitive_loads"][0] = json!({
+            "id": "load:L-1-Z",
+            "category": "distributed_force",
+            "target": { "type": "element", "pipe": "pipe:P-1" },
+            "direction": "global_z",
+            "magnitude": { "value": -190.0, "unit": "N/m" },
+            "dimension": "force_per_length",
+            "provenance": "invented_example"
+        });
+        let mut intent = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "delete_pipe_run",
+            "pipe_segments",
+            "Run; node:N-1->node:N-2; material=material:steel",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(codes(&outcome).contains(&"OP-PIPE-DELETE-REFERENCED"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+        assert_eq!(
+            outcome.diagnostics[0].affected_refs,
+            vec!["pipe:P-1".to_string(), "load:L-1-Z".to_string()]
+        );
     }
 
     #[test]

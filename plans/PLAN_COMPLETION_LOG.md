@@ -13,6 +13,49 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A11 fifth sub-slice: pipe-run deletion authoring (`TP-APP-R2-DELPIPE-001`)
+
+The structured operation seam now accepts `delete_pipe_run` as a delete-kind
+operation. `core/model_operations/operation_applier` validates whole pipe-run
+deletion intents with no direct mutation, requires `object_type=Element`,
+`field_path=pipe_segments`, `after=not_present`, current pipe
+label/from/to/material before-state display, unit `none`, and dimension
+`dimensionless`. Apply removes exactly one unreferenced pipe segment and
+returns a new model document. Deletion is refused while any primitive load
+still references the pipe, with `OP-PIPE-DELETE-REFERENCED`; there is no
+hidden primitive-load cascade. The cross-engine contract corpus added
+`case_54_accept_delete_pipe_run.json` and
+`case_55_block_delete_pipe_run_referenced.json`; both native Rust and browser
+wasm lanes require accepted `delete_pipe_run` and referenced-pipe blocking
+coverage.
+
+The desktop Property Inspector now exposes a `Queue delete pipe` action for
+the selected pipe. The action queues a review-only structured operation with
+the selected pipe summary as the before-state guard. Applying the queued
+operation uses the existing Apply Operations panel, records the same
+local-session acceptance receipt, clears stale solve/report state, removes
+the pipe row, and falls back to the project row after the deleted selection
+disappears.
+
+Evidence:
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_pipe_authoring.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_pipe_authoring.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_pipe_authoring.md`;
+`apps/desktop/SMOKE.md` TP-MAC-124. Validation: operation_applier cargo
+suites 47 unit + canonical hash + 55-case corpus; corpus bless and rerun
+green; desktop operationContractCorpus Vitest 113/113; focused App Vitest
+2/2; full desktop Vitest 207/207; desktop production build green; Tauri Rust
+tests 29/29; Playwright R2 smoke 1/1 with pipe delete preview coverage; local
+in-app browser pipe-delete smoke at `http://127.0.0.1:5173/` with zero
+console errors.
+
+Residual hand-offs: A11 remains open for node entity deletion only. A12 must
+still rehearse the full from-blank create -> solve -> report path, and the A8
+journey automation should become the R2 exit-evidence backbone immediately
+after that rehearsal. No lifecycle state, release readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim is
+created.
+
 ## 2026-06-12 - B1 unit catalog and conversion crate (`TP-UNITS-B1-CATALOG-001`)
 
 Phase B1 is now landed crate-side. `core/units` has its own Rust crate,

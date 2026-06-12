@@ -6133,6 +6133,84 @@ describe("OpenPipeStress desktop preview", () => {
     expect(receipt.textContent).toContain("professional_approval=false");
   });
 
+  it("queues and applies explicit pipe deletion through the structured operation seam", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    const pipeRow = within(tree).getByTestId("tree-row-pipe:P-130");
+    expect(pipeRow.textContent).toContain("Tie-in rise");
+    fireEvent.click(pipeRow);
+
+    const inspector = screen.getByLabelText("Property inspector");
+    const deletePipePanel = within(inspector).getByLabelText("Delete pipe intent");
+    expect(within(deletePipePanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "delete_pipe_run"
+    );
+    expect(within(deletePipePanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "before=Tie-in rise"
+    );
+    expect(within(deletePipePanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "after=not_present"
+    );
+
+    fireEvent.click(within(deletePipePanel).getByTestId("queue-delete-pipe-intent"));
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "not_present"
+    );
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:delete-pipe-pipe:P-130"
+      )
+    );
+
+    expect(screen.queryByTestId("tree-row-pipe:P-130")).toBeNull();
+    expect(screen.getByTestId("tree-row-project:invented-loop-01")).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("project:invented-loop-01");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
+  it("blocks pipe deletion while primitive loads still reference it", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    const pipeRow = within(tree).getByTestId("tree-row-pipe:P-120");
+    expect(pipeRow.textContent).toContain("Rack span");
+    fireEvent.click(pipeRow);
+
+    const deletePipePanel = within(screen.getByLabelText("Property inspector")).getByLabelText("Delete pipe intent");
+    expect(within(deletePipePanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "delete_pipe_run"
+    );
+    fireEvent.click(within(deletePipePanel).getByTestId("queue-delete-pipe-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Operation op:delete-pipe-pipe:P-120 was not applied (blocked); see its diagnostics."
+      )
+    );
+
+    expect(within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-PIPE-DELETE-REFERENCED").textContent).toContain(
+      "load:L-100-Z"
+    );
+    expect(screen.getByTestId("tree-row-pipe:P-120")).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("Rack span");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=0");
+  });
+
   it("blocks support deletion while an imposed-displacement load still references it", async () => {
     render(<App />);
 

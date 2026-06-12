@@ -28,6 +28,7 @@ export function PropertyInspector({
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const selectedPipe = selection.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === selection.id) : null;
   const selectedSupport = selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const operationIntent = selectedField
@@ -42,6 +43,7 @@ export function PropertyInspector({
   const sectionCreateIntent = isSectionDraftValid(model, sectionDraft) ? buildCreateSectionIntent(sectionDraft, model) : null;
   const materialCreateIntent = isMaterialDraftValid(model, materialDraft) ? buildCreateMaterialIntent(materialDraft, model) : null;
   const supportCreateIntent = isSupportDraftValid(model, supportDraft) ? buildCreateSupportIntent(supportDraft, model) : null;
+  const pipeDeleteIntent = selectedPipe ? buildDeletePipeIntent(selectedPipe, model) : null;
   const supportDeleteIntent = selectedSupport ? buildDeleteSupportIntent(selectedSupport, model) : null;
   const inlineValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
@@ -87,6 +89,11 @@ export function PropertyInspector({
   function handleQueueDeleteSupportIntent() {
     if (!supportDeleteIntent) return;
     onQueueIntent(supportDeleteIntent);
+  }
+
+  function handleQueueDeletePipeIntent() {
+    if (!pipeDeleteIntent) return;
+    onQueueIntent(pipeDeleteIntent);
   }
 
   function handleQueueMaterialIntent() {
@@ -422,6 +429,23 @@ export function PropertyInspector({
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
       </section>
+      {pipeDeleteIntent ? (
+        <section className="editor-intent" aria-label="Delete pipe intent" data-testid="delete-pipe-intent-panel">
+          <h3>Delete pipe</h3>
+          <div className="editor-intent-controls">
+            <button
+              data-testid="queue-delete-pipe-intent"
+              onClick={handleQueueDeletePipeIntent}
+              title="Queue pipe delete intent"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete pipe
+            </button>
+          </div>
+          <OperationIntentPreview intent={pipeDeleteIntent} />
+        </section>
+      ) : null}
       {supportDeleteIntent ? (
         <section className="editor-intent" aria-label="Delete support intent" data-testid="delete-support-intent-panel">
           <h3>Delete support</h3>
@@ -1041,6 +1065,59 @@ function buildDeleteSupportIntent(support: PreviewModel["supports"][number], mod
       software_makes_authentication_claim: false
     },
     rationale: `explicit user-entered support deletion for ${model.project.id}; requires reference validation before durable model change.`
+  };
+}
+
+function buildDeletePipeIntent(pipe: PreviewModel["pipe_segments"][number], model: PreviewModel): EditorOperationIntent {
+  const pipeId = pipe.id.trim();
+  const before = `${pipe.label}; ${pipe.from}->${pipe.to}; material=${pipe.material}`;
+  return {
+    operation_id: `op:delete-pipe-${safeToken(pipeId)}`,
+    operation_kind: "delete",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Element",
+      ref: pipeId
+    },
+    change: {
+      change_id: `change:delete-pipe:${safeToken(pipeId)}`,
+      change_kind: "delete_pipe_run",
+      field_label: "Explicit pipe deletion",
+      field_path: "pipe_segments",
+      before,
+      after: "not_present",
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered pipe deletion; primitive-load reference integrity required"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered pipe deletion for ${model.project.id}; requires reference validation before durable model change.`
   };
 }
 

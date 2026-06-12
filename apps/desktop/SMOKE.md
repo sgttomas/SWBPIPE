@@ -3749,3 +3749,33 @@ after the timestamp marker were absent.
   daemon, network, telemetry, protected content, repository-default
   private-data write, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-124 pipe-run deletion authoring (`TP-APP-R2-DELPIPE-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DELPIPE-001` (completion-plan Phase A11 fifth
+  sub-slice): the structured operation seam now accepts `delete_pipe_run`
+  intents, validates whole pipe-run deletion metadata, refuses deletion while
+  any primitive load still references the pipe, and removes only the selected
+  unreferenced pipe from the model. The contract corpus now has 55 cases and
+  requires accepted `delete_pipe_run` plus blocking
+  `OP-PIPE-DELETE-REFERENCED` coverage in both Rust and browser wasm lanes.
+- Property Inspector smoke at `http://127.0.0.1:5173/` selected
+  `pipe:P-130`, queued `op:delete-pipe-pipe:P-130`, and applied the intent
+  through the Apply Operations panel.
+- Live browser evidence showed `pipe:P-130` removed from the model tree, the
+  project row active as the post-delete selection fallback, review context
+  `0 pending operations; applied_operations=1`, acceptance
+  `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live in-app browser smoke reported zero browser
+  console errors.
+- Automated evidence: operation_applier cargo suites green (47 unit tests,
+  canonical hash parity, 55-case corpus); desktop operationContractCorpus
+  Vitest 113/113; focused App Vitest 2/2; full desktop Vitest 207/207;
+  desktop production build green; Tauri Rust tests 29/29; Playwright R2 smoke
+  1/1 with pipe delete preview coverage.
+- Boundary review: local-only; invented values; whole-pipe deletion only for
+  unreferenced pipes; no hidden primitive-load cascade; no cloud, daemon,
+  network, telemetry, protected content, repository-default private-data
+  write, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim.

@@ -52,6 +52,7 @@ const REQUIRED_ACCEPTED_KINDS = [
   "update_support",
   "create_node",
   "connect_pipe_run",
+  "delete_pipe_run",
   "create_section",
   "create_material",
   "create_support",
@@ -78,7 +79,8 @@ const REQUIRED_BLOCK_CODES = [
   "OP-VALUE-EMPTY", // empty required text
   "OP-UNIT-DIMENSION-MISMATCH", // dynamic terms.N.factor block
   "OP-SUPPORT-DELETE-REFERENCED", // support still referenced by primitive load
-  "OP-LOAD-CASE-DELETE-REFERENCED" // load case still referenced by combination
+  "OP-LOAD-CASE-DELETE-REFERENCED", // load case still referenced by combination
+  "OP-PIPE-DELETE-REFERENCED" // pipe still referenced by primitive load
 ] as const;
 
 type SemanticDiagnostic = {
