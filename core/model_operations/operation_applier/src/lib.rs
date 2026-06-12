@@ -1138,6 +1138,13 @@ struct ResolvedField {
     applied_value: Value,
     /// Path segments inside the entity object (array indices allowed).
     segments: Vec<String>,
+    /// Additional sibling writes that belong to the same validated edit.
+    additional_writes: Vec<(Vec<String>, Value)>,
+}
+
+struct PrimitiveMagnitudeEdit {
+    value: f64,
+    unit: String,
 }
 
 fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Checker) {
@@ -4002,6 +4009,7 @@ fn resolve_field(
                 current_display: current,
                 applied_value: Value::String(trimmed.to_string()),
                 segments,
+                additional_writes: Vec::new(),
             })
         }
         FieldKind::Number { require_positive } => {
@@ -4096,6 +4104,7 @@ fn resolve_field(
                 current_display: display_number(current_number),
                 applied_value: Value::Number(number),
                 segments,
+                additional_writes: Vec::new(),
             })
         }
         FieldKind::Quantity {
@@ -4117,10 +4126,9 @@ fn resolve_field(
                 return None;
             };
 
-            // Unit metadata: the intent must carry the field's stored unit
-            // basis; conversion is unavailable until the units engine
-            // (Phase B). Sibling-unit quantities carry their own unit; bare
-            // numeric fields resolve through the project unit system.
+            // Unit metadata: ordinary quantity edits keep the field's stored
+            // unit basis. Primitive-load magnitude edits may atomically update
+            // value and sibling unit through the B2 unit-aware payload.
             let stored_unit = match unit_source {
                 UnitSource::SiblingUnitField => {
                     let mut unit_segments = segments.clone();
@@ -4137,6 +4145,29 @@ fn resolve_field(
                     .and_then(Value::as_str)
                     .map(str::to_string),
             };
+            let primitive_magnitude_edit =
+                if object_type == "Load" && is_primitive_magnitude_path(field_path) {
+                    parse_primitive_magnitude_edit(after, target_ref, field_path, checker)?
+                } else {
+                    None
+                };
+            let requested_unit = primitive_magnitude_edit
+                .as_ref()
+                .map(|edit| edit.unit.as_str())
+                .unwrap_or(unit);
+            if requested_unit != unit {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+                    "blocking",
+                    format!(
+                        "Primitive-load magnitude payload unit `{requested_unit}` must match intent unit `{unit}`."
+                    ),
+                    "Refresh the primitive-load magnitude edit intent from the selected unit field.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
             checker.unit_state = "passed";
             match stored_unit {
                 None => {
@@ -4151,15 +4182,40 @@ fn resolve_field(
                     return None;
                 }
                 Some(stored) => {
-                    if unit != stored {
+                    let unit_matches_stored = unit == stored;
+                    let unit_matches_dimension = if object_type == "Load"
+                        && is_primitive_magnitude_path(field_path)
+                    {
+                        match Dimension::from_schema_value(dimension) {
+                            Ok(dimension_enum) => {
+                                unit_symbol_matches_dimension(unit, dimension_enum)
+                            }
+                            Err(error) => {
+                                checker.unit_state = "blocked";
+                                checker.push(
+                                        "OP-UNIT-DIMENSION-UNKNOWN",
+                                        "blocking",
+                                        format!(
+                                            "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
+                                        ),
+                                        "Use a governed dimension token for primitive-load magnitude edits.",
+                                        vec![target_ref.to_string()],
+                                    );
+                                return None;
+                            }
+                        }
+                    } else {
+                        false
+                    };
+                    if !unit_matches_stored && !unit_matches_dimension {
                         checker.unit_state = "blocked";
                         checker.push(
                             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
                             "blocking",
                             format!(
-                                "Intent unit `{unit}` does not match stored unit `{stored}` for `{field_path}`; unit conversion is unavailable until the units engine lands (completion plan Phase B, decision D-01)."
+                                "Intent unit `{unit}` does not match stored unit `{stored}` for `{field_path}` and is not accepted for dimension `{dimension}`."
                             ),
-                            "Enter the value in the stored unit; no silent conversion is performed.",
+                            "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
                             vec![target_ref.to_string()],
                         );
                         return None;
@@ -4180,17 +4236,22 @@ fn resolve_field(
 
             check_before_numeric(current_number, before, target_ref, field_path, checker);
 
-            let Some(parsed) = parse_finite_number(after) else {
-                checker.push(
-                    "OP-VALUE-NOT-NUMERIC",
-                    "blocking",
-                    format!(
-                        "Replacement value `{after}` for `{field_path}` is not a finite number."
-                    ),
-                    "Provide a finite numeric value in the stored unit.",
-                    vec![target_ref.to_string()],
-                );
-                return None;
+            let parsed = if let Some(edit) = primitive_magnitude_edit.as_ref() {
+                edit.value
+            } else {
+                let Some(parsed) = parse_finite_number(after) else {
+                    checker.push(
+                        "OP-VALUE-NOT-NUMERIC",
+                        "blocking",
+                        format!(
+                            "Replacement value `{after}` for `{field_path}` is not a finite number."
+                        ),
+                        "Provide a finite numeric value in the stored unit.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                };
+                parsed
             };
             if require_positive && parsed <= 0.0 {
                 checker.push(
@@ -4212,11 +4273,20 @@ fn resolve_field(
                 );
                 return None;
             };
+            let additional_writes = if let Some(edit) = primitive_magnitude_edit {
+                let mut unit_segments = segments.clone();
+                unit_segments.pop();
+                unit_segments.push("unit".to_string());
+                vec![(unit_segments, Value::String(edit.unit))]
+            } else {
+                Vec::new()
+            };
             Some(ResolvedField {
                 kind,
                 current_display: display_number(current_number),
                 applied_value: Value::Number(number),
                 segments,
+                additional_writes,
             })
         }
         FieldKind::EntityRef {
@@ -4256,6 +4326,7 @@ fn resolve_field(
                 current_display: current,
                 applied_value: Value::String(replacement.to_string()),
                 segments,
+                additional_writes: Vec::new(),
             })
         }
         FieldKind::RestraintSet => {
@@ -4282,6 +4353,7 @@ fn resolve_field(
                 current_display,
                 applied_value: Value::Array(tokens.into_iter().map(Value::String).collect()),
                 segments,
+                additional_writes: Vec::new(),
             })
         }
     }
@@ -4373,6 +4445,22 @@ fn apply_resolved_field(
         return false;
     };
     *slot = field.applied_value.clone();
+    for (segments, value) in &field.additional_writes {
+        let Some(extra_slot) = value_at_segments_mut(entity, segments) else {
+            checker.push(
+                "OP-FIELD-NOT-PRESENT",
+                "blocking",
+                format!(
+                    "Field path `{}` could not be resolved for write on `{target_ref}`.",
+                    segments.join(".")
+                ),
+                "Refresh the editor intent against the current model document.",
+                vec![target_ref.to_string()],
+            );
+            return false;
+        };
+        *extra_slot = value.clone();
+    }
     let _ = field.kind;
     true
 }
@@ -4628,6 +4716,73 @@ fn is_primitive_magnitude_path(field_path: &str) -> bool {
         && !segments[1].is_empty()
         && segments[2] == "magnitude"
         && segments[3] == "value"
+}
+
+fn parse_primitive_magnitude_edit(
+    after: &str,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) -> Option<Option<PrimitiveMagnitudeEdit>> {
+    let trimmed = after.trim();
+    if !trimmed.starts_with('{') {
+        return Some(None);
+    }
+    let Ok(value) = serde_json::from_str::<Value>(trimmed) else {
+        checker.push(
+            "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+            "blocking",
+            format!("Primitive-load magnitude payload `{after}` is not valid JSON."),
+            "Refresh the primitive-load magnitude edit intent from the selected value and unit fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = value.as_object() else {
+        checker.push(
+            "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+            "blocking",
+            "Primitive-load magnitude payload must be a JSON object with value and unit."
+                .to_string(),
+            "Refresh the primitive-load magnitude edit intent from the selected value and unit fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(value) = record
+        .get("value")
+        .and_then(Value::as_f64)
+        .filter(|value| value.is_finite())
+    else {
+        checker.push(
+            "OP-VALUE-NOT-NUMERIC",
+            "blocking",
+            format!("Primitive-load magnitude payload for `{field_path}` must carry a finite numeric value."),
+            "Provide a finite primitive-load magnitude value.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let unit = record
+        .get("unit")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if unit.is_empty() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+            "blocking",
+            "Primitive-load magnitude payload must carry a non-empty unit.".to_string(),
+            "Select an explicit primitive-load magnitude unit.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    Some(Some(PrimitiveMagnitudeEdit {
+        value,
+        unit: unit.to_string(),
+    }))
 }
 
 fn is_combination_term_factor_path(field_path: &str) -> bool {
@@ -6885,6 +7040,57 @@ mod tests {
             applied["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"],
             json!(-240.0)
         );
+    }
+
+    #[test]
+    fn primitive_magnitude_edit_preserves_compatible_entered_unit() {
+        let model = sample_model();
+        let payload = json!({ "value": -28.0, "unit": "lbf/ft" });
+        let intent = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "primitive_loads.0.magnitude.value",
+            "-190",
+            &payload.to_string(),
+            "lbf/ft",
+            "force_per_length",
+        );
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"],
+            json!(-28.0)
+        );
+        assert_eq!(
+            applied["load_cases"][0]["primitive_loads"][0]["magnitude"]["unit"],
+            json!("lbf/ft")
+        );
+
+        let incompatible_payload = json!({ "value": -28.0, "unit": "mm" });
+        let incompatible = modify_intent(
+            "Load",
+            "load:L-1",
+            "update_load",
+            "primitive_loads.0.magnitude.value",
+            "-190",
+            &incompatible_payload.to_string(),
+            "mm",
+            "force_per_length",
+        );
+
+        let blocked = apply_operation(&model, &incompatible, None);
+        assert!(codes(&blocked).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        assert_eq!(blocked.validation.unit_validation, "blocked");
+        assert!(blocked.applied_model.is_none());
     }
 
     #[test]

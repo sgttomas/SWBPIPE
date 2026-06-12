@@ -111,7 +111,9 @@ export function LoadCaseManagerPanel({
     model.load_cases[0] ??
     null;
   const currentMagnitude = selectedPrimitive ? primitiveMagnitudeDisplay(selectedPrimitive.load) : "";
+  const currentMagnitudeUnit = selectedPrimitive ? primitiveUnit(selectedPrimitive.load) : "";
   const [proposedMagnitude, setProposedMagnitude] = useState(currentMagnitude);
+  const [proposedMagnitudeUnit, setProposedMagnitudeUnit] = useState(currentMagnitudeUnit);
   const [rationale, setRationale] = useState("user_entered_load_case_preview_change");
   const [primitiveDeleteRationale, setPrimitiveDeleteRationale] = useState("user_entered_primitive_load_delete_preview_change");
   const [metadataField, setMetadataField] = useState<LoadMetadataField>("status");
@@ -142,13 +144,16 @@ export function LoadCaseManagerPanel({
     defaultPrimitiveLoadDraft(model, model.load_cases[0]?.id ?? "")
   );
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
-  const changed = selectedPrimitive ? proposedMagnitude.trim() !== currentMagnitude : false;
+  const changed = selectedPrimitive
+    ? proposedMagnitude.trim() !== currentMagnitude || proposedMagnitudeUnit.trim() !== currentMagnitudeUnit
+    : false;
   const intent =
     selectedPrimitive && changed
       ? buildLoadMagnitudeIntent({
           model,
           primitive: selectedPrimitive,
           proposedMagnitude,
+          proposedUnit: proposedMagnitudeUnit,
           rationale
         })
       : null;
@@ -254,6 +259,12 @@ export function LoadCaseManagerPanel({
     primitiveDraftDimension,
     primitiveLoadDefaultUnit(model, primitiveLoadDraft.category, primitiveLoadDraft.direction)
   );
+  const selectedPrimitiveUnitOptions = selectedPrimitive
+    ? unitOptions(unitCatalogRoute, primitiveDimension(selectedPrimitive.load), currentMagnitudeUnit)
+    : [];
+  const selectedPrimitiveUnitBasis = selectedPrimitive
+    ? describeUnitBasis(unitCatalogRoute, proposedMagnitudeUnit, primitiveDimension(selectedPrimitive.load))
+    : null;
   const primitiveDraftTarget = primitiveLoadDraftTargetDisplay(primitiveLoadDraft);
 
   useEffect(() => {
@@ -286,9 +297,10 @@ export function LoadCaseManagerPanel({
 
   useEffect(() => {
     setProposedMagnitude(currentMagnitude);
+    setProposedMagnitudeUnit(currentMagnitudeUnit);
     setRationale("user_entered_load_case_preview_change");
     setPrimitiveDeleteRationale("user_entered_primitive_load_delete_preview_change");
-  }, [currentMagnitude, selectedPrimitiveKey]);
+  }, [currentMagnitude, currentMagnitudeUnit, selectedPrimitiveKey]);
 
   useEffect(() => {
     setProposedMetadataValue(currentMetadataValue);
@@ -892,7 +904,22 @@ export function LoadCaseManagerPanel({
           </div>
           <div className="load-editor-controls">
             <label>
-              <span>Magnitude</span>
+              <span>Magnitude unit</span>
+              <select
+                aria-label="Selected primitive load unit"
+                data-testid="load-manager-magnitude-unit"
+                onChange={(event) => setProposedMagnitudeUnit(event.target.value)}
+                value={proposedMagnitudeUnit}
+              >
+                {selectedPrimitiveUnitOptions.map((option) => (
+                  <option key={option.symbol} value={option.symbol}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Magnitude ({selectedPrimitiveUnitBasis?.label ?? currentMagnitudeUnit})</span>
               <input
                 aria-label="Primitive load magnitude"
                 data-testid="load-manager-magnitude-value"
@@ -2091,15 +2118,23 @@ function buildLoadMagnitudeIntent({
   model,
   primitive,
   proposedMagnitude,
+  proposedUnit,
   rationale
 }: {
   model: PreviewModel;
   primitive: PrimitiveLoadView;
   proposedMagnitude: string;
+  proposedUnit: string;
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `primitive_loads.${primitive.index}.magnitude.value`;
   const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-magnitude`;
+  const unit = proposedUnit.trim() || primitiveUnit(primitive.load);
+  const parsedMagnitude = parseFiniteNumber(proposedMagnitude);
+  const after = JSON.stringify({
+    value: parsedMagnitude ?? (proposedMagnitude.trim() || "TBD"),
+    unit
+  });
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "modify",
@@ -2120,8 +2155,8 @@ function buildLoadMagnitudeIntent({
       field_label: `${primitiveCategory(primitive.load)} primitive magnitude`,
       field_path: fieldPath,
       before: primitiveMagnitudeDisplay(primitive.load),
-      after: proposedMagnitude.trim() || "TBD",
-      unit: primitiveUnit(primitive.load),
+      after,
+      unit,
       dimension: primitiveDimension(primitive.load),
       source_note: "unit metadata required"
     },

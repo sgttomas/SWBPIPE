@@ -4066,3 +4066,27 @@ after the timestamp marker were absent.
   unit conversion, rule-pack unit I/O, browser fallback catalog, protected
   content, private project data, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-137 primitive-load magnitude unit edits (`TP-UNITS-B2-PRIMEDITUNITS-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-PRIMEDITUNITS-001` (completion-plan B2): added
+  unit-aware editing for existing primitive-load magnitudes in the Load Cases
+  manager.
+- Visible authoring behavior: the selected primitive-load editor now exposes
+  `Magnitude unit`, labels the value input with the active unit basis, and
+  queues an atomic `{ value, unit }` payload for
+  `primitive_loads.N.magnitude.value`.
+- Operation-seam behavior: legacy numeric-string magnitude edits remain valid;
+  the new payload can also update the sibling `.unit` field in the same
+  applied session-model change. Regressions cover `lbf/ft` force-per-length
+  editing and incompatible `mm` rejection.
+- Automated evidence: operation-applier cargo suites passed 53 unit tests
+  plus canonical-hash and contract-corpus tests; Tauri Rust tests passed
+  32/32; focused desktop Vitest passed 165/165; full desktop Vitest passed
+  216/216; desktop production build passed with the pre-existing Vite
+  chunk-size warning; Playwright R2 smoke passed 2/2 after wasm engine build.
+- Boundary review: no report-time conversion, project-wide unit-system picker,
+  import/export unit conversion, rule-pack unit I/O, browser fallback catalog,
+  protected content, private project data, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.

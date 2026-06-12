@@ -1718,6 +1718,8 @@ describe("OpenPipeStress desktop preview", () => {
       "primitive_loads.2.magnitude.value"
     );
     expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain("current=1200000 Pa");
+    expect(within(manager).getByTestId("load-manager-magnitude-unit")).toHaveValue("Pa");
+    expect(within(manager).getByText("Magnitude (Pa, model metadata)")).toBeInTheDocument();
 
     fireEvent.change(within(manager).getByTestId("load-manager-magnitude-value"), {
       target: { value: "1500000" }
@@ -1726,7 +1728,7 @@ describe("OpenPipeStress desktop preview", () => {
       "op:load-manager-load:L-100-load:L-100-P-magnitude"
     );
     expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain(
-      "before=1200000; after=1500000"
+      'before=1200000; after={"value":1500000,"unit":"Pa"}'
     );
     fireEvent.click(within(manager).getByTestId("queue-load-magnitude-intent"));
 

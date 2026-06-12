@@ -130,6 +130,25 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim,
   protected/private data, network path, or telemetry path changed.
 
+## 2026-06-12 - TP-UNITS-B2-PRIMEDITUNITS-001 primitive-load magnitude unit edits
+
+- WORKING_ITEMS app-integration tranche added a `Magnitude unit` selector to
+  the selected primitive-load edit panel in the Load Cases manager.
+- The edit preview now queues an atomic `{ value, unit }` payload for existing
+  primitive-load magnitudes; browser preview remains model-metadata-only and
+  desktop/Tauri mode can use accepted DEC-018 catalog options.
+- Applying a validated edit preserves the entered unit in the local session
+  model by updating the sibling `.unit` field.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_magnitude_unit_edits.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-137. Validation passed:
+  operation-applier cargo suites, src-tauri Rust tests 32/32, focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, desktop build, and Playwright
+  R2 smoke 2/2.
+- No lifecycle state, release-readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim,
+  protected/private data, network path, or telemetry path changed.
+
 ## 2026-06-12 - TP-UNITS-B2-INSPECTORLABELS-001 property-inspector unit basis labels
 
 - WORKING_ITEMS app-integration tranche added a visible `Unit basis` panel to

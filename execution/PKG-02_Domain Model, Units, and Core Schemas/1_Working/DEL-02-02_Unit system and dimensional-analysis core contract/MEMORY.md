@@ -308,3 +308,31 @@ Boundary note:
   material/section/primitive-load create forms, imports/exports, rule-pack
   unit I/O, and existing primitive-load magnitude-edit unit handling; B3 still
   owns broader conversion witness and tolerance corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-PRIMEDITUNITS-001 primitive-load magnitude unit edits
+
+- Extended the selected primitive-load magnitude edit path from value-only
+  updates to atomic value+unit payloads.
+- The Load Cases manager now exposes a `Magnitude unit` selector for existing
+  primitive loads and labels the value field with the active unit basis.
+- `core/model_operations/operation_applier` preserves legacy numeric-string
+  primitive magnitude edits and also accepts `{ value, unit }` payloads that
+  update the sibling `.unit` field when the entered unit matches the declared
+  primitive-load dimension.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_magnitude_unit_edits.md`;
+  corresponding DEL-05-05, DEL-07-02, and DEL-16-02 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-137.
+- Validation: operation-applier cargo suites passed 53 unit tests plus
+  canonical-hash and contract-corpus tests; Tauri Rust tests 32/32; focused
+  desktop Vitest 165/165; full desktop Vitest 216/216; desktop build passed;
+  Playwright R2 smoke 2/2.
+- Boundaries preserved: no report-time unit conversion, project-wide
+  unit-system picker, import/export unit conversion, rule-pack unit I/O,
+  protected standards content, private project data, release-readiness,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.
+- Residual handoffs: B2 still owns broader app unit entry/pickers outside
+  material/section/primitive-load create and edit forms, imports/exports, and
+  rule-pack unit I/O; B3 still owns broader conversion witness and tolerance
+  corpus coverage.

@@ -431,3 +431,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Remaining DEL-05-05 residuals include existing primitive-load magnitude-edit
   unit handling, final result-envelope/API/persistence/report integration,
   production tolerance policy, release thresholds, and professional reliance.
+
+## 2026-06-12 - TP-UNITS-B2-PRIMEDITUNITS-001 primitive-load magnitude unit edits
+
+- WORKING_ITEMS app-integration tranche added unit-aware editing for existing
+  primitive-load magnitudes in the desktop Load Cases manager. No
+  `core/loads/user_loads` source behavior changed.
+- The selected primitive-load editor now queues an atomic value+unit payload
+  for `primitive_loads.N.magnitude.value` while browser preview remains
+  model-metadata-only when the desktop catalog route is unavailable.
+- The operation seam preserves entered compatible units in the local session
+  model by updating the sibling magnitude `.unit` field. Rust regressions
+  cover `lbf/ft` force-per-length editing and incompatible `mm` rejection.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_magnitude_unit_edits.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-137. Validation passed:
+  operation-applier cargo suites, src-tauri Rust tests 32/32, focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, desktop build, and Playwright
+  R2 smoke 2/2.
+- Remaining DEL-05-05 residuals include final result-envelope/API/
+  persistence/report integration, production tolerance policy, release
+  thresholds, and professional reliance.

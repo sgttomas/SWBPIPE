@@ -578,6 +578,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   hidden deletion cascade, no durable persistence, no protected/private data,
   and no professional, release, or code-compliance claim.
 
+## 2026-06-12 - TP-UNITS-B2-PRIMEDITUNITS-001 primitive-load magnitude unit edits
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` dynamic primitive-magnitude edit path to accept a
+  `{ value, unit }` payload while preserving legacy numeric-string edits.
+- Compatible entered units are checked against the declared primitive-load
+  dimension and are applied by writing both `magnitude.value` and the sibling
+  `magnitude.unit` field on the returned session model. Incompatible units
+  remain blocked by `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_primitive_load_magnitude_unit_edits.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-137. Validation passed:
+  operation-applier cargo suites (53 unit tests plus canonical-hash and
+  contract-corpus tests), src-tauri Rust tests 32/32, focused desktop Vitest
+  165/165, full desktop Vitest 216/216, desktop build, and Playwright R2 smoke
+  2/2.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  hidden cascade, no durable persistence, no protected/private data, and no
+  professional, release, or code-compliance claim.
+
 ## 2026-06-12 - TP-APP-R2-DELCOMBINATION-001 full-combination deletion authoring
 
 - WORKING_ITEMS app-integration tranche extended the Rust/wasm
