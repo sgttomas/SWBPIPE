@@ -13,6 +13,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 — A9 landed: blank local model authoring target (`TP-APP-R2-BLANK-001`)
+
+The desktop app now has an explicit `New blank` local project action for the
+R2 from-scratch path. The action builds a user-created blank model document
+(`project:blank-local-*`) with no fixture nodes, pipe segments, supports,
+materials, load cases, combinations, or mechanics results; persists it through
+the existing browser-memory/Tauri local project boundary; makes it the active
+authoring target; resets queued operations, undo/redo, proposals, result
+state, and analysis-run state; and records `create_blank` in the storage and
+validation evidence panels. The blank document carries visible
+`MODEL_INCOMPLETE`, `RULE_INPUTS_INCOMPLETE`, and `NOT_PROVIDED` status plus
+a blocking `BLANK_PROJECT_AUTHORING_TARGET` diagnostic, so no hidden fixture
+entities or engineering defaults are inserted.
+
+Backend evidence pins the Tauri solve path: running `run_preview_mechanics`
+on a blank supplied payload returns `MODEL_INCOMPLETE`, zero result rows, and
+the explicit missing-input diagnostics `NODE_INPUT_MISSING`,
+`PIPE_INPUT_MISSING`, and `LOAD_INPUT_MISSING`. Browser preview mode preserves
+the existing edited/user-created-model boundary: a blank solve attempt
+completes as a zero-row `MODEL_INCOMPLETE` envelope with
+`BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, and the report packet shows
+0 selected result refs instead of reusing solved fixture rows.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_run_records/WORKING_ITEMS_RUN_2026-06-12_blank_project_authoring_path.md`;
+`apps/desktop/SMOKE.md` TP-MAC-116. Validation: projectService focused
+Vitest 5/5; App focused Vitest 32/32; full desktop Vitest 174/174; Tauri Rust
+tests 29/29; production build green; Playwright R2 smoke 1/1; live in-app
+browser smoke at `http://127.0.0.1:5173/` with zero console errors.
+
+Residual hand-offs: A10 must add support/material/section creation operation
+kinds and UI forms before a blank model can become solvable from scratch;
+A11 must add deletion coverage; packaged-Tauri saved-project blank smoke
+remains as an A8/A5 evidence expansion. No lifecycle state, release readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim is created.
+
 ## 2026-06-11 — H5: RFC 8785 canonical number rendering in `canonical_json` (`TP-H5-JCSRENDER-001`)
 
 The engine's canonical JSON is true RFC 8785 (JCS), closing the DEC-010

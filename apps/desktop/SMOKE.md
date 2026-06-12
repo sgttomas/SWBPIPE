@@ -3502,3 +3502,35 @@ after the timestamp marker were absent.
 - Boundary review: local-only; invented values; no protected content; no
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claims.
+
+## TP-MAC-116 blank-project authoring target (2026-06-12)
+
+- Tranche `TP-APP-R2-BLANK-001` (completion-plan Phase A9): the local project
+  toolbar now exposes `New blank`, creating a user-owned local blank model
+  document as the active authoring target instead of cloning the bundled
+  invented preview fixture.
+- Live in-app browser smoke at `http://127.0.0.1:5173/` verified the blank
+  action produced `project:blank-local-*`, project name `Blank Local Model`,
+  `MODEL INCOMPLETE`, `RULE INPUTS INCOMPLETE`, `NOT PROVIDED`, one visible
+  project entity in the model tree, and boundary-strip text
+  `blank_user_created_local_document_no_bundled_engineering_values`,
+  `no_protected_standards_content_inserted`, and
+  `local_user_document_not_committed_to_repository`.
+- Storage and validation evidence after creation showed
+  `operation=create_blank`, `pending operations=0`, browser-memory local
+  storage, `persisted_mechanics_results=0`, no external file copies,
+  `network=false`, and no repository-default private-data write.
+- Browser-mode solve over the blank authoring target completed with
+  `state=completed`, `result_rows=0`, `MODEL INCOMPLETE`, blocking diagnostic
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, result table summary
+  `0 of 0 results match filter`, and report export summary
+  `0 refs; 4 diagnostics; no private payload`.
+- Console review during the live smoke reported zero browser console errors.
+- Automated evidence: projectService Vitest 5/5; App Vitest 32/32 focused and
+  full desktop Vitest 174/174; Tauri Rust tests 29/29 including blank supplied
+  payload returning `NODE_INPUT_MISSING`, `PIPE_INPUT_MISSING`, and
+  `LOAD_INPUT_MISSING`; production build green; Playwright R2 smoke 1/1.
+- Boundary review: local-only; no cloud, daemon, network, telemetry, protected
+  content, repository-default private-data write, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.

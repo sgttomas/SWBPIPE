@@ -278,3 +278,25 @@ Boundaries preserved:
   policy, create a physical container ruling, alter lifecycle state, or make
   release, professional, certification, sealing, authentication, or
   code-compliance claims.
+
+## 2026-06-12 - TP-APP-R2-BLANK-001 blank local model authoring target
+
+- WORKING_ITEMS app-integration tranche added `New blank` to the desktop local
+  project controls. It creates and persists a user-owned
+  `project:blank-local-*` model document through the existing local project
+  boundary, makes it the active authoring target, and records
+  `operation=create_blank` in storage/validation evidence.
+- The blank document intentionally has no fixture entities or hidden
+  engineering defaults: no materials, nodes, pipe segments, supports,
+  components, load cases, combinations, mechanics results, or analysis run.
+  It carries `MODEL_INCOMPLETE`, `RULE_INPUTS_INCOMPLETE`, `NOT_PROVIDED`,
+  and blocking diagnostic `BLANK_PROJECT_AUTHORING_TARGET`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_blank_project_authoring_path.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-116. Validation passed: projectService
+  Vitest 5/5, App Vitest 32/32 and full desktop 174/174, Tauri Rust tests
+  29/29, production build, Playwright R2 smoke, and live in-app browser smoke.
+- Residuals: A10 support/material/section creation is now the next unblocked
+  Phase A implementation item; A11 deletion and packaged-Tauri blank-project
+  smoke remain open. No lifecycle state, release, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

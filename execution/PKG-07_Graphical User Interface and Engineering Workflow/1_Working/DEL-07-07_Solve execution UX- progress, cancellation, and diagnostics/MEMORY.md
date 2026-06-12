@@ -130,3 +130,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   smoke, add browser solving, change cancellation/progress UI behavior, or
   make release, professional, certification, sealing, authentication, or
   code-compliance claims.
+
+## 2026-06-12 - TP-APP-R2-BLANK-001 blank-model incomplete solve/report gating
+
+- WORKING_ITEMS app-integration tranche added the A9 blank local model
+  authoring target and pinned solve behavior for blank supplied payloads.
+- Tauri backend regression
+  `run_preview_mechanics_reports_blank_model_incomplete_without_defaults`
+  verifies a blank model returns `MODEL_INCOMPLETE`, zero result rows, and
+  explicit `NODE_INPUT_MISSING`, `PIPE_INPUT_MISSING`, and
+  `LOAD_INPUT_MISSING` diagnostics.
+- Browser preview smoke over `New blank` verifies the edited/user-created
+  model boundary still refuses solved fixture-row reuse:
+  `BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL`, `result_rows=0`, result
+  table `0 of 0`, and report packet `0 refs; 4 diagnostics; no private
+  payload`.
+- Primary evidence is recorded under DEL-02-05 at
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_blank_project_authoring_path.md`
+  and in `apps/desktop/SMOKE.md` TP-MAC-116. No lifecycle state, release,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

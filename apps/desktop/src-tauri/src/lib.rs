@@ -2285,6 +2285,60 @@ mod tests {
     }
 
     #[test]
+    fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
+        let blank = json!({
+            "schema_version": "0.1.0",
+            "document_kind": "openpipestress.product_preview.model",
+            "data_boundary": {
+                "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
+                "protected_source_policy": "no_protected_standards_content_inserted",
+                "private_data_policy": "local_user_document_not_committed_to_repository",
+                "professional_boundary": "human_review_required_no_software_approval_claim"
+            },
+            "project": {
+                "id": "project:blank-local-rust-test",
+                "name": "Blank Local Model",
+                "description": "User-created local blank model document.",
+                "units": {"length": "m", "force": "N"}
+            },
+            "analysis_status": {
+                "mechanics": "MODEL_INCOMPLETE",
+                "rule_check": "RULE_INPUTS_INCOMPLETE",
+                "professional_acceptance": "NOT_PROVIDED"
+            },
+            "materials": [],
+            "nodes": [],
+            "pipe_segments": [],
+            "supports": [],
+            "components": [],
+            "load_cases": [],
+            "combinations": [],
+            "diagnostics": []
+        });
+
+        let solved = run_preview_mechanics(Some(blank)).expect("blank model produces an honest result envelope");
+        let diagnostics = solved["diagnostics"]
+            .as_array()
+            .expect("diagnostics should be present");
+
+        assert_eq!(solved["model_ref"], json!("project:blank-local-rust-test"));
+        assert_eq!(solved["status"]["mechanics"], json!("MODEL_INCOMPLETE"));
+        assert!(solved["results"]
+            .as_array()
+            .expect("result rows array present")
+            .is_empty());
+        assert!(diagnostics
+            .iter()
+            .any(|item| item["code"] == json!("NODE_INPUT_MISSING")));
+        assert!(diagnostics
+            .iter()
+            .any(|item| item["code"] == json!("PIPE_INPUT_MISSING")));
+        assert!(diagnostics
+            .iter()
+            .any(|item| item["code"] == json!("LOAD_INPUT_MISSING")));
+    }
+
+    #[test]
     fn solve_job_seam_uses_supplied_model_payload() {
         let registry = SolveJobRegistry::default();
         let receipt = start_solve_job(&registry.jobs).expect("job starts");

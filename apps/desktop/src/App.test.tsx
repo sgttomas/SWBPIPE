@@ -3535,6 +3535,112 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("editor-intent-1");
   });
 
+  it("creates a blank local model document as the active authoring target", async () => {
+    render(<App />);
+
+    expect(await screen.findByText("OpenPipeStress Technical Preview")).toBeInTheDocument();
+    const controls = screen.getByLabelText("Local project controls");
+    fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+        "Created blank local model document without fixture entities or external file copies."
+      )
+    );
+    expect(within(controls).getByText("Blank Local Model")).toBeInTheDocument();
+    expect(screen.getByTestId("status-mechanics").textContent).toContain("MODEL INCOMPLETE");
+    expect(screen.getByTestId("status-rule-check").textContent).toContain("RULE INPUTS INCOMPLETE");
+    expect(screen.getByTestId("status-professional-acceptance").textContent).toContain("NOT PROVIDED");
+    expect(screen.getByTestId("preview-boundary-strip").textContent).toContain(
+      "blank_user_created_local_document_no_bundled_engineering_values"
+    );
+    expect(screen.getByTestId("preview-boundary-strip").textContent).toContain(
+      "local_user_document_not_committed_to_repository"
+    );
+
+    const tree = screen.getByLabelText("Model tree");
+    expect(within(tree).getByTestId("model-tree-filter-summary").textContent).toContain(
+      "1 of 1 model entities visible"
+    );
+    expect(within(tree).getByRole("button", { name: /Blank Local Model/i })).toBeInTheDocument();
+    const inspector = screen.getByLabelText("Property inspector");
+    expect(within(inspector).getByText("Project ID")).toBeInTheDocument();
+    expect(inspector.textContent).toContain("project:blank-local-");
+    expect(inspector.textContent).toContain("MODEL_INCOMPLETE");
+
+    const storageAudit = await screen.findByLabelText("Project storage audit");
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "operation=create_blank"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-summary").textContent).toContain(
+      "pending operations=0"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "browser_memory_preview"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-snapshot").textContent).toContain(
+      "persisted_mechanics_results=0"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-local-boundary").textContent).toContain(
+      "network=false"
+    );
+    const storagePacket = JSON.parse(
+      decodeURIComponent(
+        (within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "").split(",", 2)[1]
+      )
+    );
+    expect(storagePacket.summary.last_operation).toBe("create_blank");
+    expect(storagePacket.project_ref).toMatch(/^project:blank-local-/);
+    expect(storagePacket.summary.persisted_mechanics_result_count).toBe(0);
+    expect(storagePacket.boundary.repository_default_private_write).toBe(false);
+    expect(storagePacket.private_payload_included).toBe(false);
+    expect(storagePacket.protected_content_included).toBe(false);
+    expect(storagePacket.release_or_professional_claim).toBe(false);
+
+    const projectValidation = await screen.findByLabelText("Project validation preflight");
+    expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
+      "validation=preview_current"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-model-document-migration").textContent).toContain(
+      "status=current"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
+      "persisted mechanics results=0"
+    );
+    await waitFor(() =>
+      expect(within(projectValidation).getByTestId("project-validation-model-hash").textContent).toContain(
+        "persisted_model_hashes=1"
+      )
+    );
+
+    fireEvent.click(within(controls).getByRole("button", { name: /List local/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("local-project-message")).toHaveTextContent(
+        "Listed 1 local project snapshot from the local store index."
+      )
+    );
+    expect(screen.getByTestId("project-index-picker").textContent).toContain("Blank Local Model");
+
+    fireEvent.click(screen.getByRole("button", { name: /Run mechanics preview/i }));
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed");
+        expect(screen.getByTestId("solve-job-summary").textContent).toContain("result_rows=0");
+        expect(screen.getByTestId("status-mechanics").textContent).toContain("MODEL INCOMPLETE");
+      },
+      { timeout: 10000 }
+    );
+    const diagnostics = await screen.findByLabelText("Diagnostics");
+    expect(diagnostics.textContent).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+    const resultsPanel = await screen.findByTestId("results-panel");
+    expect(within(resultsPanel).getByTestId("result-filter-summary").textContent).toContain(
+      "0 of 0 results match filter"
+    );
+    const reportPanel = await screen.findByTestId("report-panel");
+    expect(within(reportPanel).getByTestId("report-packet-body").textContent).toContain("MODEL INCOMPLETE");
+    expect(within(reportPanel).getByTestId("report-export-summary").textContent).toContain("0 refs");
+  }, 10000);
+
   it("round trips review-only proposal operations through local save and open", async () => {
     render(<App />);
 

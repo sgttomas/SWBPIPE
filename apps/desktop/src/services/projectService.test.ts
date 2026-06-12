@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PreviewModel } from "../types";
 import {
+  buildBlankLocalModelDocument,
   createLocalProject,
   evaluateModelDocumentLocal,
   openLocalProject,
@@ -58,6 +59,35 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     const opened = await openLocalProject();
     expect(opened?.model_document_migration?.status).toBe("current");
     expect(opened?.model_migration_ledger).toEqual([]);
+  });
+
+  it("builds and persists an explicit blank local authoring document", async () => {
+    const blank = buildBlankLocalModelDocument(new Date("2026-06-12T00:00:00Z"));
+    expect(blank.project.id).toBe("project:blank-local-20260612t000000z");
+    expect(blank.project.name).toBe("Blank Local Model");
+    expect(blank.analysis_status.mechanics).toBe("MODEL_INCOMPLETE");
+    expect(blank.analysis_status.rule_check).toBe("RULE_INPUTS_INCOMPLETE");
+    expect(blank.nodes).toEqual([]);
+    expect(blank.pipe_segments).toEqual([]);
+    expect(blank.supports).toEqual([]);
+    expect(blank.materials).toEqual([]);
+    expect(blank.load_cases).toEqual([]);
+    expect(blank.combinations).toEqual([]);
+    expect(blank.data_boundary.private_data_policy).toContain("not_committed_to_repository");
+    expect(blank.diagnostics[0].code).toBe("BLANK_PROJECT_AUTHORING_TARGET");
+    expect(blank.diagnostics[0].severity).toBe("blocking");
+
+    const created = await createLocalProject(blank);
+    expect(created.summary.project_id).toBe("project:blank-local-20260612t000000z");
+    expect(created.summary.project_name).toBe("Blank Local Model");
+    expect(created.summary.persisted_mechanics_result_count).toBe(0);
+    expect(created.summary.persisted_model_hash_count).toBe(0);
+    expect(created.model_document_migration?.status).toBe("current");
+
+    const opened = await openLocalProject("project:blank-local-20260612t000000z");
+    expect(opened?.model.project.id).toBe("project:blank-local-20260612t000000z");
+    expect(opened?.model.nodes).toEqual([]);
+    expect(opened?.summary.storage_mode).toBe("browser_memory_preview");
   });
 
   it("refuses to persist documents with refused schema versions", async () => {

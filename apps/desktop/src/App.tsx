@@ -2,6 +2,7 @@ import {
   Activity,
   Database,
   FileWarning,
+  FilePlus,
   FolderOpen,
   HardDrive,
   List,
@@ -80,6 +81,7 @@ import {
   type OperationEngineStatus
 } from "./services/operationService";
 import {
+  buildBlankLocalModelDocument,
   createLocalProject,
   getLocalStorageCapability,
   listLocalProjects,
@@ -437,6 +439,55 @@ export function App() {
     }
   }
 
+  async function handleCreateBlankProject() {
+    const blankModel = buildBlankLocalModelDocument();
+    setProjectBusy(true);
+    setModelHashIntegrity(null);
+    setProjectEnvelopeHashIntegrity(null);
+    try {
+      const blankModelHash = await computeModelHash(blankModel);
+      const envelopeHash = await computeProjectEnvelopeHash({
+        model: blankModel,
+        editor_intents: [],
+        proposal: null,
+        selected_review_target: null,
+        mechanics_result: null,
+        analysis_run: null,
+        model_hash: blankModelHash
+      });
+      const created = await createLocalProject(blankModel, [], null, null, null, null, blankModelHash, envelopeHash);
+      const createdSummary = {
+        ...created.summary,
+        message: "Created blank local model document without fixture entities or external file copies."
+      };
+      setModel(created.model);
+      setSelection(defaultSelection(created.model));
+      setUndoStack([]);
+      setRedoStack([]);
+      setAppliedOperations([]);
+      setOperationOutcomes({});
+      setOperationMessage(null);
+      setResult(null);
+      setAnalysisRun(null);
+      setProposal(null);
+      setEditorIntents(created.editor_intents ?? []);
+      setSelectedReviewTarget(null);
+      setSolveJob(blankProjectCreatedSolveJob(created.model));
+      setProjectSummary(createdSummary);
+      setProjectEnvelopeHash(created.project_envelope_hash ?? null);
+      setModelHash(created.model_hash ?? blankModelHash);
+      setModelDocumentMigration(created.model_document_migration ?? null);
+      setModelMigrationLedger(created.model_migration_ledger ?? []);
+      setProjectMessage(createdSummary.message);
+      setProjectOperation("create_blank");
+    } catch (error) {
+      setProjectMessage(`Blank create failed: ${String(error)}`);
+      setProjectOperation("create_blank_failed");
+    } finally {
+      setProjectBusy(false);
+    }
+  }
+
   async function handleOpenProject(projectId: string | null = null) {
     setProjectBusy(true);
     setModelHashIntegrity(null);
@@ -619,6 +670,10 @@ export function App() {
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
             <Database size={15} aria-hidden="true" />
             Create local
+          </button>
+          <button type="button" onClick={handleCreateBlankProject} disabled={projectBusy}>
+            <FilePlus size={15} aria-hidden="true" />
+            New blank
           </button>
           <button type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
@@ -1033,6 +1088,25 @@ function modelChangedSolveJob(outcome: OperationOutcome): SolveJobAuditState {
         diagnostic_count: 0,
         result_row_count: 0,
         analysis_status: []
+      }
+    ]
+  };
+}
+
+function blankProjectCreatedSolveJob(model: PreviewModel): SolveJobAuditState {
+  return {
+    ...initialSolveJob(),
+    job_id: `job:preview-linear-static:blank:${safeJobToken(model.project.id)}`,
+    events: [
+      {
+        event_id: "solve-preview-blank-project-created",
+        state: "not_started",
+        message:
+          "Blank local model document created as the authoring target; no mechanics results exist until explicit entities and loads are added and a solve is run.",
+        result_available: false,
+        diagnostic_count: model.diagnostics.length,
+        result_row_count: 0,
+        analysis_status: [model.analysis_status.mechanics, model.analysis_status.rule_check]
       }
     ]
   };

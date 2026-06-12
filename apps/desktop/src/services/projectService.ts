@@ -233,6 +233,59 @@ export async function getLocalStorageCapability(): Promise<LocalStorageCapabilit
   return invoke<LocalStorageCapability>("get_local_storage_capability");
 }
 
+export function buildBlankLocalModelDocument(createdAt: Date = new Date()): PreviewModel {
+  const stamp = createdAt.toISOString().replace(/\.\d{3}Z$/, "Z");
+  const token = stamp.replace(/[^0-9TZ]/g, "").toLowerCase();
+  const projectId = `project:blank-local-${token}`;
+  return {
+    schema_version: SUPPORTED_MODEL_SCHEMA_VERSION,
+    document_kind: "openpipestress.product_preview.model",
+    data_boundary: {
+      public_examples_policy: "blank_user_created_local_document_no_bundled_engineering_values",
+      protected_source_policy: "no_protected_standards_content_inserted",
+      private_data_policy: "local_user_document_not_committed_to_repository",
+      professional_boundary: "human_review_required_no_software_approval_claim"
+    },
+    project: {
+      id: projectId,
+      name: "Blank Local Model",
+      description:
+        "User-created local blank model document. Add explicit nodes, pipe runs, supports, materials, loads, and combinations through structured editors before solving.",
+      units: {
+        length: "m",
+        force: "N",
+        moment: "N*m",
+        pressure: "Pa",
+        stress: "Pa",
+        temperature: "C"
+      }
+    },
+    analysis_status: {
+      mechanics: "MODEL_INCOMPLETE",
+      rule_check: "RULE_INPUTS_INCOMPLETE",
+      professional_acceptance: "NOT_PROVIDED"
+    },
+    materials: [],
+    nodes: [],
+    pipe_segments: [],
+    supports: [],
+    components: [],
+    load_cases: [],
+    combinations: [],
+    diagnostics: [
+      {
+        id: "diagnostic:blank-project:authoring-target",
+        code: "BLANK_PROJECT_AUTHORING_TARGET",
+        severity: "blocking",
+        source: "apps/desktop/src/services/projectService.ts",
+        affected_refs: [projectId],
+        message:
+          "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+      }
+    ]
+  };
+}
+
 export async function createLocalProject(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[] = [],
