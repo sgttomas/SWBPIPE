@@ -1,4 +1,4 @@
-import { ListPlus, SearchCheck } from "lucide-react";
+import { ListPlus, PlusCircle, SearchCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
@@ -25,6 +25,7 @@ export function PropertyInspector({
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(editableFields[0]?.before ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
+  const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const operationIntent = selectedField
     ? buildOperationIntent({
@@ -35,6 +36,7 @@ export function PropertyInspector({
         selection
       })
     : null;
+  const supportCreateIntent = isSupportDraftValid(model, supportDraft) ? buildCreateSupportIntent(supportDraft, model) : null;
   const inlineValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
@@ -47,6 +49,10 @@ export function PropertyInspector({
     setRationale("user_entered_preview_change");
   }, [editableFields, selection.id]);
 
+  useEffect(() => {
+    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents));
+  }, [model.project.id, model.nodes.length, model.supports.length, selection.id]);
+
   function handleFieldChange(fieldPath: string) {
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
@@ -56,6 +62,26 @@ export function PropertyInspector({
   function handleQueueIntent() {
     if (!operationIntent || !fieldChanged) return;
     onQueueIntent(operationIntent);
+  }
+
+  function handleQueueSupportIntent() {
+    if (!supportCreateIntent) return;
+    onQueueIntent(supportCreateIntent);
+    setSupportDraft(defaultSupportDraftWithReserved(model, selection, [...queuedIntents, supportCreateIntent]));
+  }
+
+  function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
+    setSupportDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function toggleSupportRestraint(restraint: string) {
+    setSupportDraft((current) => {
+      const present = current.restraints.includes(restraint);
+      return {
+        ...current,
+        restraints: present ? current.restraints.filter((item) => item !== restraint) : [...current.restraints, restraint]
+      };
+    });
   }
 
   return (
@@ -139,6 +165,77 @@ export function PropertyInspector({
           </p>
         )}
       </section>
+      <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
+        <h3>Create support</h3>
+        <div className="editor-intent-controls">
+          <label>
+            <span>Support ID</span>
+            <input
+              aria-label="New support ID"
+              data-testid="create-support-id"
+              onChange={(event) => updateSupportDraft("id", event.target.value)}
+              value={supportDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New support label"
+              data-testid="create-support-label"
+              onChange={(event) => updateSupportDraft("label", event.target.value)}
+              value={supportDraft.label}
+            />
+          </label>
+          <label>
+            <span>Node</span>
+            <select
+              aria-label="New support node"
+              data-testid="create-support-node"
+              onChange={(event) => updateSupportDraft("node", event.target.value)}
+              value={supportDraft.node}
+            >
+              {model.nodes.map((node) => (
+                <option key={node.id} value={node.id}>
+                  {node.label} ({node.id})
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="editor-intent-checkbox-grid" aria-label="New support restraints">
+            {RESTRAINT_OPTIONS.map((restraint) => (
+              <label key={restraint}>
+                <input
+                  checked={supportDraft.restraints.includes(restraint)}
+                  data-testid={`create-support-restraint-${restraint}`}
+                  onChange={() => toggleSupportRestraint(restraint)}
+                  type="checkbox"
+                />
+                <span>{restraint}</span>
+              </label>
+            ))}
+          </div>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New support provenance"
+              data-testid="create-support-provenance"
+              onChange={(event) => updateSupportDraft("provenance", event.target.value)}
+              value={supportDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-support-intent"
+            disabled={!supportCreateIntent}
+            onClick={handleQueueSupportIntent}
+            title="Queue support create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue support
+          </button>
+        </div>
+        {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
+      </section>
     </div>
   );
 }
@@ -195,6 +292,16 @@ type EditableField = {
   unit: string;
   sourceNote: string;
 };
+
+type SupportDraft = {
+  id: string;
+  label: string;
+  node: string;
+  restraints: string[];
+  provenance: string;
+};
+
+const RESTRAINT_OPTIONS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 
 function OperationIntentPreview({ intent }: { intent: EditorOperationIntent }) {
   return (
@@ -481,6 +588,65 @@ function buildOperationIntent({
   };
 }
 
+function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): EditorOperationIntent {
+  const supportId = draft.id.trim();
+  const payload = {
+    id: supportId,
+    label: draft.label.trim(),
+    node: draft.node.trim(),
+    restraints: draft.restraints,
+    provenance: draft.provenance.trim()
+  };
+  return {
+    operation_id: `op:create-support-${safeToken(supportId)}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Support",
+      ref: supportId
+    },
+    change: {
+      change_id: `change:create-support:${safeToken(supportId)}`,
+      change_kind: "create_support",
+      field_label: "Explicit support",
+      field_path: "supports",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered support node and restraint tokens"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered support for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
 function matchingInlineValidationOutcome(
   outcome: OperationOutcome | undefined,
   intent: EditorOperationIntent
@@ -505,6 +671,56 @@ function matchingInlineValidationOutcome(
 
 function operationIntentKey(intent: EditorOperationIntent): string {
   return intent.queue_id ?? intent.operation_id;
+}
+
+function defaultSupportDraft(model: PreviewModel, selection: EntityRef, queuedIntents: EditorOperationIntent[]): SupportDraft {
+  return defaultSupportDraftWithReserved(model, selection, queuedIntents);
+}
+
+function defaultSupportDraftWithReserved(
+  model: PreviewModel,
+  selection: EntityRef,
+  queuedIntents: EditorOperationIntent[]
+): SupportDraft {
+  const id = nextSupportId(model, queuedIntents);
+  const selectedNode = selection.type === "node" && model.nodes.some((node) => node.id === selection.id) ? selection.id : null;
+  const node = selectedNode ?? model.nodes[0]?.id ?? "";
+  return {
+    id,
+    label: `Support ${shortEntityToken(id)}`,
+    node,
+    restraints: ["UX", "UY", "UZ"],
+    provenance: "user_entered_local_preview"
+  };
+}
+
+function nextSupportId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set(model.supports.map((support) => support.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_support") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `support:S-${index}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "support:S-TBD";
+}
+
+function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean {
+  return (
+    Boolean(draft.id.trim() && draft.label.trim() && draft.node.trim() && draft.provenance.trim()) &&
+    model.nodes.some((node) => node.id === draft.node.trim()) &&
+    draft.restraints.length > 0 &&
+    draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
+    !model.supports.some((support) => support.id === draft.id.trim())
+  );
+}
+
+function shortEntityToken(value: string): string {
+  const parts = value.split(":");
+  return parts[parts.length - 1] || value;
 }
 
 function safeToken(value: string): string {

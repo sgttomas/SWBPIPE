@@ -3534,3 +3534,32 @@ after the timestamp marker were absent.
   content, repository-default private-data write, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-117 support creation authoring (`TP-APP-R2-CREATESUPPORT-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-CREATESUPPORT-001` (completion-plan Phase A10 first
+  sub-slice): the structured operation seam now accepts `create_support`
+  intents, validates explicit support payloads, blocks duplicate support ids,
+  blocks missing node references, and reuses the UX/UY/UZ/RX/RY/RZ restraint
+  vocabulary. The contract corpus now has 45 cases and requires an accepted
+  `create_support` apply in both Rust and browser wasm lanes.
+- Property Inspector smoke at `http://127.0.0.1:5173/` selected
+  `node:N-100`, authored `support:S-151` with label `Browser guide support`,
+  node target `node:N-100`, restraints `UX, UY, UZ, RX`, and provenance
+  `user_entered_local_preview`, then queued and applied the intent through the
+  Apply Operations panel.
+- Live browser evidence showed the created support row active in the model
+  tree, the inspector showing `node:N-100` and `UX, UY, UZ, RX`, review context
+  `0 pending operations; applied_operations=1`, acceptance
+  `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live Chrome smoke reported zero browser console
+  errors.
+- Automated evidence: operation_applier cargo suites green (36 unit tests,
+  canonical hash parity, 45-case corpus); desktop operationContractCorpus
+  Vitest 93/93; focused App Vitest 1/1; full desktop Vitest 177/177; desktop
+  production build green; Tauri Rust tests 29/29; Playwright R2 smoke 1/1.
+- Boundary review: local-only; invented values; no cloud, daemon, network,
+  telemetry, protected content, repository-default private-data write,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

@@ -446,9 +446,8 @@ mod wasm_api {
         // Honest receipt: this outcome was produced through the in-process
         // wasm engine, not the Tauri backend command route.
         outcome.application_route = "local_wasm_engine".to_string();
-        serde_json::to_string(&outcome).unwrap_or_else(|error| {
-            input_error("outcome_serialization", error.to_string())
-        })
+        serde_json::to_string(&outcome)
+            .unwrap_or_else(|error| input_error("outcome_serialization", error.to_string()))
     }
 
     /// Validate a structured editor-operation intent. Returns the
@@ -629,6 +628,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut created_support: Option<Value> = None;
+    if !checker.schema_blocked && change_kind == "create_support" {
+        created_support = resolve_create_support(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
     let mut created_load_case: Option<Value> = None;
     if !checker.schema_blocked && change_kind == "create_load_case" {
         created_load_case = resolve_create_load_case(
@@ -714,6 +727,7 @@ fn run(
         }]
     } else if (created_node.is_some()
         || created_pipe.is_some()
+        || created_support.is_some()
         || created_load_case.is_some()
         || created_primitive_load.is_some()
         || created_combination.is_some()
@@ -765,6 +779,15 @@ fn run(
         } else if let Some(pipe) = &created_pipe {
             let mut next_model = model.clone();
             if apply_created_pipe(&mut next_model, pipe) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(support) = &created_support {
+            let mut next_model = model.clone();
+            if apply_created_support(&mut next_model, support) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -991,6 +1014,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "update_support"
             | "create_node"
             | "connect_pipe_run"
+            | "create_support"
             | "create_load_case"
             | "create_primitive_load"
             | "create_combination"
@@ -1015,6 +1039,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
     let expected_operation_kind = match change_kind {
         "set_field" | "update_load" | "update_support" => "modify",
         "create_node"
+        | "create_support"
         | "create_load_case"
         | "create_primitive_load"
         | "create_combination"
@@ -1391,6 +1416,169 @@ fn resolve_connect_pipe_run(
         },
         "material": material,
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
+        "provenance": provenance,
+    }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn resolve_create_support(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<Value> {
+    if object_type != "Support" || field_path != "supports" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-CREATE-SUPPORT-SHAPE-INVALID",
+            "blocking",
+            "Create-support intents must target object_type `Support` with field_path `supports`."
+                .to_string(),
+            "Refresh the support creation intent from the explicit support authoring form.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    check_before("not_present", before, target_ref, field_path, checker);
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for support creation."),
+            "Create support records with unit `none`; stiffness support authoring is a later bounded tranche.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Create-support dimension `{dimension}` must be `dimensionless`."),
+            "Emit support creation intents with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if !model.get("supports").is_some_and(Value::is_array) {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-SUPPORT-COLLECTION-MISSING",
+            "blocking",
+            "Model document does not expose a supports array.".to_string(),
+            "Repair the model document before creating supports.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "supports", target_ref).is_some() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-ALREADY-EXISTS",
+            "blocking",
+            format!("Support `{target_ref}` already exists in the current model."),
+            "Choose a new stable support id; create operations never overwrite existing entities.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Ok(payload) = serde_json::from_str::<Value>(after) else {
+        checker.push(
+            "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+            "blocking",
+            "Create-support payload is not valid JSON.".to_string(),
+            "Emit the explicit support payload as JSON in change.after.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(record) = payload.as_object() else {
+        checker.push(
+            "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+            "blocking",
+            "Create-support payload must be a JSON object.".to_string(),
+            "Emit id, label, node, restraints, and provenance fields for the new support.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let id = record
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let label = record
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let node = record
+        .get("node")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let provenance = record
+        .get("provenance")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    let Some(raw_restraints) = record.get("restraints").and_then(Value::as_array) else {
+        checker.push(
+            "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+            "blocking",
+            "Create-support payload must include a restraints string array.".to_string(),
+            "Refresh the support creation intent from explicit user-entered restraint tokens.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let restraints = normalize_restraint_tokens(
+        raw_restraints
+            .iter()
+            .filter_map(Value::as_str)
+            .map(str::to_string)
+            .collect(),
+        target_ref,
+        checker,
+    )?;
+    if id != target_ref || label.is_empty() || node.is_empty() || provenance.is_empty() {
+        checker.push(
+            "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+            "blocking",
+            "Create-support payload must include matching id and non-empty label/node/provenance fields.".to_string(),
+            "Refresh the support creation intent from explicit user-entered support fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if find_entity(model, "nodes", node).is_none() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-SUPPORT-NODE-NOT-FOUND",
+            "blocking",
+            format!("Support `{target_ref}` references node `{node}`, which is absent from the current model."),
+            "Create or select an existing node before creating a support.",
+            vec![target_ref.to_string(), node.to_string()],
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+
+    Some(serde_json::json!({
+        "id": id,
+        "label": label,
+        "node": node,
+        "restraints": restraints,
         "provenance": provenance,
     }))
 }
@@ -2794,39 +2982,11 @@ fn resolve_field(
             let current_display = current_tokens.join(", ");
             check_before(&current_display, before, target_ref, field_path, checker);
 
-            let mut tokens: Vec<String> = Vec::new();
-            for raw in after.split(',') {
-                let token = raw.trim().to_ascii_uppercase();
-                if token.is_empty() {
-                    continue;
-                }
-                if !RESTRAINT_TOKENS.contains(&token.as_str()) {
-                    checker.push(
-                        "OP-RESTRAINT-TOKEN-INVALID",
-                        "blocking",
-                        format!(
-                            "Restraint token `{token}` is not in the restraint vocabulary {}.",
-                            RESTRAINT_TOKENS.join("/")
-                        ),
-                        "Use comma-separated restraint direction tokens from the model vocabulary.",
-                        vec![target_ref.to_string()],
-                    );
-                    return None;
-                }
-                if !tokens.contains(&token) {
-                    tokens.push(token);
-                }
-            }
-            if tokens.is_empty() {
-                checker.push(
-                    "OP-RESTRAINT-SET-EMPTY",
-                    "blocking",
-                    "Replacement restraint set is empty; removing a support entirely is a delete operation, not a field edit.".to_string(),
-                    "Provide at least one restraint direction token.",
-                    vec![target_ref.to_string()],
-                );
-                return None;
-            }
+            let tokens = normalize_restraint_tokens(
+                after.split(',').map(str::to_string).collect(),
+                target_ref,
+                checker,
+            )?;
             Some(ResolvedField {
                 kind,
                 current_display,
@@ -2940,6 +3100,14 @@ fn apply_created_pipe(model: &mut Value, pipe: &Value) -> bool {
         return false;
     };
     pipes.push(pipe.clone());
+    true
+}
+
+fn apply_created_support(model: &mut Value, support: &Value) -> bool {
+    let Some(supports) = model.get_mut("supports").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    supports.push(support.clone());
     true
 }
 
@@ -3109,6 +3277,47 @@ fn vector_value(record: &serde_json::Map<String, Value>, key: &str) -> Option<(f
         return None;
     }
     (x != 0.0 || y != 0.0 || z != 0.0).then_some((x, y, z))
+}
+
+fn normalize_restraint_tokens(
+    raw_tokens: Vec<String>,
+    target_ref: &str,
+    checker: &mut Checker,
+) -> Option<Vec<String>> {
+    let mut tokens: Vec<String> = Vec::new();
+    for raw in raw_tokens {
+        let token = raw.trim().to_ascii_uppercase();
+        if token.is_empty() {
+            continue;
+        }
+        if !RESTRAINT_TOKENS.contains(&token.as_str()) {
+            checker.push(
+                "OP-RESTRAINT-TOKEN-INVALID",
+                "blocking",
+                format!(
+                    "Restraint token `{token}` is not in the restraint vocabulary {}.",
+                    RESTRAINT_TOKENS.join("/")
+                ),
+                "Use comma-separated restraint direction tokens from the model vocabulary.",
+                vec![target_ref.to_string()],
+            );
+            return None;
+        }
+        if !tokens.contains(&token) {
+            tokens.push(token);
+        }
+    }
+    if tokens.is_empty() {
+        checker.push(
+            "OP-RESTRAINT-SET-EMPTY",
+            "blocking",
+            "Replacement restraint set is empty; removing a support entirely is a delete operation, not a field edit.".to_string(),
+            "Provide at least one restraint direction token.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    Some(tokens)
 }
 
 fn value_in_object<'a>(
@@ -3497,6 +3706,109 @@ mod tests {
             outcome.professional_boundary["software_makes_approval_claim"],
             json!(false)
         );
+    }
+
+    #[test]
+    fn explicit_create_support_payload_applies_without_mutating_input() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let payload = json!({
+            "id": "support:S-2",
+            "label": "New guide support",
+            "node": "node:N-2",
+            "restraints": ["UY", "UZ", "RX"],
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Support",
+            "support:S-2",
+            "create_support",
+            "supports",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        assert_eq!(outcome.diff_preview.len(), 1);
+        assert_eq!(outcome.diff_preview[0].field_path, "supports");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["supports"]
+                .as_array()
+                .expect("supports array")
+                .len(),
+            2
+        );
+        assert_eq!(applied["supports"][1], payload);
+    }
+
+    #[test]
+    fn create_support_blocks_duplicate_id_and_missing_node_reference() {
+        let model = sample_model();
+        let duplicate_payload = json!({
+            "id": "support:S-1",
+            "label": "Duplicate support",
+            "node": "node:N-2",
+            "restraints": ["UX"],
+            "provenance": "user_entered_local_preview"
+        });
+        let mut duplicate = modify_intent(
+            "Support",
+            "support:S-1",
+            "create_support",
+            "supports",
+            "not_present",
+            &serde_json::to_string(&duplicate_payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        duplicate["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &duplicate, None);
+        assert!(codes(&outcome).contains(&"OP-TARGET-ALREADY-EXISTS"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
+
+        let missing_node_payload = json!({
+            "id": "support:S-2",
+            "label": "Dangling support",
+            "node": "node:missing",
+            "restraints": ["UX"],
+            "provenance": "user_entered_local_preview"
+        });
+        let mut missing_node = modify_intent(
+            "Support",
+            "support:S-2",
+            "create_support",
+            "supports",
+            "not_present",
+            &serde_json::to_string(&missing_node_payload).expect("payload json"),
+            "none",
+            "dimensionless",
+        );
+        missing_node["operation_kind"] = json!("create");
+        let outcome = apply_operation(&model, &missing_node, None);
+        assert!(codes(&outcome).contains(&"OP-SUPPORT-NODE-NOT-FOUND"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]

@@ -359,6 +359,34 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-12 - TP-APP-R2-CREATESUPPORT-001 support creation authoring
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` with `create_support`.
+- Accepted intents must target object type `Support` with
+  `field_path=supports`, `operation_kind=create`, `before=not_present`, unit
+  `none`, dimension `dimensionless`, and an explicit JSON payload carrying
+  matching id, label, existing node reference, restraint tokens, and
+  provenance.
+- Duplicate support ids, missing node references, invalid support payloads,
+  wrong unit/dimension metadata, and missing supports collections are blocked.
+  Restraint tokens use the existing `UX/UY/UZ/RX/RY/RZ` vocabulary.
+- Contract corpus coverage now includes
+  `fixtures/model_operations/contract_corpus/case_45_accept_create_support.json`;
+  both Rust and browser wasm corpus runners require accepted
+  `create_support` coverage.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_create_support_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-117. Validation passed:
+  operation-applier cargo suites (36 unit + canonical hash + 45-case corpus),
+  corpus bless/rerun, desktop operationContractCorpus 93/93, full desktop
+  Vitest 177/177, desktop build, src-tauri Rust tests 29/29, Playwright smoke
+  1/1, and live Chrome support-create smoke with zero console errors.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden support defaults, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.
+
 ## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
 
 - WORKING_ITEMS app-integration tranche extended the browser local operation

@@ -13,6 +13,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 — A10 first sub-slice: support creation authoring (`TP-APP-R2-CREATESUPPORT-001`)
+
+The structured operation seam now accepts `create_support` as a create-kind
+operation. `core/model_operations/operation_applier` validates explicit
+support payloads with no direct mutation, no engineering defaults, no unit
+conversion, duplicate-id blocking, node-reference blocking, and the existing
+UX/UY/UZ/RX/RY/RZ restraint-token vocabulary. The cross-engine contract
+corpus added `case_45_accept_create_support.json`; both native Rust and
+browser wasm lanes require `create_support` in the accepted-operation coverage
+floor.
+
+The desktop Property Inspector now exposes a compact support creation form:
+support id, label, existing node selector, restraint checkboxes, provenance,
+and a `Queue support` action that emits a review-only structured operation.
+Applying the queued intent uses the same operation-apply panel, records the
+local-session acceptance receipt, selects the newly created support in the
+model tree, and clears stale solve/report state like other applied model
+edits.
+
+Evidence:
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_create_support_authoring.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_create_support_authoring.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_create_support_authoring.md`;
+`apps/desktop/SMOKE.md` TP-MAC-117. Validation: operation_applier cargo
+suites 36 unit + canonical hash + 45-case corpus; corpus bless and rerun
+green; desktop operationContractCorpus Vitest 93/93; focused App Vitest 1/1;
+full desktop Vitest 177/177; desktop production build green; Tauri Rust tests
+29/29; Playwright R2 smoke 1/1; local Chrome smoke at
+`http://127.0.0.1:5173/` with zero console errors.
+
+Residual hand-offs: A10 still needs material creation and section creation
+before pipe creation can be fully fixture-independent; A11 deletion coverage
+is still open. No lifecycle state, release readiness, professional approval,
+certification, sealing, authentication, or code-compliance claim is created.
+
 ## 2026-06-12 — A9 landed: blank local model authoring target (`TP-APP-R2-BLANK-001`)
 
 The desktop app now has an explicit `New blank` local project action for the

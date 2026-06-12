@@ -140,6 +140,32 @@ Durable context preserved after PKG-02 grounded finding resolution:
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
 
+## 2026-06-12 - TP-APP-R2-CREATESUPPORT-001 support creation acceptance receipt
+
+- WORKING_ITEMS app-integration tranche verified that explicit support
+  creation enters the model only after the user queues and applies a
+  structured operation in the local session.
+- The Property Inspector emits `create_support` intents with the standard
+  audit boundary: `structured_operations_only`,
+  `direct_model_mutation_allowed=false`, and
+  `mutates_accepted_model_state=false`.
+- App and live Chrome evidence apply `support:S-150`/`support:S-151` through
+  the Apply Operations panel, select the created support, clear stale solve
+  state, and retain receipt labels
+  `acceptance=user_initiated_apply_in_local_session`,
+  `persistence=session_state_only_not_yet_saved`, and
+  `professional_approval=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_create_support_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-117. Validation passed:
+  focused App Vitest 1/1, full desktop Vitest 177/177, src-tauri Rust tests
+  29/29, desktop build, Playwright smoke 1/1, and live Chrome smoke with zero
+  console errors.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.
+
 ## 2026-06-11 - TP-APP-R2-COMBCREATE-001 combination creation editor
 
 - WORKING_ITEMS app-integration tranche verified that new mechanics-basis

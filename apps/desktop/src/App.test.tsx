@@ -5775,6 +5775,53 @@ describe("OpenPipeStress desktop preview", () => {
     expect(documentMigrationLine.textContent).toContain("ledger_records=0");
   });
 
+  it("queues and applies explicit support creation through the structured operation seam", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    fireEvent.click(within(tree).getByTestId("tree-row-node:N-100"));
+    const inspector = screen.getByLabelText("Property inspector");
+    const createSupportPanel = within(inspector).getByLabelText("Create support intent");
+
+    fireEvent.change(within(createSupportPanel).getByTestId("create-support-id"), {
+      target: { value: "support:S-150" }
+    });
+    fireEvent.change(within(createSupportPanel).getByTestId("create-support-label"), {
+      target: { value: "User guide support" }
+    });
+    fireEvent.change(within(createSupportPanel).getByTestId("create-support-node"), {
+      target: { value: "node:N-100" }
+    });
+    fireEvent.click(within(createSupportPanel).getByTestId("create-support-restraint-RX"));
+    expect(within(createSupportPanel).getByTestId("queue-create-support-intent")).not.toBeDisabled();
+    expect(within(createSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("create_support");
+
+    fireEvent.click(within(createSupportPanel).getByTestId("queue-create-support-intent"));
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:create-support-support:S-150"
+      )
+    );
+
+    const createdSupportRow = screen.getByTestId("tree-row-support:S-150");
+    expect(createdSupportRow.textContent).toContain("User guide support");
+    expect(createdSupportRow).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("node:N-100");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("UX, UY, UZ, RX");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
   it("queues and applies explicit viewport node geometry through the structured operation seam", async () => {
     render(<App />);
 
