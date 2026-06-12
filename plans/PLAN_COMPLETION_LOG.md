@@ -13,6 +13,66 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - Evidence-sweep git-state hardening (`TP-R2VERIFY-FIX-002`)
+
+Repair of verification finding F-2
+([VERIFICATION_2026-06-12_r2_exit_chain.md](VERIFICATION_2026-06-12_r2_exit_chain.md)):
+the DEC-025 sweep summary could record a clean-looking git block when the git
+capture itself failed, because `_capture()` converts any nonzero git exit into
+`None` and the state collector defaulted that to "no dirty paths".
+`collect_git_state` now records `status_capture_failed` explicitly,
+`working_tree_dirty` becomes `null` (never `false`) when the capture fails,
+`summary_filename` marks such summaries `-gitunverified`, and `main --execute`
+exits nonzero with a named message because an unbound summary does not satisfy
+the DEC-025 commit-binding contract. Summary `schema_version` bumped 1 → 2 for
+the new member. Tests: 3 new/updated focused cases; `tests/test_evidence_sweep.py`
+16/16 green.
+
+Evidence: `execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/_run_records/WORKING_ITEMS_RUN_2026-06-12_sweep_git_state_hardening.md`.
+No lifecycle state, release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim is created.
+
+## 2026-06-12 - Authored-load preview-category mapping disclosure (`TP-R2VERIFY-FIX-001`)
+
+Repair of verification finding F-1
+([VERIFICATION_2026-06-12_r2_exit_chain.md](VERIFICATION_2026-06-12_r2_exit_chain.md)):
+the A12 adapter silently coerced operation-authored load categories
+(`concentrated_force`/`concentrated_moment` → `occasional`,
+`distributed_force` → `weight`) at the product-physics boundary. The mapping
+now surfaces as a named per-load `warning` diagnostic
+(`LOAD_CATEGORY_PREVIEW_MAPPED`) stating that the preview classification is
+not a user-selected engineering classification; native preview categories do
+not emit it; solve status is unchanged. The extended regression pins the
+diagnostic code, severity, affected refs, and the native-category negative
+case. `core/product_physics` 25/25 green.
+
+Evidence: `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_run_records/WORKING_ITEMS_RUN_2026-06-12_category_mapping_disclosure.md`.
+No lifecycle state, release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim is created.
+
+## 2026-06-12 - R2 exit-chain verification snapshot (`TP-INTEGRATED-VERIFY-002`)
+
+The completion plan's Phase A exit-evidence row called for a derivative
+verification snapshot (TP-INTEGRATED-VERIFY successor) for human review; it
+now exists:
+[VERIFICATION_2026-06-12_r2_exit_chain.md](VERIFICATION_2026-06-12_r2_exit_chain.md).
+An independent WORKING_ITEMS session re-ran the R2-chain surfaces (Tauri
+backend 32/32 including the A12 rehearsal and saved-project regressions;
+product_physics 25/25; units 13/13; Playwright 2/2 including the from-blank
+GUI journey), built and booted the packaged desktop binary
+(`tauri build --debug --no-bundle`; SMOKE TP-MAC-140), and audited the landed
+A9-A12/A8 work against PRD §22.3 verbatim. Verdict: the R2 exit criterion is
+demonstrated in substance across two complementary verified surfaces; the
+packaged-runtime GUI journey remains the one named gap (finding F-4, recorded
+with its macOS automation blockers per the H4 exception). Findings F-1/F-2
+were repaired same-session; F-3 routed to the next PKG-17 tranche. The
+snapshot feeds the `D-14` stage-advancement decision packet.
+
+Evidence: `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_run_records/WORKING_ITEMS_RUN_2026-06-12_r2_exit_chain_verification.md`;
+`apps/desktop/SMOKE.md` TP-MAC-140. No lifecycle state, stage advancement,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim is created.
+
 ## 2026-06-12 - B2 export unit-system disclosure (`TP-UNITS-B2-EXPORTDISCLOSURE-001`)
 
 PCF, CAEPIPE MBF, and stress-neutral export packages now carry explicit

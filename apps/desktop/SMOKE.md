@@ -4141,3 +4141,28 @@ after the timestamp marker were absent.
   solver-deck validation, rule-pack unit I/O, protected content, private
   project data, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-140 R2 exit-chain verification + packaged-binary boot smoke (`TP-INTEGRATED-VERIFY-002`, 2026-06-12)
+
+- Tranche `TP-INTEGRATED-VERIFY-002` (completion-plan Phase A exit-evidence
+  row): independent verification session re-ran the R2-chain surfaces and
+  produced the derivative verification snapshot
+  `plans/VERIFICATION_2026-06-12_r2_exit_chain.md` for the D-14
+  stage-advancement ruling.
+- Re-run evidence: Tauri backend suite 32/32 including the A12 from-blank
+  rehearsal and saved-project regressions; product_physics 25/25; core/units
+  13/13; Playwright e2e 2/2 (real Chrome, wasm engine rebuilt) including the
+  from-blank GUI journey.
+- Packaged-binary boot smoke: `tauri build --debug --no-bundle` built the
+  desktop binary in 1m05s; the binary launched, registered a Foreground
+  window with WebKit renderer/networking processes, produced zero bytes of
+  error output, and terminated cleanly.
+- H4 evidence-posture exception note: the GUI journey inside the packaged
+  webview was NOT automated because `tauri-driver` does not support macOS and
+  interactive desktop driving was unavailable in this session (permission
+  dialog timed out); the gap stays recorded in the A5/A8 rows as verification
+  finding F-4. Every R2 criterion element remains proven on at least one
+  automated surface.
+- Boundary review: no lifecycle state change, stage advancement, release
+  readiness, professional approval, certification, sealing, authentication,
+  or code-compliance claim; stage advancement awaits the human D-14 ruling.

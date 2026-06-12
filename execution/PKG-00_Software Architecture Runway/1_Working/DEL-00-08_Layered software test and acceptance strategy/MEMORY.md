@@ -1,5 +1,20 @@
 # MEMORY: DEL-00-08
 
+## 2026-06-12 - TP-INTEGRATED-VERIFY-002
+
+- Independent verification session re-ran the R2 exit-chain surfaces (Tauri
+  32/32, product_physics 25/25, units 13/13, Playwright 2/2) and produced the
+  Phase A exit-evidence snapshot
+  `plans/VERIFICATION_2026-06-12_r2_exit_chain.md`.
+- Packaged-binary boot smoke recorded as SMOKE `TP-MAC-140` with the H4
+  exception note (tauri-driver lacks macOS support; packaged GUI journey gap
+  stays in A5/A8 as finding F-4).
+- Findings F-1 (load-category coercion) and F-2 (sweep git-state false-clean)
+  were repaired same-session (`TP-R2VERIFY-FIX-001`/`-002`); F-3
+  (export-schema compat stance) routed to the next PKG-17 tranche.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_r2_exit_chain_verification.md`;
+  stage advancement awaits the human `D-14` ruling.
+
 ## 2026-06-12 - TP-APP-R2-SAVEDPROJECT-SMOKE-001
 
 - WORKING_ITEMS landed the A8 saved-project backend smoke sub-slice.
