@@ -1,25 +1,28 @@
 import { useEffect, useState } from "react";
 import type { PackageHashEvidence } from "../types";
-import { canonicalJson, computePackageHash } from "./hashService";
+import { computePackageHash } from "./hashService";
 
 export function usePackageHash(
   packageId: string | null,
   basePacket: unknown,
   payloadExcludes: PackageHashEvidence["payload_excludes"] = "validation_report_package_hash_fields"
 ): PackageHashEvidence | null {
-  const canonicalPayload = basePacket ? canonicalJson(basePacket) : null;
+  // Plain JSON text as the effect key: stable for identical packet content
+  // across re-renders. Canonicalization and hashing happen inside the wasm
+  // engine (H1 / F-5a) — the frontend no longer canonicalizes anything.
+  const packetJson = basePacket === undefined || basePacket === null ? null : JSON.stringify(basePacket);
   const [packageHash, setPackageHash] = useState<PackageHashEvidence | null>(null);
   useEffect(() => {
     let active = true;
     setPackageHash(null);
-    if (!canonicalPayload || !packageId) return;
-    computePackageHash(packageId, canonicalPayload, payloadExcludes).then((hash) => {
+    if (!packetJson || !packageId) return;
+    computePackageHash(packageId, JSON.parse(packetJson), payloadExcludes).then((hash) => {
       if (active) setPackageHash(hash);
     });
     return () => {
       active = false;
     };
-  }, [canonicalPayload, packageId, payloadExcludes]);
+  }, [packetJson, packageId, payloadExcludes]);
   return packageHash;
 }
 

@@ -11,12 +11,19 @@ export const WASM_ENGINE_BUILD_COMMAND = "npm run build:wasm --workspace apps/de
 export type WasmOperationEngine = {
   validateOperationJson: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
   applyOperationJson: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
+  // H1 / F-5a hash seam: the engine's canonicalization and hashing, exported
+  // so the frontend never re-implements either. Both throw on invalid JSON
+  // input (WASM-ENGINE-INPUT-JSON-INVALID).
+  canonicalJsonString: (valueJson: string) => string;
+  canonicalSha256Hex: (valueJson: string) => string;
 };
 
 type GeneratedGlueModule = {
   default: (options?: { module_or_path: BufferSource | string | URL }) => Promise<unknown>;
   validate_operation_json: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
   apply_operation_json: (modelJson: string, intentJson: string, claimedModelHashJson: string) => string;
+  canonical_json_string: (valueJson: string) => string;
+  canonical_sha256_hex: (valueJson: string) => string;
 };
 
 // Specifiers are intentionally held in constants (not inline literals) so
@@ -97,7 +104,9 @@ async function instantiate(): Promise<WasmOperationEngine> {
 
   return {
     validateOperationJson: glue.validate_operation_json,
-    applyOperationJson: glue.apply_operation_json
+    applyOperationJson: glue.apply_operation_json,
+    canonicalJsonString: glue.canonical_json_string,
+    canonicalSha256Hex: glue.canonical_sha256_hex
   };
 }
 

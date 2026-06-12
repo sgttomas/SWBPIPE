@@ -13,7 +13,41 @@ certification, or code-compliance claim.
 
 ---
 
-## 2026-06-11 — C1 landed: frozen expression grammar v1.0.0 + conformance corpus (`TP-C1-GRAMMAR-001`)
+## 2026-06-11 — H1: canonical-hash unification through the wasm engine (`TP-H1-HASHUNIFY-001`)
+
+Frontend hashing is single-sourced: `hashService.ts` now calls the wasm
+exports of the engine's `canonical_json`/`sha256_hex` (new
+`canonical_json_string` / `canonical_sha256_hex` in `wasm_api`, throwing
+the named input diagnostic on malformed JSON), and the TS canonicalization
+plus the A7 report-input WebCrypto helper (with its silent `"TBD"` soft
+fallback) are deleted — no fallback hashing path exists in the frontend. A
+new Rust-blessed parity corpus (`fixtures/canonical_hash/`, 14 cases,
+12-case floor) feeds identical raw JSON text to both lanes and pins the
+engine's canonical form and number normalization.
+
+The allowlist-tightening rider was executed as a measurement and the
+hypothesis from the T4 caveat was **partially refuted with evidence**:
+`backend_canonicalization` (invariant label) joined the blessed corpus
+projection across all 44 re-blessed cases, and the native runner now
+asserts engine self-consistency (`applied_model_backend_hash` =
+`canonical_json`+`sha256_hex` of the returned document); but the
+`backend_model_hash` value exclusions stand, for measured transport
+reasons now documented in the corpus README — `JSON.stringify` renders
+`200.0` as `200` so input-text hashes legitimately differ across lanes,
+and the engine's applied-model hash covers in-process text reproducible
+only Rust-side (recorded consequence: receipt-hash verification must
+re-ask the engine; no frontend recomputation is possible). The corpus's
+ECMA harness renderer survives in both runners as explicitly harness-only
+code with this rationale attached.
+
+Evidence: operation_applier cargo suites green; desktop Vitest 166/166
+(was 140); DEC-025 five-surface sweep overall-pass. Engine slice landed as
+`6e36f5da4` mid-tranche (collision defense during the shared-worktree
+incident); the adapter/corpus slice closes with this entry. Run record:
+`execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_run_records/WORKING_ITEMS_RUN_2026-06-11_h1_hash_unification.md`;
+SMOKE `TP-MAC-114`.
+
+## ## 2026-06-11 — C1 landed: frozen expression grammar v1.0.0 + conformance corpus (`TP-C1-GRAMMAR-001`)
 
 Implementation of the D-02 ruling (`DEC-022`, packet Option A) by a bounded
 TASK worker in `core/rules`: the typed expression AST extended to the full

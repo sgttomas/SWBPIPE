@@ -16,14 +16,22 @@
 //!   claim echo fields, identity echo fields);
 //! - engine-identity fields excluded only via the documented allowlist
 //!   (`application_route`, `model_basis.backend_model_hash`,
-//!   `model_basis.backend_canonicalization`, `applied_model_backend_hash`,
+//!   `applied_model_backend_hash` blessed-value comparison,
 //!   `diagnostics[].id`, `diagnostics[].source`, `diagnostics[].message`,
-//!   `diagnostics[].remediation`);
+//!   `diagnostics[].remediation`). Tightened at TP-H1-HASHUNIFY-001:
+//!   `model_basis.backend_canonicalization` is now compared (invariant
+//!   label), and both runners assert engine self-consistency —
+//!   `applied_model_backend_hash` must equal `canonical_json` +
+//!   `sha256_hex` over the returned applied document in every lane. The
+//!   backend hash VALUES stay excluded from blessed comparison for a
+//!   measured reason (not the retired TS engine): JS transport renders
+//!   `200.0` as `200`, so input-text-derived hashes legitimately differ
+//!   between the native-file lane and JS-fed wasm lanes;
 //! - applied model documents compared BOTH as parsed-JSON deep equality
-//!   (numbers compared by f64 value) AND by the corpus-harness canonical hash:
-//!   lexicographically sorted object keys, arrays in order, UTF-8, sha256,
-//!   numbers rendered ECMAScript-ToString-compatible (integral doubles render
-//!   without a trailing `.0`).
+//!   (numbers compared by f64 value) AND by the corpus-harness canonical
+//!   hash (ECMAScript-compatible number rendering — a transport-invariant
+//!   harness normalization, NOT the engine canonicalization, which is
+//!   pinned separately by `fixtures/canonical_hash/`).
 //!
 //! Regeneration: expected outcomes are generated from THIS crate (the
 //! contract reference) by running `CORPUS_BLESS=1 cargo test` in this crate
@@ -32,9 +40,10 @@
 //! Boundary: all corpus data is invented (PUBLIC_DOMAIN_OR_ORIGINAL); no
 //! protected standards content; no compliance/certification/approval claims.
 
-use open_pipe_stress_operation_applier::{apply_operation, validate_operation, OperationOutcome};
+use open_pipe_stress_operation_applier::{
+    apply_operation, canonical_json, sha256_hex, validate_operation, OperationOutcome,
+};
 use serde_json::{json, Value};
-use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -123,8 +132,16 @@ fn canonical_number(number: &serde_json::Number) -> String {
 }
 
 /// Corpus-harness canonical JSON: lexicographically sorted object keys,
-/// arrays in order, UTF-8, ECMAScript-compatible number rendering. Mirrors
-/// `canonicalJson` in `apps/desktop/src/services/hashService.ts`.
+/// arrays in order, UTF-8, ECMAScript-compatible number rendering.
+///
+/// Measured at TP-H1-HASHUNIFY-001 and kept deliberately: this is NOT the
+/// engine's canonicalization (pinned by `fixtures/canonical_hash/`), it is a
+/// transport-invariant test-harness normalization. JS transport
+/// (`JSON.stringify`) erases the textual `200.0` vs `200` distinction that
+/// raw case-file text preserves, so a serde-rendered hash can never agree
+/// across the native-file lane and the JS-fed wasm lanes on the same case.
+/// The Vitest runner carries the matching 8-line renderer as harness-only
+/// code; any drift between the pair fails all hash comparisons immediately.
 fn canonical_json_ecma(value: &Value, out: &mut String) {
     match value {
         Value::Null => out.push_str("null"),
@@ -163,9 +180,16 @@ fn canonical_json_ecma(value: &Value, out: &mut String) {
 fn corpus_canonical_hash(value: &Value) -> String {
     let mut payload = String::new();
     canonical_json_ecma(value, &mut payload);
-    let digest = Sha256::digest(payload.as_bytes());
-    let hex: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
-    format!("sha256:{hex}")
+    format!("sha256:{}", sha256_hex(&payload))
+}
+
+/// The engine's own hash of a document (`canonical_json` + `sha256_hex`) —
+/// used for the per-lane self-consistency assertion: the engine's
+/// `applied_model_backend_hash` must equal this formula over the applied
+/// document the engine returned. Input-text-dependent, so never compared
+/// against blessed values across lanes.
+fn engine_formula_hash(value: &Value) -> String {
+    format!("sha256:{}", sha256_hex(&canonical_json(value)))
 }
 
 /// Parsed-JSON deep equality with numbers compared by f64 value, so that an
@@ -247,6 +271,12 @@ fn semantic_outcome(outcome: &OperationOutcome) -> Value {
             "claimed_model_hash": raw["model_basis"]["claimed_model_hash"],
             "claimed_hash_canonicalization": raw["model_basis"]["claimed_hash_canonicalization"],
             "binding_status": raw["model_basis"]["binding_status"],
+            // Compared since TP-H1-HASHUNIFY-001 (invariant label). The
+            // backend_model_hash VALUE stays excluded: it hashes the input
+            // text, and JS transport renders `200.0` as `200`, so the
+            // native-file lane and JS-fed lanes legitimately differ —
+            // measured at TP-H1-HASHUNIFY-001; see the corpus README.
+            "backend_canonicalization": raw["model_basis"]["backend_canonicalization"],
         },
         "input_model_unchanged": raw["input_model_unchanged"],
         "acceptance": raw["acceptance"],
@@ -328,9 +358,10 @@ fn contract_corpus_cases_match_the_rust_contract_reference() {
                     expected["applied_model_canonical_sha256"].as_str(),
                     "case {case_id}: corpus-harness canonical hash of the applied model does not match the recorded hash"
                 );
-                assert!(
-                    outcome.applied_model_backend_hash.is_some(),
-                    "case {case_id}: accepted applies must carry an engine backend hash"
+                assert_eq!(
+                    outcome.applied_model_backend_hash.as_deref(),
+                    Some(engine_formula_hash(applied).as_str()),
+                    "case {case_id}: the engine's applied-model backend hash must equal canonical_json+sha256 of the returned applied document (engine self-consistency, TP-H1-HASHUNIFY-001)"
                 );
             }
             None => {

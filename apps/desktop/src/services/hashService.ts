@@ -1,3 +1,12 @@
+// H1 / F-5a (completion-plan §3 hardening lane; verification F-5): frontend
+// hashing routes through the wasm build of the Rust engine's
+// `canonical_json` / `sha256_hex` — the same functions the engines use for
+// model hashes — via the `loadWasmEngine` seam. The TypeScript
+// canonicalization that previously lived here is deleted; no fallback
+// exists (an absent wasm artifact fails loudly with
+// WASM-ENGINE-ASSET-ABSENT from the loader, never a second hash
+// implementation). Parity with the native lane is pinned by
+// `fixtures/canonical_hash/cases.json`.
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -9,32 +18,26 @@ import type {
   ProjectEnvelopeHashEvidence,
   SelectedReviewTarget
 } from "../types";
+import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 
-export function canonicalJson(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map((item) => canonicalJson(item)).join(",")}]`;
-  const entries = Object.entries(value as Record<string, unknown>)
-    .filter(([, entryValue]) => entryValue !== undefined)
-    .sort(([first], [second]) => (first < second ? -1 : first > second ? 1 : 0));
-  return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${canonicalJson(entryValue)}`).join(",")}}`;
+function asJsonText(value: unknown): string {
+  // JSON.stringify drops undefined-valued keys, matching the filtering the
+  // deleted TS canonicalization applied before hashing.
+  return JSON.stringify(value === undefined ? null : value);
 }
 
-function subtleCrypto(): SubtleCrypto | null {
-  return globalThis.crypto?.subtle ?? null;
+export async function canonicalJsonString(value: unknown): Promise<string> {
+  const engine = await loadWasmEngine();
+  return engine.canonicalJsonString(asJsonText(value));
 }
 
-async function sha256Hex(payload: string): Promise<string | null> {
-  const subtle = subtleCrypto();
-  if (!subtle) return null;
-  const digest = await subtle.digest("SHA-256", new TextEncoder().encode(payload));
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+export async function canonicalSha256Hex(value: unknown): Promise<string> {
+  const engine = await loadWasmEngine();
+  return engine.canonicalSha256Hex(asJsonText(value));
 }
 
 export async function computeModelHash(model: PreviewModel): Promise<ModelHashEvidence | null> {
-  const hex = await sha256Hex(canonicalJson(model));
-  if (!hex) return null;
+  const hex = await canonicalSha256Hex(model);
   return {
     algorithm: "sha256",
     canonicalization: "jcs_like_sorted_object_keys",
@@ -61,8 +64,7 @@ export type ProjectEnvelopeHashPayload = {
 export async function computeProjectEnvelopeHash(
   payload: ProjectEnvelopeHashPayload
 ): Promise<ProjectEnvelopeHashEvidence | null> {
-  const hex = await sha256Hex(canonicalJson(payload));
-  if (!hex) return null;
+  const hex = await canonicalSha256Hex(payload);
   return {
     algorithm: "sha256",
     canonicalization: "jcs_like_sorted_object_keys",
@@ -76,11 +78,10 @@ export async function computeProjectEnvelopeHash(
 
 export async function computePackageHash(
   packageId: string,
-  canonicalPayload: string,
+  packetPayload: unknown,
   payloadExcludes: PackageHashEvidence["payload_excludes"] = "validation_report_package_hash_fields"
 ): Promise<PackageHashEvidence | null> {
-  const hex = await sha256Hex(canonicalPayload);
-  if (!hex) return null;
+  const hex = await canonicalSha256Hex(packetPayload);
   return {
     algorithm: "sha256",
     canonicalization: "jcs_like_sorted_object_keys",

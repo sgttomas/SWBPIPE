@@ -69,16 +69,33 @@ Each `case_*.json` carries:
 
 `sha256` over a canonical JSON encoding: lexicographically sorted object
 keys, arrays in original order, UTF-8, numbers rendered
-ECMAScript-`ToString`-compatible (integral doubles render without a trailing
-`.0`, i.e. `1` not `1.0`; otherwise shortest round-trip). The TypeScript
-runner reuses `canonicalJson` from `apps/desktop/src/services/hashService.ts`
-(JSON.stringify number rendering); the Rust runner implements matching
-rendering in the test harness.
+ECMAScript-`ToString`-compatible (integral doubles render without a
+trailing `.0`, i.e. `1` not `1.0`). Both runners carry the renderer as
+**harness-only** code (Rust `canonical_json_ecma`; an 8-line twin in the
+Vitest runner) — it is NOT a production hash path and NOT the engine
+canonicalization.
+
+**Why it survived `TP-H1-HASHUNIFY-001` (measured, 2026-06-11):** the
+unification tranche attempted to retire this rendering in favor of the
+engine's own `canonical_json` and measured two refutations. (1) JS
+transport (`JSON.stringify`) erases the textual `200.0` → `200`
+distinction that raw case-file text preserves, so an engine-rendered hash
+can never agree between the native-file lane and the JS-fed wasm lanes on
+the same case. (2) One level deeper, the engine's own
+`applied_model_backend_hash` covers in-process text where self-produced
+integral doubles render as `...0.0` — unreproducible after any JS
+round-trip, so it is Rust-side-verifiable evidence only. The
+ECMA-normalized harness hash is therefore the only transport-invariant
+cross-lane hash, which is exactly the corpus's job. The engine's real
+canonicalization is pinned separately by
+`fixtures/canonical_hash/cases.json`, and production frontend hashing is
+the engine itself via the wasm exports (`hashService.ts` holds no
+canonicalization).
 
 **Number-range constraint:** corpus numbers must stay finite with
-`|v| < 1e15` and (`v == 0` or `|v| >= 1e-6`), and corpus strings stay ASCII,
-so ECMAScript and Rust shortest-round-trip renderings agree. The Rust
-harness asserts the range and fails loudly on violations.
+`|v| < 1e15` and (`v == 0` or `|v| >= 1e-6`), and corpus strings stay
+ASCII, so ECMAScript and Rust shortest-round-trip renderings agree. The
+Rust harness asserts the range and fails loudly on violations.
 
 ### Engine-identity exclusion allowlist
 
@@ -88,13 +105,20 @@ internal canonicalization, not the operation semantics:
 
 | Excluded field | Why excluded |
 |---|---|
-| `application_route` | Honest engine-route label by design: `tauri_backend_apply` (Rust) vs `browser_fixture_local_apply` (TS). |
-| `model_basis.backend_model_hash` | Hash of the input model under each engine's own canonicalization; the canonicalizations differ by design (see next row), so the values differ. Cross-engine hash parity is asserted through the corpus-harness hash instead. |
-| `model_basis.backend_canonicalization` | Canonicalization label: `serde_json_sorted_keys_not_rfc8785` (Rust) vs `jcs_like_sorted_object_keys` (TS). |
-| `applied_model_backend_hash` | Same engine-canonicalization difference as `backend_model_hash`. The runners assert presence/absence (set for accepted applies, null for blocked) and replace value comparison with the corpus-harness canonical hash, which both engines must reproduce exactly. |
+| `application_route` | Honest engine-route label by design: `tauri_backend_apply` (native command route) vs `local_wasm_engine` (in-process wasm route). Same engine code since `TP-SEAM-SWAP-001`; the label identifies the route, not the semantics. |
+| `model_basis.backend_model_hash` | Input-text-dependent: the engine hashes the model text it receives, and JS transport renders `200.0` as `200`, so the native-file lane and JS-fed lanes legitimately differ (measured at `TP-H1-HASHUNIFY-001`). Cross-lane hash parity is asserted through the corpus-harness hash instead. |
+| `applied_model_backend_hash` (blessed-value comparison) | Engine-internal evidence, Rust-side-verifiable only (see the harness-hash section). The native runner asserts the self-consistency formula (`canonical_json` + `sha256_hex` over the returned applied document); JS lanes assert presence and the harness hash. |
 | `diagnostics[].id` | Embeds the engine's internal diagnostic generation counter; not semantic. |
-| `diagnostics[].source` | Engine self-identification path (`core/model_operations/operation_applier` vs `apps/desktop/src/services/operationService.ts`). |
-| `diagnostics[].message`, `diagnostics[].remediation` | Prose only. The mirrors carry near-identical text but split a few payload-validation branches differently (e.g. the create-node payload checks emit one combined Rust message vs two staged TS messages for the same `OP-CREATE-NODE-PAYLOAD-INVALID` code), so prose is excluded; `code`, `severity`, `blocking`, and `affected_refs` are always compared. |
+| `diagnostics[].source` | Engine self-identification path; not semantic. |
+| `diagnostics[].message`, `diagnostics[].remediation` | Prose, not contract. Compared fields are always `code`, `severity`, `blocking`, and `affected_refs`. (The original rationale — TS-mirror branch splits — retired with the TS lane at `TP-SEAM-SWAP-001`; prose stays excluded so expectations pin semantics, not wording.) |
+
+**Tightened at `TP-H1-HASHUNIFY-001` (2026-06-11):**
+
+| Change | Assertion |
+|---|---|
+| `model_basis.backend_canonicalization` now compared | Part of the blessed semantic projection (`serde_json_sorted_keys_not_rfc8785`); engine-invariant label. |
+| Native engine self-consistency | The Rust runner asserts `applied_model_backend_hash` equals `canonical_json` + `sha256_hex` over the returned applied document. |
+| JS lanes | Assert `applied_model_backend_hash` presence for accepted applies (null for blocked) plus the harness-hash equality both lanes already carry. |
 
 ## Coverage floor (enforced by both runners, not just documented)
 

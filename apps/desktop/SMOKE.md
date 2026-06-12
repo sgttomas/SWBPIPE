@@ -3437,3 +3437,31 @@ after the timestamp marker were absent.
   refs; invented or user-local session data only; empty human signoff
   fields; no release-readiness, professional approval, certification,
   sealing, authentication, or code-compliance claims.
+
+## TP-MAC-114 H1 canonical-hash unification (2026-06-11)
+
+- Tranche `TP-H1-HASHUNIFY-001` (completion-plan hardening lane H1;
+  verification F-5a): frontend hashing now routes through the wasm build
+  of the engine's `canonical_json`/`sha256_hex` via new wasm exports
+  (`canonical_json_string`, `canonical_sha256_hex`). `hashService.ts`
+  holds no canonicalization or digest code; the A7 report-input local
+  WebCrypto helper (with its silent `"TBD"` soft fallback) is deleted; no
+  fallback hashing path exists.
+- New Rust-blessed parity corpus `fixtures/canonical_hash/` (14 cases,
+  12-case floor, `CANONICAL_HASH_BLESS=1` regeneration): native and wasm
+  lanes assert identical canonical text and sha256 on identical raw input
+  text, pinning the engine's number normalization (`1e9` ->
+  `1000000000.0`).
+- Allowlist rider measured: `backend_canonicalization` joined the blessed
+  corpus projection (44 cases re-blessed); the native runner gained an
+  engine self-consistency hash assertion. The `backend_model_hash` value
+  exclusions stand for a measured reason now documented in the corpus
+  README: JS transport renders `200.0` as `200`, and the engine's
+  applied-model hash covers in-process text reproducible only Rust-side.
+- Local validation: operation_applier cargo suites green (unit + corpus +
+  parity); desktop Vitest 166/166 (was 140); DEC-025 five-surface sweep
+  overall: pass (cargo sweep, pytest 342, Vitest, Playwright e2e,
+  production build; summary artifact in `validation/evidence/sweeps/`).
+- Boundary review: local-only; invented values; no protected content; no
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claims.

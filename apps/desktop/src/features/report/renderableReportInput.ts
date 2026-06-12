@@ -4,7 +4,7 @@ import type {
   MechanicsResult,
   PreviewModel
 } from "../../types";
-import { canonicalJson } from "../../services/hashService";
+import { canonicalSha256Hex } from "../../services/hashService";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -58,15 +58,6 @@ function sessionProvenance(model: PreviewModel) {
   };
 }
 
-async function sha256Hex(payload: string): Promise<string> {
-  const subtle = globalThis.crypto?.subtle;
-  if (!subtle) return "TBD";
-  const digest = await subtle.digest("SHA-256", new TextEncoder().encode(payload));
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 function mapObjectRef(ref: { object_type: string; ref: string } | undefined, fallbackType: string): Ref {
   if (!ref) return { ref_type: fallbackType, ref_id: "TBD" };
   return { ref_type: ref.object_type, ref_id: ref.ref };
@@ -108,7 +99,7 @@ export async function buildRenderableReportInput({
 }) {
   const run = analysisRun.analysis_run;
   const provenance = sessionProvenance(model);
-  const modelHashValue = await sha256Hex(canonicalJson(model));
+  const modelHashValue = await canonicalSha256Hex(model);
   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
   const resultEnvelopeHash = run.hashes.find((item) => item.payload_scope === "result_envelope");
 
@@ -173,7 +164,7 @@ export async function buildRenderableReportInput({
     professional_boundary: PROFESSIONAL_BOUNDARY
   };
 
-  const sectionsChecksumValue = await sha256Hex(canonicalJson(reportSections));
+  const sectionsChecksumValue = await canonicalSha256Hex(reportSections);
 
   const checksum = (payloadRef: Ref, value: string | undefined) => ({
     algorithm: "sha256",
