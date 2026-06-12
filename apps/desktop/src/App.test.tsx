@@ -325,7 +325,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(pcfExport).getByTestId("pcf-export-state-binding").textContent).toContain("state:TBD");
     expect(within(pcfExport).getByTestId("pcf-export-coverage").textContent).toContain("pipe_segments");
     expect(within(pcfExport).getByTestId("pcf-export-coverage").textContent).toContain("nominal_size");
-    expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("members=6");
+    expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("source=angle=rad");
+    expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("length=m");
+    expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("target=bolt_diameter=MM");
+    expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("coordinates=MM");
+    expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("conversion=true");
+    expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("members=7");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("stable_ids=4");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("diagnostics=4");
     await waitFor(() =>
@@ -357,6 +362,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(pcfPacket.export_profile.target_family).toBe("pcf");
     expect(pcfPacket.export_profile.target_profile_version_basis).toBe("TBD");
     expect(pcfPacket.export_profile.identity_policy).toBe("authoritative_sidecar_id_map");
+    expect(pcfPacket.unit_system_disclosure.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+    expect(pcfPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(pcfPacket.unit_system_disclosure.model_units.force).toBe("N");
+    expect(pcfPacket.unit_system_disclosure.target_export_units.coordinates).toBe("MM");
+    expect(pcfPacket.unit_system_disclosure.conversion_performed).toBe(true);
+    expect(pcfPacket.unit_system_disclosure.conversion_scope).toContain("node.coordinates");
+    expect(pcfPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(pcfPacket.pcf_payload.nodes).toHaveLength(5);
     expect(pcfPacket.pcf_payload.pipe_segments).toHaveLength(4);
     expect(pcfPacket.pcf_text).toContain("UNITS-CO-ORDS MM");
@@ -403,7 +415,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-coverage").textContent).toContain(
       "direct_stable_id"
     );
-    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("members=6");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("source=angle=rad");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("length=m");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("target=force=N");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("conversion=false");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("members=7");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("stable_ids=14");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("diagnostics=0");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent).toContain(
@@ -437,6 +453,13 @@ describe("OpenPipeStress desktop preview", () => {
       "sidecar_mapping_until_direct_mbf_carrier_confirmed"
     );
     expect(caepipeMbfPacket.export_profile.carried_tbd_refs).toContain("TBD-17-01-003");
+    expect(caepipeMbfPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(caepipeMbfPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(caepipeMbfPacket.unit_system_disclosure.target_export_units.force).toBe("N");
+    expect(caepipeMbfPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(caepipeMbfPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(caepipeMbfPacket.model_payload.nodes).toHaveLength(5);
     expect(caepipeMbfPacket.model_payload.elements).toHaveLength(4);
     expect(caepipeMbfPacket.model_payload.supports).toHaveLength(3);
@@ -4434,7 +4457,11 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("explicit units");
     expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("stress");
-    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("members=7");
+    expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("source=angle=rad");
+    expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("length=m");
+    expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("results=MPa");
+    expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("conversion=false");
+    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("members=8");
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("stable_ids=647");
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("validation=passed");
     await waitFor(() =>
@@ -4476,6 +4503,14 @@ describe("OpenPipeStress desktop preview", () => {
       "dimension",
       "correlation_status"
     ]);
+    expect(stressNeutralPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(stressNeutralPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("MPa");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("mm");
+    expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(stressNeutralPacket.result_rows).toHaveLength(647);
     expect(stressNeutralPacket.stable_id_map).toHaveLength(647);
     expect(stressNeutralPacket.csv_text.split("\n")[0]).toBe(
@@ -4486,7 +4521,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(stressNeutralPacket.loss_report.entries.map((entry: { category: string }) => entry.category)).toContain(
       "tbd"
     );
-    expect(stressNeutralPacket.manifest.package_members).toHaveLength(7);
+    expect(stressNeutralPacket.manifest.package_members).toHaveLength(8);
     expect(stressNeutralPacket.manifest.canonical_package_hash_status).toBe("computed_local_preview_sha256");
     expect(stressNeutralPacket.manifest.canonical_package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
     expect(stressNeutralPacket.manifest.canonical_package_hash.payload_scope).toBe("package_review_payload");

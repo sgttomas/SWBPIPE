@@ -4116,3 +4116,28 @@ after the timestamp marker were absent.
   browser fallback catalog, protected content, private project data,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-139 export unit-system disclosure (`TP-UNITS-B2-EXPORTDISCLOSURE-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-EXPORTDISCLOSURE-001` (completion-plan B2): added
+  DEC-018 source-unit disclosure to the desktop PCF, CAEPIPE MBF, and
+  stress-neutral export packages.
+- Visible export behavior: PCF, MBF, and stress-neutral panels now show a
+  `Units` row summarizing source model units, target export units, result
+  units where present, and whether export-time conversion was performed.
+- Package behavior: downloaded JSON packages now include
+  `unit_system_disclosure` with `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, source model units, target export units, result
+  units, conversion policy/scope, and protected/private-content false flags.
+  Manifest package-member lists now include `unit_system_disclosure.json`.
+- Schema/core behavior: strict PCF, CAEPIPE MBF, and stress-neutral package
+  schemas and Python builders now require and checksum the disclosure member;
+  invented fixtures were regenerated through the deterministic builders.
+- Automated evidence: focused export-package tests passed 32/32; repository
+  Python tests passed 356/356; full desktop Vitest passed 216/216; desktop
+  production build passed with the pre-existing Vite chunk-size warning;
+  Playwright R2 smoke passed 2/2 after wasm engine build.
+- Boundary review: no target compatibility, import round-trip, target
+  solver-deck validation, rule-pack unit I/O, protected content, private
+  project data, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

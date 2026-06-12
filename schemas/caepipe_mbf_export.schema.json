@@ -14,6 +14,7 @@
     "export_id",
     "package_status",
     "export_profile",
+    "unit_system_disclosure",
     "manifest",
     "mbf_text",
     "model_payload",
@@ -68,6 +69,9 @@
     },
     "export_profile": {
       "$ref": "#/$defs/ExportProfile"
+    },
+    "unit_system_disclosure": {
+      "$ref": "#/$defs/UnitSystemDisclosure"
     },
     "manifest": {
       "$ref": "#/$defs/Manifest"
@@ -141,6 +145,7 @@
           "enum": [
             "caepipe_mbf_manifest",
             "caepipe_mbf_text",
+            "caepipe_mbf_unit_system_disclosure",
             "caepipe_mbf_stable_id_map",
             "caepipe_mbf_loss_report",
             "caepipe_mbf_validation_report",
@@ -448,14 +453,14 @@
         },
         "package_members": {
           "type": "array",
-          "minItems": 6,
+          "minItems": 7,
           "items": {
             "$ref": "#/$defs/PackageMember"
           }
         },
         "checksums": {
           "type": "array",
-          "minItems": 7,
+          "minItems": 8,
           "items": {
             "$ref": "#/$defs/Checksum"
           }
@@ -587,6 +592,7 @@
           "enum": [
             "manifest",
             "mbf_text",
+            "unit_system_disclosure",
             "stable_id_map",
             "loss_report",
             "validation_report",
@@ -735,6 +741,85 @@
         },
         "ref": {
           "type": "string"
+        }
+      }
+    },
+    "UnitSystemDisclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_system_ref",
+        "source_model_ref",
+        "storage_convention",
+        "model_units",
+        "result_units",
+        "target_export_units",
+        "conversion_policy",
+        "conversion_performed",
+        "conversion_scope",
+        "decision_basis_refs",
+        "protected_content_included",
+        "private_payload_included",
+        "provenance"
+      ],
+      "properties": {
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "storage_convention": {
+          "const": "entered_units_preserved"
+        },
+        "model_units": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "result_units": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "target_export_units": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "conversion_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conversion_performed": {
+          "type": "boolean"
+        },
+        "conversion_scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "decision_basis_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "protected_content_included": {
+          "const": false
+        },
+        "private_payload_included": {
+          "const": false
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
         }
       }
     },

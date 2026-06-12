@@ -87,6 +87,7 @@ def build_pcf_export_package(
     pcf_payload: Mapping[str, Any],
     stable_id_map: list[Mapping[str, Any]],
     loss_report: list[Mapping[str, Any]],
+    unit_system_disclosure: Mapping[str, Any] | None = None,
     export_profile: Mapping[str, Any] | None = None,
     validation_checks: list[Mapping[str, Any]] | None = None,
     diagnostics: list[Mapping[str, Any]] | None = None,
@@ -104,6 +105,15 @@ def build_pcf_export_package(
     notes = list(boundary_notes or DEFAULT_BOUNDARY_NOTES)
     profile = _export_profile(export_profile, notes)
     payload = _pcf_payload(pcf_payload, provenance_record)
+    unit_record = _unit_system_disclosure(
+        unit_system_disclosure,
+        source_model_ref=source_ref,
+        target_export_units=payload.get("units", {}),
+        conversion_policy="pcf_text_uses_millimeter_coordinate_and_pipe_geometry_fields_with_source_unit_disclosure",
+        conversion_performed=True,
+        conversion_scope=["node.coordinates", "pipe_segments.outside_diameter", "pipe_segments.wall_thickness"],
+        provenance=provenance_record,
+    )
     pcf_text = render_pcf_text(payload, profile)
     artifact = {
         "artifact_id": f"{export_id}:model.pcf",
@@ -138,6 +148,11 @@ def build_pcf_export_package(
     )
     checksums = {
         "model_pcf": artifact["hash"],
+        "unit_system_disclosure": _checksum(
+            unit_record,
+            _ref("PcfExportMember", f"{export_id}:unit_system_disclosure"),
+            "pcf_unit_system_disclosure",
+        ),
         "stable_id_map": _checksum(
             normalized_stable_id_map,
             _ref("PcfExportMember", f"{export_id}:id_map"),
@@ -197,6 +212,7 @@ def build_pcf_export_package(
         "source_model_hash": source_hash,
         "export_profile": profile,
         "manifest": manifest,
+        "unit_system_disclosure": unit_record,
         "pcf_payload": payload,
         "pcf_text": pcf_text,
         "stable_id_map": normalized_stable_id_map,
@@ -590,6 +606,7 @@ def _package_members(export_id: str, checksums: Mapping[str, Mapping[str, Any]])
     filenames = {
         "manifest": "manifest.json",
         "model_pcf": "model.pcf",
+        "unit_system_disclosure": "unit_system_disclosure.json",
         "stable_id_map": "id_map.json",
         "loss_report": "loss_report.json",
         "validation_report": "validation_report.json",
@@ -604,6 +621,36 @@ def _package_members(export_id: str, checksums: Mapping[str, Mapping[str, Any]])
         }
         for role in sorted(filenames)
     ]
+
+
+def _unit_system_disclosure(
+    value: Mapping[str, Any] | None,
+    *,
+    source_model_ref: Mapping[str, Any],
+    target_export_units: Mapping[str, Any],
+    conversion_policy: str,
+    conversion_performed: bool,
+    conversion_scope: list[str],
+    provenance: Mapping[str, Any],
+) -> dict[str, Any]:
+    record = dict(value or {})
+    return {
+        "unit_system_ref": deepcopy(dict(record.get("unit_system_ref", _ref("UnitSystem", "unit-system:dec-018-si-dual-display")))),
+        "source_model_ref": deepcopy(dict(record.get("source_model_ref", source_model_ref))),
+        "storage_convention": str(record.get("storage_convention", "entered_units_preserved")),
+        "model_units": _string_record(record.get("model_units", {})),
+        "result_units": sorted(str(item) for item in _list(record.get("result_units", [])) if str(item)),
+        "target_export_units": _string_record(record.get("target_export_units", target_export_units)),
+        "conversion_policy": str(record.get("conversion_policy", conversion_policy)),
+        "conversion_performed": bool(record.get("conversion_performed", conversion_performed)),
+        "conversion_scope": sorted(str(item) for item in _list(record.get("conversion_scope", conversion_scope))),
+        "decision_basis_refs": deepcopy(
+            list(record.get("decision_basis_refs", [_ref("Decision", "DEC-018"), _ref("Deliverable", "DEL-02-02")]))
+        ),
+        "protected_content_included": False,
+        "private_payload_included": False,
+        "provenance": deepcopy(dict(record.get("provenance", provenance))),
+    }
 
 
 def _source_model_hash(source_model_hash: Mapping[str, Any] | str, source_ref: Mapping[str, Any]) -> dict[str, Any]:
@@ -681,6 +728,12 @@ def _list(value: Any) -> list[Any]:
     if isinstance(value, list):
         return value
     return [value]
+
+
+def _string_record(value: Any) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(key): str(value[key]) for key in sorted(value)}
 
 
 def _ref_pairs(refs: Any) -> set[tuple[str, str]]:

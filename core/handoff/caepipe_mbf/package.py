@@ -97,6 +97,7 @@ def build_caepipe_mbf_export_package(
     model_payload: Mapping[str, Any],
     stable_id_map: list[Mapping[str, Any]],
     loss_report: list[Mapping[str, Any]],
+    unit_system_disclosure: Mapping[str, Any] | None = None,
     export_profile: Mapping[str, Any] | None = None,
     diagnostics: list[Mapping[str, Any]] | None = None,
     validation_checks: list[Mapping[str, Any]] | None = None,
@@ -114,6 +115,15 @@ def build_caepipe_mbf_export_package(
     notes = list(boundary_notes or DEFAULT_BOUNDARY_NOTES)
     profile = _export_profile(export_profile, notes)
     payload = _model_payload(model_payload, provenance_record)
+    unit_record = _unit_system_disclosure(
+        unit_system_disclosure,
+        source_model_ref=source_ref,
+        target_export_units=payload.get("units", {}),
+        conversion_policy="caepipe_mbf_smoke_subset_records_source_model_units_without_export_time_conversion",
+        conversion_performed=False,
+        conversion_scope=[],
+        provenance=provenance_record,
+    )
     mbf_text = render_caepipe_mbf_text(payload, profile)
     normalized_stable_id_map = _stable_id_map(stable_id_map, provenance_record)
     normalized_loss_report = _loss_report(loss_report, package_ref, provenance_record)
@@ -136,6 +146,11 @@ def build_caepipe_mbf_export_package(
     )
     checksums = {
         "mbf_text": _text_checksum(mbf_text, _ref("CaePipeMbfMember", f"{export_id}:mbf_text")),
+        "unit_system_disclosure": _checksum(
+            unit_record,
+            _ref("CaePipeMbfMember", f"{export_id}:unit_system_disclosure"),
+            "caepipe_mbf_unit_system_disclosure",
+        ),
         "stable_id_map": _checksum(
             normalized_stable_id_map,
             _ref("CaePipeMbfMember", f"{export_id}:stable_id_map"),
@@ -195,6 +210,7 @@ def build_caepipe_mbf_export_package(
         "export_profile": profile,
         "manifest": manifest,
         "mbf_text": mbf_text,
+        "unit_system_disclosure": unit_record,
         "model_payload": payload,
         "stable_id_map": normalized_stable_id_map,
         "loss_report": normalized_loss_report,
@@ -676,6 +692,7 @@ def _package_members(export_id: str, checksums: Mapping[str, Mapping[str, Any]])
     member_specs = [
         ("manifest", "manifest", "manifest.json", "json"),
         ("mbf_text", "mbf_text", "model.mbf", "text/plain"),
+        ("unit_system_disclosure", "unit_system_disclosure", "unit_system_disclosure.json", "json"),
         ("stable_id_map", "stable_id_map", "stable_id_map.json", "json"),
         ("loss_report", "loss_report", "loss_report.json", "json"),
         ("validation_report", "validation_report", "validation_report.json", "json"),
@@ -713,6 +730,36 @@ def _source_model_hash(source_model_hash: Mapping[str, Any] | str, source_ref: M
         "payload_ref": deepcopy(dict(source_ref)),
         "payload_scope": "source_model_hash",
         "value": _sha256(str(source_model_hash)),
+    }
+
+
+def _unit_system_disclosure(
+    value: Mapping[str, Any] | None,
+    *,
+    source_model_ref: Mapping[str, Any],
+    target_export_units: Mapping[str, Any],
+    conversion_policy: str,
+    conversion_performed: bool,
+    conversion_scope: list[str],
+    provenance: Mapping[str, Any],
+) -> dict[str, Any]:
+    record = dict(value or {})
+    return {
+        "unit_system_ref": deepcopy(dict(record.get("unit_system_ref", _ref("UnitSystem", "unit-system:dec-018-si-dual-display")))),
+        "source_model_ref": deepcopy(dict(record.get("source_model_ref", source_model_ref))),
+        "storage_convention": str(record.get("storage_convention", "entered_units_preserved")),
+        "model_units": _string_record(record.get("model_units", target_export_units)),
+        "result_units": sorted(str(item) for item in _list(record.get("result_units", [])) if str(item)),
+        "target_export_units": _string_record(record.get("target_export_units", target_export_units)),
+        "conversion_policy": str(record.get("conversion_policy", conversion_policy)),
+        "conversion_performed": bool(record.get("conversion_performed", conversion_performed)),
+        "conversion_scope": sorted(str(item) for item in _list(record.get("conversion_scope", conversion_scope))),
+        "decision_basis_refs": deepcopy(
+            list(record.get("decision_basis_refs", [_ref("Decision", "DEC-018"), _ref("Deliverable", "DEL-02-02")]))
+        ),
+        "protected_content_included": False,
+        "private_payload_included": False,
+        "provenance": deepcopy(dict(record.get("provenance", provenance))),
     }
 
 
@@ -791,6 +838,12 @@ def _is_ascii(value: str) -> bool:
 
 def _list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def _string_record(value: Any) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(key): str(value[key]) for key in sorted(value)}
 
 
 def _is_reference(value: Any) -> bool:

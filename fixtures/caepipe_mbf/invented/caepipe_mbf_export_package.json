@@ -278,7 +278,7 @@
           "ref": "caepipe-mbf:invented-del-17-04:manifest"
         },
         "payload_scope": "caepipe_mbf_manifest",
-        "value": "sha256:ebd41ed8c8f8b8ca400e9a6e76465671b3265c46bfc65c68011ce6e686ec29a3"
+        "value": "sha256:6a9357234dd14a5191a9fbe5256500c8091c2a6789bea0be63b3700606deab66"
       },
       {
         "algorithm": "sha256",
@@ -289,6 +289,16 @@
         },
         "payload_scope": "caepipe_mbf_stable_id_map",
         "value": "sha256:8c28868302a4aebee8c1a75587a0f2b1d883a3093c70bac8d428afd678a95402"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "CaePipeMbfMember",
+          "ref": "caepipe-mbf:invented-del-17-04:unit_system_disclosure"
+        },
+        "payload_scope": "caepipe_mbf_unit_system_disclosure",
+        "value": "sha256:59dd58c96234a26240d8775df5b5aa292b7e9a29495b04cb41ee21480df952c2"
       },
       {
         "algorithm": "sha256",
@@ -338,7 +348,7 @@
             "ref": "caepipe-mbf:invented-del-17-04:manifest"
           },
           "payload_scope": "caepipe_mbf_manifest",
-          "value": "sha256:ebd41ed8c8f8b8ca400e9a6e76465671b3265c46bfc65c68011ce6e686ec29a3"
+          "value": "sha256:6a9357234dd14a5191a9fbe5256500c8091c2a6789bea0be63b3700606deab66"
         },
         "member_name": "caepipe-mbf:invented-del-17-04:manifest",
         "member_role": "manifest",
@@ -366,6 +376,26 @@
         "payload_ref": {
           "object_type": "CaePipeMbfMember",
           "ref": "caepipe-mbf:invented-del-17-04:mbf_text"
+        }
+      },
+      {
+        "content_kind": "json",
+        "hash": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "CaePipeMbfMember",
+            "ref": "caepipe-mbf:invented-del-17-04:unit_system_disclosure"
+          },
+          "payload_scope": "caepipe_mbf_unit_system_disclosure",
+          "value": "sha256:59dd58c96234a26240d8775df5b5aa292b7e9a29495b04cb41ee21480df952c2"
+        },
+        "member_name": "caepipe-mbf:invented-del-17-04:unit_system_disclosure",
+        "member_role": "unit_system_disclosure",
+        "path": "unit_system_disclosure.json",
+        "payload_ref": {
+          "object_type": "CaePipeMbfMember",
+          "ref": "caepipe-mbf:invented-del-17-04:unit_system_disclosure"
         }
       },
       {
@@ -640,6 +670,53 @@
       }
     }
   ],
+  "unit_system_disclosure": {
+    "conversion_performed": false,
+    "conversion_policy": "caepipe_mbf_smoke_subset_records_source_model_units_without_export_time_conversion",
+    "conversion_scope": [],
+    "decision_basis_refs": [
+      {
+        "object_type": "Decision",
+        "ref": "DEC-018"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-02-02"
+      }
+    ],
+    "model_units": {
+      "force": "N",
+      "length": "m",
+      "temperature": "C"
+    },
+    "private_payload_included": false,
+    "protected_content_included": false,
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/caepipe_mbf/package.py",
+      "source_name": "OpenPipeStress DEL-17-04 CAEPIPE MBF export package builder"
+    },
+    "result_units": [],
+    "source_model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-caepipe-mbf"
+    },
+    "storage_convention": "entered_units_preserved",
+    "target_export_units": {
+      "force": "N",
+      "length": "m",
+      "temperature": "C"
+    },
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "unit-system:dec-018-si-dual-display"
+    }
+  },
   "validation_report": {
     "checks": [
       {

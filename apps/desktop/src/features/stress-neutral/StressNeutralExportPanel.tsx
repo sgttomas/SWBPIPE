@@ -1,6 +1,7 @@
 import { Download, FileJson } from "lucide-react";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 const STRESS_NEUTRAL_EXPORT_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
@@ -107,7 +108,9 @@ export function StressNeutralExportPanel({
             />
             <StressNeutralLine
               label="Units"
-              value={`${unitCount(packet)} explicit units; dimensions=${dimensionSummary(packet)}`}
+              value={`${unitCount(packet)} explicit units; dimensions=${dimensionSummary(
+                packet
+              )}; ${unitDisclosureSummary(packet.unit_system_disclosure)}`}
               testId="stress-neutral-units"
             />
             <StressNeutralLine
@@ -164,6 +167,15 @@ function buildStressNeutralExportPacket({
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((item) => stressNeutralRow(item, run.run_id));
   const csvText = renderCsv(resultRows);
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: {},
+    conversionPolicy: "result_row_units_preserved_no_export_time_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
+  });
   const stableIdMap = resultRows.map((row, index) => ({
     map_id: `stress-neutral-map:${safeFileToken(row.result_id)}`,
     canonical_ref: row.canonical_ref,
@@ -209,6 +221,7 @@ function buildStressNeutralExportPacket({
       loss_report_policy: "mandatory_for_every_package",
       comparison_semantics: "diagnostic_export_only_no_pass_fail"
     },
+    unit_system_disclosure: unitSystemDisclosure,
     result_rows: resultRows,
     csv_text: csvText,
     stable_id_map: stableIdMap,
@@ -248,6 +261,7 @@ function buildStressNeutralExportPacket({
         member("manifest", "manifest.json", "json", 1),
         member("csv_text", "stress_neutral_results.csv", "csv", resultRows.length),
         member("result_rows", "result_rows.json", "json", resultRows.length),
+        member("unit_system_disclosure", "unit_system_disclosure.json", "json", 1),
         member("stable_id_map", "stable_id_map.json", "json", stableIdMap.length),
         member("loss_report", "loss_report.json", "json", 3),
         member("validation_report", "validation_report.json", "json", 1),

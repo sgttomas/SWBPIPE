@@ -45,3 +45,25 @@
 - Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005/DEV-001 wording is provenance only.
 - Closed the active-surface DAG/DEV authority warning in `Review_Findings.csv`; remaining Phase A wording remains non-blocking for CHECKING.
 - Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, vendor-format claim, compatibility claim, code-compliance claim, solver-validation claim, release-readiness claim, professional-reliance claim, or external-validation claim.
+
+## 2026-06-12 - TP-UNITS-B2-EXPORTDISCLOSURE-001 export unit-system disclosure
+
+- Added required `unit_system_disclosure` to stress-neutral CSV/JSON export
+  packages.
+- The Python builder now emits and checksums `unit_system_disclosure.json`
+  with DEC-018 unit-system ref, entered-unit storage convention, source model
+  unit field, result-row units, no export-time conversion flag, and
+  protected/private-content false flags.
+- The strict schema, invented fixture, desktop stress-neutral panel, and App
+  regression now cover the disclosure and manifest member.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+  corresponding DEL-02-02, DEL-17-04, and DEL-17-07 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-139.
+- Validation: focused export-package tests passed 32/32; repository Python
+  tests passed 356/356; full desktop Vitest 216/216; desktop build passed;
+  Playwright R2 smoke 2/2.
+- Boundaries preserved: no vendor-format claim, target compatibility claim,
+  comparison pass/fail claim, solver-validation claim, code-compliance claim,
+  release-readiness claim, professional-reliance claim, private data, or
+  protected-content claim.

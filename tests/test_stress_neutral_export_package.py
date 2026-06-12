@@ -192,11 +192,16 @@ def test_builder_is_deterministic_and_preserves_members():
         "manifest",
         "csv_text",
         "result_rows",
+        "unit_system_disclosure",
         "stable_id_map",
         "loss_report",
         "validation_report",
         "diagnostics",
     }
+    assert first["unit_system_disclosure"]["unit_system_ref"]["ref"] == "unit-system:dec-018-si-dual-display"
+    assert first["unit_system_disclosure"]["result_units"] == ["N", "Pa"]
+    assert first["unit_system_disclosure"]["conversion_performed"] is False
+    assert first["unit_system_disclosure"]["protected_content_included"] is False
     assert all(SHA256_PATTERN.match(item["value"]) for item in first["manifest"]["checksums"])
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
 

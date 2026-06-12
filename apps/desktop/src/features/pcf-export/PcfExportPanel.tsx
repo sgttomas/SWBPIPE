@@ -1,6 +1,7 @@
 import { Download, FileText } from "lucide-react";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 type PcfReference = {
   object_type: string;
@@ -105,6 +106,11 @@ export function PcfExportPanel({
           testId="pcf-export-coverage"
         />
         <PcfLine
+          label="Units"
+          value={unitDisclosureSummary(packet.unit_system_disclosure)}
+          testId="pcf-export-units"
+        />
+        <PcfLine
           label="Package"
           value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; pcf_lines=${packet.manifest.pcf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="pcf-export-package"
@@ -147,6 +153,15 @@ function buildPcfExportPacket({
   const analysisRunRef = run ? reference("AnalysisRun", run.run_id) : reference("AnalysisRun", "not generated");
   const payload = pcfPayload(model);
   const pcfText = renderPcfText(payload);
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: payload.units,
+    conversionPolicy: "pcf_text_uses_millimeter_coordinate_and_pipe_geometry_fields_with_source_unit_disclosure",
+    conversionPerformed: true,
+    conversionScope: ["node.coordinates", "pipe_segments.outside_diameter", "pipe_segments.wall_thickness"],
+    sourceLocation: "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx"
+  });
   const stableIdMap = payload.pipe_segments.map((segment) => ({
     canonical_ref: reference("PipeSegment", segment.element_id),
     pcf_ref: reference("PcfRecord", `PIPE:${segment.target_component_identifier}`),
@@ -201,6 +216,7 @@ function buildPcfExportPacket({
         "The sidecar ID map is authoritative for audit correlation."
       ]
     },
+    unit_system_disclosure: unitSystemDisclosure,
     pcf_payload: payload,
     pcf_text: pcfText,
     stable_id_map: stableIdMap,
@@ -221,6 +237,7 @@ function buildPcfExportPacket({
       package_members: [
         member("manifest", "manifest.json", "manifest and package inventory", 1),
         member("model_pcf", "model.pcf", "deterministic ASCII PCF review text", pcfText.trimEnd().split("\n").length),
+        member("unit_system_disclosure", "unit_system_disclosure.json", "DEC-018 source and target unit disclosure", 1),
         member("stable_id_map", "id_map.json", "authoritative canonical-to-PCF sidecar", stableIdMap.length),
         member("loss_report", "loss_report.json", "unsupported, approximated, delegated, omitted, exported, and TBD behavior", lossReport.length),
         member("validation_report", "validation_report.json", "desktop preview validation and blocking diagnostics", 1),

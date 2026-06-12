@@ -13,6 +13,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 export unit-system disclosure (`TP-UNITS-B2-EXPORTDISCLOSURE-001`)
+
+PCF, CAEPIPE MBF, and stress-neutral export packages now carry explicit
+DEC-018 unit-system disclosure instead of relying only on target text units or
+per-row result units. The desktop export panels show a `Units` row with source
+model units, target export units, result units where present, and whether
+export-time conversion was performed. Downloaded JSON packages include a
+`unit_system_disclosure` member with
+`unit-system:dec-018-si-dual-display`, `entered_units_preserved`, model units,
+target export units, result units, conversion policy/scope, DEC-018/DEL-02-02
+basis refs, and protected/private-content false flags.
+
+The schema-owned export builders now require and checksum the same member:
+`core/handoff/pcf_export/package.py`,
+`core/handoff/caepipe_mbf/package.py`, and
+`core/handoff/stress_neutral/package.py` emit `unit_system_disclosure.json` in
+their manifest package-member lists. The strict JSON schemas were widened to
+make this member required, and invented fixtures were regenerated through the
+deterministic builders.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+`execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+`execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+`execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+`apps/desktop/SMOKE.md` TP-MAC-139. Validation: focused export-package tests
+passed 32/32; repository Python tests passed 356/356; full desktop Vitest
+passed 216/216; desktop build passed with the pre-existing Vite chunk-size
+warning; Playwright R2 smoke passed 2/2 after wasm engine build.
+
+Residual hand-offs: B2 still owns import round-trip unit I/O, target-format
+conversion witnesses beyond package disclosure, broader app unit entry/pickers
+outside the already covered forms, and rule-pack unit I/O. No lifecycle state,
+release-readiness, target compatibility, solver-deck validation, professional
+approval, certification, sealing, authentication, protected-content,
+private-data, or code-compliance claim is created.
+
 ## 2026-06-12 - B2 Property Inspector quantity unit edits (`TP-UNITS-B2-INSPECTOREDITUNITS-001`)
 
 Existing Property Inspector material and pipe-section quantity edits now carry

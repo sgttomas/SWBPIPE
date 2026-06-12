@@ -129,7 +129,7 @@
           "ref": "stress-neutral:invented-del-17-06:manifest"
         },
         "payload_scope": "stress_neutral_manifest",
-        "value": "sha256:23971d45ef2587a8a0a3402e51a07ef81b27bcf7cab4448409c059a0e66e704c"
+        "value": "sha256:99caf6a254ba612c4906fbfc1acab13cea5203f9845c5aa0c0c46d6df7c805cc"
       },
       {
         "algorithm": "sha256",
@@ -150,6 +150,16 @@
         },
         "payload_scope": "stress_neutral_stable_id_map",
         "value": "sha256:3a352d6f1a6d4ab5e7df4477834ba2e6f470d70e298519880e2be1c7ed24ae1b"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS_compatible_json_payload_hash",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "stress-neutral:invented-del-17-06:unit_system_disclosure"
+        },
+        "payload_scope": "stress_neutral_unit_system_disclosure",
+        "value": "sha256:a16f14a8250a2f622cdaf7d15ccbade1b462d4ca4076d9e1e3d86649a7555fb1"
       },
       {
         "algorithm": "sha256",
@@ -233,7 +243,7 @@
             "ref": "stress-neutral:invented-del-17-06:manifest"
           },
           "payload_scope": "stress_neutral_manifest",
-          "value": "sha256:23971d45ef2587a8a0a3402e51a07ef81b27bcf7cab4448409c059a0e66e704c"
+          "value": "sha256:99caf6a254ba612c4906fbfc1acab13cea5203f9845c5aa0c0c46d6df7c805cc"
         },
         "member_id": "stress-neutral:invented-del-17-06:manifest",
         "member_role": "manifest",
@@ -268,6 +278,21 @@
         "member_id": "stress-neutral:invented-del-17-06:stable_id_map",
         "member_role": "stable_id_map",
         "path": "stable_id_map.json"
+      },
+      {
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "JCS_compatible_json_payload_hash",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "stress-neutral:invented-del-17-06:unit_system_disclosure"
+          },
+          "payload_scope": "stress_neutral_unit_system_disclosure",
+          "value": "sha256:a16f14a8250a2f622cdaf7d15ccbade1b462d4ca4076d9e1e3d86649a7555fb1"
+        },
+        "member_id": "stress-neutral:invented-del-17-06:unit_system_disclosure",
+        "member_role": "unit_system_disclosure",
+        "path": "unit_system_disclosure.json"
       },
       {
         "checksum": {
@@ -505,6 +530,48 @@
       }
     }
   ],
+  "unit_system_disclosure": {
+    "conversion_performed": false,
+    "conversion_policy": "result_row_units_preserved_no_export_time_conversion",
+    "conversion_scope": [],
+    "decision_basis_refs": [
+      {
+        "object_type": "Decision",
+        "ref": "DEC-018"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-02-02"
+      }
+    ],
+    "model_units": {},
+    "private_payload_included": false,
+    "protected_content_included": false,
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/stress_neutral/package.py",
+      "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+    },
+    "result_units": [
+      "N",
+      "Pa"
+    ],
+    "source_model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-del-17-06"
+    },
+    "storage_convention": "entered_units_preserved",
+    "target_export_units": {},
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "unit-system:dec-018-si-dual-display"
+    }
+  },
   "validation_report": {
     "checks": [
       {

@@ -98,6 +98,27 @@
 - Remaining TBDs preserved: CAEPIPE target version/profile, definitive MBF record-family and required-field subset, direct MBF stable-ID carrier, external execution, CSV parsing, runtime/API/GUI integration, lifecycle/acceptance decisions, and target-specific compatibility claims remain future guarded work.
 - Boundary exclusions preserved: no lifecycle status edit, coordination/DAG edit, candidate promotion, dependency authority edit, release claim, CAEPIPE compatibility claim, solver-validation claim, code-compliance claim, professional-acceptance claim, commercial solver behavior, proprietary example, protected standards content, or reverse-engineering.
 
+## 2026-06-12 - TP-UNITS-B2-EXPORTDISCLOSURE-001 export unit-system disclosure
+
+- Added required `unit_system_disclosure` to CAEPIPE MBF export packages.
+- The Python builder now emits and checksums `unit_system_disclosure.json`
+  with DEC-018 unit-system ref, entered-unit storage convention, source model
+  units, smoke-subset target export units, conversion policy, false
+  export-time conversion flag, and protected/private-content false flags.
+- The strict schema, invented fixture, desktop MBF panel, and App regression
+  now cover the disclosure and manifest member.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+  corresponding DEL-02-02, DEL-17-06, and DEL-17-07 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-139.
+- Validation: focused export-package tests passed 32/32; repository Python
+  tests passed 356/356; full desktop Vitest 216/216; desktop build passed;
+  Playwright R2 smoke 2/2.
+- Boundaries preserved: no CAEPIPE compatibility claim, target import
+  round-trip, external execution, solver-validation claim, code-compliance
+  claim, professional-acceptance claim, commercial solver behavior,
+  protected standards content, private data, or reverse-engineering.
+
 ## 2026-06-04 - TP-PKG17-CHECKING-TRANSITION-001
 
 - Explicit human approval set local `_STATUS.md` to `CHECKING` after formal review fan-in found no blockers for DEL-17-04.

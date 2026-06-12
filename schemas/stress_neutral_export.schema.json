@@ -18,6 +18,7 @@
     "source_model_ref",
     "source_hashes",
     "export_profile",
+    "unit_system_disclosure",
     "manifest",
     "result_rows",
     "csv_text",
@@ -52,6 +53,7 @@
     "source_model_ref": {"$ref": "#/$defs/Reference"},
     "source_hashes": {"type": "array", "items": {"$ref": "#/$defs/Checksum"}},
     "export_profile": {"$ref": "#/$defs/ExportProfile"},
+    "unit_system_disclosure": {"$ref": "#/$defs/UnitSystemDisclosure"},
     "manifest": {"$ref": "#/$defs/Manifest"},
     "result_rows": {"type": "array", "items": {"$ref": "#/$defs/ResultRow"}},
     "csv_text": {"type": "string", "minLength": 1},
@@ -72,6 +74,40 @@
       "properties": {
         "object_type": {"type": "string", "minLength": 1},
         "ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "UnitSystemDisclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_system_ref",
+        "source_model_ref",
+        "storage_convention",
+        "model_units",
+        "result_units",
+        "target_export_units",
+        "conversion_policy",
+        "conversion_performed",
+        "conversion_scope",
+        "decision_basis_refs",
+        "protected_content_included",
+        "private_payload_included",
+        "provenance"
+      ],
+      "properties": {
+        "unit_system_ref": {"$ref": "#/$defs/Reference"},
+        "source_model_ref": {"$ref": "#/$defs/Reference"},
+        "storage_convention": {"const": "entered_units_preserved"},
+        "model_units": {"type": "object", "additionalProperties": {"type": "string"}},
+        "result_units": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "target_export_units": {"type": "object", "additionalProperties": {"type": "string"}},
+        "conversion_policy": {"type": "string", "minLength": 1},
+        "conversion_performed": {"type": "boolean"},
+        "conversion_scope": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "decision_basis_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Reference"}},
+        "protected_content_included": {"const": false},
+        "private_payload_included": {"const": false},
+        "provenance": {"$ref": "#/$defs/Provenance"}
       }
     },
     "Checksum": {

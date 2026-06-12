@@ -365,3 +365,29 @@ Boundary note:
   material/section/primitive-load create and edit forms, imports/exports, and
   rule-pack unit I/O; B3 still owns broader conversion witness and tolerance
   corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-EXPORTDISCLOSURE-001 export unit-system disclosure
+
+- Extended B2 unit I/O into export-package contracts for PCF, CAEPIPE MBF,
+  and stress-neutral packages.
+- Desktop export JSON now carries `unit_system_disclosure` with DEC-018 unit
+  system ref, entered-unit storage convention, source model units, target
+  export units, result units where present, conversion policy/scope, and
+  protected/private-content false flags.
+- Strict export schemas and Python package builders now require and checksum
+  `unit_system_disclosure.json` as a manifest package member.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_export_unit_disclosure.md`;
+  corresponding DEL-17-04, DEL-17-06, and DEL-17-07 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-139.
+- Validation: focused export-package tests passed 32/32; repository Python
+  tests passed 356/356; full desktop Vitest 216/216; desktop build passed;
+  Playwright R2 smoke 2/2.
+- Boundaries preserved: no import round-trip claim, target compatibility
+  claim, solver-deck validation claim, rule-pack unit I/O, protected standards
+  content, private project data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.
+- Residual handoffs: B2 still owns import round-trip unit I/O, target-format
+  conversion witnesses beyond disclosure, broader app unit entry/pickers
+  outside covered forms, and rule-pack unit I/O; B3 still owns broader
+  conversion witness and tolerance corpus coverage.

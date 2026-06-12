@@ -266,11 +266,17 @@ def test_builder_is_deterministic_and_preserves_package_members():
     assert member_roles == {
         "manifest",
         "mbf_text",
+        "unit_system_disclosure",
         "stable_id_map",
         "loss_report",
         "validation_report",
         "diagnostics",
     }
+    assert first["unit_system_disclosure"]["unit_system_ref"]["ref"] == "unit-system:dec-018-si-dual-display"
+    assert first["unit_system_disclosure"]["model_units"]["length"] == "m"
+    assert first["unit_system_disclosure"]["target_export_units"]["force"] == "N"
+    assert first["unit_system_disclosure"]["conversion_performed"] is False
+    assert first["unit_system_disclosure"]["protected_content_included"] is False
     assert all(SHA256_PATTERN.match(item["value"]) for item in first["manifest"]["checksums"])
     assert {item["carrier_mode"] for item in first["stable_id_map"]} == {"sidecar_mapping"}
     assert {item["category"] for item in first["loss_report"]} == EXPECTED_LOSS_CATEGORIES

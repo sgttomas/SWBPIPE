@@ -1,6 +1,7 @@
 import { Download, FileText } from "lucide-react";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 type CaePipeMbfReference = {
   object_type: string;
@@ -89,6 +90,11 @@ export function CaepipeMbfExportPanel({
           testId="caepipe-mbf-coverage"
         />
         <CaePipeMbfLine
+          label="Units"
+          value={unitDisclosureSummary(packet.unit_system_disclosure)}
+          testId="caepipe-mbf-units"
+        />
+        <CaePipeMbfLine
           label="Package"
           value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; mbf_lines=${packet.manifest.mbf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="caepipe-mbf-package"
@@ -132,6 +138,15 @@ function buildCaePipeMbfExportPacket({
   const payload = caepipeMbfPayload(model);
   const exportProfile = caepipeMbfExportProfile();
   const mbfText = renderCaePipeMbfText(payload, exportProfile);
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: payload.units,
+    conversionPolicy: "caepipe_mbf_smoke_subset_records_source_model_units_without_export_time_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx"
+  });
   const stableIdMap = caepipeMbfStableIdMap(payload);
   const lossReport = caepipeMbfLossReport({ model, result, analysisRunRef });
   const diagnostics = caepipeMbfDiagnostics({ payload, stableIdMap, lossReport, exportProfile, mbfText });
@@ -154,6 +169,7 @@ function buildCaePipeMbfExportPacket({
     analysis_run_ref: analysisRunRef,
     result_ref: result ? reference("MechanicsResult", result.run_id) : reference("MechanicsResult", "not generated"),
     export_profile: exportProfile,
+    unit_system_disclosure: unitSystemDisclosure,
     manifest: {
       manifest_id: `caepipe-mbf:${safeFileToken(model.project.id)}:manifest`,
       source_model_ref: sourceModelRef,
@@ -172,6 +188,7 @@ function buildCaePipeMbfExportPacket({
       package_members: [
         member("manifest", "manifest.json", "json", 1),
         member("mbf_text", "model.mbf", "text/plain", mbfText.trimEnd().split("\n").length),
+        member("unit_system_disclosure", "unit_system_disclosure.json", "json", 1),
         member("stable_id_map", "stable_id_map.json", "json", stableIdMap.length),
         member("loss_report", "loss_report.json", "json", lossReport.length),
         member("validation_report", "validation_report.json", "json", 1),
