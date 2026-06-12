@@ -1,0 +1,51 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 10.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    }
+  ],
+  "case_id": "case_27_accept_divide_by_dimensionless",
+  "declared_grammar_version": "1.0.0",
+  "description": "Division by a dimensionless quantity preserves the numerator's metadata.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_force_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "force",
+      "kind": "quantity",
+      "unit_ref": "invented_force_unit",
+      "value": 2.5
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "variable_ref",
+      "variable_id": "invented_force_input"
+    },
+    "node": "binary",
+    "operator": "divide",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "value": 4.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

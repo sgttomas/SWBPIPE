@@ -1,0 +1,69 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 50.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_input"
+    }
+  ],
+  "case_id": "case_01_accept_logical_and_range_check",
+  "declared_grammar_version": "1.0.0",
+  "description": "Boolean AND over two comparisons forming an invented range check.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_stress_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "kind": "boolean",
+      "value": true
+    }
+  },
+  "expression": {
+    "left": {
+      "left": {
+        "node": "variable_ref",
+        "variable_id": "invented_stress_input"
+      },
+      "node": "compare",
+      "operator": "greater_than_or_equal",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "stress",
+          "unit_ref": "invented_stress_unit",
+          "value": 10.0
+        }
+      }
+    },
+    "node": "logical",
+    "operator": "and",
+    "right": {
+      "left": {
+        "node": "variable_ref",
+        "variable_id": "invented_stress_input"
+      },
+      "node": "compare",
+      "operator": "less_than_or_equal",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "stress",
+          "unit_ref": "invented_stress_unit",
+          "value": 100.0
+        }
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

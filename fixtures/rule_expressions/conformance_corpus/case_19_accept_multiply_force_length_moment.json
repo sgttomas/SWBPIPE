@@ -1,0 +1,57 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 10.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    },
+    {
+      "quantity": {
+        "dimension": "length",
+        "unit_ref": "invented_length_unit",
+        "value": 2.5
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_length_input"
+    }
+  ],
+  "case_id": "case_19_accept_multiply_force_length_moment",
+  "declared_grammar_version": "1.0.0",
+  "description": "Enumerated dimension product Force x Length -> Moment with composed unit ref.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_force_input",
+      "invented_length_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "moment",
+      "kind": "quantity",
+      "unit_ref": "invented_force_unit*invented_length_unit",
+      "value": 25.0
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "variable_ref",
+      "variable_id": "invented_force_input"
+    },
+    "node": "binary",
+    "operator": "multiply",
+    "right": {
+      "node": "variable_ref",
+      "variable_id": "invented_length_input"
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

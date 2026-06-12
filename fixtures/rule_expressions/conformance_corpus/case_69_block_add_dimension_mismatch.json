@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_69_block_add_dimension_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "Adding different dimensions blocks.",
+  "expected": {
+    "findings": [
+      {
+        "code": "dimension_mismatch",
+        "subject_id": "add_subtract"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 1.0
+      }
+    },
+    "node": "binary",
+    "operator": "add",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 1.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

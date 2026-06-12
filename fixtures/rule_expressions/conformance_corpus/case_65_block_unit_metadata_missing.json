@@ -1,0 +1,41 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "",
+        "value": 10.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    }
+  ],
+  "case_id": "case_65_block_unit_metadata_missing",
+  "declared_grammar_version": "1.0.0",
+  "description": "A binding without unit metadata is rejected at the boundary and stays unresolvable.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unit_metadata_missing",
+        "subject_id": "invented_force_input"
+      },
+      {
+        "code": "missing_variable",
+        "subject_id": "invented_force_input"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "variable_ref",
+    "variable_id": "invented_force_input"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

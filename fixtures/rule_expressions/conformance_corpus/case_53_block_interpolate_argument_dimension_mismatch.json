@@ -1,0 +1,55 @@
+{
+  "bindings": [],
+  "case_id": "case_53_block_interpolate_argument_dimension_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "Interpolation argument dimension must match the table argument dimension.",
+  "expected": {
+    "findings": [
+      {
+        "code": "dimension_mismatch",
+        "subject_id": "invented_lookup_table"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "argument": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 15.0
+      }
+    },
+    "node": "interpolate",
+    "table": {
+      "argument_dimension": "temperature",
+      "argument_unit_ref": "invented_temperature_unit",
+      "result_dimension": "stress",
+      "result_unit_ref": "invented_stress_unit",
+      "rows": [
+        {
+          "argument": 10,
+          "result": 1.5
+        },
+        {
+          "argument": 20,
+          "result": 2.5
+        },
+        {
+          "argument": 40,
+          "result": 3.5
+        }
+      ],
+      "table_id": "invented_lookup_table"
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

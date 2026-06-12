@@ -13,6 +13,53 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — C1 landed: frozen expression grammar v1.0.0 + conformance corpus (`TP-C1-GRAMMAR-001`)
+
+Implementation of the D-02 ruling (`DEC-022`, packet Option A) by a bounded
+TASK worker in `core/rules`: the typed expression AST extended to the full
+PRD §12.3 set (And/Or/Not, eager Select with blocking unselected-branch
+diagnostics, n-ary Min/Max and Abs over same-dimension same-unit
+quantities, piecewise-linear Interpolate and exact/step Lookup over
+strictly-monotone user tables with blocking out-of-range — no
+extrapolation or clamping); the two in-code dimensional TBDs resolved via
+an enumerated commutative 18-relation dimension-product table with
+ambiguous/unrepresentable results blocking; `GRAMMAR_VERSION = "1.0.0"`
+declared-version gate; `grammar_version` bound inside the JCS-hashed
+rule-pack checksum (lifecycle record field, blocking findings,
+byte-containment evidence check, binding-enforcing constructor). New
+blessed conformance corpus `fixtures/rule_expressions/` (69 golden cases +
+checksum-binding golden hashes, all synthetic) executed as crate tests
+with a runner-enforced coverage floor. Evaluator 31+1 corpus test (69
+cases), lifecycle 12, completeness_checker 12, pytest 353 — all green;
+zero new dependencies. Residuals and three labeled ASSUMPTIONs (dimension
+table contents, derived unit-ref convention, Select branch-compatibility
+rule) flagged for human review in the run record.
+
+Evidence:
+`execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/_run_records/TASK_RUN_2026-06-11_TP-C1-GRAMMAR-001.md`.
+
+## 2026-06-11 — D7 first slice landed: in-repo sparse skyline direct solver (`TP-D03-SPARSE-001`)
+
+Implementation of the D-03 ruling (`DEC-023`, packet Option C) by a bounded
+TASK worker in `core/solver`: new `sparse_direct` crate with deterministic
+reverse Cuthill–McKee ordering (all ties broken by ascending
+degree/original-index, permutations pinned by test), skyline profile
+storage of the symmetric stiffness, in-repo LDLᵀ profile factorization and
+solve, single-threaded fixed operation order, zero new dependencies;
+diagnostics crate gains NonPositivePivot and sparse-error/factorization
+mappings with deterministic ordering; performance harness measures the
+sparse path alongside dense (profile/bandwidth reduction, pivot extrema,
+parity delta, residual, repeat determinism) with no thresholds asserted
+(D-04 governs). Parity vs dense at the DEC-026 analytic seed (1.0e-9
+relative) on chain/grid models up to 360 reduced DOFs plus a dyadic-exact
+hand-checked case. sparse_direct 18, diagnostics 24, performance_harness
+18, frame_kernel (untouched) 34 — all green. Remaining D7 scope stays in
+the row: live solve-path adoption (integration plan in the run record) and
+profile-direct assembly.
+
+Evidence:
+`execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_run_records/TASK_RUN_2026-06-11_TP-D03-SPARSE-001.md`.
+
 ## 2026-06-11 — A7 landed: rendered FR-016 calculation report (`TP-APP-R2-REPORTRENDER-001`)
 
 Implementation of the D-10 ruling (`DEC-021`, packet Option B): new

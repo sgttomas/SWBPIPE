@@ -1,0 +1,67 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 40.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_a"
+    },
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 25.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_b"
+    }
+  ],
+  "case_id": "case_11_accept_max_of_three",
+  "declared_grammar_version": "1.0.0",
+  "description": "N-ary MAX over three same-dimension same-unit stresses.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_stress_a",
+      "invented_stress_b"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "stress",
+      "kind": "quantity",
+      "unit_ref": "invented_stress_unit",
+      "value": 60.0
+    }
+  },
+  "expression": {
+    "function": "max",
+    "node": "aggregate",
+    "operands": [
+      {
+        "node": "variable_ref",
+        "variable_id": "invented_stress_a"
+      },
+      {
+        "node": "variable_ref",
+        "variable_id": "invented_stress_b"
+      },
+      {
+        "node": "literal",
+        "quantity": {
+          "dimension": "stress",
+          "unit_ref": "invented_stress_unit",
+          "value": 60.0
+        }
+      }
+    ]
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

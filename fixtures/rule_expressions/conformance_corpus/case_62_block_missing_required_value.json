@@ -1,0 +1,39 @@
+{
+  "bindings": [
+    {
+      "quantity": null,
+      "source": "user_supplied_value",
+      "variable_id": "invented_allowable_stress"
+    }
+  ],
+  "case_id": "case_62_block_missing_required_value",
+  "declared_grammar_version": "1.0.0",
+  "description": "A required variable with no supplied value blocks at both the required check and the reference.",
+  "expected": {
+    "findings": [
+      {
+        "code": "missing_required_value",
+        "subject_id": "invented_allowable_stress"
+      },
+      {
+        "code": "missing_required_value",
+        "subject_id": "invented_allowable_stress"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "variable_ref",
+    "variable_id": "invented_allowable_stress"
+  },
+  "required_variable_ids": [
+    "invented_allowable_stress"
+  ],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

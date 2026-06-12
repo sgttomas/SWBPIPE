@@ -7,6 +7,55 @@
 
 use std::fmt;
 
+/// JSON member key that binds the expression grammar version inside the
+/// JCS-canonicalized rule-pack payload bytes hashed by `rule_pack_checksum`
+/// (DEC-022). Because the member sits inside the hashed bytes, the reported
+/// checksum (FR-016) changes whenever the declared grammar version changes.
+pub const GRAMMAR_VERSION_PAYLOAD_KEY: &str = "grammar_version";
+
+/// Exact JCS encoding of the grammar-version member
+/// (`"grammar_version":"<version>"`): JCS emits sorted object keys with no
+/// insignificant whitespace, so this byte sequence must appear verbatim in
+/// any JCS payload that declares the version at an object boundary.
+pub fn grammar_version_jcs_member(grammar_version: &str) -> String {
+    format!(
+        "\"{GRAMMAR_VERSION_PAYLOAD_KEY}\":\"{}\"",
+        grammar_version.trim()
+    )
+}
+
+/// Byte-containment evidence check: does `canonical_payload` contain the
+/// exact JCS member encoding for `grammar_version`?
+///
+/// This crate does not parse JSON, so this is a necessary-condition check on
+/// caller-supplied bytes (the member could in principle appear in a nested
+/// string), not proof of JCS canonical form. Absence is conclusive: a payload
+/// without these bytes cannot bind the declared grammar version.
+pub fn payload_declares_grammar_version(canonical_payload: &[u8], grammar_version: &str) -> bool {
+    let member = grammar_version_jcs_member(grammar_version);
+    let needle = member.as_bytes();
+    if needle.is_empty() || canonical_payload.len() < needle.len() {
+        return false;
+    }
+    canonical_payload
+        .windows(needle.len())
+        .any(|window| window == needle)
+}
+
+/// Strict `MAJOR.MINOR.PATCH` check: three dot-separated decimal components,
+/// no signs, no leading zeros, no pre-release/build suffixes. Mirrors the
+/// evaluator-side rule in `core/rules/expression_evaluator`.
+pub fn is_semver_grammar_version(version: &str) -> bool {
+    let component_ok = |part: &str| {
+        !part.is_empty()
+            && part.len() <= 9
+            && part.bytes().all(|byte| byte.is_ascii_digit())
+            && (part == "0" || !part.starts_with('0'))
+    };
+    let parts: Vec<&str> = version.split('.').collect();
+    parts.len() == 3 && parts.iter().all(|part| component_ok(part))
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PrivacyClass {
     PublicSchemaOnly,
@@ -95,10 +144,62 @@ impl ChecksumRecord {
         }
     }
 
+    /// Hash caller-supplied JCS-compatible bytes while asserting that the
+    /// declared expression grammar version is bound inside the hashed payload
+    /// (DEC-022): the exact JCS member encoding must appear in the bytes and
+    /// the version must be a strict semantic version. This is the recommended
+    /// constructor for `rule_pack_payload`-scope checksums.
+    pub fn sha256_caller_supplied_jcs_bytes_with_grammar_version(
+        payload_scope: PayloadScope,
+        payload_ref: impl Into<String>,
+        canonical_payload: &[u8],
+        grammar_version: &str,
+    ) -> Result<Self, GrammarVersionBindingError> {
+        let grammar_version = grammar_version.trim();
+        if !is_semver_grammar_version(grammar_version) {
+            return Err(GrammarVersionBindingError::MalformedGrammarVersion {
+                declared: grammar_version.to_string(),
+            });
+        }
+        if !payload_declares_grammar_version(canonical_payload, grammar_version) {
+            return Err(GrammarVersionBindingError::GrammarVersionNotInPayload {
+                declared: grammar_version.to_string(),
+            });
+        }
+        Ok(Self::sha256_caller_supplied_jcs_bytes(
+            payload_scope,
+            payload_ref,
+            canonical_payload,
+        ))
+    }
+
     pub fn is_empty(&self) -> bool {
         self.value.trim().is_empty() || self.value.trim().eq_ignore_ascii_case("TBD")
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum GrammarVersionBindingError {
+    MalformedGrammarVersion { declared: String },
+    GrammarVersionNotInPayload { declared: String },
+}
+
+impl fmt::Display for GrammarVersionBindingError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MalformedGrammarVersion { declared } => write!(
+                f,
+                "declared grammar version '{declared}' is not a MAJOR.MINOR.PATCH semantic version"
+            ),
+            Self::GrammarVersionNotInPayload { declared } => write!(
+                f,
+                "canonical payload bytes do not contain the JCS member binding grammar version '{declared}'"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for GrammarVersionBindingError {}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RulePackLifecycleRecord {
@@ -106,6 +207,9 @@ pub struct RulePackLifecycleRecord {
     pub name: String,
     pub schema_version: String,
     pub rule_pack_version: String,
+    /// Expression grammar version (semver) declared by the pack and bound
+    /// inside the JCS-hashed checksum payload per DEC-022.
+    pub grammar_version: String,
     pub lifecycle_status: LifecycleStatus,
     pub source_notice: String,
     pub privacy_class: PrivacyClass,
@@ -134,6 +238,7 @@ impl RulePackLifecycleRecord {
         AuditManifestEntry {
             rule_pack_id: self.rule_pack_id.clone(),
             rule_pack_version: self.rule_pack_version.clone(),
+            grammar_version: self.grammar_version.clone(),
             source_notice: self.source_notice.clone(),
             privacy_class: self.privacy_class,
             redistribution_status: self.redistribution_status,
@@ -172,6 +277,16 @@ impl ProfessionalBoundary {
 pub enum LifecycleFindingCode {
     MissingRulePackIdentity,
     MissingVersion,
+    /// The pack declares no expression grammar version (DEC-022 requires one
+    /// bound inside the checksum payload).
+    MissingGrammarVersion,
+    /// The declared expression grammar version is not a strict
+    /// MAJOR.MINOR.PATCH semantic version.
+    GrammarVersionMalformed,
+    /// Canonical payload bytes were supplied for a rule-pack-payload-scope
+    /// checksum but do not contain the JCS member binding the declared
+    /// grammar version, so the checksum does not bind it.
+    GrammarVersionNotBound,
     MissingSourceNotice,
     MissingRedistributionStatus,
     MissingReviewStatus,
@@ -207,6 +322,11 @@ impl LifecycleFinding {
 pub struct LifecycleValidationInput<'a> {
     pub record: &'a RulePackLifecycleRecord,
     pub expected_checksum: Option<&'a ChecksumRecord>,
+    /// Canonical JCS payload bytes for the record's checksum, when the caller
+    /// can supply them. When present and the checksum scope is
+    /// `RulePackPayload`, validation checks that the declared grammar version
+    /// is bound inside these bytes (DEC-022).
+    pub canonical_payload: Option<&'a [u8]>,
     pub public_export_requested: bool,
 }
 
@@ -223,6 +343,9 @@ impl LifecycleValidationResult {
                 finding.code,
                 LifecycleFindingCode::MissingRulePackIdentity
                     | LifecycleFindingCode::MissingVersion
+                    | LifecycleFindingCode::MissingGrammarVersion
+                    | LifecycleFindingCode::GrammarVersionMalformed
+                    | LifecycleFindingCode::GrammarVersionNotBound
                     | LifecycleFindingCode::MissingChecksum
                     | LifecycleFindingCode::StaleChecksum
                     | LifecycleFindingCode::ProtectedContentSuspected
@@ -237,6 +360,7 @@ impl LifecycleValidationResult {
 pub struct AuditManifestEntry {
     pub rule_pack_id: String,
     pub rule_pack_version: String,
+    pub grammar_version: String,
     pub source_notice: String,
     pub privacy_class: PrivacyClass,
     pub redistribution_status: RedistributionStatus,
@@ -263,6 +387,36 @@ pub fn validate_lifecycle(input: &LifecycleValidationInput<'_>) -> LifecycleVali
             &record.rule_pack_id,
             "schema version and rule-pack version must both be recorded",
         ));
+    }
+
+    let grammar_version = record.grammar_version.trim();
+    if grammar_version.is_empty() {
+        findings.push(LifecycleFinding::new(
+            LifecycleFindingCode::MissingGrammarVersion,
+            &record.rule_pack_id,
+            "expression grammar version must be recorded and bound inside the checksum payload",
+        ));
+    } else if !is_semver_grammar_version(grammar_version) {
+        findings.push(LifecycleFinding::new(
+            LifecycleFindingCode::GrammarVersionMalformed,
+            &record.rule_pack_id,
+            "expression grammar version must be a MAJOR.MINOR.PATCH semantic version",
+        ));
+    } else if let Some(canonical_payload) = input.canonical_payload {
+        let checksum_scope_is_pack_payload = record
+            .checksum
+            .as_ref()
+            .is_some_and(|checksum| checksum.payload_scope == PayloadScope::RulePackPayload);
+        if checksum_scope_is_pack_payload
+            && !payload_declares_grammar_version(canonical_payload, grammar_version)
+        {
+            findings.push(LifecycleFinding::new(
+                LifecycleFindingCode::GrammarVersionNotBound,
+                &record.rule_pack_id,
+                "canonical payload bytes do not contain the declared grammar_version member, \
+                 so the rule-pack checksum does not bind the grammar version",
+            ));
+        }
     }
 
     if record.source_notice.trim().is_empty() {
@@ -450,13 +604,17 @@ pub fn sha256_hex(payload: &[u8]) -> String {
 mod tests {
     use super::*;
 
+    const PUBLIC_PAYLOAD: &[u8] =
+        br#"{"grammar_version":"1.0.0","rule_pack_id":"invented_demo","rule_pack_version":"0.1.0"}"#;
+
     fn public_record() -> RulePackLifecycleRecord {
-        let payload = br#"{"rule_pack_id":"invented_demo","rule_pack_version":"0.1.0"}"#;
+        let payload = PUBLIC_PAYLOAD;
         RulePackLifecycleRecord {
             rule_pack_id: "invented_demo".to_string(),
             name: "Invented Demo".to_string(),
             schema_version: "0.1.0".to_string(),
             rule_pack_version: "0.1.0".to_string(),
+            grammar_version: "1.0.0".to_string(),
             lifecycle_status: LifecycleStatus::AcceptedPublicExample,
             source_notice: "Original invented demonstration content only.".to_string(),
             privacy_class: PrivacyClass::PublicInventedExample,
@@ -506,6 +664,7 @@ mod tests {
         let record = public_record();
         let result = validate_lifecycle(&LifecycleValidationInput {
             expected_checksum: record.checksum.as_ref(),
+            canonical_payload: Some(PUBLIC_PAYLOAD),
             public_export_requested: true,
             record: &record,
         });
@@ -523,6 +682,7 @@ mod tests {
 
         let result = validate_lifecycle(&LifecycleValidationInput {
             expected_checksum: record.checksum.as_ref(),
+            canonical_payload: Some(PUBLIC_PAYLOAD),
             public_export_requested: true,
             record: &record,
         });
@@ -547,6 +707,7 @@ mod tests {
 
         let result = validate_lifecycle(&LifecycleValidationInput {
             expected_checksum: None,
+            canonical_payload: None,
             public_export_requested: false,
             record: &record,
         });
@@ -566,6 +727,7 @@ mod tests {
 
         let result = validate_lifecycle(&LifecycleValidationInput {
             expected_checksum: record.checksum.as_ref(),
+            canonical_payload: Some(PUBLIC_PAYLOAD),
             public_export_requested: false,
             record: &record,
         });
@@ -588,6 +750,7 @@ mod tests {
 
         let result = validate_lifecycle(&LifecycleValidationInput {
             expected_checksum: Some(&expected),
+            canonical_payload: Some(PUBLIC_PAYLOAD),
             public_export_requested: false,
             record: &record,
         });
@@ -606,6 +769,7 @@ mod tests {
 
         let result = validate_lifecycle(&LifecycleValidationInput {
             expected_checksum: record.checksum.as_ref(),
+            canonical_payload: Some(PUBLIC_PAYLOAD),
             public_export_requested: false,
             record: &record,
         });
@@ -614,5 +778,166 @@ mod tests {
         assert!(result.findings.iter().any(|finding| {
             finding.code == LifecycleFindingCode::ProfessionalBoundaryViolation
         }));
+    }
+
+    #[test]
+    fn missing_or_malformed_grammar_version_blocks() {
+        let mut record = public_record();
+        record.grammar_version.clear();
+        let result = validate_lifecycle(&LifecycleValidationInput {
+            expected_checksum: record.checksum.as_ref(),
+            canonical_payload: None,
+            public_export_requested: false,
+            record: &record,
+        });
+        assert!(result.is_blocked());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == LifecycleFindingCode::MissingGrammarVersion));
+
+        let mut record = public_record();
+        record.grammar_version = "1.0".to_string();
+        let result = validate_lifecycle(&LifecycleValidationInput {
+            expected_checksum: record.checksum.as_ref(),
+            canonical_payload: None,
+            public_export_requested: false,
+            record: &record,
+        });
+        assert!(result.is_blocked());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == LifecycleFindingCode::GrammarVersionMalformed));
+    }
+
+    #[test]
+    fn unbound_grammar_version_in_payload_blocks() {
+        let payload = br#"{"rule_pack_id":"invented_demo","rule_pack_version":"0.1.0"}"#;
+        let mut record = public_record();
+        record.checksum = Some(ChecksumRecord::sha256_caller_supplied_jcs_bytes(
+            PayloadScope::RulePackPayload,
+            "invented_demo",
+            payload,
+        ));
+
+        let result = validate_lifecycle(&LifecycleValidationInput {
+            expected_checksum: record.checksum.as_ref(),
+            canonical_payload: Some(payload),
+            public_export_requested: false,
+            record: &record,
+        });
+
+        assert!(result.is_blocked());
+        assert!(result
+            .findings
+            .iter()
+            .any(|finding| finding.code == LifecycleFindingCode::GrammarVersionNotBound));
+    }
+
+    #[test]
+    fn grammar_version_binding_constructor_enforces_payload_membership() {
+        let bound = ChecksumRecord::sha256_caller_supplied_jcs_bytes_with_grammar_version(
+            PayloadScope::RulePackPayload,
+            "invented_demo",
+            PUBLIC_PAYLOAD,
+            "1.0.0",
+        );
+        assert!(bound.is_ok());
+
+        let unbound = ChecksumRecord::sha256_caller_supplied_jcs_bytes_with_grammar_version(
+            PayloadScope::RulePackPayload,
+            "invented_demo",
+            PUBLIC_PAYLOAD,
+            "1.1.0",
+        );
+        assert_eq!(
+            unbound,
+            Err(GrammarVersionBindingError::GrammarVersionNotInPayload {
+                declared: "1.1.0".to_string()
+            })
+        );
+
+        let malformed = ChecksumRecord::sha256_caller_supplied_jcs_bytes_with_grammar_version(
+            PayloadScope::RulePackPayload,
+            "invented_demo",
+            PUBLIC_PAYLOAD,
+            "1.0",
+        );
+        assert_eq!(
+            malformed,
+            Err(GrammarVersionBindingError::MalformedGrammarVersion {
+                declared: "1.0".to_string()
+            })
+        );
+    }
+
+    /// Golden checksum-binding corpus: the fixture payloads under
+    /// `fixtures/rule_expressions/checksum_binding/` pin (a) byte stability of
+    /// the invented payloads, (b) this crate's SHA-256 over them, and (c) the
+    /// DEC-022 property that changing or removing the `grammar_version`
+    /// member changes the rule-pack checksum.
+    #[test]
+    fn grammar_version_binding_fixture_corpus_is_stable() {
+        let corpus_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../fixtures/rule_expressions/checksum_binding");
+        let manifest = std::fs::read_to_string(corpus_dir.join("MANIFEST.tsv"))
+            .expect("checksum binding manifest must exist");
+
+        let mut hashes = Vec::new();
+        let mut rows = 0;
+        for line in manifest.lines() {
+            let line = line.trim();
+            if line.is_empty() {
+                continue;
+            }
+            rows += 1;
+            let mut fields = line.split('\t');
+            let file_name = fields.next().expect("manifest row must name a file");
+            let expected_sha256 = fields.next().expect("manifest row must carry a hash");
+            let bound_version = fields.next().expect("manifest row must carry a version");
+            assert!(fields.next().is_none(), "manifest row has extra fields");
+
+            let payload =
+                std::fs::read(corpus_dir.join(file_name)).expect("payload fixture must exist");
+            let actual = sha256_hex(&payload);
+            assert_eq!(
+                actual, expected_sha256,
+                "golden checksum drift for {file_name}"
+            );
+            hashes.push(actual);
+
+            match bound_version {
+                "none" => {
+                    assert!(!payload_declares_grammar_version(&payload, "1.0.0"));
+                    assert!(!payload_declares_grammar_version(&payload, "1.1.0"));
+                }
+                version => {
+                    assert!(payload_declares_grammar_version(&payload, version));
+                    assert!(
+                        ChecksumRecord::sha256_caller_supplied_jcs_bytes_with_grammar_version(
+                            PayloadScope::RulePackPayload,
+                            file_name,
+                            &payload,
+                            version,
+                        )
+                        .is_ok()
+                    );
+                }
+            }
+        }
+
+        assert_eq!(
+            rows, 3,
+            "checksum binding corpus must keep all three payloads"
+        );
+        let mut deduped = hashes.clone();
+        deduped.sort();
+        deduped.dedup();
+        assert_eq!(
+            deduped.len(),
+            hashes.len(),
+            "grammar version member must be checksum-binding (all payload hashes distinct)"
+        );
     }
 }

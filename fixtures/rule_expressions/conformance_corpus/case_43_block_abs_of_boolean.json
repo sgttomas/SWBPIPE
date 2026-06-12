@@ -1,0 +1,47 @@
+{
+  "bindings": [],
+  "case_id": "case_43_block_abs_of_boolean",
+  "declared_grammar_version": "1.0.0",
+  "description": "ABS over a boolean is a type mismatch.",
+  "expected": {
+    "findings": [
+      {
+        "code": "type_mismatch",
+        "subject_id": "unary_abs"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "unary",
+    "operand": {
+      "left": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 1.0
+        }
+      },
+      "node": "compare",
+      "operator": "equal",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 1.0
+        }
+      }
+    },
+    "operator": "abs"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "bindings": [],
+  "case_id": "case_59_block_unsafe_host_access",
+  "declared_grammar_version": "1.0.0",
+  "description": "Host-access expression forms are refused as unsafe constructs.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsafe_construct",
+        "subject_id": "filesystem"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "unsafe_host_access",
+    "request": "filesystem"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

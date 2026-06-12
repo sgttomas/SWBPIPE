@@ -1,0 +1,59 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 10.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    },
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 10.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_input"
+    }
+  ],
+  "case_id": "case_39_block_min_dimension_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "MIN over operands with different dimensions blocks.",
+  "expected": {
+    "findings": [
+      {
+        "code": "dimension_mismatch",
+        "subject_id": "min"
+      }
+    ],
+    "source_variable_ids": [
+      "invented_force_input",
+      "invented_stress_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "function": "min",
+    "node": "aggregate",
+    "operands": [
+      {
+        "node": "variable_ref",
+        "variable_id": "invented_force_input"
+      },
+      {
+        "node": "variable_ref",
+        "variable_id": "invented_stress_input"
+      }
+    ]
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

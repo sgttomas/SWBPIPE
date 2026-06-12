@@ -1,0 +1,55 @@
+{
+  "bindings": [],
+  "case_id": "case_52_block_table_missing_unit_metadata",
+  "declared_grammar_version": "1.0.0",
+  "description": "A table without an argument unit reference is malformed.",
+  "expected": {
+    "findings": [
+      {
+        "code": "table_malformed",
+        "subject_id": "invented_lookup_table"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "argument": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "temperature",
+        "unit_ref": "invented_temperature_unit",
+        "value": 15.0
+      }
+    },
+    "node": "interpolate",
+    "table": {
+      "argument_dimension": "temperature",
+      "argument_unit_ref": "",
+      "result_dimension": "stress",
+      "result_unit_ref": "invented_stress_unit",
+      "rows": [
+        {
+          "argument": 10,
+          "result": 1.5
+        },
+        {
+          "argument": 20,
+          "result": 2.5
+        },
+        {
+          "argument": 40,
+          "result": 3.5
+        }
+      ],
+      "table_id": "invented_lookup_table"
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

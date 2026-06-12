@@ -1,0 +1,89 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 80.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_a"
+    },
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 95.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_b"
+    },
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 200.0
+      },
+      "source": "user_supplied_value",
+      "variable_id": "invented_allowable_stress"
+    }
+  ],
+  "case_id": "case_28_accept_nested_stress_utilization_check",
+  "declared_grammar_version": "1.0.0",
+  "description": "Realistic invented check: max of two stresses over an allowable, against a limit ratio.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_allowable_stress",
+      "invented_stress_a",
+      "invented_stress_b"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "kind": "boolean",
+      "value": true
+    }
+  },
+  "expression": {
+    "left": {
+      "left": {
+        "function": "max",
+        "node": "aggregate",
+        "operands": [
+          {
+            "node": "variable_ref",
+            "variable_id": "invented_stress_a"
+          },
+          {
+            "node": "variable_ref",
+            "variable_id": "invented_stress_b"
+          }
+        ]
+      },
+      "node": "binary",
+      "operator": "divide",
+      "right": {
+        "node": "variable_ref",
+        "variable_id": "invented_allowable_stress"
+      }
+    },
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "value": 0.6
+      }
+    }
+  },
+  "required_variable_ids": [
+    "invented_allowable_stress"
+  ],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

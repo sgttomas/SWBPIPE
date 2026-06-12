@@ -1,0 +1,90 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "temperature",
+        "unit_ref": "invented_temperature_unit",
+        "value": 15.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_temperature_input"
+    }
+  ],
+  "case_id": "case_29_accept_select_with_interpolate_branch",
+  "declared_grammar_version": "1.0.0",
+  "description": "Select whose then-branch interpolates an invented table; both branches evaluated eagerly.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_temperature_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "stress",
+      "kind": "quantity",
+      "unit_ref": "invented_stress_unit",
+      "value": 2.0
+    }
+  },
+  "expression": {
+    "condition": {
+      "left": {
+        "node": "variable_ref",
+        "variable_id": "invented_temperature_input"
+      },
+      "node": "compare",
+      "operator": "greater_than",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "temperature",
+          "unit_ref": "invented_temperature_unit",
+          "value": 12.0
+        }
+      }
+    },
+    "else": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 9.9
+      }
+    },
+    "node": "select",
+    "then": {
+      "argument": {
+        "node": "variable_ref",
+        "variable_id": "invented_temperature_input"
+      },
+      "node": "interpolate",
+      "table": {
+        "argument_dimension": "temperature",
+        "argument_unit_ref": "invented_temperature_unit",
+        "result_dimension": "stress",
+        "result_unit_ref": "invented_stress_unit",
+        "rows": [
+          {
+            "argument": 10,
+            "result": 1.5
+          },
+          {
+            "argument": 20,
+            "result": 2.5
+          },
+          {
+            "argument": 40,
+            "result": 3.5
+          }
+        ],
+        "table_id": "invented_lookup_table"
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "bindings": [],
+  "case_id": "case_16_accept_lookup_exact_match",
+  "declared_grammar_version": "1.0.0",
+  "description": "Exact lookup on a row argument.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "stress",
+      "kind": "quantity",
+      "unit_ref": "invented_stress_unit",
+      "value": 2.5
+    }
+  },
+  "expression": {
+    "argument": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "temperature",
+        "unit_ref": "invented_temperature_unit",
+        "value": 20.0
+      }
+    },
+    "mode": "exact",
+    "node": "lookup",
+    "table": {
+      "argument_dimension": "temperature",
+      "argument_unit_ref": "invented_temperature_unit",
+      "result_dimension": "stress",
+      "result_unit_ref": "invented_stress_unit",
+      "rows": [
+        {
+          "argument": 10,
+          "result": 1.5
+        },
+        {
+          "argument": 20,
+          "result": 2.5
+        },
+        {
+          "argument": 40,
+          "result": 3.5
+        }
+      ],
+      "table_id": "invented_lookup_table"
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

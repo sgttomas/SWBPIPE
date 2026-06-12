@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_51_block_lookup_empty_table",
+  "declared_grammar_version": "1.0.0",
+  "description": "Lookup over an empty table is malformed.",
+  "expected": {
+    "findings": [
+      {
+        "code": "table_malformed",
+        "subject_id": "invented_lookup_table"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "argument": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "temperature",
+        "unit_ref": "invented_temperature_unit",
+        "value": 10.0
+      }
+    },
+    "mode": "exact",
+    "node": "lookup",
+    "table": {
+      "argument_dimension": "temperature",
+      "argument_unit_ref": "invented_temperature_unit",
+      "result_dimension": "stress",
+      "result_unit_ref": "invented_stress_unit",
+      "rows": [],
+      "table_id": "invented_lookup_table"
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "bindings": [],
+  "case_id": "case_36_block_select_branch_dimension_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "Select branches with different dimensions block.",
+  "expected": {
+    "findings": [
+      {
+        "code": "dimension_mismatch",
+        "subject_id": "select_branches"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "condition": {
+      "left": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 1.0
+        }
+      },
+      "node": "compare",
+      "operator": "less_than",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 2.0
+        }
+      }
+    },
+    "else": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 5.0
+      }
+    },
+    "node": "select",
+    "then": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 5.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -95,7 +95,7 @@ Interim posture until B lands: Phase A authoring may proceed SI-consistent with 
 
 | # | Tranche scope |
 |---|---|
-| C1 | **Expression grammar freeze** (D-02 **RULED** `DEC-022`: frozen typed AST extended to the PRD §12.3 set; this row is now the implementation + conformance-corpus work) + evaluator conformance suite over the sandboxed expression-tree evaluator in `core/rules` |
+| C1 | **Expression grammar freeze — LANDED 2026-06-11** (`TP-C1-GRAMMAR-001`, per `DEC-022`, grammar v1.0.0); residual hand-offs: `schemas/rule_pack.schema.yaml` grammar_version/table additions, DEL-06-02 spec rows at formal review, DEC-012 grammar-TBD retirement, exact-string unit semantics pending B1; three labeled ASSUMPTIONs flagged for human review in the run record. Detail: [completion log](PLAN_COMPLETION_LOG.md); evidence: DEL-06-02 run record |
 | C2 | **Rule-pack editor GUI** (PRD §14.5): authoring, validation, checksum/lifecycle surfacing from the existing lifecycle/checksum module |
 | C3 | **Private library management GUI** (PRD §13, §14.6): import wizard for materials/sections/components with provenance capture, §13.5 import warnings, and strict private-path handling (never redistributed, per IP boundary) |
 | C4 | **End-to-end rule checks on authored models**: `USER_RULE_CHECKED` / `USER_RULE_FAILED` / `RULE_INPUTS_INCOMPLETE` statuses driven from solves of user-authored (not fixture) models into result tables |
@@ -112,7 +112,7 @@ Interim posture until B lands: Phase A authoring may proceed SI-consistent with 
 | D4 | **Expansion joints** (FR-020): element with user-entered stiffness set, effective pressure area, movement limits, manufacturer provenance |
 | D5 | **Spring hangers** (R4 deliverable): variable/constant-effort hanger supports, user-entered properties |
 | D6 | **Assembled nonlinear iterative solve** (FR-021): wrap the existing active-set state classifier in a global iteration loop (gaps, one-way, lift-off, friction) with convergence criteria mapped to the existing nonconvergence diagnostics taxonomy |
-| D7 | **Scale strategy** per D-03: sparse assembly/solve if accepted (or documented dense bounds), performance-harness extension |
+| D7 | **Scale strategy** per D-03. First slice LANDED 2026-06-11 (`TP-D03-SPARSE-001`, per `DEC-023`): `core/solver/sparse_direct` crate (deterministic RCM ordering, skyline storage, in-repo LDLT) + diagnostics integration + performance-harness sparse lane; detail in the [completion log](PLAN_COMPLETION_LOG.md), evidence in the DEL-04-01 run record. Remaining scope: live frame_kernel/product_physics solve-path adoption (handoff plan in the run record), profile-direct assembly for PRD §20 scale |
 | D8 | **Validation set**: nonlinear convergence benchmarks with hand-calc/witness evidence; component provenance fields flowing into rendered reports (R4 exit) |
 
 ### Phase E — Close R5: engineering beta and release machinery

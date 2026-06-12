@@ -128,3 +128,39 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - `cargo fmt --manifest-path core/rules/expression_evaluator/Cargo.toml --check` passed.
 - `cargo test --manifest-path core/rules/expression_evaluator/Cargo.toml --locked` passed with 17 unit tests and 0 doctests.
 - Finding `PKG06-02-PKG02-001` remains technically addressed and ready for human disposition; no lifecycle/status, dependency, review-finding, source, schema, test, DAG, or coordination files were changed.
+
+## 2026-06-11 - TP-C1-GRAMMAR-001: DEC-022 grammar freeze implemented
+
+- Human ruling `DEC-022` (D-02 Option A) implemented: the typed AST in
+  `core/rules/expression_evaluator` is now the frozen canonical rule-pack
+  expression grammar (`open_pipe_stress_declared_expression`, grammar version
+  `1.0.0`; no text parser — D-02b deferred). Added boolean And/Or/Not, eager
+  Select, n-ary Min/Max, Abs, piecewise-linear Interpolate and exact/step
+  Lookup over user-supplied monotone tables (out-of-range = blocking, no
+  extrapolation/clamping), and enumerated dimension-product algebra resolving
+  the two long-standing in-code dimensional TBDs (unrepresentable/ambiguous
+  products block; closed `Dimension` enum never silently extended).
+- `grammar_version` (strict semver) is gated in the evaluator
+  (`UnsupportedGrammarVersion` blocking finding) and bound into the
+  JCS-hashed rule-pack checksum seam in `core/rules/rule_pack_lifecycle`
+  (record field, blocking findings, byte-containment evidence check,
+  binding-enforcing checksum constructor).
+- Freeze artifact: blessed golden conformance corpus
+  `fixtures/rule_expressions/conformance_corpus/` (69 invented-value cases,
+  enforced coverage floor, executed by plain `cargo test` in this crate) plus
+  `fixtures/rule_expressions/checksum_binding/` golden-hash corpus in the
+  lifecycle crate. Grammar changes require corpus extension + version bump.
+- Validation: evaluator 31 unit tests + corpus runner (69 cases) pass;
+  lifecycle 12 pass; completeness_checker 12 pass (regression);
+  `python3 -m pytest -q tests` 353 pass; `cargo fmt --check` clean.
+- REQ-06-02-006 / OI-006 ("grammar remains TBD") are now resolvable against
+  DEC-022 at formal review; production documents intentionally not edited.
+  Surfaced handoffs (out of scope): `schemas/rule_pack.schema.yaml` needs
+  `grammar_version` + frozen `grammar_status` enum value + table value
+  structure; decomposition OI-006/DEC-012 TBD retirement is a coordination
+  update. Unit semantics remain exact-string match pending Phase B1 catalog.
+- Run record: `_run_records/TASK_RUN_2026-06-11_TP-C1-GRAMMAR-001.md`
+  (includes review-attention items: drafted dimension-product table contents,
+  derived unit-ref composition convention, Select branch compatibility rule).
+- No lifecycle promotion, release claim, or professional/code-compliance
+  claim is implied; evidence is `CHECKING` state only.

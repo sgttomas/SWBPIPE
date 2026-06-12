@@ -1,0 +1,45 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 40.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_stress_a"
+    }
+  ],
+  "case_id": "case_12_accept_min_single_operand",
+  "declared_grammar_version": "1.0.0",
+  "description": "Degenerate single-operand MIN returns the operand.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_stress_a"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "stress",
+      "kind": "quantity",
+      "unit_ref": "invented_stress_unit",
+      "value": 40.0
+    }
+  },
+  "expression": {
+    "function": "min",
+    "node": "aggregate",
+    "operands": [
+      {
+        "node": "variable_ref",
+        "variable_id": "invented_stress_a"
+      }
+    ]
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "bindings": [],
+  "case_id": "case_61_block_missing_variable",
+  "declared_grammar_version": "1.0.0",
+  "description": "An unbound variable reference blocks.",
+  "expected": {
+    "findings": [
+      {
+        "code": "missing_variable",
+        "subject_id": "invented_missing_input"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "variable_ref",
+    "variable_id": "invented_missing_input"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

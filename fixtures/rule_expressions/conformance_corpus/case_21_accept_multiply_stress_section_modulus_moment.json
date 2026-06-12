@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_21_accept_multiply_stress_section_modulus_moment",
+  "declared_grammar_version": "1.0.0",
+  "description": "Enumerated dimension product Stress x SectionModulus -> Moment.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "moment",
+      "kind": "quantity",
+      "unit_ref": "invented_section_modulus_unit*invented_stress_unit",
+      "value": 16.0
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 8.0
+      }
+    },
+    "node": "binary",
+    "operator": "multiply",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "section_modulus",
+        "unit_ref": "invented_section_modulus_unit",
+        "value": 2.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}
