@@ -2,19 +2,12 @@ Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_WORKING_ITEMS.md`.
 
 Act in the `WORKING_ITEMS` persona for `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping`.
 
-Then read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow the instructions.  
+Then read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow the instructions.
 
-The operation-seam unification plan is CLOSED (T1–T4 landed) and independently verified: read `plans/VERIFICATION_2026-06-11_operation_seam_unification.md`. Execute one bounded regression-repair tranche first: fix findings F-1 (Playwright spec exceeds the configured 30s timeout — raise the budget or split the spec, and investigate the ~10× runtime growth) and F-2 (raw NUL bytes make `operationContractCorpus.test.ts` binary to git — use escaped separators), then re-run the full evidence set and record SMOKE/run-record evidence. F-3 (corpus fixture review disposition) awaits the human; do not resolve it. After the repair lands, resume ordinary selection per the completion plan and the seam plan's §9 deferral list. Spawn TASK agents only for separable subscopes with explicit briefs and disjoint write scopes. Stop when any further progress requires a human ruling. Git commit and push whenever you complete a tranche.
+A human-approved tranche is active: implement the **DEC-025 evidence sweep** (ruling in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; basis `execution/_Coordination/_DECISIONS/D-05_ci_provider_workflow.md` Option D): one deterministic entrypoint that runs the five evidence surfaces sequentially in F-4-safe order — cargo profile sweep, pytest, desktop Vitest (wasm build first), Playwright e2e, desktop production build — and writes a machine-readable summary bound to the commit hash; plus the F-4 atomic temp-write-and-rename fix in `apps/desktop/scripts/build-wasm-engine.mjs` (see `plans/VERIFICATION_2026-06-11_operation_seam_unification.md` F-4). Document it in `docs/BUILD_AND_RELEASE.md` and record run-record/SMOKE evidence.
 
+After that lands, you have standing approval to continue executing development tranches without per-tranche approval, selected from the unblocked ruled lanes: A7 report renderer (DEC-021), the R2 from-scratch authoring set, C1 grammar implementation (DEC-022), D-03 solver (DEC-023). Decide sequencing and subagent parallelism yourself; run the evidence sweep before each push.
 
-Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_WORKING_ITEMS.md`.
+Do not select or begin `plans/PLAN_2026-06-12_caepipe_external_oracle_feedback_loop.md` / SCA-005 unless I instruct it.
 
-Act in the `WORKING_ITEMS` persona for `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping`.
-
-Then read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow the instructions.  
-
-Continue with bounded app-integration tranches toward the project's inherent goals. Spawn TASK agents only for separable subscopes with explicit briefs and disjoint write scopes.  Stop when any further progress requires a human ruling. Git commit and push whenever you complete a tranche. 
-
-
-
-
+Spawn TASK agents only for separable subscopes with explicit briefs and disjoint write scopes. Stop when any further progress requires a human ruling. Git commit and push whenever you complete a validated tranche.
