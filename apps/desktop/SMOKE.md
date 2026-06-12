@@ -4166,3 +4166,107 @@ after the timestamp marker were absent.
 - Boundary review: no lifecycle state change, stage advancement, release
   readiness, professional approval, certification, sealing, authentication,
   or code-compliance claim; stage advancement awaits the human D-14 ruling.
+
+## TP-MAC-141 packaged-runtime A12 GUI journey — PREPARED manual checklist, human execution pending (`TP-APP-R2-PACKAGEDSMOKE-KIT-001`, 2026-06-12)
+
+**Status: PREPARED, not performed.** D-14 was ruled Option O-B (`DEC-029`,
+2026-06-12): the target stage holds at R2 until packaged-runtime GUI journey
+evidence exists, and the recorded closure path is a **human-performed** manual
+smoke of the packaged binary against the A12 script, recorded here as a human
+entry. This section is the prepared kit for that pass. Its existence does not
+close verification finding F-4; only the recorded human pass below does, and
+stage advancement remains a separate human ruling.
+
+### Binary provenance
+
+- Built from commit `cc3b16cbd` (sweep-validated code state `78f618e09`;
+  the sweep commit added evidence only) with `npm run tauri -- build`
+  (release compile, 8m54s) then `npm run tauri -- build --bundles app` in
+  `apps/desktop/` — no bundle targets are configured in `tauri.conf.json`,
+  so the explicit `--bundles app` flag is required to produce the `.app`
+  (12 MB).
+- Bundle path:
+  `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+- Boot-checked 2026-06-12 (agent, method of TP-MAC-140): the bundled
+  executable launched, stayed alive with WebKit renderer processes and zero
+  bytes of error output, and terminated cleanly on signal. Boot check only —
+  not the GUI journey; the journey is the human checklist below.
+- To rebuild fresh at any later HEAD:
+  `cd apps/desktop && npm run tauri -- build --bundles app`
+  (the checklist is unchanged; record the rebuilt commit in the entry below).
+
+### Checklist (all values are the invented A12 rehearsal payloads from `fixtures/product_preview/r2_from_blank_rehearsal.json`)
+
+Authoring steps queue an intent, then apply it from the Operation Apply panel
+row (Apply button). After each apply, expect the apply summary to show
+`0 queued; N applied` with the step's N, and the applied row to show
+`route=tauri_backend_apply` and `professional_approval=false`.
+
+1. **Launch** the bundle (double-click or `open "…/OpenPipeStress Technical Preview.app"`).
+   Expect the `OpenPipeStress Technical Preview` header, operation engine
+   status `engine_route=tauri_backend_apply; engine_state=ready`, and local
+   project status containing `network=false` and `telemetry=false`.
+2. **New blank.** Click `New blank`. Expect "Created blank local model
+   document without fixture entities or external file copies." and Load Cases
+   summary `0 load cases; 0 primitive loads; 0 combinations`.
+3. **Node 1** (viewport explicit-node form): id `node:R2-100`, label
+   `R2 anchored node`, x/y/z `0 / 0 / 0`. Queue + apply (1 applied).
+4. **Node 2**: id `node:R2-110`, label `R2 loaded node`, x/y/z `3 / 0 / 0`.
+   Queue + apply (2 applied).
+5. **Material** (Property Inspector create-material form): id
+   `material:r2-carbon-steel`, label `R2 invented carbon-steel-like material`,
+   elastic modulus `200000000000` Pa, shear modulus `77000000000` Pa,
+   provenance `invented_a12_rehearsal_user_input`. Queue + apply (3 applied).
+6. **Section** (create-section form): id `section:r2-pipe`, name
+   `R2 invented pipe section`, outside diameter `0.114` m, wall thickness
+   `0.006` m, same provenance. Queue + apply (4 applied).
+7. **Pipe** (viewport explicit-pipe form): id `pipe:R2-100`, label
+   `R2 invented straight pipe`, from `node:R2-100`, to `node:R2-110`,
+   material `material:r2-carbon-steel`, OD `0.114`, wall `0.006`,
+   y-reference x/y/z `0 / 0 / 1`, same provenance. Queue + apply (5 applied).
+8. **Support** (create-support form): id `support:R2-anchor`, label
+   `R2 user anchor`, node `node:R2-100`, all six restraints checked
+   (UX, UY, UZ, RX, RY, RZ), same provenance. Queue + apply (6 applied).
+9. **Load case** (Load Cases manager create form): id `load:R2-L-100`, label
+   `R2 invented operating load`, kind `primitive_user_load`, status
+   `preview_only`, same provenance. Queue + apply (7 applied).
+10. **Primitive load**: load case `load:R2-L-100`, category
+    `concentrated_force`, id `load:R2-L-100-FY`, node `node:R2-110`,
+    direction `global_y`, magnitude `250` N, same provenance.
+    Queue + apply (8 applied).
+11. **Combination**: id `combination:R2-C-100`, label
+    `R2 invented operating combination`, load case `load:R2-L-100`, factor
+    `1`, same provenance, short rationale text. Queue + apply (9 applied).
+12. **Summary check.** Expect `1 load cases; 1 primitive loads;
+    1 combinations`.
+13. **Solve.** Click `Run mechanics preview`. Expect the solve job to reach
+    `state=completed` with mechanics status `MECHANICS_SOLVED` and at least
+    one result row; grouped results render (displacement/reaction/force/
+    moment/stress).
+14. **Report.** Click `Render report`. Expect a rendered report preview and
+    `Canonical HTML SHA-256: <hash>`; record the hash below.
+15. **Save.** Click `Save local`. Expect a saved-project confirmation message
+    (local store only; nothing leaves the machine).
+16. **Reopen.** Click `List local`, then `Open …` for the saved project.
+    Expect the authored model to reload with the step-12 summary intact.
+17. **Re-solve.** Click `Run mechanics preview` again. Expect
+    `state=completed` + `MECHANICS_SOLVED` again on the reopened model.
+18. **Quit.** No network, daemon, telemetry, or repository writes occurred;
+    the user project stays in local app storage and is never committed.
+
+### Human execution record (fill in when performed — human entry per DEC-029)
+
+```
+performed: NO (kit prepared 2026-06-12; awaiting human pass)
+date:
+performed_by:
+binary commit:
+outcome (PASS / FAIL per step, with any deviations):
+report sha256:
+notes:
+```
+
+- Boundary review: invented rehearsal values only; user-created local project
+  data stays in local storage and is never committed; no lifecycle state
+  change, stage advancement, release readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.
