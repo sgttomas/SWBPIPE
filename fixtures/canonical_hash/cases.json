@@ -1,0 +1,90 @@
+{
+  "cases": [
+    {
+      "case_id": "scalar-null",
+      "expected_canonical": "null",
+      "expected_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "input_json": "null"
+    },
+    {
+      "case_id": "scalar-string-unicode",
+      "expected_canonical": "\"pipe élément 日本語 \\\"quoted\\\" \\\\backslash\\\\ \\n\"",
+      "expected_sha256": "938c038c080b15dfdfd68cf59d01cc190e88ad1e7b607b6c0707cf6fe1446a9d",
+      "input_json": "\"pipe \\u00e9l\\u00e9ment 日本語 \\\"quoted\\\" \\\\backslash\\\\ \\n\""
+    },
+    {
+      "case_id": "scalar-bool-true",
+      "expected_canonical": "true",
+      "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "input_json": "true"
+    },
+    {
+      "case_id": "number-simple-decimal",
+      "expected_canonical": "0.5",
+      "expected_sha256": "d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84",
+      "input_json": "0.5"
+    },
+    {
+      "case_id": "number-integer",
+      "expected_canonical": "42",
+      "expected_sha256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+      "input_json": "42"
+    },
+    {
+      "case_id": "number-negative-decimal",
+      "expected_canonical": "-2.25",
+      "expected_sha256": "805fc768f9b682818a37b950815f89359472a0b342a0bb23291b87ac43e73103",
+      "input_json": "-2.25"
+    },
+    {
+      "case_id": "number-exponent-form",
+      "expected_canonical": "1000000000.0",
+      "expected_sha256": "e3e9511be66c9055442b9b502bb997b98692301b9945a5858d2f2b8c9b11f4ed",
+      "input_json": "1e9"
+    },
+    {
+      "case_id": "number-large-exponent",
+      "expected_canonical": "1e+21",
+      "expected_sha256": "241c4643fa70b1dcde1205b71be4e3bebb17e9f880c8e1a33d0ead6c27271d3c",
+      "input_json": "1e21"
+    },
+    {
+      "case_id": "number-small-exponent",
+      "expected_canonical": "1e-7",
+      "expected_sha256": "5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+      "input_json": "1e-7"
+    },
+    {
+      "case_id": "empty-containers",
+      "expected_canonical": "{\"empty_array\":[],\"empty_object\":{}}",
+      "expected_sha256": "0f2158204145fd606c11e64e0161a9a78eb7c27fb39b7b5cb6fee328fb5b99da",
+      "input_json": "{\"empty_array\":[],\"empty_object\":{}}"
+    },
+    {
+      "case_id": "object-keys-unsorted",
+      "expected_canonical": "{\"alpha\":2,\"mid\":{\"a\":false,\"b\":true},\"zeta\":1}",
+      "expected_sha256": "174e0a23575b668f67793f8f91bfe90d440798a113fcc7f52ffce32f757c4e1c",
+      "input_json": "{\"zeta\":1,\"alpha\":2,\"mid\":{\"b\":true,\"a\":false}}"
+    },
+    {
+      "case_id": "array-order-preserved",
+      "expected_canonical": "[3,1,2,{\"x\":\"first\",\"y\":\"last\"}]",
+      "expected_sha256": "96fd2d417d9274fefcbb73b6baced1758e089cc6813753ddaf76702187922bd4",
+      "input_json": "[3,1,2,{\"y\":\"last\",\"x\":\"first\"}]"
+    },
+    {
+      "case_id": "nested-invented-model-slice",
+      "expected_canonical": "{\"nodes\":[{\"id\":\"node:N-1\",\"x\":0.0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2.0,\"y\":0.0,\"z\":0.0}],\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}",
+      "expected_sha256": "27de8c3c24b2a46339a50cf363ac467ae83e3b21a5b47a637f6e64046ac9bd2c",
+      "input_json": "{\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"nodes\":[{\"id\":\"node:N-1\",\"x\":0.0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2.0,\"y\":0.0,\"z\":0.0}],\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}"
+    },
+    {
+      "case_id": "key-sort-is-codepoint-order",
+      "expected_canonical": "{\"10\":4,\"2\":5,\"B\":1,\"_underscore\":3,\"a\":2}",
+      "expected_sha256": "8138af18a134c5d0c1152403bc80c92d7bf51f7654100a95c3183857fa467bd0",
+      "input_json": "{\"B\":1,\"a\":2,\"_underscore\":3,\"10\":4,\"2\":5}"
+    }
+  ],
+  "document_kind": "openpipestress.fixtures.canonical_hash_parity_corpus",
+  "provenance": "invented values only; expectations blessed from the native Rust engine via CANONICAL_HASH_BLESS=1"
+}

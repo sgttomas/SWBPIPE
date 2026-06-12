@@ -391,6 +391,7 @@ mod wasm_api {
     use super::{apply_operation, validate_operation};
     use serde_json::{json, Value};
     use wasm_bindgen::prelude::wasm_bindgen;
+    use wasm_bindgen::JsError;
 
     const INPUT_ERROR_DOCUMENT_KIND: &str = "openpipestress.desktop.wasm_engine_input_error";
 
@@ -468,6 +469,32 @@ mod wasm_api {
         claimed_model_hash_json: &str,
     ) -> String {
         run_json(model_json, intent_json, claimed_model_hash_json, true)
+    }
+
+    fn parse_value(value_json: &str) -> Result<Value, JsError> {
+        serde_json::from_str(value_json).map_err(|error| {
+            JsError::new(&format!(
+                "WASM-ENGINE-INPUT-JSON-INVALID: value is not valid JSON: {error}"
+            ))
+        })
+    }
+
+    /// Canonicalize a JSON document with the engine's canonical form
+    /// (recursively sorted object keys, serde serialization) — the same
+    /// function the engine uses for model hashes. H1 / F-5a hash seam:
+    /// the desktop frontend has no canonicalization of its own.
+    #[wasm_bindgen]
+    pub fn canonical_json_string(value_json: &str) -> Result<String, JsError> {
+        Ok(super::canonical_json(&parse_value(value_json)?))
+    }
+
+    /// Lowercase-hex SHA-256 of the canonical form of a JSON document.
+    /// H1 / F-5a hash seam companion to [`canonical_json_string`].
+    #[wasm_bindgen]
+    pub fn canonical_sha256_hex(value_json: &str) -> Result<String, JsError> {
+        Ok(super::sha256_hex(&super::canonical_json(&parse_value(
+            value_json,
+        )?)))
     }
 }
 
@@ -3171,7 +3198,13 @@ fn display_number(value: f64) -> String {
     }
 }
 
-fn canonical_json(value: &Value) -> String {
+/// The engine's canonical JSON form: recursively sorted object keys, arrays
+/// in order, serde serialization. Public because it is the single
+/// canonicalization for every frontend hash seam (completion-plan H1 /
+/// verification F-5a): the `wasm_api` exports wrap it and the desktop
+/// `hashService` consumes those exports — no TypeScript canonicalization
+/// exists.
+pub fn canonical_json(value: &Value) -> String {
     serde_json::to_string(&sort_json(value.clone())).expect("model documents must encode as JSON")
 }
 
@@ -3191,7 +3224,9 @@ fn sort_json(value: Value) -> Value {
     }
 }
 
-fn sha256_hex(payload: &str) -> String {
+/// Lowercase-hex SHA-256. Public for the same H1 / F-5a hash seam as
+/// [`canonical_json`].
+pub fn sha256_hex(payload: &str) -> String {
     let digest = Sha256::digest(payload.as_bytes());
     digest.iter().map(|byte| format!("{byte:02x}")).collect()
 }
