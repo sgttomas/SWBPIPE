@@ -1,0 +1,199 @@
+{
+  "base_model": {
+    "analysis_status": {
+      "mechanics": "ready",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed"
+    },
+    "components": [],
+    "data_boundary": {
+      "private_data_policy": "no_private_project_data",
+      "professional_boundary": "technical_preview_requires_human_engineering_review",
+      "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+      "public_examples_policy": "invented_or_cleared_data_only"
+    },
+    "diagnostics": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "load:L-1",
+        "kind": "primitive_user_load",
+        "label": "Invented imposed displacement case",
+        "primitive_loads": [
+          {
+            "category": "imposed_displacement",
+            "dimension": "displacement",
+            "direction": "UZ",
+            "id": "load:L-1-I1",
+            "magnitude": {
+              "unit": "m",
+              "value": -0.006
+            },
+            "provenance": "invented_example",
+            "target": {
+              "dof": "UZ",
+              "support": "support:S-1",
+              "type": "support"
+            }
+          }
+        ],
+        "provenance": "invented_example",
+        "status": "preview_only"
+      }
+    ],
+    "materials": [],
+    "nodes": [
+      {
+        "id": "node:N-1",
+        "label": "Support target node",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented_example"
+      }
+    ],
+    "pipe_segments": [],
+    "project": {
+      "description": "Invented preview-model derivative for delete-support reference blocking.",
+      "id": "project:corpus-delete-support-block",
+      "name": "Contract corpus referenced support model",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.1.0",
+    "supports": [
+      {
+        "id": "support:S-1",
+        "label": "Corpus referenced support",
+        "node": "node:N-1",
+        "provenance": "invented_example",
+        "restraints": [
+          "UY",
+          "UZ"
+        ]
+      }
+    ]
+  },
+  "case_id": "block-delete-support-referenced",
+  "claimed_model_hash": null,
+  "description": "delete_support is refused while a primitive imposed-displacement load references the support.",
+  "expected": {
+    "applied_model": null,
+    "applied_model_canonical_sha256": null,
+    "outcome": {
+      "acceptance": {
+        "acceptance_basis": "none_validation_only",
+        "acceptance_is_professional_approval": false,
+        "persistence_status": "not_applicable_no_application"
+      },
+      "applied": false,
+      "audit_boundary": {
+        "applied_model_is_new_document": false,
+        "direct_model_mutation_allowed": false,
+        "input_model_mutated_in_place": false,
+        "mutation_route": "structured_operations_only",
+        "requires_user_acceptance": true
+      },
+      "change_id": "change:corpus-block-delete-support-referenced",
+      "change_kind": "delete_support",
+      "deliverable_refs": [
+        "DEL-16-02",
+        "DEL-16-03"
+      ],
+      "diagnostics": [
+        {
+          "affected_refs": [
+            "support:S-1",
+            "load:L-1-I1"
+          ],
+          "blocking": true,
+          "code": "OP-SUPPORT-DELETE-REFERENCED",
+          "severity": "blocking"
+        }
+      ],
+      "diff_preview": [],
+      "document_kind": "openpipestress.desktop.operation_outcome",
+      "input_model_unchanged": true,
+      "mode": "apply",
+      "model_basis": {
+        "backend_canonicalization": "rfc8785_jcs",
+        "backend_model_hash": "sha256:fc5d8229d8c11c4409f5e42145d2c797171611f60f8ec63d9d7764edaffec611",
+        "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+        "claimed_hash_canonicalization": "not_provided",
+        "claimed_model_hash": "not_provided"
+      },
+      "operation_id": "op:corpus-block-delete-support-referenced",
+      "operation_kind": "delete",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_compliance_claim": false,
+        "software_makes_sealing_claim": false
+      },
+      "schema_version": "0.1.0",
+      "target_object_type": "Support",
+      "target_ref": "support:S-1",
+      "validation": {
+        "application_status": "blocked",
+        "before_state_validation": "not_run",
+        "diff_preview_status": "blocked_by_validation",
+        "reference_validation": "blocked",
+        "schema_validation": "passed",
+        "unit_validation": "passed"
+      }
+    }
+  },
+  "intent": {
+    "audit_boundary": {
+      "direct_model_mutation_allowed": false,
+      "mutates_accepted_model_state": false,
+      "mutation_route": "structured_operations_only",
+      "requires_user_acceptance": true
+    },
+    "author_type": "user",
+    "change": {
+      "after": "not_present",
+      "before": "Corpus referenced support",
+      "change_id": "change:corpus-block-delete-support-referenced",
+      "change_kind": "delete_support",
+      "dimension": "dimensionless",
+      "field_label": "supports",
+      "field_path": "supports",
+      "source_note": "contract_corpus_invented",
+      "unit": "none"
+    },
+    "operation_id": "op:corpus-block-delete-support-referenced",
+    "operation_kind": "delete",
+    "operation_status": "proposed",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "rationale": "invented contract corpus case",
+    "target": {
+      "object_type": "Support",
+      "ref": "support:S-1"
+    },
+    "validation": {
+      "application_status": "not_applied",
+      "constraint_validation": "not_run",
+      "diff_preview_status": "not_generated",
+      "schema_validation": "not_run",
+      "unit_validation": "not_run"
+    }
+  },
+  "mode": "apply"
+}

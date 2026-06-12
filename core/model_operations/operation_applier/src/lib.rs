@@ -740,6 +740,20 @@ fn run(
             &mut checker,
         );
     }
+    let mut deleted_support: Option<String> = None;
+    if !checker.schema_blocked && change_kind == "delete_support" {
+        deleted_support = resolve_delete_support(
+            model,
+            &target_ref,
+            &field_path,
+            &before,
+            &after,
+            &unit,
+            &dimension,
+            &object_type,
+            &mut checker,
+        );
+    }
 
     let blocking = checker.blocking();
     let diff_preview = if let (Some(field), false) = (&resolved, blocking) {
@@ -762,7 +776,8 @@ fn run(
         || created_primitive_load.is_some()
         || created_combination.is_some()
         || created_combination_term.is_some()
-        || deleted_combination_term.is_some())
+        || deleted_combination_term.is_some()
+        || deleted_support.is_some())
         && !blocking
     {
         vec![DiffPreviewRow {
@@ -881,6 +896,15 @@ fn run(
         } else if let Some((combination_id, term_index)) = &deleted_combination_term {
             let mut next_model = model.clone();
             if apply_deleted_combination_term(&mut next_model, combination_id, *term_index) {
+                applied_model_backend_hash = Some(format!(
+                    "sha256:{}",
+                    sha256_hex(&canonical_json(&next_model))
+                ));
+                applied_model = Some(next_model);
+            }
+        } else if let Some(support_id) = &deleted_support {
+            let mut next_model = model.clone();
+            if apply_deleted_support(&mut next_model, support_id) {
                 applied_model_backend_hash = Some(format!(
                     "sha256:{}",
                     sha256_hex(&canonical_json(&next_model))
@@ -1069,6 +1093,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "create_primitive_load"
             | "create_combination"
             | "create_combination_term"
+            | "delete_support"
             | "delete_combination_term"
             | "insert_component_symbol"
     );
@@ -1096,6 +1121,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         | "create_primitive_load"
         | "create_combination"
         | "create_combination_term" => "create",
+        "delete_support" => "delete",
         "delete_combination_term" => "delete",
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
@@ -3001,6 +3027,115 @@ fn resolve_delete_combination_term(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn resolve_delete_support(
+    model: &Value,
+    target_ref: &str,
+    field_path: &str,
+    before: &str,
+    after: &str,
+    unit: &str,
+    dimension: &str,
+    object_type: &str,
+    checker: &mut Checker,
+) -> Option<String> {
+    if object_type != "Support" || field_path != "supports" {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-DELETE-SUPPORT-SHAPE-INVALID",
+            "blocking",
+            "Delete-support intents must target object_type `Support` with field_path `supports`."
+                .to_string(),
+            "Refresh the support delete intent from the selected support row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if after != "not_present" {
+        checker.before_state = "blocked_stale";
+        checker.push(
+            "OP-DELETE-AFTER-VALUE-INVALID",
+            "blocking",
+            "Delete-support intents must use after-value `not_present`.".to_string(),
+            "Re-queue the delete intent from the selected support row.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    checker.unit_state = "passed";
+    if unit != "none" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` does not match stored unit `none` for support deletion."),
+            "Delete support records with unit `none`; no unit conversion is performed.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if dimension != "dimensionless" {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-UNKNOWN",
+            "blocking",
+            format!("Delete-support dimension `{dimension}` must be `dimensionless`."),
+            "Emit support deletion with dimensionless metadata.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+
+    let Some(support) = find_entity(model, "supports", target_ref) else {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-TARGET-NOT-FOUND",
+            "blocking",
+            format!("Support `{target_ref}` was not found in the current model."),
+            "Select an existing support before deleting it.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let current_label = support
+        .get("label")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .trim();
+    if current_label.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-SUPPORT-PAYLOAD-INVALID",
+            "blocking",
+            format!("Support `{target_ref}` does not expose a valid label."),
+            "Repair the model document before deleting support records.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let references = support_primitive_load_references(model, target_ref);
+    if !references.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-SUPPORT-DELETE-REFERENCED",
+            "blocking",
+            format!(
+                "Support `{target_ref}` is still referenced by primitive loads: {}.",
+                references.join(", ")
+            ),
+            "Delete or retarget dependent imposed-displacement primitive loads before deleting the support.",
+            std::iter::once(target_ref.to_string())
+                .chain(references)
+                .collect(),
+        );
+        return None;
+    }
+    checker.reference_state = "passed";
+    check_before(current_label, before, target_ref, field_path, checker);
+    Some(target_ref.to_string())
+}
+
+#[allow(clippy::too_many_arguments)]
 fn resolve_field(
     model: &Value,
     object_type: &str,
@@ -3606,6 +3741,20 @@ fn apply_deleted_combination_term(
     true
 }
 
+fn apply_deleted_support(model: &mut Value, support_id: &str) -> bool {
+    let Some(supports) = model.get_mut("supports").and_then(Value::as_array_mut) else {
+        return false;
+    };
+    let Some(index) = supports
+        .iter()
+        .position(|support| support.get("id").and_then(Value::as_str) == Some(support_id))
+    else {
+        return false;
+    };
+    supports.remove(index);
+    true
+}
+
 fn model_basis_evidence(model: &Value, claimed_model_hash: Option<&Value>) -> ModelBasisEvidence {
     let backend_model_hash = format!("sha256:{}", sha256_hex(&canonical_json(model)));
     match claimed_model_hash {
@@ -3787,6 +3936,38 @@ fn find_primitive_load<'a>(model: &'a Value, primitive_ref: &str) -> Option<&'a 
         .filter_map(|load_case| load_case.get("primitive_loads")?.as_array())
         .flat_map(|primitive_loads| primitive_loads.iter())
         .find(|item| item.get("id").and_then(Value::as_str) == Some(primitive_ref))
+}
+
+fn support_primitive_load_references(model: &Value, support_ref: &str) -> Vec<String> {
+    let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) else {
+        return Vec::new();
+    };
+    let mut references = Vec::new();
+    for load_case in load_cases {
+        let Some(primitive_loads) = load_case.get("primitive_loads").and_then(Value::as_array)
+        else {
+            continue;
+        };
+        for primitive_load in primitive_loads {
+            let target_support = primitive_load
+                .get("target")
+                .and_then(Value::as_object)
+                .and_then(|target| target.get("support"))
+                .and_then(Value::as_str);
+            if target_support == Some(support_ref) {
+                references.push(
+                    primitive_load
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .unwrap_or("primitive_load:unknown")
+                        .to_string(),
+                );
+            }
+        }
+    }
+    references.sort();
+    references.dedup();
+    references
 }
 
 fn find_entity_mut<'a>(
@@ -5605,6 +5786,95 @@ mod tests {
         let blocked = apply_operation(&model, &missing_term, None);
         assert!(codes(&blocked).contains(&"OP-COMBINATION-TERM-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn explicit_delete_support_removes_unreferenced_support_only() {
+        let model = sample_model();
+        let before_snapshot = model.clone();
+        let mut intent = modify_intent(
+            "Support",
+            "support:S-1",
+            "delete_support",
+            "supports",
+            "Anchor support",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert_eq!(
+            model, before_snapshot,
+            "apply must not mutate the input model in place"
+        );
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.before_state_validation, "passed");
+        assert_eq!(outcome.validation.reference_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["supports"]
+                .as_array()
+                .expect("supports array")
+                .len(),
+            0
+        );
+
+        let mut stale = modify_intent(
+            "Support",
+            "support:S-1",
+            "delete_support",
+            "supports",
+            "Renamed support",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        stale["operation_kind"] = json!("delete");
+        let stale_outcome = apply_operation(&model, &stale, None);
+        assert!(codes(&stale_outcome).contains(&"OP-STALE-BEFORE-VALUE"));
+        assert!(stale_outcome.applied_model.is_none());
+    }
+
+    #[test]
+    fn delete_support_blocks_imposed_displacement_reference() {
+        let mut model = sample_model();
+        model["load_cases"][0]["primitive_loads"][0] = json!({
+            "id": "load:L-1-I1",
+            "category": "imposed_displacement",
+            "target": { "type": "support", "support": "support:S-1", "dof": "UZ" },
+            "direction": "UZ",
+            "magnitude": { "value": -0.006, "unit": "m" },
+            "dimension": "displacement",
+            "provenance": "invented_example"
+        });
+        let mut intent = modify_intent(
+            "Support",
+            "support:S-1",
+            "delete_support",
+            "supports",
+            "Anchor support",
+            "not_present",
+            "none",
+            "dimensionless",
+        );
+        intent["operation_kind"] = json!("delete");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(codes(&outcome).contains(&"OP-SUPPORT-DELETE-REFERENCED"));
+        assert_eq!(outcome.validation.application_status, "blocked");
+        assert!(outcome.applied_model.is_none());
     }
 
     #[test]

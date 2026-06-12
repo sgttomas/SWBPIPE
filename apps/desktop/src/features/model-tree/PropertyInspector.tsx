@@ -1,4 +1,4 @@
-import { ListPlus, PlusCircle, SearchCheck } from "lucide-react";
+import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
@@ -28,6 +28,7 @@ export function PropertyInspector({
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraft, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const selectedSupport = selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const operationIntent = selectedField
     ? buildOperationIntent({
@@ -41,6 +42,7 @@ export function PropertyInspector({
   const sectionCreateIntent = isSectionDraftValid(model, sectionDraft) ? buildCreateSectionIntent(sectionDraft, model) : null;
   const materialCreateIntent = isMaterialDraftValid(model, materialDraft) ? buildCreateMaterialIntent(materialDraft, model) : null;
   const supportCreateIntent = isSupportDraftValid(model, supportDraft) ? buildCreateSupportIntent(supportDraft, model) : null;
+  const supportDeleteIntent = selectedSupport ? buildDeleteSupportIntent(selectedSupport, model) : null;
   const inlineValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
@@ -80,6 +82,11 @@ export function PropertyInspector({
     if (!supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
     setSupportDraft(defaultSupportDraftWithReserved(model, selection, [...queuedIntents, supportCreateIntent]));
+  }
+
+  function handleQueueDeleteSupportIntent() {
+    if (!supportDeleteIntent) return;
+    onQueueIntent(supportDeleteIntent);
   }
 
   function handleQueueMaterialIntent() {
@@ -415,6 +422,23 @@ export function PropertyInspector({
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
       </section>
+      {supportDeleteIntent ? (
+        <section className="editor-intent" aria-label="Delete support intent" data-testid="delete-support-intent-panel">
+          <h3>Delete support</h3>
+          <div className="editor-intent-controls">
+            <button
+              data-testid="queue-delete-support-intent"
+              onClick={handleQueueDeleteSupportIntent}
+              title="Queue support delete intent"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete support
+            </button>
+          </div>
+          <OperationIntentPreview intent={supportDeleteIntent} />
+        </section>
+      ) : null}
     </div>
   );
 }
@@ -965,6 +989,58 @@ function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): Edi
       software_makes_authentication_claim: false
     },
     rationale: `explicit user-entered support for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
+function buildDeleteSupportIntent(support: PreviewModel["supports"][number], model: PreviewModel): EditorOperationIntent {
+  const supportId = support.id.trim();
+  return {
+    operation_id: `op:delete-support-${safeToken(supportId)}`,
+    operation_kind: "delete",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Support",
+      ref: supportId
+    },
+    change: {
+      change_id: `change:delete-support:${safeToken(supportId)}`,
+      change_kind: "delete_support",
+      field_label: "Explicit support deletion",
+      field_path: "supports",
+      before: support.label,
+      after: "not_present",
+      unit: "none",
+      dimension: "dimensionless",
+      source_note: "explicit user-entered support deletion; reference integrity required"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: "not_run",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered support deletion for ${model.project.id}; requires reference validation before durable model change.`
   };
 }
 

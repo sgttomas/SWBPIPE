@@ -5924,6 +5924,87 @@ describe("OpenPipeStress desktop preview", () => {
     expect(receipt.textContent).toContain("professional_approval=false");
   });
 
+  it("queues and applies explicit support deletion through the structured operation seam", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    const supportRow = within(tree).getByTestId("tree-row-support:S-120");
+    expect(supportRow.textContent).toContain("Guide on riser");
+    fireEvent.click(supportRow);
+
+    const inspector = screen.getByLabelText("Property inspector");
+    const deleteSupportPanel = within(inspector).getByLabelText("Delete support intent");
+    expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("delete_support");
+    expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("before=Guide on riser");
+    expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("after=not_present");
+
+    fireEvent.click(within(deleteSupportPanel).getByTestId("queue-delete-support-intent"));
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain("not_present");
+
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:delete-support-support:S-120"
+      )
+    );
+
+    expect(screen.queryByTestId("tree-row-support:S-120")).toBeNull();
+    expect(screen.getByTestId("tree-row-project:invented-loop-01")).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("project:invented-loop-01");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+    expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
+
+    const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
+    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional_approval=false");
+  });
+
+  it("blocks support deletion while an imposed-displacement load still references it", async () => {
+    render(<App />);
+
+    const manager = await screen.findByTestId("load-case-manager");
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-category"), {
+      target: { value: "imposed_displacement" }
+    });
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), {
+      target: { value: "-0.006" }
+    });
+    fireEvent.click(within(manager).getByTestId("queue-create-primitive-intent"));
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Applied op:load-manager-load:L-100-load:L-100-I300-primitive"
+      )
+    );
+
+    const tree = screen.getByLabelText("Model tree");
+    fireEvent.click(within(tree).getByTestId("tree-row-support:S-100"));
+    const deleteSupportPanel = within(screen.getByLabelText("Property inspector")).getByLabelText("Delete support intent");
+    expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("delete_support");
+    fireEvent.click(within(deleteSupportPanel).getByTestId("queue-delete-support-intent"));
+
+    expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 1 applied");
+    fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-2"));
+    await waitFor(() =>
+      expect(within(applyPanel).getByTestId("operation-apply-message").textContent).toContain(
+        "Operation op:delete-support-support:S-100 was not applied (blocked); see its diagnostics."
+      )
+    );
+
+    expect(within(applyPanel).getByTestId("operation-outcome-diagnostic-OP-SUPPORT-DELETE-REFERENCED").textContent).toContain(
+      "load:L-100-I300"
+    );
+    expect(screen.getByTestId("tree-row-support:S-100")).toHaveClass("active");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("Anchor at pump nozzle");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("1 pending operation");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
+  });
+
   it("queues and applies explicit viewport node geometry through the structured operation seam", async () => {
     render(<App />);
 

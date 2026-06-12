@@ -513,3 +513,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no whole-term replacement, no durable persistence,
   no protected/private data, and no professional, release, or code-compliance
   claim.
+
+## 2026-06-12 - TP-APP-R2-DELSUPPORT-001 support deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Rust/wasm
+  `operation_applier` to validate, diff, and apply explicit
+  `delete_support` operations.
+- Accepted intents must target an existing `Support` with
+  `field_path=supports`, use `operation_kind=delete`, carry the current
+  support label as `before`, carry `after=not_present`, use unit `none`, and
+  use dimension `dimensionless`.
+- Missing supports, stale before-values, wrong unit/dimension metadata, and
+  support-targeted primitive-load references are blocked. Referenced support
+  deletion emits `OP-SUPPORT-DELETE-REFERENCED`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_support_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-120. Validation passed:
+  operation-applier cargo suites (42 unit + canonical hash + 49-case corpus),
+  corpus bless/rerun, desktop operationContractCorpus 101/101, full desktop
+  Vitest 189/189, desktop build, src-tauri Rust tests 29/29, Playwright smoke
+  1/1, and live Chrome support-delete smoke with zero console errors.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  silent unit conversion, no hidden deletion cascade, no durable persistence,
+  no protected/private data, and no professional, release, or code-compliance
+  claim.

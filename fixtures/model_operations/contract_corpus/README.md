@@ -124,14 +124,15 @@ internal canonicalization, not the operation semantics:
   `update_load`, `update_support`, `create_node`, `connect_pipe_run`,
   `create_section`, `create_material`, `create_support`, `create_load_case`,
   `create_primitive_load`, `create_combination`, `create_combination_term`,
-  `delete_combination_term`.
+  `delete_support`, `delete_combination_term`.
 - Block classes covered: duplicate id (`OP-TARGET-ALREADY-EXISTS`), missing
   target (`OP-TARGET-NOT-FOUND`), unit mismatch
   (`OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`), invalid dimension
   (`OP-UNIT-DIMENSION-UNKNOWN`), stale before-value
   (`OP-STALE-BEFORE-VALUE`), deferred field (`OP-FIELD-EDIT-DEFERRED`),
   unsupported field path (`OP-FIELD-PATH-UNSUPPORTED`), non-finite magnitude
-  (`OP-VALUE-NOT-NUMERIC`), empty required text (`OP-VALUE-EMPTY`).
+  (`OP-VALUE-NOT-NUMERIC`), empty required text (`OP-VALUE-EMPTY`),
+  support deletion with dependent loads (`OP-SUPPORT-DELETE-REFERENCED`).
 - Dynamic field paths `primitive_loads.N.magnitude.value` and
   `terms.N.factor` each have at least one accepted and one blocked case.
 - Deferred fields stay deferred: the corpus encodes blocked-stays-blocked for
@@ -161,9 +162,9 @@ itself looks wrong), the case file moves to `_quarantine/` with a `TBD` note
 and is excluded from both runners (they only read top-level `case_*.json`
 files); the ambiguity is reported for human ruling instead of being silently
 reconciled. Quarantined cases as of 2026-06-12: none — the TypeScript engine
-reproduces all 47 cases exactly, with no alignment fixes.
+reproduces all 49 cases exactly, with no alignment fixes.
 
-## Case inventory (47 cases)
+## Case inventory (49 cases)
 
 | File | Change kind | Mode | Expected application status | Blocking codes |
 |---|---|---|---|---|
@@ -214,3 +215,5 @@ reproduces all 47 cases exactly, with no alignment fixes.
 | `case_45_accept_create_support.json` | `create_support` | apply | applied_to_session_model | — |
 | `case_46_accept_create_material.json` | `create_material` | apply | applied_to_session_model | — |
 | `case_47_accept_create_section.json` | `create_section` | apply | applied_to_session_model | — |
+| `case_48_accept_delete_support.json` | `delete_support` | apply | applied_to_session_model | — |
+| `case_49_block_delete_support_referenced.json` | `delete_support` | apply | blocked | `OP-SUPPORT-DELETE-REFERENCED` |

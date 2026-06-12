@@ -59,6 +59,7 @@ const REQUIRED_ACCEPTED_KINDS = [
   "create_primitive_load",
   "create_combination",
   "create_combination_term",
+  "delete_support",
   "delete_combination_term"
 ] as const;
 
@@ -72,7 +73,8 @@ const REQUIRED_BLOCK_CODES = [
   "OP-FIELD-PATH-UNSUPPORTED", // unsupported field path
   "OP-VALUE-NOT-NUMERIC", // non-finite magnitude
   "OP-VALUE-EMPTY", // empty required text
-  "OP-UNIT-DIMENSION-MISMATCH" // dynamic terms.N.factor block
+  "OP-UNIT-DIMENSION-MISMATCH", // dynamic terms.N.factor block
+  "OP-SUPPORT-DELETE-REFERENCED" // support still referenced by primitive load
 ] as const;
 
 type SemanticDiagnostic = {

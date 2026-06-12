@@ -3625,3 +3625,33 @@ after the timestamp marker were absent.
   repository-default private-data write, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-120 support deletion authoring (`TP-APP-R2-DELSUPPORT-001`, 2026-06-12)
+
+- Tranche `TP-APP-R2-DELSUPPORT-001` (completion-plan Phase A11 first
+  sub-slice): the structured operation seam now accepts `delete_support`
+  intents, validates explicit support deletion metadata, removes only the
+  selected unreferenced support, and blocks deletion with
+  `OP-SUPPORT-DELETE-REFERENCED` when an imposed-displacement primitive load
+  still targets the support. The contract corpus now has 49 cases and
+  requires accepted `delete_support` plus the referenced-support block in
+  both Rust and browser wasm lanes.
+- Property Inspector smoke at `http://127.0.0.1:5173/` selected
+  `support:S-120`, queued `op:delete-support-support:S-120`, and applied the
+  intent through the Apply Operations panel.
+- Live browser evidence showed `support:S-120` removed from the model tree,
+  the project row active as the post-delete selection fallback, review context
+  `0 pending operations; applied_operations=1`, acceptance
+  `user_initiated_apply_in_local_session`, persistence
+  `session_state_only_not_yet_saved`, and `professional_approval=false`.
+- Console review during the live Chrome smoke reported zero browser console
+  errors.
+- Automated evidence: operation_applier cargo suites green (42 unit tests,
+  canonical hash parity, 49-case corpus); desktop operationContractCorpus
+  Vitest 101/101; focused App Vitest 2/2; full desktop Vitest 189/189;
+  desktop production build green; Tauri Rust tests 29/29; Playwright R2 smoke
+  1/1.
+- Boundary review: local-only; invented values; support deletion only; no
+  cloud, daemon, network, telemetry, protected content, repository-default
+  private-data write, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

@@ -506,3 +506,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
   persistence, release readiness, professional approval, certification,
   sealing, authentication, approval, code compliance, or protected/private
   data handling.
+
+## 2026-06-12 - TP-APP-R2-DELSUPPORT-001 support deletion authoring
+
+- WORKING_ITEMS app-integration tranche verified that support deletion enters
+  the session model only after the user queues and applies a structured
+  operation in the local session.
+- The app test applies `op:delete-support-support:S-120` through
+  `OperationApplyPanel`, updates the session model, clears stale solve
+  results, falls back to the project selection after the row disappears,
+  leaves persistence at `session_state_only_not_yet_saved`, and records no
+  professional approval or code-compliance claim.
+- The blocking app test creates an imposed-displacement primitive load and
+  verifies deletion of target `support:S-100` is refused with
+  `OP-SUPPORT-DELETE-REFERENCED`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_support_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-120. Validation passed:
+  operation-applier cargo suites, desktop operationContractCorpus 101/101,
+  focused App Vitest 2/2, full desktop Vitest 189/189, desktop build,
+  src-tauri Rust tests 29/29, Playwright smoke 1/1, and in-app browser
+  support-delete smoke.
+- This is local review/audit evidence only. It does not imply durable
+  persistence, release readiness, professional approval, certification,
+  sealing, authentication, approval, code compliance, or protected/private
+  data handling.

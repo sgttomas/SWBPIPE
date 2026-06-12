@@ -13,6 +13,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A11 first sub-slice: support deletion authoring (`TP-APP-R2-DELSUPPORT-001`)
+
+The structured operation seam now accepts `delete_support` as a delete-kind
+operation. `core/model_operations/operation_applier` validates explicit
+support deletion intents with no direct mutation, requires `after=not_present`,
+unit `none`, dimension `dimensionless`, current support label before-state
+matching, and reference-integrity blocking before any model document is
+returned. Deletion is refused with `OP-SUPPORT-DELETE-REFERENCED` when an
+imposed-displacement primitive load still targets the support. The
+cross-engine contract corpus added `case_48_accept_delete_support.json` and
+`case_49_block_delete_support_referenced.json`; both native Rust and browser
+wasm lanes require accepted `delete_support` coverage and the referenced
+support blocking code.
+
+The desktop Property Inspector now exposes a `Delete support` action only
+when a support row is selected. The action queues a review-only structured
+operation, applies through the existing Apply Operations panel, records the
+same local-session acceptance receipt, clears stale solve/report state, and
+falls back to the project row after the deleted support disappears. A second
+app regression creates an imposed-displacement primitive load and verifies
+that deleting its target support remains blocked with diagnostics and no
+model mutation.
+
+Evidence:
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_support_authoring.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_support_authoring.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_support_authoring.md`;
+`apps/desktop/SMOKE.md` TP-MAC-120. Validation: operation_applier cargo
+suites 42 unit + canonical hash + 49-case corpus; corpus bless and rerun
+green; desktop operationContractCorpus Vitest 101/101; focused App Vitest
+2/2; full desktop Vitest 189/189; desktop production build green; Tauri Rust
+tests 29/29; Playwright R2 smoke 1/1; local Chrome support-delete smoke at
+`http://127.0.0.1:5173/` with zero console errors.
+
+Residual hand-offs: A11 remains open for node, pipe run, load case, primitive
+load, and full combination entity deletion; `delete_combination_term` remains
+the existing term-level deletion operation. A12 must still rehearse the full
+from-blank create -> solve -> report path. No lifecycle state, release
+readiness, professional approval, certification, sealing, authentication, or
+code-compliance claim is created.
+
 ## 2026-06-12 - A10 third sub-slice: section creation authoring (`TP-APP-R2-CREATESECTION-001`)
 
 The structured operation seam now accepts `create_section` as a create-kind

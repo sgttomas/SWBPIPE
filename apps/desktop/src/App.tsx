@@ -324,7 +324,11 @@ export function App() {
       setRedoStack([]);
       setModel(outcome.applied_model);
       const appliedSelection = selectionForOperationOutcome(outcome);
-      if (appliedSelection) setSelection(appliedSelection);
+      if (outcome.change_kind === "delete_support") {
+        setSelection(defaultSelection(outcome.applied_model));
+      } else if (appliedSelection) {
+        setSelection(appliedSelection);
+      }
       setEditorIntents((current) => current.filter((queued) => intentKey(queued) !== intentKey(intent)));
       // Earlier solve output no longer describes the edited model document;
       // keeping it visible would overstate what was computed.

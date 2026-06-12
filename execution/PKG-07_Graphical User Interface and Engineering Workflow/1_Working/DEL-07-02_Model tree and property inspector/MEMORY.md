@@ -534,3 +534,23 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+
+## 2026-06-12 - TP-APP-R2-DELSUPPORT-001 support deletion authoring
+
+- WORKING_ITEMS app-integration tranche extended the Property Inspector with
+  a `Delete support` intent section visible only for selected support rows.
+- The UI queues a structured `delete_support` operation with the selected
+  support label as the before-state guard and does not mutate the model
+  directly.
+- Applying the operation through `OperationApplyPanel` removes the support row
+  and returns selection to the project row; blocking diagnostics remain visible
+  when an imposed-displacement primitive load references the support.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_delete_support_authoring.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-120. Validation passed:
+  focused App Vitest 2/2, full desktop Vitest 189/189, desktop build,
+  Playwright smoke 1/1, and in-app browser support-delete smoke.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, or telemetry path changed.

@@ -394,6 +394,7 @@ export type EditorOperationIntent = {
       | "create_primitive_load"
       | "create_combination"
       | "create_combination_term"
+      | "delete_support"
       | "delete_combination_term"
       | "insert_component_symbol";
     field_label: string;
