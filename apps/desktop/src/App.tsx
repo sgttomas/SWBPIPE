@@ -42,6 +42,7 @@ import { ProjectValidationPanel } from "./features/project-validation/ProjectVal
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
+import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
@@ -870,6 +871,12 @@ export function App() {
             proposal={proposal}
             selectedReviewTarget={selectedReviewTarget}
             storageCapability={storageCapability}
+          />
+          <RenderedReportPanel
+            model={model}
+            result={result}
+            analysisRun={analysisRun}
+            projectSummary={projectSummary}
           />
         </aside>
       </section>

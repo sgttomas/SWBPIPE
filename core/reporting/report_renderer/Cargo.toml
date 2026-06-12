@@ -1,0 +1,19 @@
+[package]
+name = "open_pipe_stress_report_renderer"
+version = "0.1.0"
+edition = "2021"
+description = "Deterministic hash-bound single-file HTML calculation-report renderer for OpenPipeStress (DEC-021)"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_report_generator = { path = "../report_generator", features = ["serde"] }
+open_pipe_stress_report_sections = { path = "../report_sections", features = ["serde"] }
+open_pipe_stress_protected_content_linter = { path = "../protected_content_linter" }
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+
+[dev-dependencies]
+serde_json = "1"

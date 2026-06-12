@@ -13,6 +13,31 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-11 — A7 landed: rendered FR-016 calculation report (`TP-APP-R2-REPORTRENDER-001`)
+
+Implementation of the D-10 ruling (`DEC-021`, packet Option B): new
+`core/reporting/report_renderer` crate renders the validated
+`CalculationReport` + `ReportSections` + caller result rows into a
+deterministic, self-contained, scriptless single-file HTML document;
+SHA-256 of the bytes is the canonical hash-bound evidence; three-point
+protected-content lint gating (template surface, pre-render section text,
+post-render document text) plus blocking validation diagnostics refuse
+export with a visible banner; `derived_print_view` emits the labeled
+non-hash-bound print/PDF view naming the canonical hash. Feature-gated
+serde derives on report_generator/report_sections pin the schema-contract
+spellings, proven against the canonical fixture. Desktop seam: 15th Tauri
+command `render_calculation_report`, render service with an explicit
+desktop-only browser route (no fallback), session-envelope adapter with
+explicit TBD markers, and a Rendered Report panel whose save/print actions
+are refused while export is blocked. Residuals in the A7 row: browser-mode
+render seam (A8 decision), rule-pack refs population (Phase C),
+report-hash persistence follow-up.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-113;
+`execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-06-11_TP-APP-R2-REPORTRENDER-001.md`;
+renderer crate 8/8, Vitest 148/148, src-tauri command test, production
+build green; commit-bound sweep summary at the tranche push.
+
 ## 2026-06-11 — DEC-025 evidence sweep + F-4 atomic wasm build landed (`TP-SWEEP-001`)
 
 Implementation of the D-05 ruling (`DEC-025`, packet Option D): new

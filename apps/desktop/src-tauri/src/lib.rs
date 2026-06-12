@@ -817,6 +817,24 @@ fn project_summary(
 }
 
 #[tauri::command]
+fn render_calculation_report(input: Value) -> Result<Value, String> {
+    // DEC-021 (A7): deterministic hash-bound HTML rendering with the
+    // three-point protected-content gates evaluated in the renderer crate.
+    // The derived print view is non-hash-bound and names the canonical hash.
+    let renderable: open_pipe_stress_report_renderer::RenderableReportInput =
+        serde_json::from_value(input)
+            .map_err(|error| format!("RENDER-INPUT-INVALID: {error}"))?;
+    let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
+    let derived_print_html = open_pipe_stress_report_renderer::derived_print_view(
+        &outcome.html,
+        &outcome.sha256_hex,
+    );
+    let mut payload = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
+    payload["derived_print_html"] = Value::String(derived_print_html);
+    Ok(payload)
+}
+
+#[tauri::command]
 fn load_preview_model() -> Result<Value, String> {
     read_fixture("invented_preview_model.json")
 }
@@ -1567,7 +1585,8 @@ pub fn run() {
             create_local_project,
             open_local_project,
             list_local_projects,
-            save_local_project
+            save_local_project,
+            render_calculation_report
         ])
         .run(tauri::generate_context!())
         .expect("error while running OpenPipeStress technical preview");
@@ -1576,6 +1595,104 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn render_calculation_report_command_renders_fixture_unblocked() {
+        let fixture_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../fixtures/reports/invented/calculation_report_fixture.json");
+        let fixture: Value =
+            serde_json::from_str(&std::fs::read_to_string(fixture_path).expect("fixture read"))
+                .expect("fixture parses");
+        let provenance = json!({
+            "source_name": "Invented OpenPipeStress renderer test",
+            "source_location": "apps/desktop/src-tauri/src/lib.rs",
+            "source_license": "project_fixture",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "Invented non-engineering data only.",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "accepted",
+            "privacy_classification": "invented_public_example"
+        });
+        let input = json!({
+            "report_title": "Invented Calculation Report (Technical Preview)",
+            "calculation_report": fixture["calculation_report"],
+            "report_sections": {
+                "report_section_id": "invented-report-sections-001",
+                "model_ref": {"ref_type": "model", "ref_id": "invented-model"},
+                "run_ref": {"ref_type": "analysis_run", "ref_id": "invented-run"},
+                "diagnostics": [],
+                "analysis_status_disclosures": [
+                    {
+                        "status": "MECHANICS_SOLVED",
+                        "source": {"ref_type": "solver", "ref_id": "invented-solver"},
+                        "affected_object": {"ref_type": "model", "ref_id": "invented-model"},
+                        "explanation": "Invented preview mechanics solved.",
+                        "human_review_required": true,
+                        "human_acceptance_ref": null
+                    },
+                    {
+                        "status": "HUMAN_REVIEW_REQUIRED",
+                        "source": {"ref_type": "report_renderer", "ref_id": "invented-render"},
+                        "affected_object": {"ref_type": "report", "ref_id": "invented-report-001"},
+                        "explanation": "Human professional review is required before any reliance.",
+                        "human_review_required": true,
+                        "human_acceptance_ref": null
+                    }
+                ],
+                "provenance_notes": [provenance],
+                "user_supplied_values": [],
+                "assumptions": [],
+                "limitations": [
+                    {
+                        "limitation_id": "invented-limitation-001",
+                        "source": {"ref_type": "report_renderer", "ref_id": "invented-render"},
+                        "affected_scope": {"ref_type": "model", "ref_id": "invented-model"},
+                        "statement": "Invented preview data only; not engineering output.",
+                        "effect": {
+                            "mechanics_solve_qualified": true,
+                            "user_rule_check_qualified": false,
+                            "report_completeness": "qualified",
+                            "human_review_required": true
+                        },
+                        "provenance": provenance
+                    }
+                ],
+                "unresolved_tbds": [],
+                "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                }
+            },
+            "result_rows": [
+                {
+                    "row_id": "invented-row-001",
+                    "label": "Max bending stress (invented)",
+                    "case_ref": "load_case:invented-weight",
+                    "quantity_display": "12.5 MPa",
+                    "source_ref": "result_envelope:invented-result"
+                }
+            ]
+        });
+
+        let outcome = render_calculation_report(input).expect("command renders");
+
+        assert_eq!(outcome["export_blocked"], Value::Bool(false));
+        assert_eq!(outcome["sha256_hex"].as_str().expect("hash").len(), 64);
+        assert!(outcome["html"]
+            .as_str()
+            .expect("html")
+            .starts_with("<!DOCTYPE html>"));
+        let derived = outcome["derived_print_html"].as_str().expect("derived view");
+        assert!(derived.contains("DERIVED VIEW"));
+        assert!(derived.contains(outcome["sha256_hex"].as_str().expect("hash")));
+
+        let rejected = render_calculation_report(json!({"report_title": "broken"}));
+        assert!(rejected.expect_err("invalid input").starts_with("RENDER-INPUT-INVALID"));
+    }
 
     #[test]
     fn local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot() {

@@ -130,3 +130,27 @@ Durable context preserved after reconciliation review:
   and `git diff --check`.
 - Lifecycle state remains `IN_PROGRESS`; no review disposition, dependency,
   DAG, release, professional-approval, or code-compliance claim was changed.
+
+## 2026-06-11 - TP-APP-R2-REPORTRENDER-001 (A7 rendered report, DEC-021)
+
+- The D-10 ruling (`DEC-021`, SOFTWARE_DECOMP §12) is implemented: new
+  `core/reporting/report_renderer` crate renders `CalculationReport` +
+  `ReportSections` + caller result rows into a deterministic, scriptless,
+  single-file HTML document; the SHA-256 of the bytes is the canonical
+  hash-bound rendered-report evidence; three-point protected-content lint
+  gating plus blocking validation diagnostics refuse export;
+  `derived_print_view` emits the labeled non-hash-bound print/PDF view
+  naming the canonical hash.
+- `report_generator` and `report_sections` gained a default-off `serde`
+  feature with spellings pinned to the schema contract (SCREAMING analysis
+  statuses/diagnostic classes, `"TBD"`, envelope field `ref`), proven
+  against `fixtures/reports/invented/calculation_report_fixture.json`.
+- Desktop seam: `render_calculation_report` Tauri command, render service
+  with explicit desktop-only browser route, session-envelope adapter with
+  explicit TBD markers, Rendered Report panel refusing save/print while
+  blocked.
+- Local run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-11_TP-APP-R2-REPORTRENDER-001.md`
+  (evidence, boundary review, residuals: browser-mode render seam → A8,
+  rule-pack refs → Phase C, report-hash persistence follow-up, D-10b PDF
+  emitter at the R5 lead-up).

@@ -2135,6 +2135,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_protected_content_linter"
+version = "0.1.0"
+
+[[package]]
+name = "open_pipe_stress_report_generator"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "open_pipe_stress_report_renderer"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_protected_content_linter",
+ "open_pipe_stress_report_generator",
+ "open_pipe_stress_report_sections",
+ "serde",
+ "sha2",
+]
+
+[[package]]
+name = "open_pipe_stress_report_sections"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "open_pipe_stress_straight_pipe"
 version = "0.1.0"
 dependencies = [
@@ -2155,6 +2184,7 @@ version = "0.1.0"
 dependencies = [
  "open_pipe_stress_operation_applier",
  "open_pipe_stress_product_physics",
+ "open_pipe_stress_report_renderer",
  "rusqlite",
  "serde",
  "serde_json",

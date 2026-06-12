@@ -3406,3 +3406,34 @@ after the timestamp marker were absent.
   network, or telemetry surface; invented data only; no protected
   standards content; no release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claims.
+
+## TP-MAC-113 rendered-report-fr016 (2026-06-11)
+
+- Tranche `TP-APP-R2-REPORTRENDER-001` (completion plan A7, per `DEC-021`
+  / D-10 Option B): the FR-016 calculation report now renders as a
+  deterministic, self-contained, scriptless single-file HTML document
+  from the new `core/reporting/report_renderer` crate, SHA-256 hash-bound
+  and gated by the protected-content linter at three points (template
+  surface, pre-render section text, post-render document text); blocking
+  findings or blocking validation diagnostics refuse export with a
+  visible `EXPORT BLOCKED` banner and named reasons.
+- Desktop seam: new `render_calculation_report` Tauri command; new
+  Rendered Report panel (render → canonical hash + gate state → save
+  canonical HTML / print derived view). The print/PDF path emits the
+  derived view that names the canonical hash and is labeled non-evidence.
+  Browser preview reports the explicit `REPORT-RENDERER-DESKTOP-ONLY`
+  route — no fallback renderer exists.
+- Adapter composes the renderer input from session envelopes (run-record
+  and result-envelope hashes, load cases, diagnostics, reproducibility
+  TBDs) with explicit `TBD` markers (e.g. persistence ref before the
+  project is saved) and locally computed canonical-JSON SHA-256 values.
+- Local validation: renderer crate 8/8; report_generator 10/10 and
+  report_sections 13/13 (serde feature added, default-off); src-tauri
+  command test 1/1; Vitest 148/148 (8 new); desktop production build
+  green; pytest report contracts 22/22. Full five-surface sweep evidence
+  recorded at the tranche push (commit-bound summary under
+  `validation/evidence/sweeps/`).
+- Boundary review: local-only rendering, no network/scripts/external
+  refs; invented or user-local session data only; empty human signoff
+  fields; no release-readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claims.

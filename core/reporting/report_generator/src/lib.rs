@@ -20,7 +20,9 @@ const REQUIRED_SECTION_KINDS: [SectionKind; 8] = [
     SectionKind::ProfessionalBoundaryNotice,
 ];
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", serde(rename_all = "SCREAMING_SNAKE_CASE"))]
 pub enum AnalysisStatus {
     ModelIncomplete,
     MechanicsSolved,
@@ -30,7 +32,9 @@ pub enum AnalysisStatus {
     HumanReviewRequired,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "SCREAMING_SNAKE_CASE"))]
 pub enum DiagnosticClass {
     SolveBlocking,
     RuleCheckBlocking,
@@ -43,14 +47,18 @@ pub enum DiagnosticClass {
     TemplateBlocking,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum DiagnosticSeverity {
     Info,
     Warning,
     Blocking,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum SectionKind {
     ModelInputSummary,
     LoadCases,
@@ -62,7 +70,9 @@ pub enum SectionKind {
     ProfessionalBoundaryNotice,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum PrivacyClassification {
     PublicMetadata,
     InventedPublicExample,
@@ -73,16 +83,20 @@ pub enum PrivacyClassification {
     Redacted,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum RedistributionStatus {
     PublicPermissive,
     PrivateOnly,
     Unknown,
     ProtectedSuspected,
     InventedNonEngineeringExample,
+    #[cfg_attr(feature = "serde", serde(rename = "TBD"))]
     Tbd,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Reference {
     pub ref_type: String,
@@ -102,6 +116,7 @@ impl Reference {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Provenance {
     pub source_name: String,
@@ -141,6 +156,7 @@ impl Provenance {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChecksumRef {
     pub algorithm: String,
@@ -159,8 +175,10 @@ impl ChecksumRef {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReferencedEnvelope {
+    #[cfg_attr(feature = "serde", serde(rename = "ref"))]
     pub reference: Reference,
     pub schema_ref: Reference,
     pub checksum: ChecksumRef,
@@ -188,6 +206,7 @@ impl ReferencedEnvelope {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModelInputSummary {
     pub project_ref: Reference,
@@ -211,6 +230,7 @@ impl ModelInputSummary {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LoadCaseSummary {
     pub load_ref: Reference,
@@ -230,6 +250,7 @@ impl LoadCaseSummary {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RulePackRef {
     pub rule_pack_id: String,
@@ -265,6 +286,7 @@ impl RulePackRef {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ProfessionalBoundary {
     pub human_review_required: bool,
@@ -297,6 +319,7 @@ impl ProfessionalBoundary {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Diagnostic {
     pub code: String,
@@ -366,6 +389,7 @@ impl Diagnostic {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TemplateSlot {
     pub slot_id: String,
@@ -381,6 +405,7 @@ impl TemplateSlot {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RenderedSection {
     pub section_id: String,
@@ -403,6 +428,7 @@ impl RenderedSection {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnresolvedTbd {
     pub tbd_id: String,
@@ -422,6 +448,7 @@ impl UnresolvedTbd {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CalculationReport {
     pub report_id: String,
@@ -441,6 +468,7 @@ pub struct CalculationReport {
     pub unresolved_runtime_tbds: Vec<UnresolvedTbd>,
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReportValidation {
     pub diagnostics: Vec<Diagnostic>,
@@ -454,6 +482,7 @@ impl ReportValidation {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NeutralReportSection {
     pub ordering_index: usize,
