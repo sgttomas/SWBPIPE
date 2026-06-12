@@ -4015,3 +4015,31 @@ after the timestamp marker were absent.
   rule-pack unit I/O, browser fallback catalog, protected content, private
   project data, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-135 rendered report body unit disclosure (`TP-UNITS-B2-REPORTBODY-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-REPORTBODY-001` (completion-plan B2): expanded the
+  hash-bound rendered report body beyond the Report Packet disclosure so the
+  `Model Input Summary` section displays unit evidence.
+- Renderer input behavior: `model_input_summary.unit_display_summary` is a
+  backward-compatible optional schema field containing
+  `entered_units_preserved`, sorted model units, distinct result-row units,
+  display policy, and `conversion_performed=false`.
+- Rendered HTML behavior: the Rust report renderer prints `Unit storage
+  convention`, `Model units`, `Result units`, `Quantity display policy`, and
+  `Report-time conversion`; shared fixture and Tauri command coverage assert
+  those rows.
+- A12 regression behavior: the from-blank author-solve-render helper replaces
+  the shared fixture summary with the authored model units and solved result
+  units before rendering.
+- Automated evidence: report-generator schema contract test passed;
+  report-generator cargo tests passed 10/10; report-renderer cargo tests
+  passed 8/8; Tauri Rust tests passed 32/32; focused report/App Vitest passed
+  53/53; full desktop Vitest passed 216/216; desktop production build passed
+  with the pre-existing Vite chunk-size warning; Playwright R2 smoke passed
+  2/2 after wasm engine build.
+- Boundary review: no report-time conversion, project-wide unit-system
+  picker, import/export unit conversion, rule-pack unit I/O, browser fallback
+  catalog, protected content, private project data, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.

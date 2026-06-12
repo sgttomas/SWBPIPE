@@ -1841,6 +1841,10 @@ mod tests {
             .as_str()
             .expect("html")
             .starts_with("<!DOCTYPE html>"));
+        let html = outcome["html"].as_str().expect("html");
+        assert!(html.contains("Unit storage convention"));
+        assert!(html.contains("Model units"));
+        assert!(html.contains("force=N, length=m, stress=MPa"));
         let derived = outcome["derived_print_html"]
             .as_str()
             .expect("derived view");
@@ -2017,6 +2021,34 @@ mod tests {
         fixture["calculation_report"]["model_input_summary"]["persistence_ref"] = json!({"ref_type": "project_persistence", "ref_id": "session_state_only_not_yet_saved"});
         fixture["calculation_report"]["model_input_summary"]["unit_system_ref"] =
             json!({"ref_type": "unit_system", "ref_id": "a12-rehearsal-si-local"});
+        let model_units = model["project"]["units"]
+            .as_object()
+            .map(|units| {
+                let mut sorted_keys = units.keys().collect::<Vec<_>>();
+                sorted_keys.sort();
+                let mut sorted = serde_json::Map::new();
+                for key in sorted_keys {
+                    sorted.insert(key.clone(), units[key].clone());
+                }
+                Value::Object(sorted)
+            })
+            .unwrap_or_else(|| json!({}));
+        let mut result_units = solved["results"]
+            .as_array()
+            .expect("rehearsal result rows")
+            .iter()
+            .filter_map(|row| row.get("unit").and_then(Value::as_str))
+            .map(str::to_string)
+            .collect::<Vec<_>>();
+        result_units.sort();
+        result_units.dedup();
+        fixture["calculation_report"]["model_input_summary"]["unit_display_summary"] = json!({
+            "storage_convention": "entered_units_preserved",
+            "model_units": model_units,
+            "result_units": result_units,
+            "quantity_display_policy": "display result-row values with their explicit units; no report-time conversion",
+            "conversion_performed": false
+        });
         fixture["calculation_report"]["model_input_summary"]["provenance"] = provenance.clone();
         fixture["calculation_report"]["load_case_summary"] = Value::Array(
             model["load_cases"]
@@ -2188,6 +2220,10 @@ mod tests {
         assert_eq!(rendered["sha256_hex"].as_str().expect("hash").len(), 64);
         let html = rendered["html"].as_str().expect("rendered html");
         assert!(html.contains("R2 From Blank Rehearsal"));
+        assert!(html.contains("Unit storage convention"));
+        assert!(html.contains("entered_units_preserved"));
+        assert!(html.contains("Model units"));
+        assert!(html.contains("Result units"));
         assert!(html.contains("human_review_required"));
         assert!(!html.contains("<script"));
         assert!(!html.contains("code compliant"));
@@ -2260,6 +2296,10 @@ mod tests {
             rehearsal["expected"]["report_export_blocked"]
         );
         assert_eq!(rendered["sha256_hex"].as_str().expect("hash").len(), 64);
+        let html = rendered["html"].as_str().expect("rendered html");
+        assert!(html.contains("Unit storage convention"));
+        assert!(html.contains("entered_units_preserved"));
+        assert!(html.contains("Result units"));
 
         let summary = project_summary(
             loaded.project_id,

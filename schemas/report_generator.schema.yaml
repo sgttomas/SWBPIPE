@@ -335,6 +335,9 @@
         "unit_system_ref": {
           "$ref": "#/$defs/Reference"
         },
+        "unit_display_summary": {
+          "$ref": "#/$defs/UnitDisplaySummary"
+        },
         "model_hash": {
           "$ref": "#/$defs/Checksum"
         },
@@ -343,6 +346,44 @@
         },
         "provenance": {
           "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "UnitDisplaySummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storage_convention",
+        "model_units",
+        "result_units",
+        "quantity_display_policy",
+        "conversion_performed"
+      ],
+      "properties": {
+        "storage_convention": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_units": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "result_units": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "quantity_display_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conversion_performed": {
+          "type": "boolean"
         }
       }
     },

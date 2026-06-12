@@ -170,6 +170,26 @@ fn checksum_text(checksum: &report::ChecksumRef) -> String {
     )
 }
 
+fn model_units_text(units: &std::collections::BTreeMap<String, String>) -> String {
+    if units.is_empty() {
+        "none".to_string()
+    } else {
+        units
+            .iter()
+            .map(|(dimension, unit)| format!("{dimension}={unit}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+}
+
+fn result_units_text(units: &[String]) -> String {
+    if units.is_empty() {
+        "none".to_string()
+    } else {
+        units.join(", ")
+    }
+}
+
 fn analysis_status_label(status: &sections::AnalysisStatus) -> &'static str {
     match status {
         sections::AnalysisStatus::ModelIncomplete => "model_incomplete",
@@ -341,6 +361,32 @@ fn assemble_sections(input: &RenderableReportInput) -> Vec<AssembledSection> {
                     escape_html("Unit system"),
                     escape_html(&reference_text(&summary.unit_system_ref)),
                 ]));
+                if let Some(unit_display) = &summary.unit_display_summary {
+                    body.push_str(&row(&[
+                        escape_html("Unit storage convention"),
+                        escape_html(&unit_display.storage_convention),
+                    ]));
+                    body.push_str(&row(&[
+                        escape_html("Model units"),
+                        escape_html(&model_units_text(&unit_display.model_units)),
+                    ]));
+                    body.push_str(&row(&[
+                        escape_html("Result units"),
+                        escape_html(&result_units_text(&unit_display.result_units)),
+                    ]));
+                    body.push_str(&row(&[
+                        escape_html("Quantity display policy"),
+                        escape_html(&unit_display.quantity_display_policy),
+                    ]));
+                    body.push_str(&row(&[
+                        escape_html("Report-time conversion"),
+                        escape_html(if unit_display.conversion_performed {
+                            "true"
+                        } else {
+                            "false"
+                        }),
+                    ]));
+                }
                 body.push_str(&row(&[
                     escape_html("Model hash"),
                     escape_html(&checksum_text(&summary.model_hash)),

@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 rendered report body unit disclosure (`TP-UNITS-B2-REPORTBODY-001`)
+
+The hash-bound rendered report body now carries explicit unit evidence instead
+of relying only on the Report Packet JSON disclosure. The report-generator
+model-input schema has a backward-compatible optional `unit_display_summary`
+with entered-unit storage convention, sorted model unit map, distinct result
+units, report display policy, and report-time conversion flag. The React
+report adapter populates that summary from the current session model and
+result rows, and the Rust renderer displays it in the `Model Input Summary`
+section.
+
+The shared invented report fixture and Tauri report-command tests now prove
+the rendered HTML includes `Unit storage convention`, `Model units`, `Result
+units`, and `Report-time conversion`. The A12 from-blank rehearsal helper
+overrides the fixture summary with the actual authored model units and solved
+result units, so the full author -> solve -> render regression also carries
+this B2 evidence.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_report_body_unit_disclosure.md`;
+`execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_run_records/WORKING_ITEMS_RUN_2026-06-12_report_body_unit_disclosure.md`;
+`apps/desktop/SMOKE.md` TP-MAC-135. Validation: report-generator schema
+contract test passed; report-generator cargo tests passed 10/10;
+report-renderer cargo tests passed 8/8; Tauri Rust tests passed 32/32;
+focused report/App Vitest passed 53/53; full desktop Vitest passed 216/216;
+desktop build passed with the pre-existing Vite chunk-size warning;
+Playwright R2 smoke passed 2/2 after wasm engine build.
+
+Residual hand-offs: broader app unit entry/pickers outside material/section
+create forms, imports/exports, and rule-pack unit I/O remain B2 work. B3
+still owns broader mixed-unit round-trip, conversion-witness,
+incompatible-unit rejection, and D-04/DEC-026 tolerance coverage outside the
+witnesses already landed. No lifecycle state, release-readiness,
+professional approval, certification, sealing, authentication,
+protected-content, private-data, or code-compliance claim is created.
+
 ## 2026-06-12 - B2 Property Inspector unit selectors (`TP-UNITS-B2-UNITPICKERS-001`)
 
 The Property Inspector material and pipe-section creation forms now have the

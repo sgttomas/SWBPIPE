@@ -71,9 +71,8 @@ fn invented_report_sections() -> sections::ReportSections {
 
 fn fixture_input() -> RenderableReportInput {
     let fixture: serde_json::Value = serde_json::from_str(FIXTURE).expect("fixture parses");
-    let calculation_report =
-        serde_json::from_value(fixture["calculation_report"].clone())
-            .expect("calculation_report deserializes via the serde feature");
+    let calculation_report = serde_json::from_value(fixture["calculation_report"].clone())
+        .expect("calculation_report deserializes via the serde feature");
     RenderableReportInput {
         report_title: "Invented Calculation Report (Technical Preview)".to_string(),
         calculation_report,
@@ -99,12 +98,21 @@ fn fixture_report_renders_deterministic_single_file_html() {
     assert_eq!(first.sha256_hex.len(), 64);
 
     assert!(first.html.starts_with("<!DOCTYPE html>"));
-    assert!(!first.html.contains("<script"), "document must be scriptless");
+    assert!(
+        !first.html.contains("<script"),
+        "document must be scriptless"
+    );
     assert!(
         !first.html.contains("http://") && !first.html.contains("https://"),
         "document must have no external references"
     );
     assert!(first.html.contains("Model Input Summary"));
+    assert!(first.html.contains("Unit storage convention"));
+    assert!(first.html.contains("entered_units_preserved"));
+    assert!(first.html.contains("Model units"));
+    assert!(first.html.contains("force=N, length=m, stress=MPa"));
+    assert!(first.html.contains("Result units"));
+    assert!(first.html.contains("Report-time conversion"));
     assert!(first.html.contains("Rule Pack References"));
     assert!(first.html.contains("Audit Manifest"));
     assert!(first.html.contains("human_review_required"));
@@ -205,15 +213,17 @@ fn escaped_markup_cannot_inject_tags() {
 
     assert!(!outcome.html.contains("<script"));
     assert!(outcome.html.contains("&lt;script&gt;"));
-    assert_eq!(escape_html("a<b&\"c\"'d'"), "a&lt;b&amp;&quot;c&quot;&#39;d&#39;");
+    assert_eq!(
+        escape_html("a<b&\"c\"'d'"),
+        "a&lt;b&amp;&quot;c&quot;&#39;d&#39;"
+    );
 }
 
 #[test]
 fn renderable_input_round_trips_through_json() {
     let input = fixture_input();
     let json = serde_json::to_value(&input).expect("input serializes");
-    let back: RenderableReportInput =
-        serde_json::from_value(json).expect("input deserializes");
+    let back: RenderableReportInput = serde_json::from_value(json).expect("input deserializes");
     assert_eq!(back, input);
     assert_eq!(
         render_calculation_report(&back).sha256_hex,

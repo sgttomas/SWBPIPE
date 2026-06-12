@@ -253,3 +253,28 @@ Boundary note:
 - Residual handoffs: B2 still owns broader app unit entry/pickers outside
   material/section create forms, report renderer body expansion beyond packet
   disclosure, imports/exports, and rule-pack unit I/O.
+
+## 2026-06-12 - TP-UNITS-B2-REPORTBODY-001 rendered report body unit disclosure
+
+- Added optional `unit_display_summary` to the report-generator
+  `ModelInputSummary` contract and `schemas/report_generator.schema.yaml`.
+  The summary records entered-unit storage convention, sorted model unit map,
+  distinct result-row units, report display policy, and
+  `conversion_performed=false`.
+- The frontend report adapter now populates the same unit-display summary used
+  by the Report Packet disclosure, preventing packet/body vocabulary drift.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_report_body_unit_disclosure.md`;
+  corresponding DEL-08-01 run record; `apps/desktop/SMOKE.md` TP-MAC-135.
+- Validation: report-generator schema contract test passed; report-generator
+  cargo tests 10/10; report-renderer cargo tests 8/8; Tauri Rust tests 32/32;
+  focused report/App Vitest 53/53; full desktop Vitest 216/216; desktop build
+  passed; Playwright R2 smoke 2/2.
+- Boundaries preserved: no report-time unit conversion, project-wide
+  unit-system picker, import/export unit conversion, rule-pack unit I/O,
+  protected standards content, private project data, release-readiness,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim.
+- Residual handoffs: B2 still owns broader app unit entry/pickers outside
+  material/section create forms, imports/exports, and rule-pack unit I/O; B3
+  still owns broader conversion witness and tolerance corpus coverage.

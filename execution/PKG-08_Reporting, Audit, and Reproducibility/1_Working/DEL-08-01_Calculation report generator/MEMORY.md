@@ -175,3 +175,33 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, telemetry path, unit conversion, or report-schema expansion
   changed.
+
+## 2026-06-12 - TP-UNITS-B2-REPORTBODY-001 rendered report body unit disclosure
+
+- WORKING_ITEMS B2 app-integration tranche expanded the hash-bound rendered
+  report body so users can see unit evidence in the `Model Input Summary`
+  section, not only in the Report Packet JSON.
+- `report_generator::ModelInputSummary` and
+  `schemas/report_generator.schema.yaml` now support optional
+  `unit_display_summary`; existing inputs remain valid when the field is
+  absent.
+- `core/reporting/report_renderer` renders unit storage convention, model
+  units, result units, quantity display policy, and report-time conversion.
+  The shared invented report fixture and Tauri renderer-command regression
+  assert those rows.
+- The A12 from-blank rehearsal helper now overwrites the shared fixture's unit
+  summary with the actual authored model units and solved result units before
+  rendering, so the full author -> solve -> report regression carries the
+  same evidence.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_report_body_unit_disclosure.md`,
+  the corresponding DEL-02-02 run record, and `apps/desktop/SMOKE.md`
+  TP-MAC-135. Validation passed: report-generator schema contract test,
+  report-generator cargo tests 10/10, report-renderer cargo tests 8/8, Tauri
+  Rust tests 32/32, focused report/App Vitest 53/53, full desktop Vitest
+  216/216, desktop build, and Playwright R2 smoke 2/2.
+- No lifecycle state, review finding status, dependency authority, release
+  readiness, professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, report-time conversion, import/export unit
+  conversion, rule-pack unit I/O, or browser fallback catalog changed.

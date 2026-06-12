@@ -49,6 +49,26 @@ export const DEC018_UNIT_SYSTEM_REF = {
 
 type Ref = { ref_type: string; ref_id: string };
 
+export type UnitDisplaySummary = {
+  storage_convention: string;
+  model_units: Record<string, string>;
+  result_units: string[];
+  quantity_display_policy: string;
+  conversion_performed: boolean;
+};
+
+export function buildUnitDisplaySummary(model: PreviewModel, result: MechanicsResult): UnitDisplaySummary {
+  return {
+    storage_convention: "entered_units_preserved",
+    model_units: Object.fromEntries(
+      Object.entries(model.project.units).sort(([left], [right]) => left.localeCompare(right))
+    ),
+    result_units: Array.from(new Set(result.results.map((item) => item.unit).filter(Boolean))).sort(),
+    quantity_display_policy: "display result-row values with their explicit units; no report-time conversion",
+    conversion_performed: false
+  };
+}
+
 function sessionProvenance(model: PreviewModel) {
   return {
     source_name: `OpenPipeStress desktop session (${model.project.name})`,
@@ -196,6 +216,7 @@ export async function buildRenderableReportInput({
         ref_id: projectSummary ? `local_sqlite:${projectSummary.project_id}` : "TBD"
       },
       unit_system_ref: DEC018_UNIT_SYSTEM_REF,
+      unit_display_summary: buildUnitDisplaySummary(model, result),
       model_hash: checksum({ ref_type: "model", ref_id: model.project.id }, modelHashValue),
       input_manifest_ref: mapObjectRef(run.reproducibility.input_manifest_refs[0], "audit_manifest"),
       provenance

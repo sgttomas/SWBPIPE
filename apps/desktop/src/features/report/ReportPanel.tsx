@@ -12,7 +12,7 @@ import type {
   PreviewComparison,
   SelectedReviewTarget
 } from "../../types";
-import { DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
+import { buildUnitDisplaySummary, DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
 
 export function ReportPanel({
   model,
@@ -402,17 +402,12 @@ function reportExportPacket({
 }
 
 function reportUnitSystemDisclosure(model: PreviewModel, result: MechanicsResult) {
+  const displaySummary = buildUnitDisplaySummary(model, result);
   return {
     unit_system_ref: DEC018_UNIT_SYSTEM_REF,
     catalog_ref: DEC018_UNIT_SYSTEM_REF,
     catalog_status: "DEC-018 accepted catalog reference; report packet preserves entered/result units",
-    storage_convention: "entered_units_preserved",
-    model_units: Object.fromEntries(
-      Object.entries(model.project.units).sort(([left], [right]) => left.localeCompare(right))
-    ),
-    result_units: Array.from(new Set(result.results.map((item) => item.unit).filter(Boolean))).sort(),
-    quantity_display_policy: "display result-row values with their explicit units; no report-time conversion",
-    conversion_performed: false,
+    ...displaySummary,
     private_payload_included: false,
     protected_content_included: false,
     release_or_professional_claim: false

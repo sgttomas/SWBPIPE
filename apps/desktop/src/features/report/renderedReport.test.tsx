@@ -213,6 +213,14 @@ describe("buildRenderableReportInput", () => {
     expect(input.calculation_report.model_input_summary.unit_system_ref.ref_id).toBe(
       "unit-system:dec-018-si-dual-display"
     );
+    expect(input.calculation_report.model_input_summary.unit_display_summary).toEqual({
+      storage_convention: "entered_units_preserved",
+      model_units: { force: "N", length: "m" },
+      result_units: ["m"],
+      quantity_display_policy:
+        "display result-row values with their explicit units; no report-time conversion",
+      conversion_performed: false
+    });
     expect(input.calculation_report.load_case_summary).toHaveLength(1);
     expect(input.calculation_report.audit_manifest_refs[0].checksum.value).toBe(
       "invented-run-record-hash"

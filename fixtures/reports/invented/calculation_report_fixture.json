@@ -38,6 +38,19 @@
         "ref_type": "unit_system",
         "ref_id": "invented-si"
       },
+      "unit_display_summary": {
+        "storage_convention": "entered_units_preserved",
+        "model_units": {
+          "force": "N",
+          "length": "m",
+          "stress": "MPa"
+        },
+        "result_units": [
+          "MPa"
+        ],
+        "quantity_display_policy": "display result-row values with their explicit units; no report-time conversion",
+        "conversion_performed": false
+      },
       "model_hash": {
         "algorithm": "sha256",
         "canonicalization": "jcs_compatible",

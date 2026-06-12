@@ -7,7 +7,7 @@
 //! linting, implement redaction/export controls, access host resources, or
 //! emit professional or code-compliance claims.
 
-use std::collections::{BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const REQUIRED_SECTION_KINDS: [SectionKind; 8] = [
     SectionKind::ModelInputSummary,
@@ -208,11 +208,38 @@ impl ReferencedEnvelope {
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnitDisplaySummary {
+    pub storage_convention: String,
+    pub model_units: BTreeMap<String, String>,
+    pub result_units: Vec<String>,
+    pub quantity_display_policy: String,
+    pub conversion_performed: bool,
+}
+
+impl UnitDisplaySummary {
+    fn is_complete(&self) -> bool {
+        !self.storage_convention.trim().is_empty()
+            && self
+                .model_units
+                .iter()
+                .all(|(dimension, unit)| !dimension.trim().is_empty() && !unit.trim().is_empty())
+            && self.result_units.iter().all(|unit| !unit.trim().is_empty())
+            && !self.quantity_display_policy.trim().is_empty()
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModelInputSummary {
     pub project_ref: Reference,
     pub model_ref: Reference,
     pub persistence_ref: Reference,
     pub unit_system_ref: Reference,
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, skip_serializing_if = "Option::is_none")
+    )]
+    pub unit_display_summary: Option<UnitDisplaySummary>,
     pub model_hash: ChecksumRef,
     pub input_manifest_ref: Reference,
     pub provenance: Provenance,
@@ -224,6 +251,10 @@ impl ModelInputSummary {
             && self.model_ref.is_complete()
             && self.persistence_ref.is_complete()
             && self.unit_system_ref.is_complete()
+            && self
+                .unit_display_summary
+                .as_ref()
+                .map_or(true, UnitDisplaySummary::is_complete)
             && self.model_hash.is_complete()
             && self.input_manifest_ref.is_complete()
             && self.provenance.is_complete()
@@ -876,6 +907,18 @@ mod tests {
                 model_ref: reference("model", "model-1"),
                 persistence_ref: reference("persistence", "persistence-1"),
                 unit_system_ref: reference("unit_system", "si"),
+                unit_display_summary: Some(UnitDisplaySummary {
+                    storage_convention: "entered_units_preserved".to_string(),
+                    model_units: BTreeMap::from([
+                        ("force".to_string(), "N".to_string()),
+                        ("length".to_string(), "m".to_string()),
+                    ]),
+                    result_units: vec!["MPa".to_string()],
+                    quantity_display_policy:
+                        "display result-row values with their explicit units; no report-time conversion"
+                            .to_string(),
+                    conversion_performed: false,
+                }),
                 model_hash: checksum("model", "model-1"),
                 input_manifest_ref: reference("audit_manifest", "manifest-1"),
                 provenance: provenance(),
