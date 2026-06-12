@@ -177,6 +177,8 @@ Rough relative scale (tranche-count order of magnitude, not calendar estimates):
 
 The original first-three-tranches sequence (D-01/D-08 decision prep → A1 → A2) **completed 2026-06-10** — see the [completion log](PLAN_COMPLETION_LOG.md). Selection now follows the §3 phase tables under the coordination loop's spine-first order.
 
+**Residual hardening candidate — F-5 TS-mirror unification** (from [VERIFICATION_2026-06-11_operation_seam_unification.md](VERIFICATION_2026-06-11_operation_seam_unification.md) F-5, semantic audit 2026-06-11): two pre-existing TS mirrors of Rust logic remain outside the closed seam plan's scope — `projectService.ts` `evaluateModelDocumentLocal` (browser-preview mirror of the backend DEC-019 evaluation; stricter refuse-non-current subset, no cross-engine test) and `hashService.ts` (sorted-keys canonical JSON hashing; partially alarmed by the corpus hash-parity check on the operation path). Candidate treatment: export the canonical hash and (after relocating the DEC-019 evaluation out of the Tauri-only crate into a wasm-compilable crate) the migration evaluation through the existing T3 wasm channel, with cross-engine parity tests. Not a regression — nothing fails today; fold into the revised development plan when drafted, or select as an ordinary hardening tranche when it blocks or de-risks current-stage work.
+
 ---
 
 ## 6. Invariant guardrails carried through every phase
