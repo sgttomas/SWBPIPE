@@ -2,9 +2,13 @@
 // Builds the wasm32 browser operation engine (DEC-020 / ADR-0001):
 // `core/model_operations/operation_applier` compiled with `--features wasm`,
 // then bound with the pinned wasm-bindgen CLI into web-target glue under
-// `src/services/wasmEngine/__generated__/`. Generated artifacts are not
-// committed. Every missing prerequisite fails with the exact remediation
-// command — no silent fallback (operation-seam plan §3 T3; ADR-0001).
+// `public/wasm-engine/` (TP-APP-R2-WASMPKG-001: Vite serves `public/` at the
+// site root in dev AND copies it verbatim into `dist`, so the same root
+// `/wasm-engine/` URL works in dev, `vite preview`, and the packaged tauri://
+// asset protocol — the previous `src/.../__generated__/` location was never
+// emitted into `dist`). Generated artifacts are not committed. Every missing
+// prerequisite fails with the exact remediation command — no silent fallback
+// (operation-seam plan §3 T3; ADR-0001).
 // Glue is written to a temp directory and renamed into place so concurrent
 // readers never see a half-written artifact set (DEC-025 F-4 rider).
 
@@ -27,7 +31,10 @@ const wasmArtifact = path.join(
   "release",
   "open_pipe_stress_operation_applier.wasm"
 );
-const outDir = path.join(desktopRoot, "src", "services", "wasmEngine", "__generated__");
+const outDir = path.join(desktopRoot, "public", "wasm-engine");
+// Pre-TP-APP-R2-WASMPKG-001 emission location; removed on every build so a
+// stale copy can never be mistaken for the live artifact set.
+const legacyOutDir = path.join(desktopRoot, "src", "services", "wasmEngine", "__generated__");
 
 function fail(lines) {
   console.error(["", "[build-wasm-engine] FAILED:", ...lines.map((line) => `  ${line}`), ""].join("\n"));
@@ -122,6 +129,15 @@ if (!existsSync(wasmArtifact)) {
 const generatedParent = path.dirname(outDir);
 const generatedName = path.basename(outDir);
 mkdirSync(generatedParent, { recursive: true });
+const legacyParent = path.dirname(legacyOutDir);
+const legacyName = path.basename(legacyOutDir);
+if (existsSync(legacyParent)) {
+  for (const entry of readdirSync(legacyParent)) {
+    if (entry === legacyName || entry.startsWith(`${legacyName}.tmp-`) || entry.startsWith(`${legacyName}.old-`)) {
+      rmSync(path.join(legacyParent, entry), { recursive: true, force: true });
+    }
+  }
+}
 for (const entry of readdirSync(generatedParent)) {
   if (entry.startsWith(`${generatedName}.tmp-`) || entry.startsWith(`${generatedName}.old-`)) {
     rmSync(path.join(generatedParent, entry), { recursive: true, force: true });

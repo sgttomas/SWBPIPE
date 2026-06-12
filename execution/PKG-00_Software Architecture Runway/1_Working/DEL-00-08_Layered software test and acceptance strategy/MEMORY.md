@@ -72,3 +72,51 @@
 - Residual A8 scope remains: authored create/edit -> solve -> report journey,
   full manual SMOKE checklist parity, packaged Tauri saved-project solve
   smoke, and CI browser provisioning policy.
+
+## 2026-06-12 - TP-APP-R2-WASMPKG-001
+
+- Regression repair: the packaged `.app` (`tauri build`) failed the first
+  authoring step ("New blank") with `WASM-ENGINE-ASSET-ABSENT: generated glue
+  module import failed: TypeError: 'text/html' is not a valid JavaScript MIME
+  type`.
+- Root cause: all frontend hashing/operations route through the wasm engine in
+  every mode by design (H1/F-5a, DEC-020/ADR-0001, no fallback), but the
+  generated glue lived under `src/services/wasmEngine/__generated__/`, which
+  the Vite dev server serves and `vite build` never emits into `dist`. The
+  packaged tauri:// asset protocol 404'd onto `index.html` and the dynamic
+  import died on the text/html MIME. `tauri.conf.json` `beforeBuildCommand`
+  was plain `npm run build`, so a fresh `tauri build` was not self-sufficient
+  either.
+- Fix shape: `scripts/build-wasm-engine.mjs` now emits the glue + wasm into
+  `public/wasm-engine/` (Vite publicDir: served at the site root in dev AND
+  copied verbatim into `dist`), keeping the DEC-025 F-4 atomic rename swap and
+  cleaning the legacy `__generated__` location. `loadWasmEngine.ts` browser
+  lane imports a fully-qualified `new URL("/wasm-engine/...", location.href)`
+  URL (Vite's dev `injectQuery` helper skips protocol-carrying URLs; the
+  root-absolute path form gets `?import` appended, which the dev server
+  refuses for publicDir files). Node/Vitest lane probes the new on-disk
+  candidates and imports the glue via `pathToFileURL`. The
+  `WASM-ENGINE-ASSET-ABSENT` + remediation failure text is unchanged; no
+  second engine, no silent fallback.
+- Loud build-time guard: `vite.config.ts` plugin `wasm-engine-dist-guard`
+  fails `vite build` at buildStart when `public/wasm-engine/` is missing the
+  glue/wasm, and at closeBundle when `dist/wasm-engine/` is — named
+  `WASM-ENGINE-ASSET-ABSENT` error with the exact `npm run build:wasm
+  --workspace apps/desktop` remediation. Demonstrated: removing the assets
+  fails the build with that message; restoring them passes.
+- `tauri.conf.json` `beforeBuildCommand` is now `npm run build:wasm && npm run
+  build`, so a fresh `tauri build` is self-sufficient.
+- New production-dist Playwright lane: `npm run test:e2e:dist --workspace
+  apps/desktop` (root alias `test:e2e:dist:desktop`) builds wasm + dist and
+  runs `playwright.dist.config.ts` against `vite preview` of `dist/`;
+  `e2e/wasm-engine-dist.spec.ts` asserts shell load, engine_state=ready, and
+  the "Created blank local model document..." success message — the exact
+  human-found regression, replayed. Dev-server lane unchanged (`*-dist.spec.ts`
+  is testIgnored there). DEC-025 sweep keeps five surfaces; the dist lane runs
+  as a second command inside `desktop_playwright_e2e`.
+- Lanes covered: dev server (e2e 2/2), Vitest/node (241/241; count includes
+  concurrent sibling-task additions), production dist (dist e2e 1/1; `vite
+  build` green with `dist/wasm-engine/` present), python 358/358.
+- Honest residual gap: the tauri:// asset protocol itself cannot be exercised
+  by a browser harness; the packaged `.app` pass remains the human TP-MAC-141
+  manual verification (dispatcher rebuilds the bundle at fan-in).

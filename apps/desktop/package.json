@@ -7,7 +7,9 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "build:wasm": "node scripts/build-wasm-engine.mjs",
+    "preview": "vite preview",
     "test:e2e": "npm run build:wasm && playwright test",
+    "test:e2e:dist": "npm run build:wasm && npm run build && playwright test --config playwright.dist.config.ts",
     "test": "vitest run",
     "tauri": "tauri"
   },

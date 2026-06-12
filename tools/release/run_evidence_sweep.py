@@ -91,8 +91,15 @@ def build_sweep_plan() -> list[Surface]:
         ),
         Surface(
             surface_id="desktop_playwright_e2e",
-            description="Playwright end-to-end smoke in a real Chrome browser.",
-            commands=(("npm", "run", "test:e2e:desktop"),),
+            description=(
+                "Playwright end-to-end smoke in a real Chrome browser: dev-server "
+                "lane, then production-dist lane via vite preview "
+                "(TP-APP-R2-WASMPKG-001)."
+            ),
+            commands=(
+                ("npm", "run", "test:e2e:desktop"),
+                ("npm", "run", "test:e2e:dist:desktop"),
+            ),
         ),
         Surface(
             surface_id="desktop_production_build",

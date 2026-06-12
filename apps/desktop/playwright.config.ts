@@ -12,6 +12,10 @@ const executablePath =
 
 export default defineConfig({
   testDir: "./e2e",
+  // `*-dist.spec.ts` specs run against the built dist via
+  // playwright.dist.config.ts (`npm run test:e2e:dist`), not against this
+  // dev-server lane. (A `dist/` subfolder would match the repo .gitignore.)
+  testIgnore: ["**/*-dist.spec.ts"],
   // 120s budget: with `trace: "retain-on-failure"` the recorder snapshots the
   // DOM after every action, and the smoke spec's late steps run against the
   // heaviest DOM state (solved 647-row results). Measured 2026-06-11: ~9s with
