@@ -336,3 +336,32 @@ Boundary note:
   material/section/primitive-load create and edit forms, imports/exports, and
   rule-pack unit I/O; B3 still owns broader conversion witness and tolerance
   corpus coverage.
+
+## 2026-06-12 - TP-UNITS-B2-INSPECTOREDITUNITS-001 Property Inspector quantity unit edits
+
+- Extended B2 app unit I/O from creation forms and primitive-load edits into
+  existing material and pipe-section quantity edits in the Property Inspector.
+- Material modulus, material thermal-expansion, pipe outside-diameter, and pipe
+  wall-thickness edits now carry an explicit selected unit beside the proposed
+  value; node coordinate edits remain value-only because project-unit mutation
+  is outside this tranche.
+- `core/model_operations/operation_applier` now accepts generic sibling-unit
+  `{ value, unit }` quantity-edit payloads and writes the sibling `.unit` field
+  only after validating the entered unit against the declared dimension.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+  corresponding DEL-03-01, DEL-03-02, DEL-07-02, and DEL-16-02 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-138.
+- Validation: operation-applier cargo suites passed 54 unit tests plus
+  canonical-hash and contract-corpus tests; Tauri Rust tests 32/32; focused
+  desktop Vitest 165/165; full desktop Vitest 216/216; desktop build passed;
+  Playwright R2 smoke 2/2.
+- Boundaries preserved: no project-wide unit-system picker, project unit
+  mutation, report-time unit conversion, import/export unit conversion,
+  rule-pack unit I/O, protected standards content, private project data,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim.
+- Residual handoffs: B2 still owns broader app unit entry/pickers outside
+  material/section/primitive-load create and edit forms, imports/exports, and
+  rule-pack unit I/O; B3 still owns broader conversion witness and tolerance
+  corpus coverage.

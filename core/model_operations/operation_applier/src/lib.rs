@@ -1142,7 +1142,7 @@ struct ResolvedField {
     additional_writes: Vec<(Vec<String>, Value)>,
 }
 
-struct PrimitiveMagnitudeEdit {
+struct QuantityEdit {
     value: f64,
     unit: String,
 }
@@ -4126,9 +4126,9 @@ fn resolve_field(
                 return None;
             };
 
-            // Unit metadata: ordinary quantity edits keep the field's stored
-            // unit basis. Primitive-load magnitude edits may atomically update
-            // value and sibling unit through the B2 unit-aware payload.
+            // Unit metadata: project-unit quantities keep their project unit
+            // basis. Sibling-unit quantities may atomically update value and
+            // sibling unit through the B2 unit-aware payload.
             let stored_unit = match unit_source {
                 UnitSource::SiblingUnitField => {
                     let mut unit_segments = segments.clone();
@@ -4145,29 +4145,48 @@ fn resolve_field(
                     .and_then(Value::as_str)
                     .map(str::to_string),
             };
-            let primitive_magnitude_edit =
-                if object_type == "Load" && is_primitive_magnitude_path(field_path) {
-                    parse_primitive_magnitude_edit(after, target_ref, field_path, checker)?
-                } else {
-                    None
-                };
-            let requested_unit = primitive_magnitude_edit
+            let quantity_edit = if matches!(unit_source, UnitSource::SiblingUnitField) {
+                parse_quantity_edit(after, target_ref, field_path, checker)?
+            } else {
+                None
+            };
+            let requested_unit = quantity_edit
                 .as_ref()
                 .map(|edit| edit.unit.as_str())
                 .unwrap_or(unit);
             if requested_unit != unit {
                 checker.unit_state = "blocked";
                 checker.push(
-                    "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+                    "OP-QUANTITY-PAYLOAD-INVALID",
                     "blocking",
                     format!(
-                        "Primitive-load magnitude payload unit `{requested_unit}` must match intent unit `{unit}`."
+                        "Quantity payload unit `{requested_unit}` must match intent unit `{unit}`."
                     ),
-                    "Refresh the primitive-load magnitude edit intent from the selected unit field.",
+                    "Refresh the quantity edit intent from the selected value and unit fields.",
                     vec![target_ref.to_string()],
                 );
                 return None;
             }
+            let quantity_payload_dimension = if quantity_edit.is_some() {
+                match Dimension::from_schema_value(dimension) {
+                    Ok(dimension_enum) => Some(dimension_enum),
+                    Err(error) => {
+                        checker.unit_state = "blocked";
+                        checker.push(
+                            "OP-UNIT-DIMENSION-UNKNOWN",
+                            "blocking",
+                            format!(
+                                "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
+                            ),
+                            "Use a governed dimension token for sibling-unit quantity edits.",
+                            vec![target_ref.to_string()],
+                        );
+                        return None;
+                    }
+                }
+            } else {
+                None
+            };
             checker.unit_state = "passed";
             match stored_unit {
                 None => {
@@ -4183,30 +4202,9 @@ fn resolve_field(
                 }
                 Some(stored) => {
                     let unit_matches_stored = unit == stored;
-                    let unit_matches_dimension = if object_type == "Load"
-                        && is_primitive_magnitude_path(field_path)
-                    {
-                        match Dimension::from_schema_value(dimension) {
-                            Ok(dimension_enum) => {
-                                unit_symbol_matches_dimension(unit, dimension_enum)
-                            }
-                            Err(error) => {
-                                checker.unit_state = "blocked";
-                                checker.push(
-                                        "OP-UNIT-DIMENSION-UNKNOWN",
-                                        "blocking",
-                                        format!(
-                                            "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
-                                        ),
-                                        "Use a governed dimension token for primitive-load magnitude edits.",
-                                        vec![target_ref.to_string()],
-                                    );
-                                return None;
-                            }
-                        }
-                    } else {
-                        false
-                    };
+                    let unit_matches_dimension = quantity_payload_dimension
+                        .map(|dimension_enum| unit_symbol_matches_dimension(unit, dimension_enum))
+                        .unwrap_or(false);
                     if !unit_matches_stored && !unit_matches_dimension {
                         checker.unit_state = "blocked";
                         checker.push(
@@ -4236,7 +4234,7 @@ fn resolve_field(
 
             check_before_numeric(current_number, before, target_ref, field_path, checker);
 
-            let parsed = if let Some(edit) = primitive_magnitude_edit.as_ref() {
+            let parsed = if let Some(edit) = quantity_edit.as_ref() {
                 edit.value
             } else {
                 let Some(parsed) = parse_finite_number(after) else {
@@ -4273,7 +4271,7 @@ fn resolve_field(
                 );
                 return None;
             };
-            let additional_writes = if let Some(edit) = primitive_magnitude_edit {
+            let additional_writes = if let Some(edit) = quantity_edit {
                 let mut unit_segments = segments.clone();
                 unit_segments.pop();
                 unit_segments.push("unit".to_string());
@@ -4718,33 +4716,32 @@ fn is_primitive_magnitude_path(field_path: &str) -> bool {
         && segments[3] == "value"
 }
 
-fn parse_primitive_magnitude_edit(
+fn parse_quantity_edit(
     after: &str,
     target_ref: &str,
     field_path: &str,
     checker: &mut Checker,
-) -> Option<Option<PrimitiveMagnitudeEdit>> {
+) -> Option<Option<QuantityEdit>> {
     let trimmed = after.trim();
     if !trimmed.starts_with('{') {
         return Some(None);
     }
     let Ok(value) = serde_json::from_str::<Value>(trimmed) else {
         checker.push(
-            "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+            "OP-QUANTITY-PAYLOAD-INVALID",
             "blocking",
-            format!("Primitive-load magnitude payload `{after}` is not valid JSON."),
-            "Refresh the primitive-load magnitude edit intent from the selected value and unit fields.",
+            format!("Quantity payload `{after}` is not valid JSON."),
+            "Refresh the quantity edit intent from the selected value and unit fields.",
             vec![target_ref.to_string()],
         );
         return None;
     };
     let Some(record) = value.as_object() else {
         checker.push(
-            "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+            "OP-QUANTITY-PAYLOAD-INVALID",
             "blocking",
-            "Primitive-load magnitude payload must be a JSON object with value and unit."
-                .to_string(),
-            "Refresh the primitive-load magnitude edit intent from the selected value and unit fields.",
+            "Quantity payload must be a JSON object with value and unit.".to_string(),
+            "Refresh the quantity edit intent from the selected value and unit fields.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -4757,8 +4754,8 @@ fn parse_primitive_magnitude_edit(
         checker.push(
             "OP-VALUE-NOT-NUMERIC",
             "blocking",
-            format!("Primitive-load magnitude payload for `{field_path}` must carry a finite numeric value."),
-            "Provide a finite primitive-load magnitude value.",
+            format!("Quantity payload for `{field_path}` must carry a finite numeric value."),
+            "Provide a finite quantity value.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -4771,15 +4768,15 @@ fn parse_primitive_magnitude_edit(
     if unit.is_empty() {
         checker.unit_state = "blocked";
         checker.push(
-            "OP-PRIMITIVE-MAGNITUDE-PAYLOAD-INVALID",
+            "OP-QUANTITY-PAYLOAD-INVALID",
             "blocking",
-            "Primitive-load magnitude payload must carry a non-empty unit.".to_string(),
-            "Select an explicit primitive-load magnitude unit.",
+            "Quantity payload must carry a non-empty unit.".to_string(),
+            "Select an explicit quantity unit.",
             vec![target_ref.to_string()],
         );
         return None;
     }
-    Some(Some(PrimitiveMagnitudeEdit {
+    Some(Some(QuantityEdit {
         value,
         unit: unit.to_string(),
     }))
@@ -7085,6 +7082,87 @@ mod tests {
             &incompatible_payload.to_string(),
             "mm",
             "force_per_length",
+        );
+
+        let blocked = apply_operation(&model, &incompatible, None);
+        assert!(codes(&blocked).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        assert_eq!(blocked.validation.unit_validation, "blocked");
+        assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn sibling_quantity_edit_preserves_compatible_entered_units() {
+        let model = sample_model();
+        let material_payload = json!({ "value": 210000.0, "unit": "MPa" });
+        let material_intent = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "200000000000",
+            &material_payload.to_string(),
+            "MPa",
+            "stress",
+        );
+
+        let material_outcome = apply_operation(&model, &material_intent, None);
+
+        assert!(
+            material_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            material_outcome.diagnostics
+        );
+        assert_eq!(material_outcome.validation.unit_validation, "passed");
+        let applied_material = material_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied_material["materials"][0]["elastic_modulus"]["value"],
+            json!(210000.0)
+        );
+        assert_eq!(
+            applied_material["materials"][0]["elastic_modulus"]["unit"],
+            json!("MPa")
+        );
+
+        let section_payload = json!({ "value": 168.0, "unit": "mm" });
+        let section_intent = modify_intent(
+            "Element",
+            "pipe:P-1",
+            "set_field",
+            "section.outside_diameter.value",
+            "0.168",
+            &section_payload.to_string(),
+            "mm",
+            "length",
+        );
+
+        let section_outcome = apply_operation(&model, &section_intent, None);
+
+        assert!(
+            section_outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            section_outcome.diagnostics
+        );
+        assert_eq!(section_outcome.validation.unit_validation, "passed");
+        let applied_section = section_outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied_section["pipe_segments"][0]["section"]["outside_diameter"]["value"],
+            json!(168.0)
+        );
+        assert_eq!(
+            applied_section["pipe_segments"][0]["section"]["outside_diameter"]["unit"],
+            json!("mm")
+        );
+
+        let incompatible_payload = json!({ "value": 210000.0, "unit": "mm" });
+        let incompatible = modify_intent(
+            "Material",
+            "material:steel",
+            "set_field",
+            "elastic_modulus.value",
+            "200000000000",
+            &incompatible_payload.to_string(),
+            "mm",
+            "stress",
         );
 
         let blocked = apply_operation(&model, &incompatible, None);

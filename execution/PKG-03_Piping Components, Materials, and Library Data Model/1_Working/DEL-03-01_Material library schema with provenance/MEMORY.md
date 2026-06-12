@@ -151,3 +151,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Human Gate A ruling accepted `PKG03-DEL-03-01-PKG02-001` and `PKG03-DEL-03-01-PKG02-002` as `ACCEPT_AS_IS` / `RESOLVED`.
 - Local `Review_Findings.csv` was updated for those two rows only.
 - Dependency satisfaction, lifecycle `_STATUS.md`, DAG state, public material source/catalog authority, protected-content/redistribution review, release readiness, professional approval, certification, sealing, authentication, and code-compliance claims remain unchanged and unclaimed.
+
+## 2026-06-12 - TP-UNITS-B2-INSPECTOREDITUNITS-001 Property Inspector material quantity unit edits
+
+- WORKING_ITEMS app-integration tranche exposed unit-aware edit controls for
+  existing material quantities in the Property Inspector: elastic modulus,
+  shear modulus, and thermal expansion coefficient.
+- The UI queues atomic `{ value, unit }` payloads for sibling-unit quantity
+  fields; browser preview remains model-metadata-only and desktop/Tauri mode
+  can use accepted DEC-018 unit-catalog options.
+- The operation seam preserves entered material units when compatible with the
+  declared dimension. Native regression coverage includes existing material
+  modulus edited to `MPa` and incompatible `mm` rejection for stress.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+  corresponding DEL-02-02, DEL-03-02, DEL-07-02, and DEL-16-02 run records;
+  `apps/desktop/SMOKE.md` TP-MAC-138.
+- Validation passed: operation-applier cargo suites, src-tauri Rust tests
+  32/32, focused desktop Vitest 165/165, full desktop Vitest 216/216, desktop
+  build, and Playwright R2 smoke 2/2.
+- No lifecycle state, review finding status, dependency authority, public
+  source/catalog authority, release-readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, or telemetry path
+  changed.

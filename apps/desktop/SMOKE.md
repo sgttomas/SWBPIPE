@@ -4090,3 +4090,29 @@ after the timestamp marker were absent.
   protected content, private project data, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-138 Property Inspector quantity unit edits (`TP-UNITS-B2-INSPECTOREDITUNITS-001`, 2026-06-12)
+
+- Tranche `TP-UNITS-B2-INSPECTOREDITUNITS-001` (completion-plan B2): added
+  unit-aware editing for existing material and pipe-section quantities in the
+  Property Inspector.
+- Visible authoring behavior: editable material modulus, material thermal
+  expansion, pipe outside diameter, and pipe wall thickness fields now expose a
+  `Unit` selector and label the proposed value with the active unit basis.
+  Browser preview remains model-metadata-only; desktop/Tauri mode can show
+  accepted DEC-018 catalog options.
+- Operation-seam behavior: sibling-unit quantity edits queue atomic
+  `{ value, unit }` payloads. The Rust/wasm seam writes both `.value` and the
+  sibling `.unit` field only after validating the entered unit against the
+  declared dimension. Native regressions cover material `MPa`, pipe `mm`, and
+  incompatible material-unit rejection.
+- Automated evidence: operation-applier cargo suites passed 54 unit tests
+  plus canonical-hash and contract-corpus tests; Tauri Rust tests passed
+  32/32; focused desktop Vitest passed 165/165; full desktop Vitest passed
+  216/216; desktop production build passed with the pre-existing Vite
+  chunk-size warning; Playwright R2 smoke passed 2/2 after wasm engine build.
+- Boundary review: no project-wide unit-system picker, project unit mutation,
+  report-time conversion, import/export unit conversion, rule-pack unit I/O,
+  browser fallback catalog, protected content, private project data,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

@@ -538,6 +538,30 @@ Durable context preserved after PKG-02 grounded finding resolution:
   no protected/private data, and no professional, release, or code-compliance
   claim.
 
+## 2026-06-12 - TP-UNITS-B2-INSPECTOREDITUNITS-001 sibling quantity unit edits
+
+- WORKING_ITEMS app-integration tranche generalized the Rust/wasm
+  `operation_applier` sibling-unit quantity edit contract.
+- Sibling-unit quantity paths now accept `{ value, unit }` JSON payloads, check
+  the selected unit against the declared DEC-018 dimension, and apply both the
+  `.value` and sibling `.unit` writes atomically on the returned session model.
+- Compatible non-stored units are accepted only when the sibling unit is
+  written by the same validated edit; raw numeric value-only edits still
+  require the stored unit.
+- Native regression coverage includes material modulus edited to `MPa`, pipe
+  outside diameter edited to `mm`, existing primitive-load magnitude edited to
+  `lbf/ft`, and incompatible material-unit rejection.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-138. Validation passed:
+  operation-applier cargo suites (54 unit + canonical hash + contract corpus),
+  src-tauri Rust tests 32/32, focused desktop Vitest 165/165, full desktop
+  Vitest 216/216, desktop build, and Playwright R2 smoke 2/2.
+- Boundary semantics remain unchanged: no direct input-model mutation, no
+  hidden fallback unit, no project-unit-system mutation, no durable persistence,
+  no import/export conversion, no protected/private data, and no professional,
+  release, or code-compliance claim.
+
 ## 2026-06-12 - TP-UNITS-B2-UNITPICKERS-001 create-material/section compatible units
 
 - WORKING_ITEMS app-integration tranche connected create-section and

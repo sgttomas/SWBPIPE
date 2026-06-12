@@ -89,6 +89,26 @@ Durable context preserved after reconciliation review:
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
 
+## 2026-06-12 - TP-UNITS-B2-INSPECTOREDITUNITS-001 Property Inspector quantity unit edits
+
+- WORKING_ITEMS app-integration tranche added `Unit` selectors to existing
+  material and pipe-section quantity edits in the Property Inspector.
+- Editable material modulus, material thermal-expansion, pipe outside-diameter,
+  and pipe wall-thickness fields now label the proposed value with the active
+  unit basis and queue atomic `{ value, unit }` payloads.
+- Browser preview remains model-metadata-only. Desktop/Tauri mode can use
+  accepted DEC-018 catalog options.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-138. Validation passed:
+  operation-applier cargo suites, src-tauri Rust tests 32/32, focused desktop
+  Vitest 165/165, full desktop Vitest 216/216, desktop build, and Playwright
+  R2 smoke 2/2.
+- No lifecycle state, review finding status, dependency authority,
+  release-readiness, professional approval, certification, sealing,
+  authentication, code-compliance claim, protected/private data, network path,
+  telemetry path, project-wide unit picker, or project unit mutation changed.
+
 ## 2026-06-12 - TP-UNITS-B2-UNITPICKERS-001 Property Inspector unit selectors
 
 - WORKING_ITEMS app-integration tranche added unit selectors to the Property

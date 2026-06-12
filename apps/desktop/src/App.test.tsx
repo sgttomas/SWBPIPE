@@ -1616,14 +1616,17 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
       target: { value: "elastic_modulus.value" }
     });
+    expect(within(intentPanel).getByTestId("editor-intent-unit")).toHaveValue("Pa");
+    expect(within(intentPanel).getByText("Proposed value (Pa, model metadata)")).toBeInTheDocument();
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
       target: { value: "210000000000" }
     });
+    const expectedMaterialEditAfter = JSON.stringify({ value: 210000000000, unit: "Pa" });
     expect(within(intentPanel).getByTestId("editor-operation-preview").textContent).toContain(
       "Elastic modulus"
     );
     expect(within(intentPanel).getByTestId("editor-operation-preview").textContent).toContain(
-      "before=200000000000; after=210000000000"
+      `before=200000000000; after=${expectedMaterialEditAfter}`
     );
     expect(within(intentPanel).getByTestId("editor-intent-validation").textContent).toContain("not_applied");
     fireEvent.click(within(intentPanel).getByTestId("validate-editor-intent-inline"));
@@ -1639,7 +1642,7 @@ describe("OpenPipeStress desktop preview", () => {
       "unit=passed"
     );
     expect(within(intentPanel).getByTestId("editor-intent-inline-validation-diff").textContent).toContain(
-      "material:invented-carbon-steel elastic_modulus.value 200000000000 to 210000000000 [Pa]"
+      `material:invented-carbon-steel elastic_modulus.value 200000000000 to ${expectedMaterialEditAfter} [Pa]`
     );
     expect(within(intentPanel).getByTestId("editor-intent-inline-validation-boundary").textContent).toContain(
       "no accepted model mutation"
@@ -2654,6 +2657,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
       target: { value: "210000000000" }
     });
+    const expectedMaterialEditAfter = JSON.stringify({ value: 210000000000, unit: "Pa" });
     fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
     expect(within(intentPanel).getByTestId("editor-intent-queue").textContent).toContain("editor-intent-1");
 
@@ -2706,7 +2710,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(exportPacket.editor_operation_intents[0].queue_id).toBe("editor-intent-1");
     expect(exportPacket.editor_operation_intents[0].change.field_path).toBe("elastic_modulus.value");
-    expect(exportPacket.editor_operation_intents[0].change.after).toBe("210000000000");
+    expect(exportPacket.editor_operation_intents[0].change.after).toBe(expectedMaterialEditAfter);
     expect(exportPacket.editor_operation_intents[0].validation.application_status).toBe("not_applied");
     expect(exportPacket.editor_operation_intents[0].audit_boundary.mutates_accepted_model_state).toBe(false);
     expect(exportPacket.editor_operation_intents[0].professional_boundary.software_makes_compliance_claim).toBe(false);
@@ -2745,7 +2749,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(diffPreview).getByTestId("diff-preview-record-op-editor-intent-material-invented-carbon-steel-elastic-modulus-value")
         .textContent
-    ).toContain("200000000000 to 210000000000 Pa");
+    ).toContain(`200000000000 to ${expectedMaterialEditAfter} Pa`);
     const diffHref = within(diffPreview).getByTestId("diff-preview-export-link").getAttribute("href") ?? "";
     const diffPacket = JSON.parse(decodeURIComponent(diffHref.split(",", 2)[1]));
     expect(diffPacket.document_kind).toBe("openpipestress.technical_preview.operation_diff_preview");
@@ -2765,7 +2769,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPacket.previews[0].hash_bound_diff_preview).toBe(false);
     expect(diffPacket.previews[0].changes[0].field_path).toBe("elastic_modulus.value");
     expect(diffPacket.previews[0].changes[0].before).toBe("200000000000");
-    expect(diffPacket.previews[0].changes[0].after).toBe("210000000000");
+    expect(diffPacket.previews[0].changes[0].after).toBe(expectedMaterialEditAfter);
     expect(diffPacket.private_payload_included).toBe(false);
     expect(diffPacket.protected_content_included).toBe(false);
     expect(diffPacket.release_or_professional_claim).toBe(false);

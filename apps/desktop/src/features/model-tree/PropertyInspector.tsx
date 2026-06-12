@@ -32,6 +32,7 @@ export function PropertyInspector({
   const editableFields = useMemo(() => editorFieldOptions(model, selection), [model, selection]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(editableFields[0]?.before ?? "");
+  const [proposedUnit, setProposedUnit] = useState(editableFields[0]?.unit ?? "");
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraft, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
@@ -55,11 +56,16 @@ export function PropertyInspector({
     thermalExpansionUnit(model)
   );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  const selectedFieldUnitOptions = selectedField ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit) : [];
+  const selectedFieldUnitBasis = selectedField
+    ? describeUnitBasis(unitCatalogRoute, proposedUnit || selectedField.unit, selectedField.dimension)
+    : null;
   const operationIntent = selectedField
     ? buildOperationIntent({
         field: selectedField,
         model,
         proposedValue,
+        proposedUnit,
         rationale,
         selection
       })
@@ -73,12 +79,18 @@ export function PropertyInspector({
   const inlineValidationOutcome = operationIntent
     ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
     : null;
-  const fieldChanged = Boolean(operationIntent && operationIntent.change.before !== operationIntent.change.after);
+  const fieldChanged = Boolean(
+    operationIntent &&
+      selectedField &&
+      ((proposedValue.trim() || "TBD") !== selectedField.before ||
+        (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
+  );
 
   useEffect(() => {
     const firstField = editableFields[0];
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(firstField?.before ?? "");
+    setProposedUnit(firstField?.unit ?? "");
     setRationale("user_entered_preview_change");
   }, [editableFields, selection.id]);
 
@@ -116,6 +128,7 @@ export function PropertyInspector({
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
     setProposedValue(nextField?.before ?? "");
+    setProposedUnit(nextField?.unit ?? "");
   }
 
   function handleQueueIntent() {
@@ -212,7 +225,7 @@ export function PropertyInspector({
                 </select>
               </label>
               <label>
-                <span>Proposed value</span>
+                <span>Proposed value{selectedField?.unitEditable && selectedFieldUnitBasis ? ` (${selectedFieldUnitBasis.label})` : ""}</span>
                 <input
                   aria-label="Proposed editor value"
                   data-testid="editor-intent-value"
@@ -220,6 +233,23 @@ export function PropertyInspector({
                   value={proposedValue}
                 />
               </label>
+              {selectedField?.unitEditable ? (
+                <label>
+                  <span>Unit</span>
+                  <select
+                    aria-label="Proposed editor unit"
+                    data-testid="editor-intent-unit"
+                    onChange={(event) => setProposedUnit(event.target.value)}
+                    value={proposedUnit || selectedField.unit}
+                  >
+                    {selectedFieldUnitOptions.map((option) => (
+                      <option key={option.symbol} value={option.symbol}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               <label>
                 <span>Rationale</span>
                 <input
@@ -629,6 +659,7 @@ type EditableField = {
   dimension: string;
   unit: string;
   sourceNote: string;
+  unitEditable: boolean;
 };
 
 type SupportDraft = {
@@ -822,15 +853,35 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
   if (material) {
     return [
       scalarField("Label", "label", material.label, "Material", "dimensionless", "none", "material label only"),
-      quantityField("Elastic modulus", "elastic_modulus.value", material.elastic_modulus.value, "Material", "stress", material.elastic_modulus.unit),
-      quantityField("Shear modulus", "shear_modulus.value", material.shear_modulus.value, "Material", "stress", material.shear_modulus.unit),
+      quantityField(
+        "Elastic modulus",
+        "elastic_modulus.value",
+        material.elastic_modulus.value,
+        "Material",
+        "stress",
+        material.elastic_modulus.unit,
+        "set_field",
+        true
+      ),
+      quantityField(
+        "Shear modulus",
+        "shear_modulus.value",
+        material.shear_modulus.value,
+        "Material",
+        "stress",
+        material.shear_modulus.unit,
+        "set_field",
+        true
+      ),
       quantityField(
         "Thermal expansion",
         "thermal_expansion_coefficient.value",
         material.thermal_expansion_coefficient?.value ?? "TBD",
         "Material",
         "thermal_expansion_coefficient",
-        material.thermal_expansion_coefficient?.unit ?? "TBD"
+        material.thermal_expansion_coefficient?.unit ?? "TBD",
+        "set_field",
+        true
       ),
       scalarField("Provenance", "provenance", material.provenance, "Material", "dimensionless", "none", "public/private source note")
     ];
@@ -857,7 +908,9 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         pipe.section.outside_diameter?.value ?? "TBD",
         "Element",
         "length",
-        pipe.section.outside_diameter?.unit ?? "TBD"
+        pipe.section.outside_diameter?.unit ?? "TBD",
+        "set_field",
+        true
       ),
       quantityField(
         "Wall thickness",
@@ -865,7 +918,9 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         pipe.section.wall_thickness?.value ?? "TBD",
         "Element",
         "length",
-        pipe.section.wall_thickness?.unit ?? "TBD"
+        pipe.section.wall_thickness?.unit ?? "TBD",
+        "set_field",
+        true
       ),
       scalarField("Material", "material", pipe.material, "Element", "dimensionless", "none", "material reference"),
       scalarField("Provenance", "provenance", pipe.provenance, "Element", "dimensionless", "none", "public/private source note")
@@ -944,7 +999,7 @@ function scalarField(
   sourceNote: string,
   changeKind: EditableField["changeKind"] = "set_field"
 ): EditableField {
-  return { label, fieldPath, before, objectType, dimension, unit, sourceNote, changeKind };
+  return { label, fieldPath, before, objectType, dimension, unit, sourceNote, changeKind, unitEditable: false };
 }
 
 function quantityField(
@@ -954,7 +1009,8 @@ function quantityField(
   objectType: EditorOperationObjectType,
   dimension: string,
   unit: string,
-  changeKind: EditableField["changeKind"] = "set_field"
+  changeKind: EditableField["changeKind"] = "set_field",
+  unitEditable = false
 ): EditableField {
   return {
     label,
@@ -964,7 +1020,8 @@ function quantityField(
     dimension,
     unit,
     sourceNote: "unit metadata required",
-    changeKind
+    changeKind,
+    unitEditable
   };
 }
 
@@ -972,16 +1029,22 @@ function buildOperationIntent({
   field,
   model,
   proposedValue,
+  proposedUnit,
   rationale,
   selection
 }: {
   field: EditableField;
   model: PreviewModel;
   proposedValue: string;
+  proposedUnit: string;
   rationale: string;
   selection: EntityRef;
 }): EditorOperationIntent {
   const operationToken = `${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
+  const intentUnit = field.unitEditable ? proposedUnit.trim() || field.unit : field.unit;
+  const changeAfter = field.unitEditable
+    ? JSON.stringify({ value: parseQuantityPayloadValue(proposedValue), unit: intentUnit })
+    : proposedValue.trim() || "TBD";
   return {
     operation_id: `op:editor-intent-${operationToken}`,
     operation_kind: "modify",
@@ -997,10 +1060,10 @@ function buildOperationIntent({
       field_label: field.label,
       field_path: field.fieldPath,
       before: field.before,
-      after: proposedValue.trim() || "TBD",
-      unit: field.unit,
+      after: changeAfter,
+      unit: intentUnit,
       dimension: field.dimension,
-      source_note: field.sourceNote
+      source_note: field.unitEditable ? `${field.sourceNote}; sibling unit updated atomically` : field.sourceNote
     },
     validation: {
       schema_validation: "not_run",
@@ -1025,6 +1088,13 @@ function buildOperationIntent({
     },
     rationale: rationale.trim() || `preview edit intent for ${model.project.id}`
   };
+}
+
+function parseQuantityPayloadValue(raw: string): number | string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "TBD";
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : trimmed;
 }
 
 function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): EditorOperationIntent {

@@ -13,6 +13,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - B2 Property Inspector quantity unit edits (`TP-UNITS-B2-INSPECTOREDITUNITS-001`)
+
+Existing Property Inspector material and pipe-section quantity edits now carry
+unit intent instead of changing only `.value`. Material elastic modulus, shear
+modulus, thermal expansion coefficient, pipe outside diameter, and pipe wall
+thickness expose a `Unit` selector beside the proposed value. Browser preview
+continues to show a single model-metadata option when the desktop catalog route
+is unavailable; desktop/Tauri mode can use accepted DEC-018 catalog options.
+Node coordinate edits remain value-only because project length-unit mutation is
+a separate project-unit-system concern.
+
+The Rust/wasm operation seam now treats `{ value, unit }` as a generic
+sibling-unit quantity edit payload. Compatible entered units are accepted only
+when the same validated edit also writes the sibling `.unit` field, so alternate
+units cannot pass as a value-only partial update. Native regressions cover an
+existing material modulus edited to `MPa`, an existing pipe outside diameter
+edited to `mm`, and incompatible `mm` rejection for a stress quantity.
+
+Evidence:
+`execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+`execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+`execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_run_records/WORKING_ITEMS_RUN_2026-06-12_property_inspector_quantity_unit_edits.md`;
+`apps/desktop/SMOKE.md` TP-MAC-138. Validation:
+operation-applier cargo suites passed 54 unit tests plus canonical-hash and
+contract-corpus tests; Tauri Rust tests passed 32/32; focused desktop Vitest
+passed 165/165; full desktop Vitest passed 216/216; desktop build passed with
+the pre-existing Vite chunk-size warning; Playwright R2 smoke passed 2/2 after
+wasm engine build.
+
+Residual hand-offs: broader app unit entry/pickers outside material/section
+and primitive-load create/edit forms, imports/exports, and rule-pack unit I/O
+remain B2 work. B3 still owns broader mixed-unit round-trip,
+conversion-witness, incompatible-unit rejection, and D-04/DEC-026 tolerance
+coverage outside the witnesses named above. No lifecycle state,
+release-readiness, professional approval, certification, sealing,
+authentication, protected-content, private-data, or code-compliance claim is
+created.
+
 ## 2026-06-12 - B2 primitive-load magnitude unit edits (`TP-UNITS-B2-PRIMEDITUNITS-001`)
 
 Existing primitive-load magnitude edits now carry unit intent instead of only
