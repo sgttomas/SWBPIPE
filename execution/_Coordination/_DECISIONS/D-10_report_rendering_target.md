@@ -1,6 +1,6 @@
 # D-10 — Report Rendering Target (Deterministic HTML and/or PDF Pipeline)
 
-**Status:** AWAITING_RULING
+**Status:** RULED — 2026-06-11 the human project authority selected **Option B** (deterministic hash-bound HTML canonical + webview print-to-PDF labeled derived; D-10b PDF-emitter follow-up deferred to the R5 lead-up). Recorded as `DEC-021` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row updated.
 **Prepared:** 2026-06-10 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-APP-R2-PERSIST-001 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-10.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-10; §3 Phase A item A7.
