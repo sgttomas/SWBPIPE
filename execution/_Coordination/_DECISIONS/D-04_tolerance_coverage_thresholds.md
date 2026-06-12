@@ -1,6 +1,6 @@
 # D-04 — Numerical Tolerance + Coverage Thresholds (RGAP-004)
 
-**Status:** AWAITING_RULING
+**Status:** RULED — 2026-06-11 the human project authority selected **T-B + C-C** (single governed global relative tolerance seeded at the measured 1.0e-9 with reasoned per-case fixture overrides; blocking inventory gates plus recorded-not-blocking numeric coverage, tooling to a named D-04b). Recorded as `DEC-024` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row updated. The packet's recorded T-B trade-offs (§4 Option T-B Against) stand as noted residuals.
 **Prepared:** 2026-06-11 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-DECIDE-PREP-001 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-04.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-04.

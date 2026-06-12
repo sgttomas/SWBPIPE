@@ -65,3 +65,31 @@ example values only; no protected standards content; no network use; no
 release-readiness, professional approval, certification, sealing,
 authentication, or code-compliance claims. Rulings remain exclusively
 human records per K-AUTH-1.
+
+## Part 3 — Four rulings recorded (human authority, same day)
+
+After reviewing the packets, the human project authority ruled all four on
+2026-06-11:
+
+| Decision | Ruling | DEC | Follow-up row created |
+|---|---|---|---|
+| D-02 | Option A — frozen typed AST extended to the PRD §12.3 function set | `DEC-022` | D-02b (text syntax, C2 lead-up) |
+| D-03 | Option C — hand-rolled in-repo sparse skyline/profile direct solver | `DEC-023` | — |
+| D-04 | T-B + C-C — governed global relative tolerance (measured 1.0e-9) with reasoned per-case overrides; blocking inventory gates + recorded-not-blocking numeric coverage | `DEC-024` | D-04b (coverage tooling / floor promotion) |
+| D-05 | Option D — five-surface local sweep codified as the deterministic commit-bound merge gate for parallel agent branches; F-4 atomic-build rider | `DEC-025` | D-05b (public-export CI, with D-06) |
+
+Two rulings diverged from the packet recommendations, which is the human's
+prerogative and is recorded without reconciliation: D-03 selected Option C
+over the staged Option D (accepting in-repo numerical implementation cost
+for zero dependencies and full determinism control), and D-04 Part 1
+selected T-B over T-C (the packet's recorded T-B trade-offs — override
+scatter, silent-loosening risk, no absolute floor near zero, and the D-01e
+analogue — stand as noted residuals for gate-record discipline; the
+surviving exact-equality surfaces, e.g. the contract-corpus comparisons,
+are outside D-04 scope and unchanged).
+
+Recording surfaces updated: `SOFTWARE_DECOMP.md` §12 DEC-022..DEC-025;
+register rows D-02..D-05 → RULED with pointers; packet status headers;
+completion-plan §2 rows. No lifecycle state changed; no release,
+professional, certification, or code-compliance claim is created by any of
+this.

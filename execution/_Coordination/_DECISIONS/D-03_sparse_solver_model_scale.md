@@ -1,6 +1,6 @@
 # D-03 — Sparse Solver / Model-Scale Strategy (Sparse Library vs Bounded Dense Limit with Diagnostics)
 
-**Status:** AWAITING_RULING
+**Status:** RULED — 2026-06-11 the human project authority selected **Option C** (hand-rolled in-repo sparse skyline/profile direct solver; zero new numerical dependencies; determinism posture preserved). Recorded as `DEC-023` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row updated.
 **Prepared:** 2026-06-11 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-DECIDE-PREP-001 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-03.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-03; §3 Phase D (rows D6/D7).

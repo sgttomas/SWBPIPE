@@ -1,6 +1,6 @@
 # D-05 — CI Provider + Hosted Workflow Location (RGAP-003)
 
-**Status:** AWAITING_RULING
+**Status:** RULED — 2026-06-11 the human project authority selected **Option D** (defer hosted CI; the five-surface local sweep codified as one deterministic commit-bound entrypoint is the merge gate for parallel agent branches; F-4 atomic-build fix as rider; D-05b public-export CI follow-up prepared with D-06). Recorded as `DEC-025` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row updated.
 **Prepared:** 2026-06-11 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-DECIDE-PREP-001 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-05.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-05.

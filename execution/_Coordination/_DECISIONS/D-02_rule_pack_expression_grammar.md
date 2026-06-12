@@ -1,6 +1,6 @@
 # D-02 — Rule-Pack Expression Grammar Freeze (Operator/Function Set, Conformance Suite)
 
-**Status:** AWAITING_RULING
+**Status:** RULED — 2026-06-11 the human project authority selected **Option A** (frozen typed AST extended to the full PRD §12.3 function set; text syntax deferred to a named D-02b at the Phase C2 lead-up). Recorded as `DEC-022` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; register row updated.
 **Prepared:** 2026-06-11 by TASK (Type 2), requested by WORKING_ITEMS (Type 1), tranche TP-DECIDE-PREP-001 decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-02.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §2 row D-02; §3 Phase C item C1.
