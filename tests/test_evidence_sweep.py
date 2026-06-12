@@ -78,10 +78,11 @@ def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():
     summary = sweep.run_sweep(sweep.build_sweep_plan(), ROOT, runner=lambda c, r: 0)
 
     assert summary["artifact"] == "openpipestress.evidence_sweep_summary"
-    assert summary["schema_version"] == 1
+    assert summary["schema_version"] == 2
     assert summary["decision_basis"] == "DEC-025"
     git_state = summary["git"]
     assert git_state["commit_hash"] and len(git_state["commit_hash"]) == 40
+    assert git_state["status_capture_failed"] is False
     assert isinstance(git_state["working_tree_dirty"], bool)
     assert summary["overall_status"] == "pass"
     assert [entry["surface_id"] for entry in summary["surfaces"]] == (
@@ -209,6 +210,49 @@ def test_summary_filename_binds_commit_and_dirty_state():
     assert (
         sweep.summary_filename(summary)
         == "SWEEP_20260611T223005Z_aaaaaaaaaaaa-dirty.json"
+    )
+
+
+def test_collect_git_state_records_capture_failure_explicitly(monkeypatch):
+    """Regression: a failed `git status` capture must never read as clean."""
+    sweep = load_module()
+
+    class FakeCompleted:
+        def __init__(self, stdout, returncode=0):
+            self.returncode = returncode
+            self.stdout = stdout
+
+    def fake_run(command, cwd=None, capture_output=False, text=False, check=False):
+        if "status" in command:
+            return FakeCompleted("", returncode=128)
+        if "--abbrev-ref" in command:
+            return FakeCompleted("main\n")
+        return FakeCompleted("a" * 40 + "\n")
+
+    monkeypatch.setattr(sweep.subprocess, "run", fake_run)
+
+    state = sweep.collect_git_state(ROOT)
+
+    assert state["status_capture_failed"] is True
+    assert state["working_tree_dirty"] is None
+    assert state["dirty_paths"] == []
+    assert sweep.git_state_unverified(state) is True
+
+
+def test_summary_filename_marks_unverified_git_state():
+    sweep = load_module()
+    summary = {
+        "git": {
+            "commit_hash": "a" * 40,
+            "status_capture_failed": True,
+            "working_tree_dirty": None,
+        },
+        "started_utc": "2026-06-11T22:30:05+00:00",
+    }
+
+    assert (
+        sweep.summary_filename(summary)
+        == "SWEEP_20260611T223005Z_aaaaaaaaaaaa-gitunverified.json"
     )
 
 

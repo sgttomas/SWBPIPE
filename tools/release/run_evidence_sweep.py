@@ -32,7 +32,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 ARTIFACT_KIND = "openpipestress.evidence_sweep_summary"
 DECISION_BASIS = "DEC-025"
 DEFAULT_OUTPUT_DIR = "validation/evidence/sweeps"
@@ -142,19 +142,34 @@ def parse_porcelain_status(porcelain: str) -> list[str]:
 
 
 def collect_git_state(root: Path = ROOT) -> dict:
-    """Bind the summary to the commit hash and record working-tree deltas."""
+    """Bind the summary to the commit hash and record working-tree deltas.
+
+    A failed git capture is recorded explicitly and must never read as a
+    clean working tree: the DEC-025 gate binds evidence to the commit hash,
+    so a summary that cannot verify its git state has to say so out loud
+    (`working_tree_dirty` becomes null, never false).
+    """
     commit = _capture(("git", "rev-parse", "HEAD"), root)
     branch = _capture(("git", "rev-parse", "--abbrev-ref", "HEAD"), root)
     porcelain = _capture(
         ("git", "status", "--porcelain", "-z"), root, strip=False
     )
+    status_capture_failed = porcelain is None
     dirty_paths = parse_porcelain_status(porcelain or "")
     return {
         "commit_hash": commit,
         "branch": branch,
-        "working_tree_dirty": bool(dirty_paths),
+        "status_capture_failed": status_capture_failed,
+        "working_tree_dirty": None if status_capture_failed else bool(dirty_paths),
         "dirty_paths": dirty_paths,
     }
+
+
+def git_state_unverified(git_state: dict) -> bool:
+    """True when the summary cannot honestly bind to a verified git state."""
+    return bool(git_state.get("status_capture_failed")) or not git_state.get(
+        "commit_hash"
+    )
 
 
 def collect_runtime_versions(root: Path = ROOT) -> dict:
@@ -245,7 +260,12 @@ def run_sweep(surfaces: list[Surface], root: Path, runner=None) -> dict:
 
 def summary_filename(summary: dict) -> str:
     commit = (summary["git"]["commit_hash"] or "nocommit")[:12]
-    dirty = "-dirty" if summary["git"]["working_tree_dirty"] else ""
+    if git_state_unverified(summary["git"]):
+        dirty = "-gitunverified"
+    elif summary["git"]["working_tree_dirty"]:
+        dirty = "-dirty"
+    else:
+        dirty = ""
     stamp = summary["started_utc"].replace("-", "").replace(":", "")
     stamp = stamp.split("+")[0] + "Z"
     return f"SWEEP_{stamp}_{commit}{dirty}.json"
@@ -348,6 +368,13 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError:
         summary_ref = str(output_path)
     print(f"[evidence-sweep] summary: {summary_ref}")
+    if git_state_unverified(summary["git"]):
+        print(
+            "[evidence-sweep] git state could not be verified — the summary "
+            "is not commit-bound and does not satisfy the DEC-025 gate",
+            file=sys.stderr,
+        )
+        return 1
     return 0 if summary["overall_status"] == "pass" else 1
 
 

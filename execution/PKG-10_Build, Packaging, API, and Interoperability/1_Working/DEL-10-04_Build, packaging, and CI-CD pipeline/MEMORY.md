@@ -255,3 +255,18 @@ decisions, or code-compliance decisions.
   `_run_records/WORKING_ITEMS_RUN_2026-06-11_TP-SWEEP-001_evidence_sweep.md`
 - Boundary: development-evidence tooling only; no hosted workflow file; no
   lifecycle, release, professional, certification, or code-compliance claims.
+
+## 2026-06-12 - TP-R2VERIFY-FIX-002 sweep git-state hardening
+
+- Repair of R2 verification finding F-2
+  (`plans/VERIFICATION_2026-06-12_r2_exit_chain.md`): a failed git capture in
+  `run_evidence_sweep.py` could read as a clean working tree.
+  `collect_git_state` now records `status_capture_failed`,
+  `working_tree_dirty` becomes `null` on capture failure, filenames gain
+  `-gitunverified`, and `--execute` exits nonzero when the summary cannot bind
+  to a verified git state (DEC-025 commit-binding contract). `schema_version`
+  bumped 1 → 2.
+- Validation: `tests/test_evidence_sweep.py` 16/16 (two new cases plus the
+  pinned schema bump).
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-12_sweep_git_state_hardening.md`.
+- Boundary unchanged: tooling evidence only; gate semantics per DEC-025.
