@@ -102,7 +102,9 @@ def build_sweep_plan() -> list[Surface]:
     ]
 
 
-def _capture(command: tuple[str, ...], root: Path) -> str | None:
+def _capture(
+    command: tuple[str, ...], root: Path, *, strip: bool = True
+) -> str | None:
     try:
         completed = subprocess.run(
             command, cwd=root, capture_output=True, text=True, check=False
@@ -111,17 +113,42 @@ def _capture(command: tuple[str, ...], root: Path) -> str | None:
         return None
     if completed.returncode != 0:
         return None
-    return completed.stdout.strip()
+    return completed.stdout.strip() if strip else completed.stdout
+
+
+def parse_porcelain_status(porcelain: str) -> list[str]:
+    """Parse `git status --porcelain -z` output into the affected paths.
+
+    Records are `XY <path>` terminated by NUL; rename/copy records carry the
+    original path as a second NUL-terminated token. The X status character is
+    a significant leading space for worktree-only changes (` M <path>`), so
+    the captured output must never be whitespace-stripped before parsing.
+    """
+    paths: list[str] = []
+    tokens = porcelain.split("\0")
+    index = 0
+    while index < len(tokens):
+        record = tokens[index]
+        index += 1
+        if not record:
+            continue
+        status = record[:2]
+        paths.append(record[3:])
+        if "R" in status or "C" in status:
+            if index < len(tokens) and tokens[index]:
+                paths.append(tokens[index])
+            index += 1
+    return sorted(paths)
 
 
 def collect_git_state(root: Path = ROOT) -> dict:
     """Bind the summary to the commit hash and record working-tree deltas."""
     commit = _capture(("git", "rev-parse", "HEAD"), root)
     branch = _capture(("git", "rev-parse", "--abbrev-ref", "HEAD"), root)
-    porcelain = _capture(("git", "status", "--porcelain"), root)
-    dirty_paths = sorted(
-        line[3:] for line in (porcelain or "").splitlines() if line.strip()
+    porcelain = _capture(
+        ("git", "status", "--porcelain", "-z"), root, strip=False
     )
+    dirty_paths = parse_porcelain_status(porcelain or "")
     return {
         "commit_hash": commit,
         "branch": branch,

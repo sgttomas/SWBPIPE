@@ -95,6 +95,66 @@ def test_summary_binds_commit_hash_and_passes_when_all_surfaces_pass():
     )
 
 
+def test_parse_porcelain_status_keeps_full_path_for_unstaged_first_record():
+    sweep = load_module()
+    porcelain = " M projects/chirality-piping/init/init-prompt.md\0"
+
+    assert sweep.parse_porcelain_status(porcelain) == [
+        "projects/chirality-piping/init/init-prompt.md"
+    ]
+
+
+def test_parse_porcelain_status_handles_rename_untracked_and_staged_records():
+    sweep = load_module()
+    porcelain = (
+        "R  docs/renamed.md\0docs/original.md\0"
+        " M tools/release/run_evidence_sweep.py\0"
+        "?? validation/evidence/sweeps/SWEEP_new.json\0"
+        "A  tests/test_new.py\0"
+    )
+
+    assert sweep.parse_porcelain_status(porcelain) == [
+        "docs/original.md",
+        "docs/renamed.md",
+        "tests/test_new.py",
+        "tools/release/run_evidence_sweep.py",
+        "validation/evidence/sweeps/SWEEP_new.json",
+    ]
+
+
+def test_collect_git_state_does_not_strip_leading_space_from_dirty_paths(
+    monkeypatch,
+):
+    """Regression: a stripped ` M <path>` capture cut the first path char."""
+    sweep = load_module()
+
+    class FakeCompleted:
+        def __init__(self, stdout):
+            self.returncode = 0
+            self.stdout = stdout
+
+    def fake_run(command, cwd=None, capture_output=False, text=False, check=False):
+        if "status" in command:
+            assert "-z" in command
+            return FakeCompleted(
+                " M projects/chirality-piping/init/init-prompt.md\0"
+            )
+        if "--abbrev-ref" in command:
+            return FakeCompleted("main\n")
+        return FakeCompleted("a" * 40 + "\n")
+
+    monkeypatch.setattr(sweep.subprocess, "run", fake_run)
+
+    state = sweep.collect_git_state(ROOT)
+
+    assert state["commit_hash"] == "a" * 40
+    assert state["branch"] == "main"
+    assert state["working_tree_dirty"] is True
+    assert state["dirty_paths"] == [
+        "projects/chirality-piping/init/init-prompt.md"
+    ]
+
+
 def test_sweep_fails_fast_and_marks_later_surfaces_not_run():
     sweep = load_module()
 
