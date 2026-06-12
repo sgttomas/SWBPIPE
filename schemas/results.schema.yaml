@@ -524,6 +524,7 @@
           "enum": [
             "recovered_from_local_element_stiffness",
             "assembled_solver_load_vector",
+            "solved_from_global_linear_system",
             "recovered_from_open_mechanics_stress_components",
             "interpolated_from_endpoint_resultants",
             "derived_from_user_entered_section_geometry",
