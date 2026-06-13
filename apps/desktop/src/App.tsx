@@ -119,6 +119,69 @@ type SessionModelCheckpoint = {
   selection: EntityRef;
 };
 
+// TP-APP-R2-UXSHELL-001 workspace information architecture.
+//
+// PRD section 14.1 names the workspace surfaces; the A12 journey (SMOKE.md
+// TP-MAC-141) orders them: model entities -> loads -> solve -> results ->
+// report. The shell therefore keeps a persistent spatial core (model tree +
+// 3D centerline viewport + property inspector, per PRD 14.1/14.3 and
+// DEL-07-02) always on screen, and organizes every other panel behind this
+// always-visible section navigation, listed in journey order. PRD 14.1
+// surfaces with no implementation yet (material/component library editors,
+// rule-pack manager) are intentionally absent: no placeholder dead buttons.
+type WorkspaceSectionId =
+  | "operations"
+  | "loads"
+  | "solve"
+  | "results"
+  | "report"
+  | "project"
+  | "exports"
+  | "evidence";
+
+const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string; description: string }> = [
+  {
+    id: "operations",
+    label: "Operation Apply",
+    description: "Queued structured operations, apply/undo/redo, diffs, and the operation review ledger"
+  },
+  {
+    id: "loads",
+    label: "Load Cases",
+    description: "Load-case manager: create load cases, primitive loads, and combinations"
+  },
+  {
+    id: "solve",
+    label: "Solve",
+    description: "Run the mechanics preview, solve job audit, diagnostics, and missing-data review"
+  },
+  {
+    id: "results",
+    label: "Results",
+    description: "Results browser, comparison workspace, and design-authoring state"
+  },
+  {
+    id: "report",
+    label: "Report",
+    description: "Rendered calculation report, report packet, and report content lint"
+  },
+  {
+    id: "project",
+    label: "Project",
+    description: "Local project storage audit and validation preflight"
+  },
+  {
+    id: "exports",
+    label: "Exports",
+    description: "Result/geometry exports, exchange adapters, handoff packages, and export review"
+  },
+  {
+    id: "evidence",
+    label: "Audit & Boundaries",
+    description: "Run audit, validation evidence, telemetry/privacy/security boundary reviews"
+  }
+];
+
 export function App() {
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
@@ -152,6 +215,7 @@ export function App() {
   const [operationEngineStatus, setOperationEngineStatus] = useState<OperationEngineStatus>(() =>
     initialOperationEngineStatus()
   );
+  const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
   const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
@@ -737,218 +801,306 @@ export function App() {
         />
       </section>
 
-      <section className="workspace-grid">
-        <aside className="left-rail">
-          <ModelTree model={model} selection={selection} onSelect={setSelection} />
-          <PropertyInspector
-            model={model}
-            onQueueIntent={handleQueueEditorIntent}
-            onValidateIntent={handleValidateIntent}
-            operationBusy={operationBusy}
-            operationOutcomes={operationOutcomes}
-            queuedIntents={editorIntents}
-            selection={selection}
-          />
-          <EditorContractPanel editorIntents={editorIntents} model={model} />
-          <OperationApplyPanel
-            queuedIntents={editorIntents}
-            outcomes={operationOutcomes}
-            appliedOperations={appliedOperations}
-            undoCount={undoStack.length}
-            redoCount={redoStack.length}
-            busy={operationBusy}
-            message={operationMessage}
-            engineStatus={operationEngineStatus}
-            onValidate={handleValidateIntent}
-            onApply={handleApplyIntent}
-            onUndo={handleUndoSessionModelEdit}
-            onRedo={handleRedoSessionModelEdit}
-          />
-        </aside>
-
-        <section className="center-stage">
-          <PipeViewport
-            model={model}
-            onQueueIntent={handleQueueEditorIntent}
-            onSelect={setSelection}
-            queuedIntents={editorIntents}
-            result={result}
-            selection={selection}
-          />
-          <div className="bottom-panels">
-            <KnowledgePanel knowledge={knowledge} result={result} />
-            <DiagnosticsPanel
+      <div className="workspace">
+        <section className="modeling-workspace" aria-label="Modeling workspace" data-testid="modeling-workspace">
+          <div className="workspace-pane workspace-pane-tree">
+            <ModelTree model={model} selection={selection} onSelect={setSelection} />
+          </div>
+          <div className="workspace-pane workspace-pane-viewport">
+            <PipeViewport
               model={model}
-              knowledge={knowledge}
+              onQueueIntent={handleQueueEditorIntent}
+              onSelect={setSelection}
+              queuedIntents={editorIntents}
               result={result}
-              selectedDiagnosticId={selectedReviewTarget?.target_type === "diagnostic" ? selectedReviewTarget.id : null}
-              onSelectDiagnostic={handleSelectDiagnostic}
+              selection={selection}
+            />
+          </div>
+          <div className="workspace-pane workspace-pane-inspector">
+            <PropertyInspector
+              model={model}
+              onQueueIntent={handleQueueEditorIntent}
+              onValidateIntent={handleValidateIntent}
+              operationBusy={operationBusy}
+              operationOutcomes={operationOutcomes}
+              queuedIntents={editorIntents}
+              selection={selection}
             />
           </div>
         </section>
 
-        <aside className="right-rail">
-          <ProjectStorageAuditPanel
-            model={model}
-            storageCapability={storageCapability}
-            projectSummary={projectSummary}
-            projectIndex={projectIndex}
-            projectMessage={projectMessage}
-            projectOperation={projectOperation}
-            editorIntents={editorIntents}
-            proposal={proposal}
-            modelHashIntegrity={modelHashIntegrity}
-          />
-          <ProjectValidationPanel
-            model={model}
-            storageCapability={storageCapability}
-            projectSummary={projectSummary}
-            projectOperation={projectOperation}
-            editorIntents={editorIntents}
-            proposal={proposal}
-            modelHash={modelHash}
-            modelHashIntegrity={modelHashIntegrity}
-            projectEnvelopeHash={projectEnvelopeHash}
-            projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-            modelDocumentMigration={modelDocumentMigration}
-            modelMigrationLedger={modelMigrationLedger}
-          />
-          <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
-          <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
-          <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
-          <BuildReadinessPanel model={model} />
-          <ValidationEvidencePanel model={model} />
-          <LoadCaseManagerPanel
-            model={model}
-            onQueueIntent={handleQueueEditorIntent}
-            onSelect={setSelection}
-            selection={selection}
-          />
-          <SolvePanel
-            analysisRun={analysisRun}
-            model={model}
-            result={result}
-            running={running}
-            solveJob={solveJob}
-            onCancel={handleCancelRun}
-            onRun={handleRun}
-          />
-          <MissingDataBlockingPanel model={model} result={result} />
-          <AccessibilityBaselinePanel model={model} />
-          <RuleCheckPanel model={model} result={result} />
-          <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
-          <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
-          <StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />
-          <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
-          <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
-          <LocalFeaHandoffPanel model={model} result={result} analysisRun={analysisRun} />
-          <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
-          <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
-          <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
-          <CaepipeMbfExportPanel model={model} result={result} analysisRun={analysisRun} />
-          <CaepipeExternalHarnessPanel model={model} result={result} analysisRun={analysisRun} />
-          <ExportAdapterSdkPanel model={model} result={result} analysisRun={analysisRun} />
-          <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
-          <NativePackagePanel
-            model={model}
-            modelHash={modelHash}
-            result={result}
-            analysisRun={analysisRun}
-            editorIntents={editorIntents}
-            projectSummary={projectSummary}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-            storageCapability={storageCapability}
-          />
-          <DesignWorkspacePanel
-            model={model}
-            knowledge={knowledge}
-            result={result}
-            analysisRun={analysisRun}
-            comparison={comparison}
-            editorIntents={editorIntents}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-          />
-          <ComparisonPanel comparison={comparison} onSelectResult={handleSelectResult} />
-          <HandoffPanel
-            model={model}
-            knowledge={knowledge}
-            result={result}
-            analysisRun={analysisRun}
-            comparison={comparison}
-            editorIntents={editorIntents}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-          />
-          <ResultsPanel
-            result={result}
-            knowledge={knowledge}
-            analysisRun={analysisRun}
-            selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
-            onSelectResult={handleSelectResult}
-          />
-          <AgentProposalPanel
-            proposal={proposal}
-            mechanicsReady={Boolean(result)}
-            selectedReviewTarget={selectedReviewTarget}
-            onLoad={handleProposal}
-          />
-          <DiffPreviewPanel
-            model={model}
-            analysisRun={analysisRun}
-            editorIntents={editorIntents}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-          />
-          <OperationLedgerPanel
-            model={model}
-            analysisRun={analysisRun}
-            editorIntents={editorIntents}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-            onClearReviewQueue={handleClearReviewQueue}
-          />
-          <ExportReviewPanel
-            model={model}
-            knowledge={knowledge}
-            result={result}
-            analysisRun={analysisRun}
-            comparison={comparison}
-            editorIntents={editorIntents}
-            projectOperation={projectOperation}
-            projectSummary={projectSummary}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-            storageCapability={storageCapability}
-          />
-          <ReportPanel
-            model={model}
-            knowledge={knowledge}
-            result={result}
-            analysisRun={analysisRun}
-            comparison={comparison}
-            editorIntents={editorIntents}
-            projectOperation={projectOperation}
-            projectSummary={projectSummary}
-            proposal={proposal}
-            selectedReviewTarget={selectedReviewTarget}
-            storageCapability={storageCapability}
-          />
-          <RenderedReportPanel
-            model={model}
-            result={result}
-            analysisRun={analysisRun}
-            projectSummary={projectSummary}
-          />
-        </aside>
-      </section>
+        <section className="workspace-dock" aria-label="Workspace sections">
+          <nav className="workspace-nav" aria-label="Workspace section navigation" data-testid="workspace-nav">
+            {WORKSPACE_SECTIONS.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                className={activeSection === section.id ? "workspace-nav-item active" : "workspace-nav-item"}
+                data-testid={`workspace-nav-${section.id}`}
+                aria-pressed={activeSection === section.id}
+                title={section.description}
+                onClick={() => setActiveSection(section.id)}
+              >
+                {section.label}
+                {section.id === "operations" ? (
+                  <span className="workspace-nav-count" data-testid="workspace-nav-operations-count">
+                    {editorIntents.length} queued
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </nav>
+
+          <div className="workspace-dock-body">
+            <section
+              className={dockSectionClass("operations", activeSection)}
+              aria-label="Operation Apply section"
+              data-testid="workspace-section-operations"
+            >
+              <OperationApplyPanel
+                queuedIntents={editorIntents}
+                outcomes={operationOutcomes}
+                appliedOperations={appliedOperations}
+                undoCount={undoStack.length}
+                redoCount={redoStack.length}
+                busy={operationBusy}
+                message={operationMessage}
+                engineStatus={operationEngineStatus}
+                onValidate={handleValidateIntent}
+                onApply={handleApplyIntent}
+                onUndo={handleUndoSessionModelEdit}
+                onRedo={handleRedoSessionModelEdit}
+              />
+              <EditorContractPanel editorIntents={editorIntents} model={model} />
+              <DiffPreviewPanel
+                model={model}
+                analysisRun={analysisRun}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+              />
+              <OperationLedgerPanel
+                model={model}
+                analysisRun={analysisRun}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+                onClearReviewQueue={handleClearReviewQueue}
+              />
+              <AgentProposalPanel
+                proposal={proposal}
+                mechanicsReady={Boolean(result)}
+                selectedReviewTarget={selectedReviewTarget}
+                onLoad={handleProposal}
+              />
+            </section>
+
+            <section
+              className={dockSectionClass("loads", activeSection)}
+              aria-label="Load Cases section"
+              data-testid="workspace-section-loads"
+            >
+              <LoadCaseManagerPanel
+                model={model}
+                onQueueIntent={handleQueueEditorIntent}
+                onSelect={setSelection}
+                selection={selection}
+              />
+            </section>
+
+            <section
+              className={dockSectionClass("solve", activeSection)}
+              aria-label="Solve section"
+              data-testid="workspace-section-solve"
+            >
+              <SolvePanel
+                analysisRun={analysisRun}
+                model={model}
+                result={result}
+                running={running}
+                solveJob={solveJob}
+                onCancel={handleCancelRun}
+                onRun={handleRun}
+              />
+              <DiagnosticsPanel
+                model={model}
+                knowledge={knowledge}
+                result={result}
+                selectedDiagnosticId={
+                  selectedReviewTarget?.target_type === "diagnostic" ? selectedReviewTarget.id : null
+                }
+                onSelectDiagnostic={handleSelectDiagnostic}
+              />
+              <MissingDataBlockingPanel model={model} result={result} />
+              <RuleCheckPanel model={model} result={result} />
+              <KnowledgePanel knowledge={knowledge} result={result} />
+            </section>
+
+            <section
+              className={dockSectionClass("results", activeSection)}
+              aria-label="Results section"
+              data-testid="workspace-section-results"
+            >
+              <ResultsPanel
+                result={result}
+                knowledge={knowledge}
+                analysisRun={analysisRun}
+                selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                onSelectResult={handleSelectResult}
+              />
+              <ComparisonPanel comparison={comparison} onSelectResult={handleSelectResult} />
+              <DesignWorkspacePanel
+                model={model}
+                knowledge={knowledge}
+                result={result}
+                analysisRun={analysisRun}
+                comparison={comparison}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+              />
+            </section>
+
+            <section
+              className={dockSectionClass("report", activeSection)}
+              aria-label="Report section"
+              data-testid="workspace-section-report"
+            >
+              <RenderedReportPanel
+                model={model}
+                result={result}
+                analysisRun={analysisRun}
+                projectSummary={projectSummary}
+              />
+              <ReportPanel
+                model={model}
+                knowledge={knowledge}
+                result={result}
+                analysisRun={analysisRun}
+                comparison={comparison}
+                editorIntents={editorIntents}
+                projectOperation={projectOperation}
+                projectSummary={projectSummary}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+                storageCapability={storageCapability}
+              />
+              <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
+            </section>
+
+            <section
+              className={dockSectionClass("project", activeSection)}
+              aria-label="Project section"
+              data-testid="workspace-section-project"
+            >
+              <ProjectStorageAuditPanel
+                model={model}
+                storageCapability={storageCapability}
+                projectSummary={projectSummary}
+                projectIndex={projectIndex}
+                projectMessage={projectMessage}
+                projectOperation={projectOperation}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                modelHashIntegrity={modelHashIntegrity}
+              />
+              <ProjectValidationPanel
+                model={model}
+                storageCapability={storageCapability}
+                projectSummary={projectSummary}
+                projectOperation={projectOperation}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                modelHash={modelHash}
+                modelHashIntegrity={modelHashIntegrity}
+                projectEnvelopeHash={projectEnvelopeHash}
+                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                modelDocumentMigration={modelDocumentMigration}
+                modelMigrationLedger={modelMigrationLedger}
+              />
+            </section>
+
+            <section
+              className={dockSectionClass("exports", activeSection)}
+              aria-label="Exports section"
+              data-testid="workspace-section-exports"
+            >
+              <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
+              <StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />
+              <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
+              <CaepipeMbfExportPanel model={model} result={result} analysisRun={analysisRun} />
+              <CaepipeExternalHarnessPanel model={model} result={result} analysisRun={analysisRun} />
+              <ExportAdapterSdkPanel model={model} result={result} analysisRun={analysisRun} />
+              <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
+              <LocalFeaHandoffPanel model={model} result={result} analysisRun={analysisRun} />
+              <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
+              <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
+              <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
+              <NativePackagePanel
+                model={model}
+                modelHash={modelHash}
+                result={result}
+                analysisRun={analysisRun}
+                editorIntents={editorIntents}
+                projectSummary={projectSummary}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+                storageCapability={storageCapability}
+              />
+              <HandoffPanel
+                model={model}
+                knowledge={knowledge}
+                result={result}
+                analysisRun={analysisRun}
+                comparison={comparison}
+                editorIntents={editorIntents}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+              />
+              <ExportReviewPanel
+                model={model}
+                knowledge={knowledge}
+                result={result}
+                analysisRun={analysisRun}
+                comparison={comparison}
+                editorIntents={editorIntents}
+                projectOperation={projectOperation}
+                projectSummary={projectSummary}
+                proposal={proposal}
+                selectedReviewTarget={selectedReviewTarget}
+                storageCapability={storageCapability}
+              />
+            </section>
+
+            <section
+              className={dockSectionClass("evidence", activeSection)}
+              aria-label="Audit and boundaries section"
+              data-testid="workspace-section-evidence"
+            >
+              <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
+              <ValidationEvidencePanel model={model} />
+              <BuildReadinessPanel model={model} />
+              <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
+              <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
+              <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
+              <AccessibilityBaselinePanel model={model} />
+            </section>
+          </div>
+        </section>
+      </div>
 
       <footer className="app-footer">
         Technical preview only: no production-readiness, release-readiness, certification, sealing, code-compliance; no licensed engineering reliance claim.
       </footer>
     </main>
   );
+}
+
+// Inactive sections stay mounted (form drafts, queue previews, and audit
+// state survive navigation) and are hidden with CSS only; display:none also
+// removes them from the accessibility tree in a real browser.
+function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: WorkspaceSectionId): string {
+  return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
 }
 
 function Badge({ icon, label }: { icon: React.ReactNode; label: string }) {
@@ -965,7 +1117,8 @@ function BoundaryItem({ icon, label, value }: { icon: React.ReactNode; label: st
     <span className="boundary-item">
       {icon}
       <strong>{label}</strong>
-      <code>{value}</code>
+      {/* title carries the full value when the strip ellipsizes at narrow widths */}
+      <code title={value}>{value}</code>
     </span>
   );
 }

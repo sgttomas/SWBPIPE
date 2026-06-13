@@ -63,6 +63,7 @@ export function SolvePanel({
         className="secondary-action"
         data-testid="cancel-mechanics-preview"
         disabled={!running}
+        title={running ? undefined : "Disabled: no mechanics preview is running, so there is nothing to cancel."}
         onClick={onCancel}
         type="button"
       >

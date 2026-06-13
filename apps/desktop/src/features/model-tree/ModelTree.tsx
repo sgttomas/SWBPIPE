@@ -288,7 +288,13 @@ function TreeButton({
   onClick: () => void;
 }) {
   return (
-    <button className={`tree-row ${active ? "active" : ""}`} data-testid={`tree-row-${item.id}`} onClick={onClick} type="button">
+    <button
+      className={`tree-row ${active ? "active" : ""}`}
+      data-testid={`tree-row-${item.id}`}
+      aria-pressed={active}
+      onClick={onClick}
+      type="button"
+    >
       {item.icon}
       <span>
         <strong>{item.label}</strong>

@@ -37,11 +37,23 @@ export default defineConfig({
     url: "http://127.0.0.1:5174"
   },
   projects: [
+    // TP-APP-R2-UXSHELL-001 viewport matrix: the packaged Tauri window
+    // default (1440x920 per src-tauri/tauri.conf.json) and a compact
+    // ~1280x800 laptop size. Both lanes must complete the full journey with
+    // every action driven through visible controls — clipped or unreachable
+    // controls fail the actionability checks.
     {
       name: "chromium-desktop",
       use: {
         ...devices["Desktop Chrome"],
-        viewport: { width: 1280, height: 900 }
+        viewport: { width: 1440, height: 920 }
+      }
+    },
+    {
+      name: "chromium-compact",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1280, height: 800 }
       }
     }
   ]

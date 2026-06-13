@@ -13,6 +13,32 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - A3 sub-slice landed: workspace IA and usability repair (`TP-APP-R2-UXSHELL-001`)
+
+Response to the human packaged-pass attempt-2 usability verdict (TP-MAC-141).
+The shell moved from an accreted vertical panel stack to the PRD §14.1
+workspace: persistent model tree | 3D viewport | property inspector core
+(DEL-07-02 RQ-001/002), with the remaining surfaces behind always-visible
+section tabs in A12-journey order (Operation Apply with live queue badge,
+Load Cases, Solve, Results, Report, Project, Exports, Audit & Boundaries;
+vocabulary from DEL-07-06 Guidance and the checklist's own terms). Inactive
+sections stay mounted (drafts/queue state survive navigation); unimplemented
+PRD surfaces remain absent — no placeholder controls; boundary strip stays
+permanently visible (DEL-07-05 principle). Scroll/overflow fixed
+structurally and browser-verified at 1440×920 and 1280×800 with a DOM
+overflow probe. New permanent dead-control audit
+(`App.deadControls.test.tsx`): every rendered button must produce an
+observable change or carry an accessible disabled reason — caught 4
+controls, each fixed or reason-labeled; all data-testids preserved.
+Validation: Vitest 242/242, dev e2e 4/4 (two-viewport matrix, navigation
+driven through visible controls), dist e2e 1/1, build green. Residuals:
+1280×800 dock height cosmetic; WCAG target TBD (DEL-07-06-CF-001); canvas
+gestures remain separate A3 scope. Nav-pattern choice recorded as PROPOSAL
+(kits silent on concrete pattern).
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-146; DEL-07-06 run record
+`TASK_RUN_2026-06-12_1756.md`.
+
 ## 2026-06-12 - Regression repair: packaged builds ship the wasm engine (`TP-APP-R2-WASMPKG-001`)
 
 The first human TP-MAC-141 packaged pass failed at `New blank` with

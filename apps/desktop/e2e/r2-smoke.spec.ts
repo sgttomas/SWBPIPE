@@ -18,6 +18,16 @@ const rehearsal = JSON.parse(
   readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
 ) as RehearsalFixture;
 
+// TP-APP-R2-UXSHELL-001: the shell keeps the spatial core (model tree |
+// viewport | property inspector) persistent and organizes the remaining
+// panels behind an always-visible workspace section navigation. The specs
+// drive that navigation through its visible controls exactly as a human
+// following SMOKE.md TP-MAC-141 would.
+async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
+  await page.getByTestId(`workspace-nav-${sectionId}`).click();
+  await expect(page.getByTestId(`workspace-section-${sectionId}`)).toBeVisible();
+}
+
 test("R2 desktop preview smoke covers solve, results, report, and viewport overlay", async ({ page }) => {
   await page.goto("/");
 
@@ -36,6 +46,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 7 primitive loads; 1 combinations"
   );
@@ -227,6 +238,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
   expect(diffPngPixels(before, after)).toBeGreaterThan(100);
 
+  await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");
@@ -244,6 +256,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   const solvedCanvas = await canvas.screenshot();
   expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);
 
+  await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
   await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
@@ -264,6 +277,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
 
+  await openWorkspaceSection(page, "report");
   const report = page.getByLabel("Report packet");
   await expect(report).toContainText("run:preview-linear-static-001");
   await expect(report.getByTestId("report-unit-system")).toContainText(
@@ -289,6 +303,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   // verify the honest wasm-engine route on the applied receipt. Runs last:
   // applying clears earlier solve results by design.
   await page.getByTestId("queue-explicit-node-intent").click();
+  await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
   await page.getByTestId("apply-intent-editor-intent-1").click();
@@ -301,6 +316,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
   // through the visible create-form controls and apply it through the wasm
   // engine in browser mode.
+  await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-combination-basis").selectOption("result_state_subtraction");
   await expect(page.getByTestId("load-manager-create-combination-minuend")).toHaveValue("load:L-100");
   await page.getByTestId("load-manager-create-combination-subtrahend").selectOption("load:L-200");
@@ -309,6 +325,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
   );
   await page.getByTestId("queue-create-combination-intent").click();
+  await openWorkspaceSection(page, "operations");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 1 applied");
   await page.getByTestId("apply-intent-editor-intent-2").click();
   await expect(applyPanel.getByTestId("applied-operation-route-applied-2-editor-intent-2")).toContainText(
@@ -396,6 +413,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await applyQueuedIntent(page, 6, support.id);
 
   const loadCase = stepPayload("create_load_case", "load:R2-L-100");
+  await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-load-id").fill(loadCase.id);
   await page.getByTestId("load-manager-create-load-label").fill(loadCase.label);
   await page.getByTestId("load-manager-create-load-kind").fill(loadCase.kind);
@@ -405,6 +423,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await applyQueuedIntent(page, 7, loadCase.id);
 
   const primitive = stepPayload("create_primitive_load", "load:R2-L-100-FY");
+  await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-primitive-load-case").selectOption(loadCase.id);
   await page.getByTestId("load-manager-create-primitive-category").selectOption(primitive.category);
   await page.getByTestId("load-manager-create-primitive-id").fill(primitive.id);
@@ -416,6 +435,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await applyQueuedIntent(page, 8, primitive.id);
 
   const combination = stepPayload("create_combination", "combination:R2-C-100");
+  await openWorkspaceSection(page, "loads");
   await page.getByTestId("load-manager-create-combination-id").fill(combination.id);
   await page.getByTestId("load-manager-create-combination-label").fill(combination.label);
   await page.getByTestId("load-manager-create-combination-load-case").selectOption(combination.terms[0].load_case);
@@ -428,12 +448,14 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "1 load cases; 1 primitive loads; 1 combinations"
   );
+  await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
     "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
   );
+  await openWorkspaceSection(page, "report");
   await expect(page.getByTestId("rendered-report-render")).toBeEnabled();
   await page.getByTestId("rendered-report-render").click();
   await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
@@ -457,6 +479,10 @@ async function fillNodeDraft(page: Page, payload: any): Promise<void> {
 }
 
 async function applyQueuedIntent(page: Page, sequence: number, expectedOperation: string): Promise<void> {
+  // Authoring forms live in the persistent core or the Load Cases section;
+  // applying always goes through the Operation Apply section, like the
+  // TP-MAC-141 manual journey.
+  await openWorkspaceSection(page, "operations");
   const key = `editor-intent-${sequence}`;
   const row = page.getByTestId(`operation-apply-row-${key}`);
   await expect(row).toContainText(expectedOperation);

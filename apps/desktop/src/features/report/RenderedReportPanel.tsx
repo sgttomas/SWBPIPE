@@ -74,6 +74,13 @@ export function RenderedReportPanel({
           type="button"
           data-testid="rendered-report-render"
           disabled={!canRender}
+          title={
+            canRender
+              ? undefined
+              : rendering
+                ? "A report render is already in progress."
+                : "Disabled: rendering needs a completed mechanics preview and its analysis-run record in this session. Open the Solve section and run the mechanics preview first."
+          }
           onClick={() => void onRender()}
         >
           {rendering ? "Rendering…" : "Render report"}

@@ -82,3 +82,63 @@ local review finding requires disposition.
 No lifecycle state was changed. This addendum records readiness-review evidence
 only and does not assert product release, professional approval, accessibility
 certification, sealing, automatic engineering acceptance, or `ISSUED` status.
+
+## 2026-06-12 - TP-APP-R2-UXSHELL-001 Desktop Shell Usability Repair
+
+Executed the completion-plan A3 usability tranche after the human TP-MAC-141
+attempt-2 abandonment ("no logical layout of the panels at all... things are
+cut off or don't scroll... many things are unresponsive"). Three repairs in
+`apps/desktop`:
+
+- **Workspace IA.** Persistent spatial core (model tree | 3D centerline
+  viewport | property inspector) plus an always-visible section navigation in
+  A12 journey order: Operation Apply (with queued-count badge), Load Cases,
+  Solve, Results, Report, Project, Exports, Audit & Boundaries. Inactive
+  sections stay mounted and are CSS-hidden, so form drafts and queue state
+  survive navigation. Design-kit basis: PRD section 14.1 surface list and
+  14.3 inspector content; DEL-07-02 Specification RQ-001/002 (tree as
+  navigation, inspector presents selected-entity fields) and Guidance
+  boundary split; DEL-07-06 Guidance "Considerations" major-panel list
+  (model tree, property inspector, editor surfaces, solver/diagnostic
+  surfaces, results browser, report preview) — those names became the nav
+  vocabulary; DEL-07-05 Guidance (result categories navigable, professional
+  boundary notices near result status — boundary strip stays permanently
+  visible). PRD 14.1 surfaces with no implementation (material/component
+  library editors, rule-pack manager) stay absent; no placeholder buttons.
+  Implementation decision (PROPOSAL): kits are silent on the concrete
+  navigation pattern, so the simplest conventional pattern was chosen —
+  horizontal section tabs above a docked panel area, core kept persistent;
+  default section is Operation Apply because every authoring step ends
+  there.
+- **Scroll/overflow.** Structural stylesheet repair (structure map at the
+  top of `styles.css`): independently scrolling core panes, scrolling dock
+  body, bounded scrolling apply queue, wrapping toolbar/form rows, two-row
+  model-tree filter, tooltip-backed boundary-strip ellipsis. Verified in a
+  real browser at 1440x920 and 1280x800 with an automated
+  horizontal-overflow probe (only tooltip-backed boundary values remain
+  ellipsized) and zero console errors.
+- **Dead-control audit.** Permanent Vitest regression test
+  (`src/App.deadControls.test.tsx`): three shell states, every button must
+  click-to-observable-DOM-change or carry an accessible disabled reason;
+  aria-pressed="true" toggles exempt. Caught 4: tree-row-project (now
+  aria-pressed selection state), cancel-mechanics-preview,
+  generate-review-proposal, rendered-report-render (now carry explicit
+  disabled-reason titles naming the enabling step). All testids preserved.
+
+Validation (verbatim): Vitest `10 passed (10)` files, `242 passed (242)`
+tests; `npm run build` green (`✓ built in 1.30s`); dev e2e `4 passed`
+(2 specs x 1440x920 + 1280x800 viewport matrix, navigation driven through
+visible controls); dist e2e `1 passed`. Python tests not run: nothing
+python-consumed changed.
+
+SMOKE.md: appended TP-MAC-146; TP-MAC-141 received navigation wording
+inserts only (steps 2, 9-12, 13, 14, 17 plus a navigation note) — payloads,
+expectations, and human execution records untouched. F-4 remains open; the
+human TP-MAC-141 re-run decides usability, not this entry. Residuals: dock
+height at 1280x800 is usable but tight (~200px, scrolls); canvas gesture
+work is a separate A3 scope; WCAG conformance target remains TBD per
+DEL-07-06-CF-001. Evidence: `_run_records/TASK_RUN_2026-06-12_1756.md`.
+
+No lifecycle state change; no release-readiness, professional approval,
+accessibility certification, sealing, authentication, or code-compliance
+claim.

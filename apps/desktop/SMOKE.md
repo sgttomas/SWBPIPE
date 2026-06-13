@@ -4197,8 +4197,14 @@ stage advancement remains a separate human ruling.
 
 ### Checklist (all values are the invented A12 rehearsal payloads from `fixtures/product_preview/r2_from_blank_rehearsal.json`)
 
+Navigation (TP-MAC-146): the model tree, 3D viewport, and Property Inspector
+stay on screen; every other surface is behind the workspace section tabs
+above the lower dock (`Operation Apply`, `Load Cases`, `Solve`, `Results`,
+`Report`, `Project`, `Exports`, `Audit & Boundaries`).
+
 Authoring steps queue an intent, then apply it from the Operation Apply panel
-row (Apply button). After each apply, expect the apply summary to show
+row (Apply button) — open the `Operation Apply` section to reach it. After
+each apply, expect the apply summary to show
 `0 queued; N applied` with the step's N, and the applied row to show
 `route=tauri_backend_apply` and `professional_approval=false`.
 
@@ -4207,7 +4213,8 @@ row (Apply button). After each apply, expect the apply summary to show
    status `engine_route=tauri_backend_apply; engine_state=ready`, and local
    project status containing `network=false` and `telemetry=false`.
 2. **New blank.** Click `New blank`. Expect "Created blank local model
-   document without fixture entities or external file copies." and Load Cases
+   document without fixture entities or external file copies."; then open
+   the `Load Cases` section and expect Load Cases
    summary `0 load cases; 0 primitive loads; 0 combinations`.
 3. **Node 1** (viewport explicit-node form): id `node:R2-100`, label
    `R2 anchored node`, x/y/z `0 / 0 / 0`. Queue + apply (1 applied).
@@ -4227,29 +4234,29 @@ row (Apply button). After each apply, expect the apply summary to show
 8. **Support** (create-support form): id `support:R2-anchor`, label
    `R2 user anchor`, node `node:R2-100`, all six restraints checked
    (UX, UY, UZ, RX, RY, RZ), same provenance. Queue + apply (6 applied).
-9. **Load case** (Load Cases manager create form): id `load:R2-L-100`, label
+9. **Load case** (open the `Load Cases` section; Load Cases manager create form): id `load:R2-L-100`, label
    `R2 invented operating load`, kind `primitive_user_load`, status
    `preview_only`, same provenance. Queue + apply (7 applied).
-10. **Primitive load**: load case `load:R2-L-100`, category
+10. **Primitive load** (in the `Load Cases` section): load case `load:R2-L-100`, category
     `concentrated_force`, id `load:R2-L-100-FY`, node `node:R2-110`,
     direction `global_y`, magnitude `250` N, same provenance.
     Queue + apply (8 applied).
-11. **Combination**: id `combination:R2-C-100`, label
+11. **Combination** (in the `Load Cases` section): id `combination:R2-C-100`, label
     `R2 invented operating combination`, load case `load:R2-L-100`, factor
     `1`, same provenance, short rationale text. Queue + apply (9 applied).
-12. **Summary check.** Expect `1 load cases; 1 primitive loads;
+12. **Summary check.** In the `Load Cases` section, expect `1 load cases; 1 primitive loads;
     1 combinations`.
-13. **Solve.** Click `Run mechanics preview`. Expect the solve job to reach
+13. **Solve.** Open the `Solve` section, then click `Run mechanics preview`. Expect the solve job to reach
     `state=completed` with mechanics status `MECHANICS_SOLVED` and at least
     one result row; grouped results render (displacement/reaction/force/
-    moment/stress).
-14. **Report.** Click `Render report`. Expect a rendered report preview and
+    moment/stress) in the `Results` section.
+14. **Report.** Open the `Report` section, then click `Render report`. Expect a rendered report preview and
     `Canonical HTML SHA-256: <hash>`; record the hash below.
 15. **Save.** Click `Save local`. Expect a saved-project confirmation message
     (local store only; nothing leaves the machine).
 16. **Reopen.** Click `List local`, then `Open …` for the saved project.
     Expect the authored model to reload with the step-12 summary intact.
-17. **Re-solve.** Click `Run mechanics preview` again. Expect
+17. **Re-solve.** Open the `Solve` section, then click `Run mechanics preview` again. Expect
     `state=completed` + `MECHANICS_SOLVED` again on the reopened model.
 18. **Quit.** No network, daemon, telemetry, or repository writes occurred;
     the user project stays in local app storage and is never committed.
@@ -4545,3 +4552,68 @@ notes:
 - Boundary review: no lifecycle state change; no release-readiness,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## TP-MAC-146 desktop shell usability repair: workspace IA, scroll/overflow, dead-control audit (`TP-APP-R2-UXSHELL-001`, 2026-06-12)
+
+- Responds to the TP-MAC-141 attempt-2 abandonment ("no logical layout of
+  the panels at all... things are cut off or don't scroll... many things are
+  unresponsive"). Three repairs, no behavior or `data-testid` changes:
+- **Workspace information architecture** (PRD section 14.1; DEL-07-02 and
+  DEL-07-06 kits): the shell keeps a persistent spatial core — model tree |
+  3D centerline viewport | property inspector — and moves all other panels
+  behind an always-visible workspace navigation in A12 journey order:
+  `Operation Apply` (apply queue with live queued-count badge, editor
+  contract, diff preview, operation ledger, proposals), `Load Cases`,
+  `Solve` (execution, diagnostics, missing-data, rule-check, knowledge),
+  `Results` (results browser, comparison, design workspace), `Report`
+  (rendered report, report packet, report lint), `Project` (storage audit,
+  validation preflight), `Exports` (all export/interop/handoff panels),
+  `Audit & Boundaries` (run audit, validation evidence, build readiness,
+  telemetry/secret/security/accessibility reviews). Inactive sections stay
+  mounted (form drafts and queue state survive navigation) and are hidden
+  with `display:none`. PRD 14.1 surfaces without implementations
+  (material/component library editors, rule-pack manager) remain absent —
+  no placeholder dead buttons. The boundary strip stays always visible.
+- **Scroll/overflow repair** (structural, in `styles.css` with a structure
+  map documented at the top): each core column is an independently
+  scrolling pane; the section dock body scrolls; the operation apply queue
+  is height-bounded and scrolls internally; project toolbar and form rows
+  wrap instead of clipping; the model-tree filter row reflowed to two rows
+  (it overlapped at narrow widths); boundary-strip values carry full-text
+  tooltips when ellipsized. Verified in a real browser at 1440x920 (the
+  packaged window default) and 1280x800: the only remaining ellipsized
+  content is the boundary strip (tooltip-backed); all panel regions scroll
+  within their bounds; zero console errors.
+- **Dead-control audit** (`src/App.deadControls.test.tsx`, permanent
+  regression test): renders the full shell in three states (initial,
+  queued, solved), enumerates every button by normalized control class, and
+  fails on any enabled control whose click produces no observable DOM
+  change or any disabled control with no accessible reason
+  (title/aria-label/aria-describedby). Documented exemption: buttons with
+  `aria-pressed="true"` (already-active toggles) are idempotent by design.
+  Initial audit caught 4 controls; dispositions: `tree-row-project`
+  (clicking the already-selected tree row produced no change — rows now
+  expose `aria-pressed` selection state, so the active row is an honest
+  toggle), `cancel-mechanics-preview`, `generate-review-proposal`, and
+  `rendered-report-render` (all legitimately disabled but reason-less —
+  each now carries an explicit disabled-reason title naming the enabling
+  step). Audit green after dispositions; no control needed to be removed.
+- TP-MAC-141 checklist updated with navigation wording only (a navigation
+  note plus "open the `<section>` section" inserts on steps 2, 9-12, 13,
+  14, 17); payloads, expectations, and human execution records untouched.
+- e2e now drives the navigation through visible controls; the dev lane runs
+  a viewport matrix (1440x920 packaged default + 1280x800 compact).
+- Validation (this tranche): Vitest 10 files / 242 tests passed (241 prior
+  + dead-control audit); `npm run build` green; dev e2e 4 passed (2 specs x
+  2 viewports); dist e2e 1 passed.
+- H4 posture: the changed navigation is exercised end-to-end in a real
+  browser (both e2e journeys click the section tabs); jsdom suites cover
+  panel behavior; the packaged `tauri://` runtime remains covered only by
+  the human TP-MAC-141 pass, which this row exists to unblock.
+- Boundary review: layout and navigation changes only — no solver, engine,
+  schema, or persistence change; nav labels carry no claims language; the
+  professional/boundary strip remains permanently visible; no network,
+  daemon, or telemetry surface added; no lifecycle state change, release
+  readiness, certification, sealing, authentication, or code-compliance
+  claim; whether the layout is now humanly usable is decided by the human
+  TP-MAC-141 re-run, not by this entry.

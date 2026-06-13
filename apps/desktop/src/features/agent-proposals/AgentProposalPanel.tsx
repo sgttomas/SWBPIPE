@@ -15,7 +15,18 @@ export function AgentProposalPanel({
   return (
     <section className="panel agent-panel" aria-label="Agentic proposal" data-testid="agent-proposal-panel">
       <div className="panel-title">Proposal</div>
-      <button className="secondary-action" data-testid="generate-review-proposal" onClick={onLoad} disabled={!mechanicsReady} type="button">
+      <button
+        className="secondary-action"
+        data-testid="generate-review-proposal"
+        onClick={onLoad}
+        disabled={!mechanicsReady}
+        title={
+          mechanicsReady
+            ? undefined
+            : "Disabled: review proposals are generated against solve results. Open the Solve section and run the mechanics preview first."
+        }
+        type="button"
+      >
         <Wand2 size={16} />
         Generate review proposal
       </button>
