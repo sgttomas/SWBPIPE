@@ -85,22 +85,33 @@ write-authorization: COORDINATION_LOOP_PREAPPROVED_TRANCHE
 - Playwright `-g "rule-pack manager"` **2/2** (chromium-desktop 1440×920 +
   chromium-compact 1280×800; composer driven from blank through visible
   controls).
-- DEC-025 five-surface evidence sweep recorded in the follow-up evidence
-  commit (`validation/evidence/sweeps/`). Cargo crate sweep and Python pytest
-  (359) pass; the desktop Vitest surface's only failures are the
-  `App.test.tsx` timeout flakes described below (pre-existing,
-  host-environmental — they also fail on pristine HEAD).
-- **Environmental note (recorded, not a regression):** `src/App.test.tsx`
-  exhibits machine-load-sensitive per-test **timeout** flakiness on this
-  host — the failing test set varies run-to-run (observed 12 → 5 → 3 → 2
-  failures, different tests each time) and **reproduces identically on
-  pristine HEAD** with this tranche's panel change reverted (3 failures,
-  no overlap with the tranche). The flakes are heavy full-`<App />` solve/
-  diagnostics tests tipping over their 5 s/10 s timeouts under CPU
-  contention, not assertion failures, and are unrelated to this slice
-  (which adds only a small no-draft hint to the always-mounted panel in the
-  paths `App.test.tsx` exercises). Baseline method: `git stash` the panel,
-  re-run `src/App.test.tsx`.
+- **All five DEC-025 surfaces independently green on the maintainer's clean
+  machine** at this committed HEAD (`add584756`): cargo crate sweep ✓; Python
+  pytest **359** ✓; desktop Vitest **263/263** (standalone `vitest run`) ✓;
+  Playwright e2e **6/6** (clean `--workers=1` run, both viewports, incl. the
+  rule-pack composer journey) ✓; `tsc -b` clean. Targeted maintainer runs
+  match the author runs (rule-packs Vitest 21/21; Playwright `-g "rule-pack
+  manager"` 2/2).
+- **DEC-025 atomic sweep — `overall: fail` on a gate-determinism flake, not a
+  regression.** The committed sweep artifact
+  (`validation/evidence/sweeps/SWEEP_20260613T200943Z_add584756bb1-dirty.json`)
+  records cargo ✓, pytest ✓, then `desktop_vitest` **262/263** with a single
+  failure: `App.test.tsx > round trips review-only proposal operations …` —
+  a **10 s per-test timeout**, not an assertion, on a test this tranche does
+  not modify (later surfaces `not_run` because the sweep stops at first
+  failure). **Root cause:** the sweep runs cargo + pytest *before* Vitest in
+  one process, so the machine is warm when the tight-timeout (5 s/10 s)
+  full-`<App />` solve tests in `App.test.tsx` run, and 1–9 of them tip over
+  their timeout. The same Vitest suite is **263/263 when run standalone**
+  (no preload). On the author's busier host the in-sweep flake set varied
+  run-to-run (12 → 9 → 7 → 5 → 3 → 2 → 1 failures, different tests each time)
+  and **reproduced on pristine HEAD** with this tranche's panel change
+  reverted — confirming it is load-induced and tranche-independent.
+- **Follow-up (gate infra, not this tranche):** the "deterministic local
+  merge gate" is not deterministic under its own sequential load because of
+  `App.test.tsx`'s 5 s/10 s per-test timeouts. Candidate fixes: raise those
+  test timeouts, isolate `App.test.tsx` into its own Vitest pass, or run the
+  Vitest surface before cargo/pytest. Recorded for a separate change.
 
 ## Pre-commit adversarial review and dispositions
 
