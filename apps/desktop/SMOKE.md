@@ -4308,9 +4308,28 @@ authoring-journey usability now blocks the human pass — the R2 criterion's
 "a user can create, solve, and report" is not yet humanly demonstrable
 end-to-end, independent of mechanical correctness.
 
+**Attempt 3 — 2026-06-12, human project authority, binary at `26aadc4fe`
+(post-UXSHELL rebuild; recorded by the coordinating agent on the human's
+explicit stated authority): PARTIAL — steps 1–5 PASS, journey not
+completed.** Steps 1 through 5 individually confirmed (launch, New blank,
+node 1, node 2, material). Steps 6–18 not executed as prescribed; the human
+observed "a lot of seemingly good functionality in terms of buttons doing
+expected things" but "would need a lot of help to figure out where to
+navigate and enter the information." Human ruling, verbatim: "the app
+appears to have consistent functionality with the test that I could figure
+out. The rest of the test still fails because the user interface is too
+cumbersome and opaque. But there's still much more to do anyways. Unless
+there's some significant risk, we should proceed with the next development
+phase." No report rendered; no report SHA-256 exists for this attempt.
+**F-4 remains open** (no completed journey). Stage consequence: per
+`DEC-035` (same day), the target stage advanced to R3 with F-4 and the
+authoring-journey usability finding carried as named blocking residuals at
+the R3 exit review.
+
 ```
-performed: NO (attempt 2 abandoned for usability; F-4 open;
-  re-run after authoring-UX work makes the journey completable)
+performed: NO (attempt 3 partial — steps 1–5 pass; F-4 open, carried as a
+  blocking residual at the R3 exit review per DEC-035; re-run when
+  authoring-UX iteration makes the journey completable)
 date:
 performed_by:
 binary commit:

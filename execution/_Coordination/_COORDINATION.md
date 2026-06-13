@@ -204,17 +204,18 @@ that:
 - shows the professional, release, protected-content, and private-data
   boundaries visibly.
 
-**Current target stage — PRD R2 exit criterion.** A user can create, solve,
-and report a small piping model in the desktop app without editing raw files
-(PRD §22.3), reached through the completion plan's Phase A items.
-**Held at R2 by the D-14 ruling (`DEC-029`, 2026-06-12):** the stage does not
-advance until packaged-runtime GUI journey evidence exists (verification
-finding F-4 of `plans/VERIFICATION_2026-06-12_r2_exit_chain.md`); the
-recorded closure path is a human-performed manual smoke of the packaged
-binary against the A12 script, recorded in `apps/desktop/SMOKE.md` as a
-human entry. Phase C remains out-of-stage for ordinary tranche selection
-until a later human ruling advances the stage on that evidence.
-Interactive authoring of user-created local models — applying editor
+**Current target stage — PRD R3 exit criterion (advanced 2026-06-12 by
+`DEC-035`, superseding the `DEC-029` hold).** A user can define a private,
+non-code rule pack and run checks from the GUI, with pass/fail blocked on
+missing inputs (PRD §22.4), reached through the completion plan's Phase C
+items. R2-stage evidence was reviewed per
+`plans/VERIFICATION_2026-06-12_r2_exit_chain.md` and the human packaged-pass
+attempts recorded in `apps/desktop/SMOKE.md` TP-MAC-141 (attempt 3:
+steps 1–5 pass; remainder blocked on authoring-journey usability, not
+function). **Two named blocking residuals must close before any R3 exit
+review:** verification finding F-4 (a completed human GUI journey in the
+packaged webview) and the authoring-journey usability finding (completion
+plan A3 row). Interactive authoring of user-created local models — applying editor
 operations to a persisted local model document — is in scope at this stage
 and does not violate the technical-preview boundary. The boundary
 prohibitions concern claims, network surfaces, and data classes, not
@@ -229,12 +230,11 @@ interactivity:
 - no release-readiness claims, professional approval claims, certification,
   sealing, authentication, or code-compliance claims.
 
-**Later stages.** After R2-stage evidence is recorded and human-reviewed,
-subsequent target stages follow the completion plan: R3 (rule packs and
-private libraries in the GUI), R4 (piping components and nonlinear
-supports), R5 (engineering beta). Agents propose stage advancement with
-evidence; only a human-approved coordination update advances the target
-stage recorded here.
+**Later stages.** After R3-stage evidence is recorded and human-reviewed,
+subsequent target stages follow the completion plan: R4 (piping components
+and nonlinear supports), R5 (engineering beta). Agents propose stage
+advancement with evidence; only a human-approved coordination update
+advances the target stage recorded here.
 
 This standard is not a release gate, legal clearance, professional reliance
 record, or final `ISSUED` lifecycle decision.
