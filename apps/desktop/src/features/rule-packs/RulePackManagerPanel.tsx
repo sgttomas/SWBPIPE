@@ -16,18 +16,25 @@ import {
   type RulePackDocumentValidation,
   type RulePackValidationFinding
 } from "../../services/rulePackService";
+import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
 
-// Rule-Pack Manager (Phase C2 slice 1, PRD §14.5 / §14.1 "Rule-pack
-// manager"). This slice covers pack management and document-level
-// authoring: list/create/open/save/delete against the local-only store,
-// validation findings, and checksum generation/stamping. Expressions are
-// authored today in the document's native canonical form — declarative-AST
-// JSON per DEC-022; the structured expression composer is the next C2
-// slice, and no expression text syntax is provided (D-02b awaits the human
-// ruling).
+// Rule-Pack Manager (PRD §14.5 / §14.1 "Rule-pack manager"). Pack management
+// and document authoring against the local-only store: list/create/open/
+// save/delete, validation findings, and checksum generation/stamping.
+//
+// Slice 1 (TP-C2-EDITOR-001) authored the whole document as raw canonical
+// JSON. Slice 2 (TP-C2-COMPOSER-001) adds the structured AST expression
+// composer (PRD §14.5 "Expression editor"): the selected formula's
+// declarative-AST expression (DEC-022 grammar v1.0.0) is built through
+// form/tree controls rather than hand-written JSON. The raw document JSON
+// stays as the canonical/fallback surface (and the only way to edit
+// table-backed nodes until that composer slice lands). No expression text
+// syntax is provided anywhere — D-02b awaits the human ruling.
 
 const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
 const NO_PROJECT_REASON = "Local rule packs are project-scoped; create or open a local project first.";
+const BUSY_REASON =
+  "A rule-pack backend request is in progress; wait for it to finish before editing or running another action.";
 
 type DraftState = {
   text: string;
@@ -43,8 +50,16 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
   const [entries, setEntries] = useState<LocalRulePackIndexEntry[]>([]);
   const [validation, setValidation] = useState<RulePackDocumentValidation | null>(null);
   const [checksum, setChecksum] = useState<RulePackComputedChecksum | null>(null);
+  // In-request busy guard: while a backend command is awaiting, the draft
+  // editors (document textarea + structured composer) and every action are
+  // disabled so an async response that calls setDraft (compute-checksum,
+  // open) cannot clobber a mid-request edit. Routed here from the slice-1
+  // residual ("a mid-request textarea edit can be clobbered").
+  const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
+  const draftReason = !draft ? NO_DRAFT_REASON : inFlight ? BUSY_REASON : undefined;
+  const parsedDraft = draft ? parseRulePackDocument(draft.text) : null;
 
   // The stored-pack list is project-scoped. When the active project changes
   // (open/create/switch), the previously-listed packs belong to the old
@@ -101,6 +116,7 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
   }
 
   async function handleRefreshList() {
+    setInFlight(true);
     try {
       const route = await listLocalRulePacks(projectId);
       if (route.route === "unavailable_browser_preview") {
@@ -116,12 +132,15 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
     } catch (error) {
       setEntries([]);
       setListStatus(`RULE-PACK-BACKEND-ERROR (list): ${String(error)}`);
+    } finally {
+      setInFlight(false);
     }
   }
 
   async function handleValidate() {
     const document = parseDraft();
     if (!document) return;
+    setInFlight(true);
     try {
       const route = await validateRulePack(document);
       if (route.route === "unavailable_browser_preview") {
@@ -136,12 +155,15 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       );
     } catch (error) {
       reportBackendError("validate", error);
+    } finally {
+      setInFlight(false);
     }
   }
 
   async function handleComputeChecksum() {
     const document = parseDraft();
     if (!document) return;
+    setInFlight(true);
     try {
       const route = await computeRulePackChecksum(document);
       if (route.route === "unavailable_browser_preview") {
@@ -157,6 +179,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       );
     } catch (error) {
       reportBackendError("compute_checksum", error);
+    } finally {
+      setInFlight(false);
     }
   }
 
@@ -167,6 +191,7 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
     }
     const document = parseDraft();
     if (!document) return;
+    setInFlight(true);
     try {
       const route = await saveLocalRulePack(projectId, document);
       if (route.route === "unavailable_browser_preview") {
@@ -181,10 +206,13 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       await handleRefreshList();
     } catch (error) {
       reportBackendError("save", error);
+    } finally {
+      setInFlight(false);
     }
   }
 
   async function handleOpen(entry: LocalRulePackIndexEntry) {
+    setInFlight(true);
     try {
       const route = await openLocalRulePack(entry.project_id, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
@@ -206,10 +234,13 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       setActionStatus(`${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}).`);
     } catch (error) {
       reportBackendError("open", error);
+    } finally {
+      setInFlight(false);
     }
   }
 
   async function handleDelete(entry: LocalRulePackIndexEntry) {
+    setInFlight(true);
     try {
       const route = await deleteLocalRulePack(entry.project_id, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
@@ -220,7 +251,16 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       await handleRefreshList();
     } catch (error) {
       reportBackendError("delete", error);
+    } finally {
+      setInFlight(false);
     }
+  }
+
+  // Structured composer → document: re-serialize the composer's edited
+  // document back into the canonical draft text (the single source of truth
+  // the validate/checksum/save flow already reads).
+  function handleComposerChange(nextDocument: Record<string, unknown>) {
+    setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "composer_edit" });
   }
 
   return (
@@ -243,10 +283,22 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       </div>
 
       <div className="report-actions">
-        <button type="button" data-testid="rule-pack-new-draft" onClick={handleNewDraft}>
+        <button
+          type="button"
+          data-testid="rule-pack-new-draft"
+          disabled={inFlight}
+          title={inFlight ? BUSY_REASON : undefined}
+          onClick={handleNewDraft}
+        >
           New draft rule pack
         </button>
-        <button type="button" data-testid="rule-pack-refresh-list" onClick={handleRefreshList}>
+        <button
+          type="button"
+          data-testid="rule-pack-refresh-list"
+          disabled={inFlight}
+          title={inFlight ? BUSY_REASON : undefined}
+          onClick={() => void handleRefreshList()}
+        >
           Refresh local list
         </button>
       </div>
@@ -270,6 +322,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
               <button
                 type="button"
                 data-testid={`rule-pack-open-${entry.rule_pack_id}`}
+                disabled={inFlight}
+                title={inFlight ? BUSY_REASON : undefined}
                 onClick={() => void handleOpen(entry)}
               >
                 Open
@@ -277,6 +331,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
               <button
                 type="button"
                 data-testid={`rule-pack-delete-${entry.rule_pack_id}`}
+                disabled={inFlight}
+                title={inFlight ? BUSY_REASON : undefined}
                 onClick={() => void handleDelete(entry)}
               >
                 Delete
@@ -286,10 +342,35 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
         ))}
       </div>
 
+      {draft ? (
+        parsedDraft && parsedDraft.ok ? (
+          <ExpressionComposer
+            document={parsedDraft.document}
+            onChange={handleComposerChange}
+            disabled={inFlight}
+            disabledReason={inFlight ? BUSY_REASON : undefined}
+          />
+        ) : (
+          <div className="report-list">
+            <small data-testid="rule-pack-composer-unavailable">
+              The document JSON below is not valid, so the structured expression composer cannot
+              read it. Fix the JSON to compose expressions structurally.
+            </small>
+          </div>
+        )
+      ) : (
+        <div className="report-list">
+          <small data-testid="rule-pack-composer-no-draft">
+            Create a new draft or open a stored rule pack to compose its expressions.
+          </small>
+        </div>
+      )}
+
       <div className="report-list">
         <label htmlFor="rule-pack-draft-json-input">
-          Rule-pack document JSON (native canonical format; expressions are declarative-AST
-          JSON per DEC-022)
+          Rule-pack document JSON (native canonical form; the composer above edits the selected
+          formula&apos;s expression — declarative-AST per DEC-022. Edit table-backed nodes here
+          until the table composer slice lands.)
         </label>
         <textarea
           id="rule-pack-draft-json-input"
@@ -297,8 +378,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
           rows={14}
           value={draft?.text ?? ""}
           placeholder="No draft document. Create a new draft or open a stored rule pack."
-          disabled={!draft}
-          title={draft ? undefined : NO_DRAFT_REASON}
+          disabled={!draft || inFlight}
+          title={draftReason}
           onChange={(event) =>
             setDraft((current) =>
               current ? { ...current, text: event.target.value } : current
@@ -309,8 +390,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
           <button
             type="button"
             data-testid="rule-pack-validate"
-            disabled={!draft}
-            title={draft ? undefined : NO_DRAFT_REASON}
+            disabled={!draft || inFlight}
+            title={draftReason}
             onClick={() => void handleValidate()}
           >
             Validate document
@@ -318,8 +399,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
           <button
             type="button"
             data-testid="rule-pack-compute-checksum"
-            disabled={!draft}
-            title={draft ? undefined : NO_DRAFT_REASON}
+            disabled={!draft || inFlight}
+            title={draftReason}
             onClick={() => void handleComputeChecksum()}
           >
             Compute &amp; stamp checksum
@@ -327,8 +408,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
           <button
             type="button"
             data-testid="rule-pack-save"
-            disabled={!draft}
-            title={draft ? undefined : NO_DRAFT_REASON}
+            disabled={!draft || inFlight}
+            title={draftReason}
             onClick={() => void handleSave()}
           >
             Save to local store
@@ -336,8 +417,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
           <button
             type="button"
             data-testid="rule-pack-discard-draft"
-            disabled={!draft}
-            title={draft ? undefined : NO_DRAFT_REASON}
+            disabled={!draft || inFlight}
+            title={draftReason}
             onClick={handleDiscardDraft}
           >
             Discard draft
@@ -389,10 +470,10 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       <small className="report-note" data-testid="rule-pack-boundary-note">
         <ShieldAlert size={12} aria-hidden="true" /> Private rule packs stay in local project
         storage only — never committed to the repository, transmitted, or bundled into public
-        artifacts. The structured expression composer is the next C2 slice; no expression text
-        syntax is provided until the D-02b human ruling. Rule-check output is a software
-        computation over user-supplied data, never a code-compliance, certification, sealing,
-        approval, or professional acceptance claim.
+        artifacts. Expressions are composed as a structured AST (DEC-022 grammar v1.0.0); no
+        expression text syntax is provided until the D-02b human ruling. Rule-check output is a
+        software computation over user-supplied data, never a code-compliance, certification,
+        sealing, approval, or professional acceptance claim.
       </small>
     </section>
   );

@@ -485,6 +485,22 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   expect(draft.classification.redistribution_status).toBe("private_only");
   await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
 
+  // Slice 2 (TP-C2-COMPOSER-001): the structured AST composer rewrites the
+  // selected formula's expression through visible controls — no text syntax
+  // (D-02b). Switching the root node type rewrites the canonical document
+  // JSON the validate/save flow reads.
+  await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
+  expect(draft.formula_declarations[0].declaration_payload.expression_ast.node).toBe("variable_ref");
+  await page.getByTestId("rule-pack-node-type").first().selectOption("compare");
+  const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
+    node: "compare",
+    operator: "less_than_or_equal",
+    left: { node: "variable_ref" },
+    right: { node: "literal" }
+  });
+
   // Validate routes to the desktop-only seam: the status transitions away
   // from the just-created "private_user_data" draft message. (Per-button
   // seam coverage for compute-checksum and save lives in the Vitest panel

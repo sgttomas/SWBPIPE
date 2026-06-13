@@ -4719,3 +4719,49 @@ notes:
 - Boundary review: no lifecycle state change; no release-readiness,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## TP-MAC-149 rule-pack structured AST expression composer (`TP-C2-COMPOSER-001`, 2026-06-13)
+
+- Phase C2 slice 2: the PRD §14.5 "Expression editor". New
+  `features/rule-packs/ExpressionComposer.tsx` — a recursive form/tree editor
+  that builds the frozen grammar v1.0.0 typed expression AST (DEC-022) for a
+  rule pack's selected formula, replacing raw declarative-AST JSON editing.
+  Structured controls cover the full non-table node set (literal,
+  variable_ref, unary, binary, compare, logical, select, aggregate, with
+  add/remove aggregate operands); a variable picker / read-only browser is
+  sourced from the pack's `required_inputs`/`value_slots` (PRD §14.5
+  "Variable browser"). Edits re-serialize back into the canonical document
+  JSON the validate/checksum/save flow already reads.
+- D-02b gate held: purely structured controls — **no writable expression
+  text syntax and no text rendering of the AST** (read-only rendering is
+  itself an open D-02b §3 Q5 question). Lossless preservation: table-backed
+  (interpolate/lookup) and unrecognized nodes render read-only with no
+  node-type selector and round-trip unchanged — never silently dropped.
+- In-request busy guard added (closes the slice-1 residual): the textarea,
+  composer, and all actions disable with a stated reason while a backend
+  request is awaiting, so an async response (`compute-checksum`/`open`)
+  cannot clobber a mid-request edit.
+- Manual check: open "Rule Packs", click "New draft rule pack"; the
+  Expression composer shows the formula's `variable_ref` root and the
+  declared variables; switch the root node type to `compare` and confirm the
+  document JSON below updates to the compare AST; switch to `aggregate` and
+  add/remove operands (last-operand removal is blocked with a stated reason).
+- Validation: targeted Vitest `src/features/rule-packs` 21/21; Playwright
+  `-g "rule-pack manager"` 2/2 (chromium-desktop + chromium-compact, composer
+  driven from blank); `tsc -b` clean. Full-suite `App.test.tsx` shows
+  pre-existing, host-environmental timeout flakiness (reproduces on pristine
+  HEAD, varying test set) unrelated to this slice — see the run record.
+- Adversarial pre-commit review (four lenses: react-correctness,
+  governance/D-02b, AST-encoding, evidence-honesty); three test-honesty
+  findings fixed before commit (vacuous table-preservation assertion →
+  full `toEqual`; missing unknown-node preservation test added; shallow e2e
+  assertion → full structure).
+- Residuals routed to the next C2 slices: table-node structured sub-editor
+  (interpolate/lookup rows/dimensions/units); required-input/value-slot/
+  load-combination form builders. Engine-side rule evaluation on solved user
+  models is C4.
+- Evidence: DEL-07-03 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C2-COMPOSER-001.md`.
+- Boundary review: no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

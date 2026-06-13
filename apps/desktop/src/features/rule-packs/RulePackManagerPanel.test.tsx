@@ -131,6 +131,32 @@ describe("RulePackManagerPanel", () => {
     expect(note).toContain("never committed to the repository");
     expect(note).toContain("never a code-compliance");
   });
+
+  it("reveals the structured composer only with a draft and writes edits back into the document", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    // No draft: a hint stands in for the composer; no composer surface yet.
+    expect(screen.getByTestId("rule-pack-composer-no-draft")).toBeTruthy();
+    expect(screen.queryByTestId("rule-pack-expression-composer")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(screen.getByTestId("rule-pack-expression-composer")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-variable-browser").textContent).toContain(
+      "user_required_input_1"
+    );
+
+    // A structured edit (switch the formula's root node to a comparison)
+    // rewrites the canonical document JSON the validate/save flow reads.
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(JSON.parse(textarea.value).formula_declarations[0].declaration_payload.expression_ast.node).toBe(
+      "variable_ref"
+    );
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], {
+      target: { value: "compare" }
+    });
+    expect(JSON.parse(textarea.value).formula_declarations[0].declaration_payload.expression_ast.node).toBe(
+      "compare"
+    );
+  });
 });
 
 describe("rulePackService draft helpers", () => {

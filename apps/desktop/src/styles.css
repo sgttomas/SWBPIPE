@@ -2069,3 +2069,44 @@ th {
   font-size: 11px;
   text-transform: uppercase;
 }
+
+/* Rule-pack structured AST expression composer (TP-C2-COMPOSER-001). */
+.rule-pack-expression-composer {
+  gap: 8px;
+}
+
+.rule-pack-variable-browser {
+  padding: 4px 0;
+  color: #59645f;
+}
+
+.rule-pack-node {
+  display: grid;
+  gap: 4px;
+  border-left: 2px solid #d9dfdb;
+}
+
+.rule-pack-node-label {
+  color: #59645f;
+}
+
+.rule-pack-node-readonly {
+  color: #8a5a2b;
+}
+
+.rule-pack-node-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.rule-pack-node-field > span {
+  min-width: 72px;
+  color: #59645f;
+}
+
+.rule-pack-operand {
+  display: grid;
+  gap: 4px;
+}

@@ -13,6 +13,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C2 editor GUI slice 2 landed: structured AST expression composer (`TP-C2-COMPOSER-001`)
+
+The PRD §14.5 "Expression editor". New
+`apps/desktop/src/features/rule-packs/ExpressionComposer.tsx` is a recursive
+form/tree editor that builds the frozen grammar v1.0.0 typed expression AST
+(DEC-022) for a rule pack's selected formula, replacing the slice-1 raw
+declarative-AST JSON editing of expressions. Structured controls cover the
+full non-table node set (literal, variable_ref, unary, binary, compare,
+logical, select, aggregate — with add/remove aggregate operands and a
+last-operand-removal block); a variable picker / read-only browser is sourced
+from the pack's declared `required_inputs`/`value_slots` (PRD §14.5 "Variable
+browser"). The composer derives its tree from, and re-serializes edits back
+into, the canonical document JSON the validate/checksum/save flow already
+reads (single source of truth). `RulePackManagerPanel` also gains the
+in-request busy guard that closes the slice-1 clobber residual: the textarea,
+composer, and all actions disable with a stated reason while a backend
+request is awaiting.
+
+D-02b gate held: the composer is purely structured — no writable expression
+text syntax and no text rendering of the AST (read-only rendering is itself
+an open D-02b §3 Q5 question). The typed AST stays the sole edited and
+checksum-bound form. Lossless preservation: table-backed (interpolate/lookup)
+and unrecognized nodes render read-only with no node-type selector and
+round-trip byte-for-byte — never silently dropped.
+
+A four-lens pre-commit adversarial review (react-correctness,
+governance/D-02b boundary, AST-encoding correctness, evidence-honesty) found
+no implementation defects; three test-honesty findings were fixed before
+commit (vacuous table-preservation `toMatchObject` → full `toEqual`; added a
+test that an unrecognized node survives a sibling edit; shallow e2e
+assertion → full composed-structure match).
+
+Validation: targeted Vitest `src/features/rule-packs` 21/21; Playwright
+`-g "rule-pack manager"` 2/2 (two-viewport, composer driven from blank);
+`tsc -b` clean. The full-suite `App.test.tsx` timeout flakiness is
+pre-existing and host-environmental (reproduces on pristine HEAD with this
+tranche's panel change reverted; varying failing set), unrelated to this
+slice. Residuals: table-node structured sub-editor; required-input/
+value-slot/load-combination form builders; engine-side rule evaluation
+(C4). Evidence: DEL-07-03 run record
+`WORKING_ITEMS_RUN_2026-06-13_TP-C2-COMPOSER-001.md`; SMOKE TP-MAC-149.
+
 ## 2026-06-12 - C2 editor GUI slice 1 landed: rule-pack manager (`TP-C2-EDITOR-001`)
 
 The first runtime rule-pack editor surface (PRD §14.5 / §14.1 "Rule-pack
