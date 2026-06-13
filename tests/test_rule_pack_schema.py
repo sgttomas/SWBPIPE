@@ -503,8 +503,12 @@ def check_invented_example_shape():
 
     checksum = example["checksums"]["rule_pack_checksum"]
     assert REQUIRED_CHECKSUM <= set(checksum)
-    assert checksum["verification_status"] == "deferred_to_DEL_06_04"
-    assert example["checksums"]["checksum_lifecycle_status"] == "deferred_to_DEL_06_04"
+    assert checksum["verification_status"] == "verified"
+    assert checksum["algorithm"] == "sha256"
+    assert checksum["canonicalization"] == "JCS"
+    assert checksum["payload_excludes"] == ["checksums"]
+    assert example["checksums"]["checksum_lifecycle_status"] == "verified"
+    assert example["checksums"]["hash_basis"] == "Canonical JSON/JCS-compatible"
 
     diagnostic = example["diagnostics"][0]
     assert required_at(schema, "RulePackDiagnostic") <= set(diagnostic)
@@ -596,6 +600,24 @@ def _skip_or_note_missing_jsonschema(exc):
 
         pytest.skip(f"{message}; import error: {exc}")
     print(f"SKIP: {message}; import error: {exc}")
+
+
+def test_invented_demo_checksum_matches_jcs_recomputation():
+    """Cross-engine parity pin with the Rust golden test in
+    core/rules/rule_pack_document (payload = document minus the checksums
+    member, RFC 8785 canonical bytes, SHA-256)."""
+    from hashlib import sha256
+
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from core.project_persistence import canonical_json
+
+    example = load_example()
+    payload = {key: value for key, value in example.items() if key != "checksums"}
+    digest = sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+    assert example["checksums"]["rule_pack_checksum"]["value"] == digest
+    member = f'"grammar_version":"{example["grammar_version"]}"'
+    assert member in canonical_json(payload)
 
 
 def test_rule_pack_schema_contract():

@@ -248,19 +248,22 @@
   ],
   "checksums": {
     "rule_pack_checksum": {
-      "algorithm": "TBD",
-      "canonicalization": "TBD",
+      "algorithm": "sha256",
+      "canonicalization": "JCS",
       "payload_ref": {
         "ref_id": "invented_demo_rule_pack",
         "ref_type": "checksum"
       },
       "payload_scope": "rule_pack_payload",
-      "verification_status": "deferred_to_DEL_06_04",
-      "value": "TBD until checksum lifecycle deliverable is implemented"
+      "payload_excludes": [
+        "checksums"
+      ],
+      "verification_status": "verified",
+      "value": "9910cecaff4ed7187e308fd9feee984a660b034890abea2baa2b6f665ee70f8b"
     },
     "payload_checksums": [],
-    "checksum_lifecycle_status": "deferred_to_DEL_06_04",
-    "hash_basis": "TBD"
+    "checksum_lifecycle_status": "verified",
+    "hash_basis": "Canonical JSON/JCS-compatible"
   },
   "provenance": {
     "source_name": "OpenPipeStress invented demonstration",

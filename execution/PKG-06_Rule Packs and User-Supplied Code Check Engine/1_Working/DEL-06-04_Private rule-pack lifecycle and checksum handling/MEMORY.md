@@ -108,3 +108,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - `cargo fmt --manifest-path core/rules/rule_pack_lifecycle/Cargo.toml --check` passed.
 - `cargo test --manifest-path core/rules/rule_pack_lifecycle/Cargo.toml --locked` passed with 8 unit tests and 0 doctests.
 - Finding `PKG06-04-PKG02-001` remains technically addressed and ready for human disposition; `HumanDisposition` remains `TBD` pending review.
+
+## 2026-06-12 - C2 backend seam: first production consumer (TP-C2-RPLIFE-001)
+
+- New crate `core/rules/rule_pack_document` is the first production consumer
+  of this deliverable's lifecycle/checksum crate: it computes RFC 8785 (JCS)
+  rule-pack checksums over the document minus its `checksums` member
+  (payload_excludes recorded per R-06-04-006), binds grammar_version via
+  `sha256_caller_supplied_jcs_bytes_with_grammar_version` (DEC-022), and
+  surfaces `validate_lifecycle` findings in a document-validation envelope.
+- Desktop commands now expose validation, checksum computation, and local
+  SQLite persistence (store v10 `local_rule_packs`; OPS-K-PRIV-1 honored:
+  user packs never committed or transmitted).
+- The "GUI presentation / API transport / result-envelope integration"
+  remaining-TBD list advances: API transport now exists as Tauri commands;
+  GUI presentation is the next C2 tranche; result-envelope integration stays
+  with C4.
+- Validation: rule_pack_document 10/10, src-tauri 37/37, pytest 359/359.
+  Run record: `_run_records/WORKING_ITEMS_RUN_2026-06-12_TP-C2-RPLIFE-001.md`.
+- No lifecycle state, release, professional, or code-compliance claim changed.

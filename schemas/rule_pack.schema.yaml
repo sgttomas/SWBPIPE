@@ -217,6 +217,14 @@
             "TBD"
           ]
         },
+        "payload_excludes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Document members excluded from the hashed payload (R-06-04-006: a checksum identifies what was hashed). A rule_pack_payload-scope checksum excludes exactly the checksums member, since a checksum cannot cover itself."
+        },
         "verification_status": {
           "type": "string",
           "enum": [

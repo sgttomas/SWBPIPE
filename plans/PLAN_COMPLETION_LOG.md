@@ -13,6 +13,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - C2 backend seam landed: rule-pack validation, JCS checksum, local store (`TP-C2-RPLIFE-001`)
+
+The first production wiring of the previously-orphan `core/rules` crates.
+New crate `core/rules/rule_pack_document`: a production codec between the
+rule-pack document AST encoding and the frozen DEC-022 grammar (all 69
+conformance-corpus expressions round-trip; decode errors carry JSON-path
+breadcrumbs for editor diagnostics), grammar-version-bound JCS checksum
+computation over the document minus its `checksums` member (RFC 8785 via
+`core/serialization/canonical_json` + the DEL-06-04 binding constructor;
+`payload_excludes` recorded, with a matching additive schema member), and
+document-level validation composing shape, grammar, expression-decode,
+checksum-match, and `validate_lifecycle` findings into one envelope with a
+fixed professional-boundary notice. Desktop seam: six new Tauri commands
+(`validate_rule_pack`, `compute_rule_pack_document_checksum`, and
+save/open/list/delete local rule-pack persistence) over a v10 store
+migration adding the project-scoped `local_rule_packs` table — drafts with
+blocking findings remain saveable; user packs stay in local SQLite only,
+never committed or transmitted (OPS-K-PRIV-1). The DEL-06-05 example pack
+gained a real stamped checksum pinned by a Rust golden test and a Python
+JCS recomputation (cross-engine parity witness); the DEL-11-04 toy model
+was restamped accordingly. Validation: rule_pack_document 10/10, src-tauri
+37/37 (4 new tests; store-migration evidence re-pinned for v10), pytest
+359/359, fmt clean. Residuals: editor GUI consumes these commands next
+(Playwright/Vitest evidence rides that tranche per H4); check-evaluation
+composition and load-case mapping vocabulary stay routed to the C4
+lead-up; cross-project library storage stays C3 scope.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-147; DEL-06-04 run record
+`WORKING_ITEMS_RUN_2026-06-12_TP-C2-RPLIFE-001.md`. No lifecycle state,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim is created.
+
 ## 2026-06-12 - C2 lead-up landed: D-02b packet + DEC-022 schema absorption (`TP-C2-SCHEMA-001`)
 
 Two C2 lead-up actions per the Phase C stage gate. First, the **D-02b decision

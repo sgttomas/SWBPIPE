@@ -4641,3 +4641,36 @@ notes:
   readiness, certification, sealing, authentication, or code-compliance
   claim; whether the layout is now humanly usable is decided by the human
   TP-MAC-141 re-run, not by this entry.
+
+## TP-MAC-147 rule-pack backend seam: document validation, JCS checksum, local store (`TP-C2-RPLIFE-001`, 2026-06-12)
+
+- Phase C2 backend seam (no UI change in this tranche). New crate
+  `core/rules/rule_pack_document`: production codec between the rule-pack
+  document AST encoding and the frozen DEC-022 grammar (round-trips all 69
+  conformance-corpus expressions), grammar-version-bound JCS checksum over
+  the document minus its `checksums` member (RFC 8785 via
+  `core/serialization/canonical_json` + the DEL-06-04 lifecycle binding
+  constructor), and document-level validation composing lifecycle,
+  grammar, expression-decode, and checksum-match findings.
+- Desktop commands (first consumers of the `core/rules` crates):
+  `validate_rule_pack`, `compute_rule_pack_document_checksum`,
+  `save_local_rule_pack`, `open_local_rule_pack`, `list_local_rule_packs`,
+  `delete_local_rule_pack`. Store v10 migration adds `local_rule_packs`
+  (project-scoped, local SQLite only). Drafts with blocking findings remain
+  saveable; user packs are never committed to the repository or
+  transmitted (OPS-K-PRIV-1, PRD §17.3).
+- The DEL-06-05 example pack now carries a real stamped checksum
+  (`9910cecaff4e…`), pinned by a Rust golden test and a Python JCS
+  recomputation — a cross-engine parity witness across both hash lanes.
+- Validation: rule_pack_document 10/10 (6 unit + corpus parity + 3
+  example-pack incl. evaluator computing the invented ratio 0.5);
+  src-tauri 37/37 (store v10 migration evidence re-pinned, 4 new rule-pack
+  tests); pytest 359/359; fmt clean.
+- No browser/UI surface changed; the C2 editor GUI tranche consumes these
+  commands next (Playwright/Vitest evidence rides that tranche per the H4
+  posture).
+- Evidence: DEL-06-04 run record
+  `WORKING_ITEMS_RUN_2026-06-12_TP-C2-RPLIFE-001.md`.
+- Boundary review: validation statuses are software findings only; no
+  lifecycle state change; no release-readiness, professional,
+  certification, sealing, authentication, or code-compliance claim.

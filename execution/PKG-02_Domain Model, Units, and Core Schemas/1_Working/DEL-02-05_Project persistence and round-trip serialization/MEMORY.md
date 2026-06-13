@@ -336,3 +336,13 @@ Boundaries preserved:
   open-time hash verification compares stored hashes against the migrated
   document. No lifecycle state, release, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-12 - Store v10: local_rule_packs table (TP-C2-RPLIFE-001)
+
+- The desktop local SQLite store advanced v9 -> v10 with the project-scoped
+  `local_rule_packs` table (rule-pack documents; Phase C2 backend seam).
+  Same idempotent user_version ledger pattern; migration-evidence tests
+  re-pinned (fresh open, legacy reconcile, v7 staging). Model-document
+  schema versioning (DEC-019/DEC-033) is unaffected.
+- Primary record: DEL-06-04
+  `WORKING_ITEMS_RUN_2026-06-12_TP-C2-RPLIFE-001.md`; SMOKE TP-MAC-147.

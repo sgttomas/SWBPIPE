@@ -6,6 +6,7 @@ use model_document_migration::{
 };
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
+use open_pipe_stress_rule_pack_document as rule_pack_document;
 use open_pipe_stress_units::{catalog_definitions, UnitDefinition};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -229,7 +230,7 @@ fn app_store_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(PROJECT_STORE_FILE))
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 9;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 10;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -344,6 +345,29 @@ fn store_migrations() -> Vec<StoreMigration> {
                     "model_migration_ledger_json",
                     "ALTER TABLE local_projects ADD COLUMN model_migration_ledger_json TEXT NOT NULL DEFAULT '[]'",
                 )
+            },
+        },
+        // Local, user-controlled rule-pack documents (Phase C2). Private rule
+        // packs stay in this local store and are never committed to the
+        // repository or transmitted (OPS-K-PRIV-1).
+        StoreMigration {
+            version: 10,
+            migration_id: "store-v10-local-rule-packs-table",
+            apply: |connection| {
+                connection
+                    .execute_batch(
+                        "
+                        CREATE TABLE IF NOT EXISTS local_rule_packs (
+                            project_id TEXT NOT NULL,
+                            rule_pack_id TEXT NOT NULL,
+                            document_json TEXT NOT NULL,
+                            created_at_unix INTEGER NOT NULL,
+                            updated_at_unix INTEGER NOT NULL,
+                            PRIMARY KEY (project_id, rule_pack_id)
+                        );
+                        ",
+                    )
+                    .map_err(|error| error.to_string())
             },
         },
     ]
@@ -1649,6 +1673,334 @@ fn save_local_project(
     })
 }
 
+// ---------------------------------------------------------------------------
+// Local rule-pack storage and validation commands (Phase C2 backend seam).
+//
+// Rule packs are separate user-controlled documents
+// (schemas/rule_pack.schema.yaml), not members of the preview model
+// document. They persist only in the local SQLite store
+// (local_rule_packs, store v10) and are never committed to the repository,
+// transmitted, or exported by default (OPS-K-PRIV-1, PRD §17.3). Validation
+// and checksum computation route through core/rules via
+// open_pipe_stress_rule_pack_document; statuses are software findings only
+// and never professional, certification, sealing, authentication, or
+// code-compliance claims (OPS-K-AUTH-1).
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Serialize)]
+struct LocalRulePackIndexEntry {
+    project_id: String,
+    rule_pack_id: String,
+    rule_pack_name: String,
+    rule_pack_version: String,
+    lifecycle_status: String,
+    privacy_class: String,
+    storage_mode: &'static str,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+}
+
+#[derive(Debug, Serialize)]
+struct LocalRulePackEnvelope {
+    project_id: String,
+    rule_pack_id: String,
+    storage_mode: &'static str,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+    document: Value,
+    validation: Value,
+    message: String,
+}
+
+#[derive(Debug, Serialize)]
+struct LocalRulePackDeleteReceipt {
+    project_id: String,
+    rule_pack_id: String,
+    deleted: bool,
+    message: String,
+}
+
+fn rule_pack_document_string(document: &Value, pointer: &str) -> String {
+    document
+        .pointer(pointer)
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .to_string()
+}
+
+fn rule_pack_id_from_document(document: &Value) -> Result<String, String> {
+    document
+        .pointer("/metadata/rule_pack_id")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .map(str::to_string)
+        .ok_or_else(|| {
+            "rule-pack document must carry a non-empty metadata.rule_pack_id".to_string()
+        })
+}
+
+fn rule_pack_validation_value(document: &Value, public_export_requested: bool) -> Value {
+    serde_json::to_value(rule_pack_document::validate_rule_pack_document(
+        document,
+        public_export_requested,
+    ))
+    .unwrap_or_else(|error| {
+        json!({
+            "document_kind": "openpipestress.rule_pack.document_validation",
+            "serialization_error": error.to_string(),
+        })
+    })
+}
+
+struct StoredRulePackRow {
+    document: Value,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+}
+
+fn upsert_rule_pack(
+    connection: &Connection,
+    project_id: &str,
+    rule_pack_id: &str,
+    document: &Value,
+) -> Result<(i64, i64), String> {
+    let document_json = serde_json::to_string(document).map_err(|error| error.to_string())?;
+    let now = now_unix_seconds()?;
+    connection
+        .execute(
+            "
+            INSERT INTO local_rule_packs (
+                project_id, rule_pack_id, document_json, created_at_unix, updated_at_unix
+            )
+            VALUES (?1, ?2, ?3, ?4, ?4)
+            ON CONFLICT(project_id, rule_pack_id) DO UPDATE SET
+                document_json = excluded.document_json,
+                updated_at_unix = excluded.updated_at_unix
+            ",
+            params![project_id, rule_pack_id, document_json, now],
+        )
+        .map_err(|error| error.to_string())?;
+    let created_at: i64 = connection
+        .query_row(
+            "SELECT created_at_unix FROM local_rule_packs WHERE project_id = ?1 AND rule_pack_id = ?2",
+            params![project_id, rule_pack_id],
+            |row| row.get(0),
+        )
+        .map_err(|error| error.to_string())?;
+    Ok((created_at, now))
+}
+
+fn load_rule_pack(
+    connection: &Connection,
+    project_id: &str,
+    rule_pack_id: &str,
+) -> Result<Option<StoredRulePackRow>, String> {
+    connection
+        .query_row(
+            "
+            SELECT document_json, created_at_unix, updated_at_unix
+            FROM local_rule_packs
+            WHERE project_id = ?1 AND rule_pack_id = ?2
+            ",
+            params![project_id, rule_pack_id],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, i64>(2)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|error| error.to_string())?
+        .map(|(document_json, created_at_unix, updated_at_unix)| {
+            serde_json::from_str(&document_json)
+                .map(|document| StoredRulePackRow {
+                    document,
+                    created_at_unix,
+                    updated_at_unix,
+                })
+                .map_err(|error| error.to_string())
+        })
+        .transpose()
+}
+
+fn list_rule_packs(
+    connection: &Connection,
+    project_id: Option<&str>,
+) -> Result<Vec<LocalRulePackIndexEntry>, String> {
+    let mut statement = connection
+        .prepare(
+            "
+            SELECT project_id, rule_pack_id, document_json, created_at_unix, updated_at_unix
+            FROM local_rule_packs
+            WHERE (?1 IS NULL OR project_id = ?1)
+            ORDER BY project_id, rule_pack_id
+            ",
+        )
+        .map_err(|error| error.to_string())?;
+    let rows = statement
+        .query_map(params![project_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, i64>(3)?,
+                row.get::<_, i64>(4)?,
+            ))
+        })
+        .map_err(|error| error.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    rows.into_iter()
+        .map(
+            |(project_id, rule_pack_id, document_json, created_at_unix, updated_at_unix)| {
+                let document: Value =
+                    serde_json::from_str(&document_json).map_err(|error| error.to_string())?;
+                Ok(LocalRulePackIndexEntry {
+                    project_id,
+                    rule_pack_id,
+                    rule_pack_name: rule_pack_document_string(&document, "/metadata/name"),
+                    rule_pack_version: rule_pack_document_string(
+                        &document,
+                        "/metadata/rule_pack_version",
+                    ),
+                    lifecycle_status: rule_pack_document_string(
+                        &document,
+                        "/metadata/lifecycle_status",
+                    ),
+                    privacy_class: rule_pack_document_string(
+                        &document,
+                        "/classification/privacy_class",
+                    ),
+                    storage_mode: "local_sqlite",
+                    created_at_unix,
+                    updated_at_unix,
+                })
+            },
+        )
+        .collect()
+}
+
+fn delete_rule_pack(
+    connection: &Connection,
+    project_id: &str,
+    rule_pack_id: &str,
+) -> Result<bool, String> {
+    let affected = connection
+        .execute(
+            "DELETE FROM local_rule_packs WHERE project_id = ?1 AND rule_pack_id = ?2",
+            params![project_id, rule_pack_id],
+        )
+        .map_err(|error| error.to_string())?;
+    Ok(affected > 0)
+}
+
+#[tauri::command]
+fn validate_rule_pack(
+    document: Value,
+    public_export_requested: Option<bool>,
+) -> Result<Value, String> {
+    Ok(rule_pack_validation_value(
+        &document,
+        public_export_requested.unwrap_or(false),
+    ))
+}
+
+#[tauri::command]
+fn compute_rule_pack_document_checksum(document: Value) -> Result<Value, String> {
+    rule_pack_document::compute_rule_pack_checksum(&document)
+        .map_err(|error| error.to_string())
+        .and_then(|computed| serde_json::to_value(computed).map_err(|error| error.to_string()))
+}
+
+#[tauri::command]
+fn save_local_rule_pack(
+    app: AppHandle,
+    project_id: String,
+    document: Value,
+) -> Result<LocalRulePackEnvelope, String> {
+    let project_id = project_id.trim().to_string();
+    if project_id.is_empty() {
+        return Err("project_id must be non-empty".to_string());
+    }
+    let rule_pack_id = rule_pack_id_from_document(&document)?;
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    let (created_at_unix, updated_at_unix) =
+        upsert_rule_pack(&connection, &project_id, &rule_pack_id, &document)?;
+    let validation = rule_pack_validation_value(&document, false);
+    Ok(LocalRulePackEnvelope {
+        project_id,
+        rule_pack_id,
+        storage_mode: "local_sqlite",
+        created_at_unix,
+        updated_at_unix,
+        document,
+        validation,
+        message: "Saved rule-pack document to the local SQLite store only; drafts with \
+                  findings remain saveable and are never transmitted or committed."
+            .to_string(),
+    })
+}
+
+#[tauri::command]
+fn open_local_rule_pack(
+    app: AppHandle,
+    project_id: String,
+    rule_pack_id: String,
+) -> Result<Option<LocalRulePackEnvelope>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    Ok(
+        load_rule_pack(&connection, project_id.trim(), rule_pack_id.trim())?.map(|row| {
+            let validation = rule_pack_validation_value(&row.document, false);
+            LocalRulePackEnvelope {
+                project_id: project_id.trim().to_string(),
+                rule_pack_id: rule_pack_id.trim().to_string(),
+                storage_mode: "local_sqlite",
+                created_at_unix: row.created_at_unix,
+                updated_at_unix: row.updated_at_unix,
+                document: row.document,
+                validation,
+                message: "Opened rule-pack document from the local SQLite store.".to_string(),
+            }
+        }),
+    )
+}
+
+#[tauri::command]
+fn list_local_rule_packs(
+    app: AppHandle,
+    project_id: Option<String>,
+) -> Result<Vec<LocalRulePackIndexEntry>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    list_rule_packs(&connection, project_id.as_deref().map(str::trim))
+}
+
+#[tauri::command]
+fn delete_local_rule_pack(
+    app: AppHandle,
+    project_id: String,
+    rule_pack_id: String,
+) -> Result<LocalRulePackDeleteReceipt, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    let deleted = delete_rule_pack(&connection, project_id.trim(), rule_pack_id.trim())?;
+    Ok(LocalRulePackDeleteReceipt {
+        project_id: project_id.trim().to_string(),
+        rule_pack_id: rule_pack_id.trim().to_string(),
+        deleted,
+        message: if deleted {
+            "Deleted rule-pack document from the local SQLite store.".to_string()
+        } else {
+            "No stored rule-pack document matched; nothing was deleted.".to_string()
+        },
+    })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(SolveJobRegistry::default())
@@ -1668,6 +2020,12 @@ pub fn run() {
             open_local_project,
             list_local_projects,
             save_local_project,
+            validate_rule_pack,
+            compute_rule_pack_document_checksum,
+            save_local_rule_pack,
+            open_local_rule_pack,
+            list_local_rule_packs,
+            delete_local_rule_pack,
             render_calculation_report
         ])
         .run(tauri::generate_context!())
@@ -2585,11 +2943,12 @@ mod tests {
                 "store-v7-model-hash-column",
                 "store-v8-project-envelope-hash-column",
                 "store-v9-model-document-migration-ledger-column",
+                "store-v10-local-rule-packs-table",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v9"
+            "migrated_on_open_store_schema_v0_to_v10"
         );
 
         let second_open =
@@ -2606,7 +2965,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v9_no_pending_migrations"
+            "current_store_schema_v10_no_pending_migrations"
         );
     }
 
@@ -2643,10 +3002,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 9);
+        assert_eq!(migration.migrations_applied_on_open.len(), 10);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v9"
+            "migrated_on_open_store_schema_v0_to_v10"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -2712,12 +3071,13 @@ mod tests {
             migration.migrations_applied_on_open,
             vec![
                 "store-v8-project-envelope-hash-column",
-                "store-v9-model-document-migration-ledger-column"
+                "store-v9-model-document-migration-ledger-column",
+                "store-v10-local-rule-packs-table"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v9"
+            "migrated_on_open_store_schema_v7_to_v10"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
@@ -3502,5 +3862,134 @@ mod tests {
             .filter_map(|item| item["code"].as_str())
             .collect();
         assert!(codes.contains(&"OP-STALE-BEFORE-VALUE"));
+    }
+
+    fn example_rule_pack_document() -> Value {
+        let cwd = std::env::current_dir().expect("cwd");
+        let candidates = [
+            cwd.join("../../examples/rule_packs/invented_demo.yaml"),
+            cwd.join("../../../examples/rule_packs/invented_demo.yaml"),
+            cwd.join("examples/rule_packs/invented_demo.yaml"),
+        ];
+        let path = candidates
+            .into_iter()
+            .find(|path| path.exists())
+            .expect("invented example rule pack found");
+        let raw = fs::read_to_string(path).expect("example rule pack readable");
+        serde_json::from_str(&raw).expect("example rule pack is strict JSON")
+    }
+
+    #[test]
+    fn local_rule_pack_store_round_trips_documents_per_project() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+
+        let document = example_rule_pack_document();
+        let rule_pack_id = rule_pack_id_from_document(&document).expect("example carries an id");
+        let (created_at, updated_at) =
+            upsert_rule_pack(&connection, "project:test-local", &rule_pack_id, &document)
+                .expect("rule pack upserts");
+        assert!(created_at > 0);
+        assert!(updated_at >= created_at);
+
+        let listed =
+            list_rule_packs(&connection, Some("project:test-local")).expect("rule packs list");
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].rule_pack_id, rule_pack_id);
+        assert_eq!(listed[0].rule_pack_name, "Invented Demonstration Rule Pack");
+        assert_eq!(listed[0].storage_mode, "local_sqlite");
+        assert_eq!(listed[0].lifecycle_status, "accepted_public_example");
+
+        let other_project =
+            list_rule_packs(&connection, Some("project:other")).expect("other project lists");
+        assert!(other_project.is_empty());
+
+        let loaded = load_rule_pack(&connection, "project:test-local", &rule_pack_id)
+            .expect("rule pack loads")
+            .expect("stored row present");
+        assert_eq!(loaded.document, document);
+
+        // Update keeps created_at, advances updated_at semantics (same-second
+        // updates produce equal stamps; never earlier).
+        let (created_again, _updated_again) =
+            upsert_rule_pack(&connection, "project:test-local", &rule_pack_id, &document)
+                .expect("rule pack re-upserts");
+        assert_eq!(created_again, created_at);
+
+        let deleted = delete_rule_pack(&connection, "project:test-local", &rule_pack_id)
+            .expect("rule pack deletes");
+        assert!(deleted);
+        let deleted_again = delete_rule_pack(&connection, "project:test-local", &rule_pack_id)
+            .expect("second delete returns");
+        assert!(!deleted_again);
+    }
+
+    #[test]
+    fn validate_rule_pack_command_reports_example_pack_clean_and_draft_findings() {
+        let document = example_rule_pack_document();
+        let outcome = validate_rule_pack(document, Some(true)).expect("validation runs");
+        assert_eq!(outcome["has_blocking_findings"], json!(false));
+        assert_eq!(outcome["checksum"]["match_status"], json!("match"));
+        assert_eq!(outcome["grammar_version_supported"], json!(true));
+        assert_eq!(outcome["publicly_exportable"], json!(true));
+        assert_eq!(outcome["formulas"][0]["decode_status"], json!("decoded"));
+        let notice = outcome["professional_boundary_notice"]
+            .as_str()
+            .expect("notice present");
+        assert!(notice.contains("No professional"));
+
+        // A draft missing its grammar_version is a blocking software finding
+        // (never best-effort), but the document remains a valid draft shape.
+        let mut draft = example_rule_pack_document();
+        draft
+            .as_object_mut()
+            .expect("object")
+            .remove("grammar_version");
+        let draft_outcome = validate_rule_pack(draft, None).expect("draft validation runs");
+        assert_eq!(draft_outcome["has_blocking_findings"], json!(true));
+        let codes: Vec<&str> = draft_outcome["document_findings"]
+            .as_array()
+            .expect("document findings array")
+            .iter()
+            .filter_map(|finding| finding["code"].as_str())
+            .collect();
+        assert!(codes.contains(&"MISSING_GRAMMAR_VERSION"));
+    }
+
+    #[test]
+    fn compute_rule_pack_document_checksum_command_matches_stamped_example_value() {
+        let document = example_rule_pack_document();
+        let stamped = document
+            .pointer("/checksums/rule_pack_checksum/value")
+            .and_then(Value::as_str)
+            .expect("stamped value present")
+            .to_string();
+        let computed = compute_rule_pack_document_checksum(document).expect("checksum computes");
+        assert_eq!(computed["value"], json!(stamped));
+        assert_eq!(computed["payload_excludes"], json!(["checksums"]));
+        assert_eq!(computed["grammar_version_bound"], json!(true));
+        assert_eq!(
+            computed["basis"],
+            json!("rfc8785_jcs_sha256_excluding_checksums")
+        );
+    }
+
+    #[test]
+    fn rule_pack_drafts_with_findings_remain_saveable_locally() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+
+        let mut draft = example_rule_pack_document();
+        draft
+            .as_object_mut()
+            .expect("object")
+            .remove("grammar_version");
+        let rule_pack_id = rule_pack_id_from_document(&draft).expect("id survives draft state");
+        upsert_rule_pack(&connection, "project:test-local", &rule_pack_id, &draft)
+            .expect("draft with blocking findings still saves locally");
+        let loaded = load_rule_pack(&connection, "project:test-local", &rule_pack_id)
+            .expect("draft loads")
+            .expect("draft row present");
+        assert_eq!(loaded.document, draft);
     }
 }
