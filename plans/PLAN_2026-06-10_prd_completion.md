@@ -3,6 +3,8 @@
 **Date:** 2026-06-10
 **Epistemic status:** PROPOSAL (non-governing). This plan proposes a route from the current technical preview to the product defined in [docs/PRD.md](../docs/PRD.md). It does not change any lifecycle state, promote any deliverable, or create any release, professional, certification, or code-compliance claim. Every work item below is a *candidate tranche* to be proposed, approved, executed, and evidenced through the Application Integration And Issuance Loop in [execution/_Coordination/_COORDINATION.md](../execution/_Coordination/_COORDINATION.md). Humans decide all gates.
 
+**Strategic layer:** this plan is the *tactical* selection instrument. The durable strategic framing it implements — the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks — lives in [docs/PLAN.md](../docs/PLAN.md). When the two disagree, correct the surface that is wrong; the authorities (PRD, CONTRACT, DAG, `_COORDINATION.md`) win over both.
+
 **Baseline:** [plans/ASSESSMENT_2026-06-10_repo_and_app_state.md](ASSESSMENT_2026-06-10_repo_and_app_state.md) (same date; all test surfaces green: 340/340 pytest, 422 Rust `#[test]`s across 25 crates, 13/13 Vitest, desktop production build passing).
 
 **Plan maintenance:** this plan is a selection instrument, not a history. When an item lands, compress its row to one line — `LANDED <date> (<tranche id>)`, residual hand-offs, and pointers to the run record and [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md) — and move the narrative detail to that log. Partially-landed items keep their remaining scope in the row and push landed detail to the log. Decision rows carry at most state, a `DEC-xxx` pointer, and a one-clause outcome.
@@ -11,23 +13,13 @@
 
 ## 1. Definition of "complete per the PRD"
 
-The PRD defines completion through two surfaces, and this plan treats both as binding:
-
-1. **Release milestones (PRD §22).** R0–R5 exit criteria, taken verbatim. R5 (Engineering Beta) is the terminal milestone: "External engineers can reproduce validation examples" and "Public repository contains no known protected standards data."
-2. **Functional requirements (PRD §10).** All 16 `Must` requirements (FR-001..016) verified against their acceptance criteria; all 6 `Should` requirements (FR-017..022) implemented; the 3 `Could` requirements (FR-023..025) either implemented or **explicitly dispositioned by a human deferral record** at the R5 gate — silence is not a disposition.
-
-Completion additionally requires the human-gated governance closures that the PRD and CONTRACT make prerequisites for any release claim (unit catalog acceptance, thresholds, CI/release authority, issuance of deliverables). These are scheduled as decisions, not assumed.
-
-### Current milestone position (from the 2026-06-10 assessment)
-
-| Milestone | Status | Blocking residual |
-|---|---|---|
-| R0 Architecture Prototype | Met in substance | Note: R0's "Unit system" deliverable was deferred by governance gating; it is pulled back onto the critical path here (Phase B) |
-| R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds for benchmark evidence remain TBD (Decision D-04) |
-| R2 GUI MVP | **Not met** | No intent→operation→persisted-model loop; no deformed-shape plot; no rendered report (Phase A) |
-| R3 Rule packs + private libraries | Engine-side largely met | Expression grammar freeze; rule-pack editor GUI; private library management GUI (Phase C) |
-| R4 Components + nonlinear supports | Schema/data-model only | No bend/branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve (Phase D) |
-| R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
+The PRD-completion definition (the two binding surfaces — PRD §22 release
+milestones and §10 functional requirements — plus the human-gated governance
+closures the PRD/CONTRACT require for any release claim) and the **current
+milestone position** now live in the strategic roadmap doc
+[docs/PLAN.md](../docs/PLAN.md) §1–§2. This plan consumes that definition and
+turns it into selectable tranches (§3–§5 below); the decision register (§2)
+tracks the governance closures.
 
 ---
 
@@ -213,11 +205,6 @@ Hardening candidates are enumerated in the §3 hardening lane (H1–H4); H1 (F-5
 
 ## 7. Top risks to this plan
 
-| Risk | Mitigation in plan |
-|---|---|
-| D-01 (units) stalls and silently re-blocks R2 value | Lead with the decision-prep tranche; Phase A proceeds SI-labeled, so the stall is visible, not hidden |
-| Edit-loop (A1–A3) underestimated — it is the product hinge | Smallest-possible tranche slicing; Playwright (A8) lands early against each increment, not at phase end |
-| Nonlinear iteration (D6) convergence quality | Validation-first: D8 cases drafted alongside D6; existing diagnostics taxonomy reused, per PRD §24 mitigation row |
-| GUI test debt compounds (13 tests today) | A8 makes the R2 journey itself the regression spine before C/D add surface area |
-| Release machinery decisions (D-05..07) deferred until they block R5 | Decision register makes them explicit mid-plan items with RGAP traceability, not end-loaded surprises |
-| Scope drift via app tranches crossing deliverable boundaries | Coordination loop rule retained: tranches name the app-owned slice and allowed write targets; register hygiene in F3 |
+Roadmap-level risks and their mitigations now live in
+[docs/PLAN.md](../docs/PLAN.md) §6. Tranche-level risks specific to a single
+item stay in that item's row in §3.

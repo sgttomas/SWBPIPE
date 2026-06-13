@@ -3,6 +3,7 @@
 ## Current Authority
 
 - Read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
+- Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
 - Read `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-12`.
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.

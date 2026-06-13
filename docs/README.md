@@ -23,6 +23,7 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 | `../AGENTS.md` | Agent index | Project-specific use of Chirality agent roles. |
 | `INTENT.md` | Directional intent | Why this product exists and what must remain true. |
 | `PRD.md` | Product requirements | Product capabilities, users, non-goals, and release strategy. |
+| `PLAN.md` | Strategic roadmap (non-governing) | Definition of "complete per the PRD", current milestone position, layer-relation map, roadmap posture and risks; routes to the authorities and to the active `plans/PLAN_*.md` for tranche selection. |
 | `DIRECTIVE.md` | Founding directive | Design philosophy, professional boundary, stop rules, and scope constraints. |
 | `TYPES.md` | Vocabulary and identity | Canonical terms, IDs, statuses, and software/piping domain types. |
 | `CONTRACT.md` | Invariant catalog | Binding project invariants for legal/data boundary, solver, rule packs, reports, and agents. |

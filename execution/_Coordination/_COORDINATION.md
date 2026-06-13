@@ -12,6 +12,7 @@ Primary pointers:
 - `docs/TYPES.md`
 - `docs/SPEC.md`
 - `docs/PRD.md`
+- `docs/PLAN.md`
 - `docs/IP_AND_DATA_BOUNDARY.md`
 - `docs/VALIDATION_STRATEGY.md`
 - `docs/RELEASE_QUALITY_GATES.md`
@@ -55,6 +56,11 @@ Baseline intake for every new session:
   deliverable working surface.
 - `docs/PRD.md` §10 (functional requirements) and §22 (release milestones) as
   the product completion yardstick for ordinary tranche selection.
+- `docs/PLAN.md` — the non-governing strategic roadmap: the definition of
+  "complete per the PRD", the current milestone position, the layer-relation
+  map, and roadmap-level risks. It routes to the authorities (this record is
+  authoritative for the current target stage) and to the completion plan for
+  tranche selection; it is strategic orientation, not a work queue.
 - `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan
   (non-governing `PROPOSAL`) — for phase ordering, the dependency spine, the
   FR completion map, and the human decision register `D-01..D-12`. Update
