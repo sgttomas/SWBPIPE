@@ -259,9 +259,11 @@ bounded tranche.
 3. **Default candidate selection.** For ordinary development, select the
    highest-leverage application-integration tranche in this order:
    1. the earliest unblocked item on the completion plan's dependency spine
-      for the current target stage (Phase A first; its load-bearing chain is
-      A1 apply-operation seam → A2 model-document persistence → A5
-      solve-from-edited-model, with A3/A4/A6/A7/A8 layered alongside);
+      for the current target stage (R3/Phase C per `DEC-035`: C2 rule-pack
+      editor GUI — AST-based per `DEC-022`, with the D-02b text-syntax
+      packet prepared at the C2 lead-up — then C3 private-library GUI and
+      C4 end-to-end rule checks; the A3 usability lane and B2/B3 units
+      remainder run alongside, A3 feeding the R3-exit blocking residual);
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,

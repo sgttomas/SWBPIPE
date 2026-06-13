@@ -52,9 +52,10 @@
 3. If no active human-approved tranche exists, propose exactly one next bounded
    tranche:
    - select the earliest unblocked item on the completion plan's dependency
-     spine for the current target stage (Phase A first; its load-bearing
-     chain is A1 apply-operation seam → A2 model-document persistence → A5
-     solve-from-edited-model, with A3/A4/A6/A7/A8 layered alongside);
+     spine for the current target stage (R3/Phase C per `DEC-035`: C2
+     rule-pack editor GUI — AST-based per `DEC-022`, D-02b packet at the C2
+     lead-up — then C3 and C4; the A3 usability lane and B2/B3 units
+     remainder run alongside, A3 feeding the R3-exit blocking residual);
    - if that item is blocked by a human decision, run the loop's
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked
@@ -85,7 +86,7 @@
    to the repository; no protected standards content or private project data;
    and no release-readiness, professional approval, certification, sealing,
    authentication, or code-compliance claims. Interactive authoring of
-   user-created local models is in scope for the current R2 target stage and
+   user-created local models is in scope for the current R3 target stage and
    does not violate these prohibitions.
 7. End every session summary with the decision packets awaiting human ruling
    (from `execution/_Coordination/_DECISIONS/_REGISTER.md`) and the next
