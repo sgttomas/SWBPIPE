@@ -2117,3 +2117,15 @@ th {
   gap: 6px;
   flex-wrap: wrap;
 }
+
+.rule-pack-check-statuses {
+  display: grid;
+  gap: 2px;
+}
+
+.rule-pack-check-subgroup {
+  display: grid;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 2px solid #eef1ef;
+}

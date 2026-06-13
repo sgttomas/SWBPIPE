@@ -13,6 +13,62 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C2 editor GUI slice 5 landed: check-definitions form builder; C2 form-builder series complete (`TP-C2-CHECKDEF-001`)
+
+Adds the last rule-pack document-structure form builder: a structured editor for
+`check_definitions`, the member that binds the declared inputs/slots and a
+formula into an acceptability check. New
+`apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.tsx` adds / removes
+/ edits each check through form controls — text `check_id`/`name`/`description`;
+reference pickers for `formula_ref` (over declared formula ids) and
+`required_input_refs` / `value_slot_refs` (add/remove lists over declared
+input/slot ids, each held at the `minItems:1` floor); a closed-set
+`acceptability_basis` select; a `result_statuses` checkbox multi-select (the six
+`AnalysisStatus` tokens, floored at one); and the eight `diagnostic_policy`
+condition→code selects. **Add check** seeds a schema-valid default
+(`CheckDefinition` shape verified by `toEqual`) with a fresh unique id and refs
+bound to the first declared input/slot/formula; **Remove** is floored at
+`minItems:1`. The shared field primitives `Field`/`TextField`/`EnumSelect` were
+exported from `DeclarationsEditor` for reuse (the codebase already shares
+`DimensionSelect` this way). The editor mounts after the expression composer in
+`RulePackManagerPanel`; all three editors read the same draft document. An
+out-of-vocabulary stored enum surfaces as a "(current) X" option and an
+unresolved/`TBD` reference as an "(unresolved) X" option — never silently
+snapped (CONTRACT no-silent-defaults). Lossless: a patched check keeps every
+member it carried (provenance, description, any `Reference.version`), a
+diagnostic-policy edit preserves the other seven bindings, and untouched sibling
+checks round-trip verbatim.
+
+With this slice the **C2 rule-pack-editor form-builder series is complete**:
+every document-structure authoring member — `required_inputs`, `value_slots`,
+the full grammar-v1.0.0 expression AST (incl. table-backed nodes), and
+`check_definitions` — now has a structured form builder. The advanced metadata
+members (diagnostics, classification, checksums, provenance,
+professional_boundary, open_decisions) remain raw-JSON-editable by design, a
+bounded recorded residual rather than a form-builder gap. The next Phase C
+dependency-spine items are C3 (private-library management GUI) and C4
+(engine-side end-to-end rule checks on solved user models).
+
+D-02b gate held: a check binds *references* and selects closed-vocabulary tokens
+through pickers/checkboxes — no writable expression text syntax and no text
+rendering of any AST; the typed AST stays the sole edited, checksum-bound
+expression form (DEC-022). No invented engineering/standards value; the software
+authors the check *shape* only and never decides pass/fail acceptance (the
+engine independently blocks incomplete checks — C4). Private rule packs stay
+local-only.
+
+Validation: rule-packs Vitest **67/67** (was 43), full desktop Vitest
+**308/308** (14 files), `tsc -b` clean, Playwright `-g "rule-pack manager"`
+**2/2** (both viewports, check editor driven from blank). An independent
+four-lens adversarial review (schema-conformance, governance/D-02b/IP, React
+correctness, test honesty) returned **no BLOCKER / no SHOULD-FIX**, with a
+re-run JSON-Schema validator confirming the default shapes and enum sets; its one
+NIT (no test pinned the result-status floor for an out-of-vocabulary last token)
+was folded in as an added Vitest case. Run record:
+`execution/PKG-07_.../DEL-07-03_.../_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C2-CHECKDEF-001.md`;
+SMOKE TP-MAC-152. DEL-07-03 remains CHECKING; no lifecycle/release/professional
+claim.
+
 ## 2026-06-13 - C2 editor GUI slice 4 landed: required-input / value-slot declaration form builders (`TP-C2-DECLEDITOR-001`)
 
 Adds a structured editor for the rule pack's variable declarations — its

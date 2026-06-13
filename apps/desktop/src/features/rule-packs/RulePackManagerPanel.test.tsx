@@ -173,6 +173,33 @@ describe("RulePackManagerPanel", () => {
       "user_required_input_2 (required_input)"
     );
   });
+
+  it("mounts the check-definitions editor and writes an added check back to the document", () => {
+    // Slice 5 (TP-C2-CHECKDEF-001): the check-definitions editor reads the same
+    // draft document; adding a check grows the canonical document JSON.
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(screen.getByTestId("rule-pack-check-definitions-editor")).toBeTruthy();
+    expect((screen.getByTestId("rule-pack-check-formula-ref") as HTMLSelectElement).value).toBe(
+      "user_formula_1"
+    );
+
+    fireEvent.click(screen.getByTestId("rule-pack-check-add"));
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(JSON.parse(textarea.value).check_definitions).toHaveLength(2);
+  });
+
+  it("binds a freshly declared required input in a check's reference picker", () => {
+    // The declarations editor and the check editor read the same draft, so a
+    // variable declared in one is immediately bindable as a check reference in
+    // the other — no raw JSON.
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-input-add"));
+    const inputRef = screen.getByTestId("rule-pack-check-input-ref") as HTMLSelectElement;
+    const optionValues = Array.from(inputRef.options).map((option) => option.value);
+    expect(optionValues).toContain("user_required_input_2");
+  });
 });
 
 describe("rulePackService draft helpers", () => {

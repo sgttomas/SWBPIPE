@@ -4859,3 +4859,50 @@ notes:
 - Boundary review: no lifecycle state change; no release-readiness,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## TP-MAC-152 rule-pack check-definitions form builder (`TP-C2-CHECKDEF-001`, 2026-06-13)
+
+- Phase C2 slice 5 (final form-builder slice): a structured editor for the rule
+  pack's `check_definitions` — the member that binds the declared inputs/slots
+  and a formula into an acceptability check. New
+  `features/rule-packs/CheckDefinitionsEditor.tsx` adds / removes / edits each
+  check: text `check_id`/`name`/`description`; reference pickers for
+  `formula_ref` (over declared formula ids) and `required_input_refs` /
+  `value_slot_refs` (add/remove lists over declared input/slot ids, held at the
+  `minItems:1` floor); a closed-set `acceptability_basis` select; a
+  `result_statuses` checkbox multi-select (six `AnalysisStatus` tokens, floored
+  at one); and the eight `diagnostic_policy` condition→code selects. Until this
+  slice `check_definitions` was the last document-structure authoring member
+  edited as raw JSON.
+- D-02b gate held: a check binds *references* and selects closed-vocabulary
+  tokens through pickers/checkboxes — **no writable expression text syntax**,
+  no text rendering of any AST. No invented numeric/standards value; no silent
+  defaults (out-of-vocabulary enums surface as "(current) X"; unresolved/`TBD`
+  refs surface as "(unresolved) X", never snapped); private-by-default
+  placeholder provenance preserved losslessly.
+- Lossless: a patched check keeps every member it carried (provenance,
+  description, any `Reference.version`); a diagnostic-policy edit preserves the
+  other seven bindings; untouched sibling checks round-trip verbatim. Every
+  document-structure authoring member now has a form builder; the advanced
+  metadata members (diagnostics, classification, checksums, provenance,
+  professional_boundary, open_decisions) stay raw-JSON-editable by design.
+- Manual check: open "Rule Packs" → "New draft rule pack"; scroll to
+  "Acceptability checks"; the template check shows `formula_ref=user_formula_1`
+  bound, `required_input_refs`→`user_required_input_1`,
+  `value_slot_refs`→`user_limit_slot_1`; toggle a `result_statuses` checkbox and
+  confirm the document JSON below updates; "Add check" creates `user_check_2`
+  bound to the declared ids; remove is disabled on the last check and the last
+  ref of each list and the last result status. Declare a second required input in
+  "Variable declarations" and confirm it appears in a check's input-ref picker.
+- Validation: targeted Vitest `src/features/rule-packs` 67/67 (was 43); full
+  desktop Vitest 308/308 (14 files); `tsc -b` clean; Playwright
+  `-g "rule-pack manager"` 2/2 (chromium-desktop + chromium-compact, check
+  editor driven from blank). Independent four-lens adversarial review
+  (schema-conformance/governance/react/test-honesty) returned no BLOCKER/
+  SHOULD-FIX; one NIT (result-status floor for an out-of-vocab last token) folded
+  in as an added test.
+- Evidence: DEL-07-03 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C2-CHECKDEF-001.md`.
+- Boundary review: no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

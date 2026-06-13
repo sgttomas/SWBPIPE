@@ -104,10 +104,11 @@ never the authority.
 
 - **Target stage: R3 / Phase C** (`DEC-035`, superseding the `DEC-029` hold).
   Ordinary development is the Phase C dependency spine: **C1** expression
-  grammar freeze (landed) → **C2** rule-pack editor GUI (slices 1–4 landed;
-  `check_definitions` form builder remaining) → **C3** private-library
-  management GUI → **C4** end-to-end rule checks on authored models. The A3
-  usability lane and the Phase B unit-aware-I/O remainder run alongside.
+  grammar freeze (landed) → **C2** rule-pack editor GUI (landed — every
+  document-structure member now has a form builder; advanced metadata stays
+  raw-JSON by design) → **C3** private-library management GUI → **C4**
+  end-to-end rule checks on authored models. The A3 usability lane and the
+  Phase B unit-aware-I/O remainder run alongside.
 - **Two blocking residuals gate any R3 exit review:** F-4 (a completed human
   packaged-GUI journey) and the A3 authoring-journey usability finding. These
   are R3-exit gating, not ordinary-tranche scope.

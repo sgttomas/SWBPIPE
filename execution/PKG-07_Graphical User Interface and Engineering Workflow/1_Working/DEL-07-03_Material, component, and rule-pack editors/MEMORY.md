@@ -137,3 +137,29 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle state change (DEL-07-03 stays CHECKING); no release,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## 2026-06-13 - C2 rule-pack editor form-builder series complete (slices 2-5)
+
+- The Phase C2 rule-pack editor GUI form-builder series is now complete. After
+  slice 1 (`TP-C2-EDITOR-001`, above) the remaining slices each landed with a
+  run record under `_run_records/` and a SMOKE ledger row:
+  - slice 2 `TP-C2-COMPOSER-001` (structured AST expression composer; SMOKE
+    TP-MAC-149),
+  - slice 3 `TP-C2-TABLENODE-001` (table-backed interpolate/lookup nodes; SMOKE
+    TP-MAC-150),
+  - slice 4 `TP-C2-DECLEDITOR-001` (`required_inputs` / `value_slots`
+    variable-declaration form builders; SMOKE TP-MAC-151),
+  - slice 5 `TP-C2-CHECKDEF-001` (`check_definitions` form builder binding
+    input/slot/formula refs + acceptability basis/result statuses/diagnostic
+    policy; SMOKE TP-MAC-152, run record
+    `WORKING_ITEMS_RUN_2026-06-13_TP-C2-CHECKDEF-001.md`).
+- Durable state: **every rule-pack document-structure authoring member now has a
+  structured form builder** (declarations, the full grammar-v1.0.0 expression
+  AST incl. table nodes, and check definitions). The advanced metadata members
+  (diagnostics, classification, checksums, provenance, professional_boundary,
+  open_decisions) remain raw-JSON-editable by design, not a form-builder gap.
+- Whole series held AST/reference-binding only — **no writable expression text
+  syntax** (D-02b stays AWAITING_RULING) — private-by-default, no invented
+  standards values, no compliance/pass-fail claim. DEL-07-03 stays CHECKING.
+- Next Phase C dependency-spine work is C3 (private library management GUI) and
+  C4 (engine-side end-to-end rule checks on solved user models).

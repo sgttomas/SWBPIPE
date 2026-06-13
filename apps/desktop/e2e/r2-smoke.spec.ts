@@ -535,6 +535,22 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
     argument: { node: "variable_ref" }
   });
 
+  // Slice 5 (TP-C2-CHECKDEF-001): the check-definitions editor binds the
+  // declared inputs/slots/formula into acceptability checks through visible
+  // controls — no text syntax (D-02b). The template check's formula ref is
+  // bound to the declared formula; add a check and the canonical document JSON
+  // grows; toggling a result status rewrites it.
+  await expect(page.getByTestId("rule-pack-check-definitions-editor")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-check-formula-ref").first()).toHaveValue(
+    "user_formula_1"
+  );
+  await page.getByTestId("rule-pack-check-add").click();
+  const checkText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(checkText).check_definitions).toHaveLength(2);
+  await page.getByTestId("rule-pack-check-status-MODEL_INCOMPLETE").first().check();
+  const statusText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(statusText).check_definitions[0].result_statuses).toContain("MODEL_INCOMPLETE");
+
   // Validate routes to the desktop-only seam: the status transitions away
   // from the just-created "private_user_data" draft message. (Per-button
   // seam coverage for compute-checksum and save lives in the Vitest panel

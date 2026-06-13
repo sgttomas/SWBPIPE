@@ -185,7 +185,7 @@ export function setValueSlots(
 // Field primitives
 // ---------------------------------------------------------------------------
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="rule-pack-node-field">
       <span>{label}</span>
@@ -194,7 +194,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function TextField({
+export function TextField({
   testId,
   label,
   value,
@@ -220,7 +220,7 @@ function TextField({
   );
 }
 
-function EnumSelect({
+export function EnumSelect({
   testId,
   label,
   options,

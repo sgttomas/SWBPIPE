@@ -18,6 +18,7 @@ import {
 } from "../../services/rulePackService";
 import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
 import { DeclarationsEditor } from "./DeclarationsEditor";
+import { CheckDefinitionsEditor } from "./CheckDefinitionsEditor";
 
 // Rule-Pack Manager (PRD §14.5 / §14.1 "Rule-pack manager"). Pack management
 // and document authoring against the local-only store: list/create/open/
@@ -30,11 +31,13 @@ import { DeclarationsEditor } from "./DeclarationsEditor";
 // (DEC-022) is built through form/tree controls rather than hand-written JSON.
 // Slice 4 (TP-C2-DECLEDITOR-001) adds the variable-declarations editor for the
 // `required_inputs` and `value_slots` the composer's variable picker binds to.
-// The raw document JSON stays as the canonical/fallback surface for the
-// document-structure members whose form builders have not landed yet
-// (`check_definitions` — which ties inputs/slots/formula into a check — plus
-// diagnostics, classification, and provenance metadata). No expression text
-// syntax is provided anywhere — D-02b awaits the human ruling.
+// Slice 5 (TP-C2-CHECKDEF-001) adds the check-definitions editor, which binds
+// those declarations and a formula into each acceptability check — the last
+// document-structure member that had no form builder. The raw document JSON
+// stays as the canonical/fallback surface for the remaining metadata members
+// (diagnostics, classification, checksums, provenance, professional_boundary,
+// open_decisions). No expression text syntax is provided anywhere — D-02b
+// awaits the human ruling.
 
 const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
 const NO_PROJECT_REASON = "Local rule packs are project-scoped; create or open a local project first.";
@@ -265,13 +268,17 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
   // the canonical draft text (the single source of truth the validate/
   // checksum/save flow already reads). The composer edits a formula's
   // expression AST; the declarations editor edits the required_inputs /
-  // value_slots arrays.
+  // value_slots arrays; the check-definitions editor binds those into checks.
   function handleComposerChange(nextDocument: Record<string, unknown>) {
     setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "composer_edit" });
   }
 
   function handleDeclarationsChange(nextDocument: Record<string, unknown>) {
     setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "declarations_edit" });
+  }
+
+  function handleCheckDefinitionsChange(nextDocument: Record<string, unknown>) {
+    setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "check_definitions_edit" });
   }
 
   return (
@@ -368,6 +375,12 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
               disabled={inFlight}
               disabledReason={inFlight ? BUSY_REASON : undefined}
             />
+            <CheckDefinitionsEditor
+              document={parsedDraft.document}
+              onChange={handleCheckDefinitionsChange}
+              disabled={inFlight}
+              disabledReason={inFlight ? BUSY_REASON : undefined}
+            />
           </>
         ) : (
           <div className="report-list">
@@ -388,10 +401,10 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       <div className="report-list">
         <label htmlFor="rule-pack-draft-json-input">
           Rule-pack document JSON (native canonical form; the editors above author the
-          required-input/value-slot declarations and the selected formula&apos;s full expression
-          AST — declarative-AST per DEC-022, including table-backed nodes. Edit the remaining
-          document-structure members here — `check_definitions`, diagnostics, and metadata —
-          until their form builders land.)
+          required-input/value-slot declarations, the selected formula&apos;s full expression AST
+          — declarative-AST per DEC-022, including table-backed nodes — and the acceptability
+          check definitions. Edit the remaining metadata members here — diagnostics,
+          classification, checksums, provenance, and professional-boundary controls.)
         </label>
         <textarea
           id="rule-pack-draft-json-input"
