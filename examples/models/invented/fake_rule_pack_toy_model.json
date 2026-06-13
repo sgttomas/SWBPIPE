@@ -940,7 +940,7 @@
       {
         "id": "INV_FAKE_RULE_PACK_REF",
         "name": "Invented Demonstration Rule Pack",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "checksum": {
           "algorithm": "sha256",
           "canonicalization": "NONE",
@@ -948,7 +948,7 @@
             "object_type": "RulePackRef",
             "id": "INV_FAKE_RULE_PACK_REF"
           },
-          "value": "sha256:92a72dc94226efe46eb04fdad0eceb94ee3488e77c7202861ddf19c793f83374"
+          "value": "sha256:789acbd4fc7fc418cc79442ac0dac50a2fd45956b9316c5284cec0a3a0319fb2"
         },
         "source_notice": "Invented fake-rule demonstration only; no real rule or engineering acceptance basis is included.",
         "redistribution_status": "public_permissive",
@@ -1087,7 +1087,7 @@
           "object_type": "Project",
           "id": "INV_FAKE_RULE_TOY_PROJECT"
         },
-        "value": "sha256:1e507a1e5dde0607ae51adda472a7381bc7e107f066e7a51fb7a0f0c703b8105"
+        "value": "sha256:b0a7151adfcb9e932ef740d247307bc092d67e6ea57b2c7077f3ce77a7b53f2b"
       }
     ]
   }

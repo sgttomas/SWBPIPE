@@ -83,3 +83,16 @@ Durable context after approved WORKING_ITEMS tranche:
 - Generic TASK updated `examples/models/invented/fake_rule_pack_toy_model.json` so `INV_FAKE_RULE_PACK_REF` carries the current public invented rule-pack digest `sha256:92a72dc94226efe46eb04fdad0eceb94ee3488e77c7202861ddf19c793f83374`.
 - The fixture project JCS hash was recomputed after the checksum update using `core.project_persistence.canonical_json`.
 - This was a bounded checksum/hash maintenance update only; no lifecycle state, DAG artifact, dependency register, review disposition, release record, acceptance record, schema, test, professional claim, certification claim, sealing claim, authentication claim, or code-compliance claim was changed or made.
+
+## 2026-06-12 - fake_rule_pack_toy_model restamp (TP-C2-SCHEMA-001)
+
+- `examples/rule_packs/invented_demo.yaml` (DEL-06-05) was upgraded to the
+  DEC-022 frozen grammar (rule_pack_version 0.2.0), so
+  `fake_rule_pack_toy_model.json` `rule_pack_refs[0]` was restamped: version
+  0.2.0, raw-bytes checksum
+  sha256:789acbd4fc7fc418cc79442ac0dac50a2fd45956b9316c5284cec0a3a0319fb2,
+  and the project JCS hash
+  sha256:b0a7151adfcb9e932ef740d247307bc092d67e6ea57b2c7077f3ce77a7b53f2b
+  (same helpers as `tests/test_invented_example_models.py`).
+- Validation: full root pytest 358 passed. Primary record: DEL-06-01
+  `WORKING_ITEMS_RUN_2026-06-12_TP-C2-SCHEMA-001.md`.

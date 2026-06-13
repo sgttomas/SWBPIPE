@@ -1,11 +1,12 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "rule_pack_kind": "open_pipe_stress_rule_pack",
+  "grammar_version": "1.0.0",
   "metadata": {
     "rule_pack_id": "invented_demo_rule_pack",
     "name": "Invented Demonstration Rule Pack",
-    "schema_version": "0.1.0",
-    "rule_pack_version": "0.1.0",
+    "schema_version": "0.2.0",
+    "rule_pack_version": "0.2.0",
     "lifecycle_status": "accepted_public_example",
     "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
     "status": "active"
@@ -79,12 +80,24 @@
     {
       "formula_id": "demo_ratio_expression",
       "formula_kind": "ratio",
-      "declaration_form": "structured_expression",
-      "expression_language": "TBD",
+      "declaration_form": "declarative_ast",
+      "expression_language": "open_pipe_stress_declared_expression",
       "declaration_payload": {
-        "payload_kind": "structured_expression",
-        "payload_summary": "Invented ratio-style comparison between two demonstration quantity references; no protected formula text or executable expression is included.",
-        "grammar_status": "grammar_not_selected",
+        "payload_kind": "declarative_ast",
+        "payload_summary": "Invented ratio of two demonstration quantity references under the frozen DEC-022 declarative expression grammar v1.0.0; all values are invented non-engineering demonstration content.",
+        "grammar_status": "frozen_open_pipe_stress_declared_expression",
+        "expression_ast": {
+          "node": "binary",
+          "operator": "divide",
+          "left": {
+            "node": "variable_ref",
+            "variable_id": "demo_actual_quantity"
+          },
+          "right": {
+            "node": "variable_ref",
+            "variable_id": "demo_limit_quantity"
+          }
+        },
         "arbitrary_code_execution_allowed": false,
         "protected_content_policy": "invented_non_engineering_example_only"
       },
@@ -276,16 +289,16 @@
     {
       "decision_id": "OD-DEL-06-01-001",
       "topic": "expression_grammar",
-      "status": "deferred",
-      "owner": "future DEL-06-02",
-      "notes": "Expression grammar is not selected by this schema hardening pass."
+      "status": "accepted",
+      "owner": "human project authority (DEC-022)",
+      "notes": "Resolved by DEC-022 (2026-06-11): frozen typed declarative AST, expression_language open_pipe_stress_declared_expression, grammar v1.0.0; this example declares grammar_version 1.0.0 and a declarative_ast payload."
     },
     {
       "decision_id": "OD-DEL-06-01-002",
       "topic": "evaluator_library",
-      "status": "deferred",
-      "owner": "future DEL-06-02",
-      "notes": "Evaluator library selection remains outside this rule-pack schema example."
+      "status": "accepted",
+      "owner": "human project authority (DEC-022)",
+      "notes": "Resolved by DEC-022 (2026-06-11): in-repo purpose-built sandboxed evaluator (core/rules/expression_evaluator); no external expression-engine library."
     },
     {
       "decision_id": "OD-DEL-06-01-003",

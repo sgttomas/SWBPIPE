@@ -116,3 +116,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Verified `PKG06-01-PKG02-001` remains technically addressed: `FormulaDeclaration.output_dimension` references `QuantityIntent`, the invented demo supplies explicit unit/dimension metadata, and the focused schema tests assert the PKG-02 canonical dimension enum.
 - Validation evidence: `python3 -m pytest tests/test_rule_pack_schema.py tests/test_units_schema.py tests/test_model_schema.py` passed with 11 tests.
 - Finding is ready for human disposition; `Review_Findings.csv` was not edited and `HumanDisposition` remains `TBD`.
+
+## 2026-06-12 - DEC-022 grammar absorption (TP-C2-SCHEMA-001)
+
+- `schemas/rule_pack.schema.yaml` absorbed the DEC-022 frozen grammar: required
+  top-level `grammar_version` (semver, JCS-checksum-bound), `ExpressionNode`
+  declarative-AST encoding (refusal markers not authorable), `UserTableValue`
+  (D-02 Q6), `ExpressionQuantity` (relaxation flags not authorable),
+  `DimensionId` factored and shared, `grammar_status` value
+  `frozen_open_pipe_stress_declared_expression`, and conditional gates pinning
+  declarative-AST formulas to the frozen language.
+- The C1 residual "schema grammar_version/table additions" is closed.
+- Surfaced TBDs routed onward (not resolved): check-evaluation composition and
+  load-case mapping vocabulary -> C4 lead-up; checksum value stamping -> C2
+  backend seam tranche.
+- Validation: full root pytest 358 passed. Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-12_TP-C2-SCHEMA-001.md`.
+- No lifecycle state, release, professional, or code-compliance claim changed.

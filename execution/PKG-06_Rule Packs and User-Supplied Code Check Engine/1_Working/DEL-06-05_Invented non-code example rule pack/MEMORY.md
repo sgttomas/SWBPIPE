@@ -111,3 +111,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - `python3 -m json.tool examples/rule_packs/invented_demo.yaml` passed; `python3 -m pytest tests/test_rule_pack_schema.py` passed with 4 tests.
 - The example remains strict JSON syntax, schema-compatible under the focused rule-pack schema tests, invented/non-engineering in posture, and bounded by negative professional/compliance claim flags plus human-review-required notices.
 - Result: `PKG06-05-PKG02-001` remains technically addressed and ready for human disposition; `HumanDisposition` remains `TBD`.
+
+## 2026-06-12 - Example pack upgraded to frozen grammar v1.0.0 (TP-C2-SCHEMA-001)
+
+- `examples/rule_packs/invented_demo.yaml`: schema_version and
+  rule_pack_version 0.1.0 -> 0.2.0; top-level `grammar_version: "1.0.0"`;
+  `demo_ratio_expression` now carries a real `declarative_ast` payload
+  (divide of the two demonstration quantity refs, deriving a dimensionless
+  `ratio` consistent with the declared output_dimension) under
+  `grammar_status: frozen_open_pipe_stress_declared_expression`;
+  open_decisions expression_grammar/evaluator_library flipped to accepted
+  with DEC-022 pointers. All values remain invented non-engineering
+  demonstration content.
+- Checksum block intentionally still `deferred_to_DEL_06_04` markers; real
+  JCS checksum stamping arrives with the C2 backend seam tranche.
+- Downstream fixture `examples/models/invented/fake_rule_pack_toy_model.json`
+  (DEL-11-04) restamped: ref version 0.2.0, raw-bytes sha256, project JCS
+  hash.
+- Evidence: DEL-06-01 run record
+  `WORKING_ITEMS_RUN_2026-06-12_TP-C2-SCHEMA-001.md`; full root pytest 358
+  passed.

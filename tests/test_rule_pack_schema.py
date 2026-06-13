@@ -154,6 +154,38 @@ def walk_strings(value):
             yield from walk_strings(item)
 
 
+EXPRESSION_NODE_KINDS = {
+    "literal",
+    "variable_ref",
+    "unary",
+    "binary",
+    "compare",
+    "logical",
+    "select",
+    "aggregate",
+    "interpolate",
+    "lookup",
+}
+
+EVALUATOR_REFUSAL_MARKERS = {
+    "unsupported_form",
+    "unsafe_host_access",
+}
+
+REQUIRED_USER_TABLE = {
+    "table_id",
+    "argument_dimension",
+    "argument_unit_ref",
+    "result_dimension",
+    "result_unit_ref",
+    "rows",
+}
+
+FROZEN_GRAMMAR_STATUS = "frozen_open_pipe_stress_declared_expression"
+FROZEN_EXPRESSION_LANGUAGE = "open_pipe_stress_declared_expression"
+SEMVER_PATTERN = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+
+
 def check_schema_contract():
     schema = load_schema()
     defs = schema["$defs"]
@@ -161,6 +193,8 @@ def check_schema_contract():
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema["additionalProperties"] is False
     assert REQUIRED_TOP_LEVEL <= set(schema["required"])
+    assert "grammar_version" in schema["required"]
+    assert schema["properties"]["grammar_version"]["pattern"] == SEMVER_PATTERN
     for property_name in MIN_ITEM_ARRAYS:
         assert schema["properties"][property_name]["minItems"] == 1
 
@@ -260,10 +294,55 @@ def check_schema_contract():
     } <= set(payload["required"])
     assert payload["properties"]["arbitrary_code_execution_allowed"]["const"] is False
     assert {
+        FROZEN_GRAMMAR_STATUS,
         "grammar_not_selected",
         "future_human_approved_grammar_required",
         "TBD",
     } <= set(payload["properties"]["grammar_status"]["enum"])
+    assert payload["properties"]["expression_ast"]["$ref"] == "#/$defs/ExpressionNode"
+    declarative_gate = payload["allOf"][0]
+    assert declarative_gate["if"]["properties"]["payload_kind"]["const"] == (
+        "declarative_ast"
+    )
+    assert declarative_gate["then"]["required"] == ["expression_ast"]
+    assert declarative_gate["then"]["properties"]["grammar_status"]["const"] == (
+        FROZEN_GRAMMAR_STATUS
+    )
+    formula_gate = formula["allOf"][0]
+    assert formula_gate["if"]["properties"]["declaration_form"]["const"] == (
+        "declarative_ast"
+    )
+    assert formula_gate["then"]["properties"]["expression_language"]["const"] == (
+        FROZEN_EXPRESSION_LANGUAGE
+    )
+
+    expression_node = definition(schema, "ExpressionNode")
+    node_kinds = set()
+    for branch in expression_node["oneOf"]:
+        node_kinds.add(branch["properties"]["node"]["const"])
+        assert branch["additionalProperties"] is False
+    assert node_kinds == EXPRESSION_NODE_KINDS
+    assert not (node_kinds & EVALUATOR_REFUSAL_MARKERS)
+    aggregate_branch = next(
+        branch
+        for branch in expression_node["oneOf"]
+        if branch["properties"]["node"]["const"] == "aggregate"
+    )
+    assert aggregate_branch["properties"]["operands"]["minItems"] == 1
+
+    expression_quantity = definition(schema, "ExpressionQuantity")
+    assert set(expression_quantity["required"]) == {"value", "dimension", "unit_ref"}
+    assert expression_quantity["properties"]["dimension"]["$ref"] == (
+        "#/$defs/DimensionId"
+    )
+    assert "unit_required" not in expression_quantity["properties"]
+    assert "dimension_check_required" not in expression_quantity["properties"]
+
+    user_table = definition(schema, "UserTableValue")
+    assert REQUIRED_USER_TABLE <= set(user_table["required"])
+    assert user_table["properties"]["rows"]["minItems"] == 1
+    table_row = user_table["properties"]["rows"]["items"]
+    assert set(table_row["required"]) == {"argument", "result"}
 
     quantity_intent = definition(schema, "QuantityIntent")
     assert {
@@ -272,7 +351,8 @@ def check_schema_contract():
         "unit_required",
         "dimension_check_required",
     } <= set(quantity_intent["required"])
-    dimensions = quantity_intent["properties"]["dimension"]["enum"]
+    assert quantity_intent["properties"]["dimension"]["$ref"] == "#/$defs/DimensionId"
+    dimensions = definition(schema, "DimensionId")["enum"]
     assert dimensions == CANONICAL_DIMENSIONS
     assert not (set(dimensions) & RETIRED_DIMENSIONS)
 
@@ -393,13 +473,21 @@ def check_invented_example_shape():
             required_input["provenance"]["redistribution_status"]
         )
 
+    assert example["grammar_version"] == "1.0.0"
+
     formula = example["formula_declarations"][0]
     assert required_at(schema, "FormulaDeclaration") <= set(formula)
-    assert formula["expression_language"] == "TBD"
+    assert formula["declaration_form"] == "declarative_ast"
+    assert formula["expression_language"] == FROZEN_EXPRESSION_LANGUAGE
     assert required_at(schema, "FormulaDeclarationPayload") <= set(
         formula["declaration_payload"]
     )
-    assert formula["declaration_payload"]["grammar_status"] == "grammar_not_selected"
+    assert formula["declaration_payload"]["grammar_status"] == FROZEN_GRAMMAR_STATUS
+    expression_ast = formula["declaration_payload"]["expression_ast"]
+    assert expression_ast["node"] == "binary"
+    assert expression_ast["operator"] == "divide"
+    assert expression_ast["left"]["variable_id"] == "demo_actual_quantity"
+    assert expression_ast["right"]["variable_id"] == "demo_limit_quantity"
     assert formula["declaration_payload"]["arbitrary_code_execution_allowed"] is False
     assert formula["arbitrary_code_execution_allowed"] is False
     assert formula["completeness_status"] == "complete"
@@ -563,6 +651,90 @@ def test_schema_rejects_missing_or_unsafe_hardened_fields():
         validator,
         software_approval_claim,
         "$.professional_boundary.software_makes_approval_claim",
+    )
+
+    missing_grammar_version = deepcopy(example)
+    del missing_grammar_version["grammar_version"]
+    _assert_invalid_instance(validator, missing_grammar_version, "$")
+
+    malformed_grammar_version = deepcopy(example)
+    malformed_grammar_version["grammar_version"] = "v1"
+    _assert_invalid_instance(
+        validator,
+        malformed_grammar_version,
+        "$.grammar_version",
+    )
+
+    declarative_without_ast = deepcopy(example)
+    del declarative_without_ast["formula_declarations"][0]["declaration_payload"][
+        "expression_ast"
+    ]
+    _assert_invalid_instance(
+        validator,
+        declarative_without_ast,
+        "$.formula_declarations[0].declaration_payload",
+    )
+
+    stale_grammar_status = deepcopy(example)
+    stale_grammar_status["formula_declarations"][0]["declaration_payload"][
+        "grammar_status"
+    ] = "grammar_not_selected"
+    _assert_invalid_instance(
+        validator,
+        stale_grammar_status,
+        "$.formula_declarations[0].declaration_payload.grammar_status",
+    )
+
+    refusal_marker_authored = deepcopy(example)
+    refusal_marker_authored["formula_declarations"][0]["declaration_payload"][
+        "expression_ast"
+    ] = {"node": "unsafe_host_access", "request": "filesystem"}
+    _assert_invalid_instance(
+        validator,
+        refusal_marker_authored,
+        "$.formula_declarations[0].declaration_payload.expression_ast",
+    )
+
+    relaxed_literal_flags = deepcopy(example)
+    relaxed_literal_flags["formula_declarations"][0]["declaration_payload"][
+        "expression_ast"
+    ] = {
+        "node": "literal",
+        "quantity": {
+            "value": 1.0,
+            "dimension": "dimensionless",
+            "unit_ref": "ratio",
+            "unit_required": False,
+        },
+    }
+    _assert_invalid_instance(
+        validator,
+        relaxed_literal_flags,
+        "$.formula_declarations[0].declaration_payload.expression_ast",
+    )
+
+    malformed_table_row = deepcopy(example)
+    malformed_table_row["formula_declarations"][0]["declaration_payload"][
+        "expression_ast"
+    ] = {
+        "node": "interpolate",
+        "table": {
+            "table_id": "demo_invented_table",
+            "argument_dimension": "dimensionless",
+            "argument_unit_ref": "ratio",
+            "result_dimension": "dimensionless",
+            "result_unit_ref": "ratio",
+            "rows": [{"argument": 1.0}],
+        },
+        "argument": {
+            "node": "variable_ref",
+            "variable_id": "demo_actual_quantity",
+        },
+    }
+    _assert_invalid_instance(
+        validator,
+        malformed_table_row,
+        "$.formula_declarations[0].declaration_payload.expression_ast",
     )
 
 

@@ -13,6 +13,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - C2 lead-up landed: D-02b packet + DEC-022 schema absorption (`TP-C2-SCHEMA-001`)
+
+Two C2 lead-up actions per the Phase C stage gate. First, the **D-02b decision
+packet** (writable rule-expression text syntax) was prepared and registered
+AWAITING_RULING — options O-A..O-D with a PROPOSAL-labeled recommendation
+(O-C: defer the writable syntax behind a named usability-evidence trigger;
+permit a display-only deterministic AST rendering); no writable text input
+ships until the human rules. Second, the named C1 residual closed:
+`schemas/rule_pack.schema.yaml` absorbed DEC-022 — required top-level
+`grammar_version` (semver, sits inside the JCS-hashed `rule_pack_checksum`
+payload), `ExpressionNode` declarative-AST encoding mirroring the conformance
+corpus (evaluator refusal markers and literal relaxation flags deliberately
+not authorable in pack documents), `UserTableValue` for interpolate/lookup
+(D-02 §3 Q6), shared `DimensionId`, `grammar_status:
+frozen_open_pipe_stress_declared_expression`, and conditional gates pinning
+declarative-AST formulas to the frozen language. The DEL-06-05 example pack
+became a real evaluable instance (grammar_version 1.0.0, declarative_ast
+divide of the two demo quantities deriving the declared dimensionless ratio;
+versions bumped to 0.2.0; expression_grammar/evaluator_library open-decisions
+flipped to accepted with DEC-022 pointers), and the DEL-11-04 toy model's
+rule-pack ref was restamped (version, raw-bytes sha256, project JCS hash).
+Validation: full root pytest 358/0 (extended schema tests: seven new
+negative JSON Schema cases). Residuals routed: checksum value stamping +
+example-AST Rust cross-check → C2 backend seam tranche; check-evaluation
+composition and load-case mapping vocabulary (surfaced TBDs, not resolved) →
+C4 lead-up.
+
+Evidence: DEL-06-01 run record
+`WORKING_ITEMS_RUN_2026-06-12_TP-C2-SCHEMA-001.md`; decision packet
+`execution/_Coordination/_DECISIONS/D-02b_rule_expression_text_syntax.md`.
+No lifecycle state, release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim is created.
+
 ## 2026-06-12 - A3 sub-slice landed: workspace IA and usability repair (`TP-APP-R2-UXSHELL-001`)
 
 Response to the human packaged-pass attempt-2 usability verdict (TP-MAC-141).
