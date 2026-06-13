@@ -2,6 +2,7 @@ import { useState } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  DIMENSIONS,
   ExpressionComposer,
   collectRulePackVariables,
   defaultExpressionNode,
@@ -42,9 +43,15 @@ describe("ExpressionComposer pure helpers", () => {
 
   it("builds default nodes for every editable type with the frozen encoding", () => {
     const variables = collectRulePackVariables(buildDraftRulePackDocument());
-    expect(defaultExpressionNode("literal", variables)).toMatchObject({
+    // toEqual (not toMatchObject) pins the EXACT quantity shape: the schema's
+    // ExpressionQuantity is additionalProperties:false and allows only value /
+    // dimension / unit_ref (the unit_required / dimension_check_required
+    // relaxation flags are not authorable in pack documents — absent means
+    // true). The unknown-dimension placeholder is the uppercase "TBD" token the
+    // codec (decode_quantity) and schema DimensionId accept — never "tbd".
+    expect(defaultExpressionNode("literal", variables)).toEqual({
       node: "literal",
-      quantity: { value: 0, dimension: "tbd", unit_ref: "TBD" }
+      quantity: { value: 0, dimension: "TBD", unit_ref: "TBD" }
     });
     expect(defaultExpressionNode("variable_ref", variables)).toEqual({
       node: "variable_ref",
@@ -72,13 +79,48 @@ describe("ExpressionComposer pure helpers", () => {
       function: "min",
       operands: [{ node: "variable_ref" }]
     });
+    // Table nodes: a schema-valid default table (two strictly-increasing rows
+    // so interpolate is immediately well-formed) with TBD placeholders, plus
+    // the recursive argument child. lookup additionally carries an exact mode.
+    expect(defaultExpressionNode("interpolate", variables)).toEqual({
+      node: "interpolate",
+      table: {
+        table_id: "user_table_1",
+        argument_dimension: "TBD",
+        argument_unit_ref: "TBD",
+        result_dimension: "TBD",
+        result_unit_ref: "TBD",
+        rows: [
+          { argument: 0, result: 0 },
+          { argument: 1, result: 0 }
+        ]
+      },
+      argument: { node: "variable_ref", variable_id: "user_required_input_1" }
+    });
+    expect(defaultExpressionNode("lookup", variables)).toMatchObject({
+      node: "lookup",
+      mode: "exact",
+      table: { table_id: "user_table_1", rows: [{ argument: 0 }, { argument: 1 }] }
+    });
+  });
+
+  it("offers only the codec/schema dimension vocabulary with the uppercase TBD placeholder", () => {
+    // Guards the slice-2 regression: a lowercase "tbd" default produced
+    // documents that fail backend decode and DimensionId schema validation.
+    expect(DIMENSIONS).toContain("TBD");
+    expect(DIMENSIONS).not.toContain("tbd");
   });
 
   it("classifies node kinds (editable vs table vs unknown)", () => {
     expect(nodeKind({ node: "compare" })).toBe("compare");
     expect(nodeKind({})).toBe("unrecognized");
     expect(isEditableNode({ node: "logical" })).toBe(true);
-    expect(isEditableNode({ node: "interpolate" })).toBe(false);
+    // Table nodes are now editable (slice 3); refusal markers and unknown
+    // tags remain non-editable and are preserved read-only.
+    expect(isEditableNode({ node: "interpolate" })).toBe(true);
+    expect(isEditableNode({ node: "lookup" })).toBe(true);
+    expect(isEditableNode({ node: "unsafe_host_access" })).toBe(false);
+    expect(isEditableNode({ node: "future_feature" })).toBe(false);
     expect(isTableNode({ node: "lookup" })).toBe(true);
     expect(isTableNode({ node: "literal" })).toBe(false);
   });
@@ -186,8 +228,107 @@ describe("ExpressionComposer component", () => {
     expect((harnessExpression().operands as unknown[]).length).toBe(1);
   });
 
-  it("preserves a table-backed node read-only instead of editing or dropping it", () => {
-    const document = buildDraftRulePackDocument();
+  it("switches the root node to an interpolate table and seeds a schema-valid default", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], {
+      target: { value: "interpolate" }
+    });
+    const node = harnessExpression();
+    expect(node.node).toBe("interpolate");
+    const table = node.table as Record<string, unknown>;
+    expect(table.table_id).toBe("user_table_1");
+    expect(table.argument_dimension).toBe("TBD");
+    expect(table.result_dimension).toBe("TBD");
+    expect((table.rows as unknown[]).length).toBe(2);
+    expect((node.argument as AstNode).node).toBe("variable_ref");
+    // interpolate carries no mode field; only lookup does.
+    expect(screen.queryByTestId("rule-pack-lookup-mode")).toBeNull();
+  });
+
+  it("edits a lookup table's id, dimensions, units, mode, and rows", () => {
+    const document = setFormulaExpression(buildDraftRulePackDocument(), "user_formula_1", {
+      node: "lookup",
+      mode: "exact",
+      table: {
+        table_id: "user_table_1",
+        argument_dimension: "TBD",
+        argument_unit_ref: "TBD",
+        result_dimension: "TBD",
+        result_unit_ref: "TBD",
+        rows: [
+          { argument: 0, result: 0 },
+          { argument: 1, result: 0 }
+        ]
+      },
+      argument: { node: "variable_ref", variable_id: "user_required_input_1" }
+    });
+    render(<Harness initial={document} />);
+
+    fireEvent.change(screen.getByTestId("rule-pack-table-id"), { target: { value: "temp_factor" } });
+    fireEvent.change(screen.getByTestId("rule-pack-table-argument-dimension"), {
+      target: { value: "temperature" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-table-argument-unit"), {
+      target: { value: "invented_degc" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-table-result-dimension"), {
+      target: { value: "stress" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-table-result-unit"), {
+      target: { value: "invented_stress" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-lookup-mode"), { target: { value: "step" } });
+    fireEvent.change(screen.getAllByTestId("rule-pack-table-row-result")[0], {
+      target: { value: "1.5" }
+    });
+
+    const node = harnessExpression();
+    expect(node.mode).toBe("step");
+    expect(node.table).toMatchObject({
+      table_id: "temp_factor",
+      argument_dimension: "temperature",
+      argument_unit_ref: "invented_degc",
+      result_dimension: "stress",
+      result_unit_ref: "invented_stress"
+    });
+    expect((node.table as Record<string, unknown>).rows).toEqual([
+      { argument: 0, result: 1.5 },
+      { argument: 1, result: 0 }
+    ]);
+  });
+
+  it("adds and removes table rows and blocks dropping the last one", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], {
+      target: { value: "interpolate" }
+    });
+    expect(screen.getAllByTestId("rule-pack-table-row")).toHaveLength(2);
+
+    fireEvent.click(screen.getByTestId("rule-pack-table-add-row"));
+    let rows = (harnessExpression().table as Record<string, unknown>).rows as Array<
+      Record<string, number>
+    >;
+    // The appended row keeps strict monotonicity (last argument + 1).
+    expect(rows).toHaveLength(3);
+    expect(rows[2].argument).toBe(2);
+
+    // Remove the middle row; the others survive in order.
+    fireEvent.click(screen.getAllByTestId("rule-pack-table-remove-row")[1]);
+    rows = (harnessExpression().table as Record<string, unknown>).rows as Array<
+      Record<string, number>
+    >;
+    expect(rows.map((row) => row.argument)).toEqual([0, 2]);
+
+    fireEvent.click(screen.getAllByTestId("rule-pack-table-remove-row")[1]);
+    rows = (harnessExpression().table as Record<string, unknown>).rows as Array<
+      Record<string, number>
+    >;
+    expect(rows).toHaveLength(1);
+    // The last row cannot be removed (schema requires at least one row).
+    expect(screen.getByTestId("rule-pack-table-remove-row")).toHaveProperty("disabled", true);
+  });
+
+  it("edits a table node's argument expression while preserving the table verbatim", () => {
     const tableNode: AstNode = {
       node: "interpolate",
       table: {
@@ -203,14 +344,16 @@ describe("ExpressionComposer component", () => {
       },
       argument: { node: "variable_ref", variable_id: "user_required_input_1" }
     };
-    const withTable = setFormulaExpression(document, "user_formula_1", tableNode);
-    render(<Harness initial={withTable} />);
-    expect(screen.getByTestId("rule-pack-node-readonly").textContent).toContain("Table-backed");
-    // No node-type select is offered for a preserved node, so it cannot be
-    // silently replaced. Assert the ENTIRE subtree (table rows and all) round-
-    // trips byte-for-byte — a partial match would not catch a dropped table.
-    expect(screen.queryAllByTestId("rule-pack-node-type")).toHaveLength(0);
-    expect(harnessExpression()).toEqual(tableNode);
+    const document = setFormulaExpression(buildDraftRulePackDocument(), "user_formula_1", tableNode);
+    render(<Harness initial={document} />);
+
+    // Two node-type selects: [0] the root interpolate, [1] the argument child.
+    // Switch the argument to a literal; the table rows and metadata must be
+    // untouched — only the argument subtree changes.
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[1], { target: { value: "literal" } });
+    const node = harnessExpression();
+    expect((node.argument as AstNode).node).toBe("literal");
+    expect(node.table).toEqual(tableNode.table);
   });
 
   it("preserves an unrecognized node when an editable sibling is edited", () => {
@@ -219,7 +362,7 @@ describe("ExpressionComposer component", () => {
     const withUnknownSibling = setFormulaExpression(document, "user_formula_1", {
       node: "logical",
       operator: "and",
-      left: { node: "compare", operator: "less_than", left: { node: "variable_ref", variable_id: "user_required_input_1" }, right: { node: "literal", quantity: { value: 1, dimension: "tbd", unit_ref: "TBD" } } },
+      left: { node: "compare", operator: "less_than", left: { node: "variable_ref", variable_id: "user_required_input_1" }, right: { node: "literal", quantity: { value: 1, dimension: "TBD", unit_ref: "TBD" } } },
       right: unknownNode
     });
     render(<Harness initial={withUnknownSibling} />);
@@ -232,5 +375,19 @@ describe("ExpressionComposer component", () => {
     const expression = harnessExpression();
     expect(expression.operator).toBe("or");
     expect(expression.right).toEqual(unknownNode);
+  });
+
+  it("preserves a refusal-marker node read-only with no node-type selector", () => {
+    // Refusal markers (unsupported_form / unsafe_host_access) are always
+    // read-only. This pins the preservation guarantee the removed table
+    // read-only test used to hold: a preserved node exposes NO node-type
+    // selector (so it can never be silently switched/replaced) and the entire
+    // subtree round-trips byte-for-byte.
+    const marker: AstNode = { node: "unsafe_host_access", request: "filesystem" };
+    const document = setFormulaExpression(buildDraftRulePackDocument(), "user_formula_1", marker);
+    render(<Harness initial={document} />);
+    expect(screen.getByTestId("rule-pack-node-readonly").textContent).toContain("Refusal marker");
+    expect(screen.queryAllByTestId("rule-pack-node-type")).toHaveLength(0);
+    expect(harnessExpression()).toEqual(marker);
   });
 });

@@ -15,18 +15,24 @@ import { useState, type ReactNode } from "react";
 // question (§3 Q5). The typed AST remains the sole canonical, checksum-bound
 // form (DEC-022); this component only reads and rewrites that AST.
 //
-// Lossless preservation: table-backed nodes (interpolate / lookup) need a
-// table sub-editor that is the next C2 slice, and any unrecognized node tag
-// is treated as opaque. Both are rendered read-only and preserved verbatim —
-// the composer never silently drops or rewrites a subtree it does not edit.
+// Table-backed nodes (interpolate / lookup) are authored through a structured
+// table sub-editor (TP-C2-TABLENODE-001): table id, argument/result dimension
+// and unit refs, and the {argument, result} rows, plus the recursive argument
+// expression. Monotonicity and out-of-range remain evaluator-enforced
+// diagnostics (surfaced as authoring guidance, never silently clamped here).
+//
+// Lossless preservation: any unrecognized node tag and the refusal markers
+// (unsupported_form / unsafe_host_access) are rendered read-only and preserved
+// verbatim — the composer never silently drops or rewrites a subtree it does
+// not edit. Untouched table rows and sibling subtrees round-trip unchanged.
 
 export type AstNode = Record<string, unknown>;
 export type RulePackDocument = Record<string, unknown>;
 
-// The node types the composer can author as structured controls. Table nodes
-// (interpolate/lookup) and the refusal markers (unsupported_form /
-// unsafe_host_access) are intentionally excluded: they are preserved when
-// present but not user-authorable in this slice.
+// The node types the composer can author as structured controls — now the
+// full frozen grammar v1.0.0 set including the table-backed nodes. Only the
+// refusal markers (unsupported_form / unsafe_host_access) and any unrecognized
+// node tag are excluded: they are preserved when present but never authored.
 export const EDITABLE_NODE_TYPES = [
   "literal",
   "variable_ref",
@@ -35,7 +41,9 @@ export const EDITABLE_NODE_TYPES = [
   "compare",
   "logical",
   "select",
-  "aggregate"
+  "aggregate",
+  "interpolate",
+  "lookup"
 ] as const;
 export type EditableNodeType = (typeof EDITABLE_NODE_TYPES)[number];
 
@@ -51,11 +59,16 @@ export const COMPARE_OPERATORS = [
 ] as const;
 export const LOGICAL_OPERATORS = ["and", "or"] as const;
 export const AGGREGATE_FUNCTIONS = ["min", "max"] as const;
+export const LOOKUP_MODES = ["exact", "step"] as const;
 
-// The snake_case Dimension vocabulary from
-// `core/rules/expression_evaluator` (the evaluator's `Dimension` enum). Kept
-// in sync by the conformance corpus; `tbd` is the honest authoring default
-// (no silent dimension assumption — CONTRACT no-silent-defaults).
+// The dimension vocabulary the document codec and schema accept
+// (`core/rules/rule_pack_document` DIMENSION_TOKENS == schema `DimensionId`;
+// the evaluator's `Dimension` enum encodes the same tokens). The
+// unknown-dimension placeholder is the uppercase `"TBD"` token — exactly what
+// the codec, schema, and draft builder use, not a lowercase variant — and is
+// the honest authoring default (no silent dimension assumption — CONTRACT
+// no-silent-defaults). A lowercase `"tbd"` would fail backend decode
+// (`decode_quantity`) and `DimensionId` schema validation.
 export const DIMENSIONS = [
   "dimensionless",
   "length",
@@ -85,7 +98,7 @@ export const DIMENSIONS = [
   "mass_per_length",
   "volume_per_length",
   "slope",
-  "tbd"
+  "TBD"
 ] as const;
 
 export type RulePackVariable = {
@@ -222,20 +235,45 @@ export function isTableNode(node: AstNode): boolean {
 }
 
 function defaultLiteral(): AstNode {
+  // Only { value, dimension, unit_ref }: the schema's ExpressionQuantity is
+  // additionalProperties:false, and the relaxation flags unit_required /
+  // dimension_check_required are deliberately NOT authorable in pack documents
+  // — the codec (decode_quantity) and evaluator treat absent flags as true
+  // (i.e. strict). Emitting them would make the default literal non-conformant
+  // to rule_pack.schema.yaml. (An opened document's literal preserves whatever
+  // flags it already carries; only this authoring default omits them.)
   return {
     node: "literal",
     quantity: {
       value: 0,
-      dimension: "tbd",
-      unit_ref: "TBD",
-      unit_required: true,
-      dimension_check_required: true
+      dimension: "TBD",
+      unit_ref: "TBD"
     }
   };
 }
 
 function defaultVariableRef(variables: RulePackVariable[]): AstNode {
   return { node: "variable_ref", variable_id: variables[0]?.id ?? "" };
+}
+
+/**
+ * A schema-valid default user table: two strictly-increasing rows so an
+ * `interpolate` node is immediately well-formed (the evaluator requires at
+ * least two rows and strict monotonicity), with the honest `"TBD"`
+ * dimension/unit placeholders the codec and schema accept.
+ */
+function defaultUserTable(): Record<string, unknown> {
+  return {
+    table_id: "user_table_1",
+    argument_dimension: "TBD",
+    argument_unit_ref: "TBD",
+    result_dimension: "TBD",
+    result_unit_ref: "TBD",
+    rows: [
+      { argument: 0, result: 0 },
+      { argument: 1, result: 0 }
+    ]
+  };
 }
 
 /** A sensible default node of `type`, used when creating or switching nodes. */
@@ -280,6 +318,19 @@ export function defaultExpressionNode(
       };
     case "aggregate":
       return { node: "aggregate", function: "min", operands: [defaultVariableRef(variables)] };
+    case "interpolate":
+      return {
+        node: "interpolate",
+        table: defaultUserTable(),
+        argument: defaultVariableRef(variables)
+      };
+    case "lookup":
+      return {
+        node: "lookup",
+        table: defaultUserTable(),
+        mode: "exact",
+        argument: defaultVariableRef(variables)
+      };
     default:
       return defaultLiteral();
   }
@@ -297,6 +348,21 @@ function operandsOf(node: AstNode): AstNode[] {
   const operands = node.operands;
   if (!Array.isArray(operands)) return [];
   return operands.map((entry) => asObject(entry) ?? { node: "unrecognized" });
+}
+
+function tableOf(node: AstNode): Record<string, unknown> {
+  return asObject(node.table) ?? {};
+}
+
+/** The raw `rows` array of a table node, preserved verbatim for lossless edits. */
+function rawTableRows(table: Record<string, unknown>): unknown[] {
+  return Array.isArray(table.rows) ? table.rows : [];
+}
+
+function rowNumber(row: unknown, key: "argument" | "result"): number {
+  const record = asObject(row);
+  const value = record ? record[key] : undefined;
+  return typeof value === "number" ? value : 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -371,16 +437,47 @@ function NodeTypeSelect({
   );
 }
 
+// Shared dimension picker over the codec/schema vocabulary. Reused by the
+// literal editor and both table dimension fields so the unknown-dimension
+// placeholder (`"TBD"`) stays consistent and codec/schema-valid everywhere.
+function DimensionSelect({
+  testId,
+  value,
+  disabled,
+  onChange
+}: {
+  testId: string;
+  value: string;
+  disabled: boolean;
+  onChange: (next: string) => void;
+}) {
+  const safe = DIMENSIONS.includes(value as (typeof DIMENSIONS)[number]) ? value : "TBD";
+  return (
+    <select
+      data-testid={testId}
+      value={safe}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      {DIMENSIONS.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function ExpressionNodeEditor(props: NodeEditorProps) {
   const { node, onChange, variables, disabled, disabledReason, depth, label } = props;
   const kind = nodeKind(node);
 
-  // Read-only, preserved nodes: table-backed (next slice) and anything the
-  // composer does not recognize. The subtree round-trips unchanged.
+  // Read-only, preserved nodes: the refusal markers (unsupported_form /
+  // unsafe_host_access) and any unrecognized node tag. The subtree round-trips
+  // unchanged. (Table-backed nodes are editable — handled below.)
   if (!isEditableNode(node)) {
-    const explanation = isTableNode(node)
-      ? `Table-backed ${kind} node. The structured composer does not yet edit table nodes; edit it in the document JSON below. Preserved unchanged.`
-      : kind === "unsupported_form" || kind === "unsafe_host_access"
+    const explanation =
+      kind === "unsupported_form" || kind === "unsafe_host_access"
         ? `Refusal marker (${kind}); blocking by design. Preserved; not user-authorable in the composer.`
         : `Unrecognized node (${kind}). Preserved as-is; edit it in the document JSON below.`;
     return (
@@ -399,7 +496,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
   if (kind === "literal") {
     const quantity = quantityOf(node);
     const value = typeof quantity.value === "number" ? quantity.value : 0;
-    const dimension = asString(quantity.dimension) ?? "tbd";
+    const dimension = asString(quantity.dimension) ?? "TBD";
     const unitRef = asString(quantity.unit_ref) ?? "TBD";
     const updateQuantity = (patch: Record<string, unknown>) =>
       onChange({ ...node, quantity: { ...quantity, ...patch } });
@@ -421,18 +518,12 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
         </label>
         <label className="rule-pack-node-field">
           <span>dimension</span>
-          <select
-            data-testid="rule-pack-literal-dimension"
-            value={DIMENSIONS.includes(dimension as (typeof DIMENSIONS)[number]) ? dimension : "tbd"}
+          <DimensionSelect
+            testId="rule-pack-literal-dimension"
+            value={dimension}
             disabled={disabled}
-            onChange={(event) => updateQuantity({ dimension: event.target.value })}
-          >
-            {DIMENSIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+            onChange={(next) => updateQuantity({ dimension: next })}
+          />
         </label>
         <label className="rule-pack-node-field">
           <span>unit_ref</span>
@@ -599,6 +690,165 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           disabledReason={disabledReason}
           depth={depth + 1}
           label="else"
+        />
+      </NodeShell>
+    );
+  }
+
+  if (isTableNode(node)) {
+    const isLookup = kind === "lookup";
+    const table = tableOf(node);
+    const tableId = asString(table.table_id) ?? "";
+    const argumentDimension = asString(table.argument_dimension) ?? "TBD";
+    const argumentUnitRef = asString(table.argument_unit_ref) ?? "TBD";
+    const resultDimension = asString(table.result_dimension) ?? "TBD";
+    const resultUnitRef = asString(table.result_unit_ref) ?? "TBD";
+    const mode = asString(node.mode) ?? "exact";
+    const rows = rawTableRows(table);
+    const updateTable = (patch: Record<string, unknown>) =>
+      onChange({ ...node, table: { ...table, ...patch } });
+    // Patch only the touched row; every other row object round-trips verbatim.
+    const updateRow = (index: number, patch: Record<string, unknown>) =>
+      updateTable({
+        rows: rows.map((row, position) =>
+          position === index ? { ...(asObject(row) ?? {}), ...patch } : row
+        )
+      });
+    const addRow = () => {
+      const lastArgument = rows.length > 0 ? rowNumber(rows[rows.length - 1], "argument") : -1;
+      updateTable({ rows: [...rows, { argument: lastArgument + 1, result: 0 }] });
+    };
+    const removeRow = (index: number) =>
+      updateTable({ rows: rows.filter((_, position) => position !== index) });
+    const removeRowReason = rows.length <= 1 ? "A table needs at least one row." : undefined;
+    return (
+      <NodeShell kind={kind} label={label} depth={depth}>
+        {typeSelect}
+        {isLookup ? (
+          <label className="rule-pack-node-field">
+            <span>mode</span>
+            <select
+              data-testid="rule-pack-lookup-mode"
+              value={LOOKUP_MODES.includes(mode as (typeof LOOKUP_MODES)[number]) ? mode : "exact"}
+              disabled={disabled}
+              onChange={(event) => onChange({ ...node, mode: event.target.value })}
+            >
+              {LOOKUP_MODES.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        <label className="rule-pack-node-field">
+          <span>table_id</span>
+          <input
+            type="text"
+            data-testid="rule-pack-table-id"
+            value={tableId}
+            disabled={disabled}
+            onChange={(event) => updateTable({ table_id: event.target.value })}
+          />
+        </label>
+        <label className="rule-pack-node-field">
+          <span>arg dimension</span>
+          <DimensionSelect
+            testId="rule-pack-table-argument-dimension"
+            value={argumentDimension}
+            disabled={disabled}
+            onChange={(next) => updateTable({ argument_dimension: next })}
+          />
+        </label>
+        <label className="rule-pack-node-field">
+          <span>arg unit_ref</span>
+          <input
+            type="text"
+            data-testid="rule-pack-table-argument-unit"
+            value={argumentUnitRef}
+            disabled={disabled}
+            onChange={(event) => updateTable({ argument_unit_ref: event.target.value })}
+          />
+        </label>
+        <label className="rule-pack-node-field">
+          <span>result dimension</span>
+          <DimensionSelect
+            testId="rule-pack-table-result-dimension"
+            value={resultDimension}
+            disabled={disabled}
+            onChange={(next) => updateTable({ result_dimension: next })}
+          />
+        </label>
+        <label className="rule-pack-node-field">
+          <span>result unit_ref</span>
+          <input
+            type="text"
+            data-testid="rule-pack-table-result-unit"
+            value={resultUnitRef}
+            disabled={disabled}
+            onChange={(event) => updateTable({ result_unit_ref: event.target.value })}
+          />
+        </label>
+        <small className="rule-pack-node-readonly" data-testid="rule-pack-table-guidance">
+          Row arguments must be strictly increasing; interpolate needs at least two rows. The
+          evaluator blocks out-of-range arguments — it never extrapolates or clamps.
+        </small>
+        {rows.map((row, index) => (
+          <div className="rule-pack-table-row" data-testid="rule-pack-table-row" key={`row-${index}`}>
+            <label className="rule-pack-node-field">
+              <span>argument</span>
+              <input
+                type="number"
+                data-testid="rule-pack-table-row-argument"
+                value={String(rowNumber(row, "argument"))}
+                disabled={disabled}
+                onChange={(event) => {
+                  const next = Number(event.target.value);
+                  if (Number.isFinite(next)) updateRow(index, { argument: next });
+                }}
+              />
+            </label>
+            <label className="rule-pack-node-field">
+              <span>result</span>
+              <input
+                type="number"
+                data-testid="rule-pack-table-row-result"
+                value={String(rowNumber(row, "result"))}
+                disabled={disabled}
+                onChange={(event) => {
+                  const next = Number(event.target.value);
+                  if (Number.isFinite(next)) updateRow(index, { result: next });
+                }}
+              />
+            </label>
+            <button
+              type="button"
+              data-testid="rule-pack-table-remove-row"
+              disabled={disabled || rows.length <= 1}
+              title={disabled ? disabledReason : removeRowReason}
+              onClick={() => removeRow(index)}
+            >
+              Remove row
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          data-testid="rule-pack-table-add-row"
+          disabled={disabled}
+          title={disabled ? disabledReason : undefined}
+          onClick={addRow}
+        >
+          Add row
+        </button>
+        <ExpressionNodeEditor
+          node={childNode(node, "argument")}
+          onChange={(next) => onChange({ ...node, argument: next })}
+          variables={variables}
+          disabled={disabled}
+          disabledReason={disabledReason}
+          depth={depth + 1}
+          label="argument"
         />
       </NodeShell>
     );

@@ -13,6 +13,59 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C2 editor GUI slice 3 landed: table-node structured sub-editor (`TP-C2-TABLENODE-001`)
+
+Completes structural authorability of the frozen grammar v1.0.0 in the
+rule-pack expression composer. `interpolate` and `lookup` nodes — preserved
+read-only by slice 2 — are now first-class authorable node types in
+`apps/desktop/src/features/rule-packs/ExpressionComposer.tsx`. Both are added
+to `EDITABLE_NODE_TYPES` (so they are reachable from every node-type selector
+and `defaultExpressionNode` seeds a schema-valid default table: two
+strictly-increasing rows, uppercase `"TBD"` placeholders, plus the recursive
+`argument` child; `lookup` also seeds `mode: "exact"`). A structured table
+sub-editor authors `table_id`, the argument/result `dimension` (via a shared
+`DimensionSelect`) and `unit_ref`, the `{argument, result}` rows (**Add row**
+appends last-argument + 1 to keep strict monotonicity; **Remove row** is
+blocked at the single-row schema floor), the `lookup` `mode` selector, and the
+recursive editor for the table's `argument` expression. With this, no grammar
+node type is left to raw-JSON editing; only the refusal markers
+(`unsupported_form`/`unsafe_host_access`) and unrecognized tags remain
+preserved read-only. Lossless: row edits patch only the touched row, so
+untouched rows and sibling subtrees round-trip verbatim.
+
+Regression repair folded in: slice 2 defaulted a literal's dimension to the
+lowercase `"tbd"` token and listed it in the shared `DIMENSIONS` vocabulary.
+That token is not in the document codec (`core/rules/rule_pack_document`
+`decode_quantity` → "unknown dimension token 'tbd'") nor the schema
+`DimensionId` enum — both use uppercase `"TBD"` (the token the draft builder
+and the evaluator's `Dimension::Tbd => "TBD"` already use). A composer-authored
+default literal therefore produced a document that fails backend validation/
+save; the slice-2 Vitest missed it because it asserted the produced string,
+never a Rust round-trip. Fixed `DIMENSIONS`, the literal default, and the
+fallback to `"TBD"`, and added a unit guard.
+
+D-02b gate held: purely structured form controls — no writable expression text
+syntax and no text rendering of the AST; the typed AST stays the sole edited,
+checksum-bound form (DEC-022). No protected tables/constants; private rule
+packs stay local-only.
+
+Validation: rule-packs Vitest 26/26 (was 21), `tsc -b` clean, Playwright
+`-g "rule-pack manager"` 2/2 (both viewports, table sub-editor driven from
+blank). A five-lens pre-commit review caught one schema-conformance blocker
+(the slice-2 default literal emitted `unit_required`/`dimension_check_required`,
+which the schema's `additionalProperties:false` `ExpressionQuantity` forbids) —
+fixed by emitting only `{value, dimension, unit_ref}`; details in the run
+record. The full Vitest run on a busy host showed the documented load-induced
+`App.test.tsx` per-test timeout flake (all 34 failures timeouts in that
+untouched file); confirmed tranche-independent — once load cleared
+`App.test.tsx` passed 52/52 on both my tree and pristine HEAD, and no failing
+test renders the changed code. Detail and the gate-determinism follow-up are
+in the run record. Evidence: `apps/desktop/SMOKE.md` TP-MAC-150;
+DEL-07-03 run record `WORKING_ITEMS_RUN_2026-06-13_TP-C2-TABLENODE-001.md`.
+Residual: the required-input/value-slot/load-combination form builders remain
+the last C2 authoring sub-surface; C4 (engine-side rule checks on solved user
+models) is a separate Phase C item.
+
 ## 2026-06-13 - C2 editor GUI slice 2 landed: structured AST expression composer (`TP-C2-COMPOSER-001`)
 
 The PRD §14.5 "Expression editor". New

@@ -501,6 +501,27 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
     right: { node: "literal" }
   });
 
+  // Slice 3 (TP-C2-TABLENODE-001): switch the root to a table-backed
+  // interpolate node and edit a row. The canonical document JSON updates with
+  // a schema-valid default table (uppercase "TBD" placeholders, two
+  // strictly-increasing rows) plus the edited result. Still AST-only (D-02b).
+  await page.getByTestId("rule-pack-node-type").first().selectOption("interpolate");
+  await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
+  const tableText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(tableText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
+    node: "interpolate",
+    table: {
+      table_id: "user_table_1",
+      argument_dimension: "TBD",
+      result_dimension: "TBD",
+      rows: [
+        { argument: 0, result: 1.5 },
+        { argument: 1, result: 0 }
+      ]
+    },
+    argument: { node: "variable_ref" }
+  });
+
   // Validate routes to the desktop-only seam: the status transitions away
   // from the just-created "private_user_data" draft message. (Per-button
   // seam coverage for compute-checksum and save lives in the Vitest panel

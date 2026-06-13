@@ -4765,3 +4765,48 @@ notes:
 - Boundary review: no lifecycle state change; no release-readiness,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## TP-MAC-150 rule-pack table-node structured sub-editor (`TP-C2-TABLENODE-001`, 2026-06-13)
+
+- Phase C2 slice 3: completes structural authorability of the frozen grammar
+  v1.0.0 in the expression composer. `interpolate` and `lookup` nodes —
+  preserved read-only by slice 2 — are now first-class authorable node types
+  in `features/rule-packs/ExpressionComposer.tsx`. A structured table
+  sub-editor authors `table_id`, argument/result `dimension` (shared
+  `DimensionSelect`) and `unit_ref`, the `{argument, result}` rows (Add row
+  appends last-argument + 1 to stay strictly increasing; Remove row is blocked
+  at the single-row schema floor), the `lookup` `mode` (exact/step), and the
+  recursive editor for the table's `argument` expression. No grammar node type
+  is left to raw-JSON editing.
+- Regression repair folded in: slice 2 defaulted a literal's dimension to the
+  lowercase `"tbd"` token, which fails the document codec (`decode_quantity`
+  "unknown dimension token") and the schema `DimensionId` enum — both require
+  uppercase `"TBD"`. Fixed the shared `DIMENSIONS` vocabulary, the literal
+  default, and the literal-dimension fallback; added a unit guard.
+- D-02b gate held: purely structured form controls — **no writable expression
+  text syntax and no text rendering of the AST**. The typed AST stays the sole
+  edited, checksum-bound form (DEC-022).
+- Lossless: row edits patch only the touched row; untouched rows and sibling
+  subtrees round-trip verbatim. Read-only preservation now covers only the
+  refusal markers (`unsupported_form`/`unsafe_host_access`) and unrecognized
+  tags.
+- Manual check: open "Rule Packs" → "New draft rule pack"; in the Expression
+  composer set the root node type to `interpolate`; a default two-row table
+  appears with `TBD` placeholders; edit a row's result and add/remove rows;
+  switch the root to `lookup` and pick `step` mode; confirm the document JSON
+  below updates to the table-backed AST and the table round-trips when you edit
+  the argument child.
+- Validation: targeted Vitest `src/features/rule-packs` 26/26 (was 21);
+  Playwright `-g "rule-pack manager"` 2/2 (chromium-desktop + chromium-compact,
+  table sub-editor driven from blank); `tsc -b` clean. Full-suite Vitest on
+  this busy host showed the documented load-induced timeout flakiness — every
+  failure a per-test timeout in `App.test.tsx` (a file this tranche does not
+  touch), none in the rule-pack surface. Confirmed tranche-independent: once
+  host load cleared, `App.test.tsx` passed 52/52 on both my working tree and
+  pristine HEAD (my runtime files stashed), and no failing test renders the
+  changed code — see the run record's evidence chain.
+- Evidence: DEL-07-03 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C2-TABLENODE-001.md`.
+- Boundary review: no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

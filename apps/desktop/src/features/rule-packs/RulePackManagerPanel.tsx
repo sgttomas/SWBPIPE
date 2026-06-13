@@ -23,12 +23,13 @@ import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer"
 // save/delete, validation findings, and checksum generation/stamping.
 //
 // Slice 1 (TP-C2-EDITOR-001) authored the whole document as raw canonical
-// JSON. Slice 2 (TP-C2-COMPOSER-001) adds the structured AST expression
-// composer (PRD §14.5 "Expression editor"): the selected formula's
-// declarative-AST expression (DEC-022 grammar v1.0.0) is built through
-// form/tree controls rather than hand-written JSON. The raw document JSON
-// stays as the canonical/fallback surface (and the only way to edit
-// table-backed nodes until that composer slice lands). No expression text
+// JSON. Slice 2 (TP-C2-COMPOSER-001) added the structured AST expression
+// composer (PRD §14.5 "Expression editor"); slice 3 (TP-C2-TABLENODE-001)
+// extends it to the table-backed nodes, so the full grammar v1.0.0 node set
+// (DEC-022) is built through form/tree controls rather than hand-written JSON.
+// The raw document JSON stays as the canonical/fallback surface for the
+// document-structure members whose form builders have not landed yet
+// (required inputs, value slots, load combinations). No expression text
 // syntax is provided anywhere — D-02b awaits the human ruling.
 
 const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
@@ -369,8 +370,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       <div className="report-list">
         <label htmlFor="rule-pack-draft-json-input">
           Rule-pack document JSON (native canonical form; the composer above edits the selected
-          formula&apos;s expression — declarative-AST per DEC-022. Edit table-backed nodes here
-          until the table composer slice lands.)
+          formula&apos;s full expression AST — declarative-AST per DEC-022, including table-backed
+          nodes. Edit document-structure members here until their form builders land.)
         </label>
         <textarea
           id="rule-pack-draft-json-input"

@@ -2110,3 +2110,10 @@ th {
   display: grid;
   gap: 4px;
 }
+
+.rule-pack-table-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
