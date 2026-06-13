@@ -111,3 +111,29 @@ Durable context preserved after PKG-02 grounded finding resolution:
   fallback catalog, no private payload storage, protected data,
   standards-compliance claim, professional approval, certification, sealing,
   authentication, release-readiness, or `ISSUED` claim.
+
+## 2026-06-12 - TP-C2-EDITOR-001 rule-pack manager GUI (Phase C2 slice 1)
+
+- First runtime rule-pack editor surface: new "Rule Packs" workspace section
+  (`apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx`) +
+  `services/rulePackService.ts` over the TP-MAC-147 backend commands.
+  Satisfies DEL-07-03 R-007 at runtime (identity, version, checksum, source
+  notice, redistribution status, required inputs, and missing-input findings
+  are surfaced from validation) and R-010/R-011/R-012 (early findings; private
+  local-only; status distinguishes data/solve/rule/review without compliance
+  language).
+- Private by default (PRD §12.4): new drafts are private_user_data /
+  private_only. AST-only authoring (DEC-022); no expression text syntax until
+  D-02b is ruled. Draft template is placeholder/invented only — no protected
+  equations or standards values (PRD §14.5). Browser mode reports an explicit
+  RULE-PACK-BACKEND-DESKTOP-ONLY seam; desktop rejections surface as
+  RULE-PACK-BACKEND-ERROR.
+- Validation: Vitest 251/251, Playwright dev 6/6, dist 1/1, build clean.
+  Run record: `_run_records/WORKING_ITEMS_RUN_2026-06-12_TP-C2-EDITOR-001.md`;
+  SMOKE TP-MAC-148.
+- Residuals (next C2 slices): structured AST expression composer;
+  required-input/value-slot/load-combination form builders; in-request busy
+  guard. Engine-side rule evaluation on solved user models is C4.
+- No lifecycle state change (DEL-07-03 stays CHECKING); no release,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

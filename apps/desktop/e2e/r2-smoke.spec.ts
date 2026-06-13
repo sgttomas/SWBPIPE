@@ -461,6 +461,52 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
 });
 
+// Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
+// private draft in memory and reports the honest desktop-only seam for
+// validation, checksum, persistence, and listing in browser mode — the
+// same recorded boundary pattern as report rendering and the unit catalog.
+test("rule-pack manager drafts privately and reports the desktop-only backend seam", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+
+  await openWorkspaceSection(page, "rule-packs");
+  await expect(page.getByTestId("rule-pack-scope-status")).toContainText("local SQLite only");
+  await expect(page.getByTestId("rule-pack-boundary-note")).toContainText("D-02b");
+
+  await page.getByTestId("rule-pack-new-draft").click();
+  const draftText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  const draft = JSON.parse(draftText);
+  expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
+  expect(draft.grammar_version).toBe("1.0.0");
+  expect(draft.classification.privacy_class).toBe("private_user_data");
+  expect(draft.classification.redistribution_status).toBe("private_only");
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
+
+  // Validate routes to the desktop-only seam: the status transitions away
+  // from the just-created "private_user_data" draft message. (Per-button
+  // seam coverage for compute-checksum and save lives in the Vitest panel
+  // suite, where each transition is asserted from a distinct prior state;
+  // asserting them here too would be vacuous — all three write the same
+  // action-status text.)
+  await page.getByTestId("rule-pack-validate").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+
+  // Refresh reports on a distinct surface (list-status), so this assertion
+  // is independent of the validate result above.
+  await page.getByTestId("rule-pack-refresh-list").click();
+  await expect(page.getByTestId("rule-pack-list-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+
+  await page.getByTestId("rule-pack-discard-draft").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("Draft discarded");
+});
+
 function stepPayload(changeKind: string, ref: string): any {
   const step = rehearsal.steps.find(
     (candidate) =>

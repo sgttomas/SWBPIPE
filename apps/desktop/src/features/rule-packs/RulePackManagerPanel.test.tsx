@@ -1,0 +1,173 @@
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { RulePackManagerPanel } from "./RulePackManagerPanel";
+import {
+  buildDraftRulePackDocument,
+  stampChecksumIntoDocument,
+  RULE_PACK_BACKEND_DIAGNOSTIC
+} from "../../services/rulePackService";
+import type { PreviewModel } from "../../types";
+
+// Phase C2 slice 1 (TP-C2-EDITOR-001). jsdom has no Tauri runtime, so these
+// tests pin the honest browser-preview seam: drafts stay in memory and
+// every backend action reports the explicit desktop-only diagnostic instead
+// of a synthesized fallback.
+
+const modelStub = {
+  project: { id: "project:invented-panel-test", name: "Invented Panel Test Project" }
+} as unknown as PreviewModel;
+
+afterEach(cleanup);
+
+describe("RulePackManagerPanel", () => {
+  it("scopes the manager to the loaded project and stays honest without one", () => {
+    render(<RulePackManagerPanel model={null} />);
+    expect(screen.getByTestId("rule-pack-scope-status").textContent).toContain(
+      "create or open a local project first"
+    );
+    cleanup();
+
+    render(<RulePackManagerPanel model={modelStub} />);
+    expect(screen.getByTestId("rule-pack-scope-status").textContent).toContain(
+      "project:invented-panel-test"
+    );
+    expect(screen.getByTestId("rule-pack-scope-status").textContent).toContain(
+      "local SQLite only"
+    );
+  });
+
+  it("creates a private-by-default draft and supports discard", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(textarea.disabled).toBe(true);
+    expect(screen.getByTestId("rule-pack-validate")).toHaveProperty("disabled", true);
+
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(textarea.disabled).toBe(false);
+    const draft = JSON.parse(textarea.value) as Record<string, unknown>;
+    expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
+    expect(draft.grammar_version).toBe("1.0.0");
+    const classification = draft.classification as Record<string, unknown>;
+    expect(classification.privacy_class).toBe("private_user_data");
+    expect(classification.redistribution_status).toBe("private_only");
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+      "private_user_data"
+    );
+
+    fireEvent.click(screen.getByTestId("rule-pack-discard-draft"));
+    expect((screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement).value).toBe("");
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+      "Draft discarded"
+    );
+  });
+
+  it("reports the explicit desktop-only diagnostic for backend actions in browser preview", async () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+
+    fireEvent.click(screen.getByTestId("rule-pack-validate"));
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+        "RULE-PACK-BACKEND-DESKTOP-ONLY"
+      )
+    );
+
+    fireEvent.click(screen.getByTestId("rule-pack-refresh-list"));
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-pack-list-status").textContent).toContain(
+        "RULE-PACK-BACKEND-DESKTOP-ONLY"
+      )
+    );
+    expect(screen.getByTestId("rule-pack-list-status").textContent).toBe(
+      RULE_PACK_BACKEND_DIAGNOSTIC
+    );
+  });
+
+  it("routes compute-checksum and save to the desktop-only seam from a clean draft state", async () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    const status = () => screen.getByTestId("rule-pack-action-status").textContent ?? "";
+
+    // compute-checksum: transition is observable from the create message.
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(status()).toContain("private_user_data");
+    fireEvent.click(screen.getByTestId("rule-pack-compute-checksum"));
+    await waitFor(() => expect(status()).toContain("RULE-PACK-BACKEND-DESKTOP-ONLY"));
+
+    // save: re-new the draft so the transition is again non-vacuous.
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(status()).toContain("private_user_data");
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() => expect(status()).toContain("RULE-PACK-BACKEND-DESKTOP-ONLY"));
+  });
+
+  it("blocks save with an honest reason when no project is loaded", async () => {
+    render(<RulePackManagerPanel model={null} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-save"));
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+        "create or open a local project first"
+      )
+    );
+  });
+
+  it("reports invalid draft JSON honestly instead of acting on it", async () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    fireEvent.change(textarea, { target: { value: "{not json" } });
+    fireEvent.click(screen.getByTestId("rule-pack-validate"));
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-pack-action-status").textContent).toContain(
+        "RULE-PACK-DRAFT-JSON-INVALID"
+      )
+    );
+  });
+
+  it("keeps the D-02b and professional boundaries visible", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    const note = screen.getByTestId("rule-pack-boundary-note").textContent ?? "";
+    expect(note).toContain("D-02b");
+    expect(note).toContain("never committed to the repository");
+    expect(note).toContain("never a code-compliance");
+  });
+});
+
+describe("rulePackService draft helpers", () => {
+  it("builds a schema-shaped private draft with the frozen grammar declared", () => {
+    const draft = buildDraftRulePackDocument();
+    expect(draft.schema_version).toBe("0.2.0");
+    expect(draft.grammar_version).toBe("1.0.0");
+    const formulas = draft.formula_declarations as Array<Record<string, unknown>>;
+    const payload = formulas[0].declaration_payload as Record<string, unknown>;
+    expect(payload.grammar_status).toBe("frozen_open_pipe_stress_declared_expression");
+    expect((payload.expression_ast as Record<string, unknown>).node).toBe("variable_ref");
+    const boundary = draft.professional_boundary as Record<string, unknown>;
+    expect(boundary.software_makes_compliance_claim).toBe(false);
+    expect(boundary.human_review_required).toBe(true);
+  });
+
+  it("stamps a computed checksum without touching other members", () => {
+    const draft = buildDraftRulePackDocument();
+    const stamped = stampChecksumIntoDocument(draft, {
+      algorithm: "sha256",
+      canonicalization: "JCS",
+      payload_scope: "rule_pack_payload",
+      payload_ref: "private_draft_rule_pack",
+      payload_excludes: ["checksums"],
+      basis: "rfc8785_jcs_sha256_excluding_checksums",
+      grammar_version: "1.0.0",
+      grammar_version_bound: true,
+      value: "0000000000000000000000000000000000000000000000000000000000000000"
+    });
+    const checksums = stamped.checksums as Record<string, unknown>;
+    const rulePackChecksum = checksums.rule_pack_checksum as Record<string, unknown>;
+    expect(rulePackChecksum.value).toBe(
+      "0000000000000000000000000000000000000000000000000000000000000000"
+    );
+    expect(rulePackChecksum.verification_status).toBe("verified");
+    expect(checksums.hash_basis).toBe("Canonical JSON/JCS-compatible");
+    expect(stamped.metadata).toEqual(draft.metadata);
+    expect(stamped.required_inputs).toEqual(draft.required_inputs);
+  });
+});

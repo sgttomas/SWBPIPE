@@ -4674,3 +4674,48 @@ notes:
 - Boundary review: validation statuses are software findings only; no
   lifecycle state change; no release-readiness, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-148 rule-pack manager GUI: private-by-default authoring, validation, checksum (`TP-C2-EDITOR-001`, 2026-06-12)
+
+- Phase C2 slice 1 of the PRD §14.5 rule-pack editor / §14.1 "Rule-pack
+  manager". New "Rule Packs" workspace section (between Load Cases and
+  Solve), `features/rule-packs/RulePackManagerPanel.tsx`, and the
+  `rulePackService.ts` frontend route over the TP-MAC-147 backend commands.
+  Covers pack management + document-level authoring: new private draft
+  (privacy_class=private_user_data, redistribution_status=private_only per
+  PRD §12.4), list/open/save/delete against the local-only store, validate,
+  and compute-and-stamp checksum. Expressions are authored in the document's
+  native declarative-AST JSON (DEC-022); no expression text syntax ships
+  (D-02b AWAITING_RULING). The draft template carries only placeholders and
+  invented wording — no protected code equations or standards values
+  (PRD §14.5).
+- Honest browser-mode seam: every backend action reports
+  `RULE-PACK-BACKEND-DESKTOP-ONLY` (the unit-catalog/report precedent);
+  drafts stay in session memory until a desktop save. Desktop backend
+  rejections surface as `RULE-PACK-BACKEND-ERROR` rather than silent
+  unhandled rejections. The stored-pack list resets on project change so it
+  never contradicts the scope banner.
+- Boundary note kept permanently visible: private packs never committed or
+  transmitted; rule-check output is a software computation over user data,
+  never a code-compliance, certification, sealing, approval, or professional
+  acceptance claim.
+- Validation: Vitest 251/251 (11 files; 8 new rule-pack panel/service tests;
+  the permanent dead-control audit passes — disabled draft buttons carry
+  accessible reasons, enabled buttons produce observable change); Playwright
+  dev 6/6 (two-viewport matrix; new rule-pack journey drives the section
+  through visible controls); dist 1/1; `tsc -b` + vite build clean.
+- Adversarial pre-commit review (three lenses) surfaced four findings; three
+  legitimate ones were fixed before commit (unhandled desktop rejections,
+  stale list on project switch, two vacuous e2e assertions), one
+  (mid-request textarea clobber) recorded as a residual for the composer
+  slice.
+- Residuals routed to the next C2 slices: structured AST expression composer
+  (replacing raw-JSON expression editing); required-input/value-slot/
+  load-combination form builders (PRD §14.5 sub-surfaces); in-request busy
+  guard; per-finding inline surfacing on the document. Engine-side rule
+  evaluation on solved user models is C4.
+- Evidence: DEL-07-03 run record
+  `WORKING_ITEMS_RUN_2026-06-12_TP-C2-EDITOR-001.md`.
+- Boundary review: no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

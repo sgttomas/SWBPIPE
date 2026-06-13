@@ -49,6 +49,7 @@ import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
+import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
@@ -127,11 +128,15 @@ type SessionModelCheckpoint = {
 // 3D centerline viewport + property inspector, per PRD 14.1/14.3 and
 // DEL-07-02) always on screen, and organizes every other panel behind this
 // always-visible section navigation, listed in journey order. PRD 14.1
-// surfaces with no implementation yet (material/component library editors,
-// rule-pack manager) are intentionally absent: no placeholder dead buttons.
+// surfaces with no implementation yet (material/component library editors)
+// are intentionally absent: no placeholder dead buttons. The rule-pack
+// manager landed as Phase C2 slice 1 (TP-C2-EDITOR-001), placed between
+// loads and solve because user rule checks consume authored loads and feed
+// the solve/check journey (PRD §22.4).
 type WorkspaceSectionId =
   | "operations"
   | "loads"
+  | "rule-packs"
   | "solve"
   | "results"
   | "report"
@@ -149,6 +154,12 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
     id: "loads",
     label: "Load Cases",
     description: "Load-case manager: create load cases, primitive loads, and combinations"
+  },
+  {
+    id: "rule-packs",
+    label: "Rule Packs",
+    description:
+      "Private, local-only rule-pack manager: drafts, validation findings, checksum generation, and the local store"
   },
   {
     id: "solve",
@@ -906,6 +917,14 @@ export function App() {
                 onSelect={setSelection}
                 selection={selection}
               />
+            </section>
+
+            <section
+              className={dockSectionClass("rule-packs", activeSection)}
+              aria-label="Rule Packs section"
+              data-testid="workspace-section-rule-packs"
+            >
+              <RulePackManagerPanel model={model} />
             </section>
 
             <section

@@ -13,6 +13,35 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-12 - C2 editor GUI slice 1 landed: rule-pack manager (`TP-C2-EDITOR-001`)
+
+The first runtime rule-pack editor surface (PRD §14.5 / §14.1 "Rule-pack
+manager"), consuming the TP-C2-RPLIFE-001 backend commands. New "Rule Packs"
+workspace section (placed between Load Cases and Solve), `RulePackManagerPanel`,
+and a `rulePackService` frontend route. Covers pack management + document-level
+authoring: new private-by-default draft (privacy_class=private_user_data,
+redistribution_status=private_only per PRD §12.4), list/open/save/delete against
+the local-only store, validate, and compute-and-stamp checksum, with validation
+findings and the computed checksum rendered. Expressions are authored in the
+document's native declarative-AST JSON (DEC-022); no expression text syntax
+ships (D-02b AWAITING_RULING), and the draft template is placeholder/invented
+only — no protected equations or standards values (PRD §14.5). Honest browser
+seam (RULE-PACK-BACKEND-DESKTOP-ONLY), honest desktop error surfacing
+(RULE-PACK-BACKEND-ERROR), and a permanent boundary note. A three-lens
+pre-commit review surfaced four findings; three were fixed (unhandled desktop
+rejections, stale list on project switch, two vacuous e2e assertions) and one
+(mid-request textarea clobber) was recorded as a residual. Validation: Vitest
+251/251 (8 new; dead-control audit green), Playwright dev 6/6 (two viewports),
+dist 1/1, tsc -b + vite build clean. Residuals routed to the next C2 slices:
+structured AST expression composer; required-input/value-slot/load-combination
+form builders; in-request busy guard. Engine-side rule evaluation on solved user
+models (USER_RULE_CHECKED/USER_RULE_FAILED end-to-end) is C4.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-148; DEL-07-03 run record
+`WORKING_ITEMS_RUN_2026-06-12_TP-C2-EDITOR-001.md`. No lifecycle state,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim is created.
+
 ## 2026-06-12 - C2 backend seam landed: rule-pack validation, JCS checksum, local store (`TP-C2-RPLIFE-001`)
 
 The first production wiring of the previously-orphan `core/rules` crates.
