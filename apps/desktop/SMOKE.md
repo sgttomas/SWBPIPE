@@ -4281,6 +4281,11 @@ the checklist is unchanged.
   `TP-APP-R2-WASMPKG-001` and the `DEC-033` document-version bump),
   `npm run tauri -- build --bundles app` (now self-sufficient — it builds
   the wasm engine itself). Same bundle path as above.
+- Rebuilt again after the usability repair: commit `26aadc4fe` (code state
+  `e05527c2c`, sweep-validated; adds the `TP-APP-R2-UXSHELL-001` workspace
+  IA/scroll/dead-control repair), same command, boot-checked clean. Steps
+  reference the new section tabs per the navigation wording inserted by
+  that tranche.
 
 **Attempt 2 — 2026-06-12, human project authority, binary at `0b674b2e5`
 (recorded by the coordinating agent on the human's explicit stated
