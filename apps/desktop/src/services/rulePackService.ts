@@ -201,12 +201,13 @@ export async function deleteLocalRulePack(
   return { route: "tauri_backend", receipt };
 }
 
-// Draft template for "New draft rule pack". Private by default (PRD §12.4:
-// "The application shall mark such rule packs as private by default");
-// every placeholder is either TBD or invented non-engineering wording. The
-// editor never prefils code equations or standards values (PRD §14.5).
-export function buildDraftRulePackDocument(): RulePackDocument {
-  const provenance = {
+// Placeholder provenance for draft authoring surfaces (the document template
+// and the structured declaration form builders). Private by default; every
+// field is either invented non-engineering wording or TBD — never a copied
+// source, standards citation, or code value (PRD §12.4, IP boundary). Returns
+// a fresh object each call so callers can embed it without aliasing.
+export function draftPlaceholderProvenance(): Record<string, unknown> {
+  return {
     source_name: "User private basis (draft placeholder)",
     source_type: "user_private_basis",
     source_location: "TBD",
@@ -217,6 +218,14 @@ export function buildDraftRulePackDocument(): RulePackDocument {
     protected_content_review: "required_before_public_use",
     review_status: "pending"
   };
+}
+
+// Draft template for "New draft rule pack". Private by default (PRD §12.4:
+// "The application shall mark such rule packs as private by default");
+// every placeholder is either TBD or invented non-engineering wording. The
+// editor never prefils code equations or standards values (PRD §14.5).
+export function buildDraftRulePackDocument(): RulePackDocument {
+  const provenance = draftPlaceholderProvenance();
   return {
     schema_version: "0.2.0",
     rule_pack_kind: "open_pipe_stress_rule_pack",

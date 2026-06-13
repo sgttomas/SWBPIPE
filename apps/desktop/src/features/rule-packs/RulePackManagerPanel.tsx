@@ -17,6 +17,7 @@ import {
   type RulePackValidationFinding
 } from "../../services/rulePackService";
 import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
+import { DeclarationsEditor } from "./DeclarationsEditor";
 
 // Rule-Pack Manager (PRD §14.5 / §14.1 "Rule-pack manager"). Pack management
 // and document authoring against the local-only store: list/create/open/
@@ -27,9 +28,12 @@ import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer"
 // composer (PRD §14.5 "Expression editor"); slice 3 (TP-C2-TABLENODE-001)
 // extends it to the table-backed nodes, so the full grammar v1.0.0 node set
 // (DEC-022) is built through form/tree controls rather than hand-written JSON.
+// Slice 4 (TP-C2-DECLEDITOR-001) adds the variable-declarations editor for the
+// `required_inputs` and `value_slots` the composer's variable picker binds to.
 // The raw document JSON stays as the canonical/fallback surface for the
 // document-structure members whose form builders have not landed yet
-// (required inputs, value slots, load combinations). No expression text
+// (`check_definitions` — which ties inputs/slots/formula into a check — plus
+// diagnostics, classification, and provenance metadata). No expression text
 // syntax is provided anywhere — D-02b awaits the human ruling.
 
 const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
@@ -257,11 +261,17 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
     }
   }
 
-  // Structured composer → document: re-serialize the composer's edited
-  // document back into the canonical draft text (the single source of truth
-  // the validate/checksum/save flow already reads).
+  // Structured editors → document: re-serialize the edited document back into
+  // the canonical draft text (the single source of truth the validate/
+  // checksum/save flow already reads). The composer edits a formula's
+  // expression AST; the declarations editor edits the required_inputs /
+  // value_slots arrays.
   function handleComposerChange(nextDocument: Record<string, unknown>) {
     setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "composer_edit" });
+  }
+
+  function handleDeclarationsChange(nextDocument: Record<string, unknown>) {
+    setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "declarations_edit" });
   }
 
   return (
@@ -345,12 +355,20 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
 
       {draft ? (
         parsedDraft && parsedDraft.ok ? (
-          <ExpressionComposer
-            document={parsedDraft.document}
-            onChange={handleComposerChange}
-            disabled={inFlight}
-            disabledReason={inFlight ? BUSY_REASON : undefined}
-          />
+          <>
+            <DeclarationsEditor
+              document={parsedDraft.document}
+              onChange={handleDeclarationsChange}
+              disabled={inFlight}
+              disabledReason={inFlight ? BUSY_REASON : undefined}
+            />
+            <ExpressionComposer
+              document={parsedDraft.document}
+              onChange={handleComposerChange}
+              disabled={inFlight}
+              disabledReason={inFlight ? BUSY_REASON : undefined}
+            />
+          </>
         ) : (
           <div className="report-list">
             <small data-testid="rule-pack-composer-unavailable">
@@ -369,9 +387,11 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
 
       <div className="report-list">
         <label htmlFor="rule-pack-draft-json-input">
-          Rule-pack document JSON (native canonical form; the composer above edits the selected
-          formula&apos;s full expression AST — declarative-AST per DEC-022, including table-backed
-          nodes. Edit document-structure members here until their form builders land.)
+          Rule-pack document JSON (native canonical form; the editors above author the
+          required-input/value-slot declarations and the selected formula&apos;s full expression
+          AST — declarative-AST per DEC-022, including table-backed nodes. Edit the remaining
+          document-structure members here — `check_definitions`, diagnostics, and metadata —
+          until their form builders land.)
         </label>
         <textarea
           id="rule-pack-draft-json-input"

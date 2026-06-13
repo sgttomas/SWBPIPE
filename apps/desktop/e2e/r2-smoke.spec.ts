@@ -492,6 +492,19 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
   await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
   expect(draft.formula_declarations[0].declaration_payload.expression_ast.node).toBe("variable_ref");
+
+  // Slice 4 (TP-C2-DECLEDITOR-001): the declarations editor authors the
+  // required_inputs / value_slots the composer's variable_ref binds to. Add a
+  // required input from blank; the canonical document JSON grows and the
+  // composer's variable picker reflects the new id — no raw JSON. Still
+  // structured-only (D-02b).
+  await expect(page.getByTestId("rule-pack-declarations-editor")).toBeVisible();
+  await page.getByTestId("rule-pack-input-add").click();
+  const declText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(declText).required_inputs).toHaveLength(2);
+  await expect(page.getByTestId("rule-pack-variable-browser")).toContainText(
+    "user_required_input_2 (required_input)"
+  );
   await page.getByTestId("rule-pack-node-type").first().selectOption("compare");
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({

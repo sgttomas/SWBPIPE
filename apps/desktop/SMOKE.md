@@ -4810,3 +4810,52 @@ notes:
 - Boundary review: no lifecycle state change; no release-readiness,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## TP-MAC-151 rule-pack variable-declaration form builders (`TP-C2-DECLEDITOR-001`, 2026-06-13)
+
+- Phase C2 slice 4: a structured editor for the rule pack's variable
+  declarations — its `required_inputs` and user-supplied `value_slots`, the
+  named variables a formula's `variable_ref` binds to. New
+  `features/rule-packs/DeclarationsEditor.tsx` adds / removes / edits each
+  entry through form controls (text ids/names/units, closed-set selects for
+  source_kind / slot_kind / value_status / required_for / completeness_status,
+  and the shared `DimensionSelect` for the quantity_intent dimension). Add
+  seeds a schema-valid default with a fresh unique id; Remove is blocked at the
+  `minItems:1` schema floor for both arrays. Until this slice these arrays were
+  raw-JSON only and the composer's variable picker had nothing to offer.
+- Authority-vs-plan fix: the slice-2/3 residual wording "required-input /
+  value-slot / **load-combination** form builders" was a misnomer — the
+  authoritative `rule_pack.schema.yaml` is `additionalProperties:false` with
+  **no `load_combinations` member** (load combinations are a *model* concept,
+  Phase A4). The rule pack's third user-authored member is `check_definitions`;
+  the plan/log are corrected to name it (authority unchanged).
+- D-02b gate held: purely structured controls — **no writable expression text
+  syntax**; the editor authors variable *declarations*, never expression text.
+  No invented numeric allowable value (`value_status: not_provided`); no
+  silent defaults (out-of-vocabulary stored tokens surface as "(current) X",
+  never snapped); private-by-default placeholders.
+- Lossless: a patched entry keeps every member it carried (provenance, the
+  const-true relaxation flags, missing-value diagnostic); a nested
+  `quantity_intent` edit preserves `unit_required`/`dimension_check_required`;
+  untouched sibling entries round-trip verbatim.
+- Folded-in review fix: gave the shared `DimensionSelect` the same "(current)"
+  escape hatch the new `EnumSelect` uses, so an out-of-vocabulary stored
+  dimension is surfaced rather than display-snapped to `"TBD"` (also tightens
+  the composer's literal/table dimension fields). Caught by an independent
+  four-lens adversarial review (schema-conformance, D-02b/IP, react, evidence).
+- Manual check: open "Rule Packs" → "New draft rule pack"; in "Variable
+  declarations" click "Add required input" (a `user_required_input_2` row
+  appears) and edit its dimension to `stress`; confirm the Expression
+  composer's variable browser now lists it and the document JSON below shows
+  two required inputs; "Add value slot", set slot_kind `allowable` and
+  value_status `private_user_supplied`; remove is disabled on the last row of
+  each list.
+- Validation: targeted Vitest `src/features/rule-packs` 43/43 (was 26);
+  full desktop Vitest 285/285 (13 files); `tsc -b` clean; Playwright
+  `-g "rule-pack manager"` 2/2 (chromium-desktop + chromium-compact,
+  declarations editor driven from blank). No `App.test.tsx` load-flake this run.
+- Evidence: DEL-07-03 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C2-DECLEDITOR-001.md`.
+- Boundary review: no lifecycle state change; no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance
+  claim.

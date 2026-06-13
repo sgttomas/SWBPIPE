@@ -13,6 +13,63 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C2 editor GUI slice 4 landed: required-input / value-slot declaration form builders (`TP-C2-DECLEDITOR-001`)
+
+Adds a structured editor for the rule pack's variable declarations — its
+`required_inputs` and user-supplied `value_slots`, the named variables a
+formula's `variable_ref` binds to. New
+`apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx` adds / removes /
+edits each entry through form controls: text `input_id`/`name`/`unit_ref`,
+closed-set selects for `source_kind` / `slot_kind` / `value_status` /
+`required_for` / `completeness_status`, and the shared `DimensionSelect` for
+the `quantity_intent` dimension. **Add** seeds a schema-valid default
+(`RequiredInput` / `UserSuppliedValueSlot` shapes verified by `toEqual`) with a
+fresh unique id; **Remove** is blocked at the `minItems:1` schema floor for
+both arrays. The editor mounts ahead of the expression composer in
+`RulePackManagerPanel`; both read the same draft document, so a variable added
+through the editor is immediately bindable in the composer (no raw JSON). The
+enum vocabularies are exported consts copied verbatim from the schema and an
+out-of-vocabulary stored token surfaces as a "(current) X" option, never
+silently snapped (CONTRACT no-silent-defaults). Lossless: a patched entry keeps
+every member it carried (provenance, the const-true relaxation flags,
+missing-value diagnostic), a nested `quantity_intent` edit preserves
+`unit_required`/`dimension_check_required`, and untouched siblings round-trip
+verbatim. `draftPlaceholderProvenance()` was extracted from
+`rulePackService.ts` (byte-identical) so the template and the declaration
+defaults share one private-by-default provenance source. No numeric allowable
+value is invented — `UserSuppliedValueSlot` carries a dimension/unit intent and
+a `value_status` (`not_provided` default), not a number.
+
+Authority-vs-plan correction: the slice-2/3 residual wording "required-input /
+value-slot / **load-combination** form builders" was a misnomer — the
+authoritative `schemas/rule_pack.schema.yaml` top-level object is
+`additionalProperties:false` and has **no `load_combinations` member** (load
+combinations are a model concept, Phase A4). The rule pack's third
+user-authored document-structure member is `check_definitions`. Per the
+`_COORDINATION.md` state-tracking rule, the plan C2 row and this log are
+corrected to name `check_definitions` as the remaining C2 form-builder
+sub-surface; the schema (authority) is unchanged.
+
+D-02b gate held: purely structured form controls — the editor authors variable
+*declarations*, with no writable expression text syntax and no text rendering
+of any AST; the typed AST stays the sole edited, checksum-bound expression form
+(DEC-022). Private rule packs stay local-only; no protected tables/constants.
+
+Validation: rule-packs Vitest **43/43** (was 26), full desktop Vitest
+**285/285**, `tsc -b` clean, Playwright `-g "rule-pack manager"` **2/2** (both
+viewports, declarations editor driven from blank). An independent four-lens
+adversarial review (schema-conformance, governance/D-02b/IP, React correctness,
+test honesty) returned a SHIP verdict; its one should-fix was folded in before
+commit — the shared `DimensionSelect` silently display-snapped an
+out-of-vocabulary stored dimension to `"TBD"` instead of surfacing it, so it was
+given the same "(current)" escape hatch as the new `EnumSelect` (also tightening
+the composer's literal/table dimension fields), with a guarding Vitest case
+added. Run record:
+`execution/PKG-07_.../DEL-07-03_.../_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C2-DECLEDITOR-001.md`;
+SMOKE TP-MAC-151. DEL-07-03 remains CHECKING; no lifecycle/release/professional
+claim. Residual: the `check_definitions` form builder (and the C4 end-to-end
+rule-check path) remain the next C2/Phase C work.
+
 ## 2026-06-13 - C2 editor GUI slice 3 landed: table-node structured sub-editor (`TP-C2-TABLENODE-001`)
 
 Completes structural authorability of the frozen grammar v1.0.0 in the

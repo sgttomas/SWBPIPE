@@ -157,6 +157,22 @@ describe("RulePackManagerPanel", () => {
       "compare"
     );
   });
+
+  it("declares a required input through the editor and the composer's variable picker reflects it", () => {
+    // Slice 4 (TP-C2-DECLEDITOR-001): the declarations editor and the
+    // expression composer read the same draft document, so a variable added
+    // through the editor is immediately bindable in the composer — no raw JSON.
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    expect(screen.getByTestId("rule-pack-declarations-editor")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("rule-pack-input-add"));
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(JSON.parse(textarea.value).required_inputs).toHaveLength(2);
+    expect(screen.getByTestId("rule-pack-variable-browser").textContent).toContain(
+      "user_required_input_2 (required_input)"
+    );
+  });
 });
 
 describe("rulePackService draft helpers", () => {

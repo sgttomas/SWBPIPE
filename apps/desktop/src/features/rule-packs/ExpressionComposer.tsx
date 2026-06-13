@@ -440,7 +440,9 @@ function NodeTypeSelect({
 // Shared dimension picker over the codec/schema vocabulary. Reused by the
 // literal editor and both table dimension fields so the unknown-dimension
 // placeholder (`"TBD"`) stays consistent and codec/schema-valid everywhere.
-function DimensionSelect({
+// Exported so the declarations editor (required-input / value-slot
+// quantity_intent dimensions) draws from the same single vocabulary.
+export function DimensionSelect({
   testId,
   value,
   disabled,
@@ -451,14 +453,22 @@ function DimensionSelect({
   disabled: boolean;
   onChange: (next: string) => void;
 }) {
-  const safe = DIMENSIONS.includes(value as (typeof DIMENSIONS)[number]) ? value : "TBD";
+  // No silent display-snap: a stored token outside the current vocabulary
+  // (e.g. from a newer schema) surfaces as a "(current)" option rather than
+  // being shown as "TBD" while the document still holds the real token —
+  // matching the declarations editor's EnumSelect honesty (CONTRACT
+  // no-silent-defaults). A schema-conformant document never hits this path
+  // (DimensionId is closed and "TBD" is in DIMENSIONS); nothing is written
+  // unless the user picks an option.
+  const known = (DIMENSIONS as readonly string[]).includes(value);
   return (
     <select
       data-testid={testId}
-      value={safe}
+      value={value}
       disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
     >
+      {!known ? <option value={value}>(current) {value}</option> : null}
       {DIMENSIONS.map((option) => (
         <option key={option} value={option}>
           {option}
