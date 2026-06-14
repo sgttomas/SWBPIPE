@@ -100,8 +100,20 @@ write-authorization: COORDINATION_LOOP_PREAPPROVED_TRANCHE
 - `cargo fmt --check` clean on both touched crates.
 - No UI/TS change in this slice → no Vitest/Playwright/SMOKE.md entry required
   (deliberate evidence posture; UI evidence lands with `TP-C4-CHECKGUI-001`).
-- Five-surface evidence sweep (DEC-025) run at the committed HEAD; summary
-  committed alongside.
+- Five-surface evidence sweep (DEC-025), run at HEAD in this agent execution
+  environment: `cargo_crate_sweep` (32 crates) PASS, `python_pytest` PASS,
+  `desktop_vitest` 326/326 PASS, `desktop_playwright_e2e` all 8 e2e tests PASS,
+  `desktop_production_build` PASS (`npm run build:desktop`, verified standalone).
+  The sweep's overall status is `fail` only because the Playwright worker
+  processes do not exit within the 300s teardown grace and are force-killed — a
+  known per-session environmental artifact of this execution environment
+  (maintainer-confirmed 2026-06-14), not a test or product failure (every e2e
+  test passes). `desktop_vitest` initially flaked under sweep load (default 5s
+  test/hook timeout tripping a random handful of full-`<App />` renders);
+  de-flaked by raising `testTimeout`/`hookTimeout` to 30s in
+  `apps/desktop/vite.config.ts` (separate commit). A canonical green
+  five-surface summary is regenerated on the maintainer environment where the
+  Playwright teardown completes.
 
 ## Residuals and hand-offs
 
