@@ -75,6 +75,13 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     include: ["src/**/*.test.{ts,tsx}"],
-    setupFiles: "./src/test/setup.ts"
+    setupFiles: "./src/test/setup.ts",
+    // The App.test.tsx suite renders the full <App /> per case; under the
+    // five-surface evidence sweep's machine load the default 5s test/hook
+    // timeout trips a random handful of these renders (non-deterministic
+    // failures, not assertion errors). Generous timeouts de-flake the suite;
+    // a render that genuinely exceeds 30s indicates a real defect, not load.
+    testTimeout: 30000,
+    hookTimeout: 30000
   }
 } as UserConfig & { test: Record<string, unknown> });
