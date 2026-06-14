@@ -2167,42 +2167,114 @@ fn resolve_library_value_bindings_with_connection(
     Ok(Value::Array(bindings))
 }
 
-/// Read `{value, unit}` from a library record's value slot. This slice resolves
-/// material allowable slots (the `user_rule_allowable` / `private_reference`
-/// rule-check allowable source); section and component slot resolution is a
-/// named follow-up. Returns `None` when the record/slot/value is absent or the
-/// magnitude is not numeric, so the caller omits the binding and the check
-/// blocks.
+/// Read `{value, unit}` from a library record's value slot, for every private
+/// library kind a rule-pack `library_value_ref` can target. Per the library
+/// schemas the record id, slot array(s), slot id, and unit metadata differ by
+/// kind:
+///
+/// - `material`: `material_records[material_id].allowables[allowable_id]`
+///   (the `user_rule_allowable` / `private_reference` rule-check source);
+/// - `section`: `section_records[section_id].dimensions[dimension_id]` or
+///   `…properties[property_id]`;
+/// - `component`: `component_records[component_id].fields[field_id]`.
+///
+/// Material values carry `value.unit_ref.ref_id` (a unit reference); section and
+/// component values carry a plain `value.unit` string. Returns `None` — so the
+/// caller omits the binding and the check blocks, never a silent pass — when the
+/// kind is unknown or the record/slot/value is absent or non-numeric. The
+/// private value is read here at run time and is never embedded in the rule pack
+/// (IP boundary).
 fn extract_library_slot_value(
     document: &Value,
     library_kind: &str,
     record_id: &str,
     slot_id: &str,
 ) -> Option<(f64, String)> {
-    if library_kind != "material" {
-        return None;
-    }
-    let record = document
-        .get("material_records")
-        .and_then(Value::as_array)?
-        .iter()
-        .find(|record| record.pointer("/material_id").and_then(Value::as_str) == Some(record_id))?;
-    let slot = record
-        .get("allowables")
-        .and_then(Value::as_array)?
-        .iter()
-        .find(|slot| slot.pointer("/allowable_id").and_then(Value::as_str) == Some(slot_id))?;
-    let value = match slot.pointer("/value/magnitude") {
-        Some(Value::Number(number)) => number.as_f64()?,
-        Some(Value::String(text)) => text.trim().parse::<f64>().ok()?,
-        _ => return None,
-    };
-    let unit = slot
-        .pointer("/value/unit_ref/ref_id")
+    let value = match library_kind {
+        "material" => find_library_slot_value(
+            document,
+            "material_records",
+            "material_id",
+            record_id,
+            &[("allowables", "allowable_id")],
+            slot_id,
+        ),
+        "section" => find_library_slot_value(
+            document,
+            "section_records",
+            "section_id",
+            record_id,
+            &[
+                ("dimensions", "dimension_id"),
+                ("properties", "property_id"),
+            ],
+            slot_id,
+        ),
+        "component" => find_library_slot_value(
+            document,
+            "component_records",
+            "component_id",
+            record_id,
+            &[("fields", "field_id")],
+            slot_id,
+        ),
+        _ => None,
+    }?;
+    let magnitude = parse_quantity_magnitude(value.get("magnitude"))?;
+    // Material values reference a unit (`unit_ref.ref_id`); section/component
+    // values carry a plain `unit` string. The two are mutually exclusive per the
+    // schemas (`additionalProperties: false`), so read whichever this slot has.
+    let unit = value
+        .pointer("/unit_ref/ref_id")
+        .or_else(|| value.get("unit"))
         .and_then(Value::as_str)
         .unwrap_or_default()
         .to_string();
-    Some((value, unit))
+    Some((magnitude, unit))
+}
+
+/// Find a value slot inside a library record and return its `value` object.
+/// Looks up the record by `record_id_key == record_id` in `records_member`, then
+/// scans each `(slot_array, slot_id_key)` in order for `slot_id_key == slot_id`,
+/// returning the first match's `value`. `None` if the record, every slot array,
+/// the matching slot, or its `value` is absent.
+fn find_library_slot_value<'a>(
+    document: &'a Value,
+    records_member: &str,
+    record_id_key: &str,
+    record_id: &str,
+    slot_arrays: &[(&str, &str)],
+    slot_id: &str,
+) -> Option<&'a Value> {
+    let record = document
+        .get(records_member)
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|record| record.get(record_id_key).and_then(Value::as_str) == Some(record_id))?;
+    for (slot_array, slot_id_key) in slot_arrays {
+        let matched = record
+            .get(*slot_array)
+            .and_then(Value::as_array)
+            .and_then(|slots| {
+                slots
+                    .iter()
+                    .find(|slot| slot.get(*slot_id_key).and_then(Value::as_str) == Some(slot_id))
+            });
+        if let Some(value) = matched.and_then(|slot| slot.get("value")) {
+            return Some(value);
+        }
+    }
+    None
+}
+
+/// Parse a library quantity magnitude that the schemas allow to be either a JSON
+/// number or a numeric string. `None` when absent or non-numeric.
+fn parse_quantity_magnitude(magnitude: Option<&Value>) -> Option<f64> {
+    match magnitude {
+        Some(Value::Number(number)) => number.as_f64(),
+        Some(Value::String(text)) => text.trim().parse::<f64>().ok(),
+        _ => None,
+    }
 }
 
 /// Parse caller-resolved `{input_id, value, unit, library_kind, library_id,
@@ -4943,16 +5015,68 @@ mod tests {
         })
     }
 
+    fn section_library_with_slots() -> Value {
+        // Section value slots carry a plain `unit` string (not `unit_ref`), per
+        // the section schema's QuantityValue; values live in `dimensions` and
+        // `properties` arrays keyed by `dimension_id` / `property_id`.
+        json!({
+            "section_library": { "library_id": "lib:test-sections" },
+            "section_records": [
+                {
+                    "section_id": "sec:demo-pipe",
+                    "dimensions": [
+                        {
+                            "dimension_id": "dim:od",
+                            "dimension_kind": "outside_diameter",
+                            "value": { "magnitude": 168.3, "unit": "mm", "dimension": "outside_diameter" }
+                        }
+                    ],
+                    "properties": [
+                        {
+                            "property_id": "prop:area",
+                            "property_kind": "cross_section_area",
+                            "value": { "magnitude": 2300.0, "unit": "mm2", "dimension": "cross_section_area" }
+                        }
+                    ]
+                }
+            ]
+        })
+    }
+
+    fn component_library_with_field() -> Value {
+        // Component value slots also carry a plain `unit` string; values live in
+        // a `fields` array keyed by `field_id` (per the component schema).
+        json!({
+            "component_library": { "library_id": "lib:test-components" },
+            "component_records": [
+                {
+                    "component_id": "cmp:demo-bend",
+                    "fields": [
+                        {
+                            "field_id": "fld:sif",
+                            "field_kind": "sif_user_value",
+                            "value": { "magnitude": 2.5, "unit": "dimensionless", "dimension": "dimensionless" }
+                        }
+                    ]
+                }
+            ]
+        })
+    }
+
     fn pack_with_library_ref() -> Value {
-        let mut pack = example_rule_pack_document();
-        // Repoint demo_limit_quantity to a private-library allowable value.
-        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
-        pack["required_inputs"][1]["library_value_ref"] = json!({
+        pack_with_library_ref_to(json!({
             "library_kind": "material",
             "library_id": "lib:test-materials",
             "record_id": "mat:demo-steel",
             "slot_id": "allow:Sh"
-        });
+        }))
+    }
+
+    fn pack_with_library_ref_to(reference: Value) -> Value {
+        let mut pack = example_rule_pack_document();
+        // Repoint demo_limit_quantity to a private-library value reference.
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        pack["required_inputs"][1]["library_value_ref"] = reference;
         // Re-stamp the checksum so validation does not block on a stale hash
         // (the checksum covers the document excluding the `checksums` member).
         let computed =
@@ -4962,7 +5086,7 @@ mod tests {
     }
 
     #[test]
-    fn extract_library_slot_value_reads_material_allowable_and_skips_other_kinds() {
+    fn extract_library_slot_value_reads_material_allowable() {
         let document = material_library_with_allowable();
         let resolved =
             extract_library_slot_value(&document, "material", "mat:demo-steel", "allow:Sh")
@@ -4979,11 +5103,56 @@ mod tests {
             "allow:absent"
         )
         .is_none());
-        // Section/component slot resolution is a named follow-up -> None for now.
+        // A material document has no `section_records`, so a section lookup over
+        // it finds nothing -> None (the kind/document mismatch blocks).
         assert!(
             extract_library_slot_value(&document, "section", "mat:demo-steel", "allow:Sh")
                 .is_none()
         );
+    }
+
+    #[test]
+    fn extract_library_slot_value_reads_section_dimension_and_property() {
+        let document = section_library_with_slots();
+        // A dimension slot resolves with its plain `unit` string.
+        assert_eq!(
+            extract_library_slot_value(&document, "section", "sec:demo-pipe", "dim:od"),
+            Some((168.3, "mm".to_string()))
+        );
+        // A property slot in the same record resolves too (second slot array).
+        assert_eq!(
+            extract_library_slot_value(&document, "section", "sec:demo-pipe", "prop:area"),
+            Some((2300.0, "mm2".to_string()))
+        );
+        // Unknown record / slot -> None (input then blocks).
+        assert!(extract_library_slot_value(&document, "section", "sec:absent", "dim:od").is_none());
+        assert!(
+            extract_library_slot_value(&document, "section", "sec:demo-pipe", "dim:absent")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn extract_library_slot_value_reads_component_field() {
+        let document = component_library_with_field();
+        assert_eq!(
+            extract_library_slot_value(&document, "component", "cmp:demo-bend", "fld:sif"),
+            Some((2.5, "dimensionless".to_string()))
+        );
+        assert!(
+            extract_library_slot_value(&document, "component", "cmp:absent", "fld:sif").is_none()
+        );
+        assert!(
+            extract_library_slot_value(&document, "component", "cmp:demo-bend", "fld:absent")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn extract_library_slot_value_returns_none_for_unknown_kind() {
+        let document = section_library_with_slots();
+        assert!(extract_library_slot_value(&document, "TBD", "sec:demo-pipe", "dim:od").is_none());
+        assert!(extract_library_slot_value(&document, "", "sec:demo-pipe", "dim:od").is_none());
     }
 
     #[test]
@@ -5011,6 +5180,40 @@ mod tests {
         assert_eq!(array[0]["value"], json!(100.0));
         assert_eq!(array[0]["unit"], json!("demo_unit"));
         assert_eq!(array[0]["library_id"], json!("lib:test-materials"));
+    }
+
+    #[test]
+    fn library_value_ref_resolves_section_from_local_store() {
+        // The resolve path is kind-generic: a section reference resolves a
+        // section property slot (plain `unit` string) from the same store.
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        upsert_library(
+            &connection,
+            "project:lib-test",
+            "section",
+            "lib:test-sections",
+            &section_library_with_slots(),
+        )
+        .expect("library upserts");
+
+        let pack = pack_with_library_ref_to(json!({
+            "library_kind": "section",
+            "library_id": "lib:test-sections",
+            "record_id": "sec:demo-pipe",
+            "slot_id": "prop:area"
+        }));
+        let bindings =
+            resolve_library_value_bindings_with_connection(&connection, "project:lib-test", &pack)
+                .expect("resolves");
+        let array = bindings.as_array().expect("array");
+        assert_eq!(array.len(), 1);
+        assert_eq!(array[0]["input_id"], json!("demo_limit_quantity"));
+        assert_eq!(array[0]["value"], json!(2300.0));
+        assert_eq!(array[0]["unit"], json!("mm2"));
+        assert_eq!(array[0]["library_kind"], json!("section"));
+        assert_eq!(array[0]["library_id"], json!("lib:test-sections"));
+        assert_eq!(array[0]["slot_id"], json!("prop:area"));
     }
 
     #[test]

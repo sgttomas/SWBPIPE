@@ -5154,3 +5154,44 @@ notes:
   CHECKING; no release-readiness, professional, certification, sealing,
   authentication, or code-compliance claim. The `library_value_ref` schema
   member it authors remains a PROPOSAL pending human ratification.
+
+## TP-MAC-159 resolve section/component library references at run time (`TP-C3-LIBREFSECCOMP-001`, 2026-06-14)
+
+- Phase C3 residual ("section/component slot resolution"): the rule-check
+  run-time resolver now resolves a `private_library_value` input's
+  `library_value_ref` for **all three** library kinds. Before this it resolved
+  `material` allowable slots only, so a `section`- or `component`-kind reference
+  (already authorable since TP-MAC-158) never resolved and the input silently
+  blocked. Closes the first-listed residual carried by TP-MAC-157/158.
+- **Backend only (`apps/desktop/src-tauri/src/lib.rs`):** `extract_library_slot_value`
+  now dispatches by `library_kind` to the authoritative library-schema shapes —
+  `material` → `material_records[material_id].allowables[allowable_id]`
+  (`value.unit_ref.ref_id`); `section` →
+  `section_records[section_id].dimensions[dimension_id]` or
+  `…properties[property_id]` (`value.unit`); `component` →
+  `component_records[component_id].fields[field_id]` (`value.unit`). Unknown kind
+  / missing record/slot/value → omitted, so the input blocks (never a silent
+  pass). Material behaviour is unchanged. No schema/runner/frontend change.
+- **IP boundary (unchanged):** the rule pack carries the reference only; every
+  kind's private value is read at run time from the local store and never
+  embedded in the rule pack.
+- Manual check posture: no Playwright spec extension — library resolution is
+  **desktop-store only** (the local private-library SQLite store is not reachable
+  from the browser preview, which keeps its honest store-unavailable seam). The
+  behaviour is exercised by the Rust command/store tests (same posture
+  TP-MAC-157 used for the material resolution it shipped). No new UI surface:
+  the authoring selector (TP-MAC-158) and read-only run-panel reference display
+  (TP-MAC-157) already cover section/component; this slice only makes their
+  references resolve.
+- Validation: src-tauri cargo **57** (+4: section dimension+property,
+  component field, unknown-kind, section store-resolution integration);
+  `cargo fmt --check` clean; five-surface DEC-025 sweep PASS (cargo crate sweep,
+  pytest, desktop Vitest+wasm, Playwright e2e ×2, production build) — see the
+  committed sweep summary.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFSECCOMP-001.md` (DEL-06-02 primary;
+  DEL-03-07 library coupling).
+- Boundary review: local-only; status-vocabulary-only; deliverables stay
+  CHECKING; no release-readiness, professional, certification, sealing,
+  authentication, or code-compliance claim. The `library_value_ref` schema
+  member it reads remains a PROPOSAL pending human ratification.

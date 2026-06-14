@@ -13,6 +13,59 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C3 slice landed: resolve section/component library references at run time (`TP-C3-LIBREFSECCOMP-001`)
+
+The C3 residual "section/component slot resolution" — the first-listed residual
+carried by both `TP-C3C4-LIBREF-001` (run-time resolution half) and
+`TP-C3-LIBREFAUTHOR-001` (authoring half). Before this, a rule-pack
+`private_library_value` input could **author** a `library_value_ref` for any of
+the three library kinds (the `DeclarationsEditor` selector landed in
+`TP-C3-LIBREFAUTHOR-001`), but the run-time resolver `extract_library_slot_value`
+resolved **material allowable slots only**, so a `section`- or `component`-kind
+reference never resolved and the input silently blocked.
+
+Backend only (`apps/desktop/src-tauri/src/lib.rs`; no schema/runner/frontend
+change — the runner's `LibraryValueBinding` is kind-agnostic and the store layer
+is already keyed by `(project_id, library_kind, library_id)`):
+`extract_library_slot_value` now dispatches by `library_kind` to the
+record/slot/value shapes read verbatim from the authoritative library schemas —
+`material` → `material_records[material_id].allowables[allowable_id]`
+(`value.unit_ref.ref_id`); `section` →
+`section_records[section_id].dimensions[dimension_id]` **or**
+`…properties[property_id]` (`value.unit`); `component` →
+`component_records[component_id].fields[field_id]` (`value.unit`). Material values
+reference a unit (`unit_ref.ref_id`) while section/component values carry a plain
+`unit` string; the two are mutually exclusive per the schemas
+(`additionalProperties: false`), so the resolver reads `unit_ref.ref_id` first
+and falls back to `unit`. Material behaviour is unchanged. Two small helpers
+factored out (`find_library_slot_value`, `parse_quantity_magnitude`). Unknown
+kind / missing record/slot/value / non-numeric magnitude → omitted, so the input
+blocks (never a silent pass). IP boundary unchanged: the rule pack carries the
+reference only; every kind's private value is read at run time and never
+embedded.
+
+Evidence: src-tauri cargo **57** (+4: section dimension+property, component
+field, unknown-kind, and a section store-resolution integration test;
+`extract_library_slot_value_reads_material_allowable` renamed and its stale
+"section is a follow-up" comment corrected); `cargo fmt --check` clean;
+five-surface DEC-025 sweep PASS (cargo crate sweep re-runs all crates;
+pytest/Vitest+wasm/Playwright ×2/production build unaffected — the change is
+isolated to the Tauri-only `src-tauri` crate, outside the frontend/wasm/pytest
+build graphs). No Playwright spec extension: library resolution is
+desktop-store-only (not browser-reachable; the browser keeps its honest
+store-unavailable seam), so the behaviour lives at and is tested by the Rust
+command/store path — the same posture `TP-C3C4-LIBREF-001` used for the material
+resolution it shipped. Status-vocabulary-only; private values never embedded or
+committed; no lifecycle/release/professional/code-compliance claim. Run record:
+`WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFSECCOMP-001.md` (DEL-06-02 primary;
+DEL-03-07 library coupling); SMOKE TP-MAC-159.
+
+Residuals: a richer C4 run-panel library/record/slot picker (the panel surfaces
+the reference read-only); human ratification of the additive `library_value_ref`
+schema member (PROPOSAL, companion to DEC-031).
+
+---
+
 ## 2026-06-14 — C3 authoring slice landed: author `library_value_ref` in the rule-pack editor (`TP-C3-LIBREFAUTHOR-001`)
 
 The C2-authoring half of the rule-pack ↔ private-library round-trip, completing
