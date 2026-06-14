@@ -1,6 +1,6 @@
 # D-02b — Writable Rule-Expression Text Syntax (Parsing to the Frozen AST)
 
-**Status:** AWAITING_RULING — packet prepared 2026-06-12 at the Phase C2 lead-up, per the `DEC-022` ruling that named this follow-up ("a writable text syntax is deferred to a named follow-up ruling (D-02b) at the Phase C2 editor lead-up", `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 row DEC-022).
+**Status:** RULED 2026-06-14 — **Option O-C** selected by the human project authority, recorded as `DEC-037` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 and reflected in `_REGISTER.md` row D-02b. (Packet prepared 2026-06-12 at the Phase C2 lead-up, per the `DEC-022` ruling that named this follow-up — "a writable text syntax is deferred to a named follow-up ruling (D-02b) at the Phase C2 editor lead-up", `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 row DEC-022.) The ruling defers the writable text syntax behind a named composer-usability trigger and permits a labeled read-only one-way AST→text rendering in C2 (no parser anywhere); this packet is re-presented when the trigger fires, inheriting §3 Q2–Q4.
 **Prepared:** 2026-06-12 by WORKING_ITEMS (Type 1), C2 lead-up decision-preparation subscope.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-02b.
 **Plan basis:** `plans/PLAN_2026-06-10_prd_completion.md` §3 Phase C stage-gate note ("First decision action per the D-14 packet §6: prepare the **D-02b** packet (writable rule-expression text syntax) at the C2 lead-up; C2 AST-based editor work can begin without it per `DEC-022`").
