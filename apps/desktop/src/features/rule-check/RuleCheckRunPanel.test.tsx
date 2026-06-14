@@ -79,6 +79,34 @@ describe("RuleCheckRunPanel", () => {
     expect(screen.getByTestId("rule-check-run")).toHaveProperty("disabled", true);
   });
 
+  it("surfaces a private-library reference for a private_library_value input", () => {
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    const pack = {
+      metadata: { rule_pack_id: "p" },
+      required_inputs: [
+        {
+          input_id: "lib_allow",
+          name: "Library allowable",
+          source_kind: "private_library_value",
+          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+          library_value_ref: {
+            library_kind: "material",
+            library_id: "lib:steel",
+            record_id: "mat:a",
+            slot_id: "allow:Sh"
+          }
+        }
+      ]
+    };
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(pack) }
+    });
+    const row = screen.getByTestId("rule-check-library-input-lib_allow");
+    expect(row.textContent).toContain("material:lib:steel");
+    expect(row.textContent).toContain("allow:Sh");
+    expect(row.textContent).toContain("never embedded in the rule pack");
+  });
+
   it("reports the desktop-only backend seam when run in browser preview", async () => {
     render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));

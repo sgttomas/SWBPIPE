@@ -45,7 +45,13 @@ describe("deriveRuleCheckBindingPlan", () => {
           input_id: "lib_allowable",
           name: "Library allowable",
           source_kind: "private_library_value",
-          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" }
+          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+          library_value_ref: {
+            library_kind: "material",
+            library_id: "lib:x",
+            record_id: "rec:y",
+            slot_id: "slot:z"
+          }
         }
       ],
       value_slots: [
@@ -71,7 +77,18 @@ describe("deriveRuleCheckBindingPlan", () => {
         unit_ref: "demo_unit"
       }
     ]);
-    expect(plan.libraryInputs).toEqual([{ input_id: "lib_allowable", name: "Library allowable" }]);
+    expect(plan.libraryInputs).toEqual([
+      {
+        input_id: "lib_allowable",
+        name: "Library allowable",
+        library_value_ref: {
+          library_kind: "material",
+          library_id: "lib:x",
+          record_id: "rec:y",
+          slot_id: "slot:z"
+        }
+      }
+    ]);
     expect(plan.valueSlots).toEqual([
       { slot_id: "ratio_limit", slot_kind: "ratio_limit", dimension: "dimensionless", unit_ref: "ratio" }
     ]);
@@ -152,7 +169,8 @@ describe("runRuleChecks", () => {
       model: { project: { id: "p" } } as never,
       solvedEnvelope: { run_id: "run:1", results: [] } as never,
       solverResultBindings: [{ input_id: "actual", result_id: "result:stress:demo" }],
-      suppliedValueBindings: [{ ref_id: "limit", value: 100, unit: "demo_unit", dimension: "stress" }]
+      suppliedValueBindings: [{ ref_id: "limit", value: 100, unit: "demo_unit", dimension: "stress" }],
+      projectId: "project:lib"
     });
 
     const [, args] = invokeMock.mock.calls[0];
@@ -163,6 +181,7 @@ describe("runRuleChecks", () => {
     expect(typed.suppliedValueBindings).toEqual([
       { ref_id: "limit", value: 100, unit: "demo_unit", dimension: "stress" }
     ]);
+    expect(typed.projectId).toBe("project:lib");
   });
 });
 

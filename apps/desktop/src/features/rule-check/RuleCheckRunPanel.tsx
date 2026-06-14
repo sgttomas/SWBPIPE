@@ -174,7 +174,8 @@ export function RuleCheckRunPanel({
         model,
         solvedEnvelope: result,
         solverResultBindings: buildSolverBindings(plan),
-        suppliedValueBindings: buildSuppliedBindings(plan)
+        suppliedValueBindings: buildSuppliedBindings(plan),
+        projectId
       });
       if (route.route === "unavailable_browser_preview") {
         setRunResult(null);
@@ -393,8 +394,9 @@ export function RuleCheckRunPanel({
                 {input.name} <small>(private_library_value)</small>
               </span>
               <small>
-                Library reference resolution is deferred to the C3 rule-pack ↔ library slice; treated as
-                unsupplied (blocks).
+                {input.library_value_ref
+                  ? `Resolves from the local private library ${input.library_value_ref.library_kind}:${input.library_value_ref.library_id} → record ${input.library_value_ref.record_id} → slot ${input.library_value_ref.slot_id} at run time (desktop); the value stays in the library and is never embedded in the rule pack. The result's bound inputs show whether it resolved.`
+                  : "No library_value_ref on this input, so it stays unsupplied and the check blocks. Add a library reference to the rule pack to bind it."}
               </small>
             </div>
           ))}

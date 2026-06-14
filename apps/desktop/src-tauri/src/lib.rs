@@ -1948,11 +1948,52 @@ fn validate_rule_pack(
 /// or code-compliance claim.
 #[tauri::command]
 fn run_rule_checks(
+    app: AppHandle,
     rule_pack_document: Value,
     model: Option<Value>,
     solved_envelope: Option<Value>,
     solver_result_bindings: Option<Value>,
     supplied_value_bindings: Option<Value>,
+    project_id: Option<String>,
+) -> Result<Value, String> {
+    // Resolve `private_library_value` inputs from the local private-library
+    // store (C3 rule-pack <-> library reference wiring). Library values are read
+    // at run time and never embedded in the rule pack (IP boundary). A reference
+    // that cannot be resolved is omitted, so the input stays unsupplied and the
+    // check blocks at RULE_INPUTS_INCOMPLETE — never a silent pass.
+    let resolved_project = resolve_rule_check_project_id(
+        project_id.as_deref(),
+        model.as_ref(),
+        solved_envelope.as_ref(),
+    );
+    let library_value_bindings = match resolved_project {
+        Some(project) => Some(resolve_library_value_bindings(
+            &app,
+            &project,
+            &rule_pack_document,
+        )?),
+        None => None,
+    };
+    run_rule_checks_core(
+        rule_pack_document,
+        model,
+        solved_envelope,
+        solver_result_bindings,
+        supplied_value_bindings,
+        library_value_bindings,
+    )
+}
+
+/// Store-free rule-check orchestration. The Tauri command resolves library
+/// references from the local store into `library_value_bindings`, then calls
+/// this; tests target it directly with already-resolved bindings.
+fn run_rule_checks_core(
+    rule_pack_document: Value,
+    model: Option<Value>,
+    solved_envelope: Option<Value>,
+    solver_result_bindings: Option<Value>,
+    supplied_value_bindings: Option<Value>,
+    library_value_bindings: Option<Value>,
 ) -> Result<Value, String> {
     let validation = rule_pack_document::validate_rule_pack_document(&rule_pack_document, false);
     if validation.has_blocking_findings {
@@ -1981,6 +2022,7 @@ fn run_rule_checks(
     let solver_results =
         resolve_solver_result_bindings(solver_result_bindings.as_ref(), &envelope)?;
     let supplied_values = parse_supplied_value_bindings(supplied_value_bindings.as_ref())?;
+    let library_values = parse_library_value_bindings(library_value_bindings.as_ref())?;
 
     let current_statuses = match envelope
         .pointer("/status/mechanics")
@@ -1994,10 +2036,216 @@ fn run_rule_checks(
         rule_pack_document: &rule_pack_document,
         solver_results,
         supplied_values,
+        library_values,
         current_statuses,
     });
 
     serde_json::to_value(result).map_err(|error| error.to_string())
+}
+
+/// Resolve the project id used to scope the private-library lookup: an explicit
+/// `project_id`, else the model's `/project/id`, else the solved envelope's
+/// `/model_ref` (all of which carry the project id).
+fn resolve_rule_check_project_id(
+    explicit: Option<&str>,
+    model: Option<&Value>,
+    solved_envelope: Option<&Value>,
+) -> Option<String> {
+    let from = |value: Option<&str>| {
+        value
+            .map(str::trim)
+            .filter(|id| !id.is_empty())
+            .map(str::to_string)
+    };
+    from(explicit)
+        .or_else(|| {
+            from(
+                model
+                    .and_then(|m| m.pointer("/project/id"))
+                    .and_then(Value::as_str),
+            )
+        })
+        .or_else(|| {
+            from(
+                solved_envelope
+                    .and_then(|e| e.pointer("/model_ref"))
+                    .and_then(Value::as_str),
+            )
+        })
+}
+
+/// Resolve every `private_library_value` required input that carries a
+/// `library_value_ref` to a `{input_id, value, unit, ...}` binding by reading
+/// the referenced record's value slot from the local private-library store.
+/// Unresolvable references are omitted (the input then blocks, never a silent
+/// pass). Returns a JSON array consumed by `parse_library_value_bindings`.
+fn resolve_library_value_bindings(
+    app: &AppHandle,
+    project_id: &str,
+    document: &Value,
+) -> Result<Value, String> {
+    let Some(required_inputs) = document.get("required_inputs").and_then(Value::as_array) else {
+        return Ok(Value::Array(Vec::new()));
+    };
+    let needs_store = required_inputs.iter().any(|input| {
+        input.pointer("/source_kind").and_then(Value::as_str) == Some("private_library_value")
+            && input.get("library_value_ref").is_some()
+    });
+    if !needs_store {
+        return Ok(Value::Array(Vec::new()));
+    }
+
+    let path = app_store_path(app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    resolve_library_value_bindings_with_connection(&connection, project_id, document)
+}
+
+/// Store-bound core of `resolve_library_value_bindings`, separated so tests can
+/// drive it with an in-memory connection.
+fn resolve_library_value_bindings_with_connection(
+    connection: &Connection,
+    project_id: &str,
+    document: &Value,
+) -> Result<Value, String> {
+    let Some(required_inputs) = document.get("required_inputs").and_then(Value::as_array) else {
+        return Ok(Value::Array(Vec::new()));
+    };
+    let mut bindings: Vec<Value> = Vec::new();
+    for input in required_inputs {
+        if input.pointer("/source_kind").and_then(Value::as_str) != Some("private_library_value") {
+            continue;
+        }
+        let Some(reference) = input.get("library_value_ref") else {
+            continue;
+        };
+        let input_id = input
+            .pointer("/input_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let library_kind = reference
+            .pointer("/library_kind")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let library_id = reference
+            .pointer("/library_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let record_id = reference
+            .pointer("/record_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let slot_id = reference
+            .pointer("/slot_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if input_id.is_empty()
+            || library_kind.is_empty()
+            || library_id.is_empty()
+            || record_id.is_empty()
+            || slot_id.is_empty()
+        {
+            continue;
+        }
+        let Some(stored) = load_library(connection, project_id, library_kind, library_id)? else {
+            continue;
+        };
+        let Some((value, unit)) =
+            extract_library_slot_value(&stored.document, library_kind, record_id, slot_id)
+        else {
+            continue;
+        };
+        bindings.push(json!({
+            "input_id": input_id,
+            "value": value,
+            "unit": unit,
+            "library_kind": library_kind,
+            "library_id": library_id,
+            "record_id": record_id,
+            "slot_id": slot_id,
+        }));
+    }
+    Ok(Value::Array(bindings))
+}
+
+/// Read `{value, unit}` from a library record's value slot. This slice resolves
+/// material allowable slots (the `user_rule_allowable` / `private_reference`
+/// rule-check allowable source); section and component slot resolution is a
+/// named follow-up. Returns `None` when the record/slot/value is absent or the
+/// magnitude is not numeric, so the caller omits the binding and the check
+/// blocks.
+fn extract_library_slot_value(
+    document: &Value,
+    library_kind: &str,
+    record_id: &str,
+    slot_id: &str,
+) -> Option<(f64, String)> {
+    if library_kind != "material" {
+        return None;
+    }
+    let record = document
+        .get("material_records")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|record| record.pointer("/material_id").and_then(Value::as_str) == Some(record_id))?;
+    let slot = record
+        .get("allowables")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|slot| slot.pointer("/allowable_id").and_then(Value::as_str) == Some(slot_id))?;
+    let value = match slot.pointer("/value/magnitude") {
+        Some(Value::Number(number)) => number.as_f64()?,
+        Some(Value::String(text)) => text.trim().parse::<f64>().ok()?,
+        _ => return None,
+    };
+    let unit = slot
+        .pointer("/value/unit_ref/ref_id")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    Some((value, unit))
+}
+
+/// Parse caller-resolved `{input_id, value, unit, library_kind, library_id,
+/// record_id, slot_id}` library values for `private_library_value` inputs.
+fn parse_library_value_bindings(
+    bindings: Option<&Value>,
+) -> Result<Vec<rule_check_runner::LibraryValueBinding>, String> {
+    let Some(bindings) = bindings.filter(|value| !value.is_null()) else {
+        return Ok(Vec::new());
+    };
+    let array = bindings
+        .as_array()
+        .ok_or_else(|| "library_value_bindings must be an array".to_string())?;
+    let mut parsed = Vec::new();
+    for binding in array {
+        let input_id = binding
+            .pointer("/input_id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "each library value binding requires input_id".to_string())?;
+        let value = binding
+            .pointer("/value")
+            .and_then(Value::as_f64)
+            .ok_or_else(|| {
+                format!("library value binding '{input_id}' requires a numeric value")
+            })?;
+        let str_field = |key: &str| {
+            binding
+                .pointer(&format!("/{key}"))
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_string()
+        };
+        parsed.push(rule_check_runner::LibraryValueBinding {
+            input_id: input_id.to_string(),
+            value,
+            unit: str_field("unit"),
+            library_kind: str_field("library_kind"),
+            library_id: str_field("library_id"),
+            record_id: str_field("record_id"),
+            slot_id: str_field("slot_id"),
+        });
+    }
+    Ok(parsed)
 }
 
 /// Resolve caller-supplied `{input_id, result_id}` selectors against a solved
@@ -4545,12 +4793,13 @@ mod tests {
 
     #[test]
     fn run_rule_checks_command_passing_demo_reports_user_rule_checked() {
-        let outcome = run_rule_checks(
+        let outcome = run_rule_checks_core(
             example_rule_pack_document(),
             None,
             Some(demo_solved_envelope(50.0)),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
+            None,
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
@@ -4561,12 +4810,13 @@ mod tests {
 
     #[test]
     fn run_rule_checks_command_failing_case_reports_user_rule_failed() {
-        let outcome = run_rule_checks(
+        let outcome = run_rule_checks_core(
             example_rule_pack_document(),
             None,
             Some(demo_solved_envelope(150.0)),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
+            None,
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("USER_RULE_FAILED"));
@@ -4576,12 +4826,13 @@ mod tests {
     #[test]
     fn run_rule_checks_command_missing_input_reports_rule_inputs_incomplete() {
         // No solver selectors -> the solver_result input is unsupplied.
-        let outcome = run_rule_checks(
+        let outcome = run_rule_checks_core(
             example_rule_pack_document(),
             None,
             Some(demo_solved_envelope(50.0)),
             None,
             Some(demo_supplied_values()),
+            None,
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
@@ -4590,12 +4841,13 @@ mod tests {
 
     #[test]
     fn run_rule_checks_command_rejects_blocking_invalid_pack() {
-        let outcome = run_rule_checks(
+        let outcome = run_rule_checks_core(
             json!({ "not": "a valid rule pack" }),
             None,
             Some(demo_solved_envelope(50.0)),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
+            None,
         )
         .expect("command returns");
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
@@ -4603,12 +4855,13 @@ mod tests {
 
     #[test]
     fn run_rule_checks_command_emits_only_status_vocabulary() {
-        let outcome = run_rule_checks(
+        let outcome = run_rule_checks_core(
             example_rule_pack_document(),
             None,
             Some(demo_solved_envelope(50.0)),
             Some(demo_solver_selectors()),
             Some(demo_supplied_values()),
+            None,
         )
         .expect("rule checks run");
         let serialized = serde_json::to_string(&outcome).expect("serializes");
@@ -4668,6 +4921,161 @@ mod tests {
         let deleted_again = delete_rule_pack(&connection, "project:test-local", &rule_pack_id)
             .expect("second delete returns");
         assert!(!deleted_again);
+    }
+
+    // --- C3 <-> C4 library-reference wiring (TP-C3C4-LIBREF-001) -------------
+
+    fn material_library_with_allowable() -> Value {
+        json!({
+            "material_library": { "library_id": "lib:test-materials" },
+            "material_records": [
+                {
+                    "material_id": "mat:demo-steel",
+                    "allowables": [
+                        {
+                            "allowable_id": "allow:Sh",
+                            "allowable_kind": "user_rule_allowable",
+                            "value": { "magnitude": 100.0, "unit_ref": { "ref_id": "demo_unit" } }
+                        }
+                    ]
+                }
+            ]
+        })
+    }
+
+    fn pack_with_library_ref() -> Value {
+        let mut pack = example_rule_pack_document();
+        // Repoint demo_limit_quantity to a private-library allowable value.
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        pack["required_inputs"][1]["library_value_ref"] = json!({
+            "library_kind": "material",
+            "library_id": "lib:test-materials",
+            "record_id": "mat:demo-steel",
+            "slot_id": "allow:Sh"
+        });
+        // Re-stamp the checksum so validation does not block on a stale hash
+        // (the checksum covers the document excluding the `checksums` member).
+        let computed =
+            rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
+        pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+        pack
+    }
+
+    #[test]
+    fn extract_library_slot_value_reads_material_allowable_and_skips_other_kinds() {
+        let document = material_library_with_allowable();
+        let resolved =
+            extract_library_slot_value(&document, "material", "mat:demo-steel", "allow:Sh")
+                .expect("material allowable resolves");
+        assert_eq!(resolved, (100.0, "demo_unit".to_string()));
+        // Unknown record/slot -> None (input then blocks).
+        assert!(
+            extract_library_slot_value(&document, "material", "mat:absent", "allow:Sh").is_none()
+        );
+        assert!(extract_library_slot_value(
+            &document,
+            "material",
+            "mat:demo-steel",
+            "allow:absent"
+        )
+        .is_none());
+        // Section/component slot resolution is a named follow-up -> None for now.
+        assert!(
+            extract_library_slot_value(&document, "section", "mat:demo-steel", "allow:Sh")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn library_value_ref_resolves_from_local_store() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        upsert_library(
+            &connection,
+            "project:lib-test",
+            "material",
+            "lib:test-materials",
+            &material_library_with_allowable(),
+        )
+        .expect("library upserts");
+
+        let bindings = resolve_library_value_bindings_with_connection(
+            &connection,
+            "project:lib-test",
+            &pack_with_library_ref(),
+        )
+        .expect("resolves");
+        let array = bindings.as_array().expect("array");
+        assert_eq!(array.len(), 1);
+        assert_eq!(array[0]["input_id"], json!("demo_limit_quantity"));
+        assert_eq!(array[0]["value"], json!(100.0));
+        assert_eq!(array[0]["unit"], json!("demo_unit"));
+        assert_eq!(array[0]["library_id"], json!("lib:test-materials"));
+    }
+
+    #[test]
+    fn library_value_ref_without_stored_library_resolves_to_no_binding() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+        // No library saved -> reference cannot resolve -> no binding (blocks).
+        let bindings = resolve_library_value_bindings_with_connection(
+            &connection,
+            "project:lib-test",
+            &pack_with_library_ref(),
+        )
+        .expect("resolves");
+        assert!(bindings.as_array().expect("array").is_empty());
+    }
+
+    #[test]
+    fn run_rule_checks_core_threads_library_binding_to_user_rule_checked() {
+        // actual 50 / library limit 100 = 0.5 <= ratio_limit 1.0 -> pass.
+        let library_bindings = json!([{
+            "input_id": "demo_limit_quantity",
+            "value": 100.0,
+            "unit": "demo_unit",
+            "library_kind": "material",
+            "library_id": "lib:test-materials",
+            "record_id": "mat:demo-steel",
+            "slot_id": "allow:Sh"
+        }]);
+        let outcome = run_rule_checks_core(
+            pack_with_library_ref(),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+            Some(library_bindings),
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
+        let bound = outcome["checks"][0]["bound_inputs"]
+            .as_array()
+            .expect("bound inputs")
+            .iter()
+            .find(|binding| binding["input_id"] == json!("demo_limit_quantity"))
+            .expect("library-sourced input present");
+        assert_eq!(bound["supplied"], json!(true));
+        assert!(bound["note"]
+            .as_str()
+            .expect("note")
+            .contains("private library"));
+    }
+
+    #[test]
+    fn run_rule_checks_core_without_library_binding_blocks_library_input() {
+        // private_library_value input with no resolved binding -> blocks (never
+        // a silent pass).
+        let outcome = run_rule_checks_core(
+            pack_with_library_ref(),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+            None,
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
     }
 
     #[test]

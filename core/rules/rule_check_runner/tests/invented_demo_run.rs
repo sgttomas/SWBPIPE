@@ -58,6 +58,7 @@ fn example_pack_passing_run_is_user_rule_checked() {
         rule_pack_document: &document,
         solver_results: vec![solver(50.0)],
         supplied_values: limit_supplied(),
+        library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],
     });
 
@@ -83,6 +84,7 @@ fn example_pack_failing_run_is_user_rule_failed() {
         rule_pack_document: &document,
         solver_results: vec![solver(150.0)],
         supplied_values: limit_supplied(),
+        library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],
     });
 
@@ -100,6 +102,7 @@ fn example_pack_missing_solver_input_is_rule_inputs_incomplete() {
         // Drop the solver binding for demo_actual_quantity.
         solver_results: vec![],
         supplied_values: limit_supplied(),
+        library_values: vec![],
         current_statuses: vec![AnalysisStatus::MechanicsSolved],
     });
 

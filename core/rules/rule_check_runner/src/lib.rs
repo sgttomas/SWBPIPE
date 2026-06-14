@@ -35,9 +35,13 @@
 //! solved result row, so the binding is **caller-supplied**: solver values via
 //! [`SolverResultBinding`] (the caller extracts `{value, unit}` for an
 //! `input_id` from a solved mechanics envelope), user values and limit slots
-//! via [`SuppliedValueBinding`]. `private_library_value` inputs are out of
-//! scope for this slice (the C3 rule-pack ↔ library reference residual); they
-//! are treated as unsupplied (never a silent pass) with a recorded note.
+//! via [`SuppliedValueBinding`]. `private_library_value` inputs are resolved via
+//! [`LibraryValueBinding`] (C3 rule-pack ↔ library reference wiring): the caller
+//! reads `{value, unit}` from the referenced private library record's value slot
+//! (the rule pack's `library_value_ref` member) in the local store. A
+//! `private_library_value` input with no resolved library binding stays
+//! unsupplied (never a silent pass) with a recorded note. The library value is
+//! resolved at run time and never embedded in the rule pack (IP boundary).
 
 use std::collections::HashMap;
 
@@ -86,6 +90,24 @@ pub struct SuppliedValueBinding {
     pub dimension: String,
 }
 
+/// One value the caller resolved from a saved private library for a
+/// `private_library_value` required input (C3 rule-pack ↔ library reference
+/// wiring). The caller (the desktop command) reads `{value, unit}` from the
+/// referenced library record's value slot in the local private-library store;
+/// the `library_*`/`record_id`/`slot_id` fields are carried for the outcome's
+/// provenance note only. The value is never embedded in the rule pack — it is
+/// resolved at run time and stays in the private library (IP boundary).
+#[derive(Debug, Clone)]
+pub struct LibraryValueBinding {
+    pub input_id: String,
+    pub value: f64,
+    pub unit: String,
+    pub library_kind: String,
+    pub library_id: String,
+    pub record_id: String,
+    pub slot_id: String,
+}
+
 /// Inputs to a rule-check run.
 #[derive(Debug, Clone)]
 pub struct RuleCheckRunInput<'a> {
@@ -95,6 +117,9 @@ pub struct RuleCheckRunInput<'a> {
     pub rule_pack_document: &'a Value,
     pub solver_results: Vec<SolverResultBinding>,
     pub supplied_values: Vec<SuppliedValueBinding>,
+    /// Values resolved from saved private libraries for `private_library_value`
+    /// required inputs (caller-resolved from the local store).
+    pub library_values: Vec<LibraryValueBinding>,
     /// Current analysis statuses from the solve (e.g. `[MechanicsSolved]`).
     pub current_statuses: Vec<AnalysisStatus>,
 }
@@ -222,6 +247,11 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
             .iter()
             .map(|b| (b.ref_id.as_str(), b))
             .collect(),
+        library_by_input: input
+            .library_values
+            .iter()
+            .map(|b| (b.input_id.as_str(), b))
+            .collect(),
         current_statuses: &input.current_statuses,
         grammar_version: grammar_version.as_str(),
     };
@@ -263,6 +293,7 @@ struct RunContext<'a> {
     formula_index: HashMap<&'a str, &'a Value>,
     solver_by_input: HashMap<&'a str, &'a SolverResultBinding>,
     supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
+    library_by_input: HashMap<&'a str, &'a LibraryValueBinding>,
     current_statuses: &'a [AnalysisStatus],
     grammar_version: &'a str,
 }
@@ -396,17 +427,31 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 ),
                 None => (None, None, None, BindingSource::SolverResultField, None),
             },
-            SourceKind::PrivateLibraryValue => (
-                None,
-                None,
-                None,
-                BindingSource::RulePackRequiredInput,
-                Some(
-                    "private_library_value resolution is deferred to the C3 rule-pack \u{2194} \
-                     library reference slice; treated as unsupplied"
-                        .to_string(),
+            SourceKind::PrivateLibraryValue => match ctx.library_by_input.get(ref_id) {
+                Some(b) => (
+                    Some(b.value),
+                    Some(b.unit.clone()),
+                    None,
+                    BindingSource::RulePackRequiredInput,
+                    Some(format!(
+                        "resolved from private library {}:{} record {} slot {} (value stays in the \
+                         private library; never embedded in the rule pack)",
+                        b.library_kind, b.library_id, b.record_id, b.slot_id
+                    )),
                 ),
-            ),
+                None => (
+                    None,
+                    None,
+                    None,
+                    BindingSource::RulePackRequiredInput,
+                    Some(
+                        "private_library_value input has no resolved library reference (missing \
+                         library_value_ref, or the referenced library/record/slot was not found in \
+                         the local private-library store); treated as unsupplied"
+                            .to_string(),
+                    ),
+                ),
+            },
             SourceKind::UserSuppliedRuleValue => match ctx.supplied_by_ref.get(ref_id) {
                 Some(b) => (
                     Some(b.value),
@@ -1049,12 +1094,34 @@ mod tests {
         solver_results: Vec<SolverResultBinding>,
         supplied_values: Vec<SuppliedValueBinding>,
     ) -> RuleCheckRunResult {
+        run_full(pack, solver_results, supplied_values, Vec::new())
+    }
+
+    fn run_full(
+        pack: &Value,
+        solver_results: Vec<SolverResultBinding>,
+        supplied_values: Vec<SuppliedValueBinding>,
+        library_values: Vec<LibraryValueBinding>,
+    ) -> RuleCheckRunResult {
         run_rule_checks(&RuleCheckRunInput {
             rule_pack_document: pack,
             solver_results,
             supplied_values,
+            library_values,
             current_statuses: vec![AnalysisStatus::MechanicsSolved],
         })
+    }
+
+    fn library(input_id: &str, value: f64, unit: &str) -> LibraryValueBinding {
+        LibraryValueBinding {
+            input_id: input_id.to_string(),
+            value,
+            unit: unit.to_string(),
+            library_kind: "material".to_string(),
+            library_id: "lib:demo".to_string(),
+            record_id: "mat:demo".to_string(),
+            slot_id: "allow:demo".to_string(),
+        }
     }
 
     #[test]
@@ -1245,6 +1312,49 @@ mod tests {
             .expect("limit bound input present");
         assert!(!limit_binding.supplied);
         assert!(limit_binding.note.is_some());
+    }
+
+    #[test]
+    fn private_library_value_resolves_from_library_binding_and_passes() {
+        let mut pack = demo_pack();
+        // `limit` is now sourced from a private library; its value is resolved
+        // by the caller (the desktop command reads the library record's slot)
+        // and passed as a LibraryValueBinding. ratio_limit stays user-supplied.
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        let result = run_full(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![supplied("ratio_limit", 1.0, "ratio", "dimensionless")],
+            vec![library("limit", 100.0, "demo_unit")],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(check.computed_value.as_ref().expect("ratio").value, 0.5);
+        let limit_binding = check
+            .bound_inputs
+            .iter()
+            .find(|b| b.input_id == "limit")
+            .expect("limit bound input present");
+        assert!(limit_binding.supplied);
+        let note = limit_binding.note.as_ref().expect("library note");
+        assert!(note.contains("private library"));
+        assert!(note.contains("lib:demo"));
+        assert!(note.contains("never embedded"));
+    }
+
+    #[test]
+    fn private_library_value_with_failing_library_value_reports_failure() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        // actual/limit = 50/40 = 1.25 > ratio_limit 1.0 -> fail.
+        let result = run_full(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![supplied("ratio_limit", 1.0, "ratio", "dimensionless")],
+            vec![library("limit", 40.0, "demo_unit")],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
     }
 
     #[test]

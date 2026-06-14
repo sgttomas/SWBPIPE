@@ -104,12 +104,14 @@ export async function runRuleChecks(args: {
   solvedEnvelope?: MechanicsResult | null;
   solverResultBindings?: SolverResultSelector[];
   suppliedValueBindings?: SuppliedValueBinding[];
+  projectId?: string | null;
 }): Promise<RuleCheckRunRoute> {
   if (!isTauriRuntime()) return unavailable();
   // Prefer an already-solved envelope (so the backend does not re-solve); fall
   // back to the model so the backend solves it. Empty binding arrays are
   // omitted so the backend treats those inputs as unsupplied (never a silent
-  // pass).
+  // pass). `projectId` scopes the private-library lookup for
+  // `private_library_value` inputs (resolved backend-side from the local store).
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument };
   if (args.solvedEnvelope) invokeArgs.solvedEnvelope = args.solvedEnvelope;
   else if (args.model) invokeArgs.model = args.model;
@@ -119,6 +121,7 @@ export async function runRuleChecks(args: {
   if (args.suppliedValueBindings && args.suppliedValueBindings.length > 0) {
     invokeArgs.suppliedValueBindings = args.suppliedValueBindings;
   }
+  if (args.projectId) invokeArgs.projectId = args.projectId;
   const result = await invoke<RuleCheckRunResult>("run_rule_checks", invokeArgs);
   return { route: "tauri_backend", result };
 }
@@ -158,9 +161,20 @@ export type ValueSlotRequirement = {
   unit_ref: string;
 };
 
+// Reference from a private_library_value input to a value in a saved private
+// library record (resolved backend-side from the local store at run time; never
+// embedded in the rule pack — IP boundary).
+export type LibraryValueRef = {
+  library_kind: string;
+  library_id: string;
+  record_id: string;
+  slot_id: string;
+};
+
 export type LibraryInputRequirement = {
   input_id: string;
   name: string;
+  library_value_ref?: LibraryValueRef;
 };
 
 // What a pack needs the user to bind before a check can produce pass/fail.
@@ -192,6 +206,18 @@ function quantityIntent(item: Record<string, unknown>): { dimension: string; uni
   };
 }
 
+function readLibraryValueRef(item: Record<string, unknown>): LibraryValueRef | undefined {
+  const ref = item.library_value_ref;
+  if (typeof ref !== "object" || ref === null) return undefined;
+  const record = ref as Record<string, unknown>;
+  const libraryKind = asString(record.library_kind);
+  const libraryId = asString(record.library_id);
+  const recordId = asString(record.record_id);
+  const slotId = asString(record.slot_id);
+  if (!libraryKind || !libraryId || !recordId || !slotId) return undefined;
+  return { library_kind: libraryKind, library_id: libraryId, record_id: recordId, slot_id: slotId };
+}
+
 export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleCheckBindingPlan {
   const plan: RuleCheckBindingPlan = {
     solverInputs: [],
@@ -210,7 +236,7 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
     if (sourceKind === "solver_result") {
       plan.solverInputs.push({ input_id: inputId, name, dimension, unit_ref });
     } else if (sourceKind === "private_library_value") {
-      plan.libraryInputs.push({ input_id: inputId, name });
+      plan.libraryInputs.push({ input_id: inputId, name, library_value_ref: readLibraryValueRef(item) });
     } else {
       plan.valueInputs.push({ ref_id: inputId, name, source_kind: sourceKind, dimension, unit_ref });
     }

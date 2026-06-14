@@ -5069,3 +5069,45 @@ notes:
 - Boundary review: emits only the three automatic rule-check statuses; no
   lifecycle state change (deliverables stay CHECKING); no release-readiness,
   professional, certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-157 rule-pack ↔ private-library reference resolution (`TP-C3C4-LIBREF-001`, 2026-06-14)
+
+- Phase C3↔C4 coupling (backend-resolution slice): a rule-pack
+  `private_library_value` required input can now reference a value in a saved
+  private library and have it resolved at rule-check run time. Closes the C3
+  "rule-pack ↔ library reference wiring" residual and the C4
+  `private_library_value` resolution residual together.
+- **Schema (additive, PROPOSAL):** optional `library_value_ref`
+  (`library_kind`/`library_id`/`record_id`/`slot_id`) on `RequiredInput` in
+  `schemas/rule_pack.schema.yaml`. The rule pack carries the **reference only**;
+  the private value is read at run time and **never embedded** in the rule pack
+  (IP boundary). Awaits human ratification (companion to DEC-031).
+- **Runner:** new `LibraryValueBinding` + `library_values`; a
+  `private_library_value` input binds from a resolved library value (note cites
+  the library reference) or stays unsupplied + note (never a silent pass).
+- **Command:** `run_rule_checks` refactored into a store-free
+  `run_rule_checks_core` + a wrapper that resolves `library_value_ref` from the
+  local private-library store (material allowable slots: `material_records` →
+  `allowables` → `value.magnitude`/`unit_ref.ref_id`) into bindings; unresolvable
+  references are omitted so the check blocks.
+- **GUI:** the run panel passes `projectId`, and the library-input row shows the
+  reference (`kind:id → record → slot`) with an honest "resolves from the local
+  private library store at run time; value never embedded" note (replacing the
+  earlier deferred note). The run result's bound inputs show whether each library
+  input resolved.
+- Manual check (desktop/browser): the run-checks panel's library-input row
+  renders the reference + boundary note (Vitest panel test asserts it); the
+  browser e2e run-checks seam is unaffected (the demo pack has no library
+  inputs). Pass/fail with a resolved library value is covered by the src-tauri
+  Rust command tests and the Vitest desktop-mode panel suite.
+- Validation: runner cargo **11 unit + 3 integration**; src-tauri cargo **53**
+  (+5 library-resolution); `pytest tests/test_rule_pack_schema.py` **5**;
+  desktop Vitest **340** (+1); `npm run build` clean; `npx playwright test`
+  **10/10** (two viewports); `cargo fmt --check` clean.
+- Evidence: run record `WORKING_ITEMS_RUN_2026-06-14_TP-C3C4-LIBREF-001.md`
+  (DEL-06-02 primary; DEL-06-01 schema; DEL-03-07 library coupling).
+- Boundary review: private library values resolved at run time, never embedded
+  or committed; status-vocabulary-only; deliverables stay CHECKING; no
+  release-readiness, professional, certification, sealing, authentication, or
+  code-compliance claim. The schema member is a PROPOSAL pending human
+  ratification.

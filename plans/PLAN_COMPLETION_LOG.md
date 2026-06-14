@@ -13,6 +13,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C3↔C4 library-reference resolution landed (`TP-C3C4-LIBREF-001`)
+
+The coupled C3 ("rule-pack ↔ library reference wiring") and C4
+("`private_library_value`-sourced input resolution") residuals, as a
+backend-resolution slice (the reference mechanism + run-time resolution;
+C2-authoring and a richer C4 picker are follow-ups). Before this, a rule-pack
+required input could declare `source_kind: private_library_value` but had no way
+to say which library value it meant, so the C4 runner treated it as unsupplied.
+
+Schema (additive, **PROPOSAL** awaiting human ratification — companion to
+DEC-031; DEC-033 additive-minor policy): optional `library_value_ref`
+(`library_kind`/`library_id`/`record_id`/`slot_id`) on `RequiredInput`. IP
+boundary: the rule pack carries the reference only; the private value is read at
+run time from the local store and never embedded in the pack.
+
+Runner (`core/rules/rule_check_runner`): `LibraryValueBinding` + `library_values`;
+`private_library_value` inputs bind from a resolved library value (note cites
+the reference) or stay unsupplied + note (never a silent pass). Desktop command:
+`run_rule_checks` refactored into a store-free `run_rule_checks_core` + a wrapper
+that resolves `library_value_ref` from the local private-library store (material
+allowable slots) into bindings; unresolvable references are omitted so the check
+blocks; `project_id` derived from the explicit arg / model / envelope. Frontend:
+the run panel passes `projectId` and surfaces each library input's reference with
+an honest store-resolution / never-embedded note.
+
+Evidence: runner cargo 11 unit + 3 integration; src-tauri cargo 53 (+5);
+`pytest tests/test_rule_pack_schema.py` 5; desktop Vitest 340 (+1); `npm run
+build` clean; `npx playwright test` 10/10 (two viewports); `cargo fmt --check`
+clean. Status-vocabulary-only; private values never embedded or committed; no
+lifecycle/release/professional/code-compliance claim. Run record:
+`WORKING_ITEMS_RUN_2026-06-14_TP-C3C4-LIBREF-001.md` (DEL-06-02 primary;
+DEL-06-01 schema; DEL-03-07 library coupling); SMOKE TP-MAC-157.
+
+Residuals: C2 authoring of `library_value_ref` in the declarations form-builder;
+section/component slot resolution (material allowables resolve today); a richer
+C4 GUI library picker; human ratification of the additive schema member.
+
 ## 2026-06-14 — C4 GUI slice landed: run rule checks from the GUI (`TP-C4-CHECKGUI-001`)
 
 The Phase C4 GUI residual that makes the R3 exit criterion (PRD §22.4)

@@ -1139,6 +1139,39 @@
         "redistribution_status_required": {
           "type": "boolean",
           "const": true
+        },
+        "library_value_ref": {
+          "$ref": "#/$defs/LibraryValueRef"
+        }
+      }
+    },
+    "LibraryValueRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional reference from a private_library_value required input to a value held in a saved private library record (e.g. a material allowable slot). The value is resolved at rule-check run time from the local private-library store; it is NEVER embedded in the rule-pack document, so a rule pack carries the reference only and never redistributes the private library value (IP boundary, PRD §13/§17.3). Only meaningful when source_kind is private_library_value.",
+      "required": [
+        "library_kind",
+        "library_id",
+        "record_id",
+        "slot_id"
+      ],
+      "properties": {
+        "library_kind": {
+          "type": "string",
+          "enum": [
+            "material",
+            "section",
+            "component"
+          ]
+        },
+        "library_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "record_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "slot_id": {
+          "$ref": "#/$defs/Id"
         }
       }
     },
