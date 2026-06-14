@@ -4,6 +4,7 @@ use model_document_migration::{
     evaluate_model_document, migration_ledger_record, model_document_migrations,
     EvaluatedModelDocument, ModelDocumentMigrationStatus,
 };
+use open_pipe_stress_library_import_document as library_import_document;
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
 use open_pipe_stress_rule_pack_document as rule_pack_document;
@@ -2001,6 +2002,68 @@ fn delete_local_rule_pack(
     })
 }
 
+// ---------------------------------------------------------------------------
+// Library-import provenance validation seam (Phase C3, TP-C3-IMPORTCMD-001).
+//
+// Exposes the runtime library-import provenance crate
+// (open_pipe_stress_library_import_document, the DEL-03-07 port) through the
+// desktop boundary so the GUI import wizard (a later C3 slice) can validate an
+// already-parsed material/section/component import payload before it is stored
+// in a local-only private library. Validation is a pure function over the
+// payload — no persistence and no file parsing in this seam. Every status is a
+// software finding only; the command makes no legal license, redistribution,
+// certification, sealing, authentication, or code-compliance determination
+// (OPS-K-AUTH-1, IP boundary). Unsupported library_kind / intended_visibility
+// tokens are rejected, never guessed.
+// ---------------------------------------------------------------------------
+
+const LIBRARY_IMPORT_BOUNDARY_NOTICE: &str =
+    "Library-import validation reports software findings only over an already-parsed import \
+     payload. It makes no legal license, redistribution, certification, sealing, \
+     authentication, or code-compliance determination; unresolved redistribution rights and \
+     suspected protected content remain findings for human review.";
+
+fn library_import_validation_value(
+    payload: &Value,
+    library_kind: &str,
+    intended_visibility: &str,
+) -> Result<Value, String> {
+    let result = library_import_document::validate_library_import_tokens(
+        payload,
+        library_kind,
+        intended_visibility,
+    )?;
+    let has_blocking_findings = result
+        .findings
+        .iter()
+        .any(|finding| finding.severity == "blocking" || finding.severity == "quarantine");
+    let findings = serde_json::to_value(&result.findings).map_err(|error| error.to_string())?;
+    let library_kind_token =
+        serde_json::to_value(result.library_kind).map_err(|error| error.to_string())?;
+    let intended_visibility_token =
+        serde_json::to_value(result.intended_visibility).map_err(|error| error.to_string())?;
+    Ok(json!({
+        "document_kind": "openpipestress.library_import.validation",
+        "outcome": result.outcome,
+        "library_kind": library_kind_token,
+        "intended_visibility": intended_visibility_token,
+        "accepted": result.accepted,
+        "has_blocking_findings": has_blocking_findings,
+        "findings": findings,
+        "diagnostics": result.diagnostics(),
+        "professional_boundary_notice": LIBRARY_IMPORT_BOUNDARY_NOTICE,
+    }))
+}
+
+#[tauri::command]
+fn validate_library_import(
+    payload: Value,
+    library_kind: String,
+    intended_visibility: String,
+) -> Result<Value, String> {
+    library_import_validation_value(&payload, &library_kind, &intended_visibility)
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(SolveJobRegistry::default())
@@ -2026,6 +2089,7 @@ pub fn run() {
             open_local_rule_pack,
             list_local_rule_packs,
             delete_local_rule_pack,
+            validate_library_import,
             render_calculation_report
         ])
         .run(tauri::generate_context!())
@@ -3991,5 +4055,86 @@ mod tests {
             .expect("draft loads")
             .expect("draft row present");
         assert_eq!(loaded.document, draft);
+    }
+
+    fn valid_private_material_payload() -> Value {
+        json!({
+            "material_library": {
+                "provenance": {
+                    "source_name": "Invented source",
+                    "source_location": "tests",
+                    "source_license": "public test license",
+                    "contributor": "OpenPipeStress",
+                    "contributor_certification": "invented non-engineering value",
+                    "redistribution_status": "private_only",
+                    "review_status": "accepted"
+                }
+            },
+            "material_records": []
+        })
+    }
+
+    #[test]
+    fn validate_library_import_command_accepts_private_payload_and_carries_boundary_notice() {
+        let outcome = validate_library_import(
+            valid_private_material_payload(),
+            "material".to_string(),
+            "private".to_string(),
+        )
+        .expect("validation runs");
+        assert_eq!(outcome["outcome"], json!("PRIVATE_LOCAL_ONLY"));
+        assert_eq!(outcome["accepted"], json!(true));
+        assert_eq!(outcome["has_blocking_findings"], json!(false));
+        assert_eq!(outcome["library_kind"], json!("material"));
+        assert_eq!(outcome["intended_visibility"], json!("private"));
+        assert!(outcome["findings"]
+            .as_array()
+            .expect("findings array")
+            .is_empty());
+        let notice = outcome["professional_boundary_notice"]
+            .as_str()
+            .expect("notice present");
+        assert!(notice.contains("software findings only"));
+        // The seam never asserts a compliance/approval claim.
+        assert!(!notice.to_lowercase().contains("certified"));
+    }
+
+    #[test]
+    fn validate_library_import_command_blocks_missing_metadata_with_diagnostics() {
+        let outcome =
+            validate_library_import(json!({}), "material".to_string(), "private".to_string())
+                .expect("validation runs");
+        assert_eq!(outcome["outcome"], json!("REJECTED"));
+        assert_eq!(outcome["accepted"], json!(false));
+        assert_eq!(outcome["has_blocking_findings"], json!(true));
+        let codes: Vec<&str> = outcome["findings"]
+            .as_array()
+            .expect("findings array")
+            .iter()
+            .filter_map(|finding| finding["code"].as_str())
+            .collect();
+        assert!(codes.contains(&"IMPORT_LIBRARY_METADATA_MISSING"));
+        assert!(codes.contains(&"IMPORT_RECORD_SET_MISSING"));
+        // The PKG-02 import-boundary diagnostic envelope rides alongside the
+        // findings for downstream surfaces.
+        let diagnostic = outcome["diagnostics"]
+            .as_array()
+            .expect("diagnostics array")
+            .iter()
+            .find(|entry| entry["code"] == json!("IMPORT_LIBRARY_METADATA_MISSING"))
+            .expect("metadata diagnostic present");
+        assert_eq!(diagnostic["class"], json!("import_boundary"));
+    }
+
+    #[test]
+    fn validate_library_import_command_rejects_unsupported_tokens() {
+        let kind_err =
+            validate_library_import(json!({}), "widget".to_string(), "private".to_string())
+                .expect_err("unsupported kind must reject");
+        assert!(kind_err.contains("widget"));
+        let visibility_err =
+            validate_library_import(json!({}), "material".to_string(), "secret".to_string())
+                .expect_err("unsupported visibility must reject");
+        assert!(visibility_err.contains("secret"));
     }
 }

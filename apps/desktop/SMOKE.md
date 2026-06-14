@@ -4906,3 +4906,43 @@ notes:
 - Boundary review: no lifecycle state change; no release-readiness,
   professional, certification, sealing, authentication, or code-compliance
   claim.
+
+## TP-MAC-153 library-import validation seam: `validate_library_import` command + typed service (`TP-C3-IMPORTCMD-001`, 2026-06-13)
+
+- Phase C3 seam slice (no UI change in this tranche). Exposes the C3 foundation
+  crate `open_pipe_stress_library_import_document` (the DEL-03-07 port, landed
+  `TP-C3-IMPORTVALIDATE-001`) through the desktop boundary so the later import
+  wizard can validate an already-parsed material/section/component import
+  payload before it is stored in a local-only private library.
+- New Tauri command `validate_library_import(payload, libraryKind,
+  intendedVisibility)` wrapping the crate's `validate_library_import_tokens`:
+  unsupported `library_kind`/`intended_visibility` tokens are **rejected, never
+  guessed**. The envelope carries `outcome`, `accepted`, `has_blocking_findings`,
+  the ordered `findings` (each with the `blocking`/`quarantine`/`review_required`
+  severity), the PKG-02 `import_boundary` `diagnostics` projection, and a fixed
+  software-findings-only `professional_boundary_notice`.
+- New frontend seam `services/libraryImportService.ts`: `validateLibraryImport`
+  returns a discriminated route — browser preview mode returns an explicit
+  `LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY` diagnostic and never calls `invoke`
+  (no synthesized fallback validator), exactly like the units and rule-pack
+  seams. `partitionLibraryImportFindings` splits findings along the PRD §13.5
+  blocking-vs-advisory axis once, at the seam (`blocking`/`quarantine` block;
+  `review_required` advises).
+- No persistence, no file parsing, no UI surface here — validation is a pure
+  function over the payload. Imported private libraries are never transmitted or
+  committed (OPS-K-PRIV-1, PRD §13.5/§17.3).
+- Manual check (desktop): there is no rendered surface yet, so this is verified
+  by automated tests, not a live-browser journey. The import wizard + workspace
+  section is the next C3 slice; its Playwright/Vitest UI evidence rides that
+  tranche per the H4 posture (as `TP-C2-RPLIFE-001` did for the rule-pack
+  backend seam).
+- Validation: src-tauri `cargo test` 40/40 (3 new command tests:
+  accepted-private / blocked-missing-metadata+diagnostics / unsupported-token
+  rejection); `cargo fmt --check` clean; desktop Vitest 313/313 (15 files; 4 new
+  in `libraryImportService.test.ts`); `npm run build` (`tsc -b && vite build`)
+  clean.
+- Evidence: DEL-03-07 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C3-IMPORTCMD-001.md`.
+- Boundary review: validation statuses are software findings only; no lifecycle
+  state change (DEL-03-07 stays CHECKING); no release-readiness, professional,
+  certification, sealing, authentication, or code-compliance claim.

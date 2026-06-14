@@ -2102,6 +2102,14 @@ name = "open_pipe_stress_frame_kernel"
 version = "0.1.0"
 
 [[package]]
+name = "open_pipe_stress_library_import_document"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "open_pipe_stress_linear_supports"
 version = "0.1.0"
 dependencies = [
@@ -2216,6 +2224,7 @@ version = "0.1.0"
 name = "openpipestress-desktop"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_library_import_document",
  "open_pipe_stress_operation_applier",
  "open_pipe_stress_product_physics",
  "open_pipe_stress_report_renderer",

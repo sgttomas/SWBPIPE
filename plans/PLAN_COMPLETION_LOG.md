@@ -13,6 +13,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C3 seam slice landed: `validate_library_import` command + typed service (`TP-C3-IMPORTCMD-001`)
+
+Second Phase C item **C3** sub-slice: the **desktop seam** exposing the C3
+foundation crate (`open_pipe_stress_library_import_document`, the DEL-03-07
+port landed at `TP-C3-IMPORTVALIDATE-001`) through the app boundary. Selected
+as the earliest unblocked R3/Phase C dependency-spine item; the prior slice's
+run record named it verbatim as "C3-next (seam)". Mirrors the C2 backend-seam
+ordering (`TP-C2-RPLIFE-001`) and the B2 units seam.
+
+New Tauri command `validate_library_import(payload, libraryKind,
+intendedVisibility)` (`apps/desktop/src-tauri/src/lib.rs` + Cargo dep) wraps the
+crate's `validate_library_import_tokens`, rejecting unsupported
+`library_kind`/`intended_visibility` tokens rather than guessing, and projects
+the `ImportValidationResult` into a stable envelope (`outcome`, `accepted`,
+`has_blocking_findings`, ordered `findings`, the PKG-02 `import_boundary`
+`diagnostics` projection, and a software-findings-only
+`professional_boundary_notice`). New typed frontend seam
+`apps/desktop/src/services/libraryImportService.ts`: `validateLibraryImport`
+returns a discriminated route — browser preview returns an explicit
+`LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY` diagnostic and never calls `invoke` (no
+synthesized fallback) — plus `partitionLibraryImportFindings`, which splits
+findings along the PRD §13.5 blocking-vs-advisory axis once at the seam.
+
+No persistence, no file parsing, no UI surface in this slice — validation is a
+pure function over an already-parsed payload (those are the next C3 slices).
+Backend seam ⇒ per the H4 posture the owed evidence is the Rust command tests
+plus the Vitest service test; the import-wizard GUI's Playwright/Vitest evidence
+rides the next C3 slice (as `TP-C2-RPLIFE-001` did for the rule-pack seam).
+Validation: src-tauri `cargo test` 40/40 (3 new command tests), `cargo fmt
+--check` clean; desktop Vitest 313/313 (15 files, 4 new); `npm run build` clean;
+DEC-025 five-surface sweep at HEAD. Pre-existing src-tauri `clippy -D warnings`
+debt (10 errors on clean HEAD; never a gate — the sweep runs `cargo test`) left
+untouched and recorded in the run record. No lifecycle change; DEL-03-07 stays
+CHECKING; no professional/certification/code-compliance claim; no protected or
+private data.
+
+Evidence: DEL-03-07 run record
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C3-IMPORTCMD-001.md`;
+`apps/desktop/SMOKE.md` TP-MAC-153.
+
 ## 2026-06-13 - C3 foundation slice landed: library-import provenance crate (`TP-C3-IMPORTVALIDATE-001`)
 
 First bounded increment of completion-plan Phase C item **C3** (private library
