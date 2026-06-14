@@ -94,9 +94,22 @@ write-authorization: COORDINATION_LOOP_PREAPPROVED_TRANCHE
   advisory only).
 - `npx playwright test`: **10/10** (two viewports; rule-pack manager test
   carries the new authoring assertions).
-- Five-surface DEC-025 sweep: see the committed sweep summary.
+- Five-surface DEC-025 sweep: **PASS** at HEAD `97829f6d4603`
+  (`validation/evidence/sweeps/SWEEP_20260614T071458Z_97829f6d4603-dirty.json`;
+  all five surfaces pass — cargo crate sweep, pytest, desktop Vitest, Playwright
+  e2e, production build).
 - No Rust/Python/schema surfaces touched (frontend-only slice); the optional
   member and its resolution were proven end-to-end in `TP-C3C4-LIBREF-001`.
+- **Pre-existing flake observed (not this tranche's regression):** the first
+  sweep attempt failed once at `desktop_vitest` on
+  `apps/desktop/src/App.test.tsx:2129`
+  (`getByText("Magnitude (Pa, model metadata)")`, a full-`<App/>`-render
+  load-manager unit-metadata assertion). That file passes 52/52 in isolation and
+  the full desktop suite passed 345/345 on three of four runs; the flake is in a
+  different deliverable (DEL-07 load manager / App) and shares no module this
+  rule-pack slice touches. The clean re-sweep PASS above is the gate result; the
+  transient FAIL artifact was discarded. Flagged as an out-of-scope deflake
+  hand-off (App.test.tsx parallel-load flake) rather than absorbed here.
 
 ## Residuals and hand-offs
 
