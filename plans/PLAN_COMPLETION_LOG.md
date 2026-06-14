@@ -13,6 +13,61 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C3 foundation slice landed: library-import provenance crate (`TP-C3-IMPORTVALIDATE-001`)
+
+First bounded increment of completion-plan Phase C item **C3** (private library
+management GUI), selected as the earliest unblocked R3/Phase C dependency-spine
+item after C2 landed. C3 is large (~6 sub-slices); this slice builds the runtime
+validation foundation every downstream C3 surface needs.
+
+New standalone crate `core/library_import/library_import_document`
+(`open_pipe_stress_library_import_document`) is the **runtime Rust port** of the
+DEL-03-07 import-provenance contract authored in
+`core/library_import/provenance_checker.py`. The Python module is the design
+authority but cannot run in the Tauri/Rust desktop runtime, so absorbing
+DEL-03-07's mature CHECKING design into the application means porting it — exactly
+as `open_pipe_stress_rule_pack_document` underpins the C2 editor and the B1 units
+crate landed crate-first. Public API: `validate_library_import(payload, kind,
+visibility)` and the token-parsing seam helper `validate_library_import_tokens`
+(rejects unsupported tokens, never guesses); `LibraryKind`/`IntendedVisibility`
+enums; `ImportFinding`/`ImportValidationResult` with a PKG-02 import-boundary
+diagnostic-envelope projection. Ported one-for-one: the 7 required provenance
+fields; missing-metadata / missing-record-set / non-object-record blocks;
+missing/incomplete provenance; protected-suspected quarantine; rejected-source
+block; the public-disposition ladder (private-data-public block → missing
+redistribution rights → unaccepted redistribution → review required); nested
+unit-bearing-value unit-metadata and value-provenance checks; and the
+severity-precedence outcome (`QUARANTINE > REJECTED > REVIEW_REQUIRED >
+PRIVATE_LOCAL_ONLY / ACCEPTED_PUBLIC`). Python truthiness and the
+`item.get(x) or provenance.get(x)` status resolution are reproduced explicitly.
+
+Cross-language parity is the headline guarantee: `tests/provenance_parity.rs`
+mirrors all seven `tests/test_library_import_provenance.py` cases over the **same**
+invented fixtures, so the runtime port and the authored contract must move
+together. Plus 11 lib unit tests cover branches the shared fixtures don't reach
+(rejected source, privacy-class public block, item-over-provenance precedence,
+token rejection, incomplete-field sorting, nested-value flags, diagnostic shape).
+
+No `apps/desktop` change in this slice — no Tauri command, service, persistence,
+or UI yet (the next C3 slices). No other crate depends on it, so no other Rust/
+Python/TS surface is affected. Validation: `cargo test` 18/18; `cargo clippy -D
+warnings` clean; Python oracle `pytest tests/test_library_import_provenance.py`
+still 7/7. The new manifest is auto-discovered by the DEC-025 sweep's
+`cargo_crate_sweep` surface. No lifecycle change; DEL-03-07 stays CHECKING; no
+professional/certification/code-compliance claim; no protected or private data.
+
+Regression-gate note (loop step 3.2): the desktop Vitest baseline looked broken
+on a direct `npm test` (34 fails) but was traced fully to a missing
+`build:wasm:desktop` prebuild (DEC-020 wasm engine) plus `App.test.tsx`
+concurrent-load timeouts; with the wasm engine built and the suite run unloaded
+it is green (51/52, the lone holdout a save/open round-trip with a hardcoded
+10 000 ms budget that passes in isolation), matching every recent sweep's
+`desktop_vitest => pass` at the C2 HEAD. No regression.
+
+Evidence: DEL-03-07 run record
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C3-IMPORTVALIDATE-001.md`;
+crate README `core/library_import/library_import_document/README.md`.
+
 ## 2026-06-13 - C2 editor GUI slice 5 landed: check-definitions form builder; C2 form-builder series complete (`TP-C2-CHECKDEF-001`)
 
 Adds the last rule-pack document-structure form builder: a structured editor for

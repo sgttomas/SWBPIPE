@@ -112,3 +112,31 @@ Durable context preserved after PKG-02 grounded finding resolution:
   accepted public source catalogs, fixture-value engineering reliance authority,
   lifecycle closure, professional approval, certification, sealing,
   authentication, and code-compliance claims remain unchanged and unclaimed.
+
+## 2026-06-13 - C3 foundation: runtime Rust port of the provenance contract (TP-C3-IMPORTVALIDATE-001)
+
+- App-integration tranche (completion-plan Phase C item C3 foundation slice,
+  selected under the `_COORDINATION.md` Application Integration And Issuance
+  Loop): added a runtime Rust crate
+  `core/library_import/library_import_document`
+  (`open_pipe_stress_library_import_document`) that ports this deliverable's
+  Python provenance contract (`core/library_import/provenance_checker.py`) so
+  the Tauri/Rust desktop runtime can enforce the same import boundary. The
+  Python module remains the authored design authority; the crate is the runtime
+  implementation, mirroring how `open_pipe_stress_rule_pack_document` underpins
+  the C2 rule-pack editor.
+- Cross-language parity is pinned by `tests/provenance_parity.rs`, which mirrors
+  all seven `tests/test_library_import_provenance.py` cases over the **same**
+  invented fixtures (`fixtures/material/…`, `fixtures/component/…`); plus 11 lib
+  unit tests covering branches the shared fixtures do not exercise.
+- Validation: `cargo test` 18/18, `cargo clippy -D warnings` clean, Python
+  oracle still 7/7. Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C3-IMPORTVALIDATE-001.md`.
+- No lifecycle change: DEL-03-07 stays CHECKING. The crate makes no legal/
+  license, professional, certification, or code-compliance claim; it parses no
+  external file formats and contains no protected or private data — it validates
+  already-parsed payloads exactly as the Python contract does.
+- Hand-offs (next C3 slices): Tauri `validate_library_import` command + typed
+  frontend service; local-only private-library persistence (CRUD); the import-
+  wizard GUI with §13.5 warning display; rule-pack ↔ library reference wiring;
+  then C4 end-to-end checks.
