@@ -50,6 +50,7 @@ import { ResultsPanel } from "./features/results/ResultsPanel";
 import { resolveDiagnosticEntitySelection, resolveEntitySelection } from "./features/results/resultInterpretation";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
 import { RuleCheckPanel } from "./features/rule-check/RuleCheckPanel";
+import { RuleCheckRunPanel } from "./features/rule-check/RuleCheckRunPanel";
 import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
@@ -969,6 +970,7 @@ export function App() {
               />
               <MissingDataBlockingPanel model={model} result={result} />
               <RuleCheckPanel model={model} result={result} />
+              <RuleCheckRunPanel model={model} result={result} />
               <KnowledgePanel knowledge={knowledge} result={result} />
             </section>
 

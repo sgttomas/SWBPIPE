@@ -628,6 +628,51 @@ test("library manager loads an invented private sample and reports the desktop-o
   await expect(page.getByTestId("library-action-status")).toContainText("discarded");
 });
 
+test("run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam", async ({
+  page
+}) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+
+  // The run-checks panel lives in the Solve section (it consumes solved
+  // results). Phase C4 GUI (TP-C4-CHECKGUI-001): make the R3 exit criterion
+  // GUI-true — load a pack, bind inputs, run, see pass/fail/blocked.
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("rule-check-run-panel")).toBeVisible();
+  await expect(page.getByTestId("rule-check-boundary-note")).toContainText("code-compliance");
+
+  // Load the bundled invented demo pack through a visible control; the binding
+  // plan is derived from the loaded document.
+  await page.getByTestId("rule-check-load-demo").click();
+  await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  const packText = await page.getByTestId("rule-check-pack-json").inputValue();
+  expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
+
+  // solver_result input -> result-row select; user value input + value slot ->
+  // entry fields.
+  await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeVisible();
+  await expect(page.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeVisible();
+  await expect(page.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeVisible();
+
+  // Running routes to the desktop-only seam in browser preview: the runner
+  // (completeness gate + frozen-grammar evaluation + acceptability comparison)
+  // runs in the Tauri runtime only. Pass/fail/blocked outcomes are covered by
+  // the src-tauri Rust command tests and the Vitest desktop-mode mocked panel
+  // suite, not by this browser lane.
+  await page.getByTestId("rule-check-run").click();
+  await expect(page.getByTestId("rule-check-run-status")).toContainText(
+    "RULE-CHECK-BACKEND-DESKTOP-ONLY"
+  );
+  await expect(page.getByTestId("rule-check-run-result")).toHaveCount(0);
+
+  // Refresh reports on a distinct surface (list-status), independent of the
+  // run result above.
+  await page.getByTestId("rule-check-refresh-list").click();
+  await expect(page.getByTestId("rule-check-run-list-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+});
+
 function stepPayload(changeKind: string, ref: string): any {
   const step = rehearsal.steps.find(
     (candidate) =>

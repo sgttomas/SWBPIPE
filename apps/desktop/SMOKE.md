@@ -5024,3 +5024,48 @@ notes:
 - Boundary review: validation statuses are software findings only; no lifecycle
   state change (DEL-03-07 stays CHECKING); no release-readiness, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-156 run rule checks from the GUI: per-check pass/fail/blocked + aggregate (`TP-C4-CHECKGUI-001`, 2026-06-14)
+
+- Phase C4 **GUI slice** — makes the R3 exit criterion (PRD §22.4) GUI-true. The
+  C4 backend (`run_rule_checks` command + `core/rules/rule_check_runner`) landed
+  with `TP-C4-CHECKRUN-001` but had no GUI surface; this slice adds the
+  service route + panel. No backend change — it surfaces the existing command
+  verbatim.
+- New `ruleCheckService.ts` (typed `runRuleChecks` route + result types mirroring
+  the runner crate + pure `deriveRuleCheckBindingPlan` + bundled-demo loader) and
+  `RuleCheckRunPanel` (`apps/desktop/src/features/rule-check/`), mounted in the
+  **Solve** workspace section beside the completeness `RuleCheckPanel`.
+- Pack source: the bundled **invented demo pack**
+  (`fixtures/product_preview/invented_demo_rule_pack.json`, byte-parallel to the
+  backend example `examples/rule_packs/invented_demo.yaml`), a **saved local-store
+  pack** (reuses `listLocalRulePacks`/`openLocalRulePack` — the author→save→run
+  journey), or **pasted JSON**.
+- Binding controls are **derived from the loaded pack**: a solved-result-row
+  `<select>` per `solver_result` input; value+unit entry per user-supplied input
+  and per value slot (dimension from the pack); a deferred note per
+  `private_library_value` input (C3 residual — treated as unsupplied, blocks).
+  Unbound/missing inputs block the check at `RULE_INPUTS_INCOMPLETE` — pass/fail
+  is never reported on missing inputs.
+- Results: the aggregate status (pass/fail/blocked label + `data-status`) and
+  per-check outcomes (status, computed/limit quantity, acceptability relation,
+  supplied/MISSING bound inputs, completeness + evaluator findings, diagnostic
+  codes) plus the professional-boundary notice.
+- Manual check (desktop/browser): live-browser confirmed via the preview tools —
+  the Solve nav shows the "Run Rule Checks" panel; "Load demo rule pack" derives
+  the three binding controls (`demo_actual_quantity` select, `demo_limit_quantity`
+  value, `demo_limit_slot` limit). The runner runs in the Tauri runtime only; in
+  browser preview running reports the honest `RULE-CHECK-BACKEND-DESKTOP-ONLY`
+  seam (the documented reason the browser e2e does not assert pass/fail — those
+  outcomes are covered by the src-tauri Rust command tests and the Vitest
+  desktop-mode mocked panel suite).
+- Validation: desktop Vitest **339/339** (18 files; +13 — 7 in
+  `ruleCheckService.test.ts`, 6 in `RuleCheckRunPanel.test.tsx`); `npm run build`
+  (`tsc -b && vite build`) clean; `npx playwright test` **10 passed** (5 specs ×
+  chromium-desktop + chromium-compact, incl. the new run-checks spec). No backend
+  change, so no `cargo`/`pytest` surface is owed.
+- Evidence: DEL-06-02 (primary) + DEL-07-04 run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C4-CHECKGUI-001.md`.
+- Boundary review: emits only the three automatic rule-check statuses; no
+  lifecycle state change (deliverables stay CHECKING); no release-readiness,
+  professional, certification, sealing, authentication, or code-compliance claim.

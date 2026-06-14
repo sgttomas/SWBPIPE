@@ -13,6 +13,58 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C4 GUI slice landed: run rule checks from the GUI (`TP-C4-CHECKGUI-001`)
+
+The Phase C4 GUI residual that makes the R3 exit criterion (PRD §22.4)
+GUI-true. The C4 backend (`TP-C4-CHECKRUN-001`) made rule checks runnable but
+had no GUI surface — no frontend route for `run_rule_checks` and no panel that
+runs checks (the pre-existing `RuleCheckPanel.tsx` is a *completeness review*).
+This slice adds the app-side surface only; no backend, schema, or example-pack
+change.
+
+New `apps/desktop/src/services/ruleCheckService.ts`: typed `runRuleChecks(...)`
+route over the existing `run_rule_checks` Tauri command, with the honest
+desktop-only unavailable seam in browser preview (no synthesized fallback,
+mirroring the rule-pack/library services); result types mirroring the runner
+crate; a pure, unit-tested `deriveRuleCheckBindingPlan(document)` that
+partitions a pack's `required_inputs` by `source_kind` and collects
+`value_slots`; and `loadDemoRuleCheckPack()`.
+
+New `RuleCheckRunPanel` (`apps/desktop/src/features/rule-check/`), mounted in
+the Solve workspace section beside the completeness panel. Pack source is the
+bundled invented demo pack
+(`fixtures/product_preview/invented_demo_rule_pack.json`, byte-parallel to the
+backend example `examples/rule_packs/invented_demo.yaml`), a saved local-store
+pack (reuses `listLocalRulePacks`/`openLocalRulePack` — the author→save→run
+journey), or pasted JSON. Binding controls are derived from the loaded pack: a
+solved-result-row select per `solver_result` input, value+unit entry per
+user-supplied input and value slot (dimension from the pack), and a deferred
+note per `private_library_value` input (C3 residual — treated as unsupplied,
+blocks). The panel renders the worst-of aggregate status (pass/fail/blocked
+label + `data-status`), per-check outcomes (status, computed/limit quantity,
+acceptability relation, supplied/MISSING bound inputs, completeness + evaluator
+findings, diagnostic codes), and the professional-boundary notice. Unbound or
+missing inputs block the check at `RULE_INPUTS_INCOMPLETE` — pass/fail is never
+reported on missing inputs.
+
+Evidence: desktop Vitest **339/339** (+13: 7 service + 6 panel); `npm run
+build` clean; `npx playwright test` **10 passed** (5 specs × two viewports,
+incl. the new run-checks spec); live-browser preview confirmed the panel + demo
+binding controls. The runner is Tauri-only; pass/fail/blocked outcomes are
+covered by the src-tauri Rust command tests and the Vitest desktop-mode mocked
+panel suite, and the browser e2e asserts the honest desktop-only run seam.
+Status-vocabulary-only; no lifecycle/release/professional/code-compliance claim.
+Run record: DEL-06-02 (primary) + DEL-07-04
+`WORKING_ITEMS_RUN_2026-06-14_TP-C4-CHECKGUI-001.md`; SMOKE TP-MAC-156. D-02b
+(`AWAITING_RULING`) does not block — checks run on the authored declarative AST.
+
+Residual: C4's non-GUI hand-offs remain open (private-library input resolution
+with the C3 slice; driving `aggregate_status` into the solve envelope /
+`result_export`; additive `acceptability_relation` / solver-result-selector
+schema members). With the GUI landed, C4's R3-exit-blocking GUI scope is
+complete; the named R3-exit blocking residuals (F-4 packaged human journey, A3
+authoring-usability) are unchanged.
+
 ## 2026-06-13 — C4 backend slice landed: rule-check orchestration + Tauri command (`TP-C4-CHECKRUN-001`)
 
 First Phase C item **C4** slice and the one that makes rule checks *runnable*:
