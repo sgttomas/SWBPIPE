@@ -1,11 +1,11 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "rule_pack_kind": "open_pipe_stress_rule_pack",
   "grammar_version": "1.0.0",
   "metadata": {
     "rule_pack_id": "invented_demo_rule_pack",
     "name": "Invented Demonstration Rule Pack",
-    "schema_version": "0.2.0",
+    "schema_version": "0.3.0",
     "rule_pack_version": "0.2.0",
     "lifecycle_status": "accepted_public_example",
     "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance.",
@@ -259,7 +259,7 @@
         "checksums"
       ],
       "verification_status": "verified",
-      "value": "9910cecaff4ed7187e308fd9feee984a660b034890abea2baa2b6f665ee70f8b"
+      "value": "60c7ba2be4e10395da78b6d03a5cb5ac02d728fb5753ca395c8757c2c96751d2"
     },
     "payload_checksums": [],
     "checksum_lifecycle_status": "verified",

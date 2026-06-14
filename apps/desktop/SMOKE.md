@@ -5195,3 +5195,38 @@ notes:
   CHECKING; no release-readiness, professional, certification, sealing,
   authentication, or code-compliance claim. The `library_value_ref` schema
   member it reads remains a PROPOSAL pending human ratification.
+
+## TP-MAC-160 ratify `library_value_ref` + bump rule-pack schema_version to 0.3.0 (`TP-C3-LIBREFRATIFY-001`, DEC-038, 2026-06-14)
+
+- Records the human ratification (`DEC-038`) of the additive `library_value_ref`
+  rule-pack schema member (added as PROPOSAL by TP-MAC-157) and the coupled
+  version bump: the rule-pack `schema_version` moves **0.2.0 → 0.3.0** (DEC-033
+  additive-minor policy adopted for rule packs, because `RequiredInput` is
+  `additionalProperties:false` so old strict validators reject packs using the
+  new member — a minor-bump signal).
+- **Packs:** the bundled demo pack
+  (`fixtures/product_preview/invented_demo_rule_pack.json` and the byte-identical
+  `examples/rule_packs/invented_demo.yaml`) now declares `schema_version` 0.3.0
+  (top-level + metadata echo); `rule_pack_checksum` re-stamped
+  `9910cec… → 60c7ba2…`. `rule_pack_version` (author content version) and
+  `grammar_version` (1.0.0) unchanged.
+- **Editor:** a new private draft from "New draft rule pack" now declares
+  `schema_version` 0.3.0 (`rulePackService.buildDraftRulePackDocument`).
+- Manual check posture: version-string + checksum change only — no behaviour
+  change, no new UI surface. Covered by the Vitest draft-template assertion
+  (0.3.0) and the Playwright e2e lanes, which load the re-stamped demo fixture;
+  the Rust `example_pack_stamped_checksum_matches_recomputation` test re-passes
+  against the new stamp.
+- The unrelated **model-document** schema version (also 0.2.0, DEC-033) was not
+  touched.
+- Validation: Rust checksum-recomputation test re-passes; five-surface DEC-025
+  sweep PASS (cargo crate sweep, pytest rule-pack-schema, desktop Vitest+wasm,
+  Playwright e2e ×2, production build) — see the committed sweep summary.
+- Evidence: run record `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFRATIFY-001.md`
+  (DEL-06-02 primary; DEL-06-01 schema); decision `DEC-038` in
+  `SOFTWARE_DECOMP.md` §12.
+- Boundary review: local-only; status-vocabulary-only; reference-only member
+  ratified (private values never embedded); deliverables stay CHECKING; no
+  release-readiness, professional, certification, sealing, authentication, or
+  code-compliance claim. `DEC-038` is a schema-member ratification + version
+  disposition, not a lifecycle/release act.

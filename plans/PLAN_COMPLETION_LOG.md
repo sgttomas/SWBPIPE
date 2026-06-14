@@ -13,6 +13,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — DEC-038: ratify `library_value_ref` + bump rule-pack schema_version to 0.3.0 (`TP-C3-LIBREFRATIFY-001`)
+
+The human project authority ratified the additive `library_value_ref` rule-pack
+schema member (added as PROPOSAL by `TP-C3C4-LIBREF-001`, companion to DEC-031)
+as a permanent part of `schemas/rule_pack.schema.yaml`, and ruled that the
+DEC-033 additive-minor versioning policy applies to the rule-pack `schema_version`
+too. Because `RequiredInput` is `additionalProperties:false`, a strict validator
+predating the member rejects a pack that uses it (forward-incompatible while new
+code still reads old packs) — the textbook minor-bump signal — so the rule-pack
+schema version moves **0.2.0 → 0.3.0**. Ruling recorded as `DEC-038`; this
+tranche is the bounded implementation the ruling authorized.
+
+Implementation: bumped the declared `schema_version` (top-level + the `metadata`
+echo) 0.2.0 → 0.3.0 in the canonical demo/example packs
+(`examples/rule_packs/invented_demo.yaml` and the byte-identical
+`fixtures/product_preview/invented_demo_rule_pack.json`) and re-stamped their
+`rule_pack_checksum` (`9910cec… → 60c7ba2…`, recomputed via
+`compute_rule_pack_checksum`, RFC 8785 canonical bytes minus the `checksums`
+member); bumped the new-draft editor template (`rulePackService.ts`
+`buildDraftRulePackDocument`) so new private drafts declare 0.3.0; updated the
+one Vitest assertion. The author content version (`metadata.rule_pack_version`)
+is unchanged (the demo rules did not change), and `grammar_version` stays 1.0.0
+(frozen, DEC-022). The unrelated **model-document** schema version (also 0.2.0,
+DEC-033, `projectService.ts`) was deliberately not touched. The invented model
+example `examples/models/invented/fake_rule_pack_toy_model.json`, which
+hash-references the rule-pack file bytes, had its rule-pack-ref digest and JCS
+project hash re-stamped accordingly (caught by the sweep's pytest surface, not
+the targeted schema test).
+
+Evidence: the Rust `example_pack_stamped_checksum_matches_recomputation` test
+re-passes against the new stamp; five-surface DEC-025 sweep PASS (the bumped
+packs still schema-conform — pytest; the wasm/Vitest/Playwright surfaces consume
+the re-stamped fixture; production build). Status-vocabulary-only; no
+lifecycle/release/professional/code-compliance claim. Run record:
+`WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFRATIFY-001.md` (DEL-06-02 primary;
+DEL-06-01 schema); SMOKE TP-MAC-160. Decision record: `DEC-038` in
+`SOFTWARE_DECOMP.md` §12.
+
+---
+
 ## 2026-06-14 — C3 slice landed: resolve section/component library references at run time (`TP-C3-LIBREFSECCOMP-001`)
 
 The C3 residual "section/component slot resolution" — the first-listed residual
