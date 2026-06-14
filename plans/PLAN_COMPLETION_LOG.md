@@ -13,6 +13,63 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C3 residual closed: richer library/record/slot resolution-preview picker in the run panel (`TP-C3-LIBREFPICKER-001`)
+
+The last consistently-named Phase C **C3** residual — "a richer C4 run-panel
+library/record/slot picker (the panel surfaces the reference read-only)", carried
+by all three prior library-reference slices (`TP-C3C4-LIBREF-001`,
+`TP-C3-LIBREFAUTHOR-001`, `TP-C3-LIBREFSECCOMP-001`). Before this, the Run Rule
+Checks panel showed each `private_library_value` input's authored
+`library_value_ref` as a line of read-only text; a user could not tell from the
+panel whether the reference would resolve in their local store, nor discover the
+valid record/slot ids, until after a run (`bound_inputs` supplied/MISSING).
+
+Frontend only (no schema/runner/Rust change). New pure helpers in
+`libraryImportService.ts`: `indexLibraryRecordsSlots(document, kind)` and
+`classifyLibraryReference(records, recordId, slotId)`, whose per-kind dispatch
+mirrors the desktop resolver (`src-tauri` `extract_library_slot_value` /
+`find_library_slot_value`) read verbatim — material
+`material_records[material_id].allowables[allowable_id]`; section
+`section_records[section_id].dimensions[dimension_id]|properties[property_id]`;
+component `component_records[component_id].fields[field_id]`. In
+`RuleCheckRunPanel.tsx`, each referenced library input gains a "Preview
+resolution" button that calls the existing desktop store commands
+(`list_local_libraries` → find the library + gather available-of-kind;
+`open_local_library` → index) and renders a resolution badge (resolves /
+library_missing / record_missing / slot_missing / unavailable / unsupported_kind
+/ error) plus a read-only browse of available libraries → records → slot ids with
+the authored record/slot marked "(referenced)".
+
+Design posture: **read-only to the pack** — the picker never mutates the pack,
+never overrides the authored reference at run time (the backend run still
+resolves from the pack reference + projectId), and never renders the private
+value (only structural ids + status; the value is read only at run time, never
+embedded — IP boundary). Run-time *override*/selection in the run panel was
+deliberately **not** built: it would duplicate the `DeclarationsEditor` authoring
+surface and change the "reference authored in the pack" model, which is a human
+design ruling — recorded as a non-goal, not an open residual. Desktop-only: the
+local SQLite library store is reachable only via the Tauri path; browser preview
+reports the honest store-unavailable seam.
+
+Evidence: desktop Vitest **357** (+12: 7 pure-helper unit tests across all three
+kinds incl. section's two slot arrays + de-dup/skip-malformed + classify
+resolves/record_missing/slot_missing; 5 panel tests — button presence, resolving
++ browse, library_missing-with-available-list short-circuit, record_missing vs
+slot_missing, browser-preview seam); `tsc -b` clean; `npm run build` clean;
+`npx playwright test` 10/10 (two viewports — the `r2-smoke.spec.ts` rule-check
+test now pastes a `private_library_value` pack and asserts the "Preview
+resolution" control + its desktop-only store seam). H4 posture: the
+browser-reachable slice is automated in Playwright (the H4 default); the
+desktop-store resolution/browse is desktop-only and exercised by the Vitest
+desktop-mode mocked-`invoke` suite (the documented exception, same posture as
+`TP-C3C4-LIBREF-001`/`TP-C3-LIBREFSECCOMP-001`). Five-surface DEC-025 sweep PASS.
+Status-vocabulary-only; no lifecycle/release/professional/code-compliance claim.
+Run record: `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFPICKER-001.md` (DEL-06-02
+primary; DEL-03-07 library coupling); SMOKE TP-MAC-161. **C3's named residuals
+are now closed.**
+
+---
+
 ## 2026-06-14 — DEC-038: ratify `library_value_ref` + bump rule-pack schema_version to 0.3.0 (`TP-C3-LIBREFRATIFY-001`)
 
 The human project authority ratified the additive `library_value_ref` rule-pack

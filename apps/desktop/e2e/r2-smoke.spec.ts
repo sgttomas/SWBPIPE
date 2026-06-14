@@ -699,6 +699,36 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-run-list-status")).toContainText(
     "RULE-PACK-BACKEND-DESKTOP-ONLY"
   );
+
+  // TP-C3-LIBREFPICKER-001: a private_library_value input gets a
+  // read-only-to-the-pack resolution-preview picker. The browser-reachable part
+  // — the "Preview resolution" control and its honest desktop-only store seam —
+  // is asserted here; the actual resolution/browse against the local private
+  // library store is desktop-only (covered by the Vitest desktop-mode mocked
+  // suite), so in the browser the preview reports the unavailable seam.
+  const libraryPack = JSON.stringify({
+    metadata: { rule_pack_id: "lib_ref_demo" },
+    required_inputs: [
+      {
+        input_id: "lib_allow",
+        name: "Library allowable",
+        source_kind: "private_library_value",
+        quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+        library_value_ref: {
+          library_kind: "material",
+          library_id: "lib:steel",
+          record_id: "mat:a",
+          slot_id: "allow:Sh"
+        }
+      }
+    ]
+  });
+  await page.getByTestId("rule-check-pack-json").fill(libraryPack);
+  await expect(page.getByTestId("rule-check-library-input-lib_allow")).toBeVisible();
+  await page.getByTestId("rule-check-library-preview-lib_allow").click();
+  await expect(page.getByTestId("rule-check-library-resolution-lib_allow")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
 });
 
 function stepPayload(changeKind: string, ref: string): any {

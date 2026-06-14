@@ -168,3 +168,132 @@ describe("RuleCheckRunPanel", () => {
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
   });
 });
+
+// Phase C3 resolution-preview/browse picker (TP-C3-LIBREFPICKER-001). The panel
+// previously surfaced the authored library_value_ref read-only; these tests pin
+// the richer, read-only-to-the-pack picker: a "Preview resolution" action that
+// queries the local store (desktop-only) and surfaces whether the reference
+// resolves, plus a browse of the available records/slots. It never mutates the
+// pack and never overrides the authored reference at run time.
+describe("RuleCheckRunPanel library reference preview", () => {
+  const libraryPack = {
+    metadata: { rule_pack_id: "p" },
+    required_inputs: [
+      {
+        input_id: "lib_allow",
+        name: "Library allowable",
+        source_kind: "private_library_value",
+        quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+        library_value_ref: {
+          library_kind: "material",
+          library_id: "lib:steel",
+          record_id: "mat:a",
+          slot_id: "allow:Sh"
+        }
+      }
+    ]
+  };
+
+  const steelEntry = {
+    project_id: "project:c4-run-test",
+    library_kind: "material",
+    library_id: "lib:steel",
+    library_name: "Invented steel allowables",
+    privacy_class: "private_user_data",
+    storage_mode: "local_sqlite",
+    created_at_unix: 1,
+    updated_at_unix: 1
+  };
+
+  function renderWithLibraryPack() {
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(libraryPack) }
+    });
+  }
+
+  it("offers a Preview resolution button for a library input that carries a reference", () => {
+    renderWithLibraryPack();
+    expect(screen.getByTestId("rule-check-library-preview-lib_allow")).toBeInTheDocument();
+  });
+
+  it("previews a resolving reference and browses the local records/slots", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValueOnce([steelEntry]); // list_local_libraries
+    invokeMock.mockResolvedValueOnce({
+      document: {
+        material_records: [
+          { material_id: "mat:a", allowables: [{ allowable_id: "allow:Sh" }, { allowable_id: "allow:Sc" }] }
+        ]
+      }
+    }); // open_local_library
+
+    renderWithLibraryPack();
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+
+    const resolution = await screen.findByTestId("rule-check-library-resolution-lib_allow");
+    expect(resolution).toHaveAttribute("data-status", "resolves");
+    expect(resolution.textContent).toContain("never embedded");
+    const browse = screen.getByTestId("rule-check-library-browse-lib_allow");
+    expect(browse.textContent).toContain("lib:steel");
+    expect(browse.textContent).toContain("mat:a (referenced)");
+    expect(browse.textContent).toContain("allow:Sh (referenced)");
+    expect(browse.textContent).toContain("allow:Sc");
+    expect(invokeMock).toHaveBeenNthCalledWith(1, "list_local_libraries", { projectId: "project:c4-run-test" });
+    expect(invokeMock).toHaveBeenNthCalledWith(2, "open_local_library", {
+      projectId: "project:c4-run-test",
+      libraryKind: "material",
+      libraryId: "lib:steel"
+    });
+  });
+
+  it("reports library_missing and lists what is available when the reference points nowhere", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValueOnce([{ ...steelEntry, library_id: "lib:other", library_name: "Other alloys" }]);
+
+    renderWithLibraryPack();
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+
+    const resolution = await screen.findByTestId("rule-check-library-resolution-lib_allow");
+    expect(resolution).toHaveAttribute("data-status", "library_missing");
+    expect(screen.getByTestId("rule-check-library-browse-lib_allow").textContent).toContain("lib:other");
+    // library_missing short-circuits before open_local_library.
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("distinguishes record_missing from slot_missing against the stored library", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    // record_missing: the stored library has no mat:a record.
+    invokeMock.mockResolvedValueOnce([steelEntry]);
+    invokeMock.mockResolvedValueOnce({
+      document: { material_records: [{ material_id: "mat:z", allowables: [{ allowable_id: "allow:Sh" }] }] }
+    });
+    renderWithLibraryPack();
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+    let resolution = await screen.findByTestId("rule-check-library-resolution-lib_allow");
+    expect(resolution).toHaveAttribute("data-status", "record_missing");
+
+    // slot_missing: mat:a exists but lacks the allow:Sh slot.
+    invokeMock.mockResolvedValueOnce([steelEntry]);
+    invokeMock.mockResolvedValueOnce({
+      document: { material_records: [{ material_id: "mat:a", allowables: [{ allowable_id: "allow:Sc" }] }] }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-library-resolution-lib_allow")).toHaveAttribute(
+        "data-status",
+        "slot_missing"
+      )
+    );
+    resolution = screen.getByTestId("rule-check-library-resolution-lib_allow");
+    expect(resolution.textContent).toContain("blocks at RULE_INPUTS_INCOMPLETE");
+  });
+
+  it("reports the desktop-only backend seam for library preview in browser preview", async () => {
+    renderWithLibraryPack();
+    fireEvent.click(screen.getByTestId("rule-check-library-preview-lib_allow"));
+    const resolution = await screen.findByTestId("rule-check-library-resolution-lib_allow");
+    expect(resolution).toHaveAttribute("data-status", "unavailable");
+    expect(resolution.textContent).toContain("LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY");
+  });
+});

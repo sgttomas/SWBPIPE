@@ -6,7 +6,9 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import {
   LIBRARY_IMPORT_BACKEND_DIAGNOSTIC,
+  classifyLibraryReference,
   deleteLocalLibrary,
+  indexLibraryRecordsSlots,
   listLocalLibraries,
   openLocalLibrary,
   partitionLibraryImportFindings,
@@ -232,5 +234,84 @@ describe("libraryImportService", () => {
       libraryId: "matlib.invented.alpha"
     });
     expect(deleteRoute.route === "tauri_backend" && deleteRoute.receipt.deleted).toBe(true);
+  });
+});
+
+// Phase C3 resolution-preview helpers (TP-C3-LIBREFPICKER-001). Pure traversal
+// mirroring the desktop resolver's per-kind dispatch
+// (src-tauri extract_library_slot_value / find_library_slot_value).
+describe("indexLibraryRecordsSlots", () => {
+  it("indexes material records by material_id and allowable slots by allowable_id", () => {
+    const document = {
+      material_records: [
+        {
+          material_id: "mat:a",
+          allowables: [{ allowable_id: "allow:Sh", value: {} }, { allowable_id: "allow:Sc" }]
+        },
+        { material_id: "mat:b", allowables: [] }
+      ]
+    };
+    expect(indexLibraryRecordsSlots(document, "material")).toEqual([
+      { record_id: "mat:a", slot_ids: ["allow:Sh", "allow:Sc"] },
+      { record_id: "mat:b", slot_ids: [] }
+    ]);
+  });
+
+  it("gathers section slot ids across dimensions and properties in scan order", () => {
+    const document = {
+      section_records: [
+        {
+          section_id: "sec:a",
+          dimensions: [{ dimension_id: "dim:od" }],
+          properties: [{ property_id: "prop:area" }, { property_id: "prop:i" }]
+        }
+      ]
+    };
+    expect(indexLibraryRecordsSlots(document, "section")).toEqual([
+      { record_id: "sec:a", slot_ids: ["dim:od", "prop:area", "prop:i"] }
+    ]);
+  });
+
+  it("indexes component records by component_id and field slots by field_id", () => {
+    const document = {
+      component_records: [{ component_id: "comp:a", fields: [{ field_id: "field:k" }] }]
+    };
+    expect(indexLibraryRecordsSlots(document, "component")).toEqual([
+      { record_id: "comp:a", slot_ids: ["field:k"] }
+    ]);
+  });
+
+  it("skips records and slots without a string id, de-duplicates slot ids, and tolerates non-array/empty shapes", () => {
+    const document = {
+      material_records: [
+        { allowables: [{ allowable_id: "allow:Sh" }] }, // no material_id -> skipped
+        {
+          material_id: "mat:a",
+          allowables: [{ allowable_id: "allow:Sh" }, { allowable_id: "allow:Sh" }, { value: {} }]
+        }
+      ]
+    };
+    expect(indexLibraryRecordsSlots(document, "material")).toEqual([
+      { record_id: "mat:a", slot_ids: ["allow:Sh"] }
+    ]);
+    expect(indexLibraryRecordsSlots(null, "material")).toEqual([]);
+    expect(indexLibraryRecordsSlots({ material_records: "nope" }, "material")).toEqual([]);
+    expect(indexLibraryRecordsSlots({}, "section")).toEqual([]);
+  });
+});
+
+describe("classifyLibraryReference", () => {
+  const records = [{ record_id: "mat:a", slot_ids: ["allow:Sh", "allow:Sc"] }];
+
+  it("resolves when both the record and the slot are present", () => {
+    expect(classifyLibraryReference(records, "mat:a", "allow:Sh")).toBe("resolves");
+  });
+
+  it("reports record_missing when no record matches", () => {
+    expect(classifyLibraryReference(records, "mat:z", "allow:Sh")).toBe("record_missing");
+  });
+
+  it("reports slot_missing when the record exists but the slot does not", () => {
+    expect(classifyLibraryReference(records, "mat:a", "allow:zz")).toBe("slot_missing");
   });
 });

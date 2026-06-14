@@ -11,11 +11,22 @@ import {
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
   runRuleChecks,
+  type LibraryInputRequirement,
+  type LibraryValueRef,
   type RuleCheckBindingPlan,
   type RuleCheckRunResult,
   type SolverResultSelector,
   type SuppliedValueBinding
 } from "../../services/ruleCheckService";
+import {
+  classifyLibraryReference,
+  indexLibraryRecordsSlots,
+  listLocalLibraries,
+  openLocalLibrary,
+  type LibraryKind,
+  type LibraryRecordIndex,
+  type LibraryReferenceResolution
+} from "../../services/libraryImportService";
 
 // Run Rule Checks (PRD §22.4 / §14.5; completion plan C4 GUI slice
 // TP-C4-CHECKGUI-001). The C4 backend (run_rule_checks command +
@@ -51,6 +62,98 @@ function parsePack(text: string): ParsedPack | null {
   }
 }
 
+// --- Library reference resolution preview (Phase C3, TP-C3-LIBREFPICKER-001) --
+// A private_library_value input's library_value_ref is authored in the pack
+// (DeclarationsEditor) and resolved backend-side at run time. This preview is
+// read-only with respect to the pack: it queries the local store to show whether
+// the authored reference resolves and lets the user browse the available
+// records/slots to discover valid ids. It never mutates the pack, never
+// overrides the authored reference at run time (the backend run still resolves
+// from the pack reference + projectId), and never renders the private value.
+const LIBRARY_KINDS: LibraryKind[] = ["material", "section", "component"];
+
+function asLibraryKind(value: string): LibraryKind | null {
+  return (LIBRARY_KINDS as string[]).includes(value) ? (value as LibraryKind) : null;
+}
+
+const LIBRARY_RESOLUTION_LABEL: Record<LibraryReferenceResolution, string> = {
+  resolves: "resolves in your local store",
+  record_missing: "record not found in your local store",
+  slot_missing: "record found, but that slot is not in your local store",
+  library_missing: "library not found in your local store"
+};
+
+type AvailableLibrary = { library_id: string; library_name: string };
+
+type LibraryPreviewState =
+  | { kind: "ok"; status: LibraryReferenceResolution; availableLibraries: AvailableLibrary[]; records: LibraryRecordIndex[] }
+  | { kind: "note"; message: string }
+  | { kind: "unavailable"; diagnostic: string }
+  | { kind: "error"; message: string };
+
+function renderLibraryPreview(inputId: string, ref: LibraryValueRef, preview: LibraryPreviewState) {
+  if (preview.kind === "unavailable") {
+    return (
+      <small data-testid={`rule-check-library-resolution-${inputId}`} data-status="unavailable">
+        {preview.diagnostic}
+      </small>
+    );
+  }
+  if (preview.kind === "error") {
+    return (
+      <small data-testid={`rule-check-library-resolution-${inputId}`} data-status="error">
+        RULE-CHECK-LIBRARY-PREVIEW-ERROR: {preview.message}
+      </small>
+    );
+  }
+  if (preview.kind === "note") {
+    return (
+      <small data-testid={`rule-check-library-resolution-${inputId}`} data-status="unsupported_kind">
+        {preview.message}
+      </small>
+    );
+  }
+  return (
+    <div className="report-list" data-testid={`rule-check-library-browse-${inputId}`}>
+      <small data-testid={`rule-check-library-resolution-${inputId}`} data-status={preview.status}>
+        Reference {LIBRARY_RESOLUTION_LABEL[preview.status]}.{" "}
+        {preview.status === "resolves"
+          ? "The private value is read at run time and is never embedded in the rule pack."
+          : "The check blocks at RULE_INPUTS_INCOMPLETE until the reference points at a record/slot present in your local store; edit the reference in the rule-pack editor."}
+      </small>
+      <small>
+        {preview.availableLibraries.length > 0
+          ? `Available ${ref.library_kind} libraries in your local store: ${preview.availableLibraries
+              .map((library) => `${library.library_id} (${library.library_name})`)
+              .join("; ")}.`
+          : `No ${ref.library_kind} libraries saved in your local store yet — import one in the Libraries section, then point the reference at it.`}
+      </small>
+      {preview.records.length > 0 ? (
+        <div className="report-list">
+          {preview.records.map((record) => {
+            const isRecord = record.record_id === ref.record_id;
+            return (
+              <div className="report-line" key={record.record_id}>
+                <span>
+                  {record.record_id}
+                  {isRecord ? " (referenced)" : ""}
+                </span>
+                <small>
+                  {record.slot_ids.length > 0
+                    ? `slots: ${record.slot_ids
+                        .map((slot) => (isRecord && slot === ref.slot_id ? `${slot} (referenced)` : slot))
+                        .join(", ")}`
+                    : "no value slots"}
+                </small>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function RuleCheckRunPanel({
   model,
   result
@@ -65,6 +168,7 @@ export function RuleCheckRunPanel({
   const [solverSelections, setSolverSelections] = useState<Record<string, string>>({});
   const [valueBindings, setValueBindings] = useState<Record<string, { value: string; unit: string }>>({});
   const [runResult, setRunResult] = useState<RuleCheckRunResult | null>(null);
+  const [libraryPreviews, setLibraryPreviews] = useState<Record<string, LibraryPreviewState>>({});
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
@@ -77,6 +181,78 @@ export function RuleCheckRunPanel({
     setSolverSelections({});
     setValueBindings({});
     setRunResult(null);
+    setLibraryPreviews({});
+  }
+
+  // Preview whether a private_library_value input's authored library_value_ref
+  // resolves in the local store, and capture the available libraries/records/
+  // slots for browsing. Read-only: never mutates the pack or the run binding.
+  async function handlePreviewLibrary(input: LibraryInputRequirement) {
+    const ref = input.library_value_ref;
+    if (!ref) return;
+    const kind = asLibraryKind(ref.library_kind);
+    if (!kind) {
+      setLibraryPreviews((current) => ({
+        ...current,
+        [input.input_id]: {
+          kind: "note",
+          message: `library_kind "${ref.library_kind}" is not one of material/section/component, so this reference cannot resolve at run time.`
+        }
+      }));
+      return;
+    }
+    setInFlight(true);
+    try {
+      const listRoute = await listLocalLibraries(projectId);
+      if (listRoute.route === "unavailable_browser_preview") {
+        setLibraryPreviews((current) => ({
+          ...current,
+          [input.input_id]: { kind: "unavailable", diagnostic: listRoute.diagnostic }
+        }));
+        return;
+      }
+      const availableLibraries: AvailableLibrary[] = listRoute.entries
+        .filter((entry) => entry.library_kind === kind)
+        .map((entry) => ({ library_id: entry.library_id, library_name: entry.library_name }));
+      const matched = listRoute.entries.find(
+        (entry) => entry.library_kind === kind && entry.library_id === ref.library_id
+      );
+      if (!matched) {
+        setLibraryPreviews((current) => ({
+          ...current,
+          [input.input_id]: { kind: "ok", status: "library_missing", availableLibraries, records: [] }
+        }));
+        return;
+      }
+      const openRoute = await openLocalLibrary(matched.project_id, kind, ref.library_id);
+      if (openRoute.route === "unavailable_browser_preview") {
+        setLibraryPreviews((current) => ({
+          ...current,
+          [input.input_id]: { kind: "unavailable", diagnostic: openRoute.diagnostic }
+        }));
+        return;
+      }
+      if (!openRoute.envelope) {
+        setLibraryPreviews((current) => ({
+          ...current,
+          [input.input_id]: { kind: "ok", status: "library_missing", availableLibraries, records: [] }
+        }));
+        return;
+      }
+      const records = indexLibraryRecordsSlots(openRoute.envelope.document, kind);
+      const status = classifyLibraryReference(records, ref.record_id, ref.slot_id);
+      setLibraryPreviews((current) => ({
+        ...current,
+        [input.input_id]: { kind: "ok", status, availableLibraries, records }
+      }));
+    } catch (error) {
+      setLibraryPreviews((current) => ({
+        ...current,
+        [input.input_id]: { kind: "error", message: String(error) }
+      }));
+    } finally {
+      setInFlight(false);
+    }
   }
 
   function bindingUnit(refId: string, fallback: string): string {
@@ -388,18 +564,44 @@ export function RuleCheckRunPanel({
             </div>
           ))}
 
-          {plan.libraryInputs.map((input) => (
-            <div className="report-line" key={`library:${input.input_id}`} data-testid={`rule-check-library-input-${input.input_id}`}>
-              <span>
-                {input.name} <small>(private_library_value)</small>
-              </span>
-              <small>
-                {input.library_value_ref
-                  ? `Resolves from the local private library ${input.library_value_ref.library_kind}:${input.library_value_ref.library_id} → record ${input.library_value_ref.record_id} → slot ${input.library_value_ref.slot_id} at run time (desktop); the value stays in the library and is never embedded in the rule pack. The result's bound inputs show whether it resolved.`
-                  : "No library_value_ref on this input, so it stays unsupplied and the check blocks. Add a library reference to the rule pack to bind it."}
-              </small>
-            </div>
-          ))}
+          {plan.libraryInputs.map((input) => {
+            const ref = input.library_value_ref;
+            const preview = libraryPreviews[input.input_id];
+            return (
+              <div
+                className="report-list"
+                key={`library:${input.input_id}`}
+                data-testid={`rule-check-library-input-${input.input_id}`}
+              >
+                <span>
+                  {input.name} <small>(private_library_value)</small>
+                </span>
+                <small>
+                  {ref
+                    ? `Resolves from the local private library ${ref.library_kind}:${ref.library_id} → record ${ref.record_id} → slot ${ref.slot_id} at run time (desktop); the value stays in the library and is never embedded in the rule pack. The result's bound inputs show whether it resolved.`
+                    : "No library_value_ref on this input, so it stays unsupplied and the check blocks. Add a library reference to the rule pack to bind it."}
+                </small>
+                {ref ? (
+                  <div className="report-actions">
+                    <button
+                      type="button"
+                      data-testid={`rule-check-library-preview-${input.input_id}`}
+                      disabled={inFlight}
+                      title={
+                        inFlight
+                          ? BUSY_REASON
+                          : "Check the local store for the referenced library/record/slot and browse what is available. Read-only: this never changes the rule pack."
+                      }
+                      onClick={() => void handlePreviewLibrary(input)}
+                    >
+                      Preview resolution
+                    </button>
+                  </div>
+                ) : null}
+                {ref && preview ? renderLibraryPreview(input.input_id, ref, preview) : null}
+              </div>
+            );
+          })}
         </div>
       ) : null}
 

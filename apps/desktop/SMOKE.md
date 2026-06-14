@@ -5230,3 +5230,44 @@ notes:
   release-readiness, professional, certification, sealing, authentication, or
   code-compliance claim. `DEC-038` is a schema-member ratification + version
   disposition, not a lifecycle/release act.
+
+## TP-MAC-161 richer library/record/slot resolution-preview picker in the run panel (`TP-C3-LIBREFPICKER-001`, 2026-06-14)
+
+- Closes the last consistently-named Phase C **C3** residual — "a richer C4
+  run-panel library/record/slot picker (the panel surfaces the reference
+  read-only)". The Run Rule Checks panel previously showed each
+  `private_library_value` input's authored `library_value_ref` as read-only text;
+  the only resolution signal was post-run (`bound_inputs` supplied/MISSING).
+- **Frontend only.** Each library input with a reference now has a **"Preview
+  resolution"** button. It queries the local private-library store
+  (`list_local_libraries` + `open_local_library`, desktop-only), indexes the
+  records/slots with a new pure helper that **mirrors the desktop resolver's
+  per-kind dispatch exactly** (material `material_records[material_id].allowables`;
+  section `section_records[section_id].dimensions|properties`; component
+  `component_records[component_id].fields`), and surfaces a resolution badge
+  (resolves / library_missing / record_missing / slot_missing) plus a read-only
+  browse of the available libraries → records → slot ids, with the authored
+  record/slot marked "(referenced)".
+- **Read-only to the pack.** The picker never mutates the rule pack, never
+  overrides the authored reference at run time (the backend run still resolves
+  from the pack reference + projectId), and never renders the private value.
+  Run-time *override* was deliberately not built (it would need a human design
+  ruling) — recorded as a non-goal, not a residual.
+- Manual check posture: the browser-reachable slice — the "Preview resolution"
+  control and its honest desktop-only store seam
+  (`LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY`) — is automated in the `r2-smoke.spec.ts`
+  rule-check e2e (both viewports). The desktop-store resolution/browse itself is
+  desktop-only (not browser-reachable) and is exercised by the Vitest
+  desktop-mode mocked-`invoke` suite (same posture as TP-MAC-157/159).
+- Validation: desktop Vitest **357** (+12: 7 helper unit tests, 5 panel tests);
+  `tsc -b` clean; `npm run build` clean; `npx playwright test` 10/10 (two
+  viewports); five-surface DEC-025 sweep PASS (cargo crate sweep, pytest, desktop
+  Vitest+wasm, Playwright e2e ×2, production build) — see the committed sweep
+  summary.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFPICKER-001.md` (DEL-06-02 primary;
+  DEL-03-07 library coupling).
+- Boundary review: frontend/local-only; status-vocabulary-only; private values
+  read only at run time and never embedded/committed/rendered; deliverables stay
+  CHECKING; no release-readiness, professional, certification, sealing,
+  authentication, or code-compliance claim.

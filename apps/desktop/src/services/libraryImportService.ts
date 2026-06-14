@@ -276,3 +276,110 @@ export function buildInventedLibraryImportTemplate(
     [keys.recordsKey]: []
   };
 }
+
+// --- Library record/slot resolution preview (Phase C3, TP-C3-LIBREFPICKER-001) ---
+// A rule-pack `private_library_value` input authors a `library_value_ref`
+// (library_kind/library_id/record_id/slot_id; DeclarationsEditor, the run-time
+// resolution in the desktop `run_rule_checks` wrapper). The run panel previously
+// surfaced that reference read-only, so a user could not tell from the panel
+// whether it would resolve in their local store, nor discover the valid
+// record/slot ids to author. These pure helpers index a stored library document
+// so the panel can preview resolution and browse records/slots WITHOUT mutating
+// the pack, overriding the authored reference, or rendering the private value
+// (IP boundary: the value is read only at run time, never embedded or shown).
+//
+// The per-kind dispatch MUST mirror the desktop resolver
+// (`src-tauri` extract_library_slot_value / find_library_slot_value): which
+// member holds the records, which field is the record id, and which
+// `(slot_array, slot_id_field)` pairs hold the value slots (scanned in order).
+const LIBRARY_RECORD_SLOT_SHAPE: Record<
+  LibraryKind,
+  { recordsMember: string; recordIdKey: string; slotArrays: { array: string; slotIdKey: string }[] }
+> = {
+  material: {
+    recordsMember: "material_records",
+    recordIdKey: "material_id",
+    slotArrays: [{ array: "allowables", slotIdKey: "allowable_id" }]
+  },
+  section: {
+    recordsMember: "section_records",
+    recordIdKey: "section_id",
+    slotArrays: [
+      { array: "dimensions", slotIdKey: "dimension_id" },
+      { array: "properties", slotIdKey: "property_id" }
+    ]
+  },
+  component: {
+    recordsMember: "component_records",
+    recordIdKey: "component_id",
+    slotArrays: [{ array: "fields", slotIdKey: "field_id" }]
+  }
+};
+
+export type LibraryRecordIndex = {
+  record_id: string;
+  slot_ids: string[];
+};
+
+// How an authored library_value_ref relates to what is actually in the local
+// store: `resolves` when both the record and slot exist; `record_missing` when
+// no record matches; `slot_missing` when the record exists but the slot does not;
+// `library_missing` when the referenced library is not in the store at all
+// (decided by the panel from the store list / a null open, not here).
+export type LibraryReferenceResolution =
+  | "resolves"
+  | "record_missing"
+  | "slot_missing"
+  | "library_missing";
+
+function asObjectArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+    : [];
+}
+
+function readId(item: Record<string, unknown>, key: string): string | null {
+  const value = item[key];
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+// Pure: extract the record ids and, per record, the value-slot ids from a stored
+// library `document` for `libraryKind`, mirroring the desktop resolver's per-kind
+// dispatch. Slot ids are gathered across every slot array for the kind (the
+// resolver scans them in order) into one de-duplicated, first-seen-order list,
+// which is exactly the membership a slot-existence check needs. Records or slots
+// without a string id, and non-object shapes, are skipped (never invented).
+export function indexLibraryRecordsSlots(
+  document: Record<string, unknown> | null | undefined,
+  libraryKind: LibraryKind
+): LibraryRecordIndex[] {
+  if (!document) return [];
+  const shape = LIBRARY_RECORD_SLOT_SHAPE[libraryKind];
+  const records: LibraryRecordIndex[] = [];
+  for (const record of asObjectArray(document[shape.recordsMember])) {
+    const recordId = readId(record, shape.recordIdKey);
+    if (!recordId) continue;
+    const slotIds: string[] = [];
+    for (const { array, slotIdKey } of shape.slotArrays) {
+      for (const slot of asObjectArray(record[array])) {
+        const slotId = readId(slot, slotIdKey);
+        if (slotId && !slotIds.includes(slotId)) slotIds.push(slotId);
+      }
+    }
+    records.push({ record_id: recordId, slot_ids: slotIds });
+  }
+  return records;
+}
+
+// Pure: classify an authored `(recordId, slotId)` against an indexed library's
+// records. Library-presence is decided upstream (store list / null open), so
+// this only distinguishes record_missing / slot_missing / resolves.
+export function classifyLibraryReference(
+  records: LibraryRecordIndex[],
+  recordId: string,
+  slotId: string
+): "resolves" | "record_missing" | "slot_missing" {
+  const record = records.find((entry) => entry.record_id === recordId);
+  if (!record) return "record_missing";
+  return record.slot_ids.includes(slotId) ? "resolves" : "slot_missing";
+}
