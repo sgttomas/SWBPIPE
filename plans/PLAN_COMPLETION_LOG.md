@@ -13,6 +13,55 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C4 non-GUI residual closed: drive the rule-check aggregate into the result assembly (`TP-C4-AGGSTATUS-001`)
+
+The C4 "Remaining scope (non-GUI): driving `aggregate_status` into the solve
+envelope / `result_export`" residual. The `core/rules/rule_check_runner`
+orchestrator computes a worst-of `aggregate_status` (`RULE_INPUTS_INCOMPLETE` /
+`USER_RULE_CHECKED` / `USER_RULE_FAILED`), but that aggregate lived only in the
+GUI run panel. The one concrete non-GUI place that composes a result's
+`analysis_status` from a solve — the `core/runner/headless` bridge
+`run_preview_in_memory` — hardcoded the rule-check half to `RuleInputsIncomplete`
+(it keyed off the product-physics envelope's `status.rule_check`, which a plain
+solve always leaves at `RULE_INPUTS_INCOMPLETE`).
+
+Single-crate wiring change (`core/runner/headless`, DEL-10-05; no schema or
+vocabulary change anywhere — `result_export`'s `AnalysisStatus` already carried
+all three rule-check statuses, so the gap was purely the assembly). Added a pure
+`analysis_status_for_rule_check(&str) -> Option<AnalysisStatus>` mapping the three
+rule-check vocabulary strings (`None` otherwise — no silent coercion). Refactored
+`run_preview_in_memory` to delegate to a new
+`run_preview_in_memory_with_rule_check(request, preview_request, Option<&str>)`
+(old signature preserved → backward compatible): a recognized aggregate is driven
+into the carried `MechanicsEnvelope.status.rule_check` **before its checksum
+binds** (so the hash-bound envelope honestly carries the outcome) and the runner
+`analysis_status` is derived from the envelope (single source of truth); an
+unrecognized non-`None` aggregate is a blocking diagnostic
+(`HEADLESS_RUNNER_RULE_CHECK_STATUS_INVALID`), never silently dropped, leaving the
+envelope conservatively at `RULE_INPUTS_INCOMPLETE` (no false pass). The bridge
+takes the aggregate as its vocabulary `&str`, so the crate gains no new
+dependency on `rule_check_runner` (the worst-of aggregation already lives there).
+
+Evidence: `core/runner/headless` cargo **16** (+5: vocabulary mapping incl.
+non-matches; user-rule-failed and user-rule-checked driven into the envelope +
+`analysis_status`; explicit-incomplete ≡ no-aggregate default; unrecognized-
+aggregate blocking diagnostic with the envelope left conservative); `cargo fmt
+--check` clean; five-surface DEC-025 sweep PASS (the cargo crate sweep re-runs all
+crates; pytest / desktop Vitest+wasm / Playwright ×2 / production build are
+unaffected — the crate is not consumed by the frontend/wasm/pytest build graphs).
+No SMOKE/Playwright/Vitest entry: the headless runner is a non-GUI core crate not
+consumed by the desktop app, so there is no user-visible desktop behavior to
+smoke (the crate-only posture `TP-UNITS-B1-CATALOG-001`/`TP-D03-SPARSE-001` used).
+Status-vocabulary-only; `HUMAN_REVIEW_REQUIRED` preservation unchanged; no
+lifecycle/release/professional/code-compliance claim. Run record:
+`WORKING_ITEMS_RUN_2026-06-14_TP-C4-AGGSTATUS-001.md` (DEL-10-05 primary; coupled
+DEL-06-02 rule-check aggregate source, DEL-08-04 result-export vocabulary).
+Remaining C4 (non-GUI): the future additive `acceptability_relation` /
+solver-result-selector schema members; and, separately, app-side wiring of the
+GUI run aggregate into an app-held/exported envelope.
+
+---
+
 ## 2026-06-14 — C3 residual closed: richer library/record/slot resolution-preview picker in the run panel (`TP-C3-LIBREFPICKER-001`)
 
 The last consistently-named Phase C **C3** residual — "a richer C4 run-panel

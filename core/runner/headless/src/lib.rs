@@ -636,9 +636,47 @@ pub struct PreviewRunnerOutput {
     pub mechanics_envelope: Option<MechanicsEnvelope>,
 }
 
+/// Map an automatic rule-check status — the `core/rules/rule_check_runner`
+/// worst-of `aggregate_status` vocabulary (`RULE_INPUTS_INCOMPLETE`,
+/// `USER_RULE_CHECKED`, `USER_RULE_FAILED`) — to the runner analysis-status
+/// vocabulary. `None` for any other string, so callers never silently coerce an
+/// unrecognized status (CONTRACT no-silent-defaults). The wider model/mechanics
+/// statuses and the external `HUMAN_APPROVED_FOR_PROJECT` record are not
+/// producible from a rule-check aggregate and are intentionally absent here.
+pub fn analysis_status_for_rule_check(rule_check_status: &str) -> Option<AnalysisStatus> {
+    match rule_check_status {
+        "RULE_INPUTS_INCOMPLETE" => Some(AnalysisStatus::RuleInputsIncomplete),
+        "USER_RULE_CHECKED" => Some(AnalysisStatus::UserRuleChecked),
+        "USER_RULE_FAILED" => Some(AnalysisStatus::UserRuleFailed),
+        _ => None,
+    }
+}
+
 pub fn run_preview_in_memory(
     request: RunnerRequest,
     preview_request: LinearStaticPreviewRequest,
+) -> PreviewRunnerOutput {
+    run_preview_in_memory_with_rule_check(request, preview_request, None)
+}
+
+/// As [`run_preview_in_memory`], but drives an automatic rule-check aggregate
+/// status into the solve envelope and the runner result's `analysis_status`, so
+/// a run that actually executed rule checks reports `USER_RULE_CHECKED` /
+/// `USER_RULE_FAILED` instead of the solve-only `RULE_INPUTS_INCOMPLETE`
+/// default. `rule_check_aggregate` is the `rule_check_runner` aggregate as its
+/// vocabulary string (e.g. [`RuleCheckStatus::as_str`] output).
+///
+/// - `None`: no rule checks ran — the solve envelope keeps its conservative
+///   `RULE_INPUTS_INCOMPLETE` and the analysis status is unchanged.
+/// - a recognized status: written into the carried `MechanicsEnvelope`'s
+///   `rule_check` (before its checksum binds) and reflected in `analysis_status`.
+/// - any other non-`None` string: a blocking diagnostic
+///   (`HEADLESS_RUNNER_RULE_CHECK_STATUS_INVALID`), never silently dropped; the
+///   envelope is left at `RULE_INPUTS_INCOMPLETE` (conservative — no false pass).
+pub fn run_preview_in_memory_with_rule_check(
+    request: RunnerRequest,
+    preview_request: LinearStaticPreviewRequest,
+    rule_check_aggregate: Option<&str>,
 ) -> PreviewRunnerOutput {
     let request_validation = validate_request(&request);
     let run_id = format!("run:headless-preview:{}", request.request_id);
@@ -685,7 +723,23 @@ pub fn run_preview_in_memory(
         };
     }
 
-    let mechanics = run_linear_static_preview(preview_request);
+    let mut mechanics = run_linear_static_preview(preview_request);
+    let mut diagnostics: Vec<Diagnostic> = Vec::new();
+    // Drive the optional rule-check aggregate into the solve envelope before its
+    // checksum binds, so the envelope and the runner analysis_status honestly
+    // carry the rule-check outcome rather than the solve-only default. An
+    // unrecognized aggregate is a blocking diagnostic, not a silent coercion.
+    if let Some(aggregate) = rule_check_aggregate {
+        if analysis_status_for_rule_check(aggregate).is_some() {
+            mechanics.status.rule_check = aggregate.to_string();
+        } else {
+            diagnostics.push(Diagnostic::runner_blocking(
+                "HEADLESS_RUNNER_RULE_CHECK_STATUS_INVALID",
+                Reference::new("rule_check_aggregate", aggregate),
+                "rule-check aggregate status must be one of RULE_INPUTS_INCOMPLETE, USER_RULE_CHECKED, or USER_RULE_FAILED",
+            ));
+        }
+    }
     let result_refs = mechanics
         .results
         .iter()
@@ -697,8 +751,10 @@ pub fn run_preview_in_memory(
     } else {
         analysis_status.push(AnalysisStatus::ModelIncomplete);
     }
-    if mechanics.status.rule_check == "RULE_INPUTS_INCOMPLETE" {
-        analysis_status.push(AnalysisStatus::RuleInputsIncomplete);
+    // Single source of truth: derive the rule-check analysis status from the
+    // (possibly aggregate-driven) solve envelope.
+    if let Some(status) = analysis_status_for_rule_check(&mechanics.status.rule_check) {
+        analysis_status.push(status);
     }
 
     let runner_result = RunnerResult {
@@ -726,7 +782,7 @@ pub fn run_preview_in_memory(
                 &mechanics,
             ),
         ],
-        diagnostics: Vec::new(),
+        diagnostics,
         privacy: request.privacy,
         provenance: request.provenance,
         professional_boundary: request.professional_boundary,
@@ -1136,5 +1192,119 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == "HEADLESS_RUNNER_REQUEST_ID_MISSING"));
+    }
+
+    #[test]
+    fn analysis_status_for_rule_check_maps_the_runner_vocabulary() {
+        assert_eq!(
+            analysis_status_for_rule_check("RULE_INPUTS_INCOMPLETE"),
+            Some(AnalysisStatus::RuleInputsIncomplete)
+        );
+        assert_eq!(
+            analysis_status_for_rule_check("USER_RULE_CHECKED"),
+            Some(AnalysisStatus::UserRuleChecked)
+        );
+        assert_eq!(
+            analysis_status_for_rule_check("USER_RULE_FAILED"),
+            Some(AnalysisStatus::UserRuleFailed)
+        );
+        // Not a rule-check status, and the empty string, map to nothing.
+        assert_eq!(analysis_status_for_rule_check("MECHANICS_SOLVED"), None);
+        assert_eq!(
+            analysis_status_for_rule_check("HUMAN_REVIEW_REQUIRED"),
+            None
+        );
+        assert_eq!(analysis_status_for_rule_check(""), None);
+    }
+
+    #[test]
+    fn preview_bridge_drives_user_rule_failed_into_envelope_and_analysis_status() {
+        let output = run_preview_in_memory_with_rule_check(
+            request(),
+            preview_request(),
+            Some("USER_RULE_FAILED"),
+        );
+        let mechanics = output
+            .mechanics_envelope
+            .as_ref()
+            .expect("valid request should produce mechanics envelope");
+        // Driven into the solve envelope (before its checksum binds)...
+        assert_eq!(mechanics.status.rule_check, "USER_RULE_FAILED");
+        // ...and reflected in the runner analysis_status, replacing the
+        // solve-only RULE_INPUTS_INCOMPLETE default.
+        assert!(output
+            .runner_result
+            .analysis_status
+            .contains(&AnalysisStatus::UserRuleFailed));
+        assert!(!output
+            .runner_result
+            .analysis_status
+            .contains(&AnalysisStatus::RuleInputsIncomplete));
+        // The result still validates (human-review-required preserved; no
+        // blocking diagnostics for a recognized aggregate).
+        assert!(output.runner_result.diagnostics.is_empty());
+        let validation = validate_result(&output.runner_result);
+        assert!(!validation.has_blocking_diagnostics(), "{validation:?}");
+    }
+
+    #[test]
+    fn preview_bridge_drives_user_rule_checked_into_analysis_status() {
+        let output = run_preview_in_memory_with_rule_check(
+            request(),
+            preview_request(),
+            Some("USER_RULE_CHECKED"),
+        );
+        let mechanics = output.mechanics_envelope.as_ref().expect("envelope");
+        assert_eq!(mechanics.status.rule_check, "USER_RULE_CHECKED");
+        assert!(output
+            .runner_result
+            .analysis_status
+            .contains(&AnalysisStatus::UserRuleChecked));
+        assert!(!output
+            .runner_result
+            .analysis_status
+            .contains(&AnalysisStatus::RuleInputsIncomplete));
+    }
+
+    #[test]
+    fn preview_bridge_incomplete_aggregate_equals_the_no_aggregate_default() {
+        let driven = run_preview_in_memory_with_rule_check(
+            request(),
+            preview_request(),
+            Some("RULE_INPUTS_INCOMPLETE"),
+        );
+        let default = run_preview_in_memory(request(), preview_request());
+        // Explicitly passing the solve-only default is identical to passing None.
+        assert_eq!(
+            driven.runner_result.analysis_status,
+            default.runner_result.analysis_status
+        );
+        assert!(driven
+            .runner_result
+            .analysis_status
+            .contains(&AnalysisStatus::RuleInputsIncomplete));
+        assert!(driven.runner_result.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn preview_bridge_blocks_unrecognized_rule_check_aggregate() {
+        let output = run_preview_in_memory_with_rule_check(
+            request(),
+            preview_request(),
+            Some("DEFINITELY_NOT_A_STATUS"),
+        );
+        let mechanics = output.mechanics_envelope.as_ref().expect("envelope");
+        // Conservative: the envelope is never coerced by an unknown status; it
+        // stays at the solve-only RULE_INPUTS_INCOMPLETE (no false pass).
+        assert_eq!(mechanics.status.rule_check, "RULE_INPUTS_INCOMPLETE");
+        assert!(output.runner_result.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "HEADLESS_RUNNER_RULE_CHECK_STATUS_INVALID"
+                && diagnostic.severity == DiagnosticSeverity::Blocking
+        }));
+        // The analysis_status still reflects the conservative default.
+        assert!(output
+            .runner_result
+            .analysis_status
+            .contains(&AnalysisStatus::RuleInputsIncomplete));
     }
 }
