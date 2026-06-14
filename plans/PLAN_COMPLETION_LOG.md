@@ -36,8 +36,9 @@ stores **only an accepted (`PRIVATE_LOCAL_ONLY`) import** (the named gate
 written — so suspected protected content never reaches the store (IP boundary).
 This deliberately differs from the rule-pack "drafts always saveable" store
 because a library *import* carries external-IP risk the DEL-03-07 checker exists
-to gate; a stored-audit-trail variant is recorded as a flagged human-gated
-follow-up (run record §Persistence policy).
+to gate. The human project authority **accepted this refuse-to-store default on
+2026-06-13 (`DEC-036`)**; a stored-audit-trail variant is not pursued unless a
+later ruling reopens it (run record §Persistence policy).
 
 No GUI, no file parsing, no wizard in this slice (next C3 slices). Backend store
 seam ⇒ per the H4 posture the owed evidence is the Rust store/gate tests + the

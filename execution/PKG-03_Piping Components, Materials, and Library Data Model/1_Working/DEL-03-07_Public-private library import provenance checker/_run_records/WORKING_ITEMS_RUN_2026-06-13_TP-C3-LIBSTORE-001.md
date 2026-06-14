@@ -65,6 +65,12 @@ project authority: if an audit trail of *refused* imports is wanted instead
 refuse-to-store default ships here because it cannot leak suspected-protected
 content into storage. No human decision is blocked by shipping this default.
 
+**Ruled 2026-06-13 (`DEC-036`):** the human project authority accepted the
+implemented refuse-to-store default ("I accept your actions on how to handle
+persistence of non-accepted imports. You can close out that matter
+accordingly"). The store-with-quarantine-flag audit-trail variant is not
+pursued unless a later ruling reopens it; this matter is closed.
+
 ## Changes
 
 1. **`apps/desktop/src-tauri/src/lib.rs` — store v11 migration.**
