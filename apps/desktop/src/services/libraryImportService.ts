@@ -59,14 +59,19 @@ function isTauriRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
+function libraryImportUnavailable(): {
+  route: "unavailable_browser_preview";
+  diagnostic: string;
+} {
+  return { route: "unavailable_browser_preview", diagnostic: LIBRARY_IMPORT_BACKEND_DIAGNOSTIC };
+}
+
 export async function validateLibraryImport(
   payload: Record<string, unknown>,
   libraryKind: LibraryKind,
   intendedVisibility: IntendedVisibility
 ): Promise<LibraryImportValidationRoute> {
-  if (!isTauriRuntime()) {
-    return { route: "unavailable_browser_preview", diagnostic: LIBRARY_IMPORT_BACKEND_DIAGNOSTIC };
-  }
+  if (!isTauriRuntime()) return libraryImportUnavailable();
   const validation = await invoke<LibraryImportValidation>("validate_library_import", {
     payload,
     libraryKind,
@@ -93,4 +98,123 @@ export function partitionLibraryImportFindings(validation: LibraryImportValidati
     }
   }
   return { blocking, advisory };
+}
+
+// --- Local-only private-library persistence (Phase C3, TP-C3-LIBSTORE-001) ---
+// Imported private libraries persist in the local SQLite store only, via the
+// desktop backend; browser preview reports the unavailable route. The store is
+// private-by-default and never transmitted or committed (OPS-K-PRIV-1, PRD
+// §13.5/§17.3). Save only persists an accepted import — a blocked/quarantined
+// import returns stored:false with its findings so the caller can surface them.
+
+export type LocalLibraryIndexEntry = {
+  project_id: string;
+  library_kind: LibraryKind;
+  library_id: string;
+  library_name: string;
+  privacy_class: string;
+  storage_mode: string;
+  created_at_unix: number;
+  updated_at_unix: number;
+};
+
+export type LocalLibraryEnvelope = {
+  project_id: string;
+  library_kind: LibraryKind;
+  library_id: string;
+  storage_mode: string;
+  created_at_unix: number;
+  updated_at_unix: number;
+  document: Record<string, unknown>;
+  validation: LibraryImportValidation;
+  message: string;
+};
+
+export type LocalLibrarySaveResult = {
+  project_id: string;
+  library_kind: LibraryKind;
+  library_id: string;
+  stored: boolean;
+  storage_mode: string;
+  created_at_unix: number | null;
+  updated_at_unix: number | null;
+  document: Record<string, unknown>;
+  validation: LibraryImportValidation;
+  message: string;
+};
+
+export type LocalLibraryDeleteReceipt = {
+  project_id: string;
+  library_kind: LibraryKind;
+  library_id: string;
+  deleted: boolean;
+  message: string;
+};
+
+type LibraryUnavailable = { route: "unavailable_browser_preview"; diagnostic: string };
+
+export type LibrarySaveRoute =
+  | { route: "tauri_backend"; result: LocalLibrarySaveResult }
+  | LibraryUnavailable;
+
+export type LibraryOpenRoute =
+  | { route: "tauri_backend"; envelope: LocalLibraryEnvelope | null }
+  | LibraryUnavailable;
+
+export type LibraryListRoute =
+  | { route: "tauri_backend"; entries: LocalLibraryIndexEntry[] }
+  | LibraryUnavailable;
+
+export type LibraryDeleteRoute =
+  | { route: "tauri_backend"; receipt: LocalLibraryDeleteReceipt }
+  | LibraryUnavailable;
+
+export async function saveLocalLibrary(
+  projectId: string,
+  libraryKind: LibraryKind,
+  document: Record<string, unknown>
+): Promise<LibrarySaveRoute> {
+  if (!isTauriRuntime()) return libraryImportUnavailable();
+  const result = await invoke<LocalLibrarySaveResult>("save_local_library", {
+    projectId,
+    libraryKind,
+    document
+  });
+  return { route: "tauri_backend", result };
+}
+
+export async function openLocalLibrary(
+  projectId: string,
+  libraryKind: LibraryKind,
+  libraryId: string
+): Promise<LibraryOpenRoute> {
+  if (!isTauriRuntime()) return libraryImportUnavailable();
+  const envelope = await invoke<LocalLibraryEnvelope | null>("open_local_library", {
+    projectId,
+    libraryKind,
+    libraryId
+  });
+  return { route: "tauri_backend", envelope };
+}
+
+export async function listLocalLibraries(projectId: string | null): Promise<LibraryListRoute> {
+  if (!isTauriRuntime()) return libraryImportUnavailable();
+  const entries = await invoke<LocalLibraryIndexEntry[]>("list_local_libraries", {
+    projectId
+  });
+  return { route: "tauri_backend", entries };
+}
+
+export async function deleteLocalLibrary(
+  projectId: string,
+  libraryKind: LibraryKind,
+  libraryId: string
+): Promise<LibraryDeleteRoute> {
+  if (!isTauriRuntime()) return libraryImportUnavailable();
+  const receipt = await invoke<LocalLibraryDeleteReceipt>("delete_local_library", {
+    projectId,
+    libraryKind,
+    libraryId
+  });
+  return { route: "tauri_backend", receipt };
 }

@@ -4946,3 +4946,36 @@ notes:
 - Boundary review: validation statuses are software findings only; no lifecycle
   state change (DEL-03-07 stays CHECKING); no release-readiness, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-154 local-only private-library persistence: store v11 + CRUD commands (`TP-C3-LIBSTORE-001`, 2026-06-13)
+
+- Phase C3 store slice (no UI change in this tranche). Adds local-only
+  persistence for imported material/section/component libraries, mirroring the
+  C2 `local_rule_packs` store. Store v11 migration creates `local_libraries`
+  (project-scoped, keyed `(project_id, library_kind, library_id)`, local SQLite
+  only).
+- New Tauri commands `save_local_library` / `open_local_library` /
+  `list_local_libraries` / `delete_local_library`, plus the matching typed
+  `libraryImportService.ts` routes with the shared browser-unavailable seam.
+- **Private-by-default, accepted-only.** `save_local_library` re-validates the
+  document at the import boundary with private visibility and **stores only an
+  accepted (`PRIVATE_LOCAL_ONLY`) import**; a suspected-protected (`QUARANTINE`)
+  or blocked (`REJECTED`) import is **refused** — it returns `stored:false` with
+  its findings and writes nothing. Suspected protected content never reaches the
+  store (IP boundary). Private libraries are never transmitted or committed
+  (OPS-K-PRIV-1, PRD §13.5/§17.3). This deliberately differs from the rule-pack
+  "drafts always saveable" store (rationale in the run record); a stored
+  audit-trail variant is a flagged human-gated follow-up.
+- Manual check (desktop): no rendered surface yet — verified by automated tests,
+  not a live-browser journey. The import wizard + workspace section + list panel
+  is the next C3 slice; its Playwright/Vitest UI evidence rides that tranche per
+  the H4 posture.
+- Validation: src-tauri `cargo test` 43/43 (3 new store/gate tests; 3
+  migration-ledger tests updated for v11); `cargo fmt --check` clean; desktop
+  Vitest 317/317 (15 files; 4 new); `npm run build` (`tsc -b && vite build`)
+  clean.
+- Evidence: DEL-03-07 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C3-LIBSTORE-001.md`.
+- Boundary review: validation statuses are software findings only; no lifecycle
+  state change (DEL-03-07 stays CHECKING); no release-readiness, professional,
+  certification, sealing, authentication, or code-compliance claim.

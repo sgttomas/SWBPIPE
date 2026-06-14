@@ -231,7 +231,7 @@ fn app_store_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join(PROJECT_STORE_FILE))
 }
 
-const STORE_SCHEMA_TARGET_VERSION: i64 = 10;
+const STORE_SCHEMA_TARGET_VERSION: i64 = 11;
 const STORE_MIGRATION_FRAMEWORK: &str = "versioned_sqlite_user_version_migration_ledger";
 
 struct StoreMigration {
@@ -365,6 +365,32 @@ fn store_migrations() -> Vec<StoreMigration> {
                             created_at_unix INTEGER NOT NULL,
                             updated_at_unix INTEGER NOT NULL,
                             PRIMARY KEY (project_id, rule_pack_id)
+                        );
+                        ",
+                    )
+                    .map_err(|error| error.to_string())
+            },
+        },
+        // Local, user-controlled imported private libraries (Phase C3). Only
+        // accepted (PRIVATE_LOCAL_ONLY) material/section/component imports are
+        // written here; suspected-protected or blocked imports are never
+        // stored. Private libraries stay in this local store and are never
+        // committed to the repository or transmitted (OPS-K-PRIV-1, PRD §13.5).
+        StoreMigration {
+            version: 11,
+            migration_id: "store-v11-local-libraries-table",
+            apply: |connection| {
+                connection
+                    .execute_batch(
+                        "
+                        CREATE TABLE IF NOT EXISTS local_libraries (
+                            project_id TEXT NOT NULL,
+                            library_kind TEXT NOT NULL,
+                            library_id TEXT NOT NULL,
+                            document_json TEXT NOT NULL,
+                            created_at_unix INTEGER NOT NULL,
+                            updated_at_unix INTEGER NOT NULL,
+                            PRIMARY KEY (project_id, library_kind, library_id)
                         );
                         ",
                     )
@@ -2064,6 +2090,391 @@ fn validate_library_import(
     library_import_validation_value(&payload, &library_kind, &intended_visibility)
 }
 
+// ---------------------------------------------------------------------------
+// Local-only private-library persistence (Phase C3, TP-C3-LIBSTORE-001).
+//
+// Imported material/section/component libraries persist in the local SQLite
+// store only (local_libraries, store v11) and are never committed to the
+// repository, transmitted, or exported by default (OPS-K-PRIV-1, PRD §13.5,
+// §17.3). The store is private-by-default: save re-validates every document at
+// the import boundary with intended_visibility = "private" and **only stores
+// an accepted (PRIVATE_LOCAL_ONLY) import**. Suspected-protected (QUARANTINE)
+// and otherwise-blocked (REJECTED) imports are refused — the findings are
+// returned so the caller can surface them, but nothing is written. This is the
+// conservative IP-boundary posture (it differs from the rule-pack store, which
+// keeps a user's own in-progress draft saveable, because a library import
+// carries external provenance/redistribution/protected-content risk that the
+// DEL-03-07 checker exists to gate). Validation statuses are software findings
+// only (OPS-K-AUTH-1).
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Serialize)]
+struct LocalLibraryIndexEntry {
+    project_id: String,
+    library_kind: String,
+    library_id: String,
+    library_name: String,
+    privacy_class: String,
+    storage_mode: &'static str,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+}
+
+#[derive(Debug, Serialize)]
+struct LocalLibraryEnvelope {
+    project_id: String,
+    library_kind: String,
+    library_id: String,
+    storage_mode: &'static str,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+    document: Value,
+    validation: Value,
+    message: String,
+}
+
+#[derive(Debug, Serialize)]
+struct LocalLibrarySaveResult {
+    project_id: String,
+    library_kind: String,
+    library_id: String,
+    stored: bool,
+    storage_mode: &'static str,
+    created_at_unix: Option<i64>,
+    updated_at_unix: Option<i64>,
+    document: Value,
+    validation: Value,
+    message: String,
+}
+
+#[derive(Debug, Serialize)]
+struct LocalLibraryDeleteReceipt {
+    project_id: String,
+    library_kind: String,
+    library_id: String,
+    deleted: bool,
+    message: String,
+}
+
+struct StoredLibraryRow {
+    document: Value,
+    created_at_unix: i64,
+    updated_at_unix: i64,
+}
+
+fn library_metadata_key(library_kind: &str) -> Result<&'static str, String> {
+    match library_kind {
+        "material" => Ok("material_library"),
+        "section" => Ok("section_library"),
+        "component" => Ok("component_library"),
+        _ => Err(format!("unsupported library_kind: {library_kind}")),
+    }
+}
+
+fn library_id_from_document(document: &Value, library_kind: &str) -> Result<String, String> {
+    let key = library_metadata_key(library_kind)?;
+    document
+        .pointer(&format!("/{key}/library_id"))
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .map(str::to_string)
+        .ok_or_else(|| format!("library document must carry a non-empty {key}.library_id"))
+}
+
+fn library_document_string(document: &Value, library_kind: &str, field: &str) -> String {
+    library_metadata_key(library_kind)
+        .ok()
+        .and_then(|key| document.pointer(&format!("/{key}/{field}")).cloned())
+        .as_ref()
+        .and_then(Value::as_str)
+        .unwrap_or("TBD")
+        .to_string()
+}
+
+/// The private-library persistence policy: only an accepted import
+/// (PRIVATE_LOCAL_ONLY) may be written. A blocked (REJECTED) or suspected-
+/// protected (QUARANTINE) import is refused — its findings are surfaced, but
+/// nothing is stored. Reads the `accepted` flag from a
+/// `library_import_validation_value` envelope.
+fn library_import_is_storable(validation: &Value) -> bool {
+    validation
+        .get("accepted")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+}
+
+fn upsert_library(
+    connection: &Connection,
+    project_id: &str,
+    library_kind: &str,
+    library_id: &str,
+    document: &Value,
+) -> Result<(i64, i64), String> {
+    let document_json = serde_json::to_string(document).map_err(|error| error.to_string())?;
+    let now = now_unix_seconds()?;
+    connection
+        .execute(
+            "
+            INSERT INTO local_libraries (
+                project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, ?5)
+            ON CONFLICT(project_id, library_kind, library_id) DO UPDATE SET
+                document_json = excluded.document_json,
+                updated_at_unix = excluded.updated_at_unix
+            ",
+            params![project_id, library_kind, library_id, document_json, now],
+        )
+        .map_err(|error| error.to_string())?;
+    let created_at: i64 = connection
+        .query_row(
+            "SELECT created_at_unix FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3",
+            params![project_id, library_kind, library_id],
+            |row| row.get(0),
+        )
+        .map_err(|error| error.to_string())?;
+    Ok((created_at, now))
+}
+
+fn load_library(
+    connection: &Connection,
+    project_id: &str,
+    library_kind: &str,
+    library_id: &str,
+) -> Result<Option<StoredLibraryRow>, String> {
+    connection
+        .query_row(
+            "
+            SELECT document_json, created_at_unix, updated_at_unix
+            FROM local_libraries
+            WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3
+            ",
+            params![project_id, library_kind, library_id],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, i64>(2)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|error| error.to_string())?
+        .map(|(document_json, created_at_unix, updated_at_unix)| {
+            serde_json::from_str(&document_json)
+                .map(|document| StoredLibraryRow {
+                    document,
+                    created_at_unix,
+                    updated_at_unix,
+                })
+                .map_err(|error| error.to_string())
+        })
+        .transpose()
+}
+
+fn list_libraries(
+    connection: &Connection,
+    project_id: Option<&str>,
+) -> Result<Vec<LocalLibraryIndexEntry>, String> {
+    let mut statement = connection
+        .prepare(
+            "
+            SELECT project_id, library_kind, library_id, document_json, created_at_unix, updated_at_unix
+            FROM local_libraries
+            WHERE (?1 IS NULL OR project_id = ?1)
+            ORDER BY project_id, library_kind, library_id
+            ",
+        )
+        .map_err(|error| error.to_string())?;
+    let rows = statement
+        .query_map(params![project_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, i64>(4)?,
+                row.get::<_, i64>(5)?,
+            ))
+        })
+        .map_err(|error| error.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    rows.into_iter()
+        .map(
+            |(
+                project_id,
+                library_kind,
+                library_id,
+                document_json,
+                created_at_unix,
+                updated_at_unix,
+            )| {
+                let document: Value =
+                    serde_json::from_str(&document_json).map_err(|error| error.to_string())?;
+                Ok(LocalLibraryIndexEntry {
+                    library_name: library_document_string(&document, &library_kind, "name"),
+                    privacy_class: library_document_string(
+                        &document,
+                        &library_kind,
+                        "privacy_class",
+                    ),
+                    project_id,
+                    library_kind,
+                    library_id,
+                    storage_mode: "local_sqlite",
+                    created_at_unix,
+                    updated_at_unix,
+                })
+            },
+        )
+        .collect()
+}
+
+fn delete_library(
+    connection: &Connection,
+    project_id: &str,
+    library_kind: &str,
+    library_id: &str,
+) -> Result<bool, String> {
+    let affected = connection
+        .execute(
+            "DELETE FROM local_libraries WHERE project_id = ?1 AND library_kind = ?2 AND library_id = ?3",
+            params![project_id, library_kind, library_id],
+        )
+        .map_err(|error| error.to_string())?;
+    Ok(affected > 0)
+}
+
+#[tauri::command]
+fn save_local_library(
+    app: AppHandle,
+    project_id: String,
+    library_kind: String,
+    document: Value,
+) -> Result<LocalLibrarySaveResult, String> {
+    let project_id = project_id.trim().to_string();
+    if project_id.is_empty() {
+        return Err("project_id must be non-empty".to_string());
+    }
+    let library_id = library_id_from_document(&document, &library_kind)?;
+    // The private library store validates at the import boundary with private
+    // visibility and only persists an accepted import.
+    let validation = library_import_validation_value(&document, &library_kind, "private")?;
+    if !library_import_is_storable(&validation) {
+        return Ok(LocalLibrarySaveResult {
+            project_id,
+            library_kind,
+            library_id,
+            stored: false,
+            storage_mode: "local_sqlite",
+            created_at_unix: None,
+            updated_at_unix: None,
+            document,
+            validation,
+            message: "Import not stored: validation findings block this library from the local \
+                      private store. Resolve the blocking/quarantine findings and re-import; \
+                      suspected protected content is never stored."
+                .to_string(),
+        });
+    }
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    let (created_at_unix, updated_at_unix) = upsert_library(
+        &connection,
+        &project_id,
+        &library_kind,
+        &library_id,
+        &document,
+    )?;
+    Ok(LocalLibrarySaveResult {
+        project_id,
+        library_kind,
+        library_id,
+        stored: true,
+        storage_mode: "local_sqlite",
+        created_at_unix: Some(created_at_unix),
+        updated_at_unix: Some(updated_at_unix),
+        document,
+        validation,
+        message: "Stored library document to the local SQLite store only; private libraries are \
+                  never transmitted or committed."
+            .to_string(),
+    })
+}
+
+#[tauri::command]
+fn open_local_library(
+    app: AppHandle,
+    project_id: String,
+    library_kind: String,
+    library_id: String,
+) -> Result<Option<LocalLibraryEnvelope>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    let stored = load_library(
+        &connection,
+        project_id.trim(),
+        library_kind.trim(),
+        library_id.trim(),
+    )?;
+    let Some(row) = stored else {
+        return Ok(None);
+    };
+    let validation =
+        library_import_validation_value(&row.document, library_kind.trim(), "private")?;
+    Ok(Some(LocalLibraryEnvelope {
+        project_id: project_id.trim().to_string(),
+        library_kind: library_kind.trim().to_string(),
+        library_id: library_id.trim().to_string(),
+        storage_mode: "local_sqlite",
+        created_at_unix: row.created_at_unix,
+        updated_at_unix: row.updated_at_unix,
+        document: row.document,
+        validation,
+        message: "Opened library document from the local SQLite store.".to_string(),
+    }))
+}
+
+#[tauri::command]
+fn list_local_libraries(
+    app: AppHandle,
+    project_id: Option<String>,
+) -> Result<Vec<LocalLibraryIndexEntry>, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    list_libraries(&connection, project_id.as_deref().map(str::trim))
+}
+
+#[tauri::command]
+fn delete_local_library(
+    app: AppHandle,
+    project_id: String,
+    library_kind: String,
+    library_id: String,
+) -> Result<LocalLibraryDeleteReceipt, String> {
+    let path = app_store_path(&app)?;
+    let (connection, _migration) = open_project_store(&path)?;
+    let deleted = delete_library(
+        &connection,
+        project_id.trim(),
+        library_kind.trim(),
+        library_id.trim(),
+    )?;
+    Ok(LocalLibraryDeleteReceipt {
+        project_id: project_id.trim().to_string(),
+        library_kind: library_kind.trim().to_string(),
+        library_id: library_id.trim().to_string(),
+        deleted,
+        message: if deleted {
+            "Deleted library document from the local SQLite store.".to_string()
+        } else {
+            "No stored library document matched; nothing was deleted.".to_string()
+        },
+    })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(SolveJobRegistry::default())
@@ -2090,6 +2501,10 @@ pub fn run() {
             list_local_rule_packs,
             delete_local_rule_pack,
             validate_library_import,
+            save_local_library,
+            open_local_library,
+            list_local_libraries,
+            delete_local_library,
             render_calculation_report
         ])
         .run(tauri::generate_context!())
@@ -3008,11 +3423,12 @@ mod tests {
                 "store-v8-project-envelope-hash-column",
                 "store-v9-model-document-migration-ledger-column",
                 "store-v10-local-rule-packs-table",
+                "store-v11-local-libraries-table",
             ]
         );
         assert_eq!(
             first_open.migration_status,
-            "migrated_on_open_store_schema_v0_to_v10"
+            "migrated_on_open_store_schema_v0_to_v11"
         );
 
         let second_open =
@@ -3029,7 +3445,7 @@ mod tests {
         assert_eq!(second_open.pending_migration_count, 0);
         assert_eq!(
             second_open.migration_status,
-            "current_store_schema_v10_no_pending_migrations"
+            "current_store_schema_v11_no_pending_migrations"
         );
     }
 
@@ -3066,10 +3482,10 @@ mod tests {
         let migration = apply_store_migrations(&connection).expect("legacy store migrations apply");
         assert_eq!(migration.store_schema_version_before_open, 0);
         assert_eq!(migration.store_schema_version, STORE_SCHEMA_TARGET_VERSION);
-        assert_eq!(migration.migrations_applied_on_open.len(), 10);
+        assert_eq!(migration.migrations_applied_on_open.len(), 11);
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v0_to_v10"
+            "migrated_on_open_store_schema_v0_to_v11"
         );
 
         let loaded = load_project(&connection, Some("project:legacy-local"))
@@ -3136,12 +3552,13 @@ mod tests {
             vec![
                 "store-v8-project-envelope-hash-column",
                 "store-v9-model-document-migration-ledger-column",
-                "store-v10-local-rule-packs-table"
+                "store-v10-local-rule-packs-table",
+                "store-v11-local-libraries-table"
             ]
         );
         assert_eq!(
             migration.migration_status,
-            "migrated_on_open_store_schema_v7_to_v10"
+            "migrated_on_open_store_schema_v7_to_v11"
         );
 
         let loaded = load_project(&connection, Some("project:v7-local"))
@@ -4136,5 +4553,138 @@ mod tests {
             validate_library_import(json!({}), "material".to_string(), "secret".to_string())
                 .expect_err("unsupported visibility must reject");
         assert!(visibility_err.contains("secret"));
+    }
+
+    fn storable_material_payload(library_id: &str) -> Value {
+        json!({
+            "material_library": {
+                "library_id": library_id,
+                "name": "Invented private material library",
+                "privacy_class": "private_user_data",
+                "provenance": {
+                    "source_name": "Invented source",
+                    "source_location": "tests",
+                    "source_license": "private test basis",
+                    "contributor": "OpenPipeStress",
+                    "contributor_certification": "invented non-engineering value",
+                    "redistribution_status": "private_only",
+                    "review_status": "accepted"
+                }
+            },
+            "material_records": []
+        })
+    }
+
+    fn quarantined_material_payload(library_id: &str) -> Value {
+        json!({
+            "material_library": {
+                "library_id": library_id,
+                "name": "Suspected protected material",
+                "provenance": {
+                    "source_name": "Invented source",
+                    "source_location": "tests",
+                    "source_license": "unknown",
+                    "contributor": "OpenPipeStress",
+                    "contributor_certification": "invented non-engineering value",
+                    "redistribution_status": "protected_suspected",
+                    "review_status": "accepted"
+                }
+            },
+            "material_records": []
+        })
+    }
+
+    #[test]
+    fn local_library_store_round_trips_accepted_import_per_project() {
+        let connection = Connection::open_in_memory().expect("in-memory sqlite opens");
+        apply_store_migrations(&connection).expect("store migrations apply");
+
+        let document = storable_material_payload("matlib.invented.alpha");
+        let library_id = library_id_from_document(&document, "material").expect("id extracts");
+        assert_eq!(library_id, "matlib.invented.alpha");
+
+        upsert_library(
+            &connection,
+            "project:test-local",
+            "material",
+            &library_id,
+            &document,
+        )
+        .expect("accepted import stores");
+        // A second project keeps its own row under the same library_id.
+        upsert_library(
+            &connection,
+            "project:other-local",
+            "material",
+            &library_id,
+            &document,
+        )
+        .expect("second project stores independently");
+
+        let loaded = load_library(&connection, "project:test-local", "material", &library_id)
+            .expect("library loads")
+            .expect("row present");
+        assert_eq!(loaded.document, document);
+
+        let entries = list_libraries(&connection, Some("project:test-local")).expect("lists");
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].library_kind, "material");
+        assert_eq!(entries[0].library_id, "matlib.invented.alpha");
+        assert_eq!(entries[0].library_name, "Invented private material library");
+        assert_eq!(entries[0].privacy_class, "private_user_data");
+        assert_eq!(entries[0].storage_mode, "local_sqlite");
+
+        let deleted = delete_library(&connection, "project:test-local", "material", &library_id)
+            .expect("delete runs");
+        assert!(deleted);
+        // The other project's row is untouched by the scoped delete.
+        assert_eq!(
+            list_libraries(&connection, Some("project:other-local"))
+                .expect("lists other")
+                .len(),
+            1
+        );
+        let deleted_again =
+            delete_library(&connection, "project:test-local", "material", &library_id)
+                .expect("second delete returns");
+        assert!(!deleted_again);
+    }
+
+    #[test]
+    fn local_library_store_gate_admits_accepted_and_refuses_quarantined_imports() {
+        // The persistence gate keys off the import-boundary verdict: an accepted
+        // private import is storable; a suspected-protected (QUARANTINE) import
+        // is refused so it never lands in the local store.
+        let accepted = storable_material_payload("matlib.invented.alpha");
+        let accepted_validation =
+            library_import_validation_value(&accepted, "material", "private").expect("validates");
+        assert_eq!(accepted_validation["outcome"], json!("PRIVATE_LOCAL_ONLY"));
+        assert!(library_import_is_storable(&accepted_validation));
+
+        let quarantined = quarantined_material_payload("matlib.invented.suspect");
+        let quarantined_validation =
+            library_import_validation_value(&quarantined, "material", "private")
+                .expect("validates");
+        assert_eq!(quarantined_validation["outcome"], json!("QUARANTINE"));
+        assert!(!library_import_is_storable(&quarantined_validation));
+        let codes: Vec<&str> = quarantined_validation["findings"]
+            .as_array()
+            .expect("findings array")
+            .iter()
+            .filter_map(|finding| finding["code"].as_str())
+            .collect();
+        assert!(codes.contains(&"IMPORT_PROTECTED_CONTENT_SUSPECTED"));
+    }
+
+    #[test]
+    fn library_id_extraction_requires_metadata_and_supported_kind() {
+        let document = storable_material_payload("matlib.invented.alpha");
+        // A kind/metadata mismatch (section key absent) is rejected, not guessed.
+        let mismatch = library_id_from_document(&document, "section")
+            .expect_err("section id absent from a material document");
+        assert!(mismatch.contains("section_library.library_id"));
+        // An unsupported kind is rejected at the metadata-key boundary.
+        let unsupported = library_metadata_key("widget").expect_err("unsupported kind must reject");
+        assert!(unsupported.contains("widget"));
     }
 }

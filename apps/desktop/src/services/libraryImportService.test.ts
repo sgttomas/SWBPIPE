@@ -1,12 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { LibraryImportValidation } from "./libraryImportService";
+import type { LibraryImportValidation, LocalLibrarySaveResult } from "./libraryImportService";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import {
   LIBRARY_IMPORT_BACKEND_DIAGNOSTIC,
+  deleteLocalLibrary,
+  listLocalLibraries,
+  openLocalLibrary,
   partitionLibraryImportFindings,
+  saveLocalLibrary,
   validateLibraryImport
 } from "./libraryImportService";
 
@@ -119,5 +123,114 @@ describe("libraryImportService", () => {
     ]);
     expect(advisory.map((finding) => finding.code)).toEqual(["IMPORT_REVIEW_REQUIRED"]);
     expect(partitionLibraryImportFindings(acceptedFixture)).toEqual({ blocking: [], advisory: [] });
+  });
+
+  const storedSaveFixture: LocalLibrarySaveResult = {
+    project_id: "project:test-local",
+    library_kind: "material",
+    library_id: "matlib.invented.alpha",
+    stored: true,
+    storage_mode: "local_sqlite",
+    created_at_unix: 100,
+    updated_at_unix: 100,
+    document: { material_library: { library_id: "matlib.invented.alpha" }, material_records: [] },
+    validation: acceptedFixture,
+    message: "Stored library document to the local SQLite store only."
+  };
+
+  it("reports the unavailable route for persistence in browser preview without calling invoke", async () => {
+    const route = await saveLocalLibrary("project:test-local", "material", {});
+
+    expect(route.route).toBe("unavailable_browser_preview");
+    if (route.route !== "unavailable_browser_preview") throw new Error("expected unavailable route");
+    expect(route.diagnostic).toBe(LIBRARY_IMPORT_BACKEND_DIAGNOSTIC);
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("routes save through the Tauri command and surfaces the stored flag", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(storedSaveFixture);
+    const document = { material_library: { library_id: "matlib.invented.alpha" }, material_records: [] };
+
+    const route = await saveLocalLibrary("project:test-local", "material", document);
+
+    expect(invokeMock).toHaveBeenCalledWith("save_local_library", {
+      projectId: "project:test-local",
+      libraryKind: "material",
+      document
+    });
+    expect(route.route).toBe("tauri_backend");
+    if (route.route !== "tauri_backend") throw new Error("expected Tauri backend route");
+    expect(route.result.stored).toBe(true);
+    expect(route.result.library_id).toBe("matlib.invented.alpha");
+  });
+
+  it("passes a refused (not-stored) save result through unchanged", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const refused: LocalLibrarySaveResult = {
+      ...storedSaveFixture,
+      stored: false,
+      created_at_unix: null,
+      updated_at_unix: null,
+      validation: blockedFixture,
+      message: "Import not stored: validation findings block this library."
+    };
+    invokeMock.mockResolvedValue(refused);
+
+    const route = await saveLocalLibrary("project:test-local", "component", {});
+
+    expect(route.route).toBe("tauri_backend");
+    if (route.route !== "tauri_backend") throw new Error("expected Tauri backend route");
+    expect(route.result.stored).toBe(false);
+    expect(route.result.created_at_unix).toBeNull();
+    expect(route.result.validation.has_blocking_findings).toBe(true);
+  });
+
+  it("routes open/list/delete through their Tauri commands with camelCase args", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+
+    invokeMock.mockResolvedValueOnce(null);
+    const openRoute = await openLocalLibrary("project:test-local", "material", "matlib.invented.alpha");
+    expect(invokeMock).toHaveBeenLastCalledWith("open_local_library", {
+      projectId: "project:test-local",
+      libraryKind: "material",
+      libraryId: "matlib.invented.alpha"
+    });
+    expect(openRoute.route === "tauri_backend" && openRoute.envelope).toBeNull();
+
+    invokeMock.mockResolvedValueOnce([
+      {
+        project_id: "project:test-local",
+        library_kind: "material",
+        library_id: "matlib.invented.alpha",
+        library_name: "Invented private material library",
+        privacy_class: "private_user_data",
+        storage_mode: "local_sqlite",
+        created_at_unix: 100,
+        updated_at_unix: 100
+      }
+    ]);
+    const listRoute = await listLocalLibraries("project:test-local");
+    expect(invokeMock).toHaveBeenLastCalledWith("list_local_libraries", {
+      projectId: "project:test-local"
+    });
+    if (listRoute.route !== "tauri_backend") throw new Error("expected Tauri backend route");
+    expect(listRoute.entries).toHaveLength(1);
+    expect(listRoute.entries[0].library_id).toBe("matlib.invented.alpha");
+
+    invokeMock.mockResolvedValueOnce({
+      project_id: "project:test-local",
+      library_kind: "material",
+      library_id: "matlib.invented.alpha",
+      deleted: true,
+      message: "Deleted library document from the local SQLite store."
+    });
+    const deleteRoute = await deleteLocalLibrary("project:test-local", "material", "matlib.invented.alpha");
+    expect(invokeMock).toHaveBeenLastCalledWith("delete_local_library", {
+      projectId: "project:test-local",
+      libraryKind: "material",
+      libraryId: "matlib.invented.alpha"
+    });
+    expect(deleteRoute.route === "tauri_backend" && deleteRoute.receipt.deleted).toBe(true);
   });
 });

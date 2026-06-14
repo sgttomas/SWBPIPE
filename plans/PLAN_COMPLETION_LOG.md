@@ -13,6 +13,45 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C3 store slice landed: local-only private-library persistence (`TP-C3-LIBSTORE-001`)
+
+Third Phase C item **C3** sub-slice: local-only persistence (CRUD) for imported
+material/section/component libraries, the store half mirroring the C2
+`local_rule_packs` store (`TP-C2-RPLIFE-001`). Human-approved continuation of
+the C3 spine after the foundation crate and the validation seam.
+
+Store **v11 migration** (`STORE_SCHEMA_TARGET_VERSION` 10 → 11) creates
+`local_libraries` (project-scoped, keyed `(project_id, library_kind,
+library_id)`, local SQLite only; the three migration-ledger evidence tests were
+updated for the new step). New Tauri commands `save_local_library` /
+`open_local_library` / `list_local_libraries` / `delete_local_library` (in
+`apps/desktop/src-tauri/src/lib.rs`) and the matching typed
+`libraryImportService.ts` routes with the shared browser-unavailable seam.
+
+**Persistence policy (private-by-default, accepted-only).** `save_local_library`
+re-validates each document at the import boundary with private visibility and
+stores **only an accepted (`PRIVATE_LOCAL_ONLY`) import** (the named gate
+`library_import_is_storable`); a suspected-protected (`QUARANTINE`) or blocked
+(`REJECTED`) import is refused — `stored:false` with its findings, nothing
+written — so suspected protected content never reaches the store (IP boundary).
+This deliberately differs from the rule-pack "drafts always saveable" store
+because a library *import* carries external-IP risk the DEL-03-07 checker exists
+to gate; a stored-audit-trail variant is recorded as a flagged human-gated
+follow-up (run record §Persistence policy).
+
+No GUI, no file parsing, no wizard in this slice (next C3 slices). Backend store
+seam ⇒ per the H4 posture the owed evidence is the Rust store/gate tests + the
+Vitest service tests; the wizard GUI's Playwright/Vitest evidence rides the next
+C3 slice. Validation: src-tauri `cargo test` 43/43 (3 new store/gate tests +
+3 updated migration tests), `cargo fmt --check` clean; desktop Vitest 317/317
+(15 files, 4 new); `npm run build` clean; DEC-025 five-surface sweep at HEAD. No
+lifecycle change; DEL-03-07 stays CHECKING; no professional/certification/
+code-compliance claim; private libraries never committed or transmitted.
+
+Evidence: DEL-03-07 run record
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C3-LIBSTORE-001.md`;
+`apps/desktop/SMOKE.md` TP-MAC-154.
+
 ## 2026-06-13 - C3 seam slice landed: `validate_library_import` command + typed service (`TP-C3-IMPORTCMD-001`)
 
 Second Phase C item **C3** sub-slice: the **desktop seam** exposing the C3
