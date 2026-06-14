@@ -5111,3 +5111,46 @@ notes:
   release-readiness, professional, certification, sealing, authentication, or
   code-compliance claim. The schema member is a PROPOSAL pending human
   ratification.
+
+## TP-MAC-158 author the library reference in the rule-pack editor (`TP-C3-LIBREFAUTHOR-001`, 2026-06-14)
+
+- Phase C3 residual (C2 authoring half of the rule-pack ↔ private-library
+  round-trip): the rule-pack declarations form-builder now authors a
+  `private_library_value` required input's `library_value_ref` through
+  structured controls, instead of hand-editing raw document JSON. Pairs with
+  TP-MAC-157 (which resolves the reference at run time): author here → resolve
+  there.
+- **GUI (`DeclarationsEditor.tsx`):** when a required input's `source_kind` is
+  set to `private_library_value`, a reference sub-form appears with a
+  `library_kind` select (material/section/component — the verbatim schema
+  vocabulary, no "TBD" member) plus `library_id`/`record_id`/`slot_id` text
+  fields, an IP-boundary note ("resolved at check-run time … never embedded in
+  the rule pack"), and a "Remove library reference" control. Switching to
+  `private_library_value` **seeds a complete four-member reference** (kind →
+  first kind; ids → visible uppercase `"TBD"` placeholders), so an unfilled
+  reference resolves to nothing and the input blocks — never a partial schema
+  shape, never a silent pass. A reference left after the source_kind is changed
+  away stays **visible and removable** (never silently hidden). Still
+  form-only (no writable expression text — D-02b AWAITING_RULING).
+- **Boundary:** frontend-only; no schema/backend change (the optional
+  `library_value_ref` member and its run-time resolution landed in
+  TP-C3C4-LIBREF-001; the Value-based `validate_rule_pack_document` tolerates
+  it). The reference is carried in the pack; the private value is never embedded
+  or committed.
+- Manual check (browser e2e, both viewports): in the rule-pack manager draft,
+  setting the appended input's `source_kind` to `private_library_value` reveals
+  the sub-form + boundary note; filling the four controls writes a complete
+  `library_value_ref` into the canonical draft JSON
+  (`required_inputs[last].library_value_ref`). Asserted in
+  `e2e/r2-smoke.spec.ts` (the rule-pack manager test).
+- Validation: desktop Vitest **345** (+5: LIBRARY_KINDS vocab, default-ref
+  shape, seed-on-switch, first-edit completion, stale-ref visible+removable);
+  `npm run build` clean; `npx playwright test` **10/10** (two viewports). No
+  Rust/Python/schema surfaces touched.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFAUTHOR-001.md` (DEL-06-02 primary;
+  DEL-03-07 library coupling).
+- Boundary review: local-only; status-vocabulary-only; deliverables stay
+  CHECKING; no release-readiness, professional, certification, sealing,
+  authentication, or code-compliance claim. The `library_value_ref` schema
+  member it authors remains a PROPOSAL pending human ratification.

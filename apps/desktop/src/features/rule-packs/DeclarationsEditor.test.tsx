@@ -4,10 +4,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   COMPLETENESS_STATUSES,
   DeclarationsEditor,
+  LIBRARY_KINDS,
   REQUIRED_FOR_TARGETS,
   SLOT_KINDS,
   SOURCE_KINDS,
   VALUE_STATUSES,
+  defaultLibraryValueRef,
   defaultRequiredInput,
   defaultValueSlot,
   readRequiredInputIds,
@@ -155,6 +157,22 @@ describe("DeclarationsEditor pure helpers", () => {
       "protected_suspected",
       "TBD"
     ]);
+    // LibraryValueRef.library_kind has NO "TBD" member in the schema (the three
+    // concrete kinds only), so the vocab is exactly those three.
+    expect(LIBRARY_KINDS).toEqual(["material", "section", "component"]);
+  });
+
+  it("builds a schema-shaped default library_value_ref: a concrete kind + TBD ids", () => {
+    // toEqual pins the EXACT shape: all four required members present, the kind
+    // defaulted to the first (only-resolved) kind, and the ids the visible
+    // uppercase "TBD" placeholder (an unfilled reference resolves to nothing and
+    // the input blocks — never a silent pass; never an invented private value).
+    expect(defaultLibraryValueRef()).toEqual({
+      library_kind: "material",
+      library_id: "TBD",
+      record_id: "TBD",
+      slot_id: "TBD"
+    });
   });
 });
 
@@ -331,5 +349,111 @@ describe("DeclarationsEditor component", () => {
     expect(screen.getByTestId("rule-pack-input-id")).toHaveProperty("disabled", true);
     expect(screen.getByTestId("rule-pack-input-add")).toHaveProperty("disabled", true);
     expect(screen.getByTestId("rule-pack-slot-add")).toHaveProperty("disabled", true);
+  });
+
+  // --- library_value_ref authoring (TP-C3-LIBREFAUTHOR-001) ---
+
+  it("shows the library reference sub-form and seeds a complete reference when an input draws from a private library", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    // The default input draws from user_supplied_rule_value: no library sub-form.
+    expect(screen.queryByTestId("rule-pack-input-library-ref")).toBeNull();
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-source-kind"), {
+      target: { value: "private_library_value" }
+    });
+    // The sub-form appears and a COMPLETE four-member reference is seeded (never
+    // a schema-invalid partial), with the IP-boundary note shown.
+    expect(screen.getByTestId("rule-pack-input-library-ref")).toBeTruthy();
+    expect(inputsOf(harnessDoc())[0].library_value_ref).toEqual(defaultLibraryValueRef());
+    expect(screen.getByTestId("rule-pack-input-library-ref-note").textContent).toContain(
+      "never embedded in the rule pack"
+    );
+  });
+
+  it("edits the library reference fields and keeps the rest of the input verbatim", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    fireEvent.change(screen.getByTestId("rule-pack-input-source-kind"), {
+      target: { value: "private_library_value" }
+    });
+    const inputBefore = inputsOf(harnessDoc())[0];
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-library-kind"), {
+      target: { value: "section" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-input-library-id"), {
+      target: { value: "my_private_lib" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-input-library-record"), {
+      target: { value: "rec_A106B" }
+    });
+    fireEvent.change(screen.getByTestId("rule-pack-input-library-slot"), {
+      target: { value: "allowable_stress" }
+    });
+    const input = inputsOf(harnessDoc())[0];
+    expect(input.library_value_ref).toEqual({
+      library_kind: "section",
+      library_id: "my_private_lib",
+      record_id: "rec_A106B",
+      slot_id: "allowable_stress"
+    });
+    // Lossless: every non-reference member of the input is unchanged (toEqual
+    // ignores the undefined-keyed reference on both sides).
+    expect({ ...input, library_value_ref: undefined }).toEqual({
+      ...inputBefore,
+      library_value_ref: undefined
+    });
+  });
+
+  it("completes a partial reference on first edit when an opened input lacks one", () => {
+    // Edge case: a pack opened with source_kind private_library_value but NO
+    // library_value_ref (e.g. authored before this slice). Editing one field
+    // must still write a COMPLETE four-member reference, never a partial.
+    const document = setRequiredInputs(buildDraftRulePackDocument(), [
+      { input_id: "lib_input", source_kind: "private_library_value" }
+    ]);
+    render(<Harness initial={document} />);
+    // The sub-form shows by source_kind even with no stored reference yet.
+    expect(screen.getByTestId("rule-pack-input-library-ref")).toBeTruthy();
+    // Remove is disabled until a reference actually exists.
+    expect(screen.getByTestId("rule-pack-input-library-remove")).toHaveProperty("disabled", true);
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-library-record"), {
+      target: { value: "rec_9" }
+    });
+    expect(inputsOf(harnessDoc())[0].library_value_ref).toEqual({
+      library_kind: "material",
+      library_id: "TBD",
+      record_id: "rec_9",
+      slot_id: "TBD"
+    });
+  });
+
+  it("keeps a reference left on a non-library input visible and removable", () => {
+    // A reference left behind after the source_kind was changed away from
+    // private_library_value stays visible (never silently hidden) and removable.
+    const document = setRequiredInputs(buildDraftRulePackDocument(), [
+      {
+        input_id: "legacy",
+        source_kind: "solver_result",
+        name: "kept",
+        library_value_ref: {
+          library_kind: "material",
+          library_id: "lib_1",
+          record_id: "rec_1",
+          slot_id: "slot_1"
+        }
+      }
+    ]);
+    render(<Harness initial={document} />);
+    expect(screen.getByTestId("rule-pack-input-library-ref")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-input-library-remove")).toHaveProperty("disabled", false);
+
+    fireEvent.click(screen.getByTestId("rule-pack-input-library-remove"));
+    const input = inputsOf(harnessDoc())[0];
+    // The reference member is dropped; every other member round-trips verbatim.
+    expect("library_value_ref" in input).toBe(false);
+    expect(input).toEqual({ input_id: "legacy", source_kind: "solver_result", name: "kept" });
+    // With the reference gone and a non-library source_kind, the sub-form hides.
+    expect(screen.queryByTestId("rule-pack-input-library-ref")).toBeNull();
   });
 });

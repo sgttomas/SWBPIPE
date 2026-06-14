@@ -551,6 +551,34 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   const statusText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(statusText).check_definitions[0].result_statuses).toContain("MODEL_INCOMPLETE");
 
+  // TP-C3-LIBREFAUTHOR-001: an input that draws from a private library authors a
+  // library_value_ref (library_kind/library_id/record_id/slot_id) through
+  // structured controls — the pointer the C4 runner resolves from the local
+  // library store at run time (TP-C3C4-LIBREF-001). Setting source_kind to
+  // private_library_value reveals the sub-form and seeds a complete reference;
+  // the private value itself is never embedded in the pack. Still form-only
+  // (D-02b); no raw JSON. Target the appended (second) input row via .last().
+  await page.getByTestId("rule-pack-input-source-kind").last().selectOption("private_library_value");
+  await expect(page.getByTestId("rule-pack-input-library-ref")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-input-library-ref-note")).toContainText(
+    "never embedded in the rule pack"
+  );
+  await page.getByTestId("rule-pack-input-library-kind").selectOption("material");
+  await page.getByTestId("rule-pack-input-library-id").fill("my_private_lib");
+  await page.getByTestId("rule-pack-input-library-record").fill("rec_A106B");
+  await page.getByTestId("rule-pack-input-library-slot").fill("allowable_stress");
+  const libRefText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  const libRefInputs = JSON.parse(libRefText).required_inputs;
+  expect(libRefInputs[libRefInputs.length - 1]).toMatchObject({
+    source_kind: "private_library_value",
+    library_value_ref: {
+      library_kind: "material",
+      library_id: "my_private_lib",
+      record_id: "rec_A106B",
+      slot_id: "allowable_stress"
+    }
+  });
+
   // Validate routes to the desktop-only seam: the status transitions away
   // from the just-created "private_user_data" draft message. (Per-button
   // seam coverage for compute-checksum and save lives in the Vitest panel

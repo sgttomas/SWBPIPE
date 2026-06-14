@@ -26,6 +26,17 @@ import { draftPlaceholderProvenance } from "../../services/rulePackService";
 // member of this schema version (UserSuppliedValueSlot carries a dimension /
 // unit intent and a value_status, not a number); the honest value_status
 // marker is exposed instead of inventing a value field.
+//
+// Library references (TP-C3-LIBREFAUTHOR-001): a required input whose
+// source_kind is `private_library_value` additionally authors a
+// `library_value_ref` (library_kind / library_id / record_id / slot_id) — the
+// pointer the C4 rule-check runner resolves from the local private-library
+// store at run time (TP-C3C4-LIBREF-001). The reference is carried; the private
+// value is NEVER embedded in the rule-pack document (IP boundary, PRD
+// §13/§17.3), so authoring a reference here never redistributes a private value.
+// The `library_value_ref` schema member is an additive PROPOSAL awaiting human
+// ratification (companion to DEC-031); it is optional and changes nothing for
+// packs that do not use it.
 
 export type DeclarationDocument = Record<string, unknown>;
 
@@ -68,6 +79,12 @@ export const VALUE_STATUSES = [
   "protected_suspected",
   "TBD"
 ] as const;
+// LibraryValueRef.library_kind vocabulary, copied verbatim from
+// rule_pack.schema.yaml. Unlike the other declaration enums this one has NO
+// "TBD" member (the schema offers only the three concrete kinds), so a seeded
+// reference defaults library_kind to the first kind and leaves the *ids* as
+// visible "TBD" placeholders instead.
+export const LIBRARY_KINDS = ["material", "section", "component"] as const;
 
 function asObject(value: unknown): Record<string, unknown> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
@@ -162,6 +179,27 @@ export function defaultValueSlot(existingIds: string[]): Record<string, unknown>
     redistribution_status_required: true,
     review_status: "pending",
     completeness_status: "missing_required_value"
+  };
+}
+
+/**
+ * A schema-valid default `library_value_ref` (LibraryValueRef): the reference a
+ * `private_library_value` required input uses to point at a value held in a
+ * saved private library record. All four members are required by the schema, so
+ * the placeholder carries them all: `library_kind` defaults to the first kind
+ * (the only kind the runner resolves today — material allowable slots), and the
+ * three ids are the visible uppercase `"TBD"` placeholder the `Id` pattern
+ * accepts, so an unfilled reference resolves to nothing and the input blocks
+ * (never a silent pass). The private value itself is NEVER stored here — only
+ * the reference; it is read from the local library store at run time (IP
+ * boundary, PRD §13/§17.3).
+ */
+export function defaultLibraryValueRef(): Record<string, unknown> {
+  return {
+    library_kind: LIBRARY_KINDS[0],
+    library_id: "TBD",
+    record_id: "TBD",
+    slot_id: "TBD"
   };
 }
 
@@ -301,6 +339,43 @@ export function DeclarationsEditor({
     const quantity = asObject(asObject(rawInputs[index])?.quantity_intent) ?? {};
     updateInput(index, { quantity_intent: { ...quantity, ...patch } });
   };
+  // Change a required input's source_kind. Switching TO private_library_value
+  // seeds a placeholder library_value_ref when none exists yet, so the
+  // reference sub-form opens with a complete, schema-valid (but unresolved,
+  // hence blocking) reference rather than a partial one. Switching away leaves
+  // any existing reference in place (lossless); the sub-form stays visible so a
+  // now-meaningless reference is never silently hidden, and the explicit
+  // "Remove library reference" control lets the user drop it.
+  const changeInputSourceKind = (index: number, next: string) => {
+    const hasRef = asObject(asObject(rawInputs[index])?.library_value_ref) !== null;
+    if (next === "private_library_value" && !hasRef) {
+      updateInput(index, { source_kind: next, library_value_ref: defaultLibraryValueRef() });
+    } else {
+      updateInput(index, { source_kind: next });
+    }
+  };
+  // Patch one input's library_value_ref, merging into the existing reference
+  // (or a fresh default when none exists yet — so the first field edit always
+  // produces a complete four-member reference, never a schema-invalid partial).
+  const updateInputLibraryRef = (index: number, patch: Record<string, unknown>) => {
+    const ref = asObject(asObject(rawInputs[index])?.library_value_ref) ?? defaultLibraryValueRef();
+    updateInput(index, { library_value_ref: { ...ref, ...patch } });
+  };
+  // Drop the library_value_ref member entirely — the only member-removing edit
+  // the editor exposes, used when an input no longer references a library. Every
+  // other member of the input round-trips verbatim.
+  const removeInputLibraryRef = (index: number) =>
+    onChange(
+      setRequiredInputs(
+        document,
+        rawInputs.map((entry, position) => {
+          if (position !== index) return entry;
+          const rest = { ...(asObject(entry) ?? {}) };
+          delete rest.library_value_ref;
+          return rest;
+        })
+      )
+    );
   const addInput = () =>
     onChange(setRequiredInputs(document, [...rawInputs, defaultRequiredInput(inputIds)]));
   const removeInput = (index: number) =>
@@ -354,6 +429,13 @@ export function DeclarationsEditor({
         {rawInputs.map((entry, index) => {
           const record = asObject(entry) ?? {};
           const quantity = asObject(record.quantity_intent) ?? {};
+          const sourceKind = asString(record.source_kind) ?? "TBD";
+          const libraryRef = asObject(record.library_value_ref);
+          // Show the private-library reference sub-form whenever the input draws
+          // from a private library, OR whenever a reference is already present
+          // (so a reference left over from a since-changed source_kind stays
+          // visible and removable rather than silently hidden).
+          const showLibraryRef = sourceKind === "private_library_value" || libraryRef !== null;
           return (
             <div
               className="rule-pack-node operation-record"
@@ -380,7 +462,7 @@ export function DeclarationsEditor({
                 options={SOURCE_KINDS}
                 value={asString(record.source_kind) ?? "TBD"}
                 disabled={disabled}
-                onChange={(next) => updateInput(index, { source_kind: next })}
+                onChange={(next) => changeInputSourceKind(index, next)}
               />
               <Field label="dimension">
                 <DimensionSelect
@@ -413,6 +495,62 @@ export function DeclarationsEditor({
                 disabled={disabled}
                 onChange={(next) => updateInput(index, { completeness_status: next })}
               />
+              {showLibraryRef ? (
+                <div className="rule-pack-node" data-testid="rule-pack-input-library-ref">
+                  <small
+                    className="rule-pack-node-readonly"
+                    data-testid="rule-pack-input-library-ref-note"
+                  >
+                    Private library reference. The referenced value is resolved at check-run time
+                    from the local private library store; it stays in the library and is never
+                    embedded in the rule pack.
+                  </small>
+                  <EnumSelect
+                    testId="rule-pack-input-library-kind"
+                    label="library_kind"
+                    options={LIBRARY_KINDS}
+                    value={asString(libraryRef?.library_kind) ?? LIBRARY_KINDS[0]}
+                    disabled={disabled}
+                    onChange={(next) => updateInputLibraryRef(index, { library_kind: next })}
+                  />
+                  <TextField
+                    testId="rule-pack-input-library-id"
+                    label="library_id"
+                    value={asString(libraryRef?.library_id) ?? ""}
+                    disabled={disabled}
+                    onChange={(next) => updateInputLibraryRef(index, { library_id: next })}
+                  />
+                  <TextField
+                    testId="rule-pack-input-library-record"
+                    label="record_id"
+                    value={asString(libraryRef?.record_id) ?? ""}
+                    disabled={disabled}
+                    onChange={(next) => updateInputLibraryRef(index, { record_id: next })}
+                  />
+                  <TextField
+                    testId="rule-pack-input-library-slot"
+                    label="slot_id"
+                    value={asString(libraryRef?.slot_id) ?? ""}
+                    disabled={disabled}
+                    onChange={(next) => updateInputLibraryRef(index, { slot_id: next })}
+                  />
+                  <button
+                    type="button"
+                    data-testid="rule-pack-input-library-remove"
+                    disabled={disabled || libraryRef === null}
+                    title={
+                      disabled
+                        ? disabledReason
+                        : libraryRef === null
+                          ? "No library reference to remove."
+                          : undefined
+                    }
+                    onClick={() => removeInputLibraryRef(index)}
+                  >
+                    Remove library reference
+                  </button>
+                </div>
+              ) : null}
               <button
                 type="button"
                 data-testid="rule-pack-input-remove"

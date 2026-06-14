@@ -163,3 +163,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
   standards values, no compliance/pass-fail claim. DEL-07-03 stays CHECKING.
 - Next Phase C dependency-spine work is C3 (private library management GUI) and
   C4 (engine-side end-to-end rule checks on solved user models).
+
+## 2026-06-14 - DeclarationsEditor authors `library_value_ref` (C3 residual, `TP-C3-LIBREFAUTHOR-001`)
+
+- The C2 declarations form-builder (`DeclarationsEditor`, this deliverable's
+  component) now authors a `private_library_value` required input's
+  `library_value_ref` (library_kind/library_id/record_id/slot_id) through
+  structured controls — the C2-authoring half of the rule-pack ↔ private-library
+  round-trip whose run-time resolution half landed in `TP-C3C4-LIBREF-001`.
+- Switching `source_kind` to `private_library_value` reveals a reference
+  sub-form and seeds a complete four-member reference (kind → first concrete
+  kind; ids → visible uppercase `"TBD"`), so an unfilled reference blocks the
+  input rather than passing silently; a reference left after the source_kind
+  changes away stays visible and removable. Reference-only — the private value
+  is never embedded in the pack (IP boundary).
+- Frontend-only; no schema/Rust/Python change. Still form-only (D-02b stays
+  AWAITING_RULING). DEL-07-03 stays CHECKING.
+- Primary run record + evidence live under DEL-06-02 (rule-pack deliverable,
+  continuity with `TP-C3C4-LIBREF-001`):
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFAUTHOR-001.md`; SMOKE TP-MAC-158.
+  Vitest 345 (+5), build clean, Playwright 10/10.

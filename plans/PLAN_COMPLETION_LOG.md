@@ -13,6 +13,45 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C3 authoring slice landed: author `library_value_ref` in the rule-pack editor (`TP-C3-LIBREFAUTHOR-001`)
+
+The C2-authoring half of the rule-pack ↔ private-library round-trip, completing
+the C3 residual hand-off from `TP-C3C4-LIBREF-001` (which landed the run-time
+resolution half). Before this, a `private_library_value` required input's
+`library_value_ref` could only be set by hand-editing raw document JSON; now the
+declarations form-builder authors it through structured controls.
+
+GUI (`apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx`): when a
+required input's `source_kind` is `private_library_value`, a reference sub-form
+appears — a `library_kind` select (material/section/component, the verbatim
+schema vocabulary, no "TBD" member) plus `library_id`/`record_id`/`slot_id` text
+fields, an IP-boundary note, and a "Remove library reference" control. Switching
+to `private_library_value` seeds a complete four-member reference (kind → first
+kind; ids → visible uppercase `"TBD"` placeholders), so an unfilled reference
+resolves to nothing and the input blocks — never a partial schema shape, never a
+silent pass (CONTRACT no-silent-defaults). A reference left after the source_kind
+changes away stays visible and removable (never silently hidden); every other
+member of the input round-trips verbatim. Frontend-only: no schema/Rust/Python
+change (the optional member and its resolution landed in `TP-C3C4-LIBREF-001`;
+the Value-based `validate_rule_pack_document` tolerates it). Not gated by D-02b
+(structured form authoring, not writable expression text syntax).
+
+Evidence: desktop Vitest 345 (+5: LIBRARY_KINDS vocab, default-ref shape,
+seed-on-switch, first-edit completion, stale-ref visible+removable); `npm run
+build` clean; `npx playwright test` 10/10 (two viewports — the rule-pack manager
+e2e test now authors a `library_value_ref` and asserts it in the canonical draft
+JSON). Status-vocabulary-only; reference-only, private value never embedded or
+committed; no lifecycle/release/professional/code-compliance claim. Run record:
+`WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFAUTHOR-001.md` (DEL-06-02 primary;
+DEL-03-07 library coupling); SMOKE TP-MAC-158.
+
+Residuals: section/component slot resolution (material allowables resolve today);
+a richer C4 run-panel library/record/slot picker (the panel surfaces the
+reference read-only); human ratification of the additive `library_value_ref`
+schema member (PROPOSAL).
+
+---
+
 ## 2026-06-14 — C3↔C4 library-reference resolution landed (`TP-C3C4-LIBREF-001`)
 
 The coupled C3 ("rule-pack ↔ library reference wiring") and C4
