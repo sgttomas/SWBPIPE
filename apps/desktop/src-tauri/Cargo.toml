@@ -18,6 +18,7 @@ open_pipe_stress_operation_applier = { path = "../../../core/model_operations/op
 open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
 open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }
 open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_document" }
+open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
 open_pipe_stress_units = { path = "../../../core/units" }
 rusqlite = { version = "0.32", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }

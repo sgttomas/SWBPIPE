@@ -2094,6 +2094,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_completeness_checker"
+version = "0.1.0"
+
+[[package]]
 name = "open_pipe_stress_expression_evaluator"
 version = "0.1.0"
 
@@ -2187,6 +2191,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_rule_check_runner"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_completeness_checker",
+ "open_pipe_stress_expression_evaluator",
+ "open_pipe_stress_rule_pack_document",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "open_pipe_stress_rule_pack_document"
 version = "0.1.0"
 dependencies = [
@@ -2228,6 +2243,7 @@ dependencies = [
  "open_pipe_stress_operation_applier",
  "open_pipe_stress_product_physics",
  "open_pipe_stress_report_renderer",
+ "open_pipe_stress_rule_check_runner",
  "open_pipe_stress_rule_pack_document",
  "open_pipe_stress_units",
  "rusqlite",

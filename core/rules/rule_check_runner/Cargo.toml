@@ -1,0 +1,12 @@
+[package]
+name = "open_pipe_stress_rule_check_runner"
+version = "0.1.0"
+edition = "2021"
+description = "End-to-end rule-check orchestration (C4): completeness, frozen-grammar formula decode and evaluation, ratio-vs-limit acceptability composition, per-check status, and worst-of aggregation over a rule-pack document plus caller-resolved solver and user values. No text parsing, no network/host/filesystem access, no protected content, no compliance claims."
+
+[dependencies]
+open_pipe_stress_expression_evaluator = { path = "../expression_evaluator" }
+open_pipe_stress_completeness_checker = { path = "../completeness_checker" }
+open_pipe_stress_rule_pack_document = { path = "../rule_pack_document" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

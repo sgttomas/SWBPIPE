@@ -7,6 +7,7 @@ use model_document_migration::{
 use open_pipe_stress_library_import_document as library_import_document;
 use open_pipe_stress_operation_applier::{apply_operation, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview, LinearStaticPreviewRequest};
+use open_pipe_stress_rule_check_runner as rule_check_runner;
 use open_pipe_stress_rule_pack_document as rule_pack_document;
 use open_pipe_stress_units::{catalog_definitions, UnitDefinition};
 use rusqlite::{params, Connection, OptionalExtension};
@@ -1935,6 +1936,158 @@ fn validate_rule_pack(
     ))
 }
 
+/// Run a rule pack's checks against a solved model and return per-check
+/// outcomes (completion plan C4). The pack is validated first; a pack with
+/// blocking validation findings is reported as `RULE_INPUTS_INCOMPLETE` without
+/// running checks. Solver values are resolved from the solved mechanics
+/// envelope (supplied directly via `solved_envelope`, or produced by
+/// `run_preview_mechanics`) using the caller's `{input_id, result_id}`
+/// selectors; user values and value-slot limits come from
+/// `supplied_value_bindings`. This emits only the automatic rule-check statuses
+/// and makes no professional, certification, sealing, authentication, approval,
+/// or code-compliance claim.
+#[tauri::command]
+fn run_rule_checks(
+    rule_pack_document: Value,
+    model: Option<Value>,
+    solved_envelope: Option<Value>,
+    solver_result_bindings: Option<Value>,
+    supplied_value_bindings: Option<Value>,
+) -> Result<Value, String> {
+    let validation = rule_pack_document::validate_rule_pack_document(&rule_pack_document, false);
+    if validation.has_blocking_findings {
+        return Ok(json!({
+            "document_kind": rule_check_runner::DOCUMENT_KIND,
+            "rule_pack_id": rule_pack_document
+                .pointer("/metadata/rule_pack_id")
+                .and_then(Value::as_str)
+                .unwrap_or_default(),
+            "grammar_version": rule_pack_document
+                .pointer("/grammar_version")
+                .and_then(Value::as_str)
+                .unwrap_or_default(),
+            "aggregate_status": "RULE_INPUTS_INCOMPLETE",
+            "checks": [],
+            "rule_pack_validation": rule_pack_validation_value(&rule_pack_document, false),
+            "professional_boundary_notice": rule_check_runner::PROFESSIONAL_BOUNDARY_NOTICE,
+        }));
+    }
+
+    let envelope = match solved_envelope {
+        Some(value) => value,
+        None => run_preview_mechanics(model)?,
+    };
+
+    let solver_results =
+        resolve_solver_result_bindings(solver_result_bindings.as_ref(), &envelope)?;
+    let supplied_values = parse_supplied_value_bindings(supplied_value_bindings.as_ref())?;
+
+    let current_statuses = match envelope
+        .pointer("/status/mechanics")
+        .and_then(Value::as_str)
+    {
+        Some("MECHANICS_SOLVED") => vec![rule_check_runner::AnalysisStatus::MechanicsSolved],
+        _ => vec![rule_check_runner::AnalysisStatus::ModelIncomplete],
+    };
+
+    let result = rule_check_runner::run_rule_checks(&rule_check_runner::RuleCheckRunInput {
+        rule_pack_document: &rule_pack_document,
+        solver_results,
+        supplied_values,
+        current_statuses,
+    });
+
+    serde_json::to_value(result).map_err(|error| error.to_string())
+}
+
+/// Resolve caller-supplied `{input_id, result_id}` selectors against a solved
+/// mechanics envelope's `results[]`, reading `value`/`unit` by result id. A
+/// selector with no matching row (or a row missing value/unit) is omitted, so
+/// the required input is treated as unsupplied and the check blocks — never a
+/// silent pass.
+fn resolve_solver_result_bindings(
+    selectors: Option<&Value>,
+    envelope: &Value,
+) -> Result<Vec<rule_check_runner::SolverResultBinding>, String> {
+    let Some(selectors) = selectors.filter(|value| !value.is_null()) else {
+        return Ok(Vec::new());
+    };
+    let array = selectors
+        .as_array()
+        .ok_or_else(|| "solver_result_bindings must be an array".to_string())?;
+    let rows = envelope.pointer("/results").and_then(Value::as_array);
+    let mut bindings = Vec::new();
+    for selector in array {
+        let input_id = selector
+            .pointer("/input_id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "each solver_result binding requires input_id".to_string())?;
+        let result_id = selector
+            .pointer("/result_id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "each solver_result binding requires result_id".to_string())?;
+        let row = rows.and_then(|rows| {
+            rows.iter()
+                .find(|row| row.pointer("/id").and_then(Value::as_str) == Some(result_id))
+        });
+        if let Some(row) = row {
+            if let (Some(value), Some(unit)) = (
+                row.pointer("/value").and_then(Value::as_f64),
+                row.pointer("/unit").and_then(Value::as_str),
+            ) {
+                bindings.push(rule_check_runner::SolverResultBinding {
+                    input_id: input_id.to_string(),
+                    result_id: result_id.to_string(),
+                    value,
+                    unit: unit.to_string(),
+                });
+            }
+        }
+    }
+    Ok(bindings)
+}
+
+/// Parse caller-supplied `{ref_id, value, unit, dimension}` user values (for
+/// `user_supplied_rule_value` inputs and value-slot limits).
+fn parse_supplied_value_bindings(
+    bindings: Option<&Value>,
+) -> Result<Vec<rule_check_runner::SuppliedValueBinding>, String> {
+    let Some(bindings) = bindings.filter(|value| !value.is_null()) else {
+        return Ok(Vec::new());
+    };
+    let array = bindings
+        .as_array()
+        .ok_or_else(|| "supplied_value_bindings must be an array".to_string())?;
+    let mut parsed = Vec::new();
+    for binding in array {
+        let ref_id = binding
+            .pointer("/ref_id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "each supplied value binding requires ref_id".to_string())?;
+        let value = binding
+            .pointer("/value")
+            .and_then(Value::as_f64)
+            .ok_or_else(|| format!("supplied value binding '{ref_id}' requires a numeric value"))?;
+        let unit = binding
+            .pointer("/unit")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_string();
+        let dimension = binding
+            .pointer("/dimension")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_string();
+        parsed.push(rule_check_runner::SuppliedValueBinding {
+            ref_id: ref_id.to_string(),
+            value,
+            unit,
+            dimension,
+        });
+    }
+    Ok(parsed)
+}
+
 #[tauri::command]
 fn compute_rule_pack_document_checksum(document: Value) -> Result<Value, String> {
     rule_pack_document::compute_rule_pack_checksum(&document)
@@ -2500,6 +2653,7 @@ pub fn run() {
             open_local_rule_pack,
             list_local_rule_packs,
             delete_local_rule_pack,
+            run_rule_checks,
             validate_library_import,
             save_local_library,
             open_local_library,
@@ -4358,6 +4512,117 @@ mod tests {
             .expect("invented example rule pack found");
         let raw = fs::read_to_string(path).expect("example rule pack readable");
         serde_json::from_str(&raw).expect("example rule pack is strict JSON")
+    }
+
+    fn demo_solved_envelope(actual: f64) -> Value {
+        json!({
+            "status": {
+                "mechanics": "MECHANICS_SOLVED",
+                "rule_check": "RULE_INPUTS_INCOMPLETE"
+            },
+            "results": [
+                {
+                    "id": "result:stress:demo",
+                    "kind": "stress",
+                    "value": actual,
+                    "unit": "demo_unit",
+                    "entity_ref": "pipe:demo"
+                }
+            ]
+        })
+    }
+
+    fn demo_solver_selectors() -> Value {
+        json!([{ "input_id": "demo_actual_quantity", "result_id": "result:stress:demo" }])
+    }
+
+    fn demo_supplied_values() -> Value {
+        json!([
+            { "ref_id": "demo_limit_quantity", "value": 100.0, "unit": "demo_unit", "dimension": "stress" },
+            { "ref_id": "demo_limit_slot", "value": 1.0, "unit": "ratio", "dimension": "dimensionless" }
+        ])
+    }
+
+    #[test]
+    fn run_rule_checks_command_passing_demo_reports_user_rule_checked() {
+        let outcome = run_rule_checks(
+            example_rule_pack_document(),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["rule_pack_id"], json!("invented_demo_rule_pack"));
+        assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
+    }
+
+    #[test]
+    fn run_rule_checks_command_failing_case_reports_user_rule_failed() {
+        let outcome = run_rule_checks(
+            example_rule_pack_document(),
+            None,
+            Some(demo_solved_envelope(150.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_FAILED"));
+        assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_FAILED"));
+    }
+
+    #[test]
+    fn run_rule_checks_command_missing_input_reports_rule_inputs_incomplete() {
+        // No solver selectors -> the solver_result input is unsupplied.
+        let outcome = run_rule_checks(
+            example_rule_pack_document(),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            None,
+            Some(demo_supplied_values()),
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+        assert!(outcome["checks"][0]["computed_value"].is_null());
+    }
+
+    #[test]
+    fn run_rule_checks_command_rejects_blocking_invalid_pack() {
+        let outcome = run_rule_checks(
+            json!({ "not": "a valid rule pack" }),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+        )
+        .expect("command returns");
+        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+    }
+
+    #[test]
+    fn run_rule_checks_command_emits_only_status_vocabulary() {
+        let outcome = run_rule_checks(
+            example_rule_pack_document(),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+        )
+        .expect("rule checks run");
+        let serialized = serde_json::to_string(&outcome).expect("serializes");
+        for forbidden in [
+            "HUMAN_APPROVED_FOR_PROJECT",
+            "Certified",
+            "Sealed",
+            "code_compliant",
+        ] {
+            assert!(
+                !serialized.contains(forbidden),
+                "command output must not contain {forbidden}"
+            );
+        }
     }
 
     #[test]

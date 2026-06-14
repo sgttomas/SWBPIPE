@@ -13,6 +13,56 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 — C4 backend slice landed: rule-check orchestration + Tauri command (`TP-C4-CHECKRUN-001`)
+
+First Phase C item **C4** slice and the one that makes rule checks *runnable*:
+the rule-check engine crates (`expression_evaluator`, `completeness_checker`,
+`rule_pack_document` codec) were built and tested but **orphaned** — no Tauri
+command ran a rule pack against a solved model, and `run_preview_mechanics`
+hard-codes `rule_check: "RULE_INPUTS_INCOMPLETE"`. This slice wires them into a
+runnable path toward the PRD §22.4 / R3 exit criterion ("user defines a private
+non-code rule pack and runs checks; software blocks pass/fail on missing
+inputs").
+
+New crate `core/rules/rule_check_runner` (`open_pipe_stress_rule_check_runner`)
+exposes `run_rule_checks(&RuleCheckRunInput) -> RuleCheckRunResult`. Per check,
+in document order: build completeness inputs and run `check_completeness`
+(blocked → `RULE_INPUTS_INCOMPLETE`, formula never evaluated — the "blocks
+pass/fail on missing inputs" guarantee); else `decode_expression` the
+frozen-grammar formula AST, bind the resolved values, `evaluate`; resolve the
+user-supplied value-slot limit; synthesize `Compare(formula, <=, limit)` and
+evaluate it through the same evaluator (unit/dimension safety in one place);
+map the boolean to `USER_RULE_CHECKED` / `USER_RULE_FAILED`; enforce the check's
+declared `result_statuses`; aggregate worst-of (`USER_RULE_FAILED` >
+`RULE_INPUTS_INCOMPLETE` > `USER_RULE_CHECKED`). A boolean-valued formula is
+used directly as the predicate. New `run_rule_checks` Tauri command validates
+the pack, obtains the solved envelope (supplied or via `run_preview_mechanics`),
+resolves caller-supplied `{input_id, result_id}` selectors against the
+envelope's `results[]`, and returns the serialized run result.
+
+The two composition semantics — `<=` acceptability and the caller-supplied
+solver-result binding — are **C4-defined wiring**, explicitly routed to C4 by
+the DEL-06-01 `TP-C2-SCHEMA-001` run record (§"Residuals and hand-offs"; the
+schema deliberately left them open) and grounded in the PRD §12.5
+ratio-vs-allowable shape. No human decision was taken; D-02b (writable
+expression text syntax) is `AWAITING_RULING` and does not gate running the
+already-authored AST.
+
+Evidence: `rule_check_runner` 9 unit + 3 integration (the integration suite
+runs the real `examples/rule_packs/invented_demo.yaml`: ratio 0.5 →
+`USER_RULE_CHECKED`, 1.5 → `USER_RULE_FAILED`, dropped solver binding →
+`RULE_INPUTS_INCOMPLETE`); desktop backend 48 (43 prior + 5 new command tests),
+no regression; `expression_evaluator` 32 / `completeness_checker` 12 /
+`rule_pack_document` 10 regression green; `cargo fmt --check` clean. No UI/TS
+change → no Vitest/Playwright/SMOKE.md entry this slice. Run records:
+DEL-06-02 (primary), DEL-06-03 (pointer).
+
+Residual hand-offs (remain in the C4 row): GUI "Run checks" action + per-check
+results panel (`TP-C4-CHECKGUI-001`, makes the exit criterion GUI-true);
+`private_library_value` resolution (C3 residual); driving `aggregate_status`
+into `MechanicsEnvelope.status.rule_check` / `result_export`; future additive
+`acceptability_relation` and solver-result-selector schema members.
+
 ## 2026-06-13 - C3 GUI slice landed: private library manager panel (`TP-C3-LIBGUI-001`)
 
 Fourth Phase C item **C3** sub-slice and the one that makes C3 user-facing: the
