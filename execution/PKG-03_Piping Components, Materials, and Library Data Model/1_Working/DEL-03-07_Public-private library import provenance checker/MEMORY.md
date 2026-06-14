@@ -140,3 +140,34 @@ Durable context preserved after PKG-02 grounded finding resolution:
   frontend service; local-only private-library persistence (CRUD); the import-
   wizard GUI with §13.5 warning display; rule-pack ↔ library reference wiring;
   then C4 end-to-end checks.
+- Subsequent C3 slices (detail in SMOKE.md + run records, not duplicated here):
+  `TP-C3-IMPORTCMD-001` (the `validate_library_import` command + typed service,
+  SMOKE TP-MAC-153) and `TP-C3-LIBSTORE-001` (store v11 `local_libraries` +
+  CRUD commands, refuse-to-store policy ruled `DEC-036`, SMOKE TP-MAC-154).
+
+## 2026-06-13 - C3 GUI: private library manager panel (TP-C3-LIBGUI-001)
+
+- App-integration tranche (completion-plan Phase C item C3 **GUI slice**,
+  selected under the `_COORDINATION.md` loop as the earliest unblocked R3/Phase C
+  dependency-spine item after the C3 foundation/seam/store slices): the
+  import-wizard GUI the three prior C3 slices handed off. New
+  `LibraryManagerPanel` (`apps/desktop/src/features/library/`) and a "Libraries"
+  workspace section in `App.tsx`, replicating the C2 `RulePackManagerPanel`:
+  kind/visibility selectors, an import-document textarea, a built-in invented
+  private starting template (`buildInventedLibraryImportTemplate`), validate with
+  the **PRD §13.5 blocking-vs-advisory findings display**, save with the
+  **`DEC-036` refuse-to-store surfacing** (`stored:false` + findings), a
+  project-scoped list (open/delete), and the private-data + professional boundary
+  note. No backend change — it surfaces the prior slices' commands verbatim.
+- Validation: desktop Vitest 326/326 (9 new panel tests incl. desktop-mode
+  §13.5-partition and refuse-to-store via mocked `invoke`); `npm run build`
+  clean; Playwright e2e (both viewports) for the Libraries nav + invented-sample
+  load + honest desktop-only seam; live-browser confirmation via the preview
+  tools. Run record:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C3-LIBGUI-001.md`; SMOKE
+  TP-MAC-155.
+- No lifecycle change: DEL-03-07 stays CHECKING. The GUI asserts only software
+  findings (no legal/redistribution/certification/approval claim); imported
+  private libraries stay local-only, never committed/transmitted/bundled.
+- Remaining C3: rule-pack ↔ library reference wiring (its own slice); then C4
+  end-to-end rule checks on authored models consuming imported libraries.

@@ -1,0 +1,257 @@
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
+import { LibraryManagerPanel } from "./LibraryManagerPanel";
+import {
+  LIBRARY_IMPORT_BACKEND_DIAGNOSTIC,
+  buildInventedLibraryImportTemplate,
+  type LibraryImportValidation,
+  type LocalLibrarySaveResult
+} from "../../services/libraryImportService";
+import type { PreviewModel } from "../../types";
+
+// Phase C3 GUI slice (TP-C3-LIBGUI-001). jsdom has no Tauri runtime, so the
+// browser-preview tests pin the honest desktop-only seam: import documents stay
+// in memory and every backend action reports the explicit unavailable
+// diagnostic instead of a synthesized fallback. The desktop-mode tests set
+// __TAURI_INTERNALS__ and mock invoke to exercise the §13.5 findings display
+// and the DEC-036 refuse-to-store surfacing the real backend produces.
+
+const modelStub = {
+  project: { id: "project:invented-library-test", name: "Invented Library Test Project" }
+} as unknown as PreviewModel;
+
+const blockedValidation: LibraryImportValidation = {
+  document_kind: "openpipestress.library_import.validation",
+  outcome: "QUARANTINE",
+  library_kind: "component",
+  intended_visibility: "public",
+  accepted: false,
+  has_blocking_findings: true,
+  findings: [
+    {
+      code: "IMPORT_PROTECTED_CONTENT_SUSPECTED",
+      severity: "quarantine",
+      path: "component_records[0]",
+      message: "Import metadata indicates suspected protected content.",
+      remediation: "Quarantine metadata and request human/legal review; do not publish values."
+    },
+    {
+      code: "IMPORT_LIBRARY_METADATA_MISSING",
+      severity: "blocking",
+      path: "component_library",
+      message: "Library metadata object is missing.",
+      remediation: "Provide library metadata with provenance before import."
+    },
+    {
+      code: "IMPORT_REVIEW_REQUIRED",
+      severity: "review_required",
+      path: "component_records[0]",
+      message: "Public import requires an accepted review disposition.",
+      remediation: "Record maintainer review before accepting public data."
+    }
+  ],
+  diagnostics: [],
+  professional_boundary_notice:
+    "Library-import validation reports software findings only over an already-parsed import payload."
+};
+
+afterEach(() => {
+  cleanup();
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
+
+describe("LibraryManagerPanel (browser preview seam)", () => {
+  it("scopes the manager to the loaded project and stays honest without one", () => {
+    render(<LibraryManagerPanel model={null} />);
+    expect(screen.getByTestId("library-scope-status").textContent).toContain(
+      "create or open a local project first"
+    );
+    cleanup();
+
+    render(<LibraryManagerPanel model={modelStub} />);
+    expect(screen.getByTestId("library-scope-status").textContent).toContain(
+      "project:invented-library-test"
+    );
+    expect(screen.getByTestId("library-scope-status").textContent).toContain("local SQLite only");
+  });
+
+  it("loads an invented private-by-default sample for the selected kind and supports discard", () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    const textarea = screen.getByTestId("library-draft-json") as HTMLTextAreaElement;
+    expect(textarea.disabled).toBe(true);
+    expect(screen.getByTestId("library-validate")).toHaveProperty("disabled", true);
+
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    expect(textarea.disabled).toBe(false);
+    const material = JSON.parse(textarea.value) as Record<string, unknown>;
+    expect(material.material_library).toBeTruthy();
+    const materialLibrary = material.material_library as Record<string, unknown>;
+    expect(materialLibrary.privacy_class).toBe("private_user_data");
+    const provenance = materialLibrary.provenance as Record<string, unknown>;
+    expect(provenance.redistribution_status).toBe("private_only");
+    expect(screen.getByTestId("library-action-status").textContent).toContain("private_user_data");
+
+    // Switching kind then reloading yields the matching library shape.
+    fireEvent.change(screen.getByTestId("library-kind-select"), { target: { value: "component" } });
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    const component = JSON.parse(
+      (screen.getByTestId("library-draft-json") as HTMLTextAreaElement).value
+    ) as Record<string, unknown>;
+    expect(component.component_library).toBeTruthy();
+    expect(component.component_records).toEqual([]);
+
+    fireEvent.click(screen.getByTestId("library-discard-draft"));
+    expect((screen.getByTestId("library-draft-json") as HTMLTextAreaElement).value).toBe("");
+    expect(screen.getByTestId("library-action-status").textContent).toContain("discarded");
+  });
+
+  it("reports the explicit desktop-only diagnostic for backend actions in browser preview", async () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+
+    fireEvent.click(screen.getByTestId("library-validate"));
+    await waitFor(() =>
+      expect(screen.getByTestId("library-action-status").textContent).toContain(
+        "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+      )
+    );
+
+    fireEvent.click(screen.getByTestId("library-refresh-list"));
+    await waitFor(() =>
+      expect(screen.getByTestId("library-list-status").textContent).toContain(
+        "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+      )
+    );
+    expect(screen.getByTestId("library-list-status").textContent).toBe(
+      LIBRARY_IMPORT_BACKEND_DIAGNOSTIC
+    );
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks save with an honest reason when no project is loaded", async () => {
+    render(<LibraryManagerPanel model={null} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    fireEvent.click(screen.getByTestId("library-save"));
+    await waitFor(() =>
+      expect(screen.getByTestId("library-action-status").textContent).toContain(
+        "create or open a local project first"
+      )
+    );
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("reports invalid draft JSON honestly instead of acting on it", async () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    const textarea = screen.getByTestId("library-draft-json") as HTMLTextAreaElement;
+    fireEvent.change(textarea, { target: { value: "{not json" } });
+    fireEvent.click(screen.getByTestId("library-validate"));
+    await waitFor(() =>
+      expect(screen.getByTestId("library-action-status").textContent).toContain(
+        "LIBRARY-IMPORT-DRAFT-JSON-INVALID"
+      )
+    );
+  });
+
+  it("keeps the private-data and professional boundaries visible", () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    const note = screen.getByTestId("library-boundary-note").textContent ?? "";
+    expect(note).toContain("never committed to the repository");
+    expect(note).toContain("DEC-036");
+    expect(note).toContain("never a legal");
+  });
+});
+
+describe("LibraryManagerPanel (desktop backend, mocked invoke)", () => {
+  it("splits validation findings along the PRD §13.5 blocking-vs-advisory axis", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(blockedValidation);
+
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    fireEvent.click(screen.getByTestId("library-validate"));
+
+    await waitFor(() => expect(screen.getByTestId("library-validation")).toBeTruthy());
+    expect(screen.getByTestId("library-validation-summary").textContent).toContain(
+      "outcome=QUARANTINE"
+    );
+    expect(screen.getByTestId("library-validation-summary").textContent).toContain("accepted=false");
+
+    const blocking = screen.getByTestId("library-findings-blocking");
+    expect(within(blocking).getByText("IMPORT_PROTECTED_CONTENT_SUSPECTED")).toBeTruthy();
+    expect(within(blocking).getByText("IMPORT_LIBRARY_METADATA_MISSING")).toBeTruthy();
+    expect(within(blocking).queryByText("IMPORT_REVIEW_REQUIRED")).toBeNull();
+
+    const advisory = screen.getByTestId("library-findings-advisory");
+    expect(within(advisory).getByText("IMPORT_REVIEW_REQUIRED")).toBeTruthy();
+    expect(within(advisory).queryByText("IMPORT_PROTECTED_CONTENT_SUSPECTED")).toBeNull();
+  });
+
+  it("surfaces the DEC-036 refuse-to-store outcome when a blocked import is not stored", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const refused: LocalLibrarySaveResult = {
+      project_id: "project:invented-library-test",
+      library_kind: "component",
+      library_id: "complib.invented.local_draft",
+      stored: false,
+      storage_mode: "local_sqlite",
+      created_at_unix: null,
+      updated_at_unix: null,
+      document: {},
+      validation: blockedValidation,
+      message: "Import not stored: validation findings block this library."
+    };
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "save_local_library") return Promise.resolve(refused);
+      if (command === "list_local_libraries") return Promise.resolve([]);
+      return Promise.reject(new Error(`unexpected command ${command}`));
+    });
+
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    fireEvent.click(screen.getByTestId("library-save"));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("library-action-status").textContent).toContain("stored=false")
+    );
+    expect(screen.getByTestId("library-action-status").textContent).toContain(
+      "DEC-036 refuse-to-store"
+    );
+    // The blocked validation rides through to the §13.5 display.
+    expect(screen.getByTestId("library-validation-summary").textContent).toContain(
+      "blocking_findings=true"
+    );
+  });
+});
+
+describe("buildInventedLibraryImportTemplate", () => {
+  it("builds a private-by-default, provenance-complete document per kind", () => {
+    for (const kind of ["material", "section", "component"] as const) {
+      const document = buildInventedLibraryImportTemplate(kind);
+      const libraryKey = `${kind}_library`;
+      const recordsKey = `${kind}_records`;
+      const library = document[libraryKey] as Record<string, unknown>;
+      expect(library).toBeTruthy();
+      expect(library.privacy_class).toBe("private_user_data");
+      expect(document[recordsKey]).toEqual([]);
+      const provenance = library.provenance as Record<string, unknown>;
+      for (const field of [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ]) {
+        expect(provenance[field]).toBeTruthy();
+      }
+      expect(provenance.redistribution_status).toBe("private_only");
+    }
+  });
+});

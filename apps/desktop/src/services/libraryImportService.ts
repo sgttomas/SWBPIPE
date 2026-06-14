@@ -218,3 +218,61 @@ export async function deleteLocalLibrary(
   });
   return { route: "tauri_backend", receipt };
 }
+
+// --- Built-in invented starting template (Phase C3, TP-C3-LIBGUI-001) ---
+// The import manager GUI needs a clean starting point the user edits, mirroring
+// the C2 rule-pack manager's buildDraftRulePackDocument helper. This template
+// mirrors the canonical accepted private payload the desktop backend test pins
+// (`storable_material_payload`): a private-classified library object carrying
+// every required provenance field and an empty record array. Under a *private*
+// import it validates to PRIVATE_LOCAL_ONLY with no findings and is storable —
+// the happy-path the user then edits. It is invented and non-engineering: it
+// carries no real material/section/component values and is never a real
+// dataset, redistribution clearance, or compliance claim.
+
+const TEMPLATE_PROVENANCE = {
+  source_name: "Invented local draft",
+  source_location: "user-authored private draft",
+  source_license: "private user basis",
+  contributor: "OpenPipeStress user",
+  contributor_certification: "invented non-engineering draft; not for project reliance",
+  redistribution_status: "private_only",
+  review_status: "accepted"
+} as const;
+
+const LIBRARY_TEMPLATE_KEYS: Record<
+  LibraryKind,
+  { libraryKey: string; recordsKey: string; libraryId: string }
+> = {
+  material: {
+    libraryKey: "material_library",
+    recordsKey: "material_records",
+    libraryId: "matlib.invented.local_draft"
+  },
+  section: {
+    libraryKey: "section_library",
+    recordsKey: "section_records",
+    libraryId: "seclib.invented.local_draft"
+  },
+  component: {
+    libraryKey: "component_library",
+    recordsKey: "component_records",
+    libraryId: "complib.invented.local_draft"
+  }
+};
+
+export function buildInventedLibraryImportTemplate(
+  libraryKind: LibraryKind
+): Record<string, unknown> {
+  const keys = LIBRARY_TEMPLATE_KEYS[libraryKind];
+  return {
+    schema_version: "0.1.0",
+    [keys.libraryKey]: {
+      library_id: keys.libraryId,
+      name: `Invented private ${libraryKind} library (local draft)`,
+      privacy_class: "private_user_data",
+      provenance: { ...TEMPLATE_PROVENANCE }
+    },
+    [keys.recordsKey]: []
+  };
+}

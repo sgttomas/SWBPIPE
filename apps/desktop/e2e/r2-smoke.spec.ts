@@ -573,6 +573,61 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await expect(page.getByTestId("rule-pack-action-status")).toContainText("Draft discarded");
 });
 
+test("library manager loads an invented private sample and reports the desktop-only backend seam", async ({
+  page
+}) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+
+  await openWorkspaceSection(page, "libraries");
+  await expect(page.getByTestId("library-scope-status")).toContainText("local SQLite only");
+  await expect(page.getByTestId("library-boundary-note")).toContainText("DEC-036");
+  await expect(page.getByTestId("library-boundary-note")).toContainText(
+    "never committed to the repository"
+  );
+
+  // Phase C3 (TP-C3-LIBGUI-001): load the invented private-by-default sample
+  // for the default (material) kind through visible controls. The canonical
+  // import document populates the textarea with a private-classified,
+  // provenance-complete library.
+  await page.getByTestId("library-load-template").click();
+  const materialText = await page.getByTestId("library-draft-json").inputValue();
+  const material = JSON.parse(materialText);
+  expect(material.material_library.privacy_class).toBe("private_user_data");
+  expect(material.material_library.provenance.redistribution_status).toBe("private_only");
+  expect(material.material_records).toEqual([]);
+  await expect(page.getByTestId("library-action-status")).toContainText("private_user_data");
+
+  // Switching the kind selector and reloading yields the matching library
+  // family shape — the component library here.
+  await page.getByTestId("library-kind-select").selectOption("component");
+  await page.getByTestId("library-load-template").click();
+  const componentText = await page.getByTestId("library-draft-json").inputValue();
+  expect(JSON.parse(componentText).component_library).toBeTruthy();
+
+  // Validate routes to the desktop-only seam in browser preview: the
+  // validate/save/store backend runs in the Tauri runtime only. Accept/store
+  // and §13.5 findings outcomes are covered by the src-tauri Rust tests and
+  // the Vitest desktop-mode mocked panel suite, not by this browser lane.
+  await page.getByTestId("library-validate").click();
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+
+  // Refresh reports on a distinct surface (list-status), independent of the
+  // validate result above.
+  await page.getByTestId("library-refresh-list").click();
+  await expect(page.getByTestId("library-list-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+
+  await page.getByTestId("library-discard-draft").click();
+  await expect(page.getByTestId("library-action-status")).toContainText("discarded");
+});
+
 function stepPayload(changeKind: string, ref: string): any {
   const step = rehearsal.steps.find(
     (candidate) =>

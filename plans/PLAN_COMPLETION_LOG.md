@@ -13,6 +13,57 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-13 - C3 GUI slice landed: private library manager panel (`TP-C3-LIBGUI-001`)
+
+Fourth Phase C item **C3** sub-slice and the one that makes C3 user-facing: the
+import-wizard **GUI** the foundation/seam/store slices handed off. Selected per
+the `_COORDINATION.md` loop as the earliest unblocked R3/Phase C dependency-spine
+item (C2 done → C3 → C4); not blocked by any human decision (`D-02b` gates only
+C2 expression text syntax). Replicates the C2 rule-pack **manager GUI**
+(`RulePackManagerPanel`, `TP-C2-EDITOR-001`).
+
+New `LibraryManagerPanel` (`apps/desktop/src/features/library/`) and a
+**"Libraries" workspace section** in `App.tsx`, placed immediately before the
+rule-pack manager (journey order operations → loads → libraries → rule-packs →
+solve) because both are private local-only asset managers and rule packs
+reference imported library allowables. Controls: library-kind
+(material/section/component) and intended-visibility selectors (the latter
+labeled *validation preview*, with an explicit note that **save always persists
+to the private local store**); a built-in **invented private starting template**
+per kind (`buildInventedLibraryImportTemplate`, mirroring the desktop backend's
+own canonical accepted payload so the happy path validates clean); an
+import-document JSON textarea; validate / save / discard; and a project-scoped
+list with per-entry open/delete. **No backend change** — it surfaces the prior
+slices' `validate_library_import` / `save_local_library` / `open_local_library`
+/ `list_local_libraries` / `delete_local_library` commands verbatim.
+
+**PRD §13.5 display + DEC-036 honesty.** Findings render split into a *Blocking /
+quarantine* group (blocks acceptance) and an *Advisory* group (review before
+acceptance), via `partitionLibraryImportFindings`. Save shows `stored=<bool>`;
+when a blocked/suspected-protected import is refused, the status carries an
+explicit `DEC-036 refuse-to-store` note and the blocking validation rides through
+to the §13.5 display. The boundary note states local-only, never
+committed/transmitted/bundled, refuse-to-store, and software-findings-only.
+
+User-visible desktop surface ⇒ per the H4 posture the default UI evidence is the
+Playwright e2e spec extension (real browser, both viewports: Libraries nav +
+invented-sample load + honest desktop-only seam) plus the new Vitest component
+suite; the §13.5-partition and refuse-to-store paths are exercised via mocked
+`invoke` because that backend is desktop-only (the documented reason browser e2e
+does not cover accept/store — those are covered by the src-tauri Rust tests).
+Live-browser confirmed via the preview tools. Validation: desktop Vitest 326/326
+(16 files, 9 new); `npm run build` clean; `npm run test:e2e -- --grep "library
+manager"` 2 passed; DEC-025 five-surface sweep at HEAD. No lifecycle change;
+DEL-03-07 stays CHECKING; no professional/certification/code-compliance claim.
+
+Remaining C3: rule-pack ↔ library reference wiring (couples C2/C3; its own
+slice); then C4 end-to-end rule checks on authored models consuming imported
+libraries.
+
+Evidence: DEL-03-07 run record
+`execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_run_records/WORKING_ITEMS_RUN_2026-06-13_TP-C3-LIBGUI-001.md`;
+`apps/desktop/SMOKE.md` TP-MAC-155.
+
 ## 2026-06-13 - C3 store slice landed: local-only private-library persistence (`TP-C3-LIBSTORE-001`)
 
 Third Phase C item **C3** sub-slice: local-only persistence (CRUD) for imported

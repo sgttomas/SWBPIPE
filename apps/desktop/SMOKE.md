@@ -4979,3 +4979,48 @@ notes:
 - Boundary review: validation statuses are software findings only; no lifecycle
   state change (DEL-03-07 stays CHECKING); no release-readiness, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-155 private library manager GUI: import wizard, §13.5 display, refuse-to-store (`TP-C3-LIBGUI-001`, 2026-06-13)
+
+- Phase C3 **GUI slice** — the import-wizard panel + workspace section the three
+  prior C3 slices handed off. New `LibraryManagerPanel`
+  (`apps/desktop/src/features/library/`) and a "Libraries" workspace section
+  (journey order: operations → loads → libraries → rule-packs → solve),
+  replicating the C2 `RulePackManagerPanel`. No backend change — it surfaces the
+  prior slices' `validate_library_import` / `save_local_library` /
+  `open_local_library` / `list_local_libraries` / `delete_local_library`
+  commands verbatim.
+- Controls: library-kind selector (material/section/component); intended-
+  visibility selector labeled **validation preview** (with a note that **save
+  always persists to the private local store**); a built-in **invented private
+  starting template** per kind; an import-document JSON textarea; validate /
+  save / discard; a project-scoped list with per-entry open/delete.
+- **PRD §13.5 display.** Validation findings render split into a **Blocking /
+  quarantine** group (blocks import acceptance) and an **Advisory** group
+  (human review before acceptance, not blocking), via
+  `partitionLibraryImportFindings`, each finding showing code / severity / path
+  / message / remediation, plus the backend software-findings-only notice.
+- **DEC-036 refuse-to-store, surfaced honestly.** Save shows `stored=<bool>`;
+  when a blocked/suspected-protected import is refused, the status carries an
+  explicit `DEC-036 refuse-to-store` note and the blocking validation rides
+  through to the §13.5 display. Imported private libraries are never transmitted,
+  committed, or bundled (OPS-K-PRIV-1, PRD §13.5/§17.3).
+- Manual check (desktop/browser): live-browser confirmed via the preview tools —
+  the Libraries nav activates the section, the panel renders project-scoped
+  (`local SQLite only`), and load-sample populates a private-classified material
+  library with the private-by-default status. The accept/store outcomes run in
+  the Tauri runtime only; in browser preview validate/save/list report the honest
+  `LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY` seam (the documented reason the browser
+  e2e does not exercise accept/store — those paths are covered by the src-tauri
+  Rust tests and the Vitest desktop-mode mocked panel suite).
+- Validation: desktop Vitest **326/326** (16 files; 9 new in
+  `LibraryManagerPanel.test.tsx`, incl. desktop-mode §13.5-partition and
+  refuse-to-store via mocked `invoke`); `npm run build` (`tsc -b && vite build`)
+  clean; `npm run test:e2e -- --grep "library manager"` **2 passed**
+  (chromium-desktop + chromium-compact). No backend change, so no `cargo`/`pytest`
+  surface is owed.
+- Evidence: DEL-03-07 run record
+  `WORKING_ITEMS_RUN_2026-06-13_TP-C3-LIBGUI-001.md`.
+- Boundary review: validation statuses are software findings only; no lifecycle
+  state change (DEL-03-07 stays CHECKING); no release-readiness, professional,
+  certification, sealing, authentication, or code-compliance claim.
