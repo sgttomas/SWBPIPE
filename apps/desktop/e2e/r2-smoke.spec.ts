@@ -769,6 +769,36 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-library-resolution-lib_allow")).toContainText(
     "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
   );
+
+  // TP-C4-SOLVERREFPICKER-001: a solver_result input with an authored
+  // solver_result_ref gets a read-only preview against the current solved
+  // envelope. In this browser smoke path no solved rows are present yet, so the
+  // preview honestly reports no_result_rows instead of inventing a binding. The
+  // resolving solved-envelope case is pinned in the component tests.
+  const solverRefPack = JSON.stringify({
+    metadata: { rule_pack_id: "solver_ref_demo" },
+    required_inputs: [
+      {
+        input_id: "actual_stress",
+        name: "Actual stress",
+        source_kind: "solver_result",
+        quantity_intent: { dimension: "stress", unit_ref: "kPa" },
+        solver_result_ref: { result_id: "result:stress:pipe-P-100:end-i:axial-normal" }
+      }
+    ]
+  });
+  await page.getByTestId("rule-check-pack-json").fill(solverRefPack);
+  await expect(page.getByTestId("rule-check-solver-input-actual_stress")).toContainText(
+    "supersedes the run-panel selector"
+  );
+  await page.getByTestId("rule-check-solver-preview-actual_stress").click();
+  await expect(page.getByTestId("rule-check-solver-resolution-actual_stress")).toHaveAttribute(
+    "data-status",
+    "no_result_rows"
+  );
+  await expect(page.getByTestId("rule-check-solver-browse-actual_stress")).toContainText(
+    "Run a solve first"
+  );
 });
 
 function stepPayload(changeKind: string, ref: string): any {

@@ -144,6 +144,7 @@ export type SolverInputRequirement = {
   name: string;
   dimension: string;
   unit_ref: string;
+  solver_result_ref?: SolverResultRef;
 };
 
 export type ValueInputRequirement = {
@@ -169,6 +170,13 @@ export type LibraryValueRef = {
   library_id: string;
   record_id: string;
   slot_id: string;
+};
+
+// Reference from a solver_result input to a row in the current solved result
+// envelope. Authored references are canonical: the run-panel selector is only
+// used for older packs without this member.
+export type SolverResultRef = {
+  result_id: string;
 };
 
 export type LibraryInputRequirement = {
@@ -218,6 +226,15 @@ function readLibraryValueRef(item: Record<string, unknown>): LibraryValueRef | u
   return { library_kind: libraryKind, library_id: libraryId, record_id: recordId, slot_id: slotId };
 }
 
+function readSolverResultRef(item: Record<string, unknown>): SolverResultRef | undefined {
+  const ref = item.solver_result_ref;
+  if (typeof ref !== "object" || ref === null) return undefined;
+  const record = ref as Record<string, unknown>;
+  const resultId = asString(record.result_id);
+  if (!resultId) return undefined;
+  return { result_id: resultId };
+}
+
 export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleCheckBindingPlan {
   const plan: RuleCheckBindingPlan = {
     solverInputs: [],
@@ -234,7 +251,13 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
     const name = asString(item.name, inputId);
     const { dimension, unit_ref } = quantityIntent(item);
     if (sourceKind === "solver_result") {
-      plan.solverInputs.push({ input_id: inputId, name, dimension, unit_ref });
+      plan.solverInputs.push({
+        input_id: inputId,
+        name,
+        dimension,
+        unit_ref,
+        solver_result_ref: readSolverResultRef(item)
+      });
     } else if (sourceKind === "private_library_value") {
       plan.libraryInputs.push({ input_id: inputId, name, library_value_ref: readLibraryValueRef(item) });
     } else {
@@ -256,4 +279,14 @@ export function deriveRuleCheckBindingPlan(document: RulePackDocument): RuleChec
   }
 
   return plan;
+}
+
+export type SolverResultReferenceResolution = "resolves" | "result_missing" | "no_result_rows";
+
+export function classifySolverResultReference(
+  resultRows: MechanicsResult["results"] | null | undefined,
+  resultId: string
+): SolverResultReferenceResolution {
+  if (!resultRows || resultRows.length === 0) return "no_result_rows";
+  return resultRows.some((row) => row.id === resultId) ? "resolves" : "result_missing";
 }

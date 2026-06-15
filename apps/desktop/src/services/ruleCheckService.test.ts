@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import {
+  classifySolverResultReference,
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
   runRuleChecks,
@@ -33,7 +34,8 @@ describe("deriveRuleCheckBindingPlan", () => {
           input_id: "actual",
           name: "Actual",
           source_kind: "solver_result",
-          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" }
+          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+          solver_result_ref: { result_id: "result:stress:demo" }
         },
         {
           input_id: "limit",
@@ -66,7 +68,13 @@ describe("deriveRuleCheckBindingPlan", () => {
     const plan = deriveRuleCheckBindingPlan(pack);
 
     expect(plan.solverInputs).toEqual([
-      { input_id: "actual", name: "Actual", dimension: "stress", unit_ref: "demo_unit" }
+      {
+        input_id: "actual",
+        name: "Actual",
+        dimension: "stress",
+        unit_ref: "demo_unit",
+        solver_result_ref: { result_id: "result:stress:demo" }
+      }
     ]);
     expect(plan.valueInputs).toEqual([
       {
@@ -113,6 +121,25 @@ describe("deriveRuleCheckBindingPlan", () => {
       dimension: "TBD",
       unit_ref: "TBD"
     });
+  });
+});
+
+describe("classifySolverResultReference", () => {
+  const rows = [
+    { id: "result:stress:demo", kind: "stress", value: 50, unit: "demo_unit", entity_ref: "pipe:demo" }
+  ] as never;
+
+  it("resolves when the authored result id is present", () => {
+    expect(classifySolverResultReference(rows, "result:stress:demo")).toBe("resolves");
+  });
+
+  it("reports result_missing when result rows exist but the id is absent", () => {
+    expect(classifySolverResultReference(rows, "result:absent")).toBe("result_missing");
+  });
+
+  it("reports no_result_rows when no solved result rows are available", () => {
+    expect(classifySolverResultReference([], "result:stress:demo")).toBe("no_result_rows");
+    expect(classifySolverResultReference(null, "result:stress:demo")).toBe("no_result_rows");
   });
 });
 

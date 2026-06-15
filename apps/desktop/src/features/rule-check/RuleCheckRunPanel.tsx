@@ -8,6 +8,7 @@ import {
   type RulePackDocument
 } from "../../services/rulePackService";
 import {
+  classifySolverResultReference,
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
   runRuleChecks,
@@ -16,6 +17,9 @@ import {
   type RuleCheckBindingPlan,
   type RuleCheckRunResult,
   type RuleCheckStatus,
+  type SolverInputRequirement,
+  type SolverResultReferenceResolution,
+  type SolverResultRef,
   type SolverResultSelector,
   type SuppliedValueBinding
 } from "../../services/ruleCheckService";
@@ -155,6 +159,63 @@ function renderLibraryPreview(inputId: string, ref: LibraryValueRef, preview: Li
   );
 }
 
+// --- Solver-result reference resolution preview (Phase C4,
+// TP-C4-SOLVERREFPICKER-001) -----------------------------------------------
+// A solver_result input may carry an authored solver_result_ref (DEC-039). That
+// in-pack reference is canonical and supersedes the run-panel selector. This
+// preview is read-only: it checks the current solved envelope for the target
+// result row and lists available row ids for discovery; it never mutates the
+// pack or invents a fallback binding.
+const SOLVER_RESULT_RESOLUTION_LABEL: Record<SolverResultReferenceResolution, string> = {
+  resolves: "resolves in the current solved result envelope",
+  result_missing: "does not match a row in the current solved result envelope",
+  no_result_rows: "cannot be checked because no solved result rows are available"
+};
+
+type SolverPreviewState = { status: SolverResultReferenceResolution };
+
+function renderSolverPreview(
+  inputId: string,
+  ref: SolverResultRef,
+  preview: SolverPreviewState,
+  resultRows: MechanicsResult["results"]
+) {
+  return (
+    <div className="report-list" data-testid={`rule-check-solver-browse-${inputId}`}>
+      <small data-testid={`rule-check-solver-resolution-${inputId}`} data-status={preview.status}>
+        Reference {SOLVER_RESULT_RESOLUTION_LABEL[preview.status]}.{" "}
+        {preview.status === "resolves"
+          ? "The result row is read from the current solve at run time; the run-panel selector is not used for this input."
+          : "The check blocks at RULE_INPUTS_INCOMPLETE until the authored result_id points at a row in the current solve, or the reference is removed in the rule-pack editor to return to manual binding."}
+      </small>
+      <small>
+        {resultRows.length > 0
+          ? `Available result rows in the current solve: ${resultRows.length}.`
+          : "Run a solve first so authored solver-result references can be checked against result rows."}
+      </small>
+      {resultRows.length > 0 ? (
+        <div className="report-list">
+          {resultRows.slice(0, 12).map((row) => {
+            const isReferenced = row.id === ref.result_id;
+            return (
+              <div className="report-line" key={row.id}>
+                <span>
+                  {row.id}
+                  {isReferenced ? " (referenced)" : ""}
+                </span>
+                <small>
+                  {row.kind}: {row.value} {row.unit}
+                </small>
+              </div>
+            );
+          })}
+          {resultRows.length > 12 ? <small>{resultRows.length - 12} more result row(s) not shown.</small> : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function RuleCheckRunPanel({
   model,
   result,
@@ -176,6 +237,7 @@ export function RuleCheckRunPanel({
   const [valueBindings, setValueBindings] = useState<Record<string, { value: string; unit: string }>>({});
   const [runResult, setRunResult] = useState<RuleCheckRunResult | null>(null);
   const [libraryPreviews, setLibraryPreviews] = useState<Record<string, LibraryPreviewState>>({});
+  const [solverPreviews, setSolverPreviews] = useState<Record<string, SolverPreviewState>>({});
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
@@ -189,6 +251,7 @@ export function RuleCheckRunPanel({
     setValueBindings({});
     setRunResult(null);
     setLibraryPreviews({});
+    setSolverPreviews({});
     // A new pack invalidates any prior run's aggregate held by the app.
     onAggregateChange?.(null);
   }
@@ -268,6 +331,15 @@ export function RuleCheckRunPanel({
     return valueBindings[refId]?.unit ?? fallback;
   }
 
+  function handlePreviewSolver(input: SolverInputRequirement) {
+    const ref = input.solver_result_ref;
+    if (!ref) return;
+    setSolverPreviews((current) => ({
+      ...current,
+      [input.input_id]: { status: classifySolverResultReference(resultRows, ref.result_id) }
+    }));
+  }
+
   async function handleLoadDemo() {
     setInFlight(true);
     try {
@@ -329,6 +401,7 @@ export function RuleCheckRunPanel({
 
   function buildSolverBindings(currentPlan: RuleCheckBindingPlan): SolverResultSelector[] {
     return currentPlan.solverInputs
+      .filter((input) => !input.solver_result_ref)
       .map((input) => ({ input_id: input.input_id, result_id: solverSelections[input.input_id] ?? "" }))
       .filter((selector) => selector.result_id.length > 0);
   }
@@ -484,29 +557,67 @@ export function RuleCheckRunPanel({
             reported on missing inputs).
           </small>
 
-          {plan.solverInputs.map((input) => (
-            <div className="report-line" key={`solver:${input.input_id}`}>
-              <span>
-                {input.name} <small>(solver_result; {input.dimension})</small>
-              </span>
-              <select
-                data-testid={`rule-check-solver-select-${input.input_id}`}
-                value={solverSelections[input.input_id] ?? ""}
-                disabled={inFlight || resultRows.length === 0}
-                title={resultRows.length === 0 ? NO_SOLVE_REASON : undefined}
-                onChange={(event) =>
-                  setSolverSelections((current) => ({ ...current, [input.input_id]: event.target.value }))
-                }
-              >
-                <option value="">— pick a solved result row —</option>
-                {resultRows.map((row) => (
-                  <option value={row.id} key={row.id}>
-                    {row.kind}: {row.id} ({row.value} {row.unit})
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
+          {plan.solverInputs.map((input) => {
+            const ref = input.solver_result_ref;
+            const preview = solverPreviews[input.input_id];
+            if (ref) {
+              return (
+                <div
+                  className="report-list"
+                  key={`solver:${input.input_id}`}
+                  data-testid={`rule-check-solver-input-${input.input_id}`}
+                >
+                  <span>
+                    {input.name} <small>(solver_result; {input.dimension})</small>
+                  </span>
+                  <small>
+                    Authored solver_result_ref result_id={ref.result_id} resolves from the current solved
+                    result envelope at run time. This canonical in-pack reference supersedes the
+                    run-panel selector; remove it in the rule-pack editor to return to manual binding.
+                  </small>
+                  <div className="report-actions">
+                    <button
+                      type="button"
+                      data-testid={`rule-check-solver-preview-${input.input_id}`}
+                      disabled={inFlight}
+                      title={
+                        inFlight
+                          ? BUSY_REASON
+                          : "Check whether the authored result_id exists in the current solved result envelope. Read-only: this never changes the rule pack."
+                      }
+                      onClick={() => handlePreviewSolver(input)}
+                    >
+                      Preview result row
+                    </button>
+                  </div>
+                  {preview ? renderSolverPreview(input.input_id, ref, preview, resultRows) : null}
+                </div>
+              );
+            }
+            return (
+              <div className="report-line" key={`solver:${input.input_id}`}>
+                <span>
+                  {input.name} <small>(solver_result; {input.dimension})</small>
+                </span>
+                <select
+                  data-testid={`rule-check-solver-select-${input.input_id}`}
+                  value={solverSelections[input.input_id] ?? ""}
+                  disabled={inFlight || resultRows.length === 0}
+                  title={resultRows.length === 0 ? NO_SOLVE_REASON : undefined}
+                  onChange={(event) =>
+                    setSolverSelections((current) => ({ ...current, [input.input_id]: event.target.value }))
+                  }
+                >
+                  <option value="">-- pick a solved result row --</option>
+                  {resultRows.map((row) => (
+                    <option value={row.id} key={row.id}>
+                      {row.kind}: {row.id} ({row.value} {row.unit})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          })}
 
           {plan.valueInputs.map((input) => (
             <div className="report-line" key={`value:${input.ref_id}`}>

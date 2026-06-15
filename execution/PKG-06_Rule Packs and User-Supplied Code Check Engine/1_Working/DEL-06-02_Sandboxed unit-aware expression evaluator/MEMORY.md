@@ -207,3 +207,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   TP-MAC-163. Runner `cargo test` 18; pytest schema 5; Vitest 367; e2e 2/2.
 - No lifecycle promotion, release claim, or professional/code-compliance
   claim is implied; evidence is `CHECKING` state only.
+
+## 2026-06-15 - TP-C4-SOLVERREFPICKER-001: run-panel preview for authored `solver_result_ref`
+
+- The run-rule-checks panel now preserves and recognizes a `solver_result`
+  input's authored `solver_result_ref` (`{result_id}`) in the binding plan.
+  Inputs with that member are treated as canonical in-pack references and no
+  longer render or send the legacy caller-supplied result-row selector for that
+  input; packs without the member keep the selector path.
+- Added a read-only "Preview result row" action that classifies the authored
+  result id against the current solved envelope as `resolves`, `result_missing`,
+  or `no_result_rows`, lists available rows when present, and surfaces that
+  unresolved references block at `RULE_INPUTS_INCOMPLETE` rather than receiving a
+  fallback binding.
+- Evidence: run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-C4-SOLVERREFPICKER-001.md`;
+  SMOKE TP-MAC-167; focused Vitest 27/27, full desktop Vitest 378/378,
+  production build clean, focused Playwright run-rule-checks 2/2 after correcting
+  the browser-preview expectation to `no_result_rows`.
+- No schema/backend/lifecycle/decision-register change; no private value or
+  protected content embedded; no release, professional, certification, sealing,
+  authentication, approval, or code-compliance claim is implied.

@@ -5497,3 +5497,31 @@ notes:
 - Boundary review: local-only; status-vocabulary-only; deliverables stay
   CHECKING; no release-readiness, professional, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-167 preview authored solver-result references in the run panel (`TP-C4-SOLVERREFPICKER-001`, 2026-06-15)
+
+- Phase C4 residual closed: `RuleCheckRunPanel` now detects a `solver_result`
+  required input with an authored `solver_result_ref`, treats that reference as
+  the canonical in-pack binding, and hides the legacy run-panel selector for
+  that input. Packs without `solver_result_ref` keep the existing manual result
+  row selector path.
+- The new "Preview result row" control is read-only with respect to the pack. It
+  classifies the authored `result_id` against the current solved envelope as
+  `resolves`, `result_missing`, or `no_result_rows`, lists available result rows
+  when present, and states that unresolved references block at
+  `RULE_INPUTS_INCOMPLETE` instead of inventing a fallback binding.
+- Browser smoke: the existing run-rule-checks Playwright path now asserts the
+  visible solver-reference preview and the honest `no_result_rows` state in
+  browser preview before a solve exists. Component tests pin the resolving and
+  missing-row cases against a solved envelope.
+- Validation: focused Vitest (`RuleCheckRunPanel`, `ruleCheckService`) **27/27**;
+  desktop Vitest **378/378**; `npm run build --workspace apps/desktop` clean;
+  focused Playwright run-rule-checks smoke **2/2** after correcting the browser
+  expectation to `no_result_rows` (first attempt correctly exposed the mismatch).
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-15_TP-C4-SOLVERREFPICKER-001.md` (DEL-06-02
+  primary); completion log updated.
+- Boundary review: frontend-only; no schema/backend change; local-only;
+  status-vocabulary-only; no private value or protected content embedded; no
+  release-readiness, professional, certification, sealing, authentication, or
+  code-compliance claim.

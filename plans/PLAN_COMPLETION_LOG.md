@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-15 — C4 run-panel preview for authored solver-result references (`TP-C4-SOLVERREFPICKER-001`)
+
+Closes the remaining C4 follow-up named after `TP-C4-SOLVERREFAUTHOR-001`: a
+run-panel resolution preview for `solver_result_ref`, mirroring the earlier
+`TP-C3-LIBREFPICKER-001` private-library preview. The optional
+`solver_result_ref` member and backend resolver were already landed and ratified
+(`TP-C4-SOLVERREF-001`, `DEC-039`); this slice makes the GUI run panel surface
+whether the authored reference is usable against the current solved envelope.
+
+`deriveRuleCheckBindingPlan` now preserves optional
+`solver_result_ref: {result_id}` on `solver_result` inputs and exposes a pure
+`classifySolverResultReference` helper. `RuleCheckRunPanel` now treats an
+authored `solver_result_ref` as canonical: it hides the legacy run-panel
+selector for that input, omits caller-supplied selector bindings for it, and
+renders a read-only "Preview result row" action. The preview classifies the
+authored `result_id` as `resolves`, `result_missing`, or `no_result_rows`, lists
+available result rows when a solve exists, and states that unresolved references
+block at `RULE_INPUTS_INCOMPLETE` rather than receiving a fallback selector.
+Packs without `solver_result_ref` keep the prior manual selector behavior.
+
+Evidence: focused Vitest (`RuleCheckRunPanel`, `ruleCheckService`) **27/27**;
+full desktop Vitest **378/378**; desktop production build clean; focused
+Playwright run-rule-checks smoke **2/2** across the configured desktop/compact
+viewports. The first Playwright attempt expected `resolves` in browser preview,
+but the browser smoke state had no solved rows, so the product correctly emitted
+`no_result_rows`; the spec was corrected to pin that honest state while
+component tests cover the resolving solved-envelope path. Run record:
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-15_TP-C4-SOLVERREFPICKER-001.md`;
+SMOKE TP-MAC-167.
+
+Boundary: frontend-only; no schema/backend change; no private value embedded in
+the pack; local-only; status-vocabulary-only; no release, professional,
+certification, sealing, authentication, approval, or code-compliance claim.
+
+---
+
 ## 2026-06-14 — C4 solver-result-reference GUI authoring in the declarations form-builder (`TP-C4-SOLVERREFAUTHOR-001`)
 
 Lands the **authoring half** of the C4 solver-result binding — the first of

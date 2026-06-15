@@ -107,6 +107,63 @@ describe("RuleCheckRunPanel", () => {
     expect(row.textContent).toContain("never embedded in the rule pack");
   });
 
+  it("surfaces an authored solver_result_ref as canonical and previews a resolving result row", async () => {
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    const pack = {
+      metadata: { rule_pack_id: "p" },
+      required_inputs: [
+        {
+          input_id: "actual",
+          name: "Actual stress",
+          source_kind: "solver_result",
+          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+          solver_result_ref: { result_id: "result:stress:demo" }
+        }
+      ]
+    };
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(pack) }
+    });
+
+    const row = screen.getByTestId("rule-check-solver-input-actual");
+    expect(row.textContent).toContain("result:stress:demo");
+    expect(row.textContent).toContain("supersedes the run-panel selector");
+    expect(screen.queryByTestId("rule-check-solver-select-actual")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
+    const resolution = await screen.findByTestId("rule-check-solver-resolution-actual");
+    expect(resolution).toHaveAttribute("data-status", "resolves");
+    expect(resolution.textContent).toContain("current solve at run time");
+    const browse = screen.getByTestId("rule-check-solver-browse-actual");
+    expect(browse.textContent).toContain("result:stress:demo (referenced)");
+    expect(browse.textContent).toContain("stress: 50 demo_unit");
+  });
+
+  it("reports a missing authored solver_result_ref without inventing a fallback binding", async () => {
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    const pack = {
+      metadata: { rule_pack_id: "p" },
+      required_inputs: [
+        {
+          input_id: "actual",
+          name: "Actual stress",
+          source_kind: "solver_result",
+          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+          solver_result_ref: { result_id: "result:absent" }
+        }
+      ]
+    };
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(pack) }
+    });
+
+    fireEvent.click(screen.getByTestId("rule-check-solver-preview-actual"));
+    const resolution = await screen.findByTestId("rule-check-solver-resolution-actual");
+    expect(resolution).toHaveAttribute("data-status", "result_missing");
+    expect(resolution.textContent).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(screen.queryByTestId("rule-check-solver-select-actual")).not.toBeInTheDocument();
+  });
+
   it("reports the desktop-only backend seam when run in browser preview", async () => {
     render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
@@ -169,6 +226,40 @@ describe("RuleCheckRunPanel", () => {
       "not a professional claim"
     );
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
+  });
+
+  it("omits caller-supplied solver bindings when a solver_result_ref is authored in the pack", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue({
+      document_kind: "openpipestress.rule_check.run",
+      rule_pack_id: "p",
+      grammar_version: "1.0.0",
+      aggregate_status: "RULE_INPUTS_INCOMPLETE",
+      checks: [],
+      professional_boundary_notice: "Software rule-check evidence only; not a professional claim."
+    });
+    const pack = {
+      metadata: { rule_pack_id: "p" },
+      required_inputs: [
+        {
+          input_id: "actual",
+          name: "Actual stress",
+          source_kind: "solver_result",
+          quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+          solver_result_ref: { result_id: "result:stress:demo" }
+        }
+      ]
+    };
+
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
+      target: { value: JSON.stringify(pack) }
+    });
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+
+    await screen.findByTestId("rule-check-run-result");
+    const [, args] = invokeMock.mock.calls[0];
+    expect(args).not.toHaveProperty("solverResultBindings");
   });
 });
 
