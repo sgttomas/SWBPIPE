@@ -8,13 +8,4 @@ Continue with bounded app-integration tranches toward the project's inherent goa
 
 Within the selected tranche, you may orchestrate parallel fan-out/fan-in work using TASK subagents when the subscopes are separable, have explicit bounded briefs, and have disjoint write scopes. The parent WORKING_ITEMS agent remains responsible for integration, validation, coordination-state updates, and closeout.
 
-Tranches selected from the completion plan's unblocked items are pre-approved for execution. Stop when any further progress requires a human ruling. Git commit and push whenever you complete a validated tranche.
-
-Do not select or begin `plans/PLAN_2026-06-12_caepipe_external_oracle_feedback_loop.md` / SCA-005 unless I instruct it.
-
-
-# Alternative
-
-There is extensive, catalogued, cross-referenced, information about the project and its goals and how to achieve them. 
-
-The main goal is to get a working desktop application per the PRD.
+Tranches selected from unblocked completion-plan items are pre-approved for execution. Stop when any further progress requires a human ruling. When the tranche is complete, validated, and the project closeout rules allow it, prepare a closeout summary and hand off to a CHANGE agent for final Git/file-state review, commit, and push.
