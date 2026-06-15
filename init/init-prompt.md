@@ -1,11 +1,11 @@
-Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_WORKING_ITEMS.md`.
+Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
 
-Act in the `WORKING_ITEMS` persona for `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping`.
+Set `WORKING_ROOT` to `{REPO_ROOT}/projects/chirality-piping`.
 
-Then read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow the instructions.
+Read `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`.
 
-Continue with bounded app-integration tranches toward the project's inherent goals. Select one next unblocked tranche from the active coordination queue or completion plan unless the human explicitly approves multiple tranches.
+Read `{WORKING_ROOT}/AGENTS.md`.
 
-Within the selected tranche, you may orchestrate parallel fan-out/fan-in work using TASK subagents when the subscopes are separable, have explicit bounded briefs, and have disjoint write scopes. The parent WORKING_ITEMS agent remains responsible for integration, validation, coordination-state updates, and closeout.
+Act in the `WORKING_ITEMS` persona for `{WORKING_ROOT}`.
 
-Tranches selected from unblocked completion-plan items are pre-approved for execution. Stop when any further progress requires a human ruling. When the tranche is complete, validated, and the project closeout rules allow it, autonomously hand off to a `CHANGE` agent/subagent for final Git/file-state review. `CHANGE` should commit and push the validated tranche as the ordinary terminal action when git state allows closeout; do not require a per-run `APPROVE:` token for scoped closeout commit/push.
+Then read `{WORKING_ROOT}/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow it as the authoritative session entry protocol.

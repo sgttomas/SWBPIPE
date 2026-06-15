@@ -2,7 +2,11 @@
 
 ## Current Authority
 
-- Read `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
+- Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
+- Set `WORKING_ROOT` to `{REPO_ROOT}/projects/chirality-piping`.
+- Read `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`.
+- Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
+- Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
 - Read `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-12`.
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
@@ -22,8 +26,8 @@
    correct the plan, not the authority.
 5. `_COORDINATION.md` says how to execute work: app-integration tranches by
    default, local-status discovery, DAG-guided context selection, bounded
-   workers, fan-in, validation, evidence records, and autonomous `CHANGE`
-   closeout for completed validated tranches.
+   workers, fan-in, validation, evidence records, and project-local
+   `AGENTS.md` closeout routing for completed validated tranches.
 6. Human decisions (`D-01..D-12` and any newly discovered human-gated `TBD`)
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
@@ -97,11 +101,7 @@
    compressing landed items per the plan-maintenance rule (one line plus
    run-record and `plans/PLAN_COMPLETION_LOG.md` pointers) — then
    autonomously hand off to a `CHANGE` agent/subagent for final Git/file-state
-   review. `CHANGE` commits and pushes the validated tranche to the tracked
-   remote branch as the ordinary terminal action when validation and git state
-   allow closeout. Per-run `APPROVE:` tokens are not required for scoped
-   closeout commit/push; destructive actions, merges, ambiguous staging, or
-   unresolved dirty-state conflicts still require explicit human approval or
-   ruling. Git closeout is source control hygiene only; it is not lifecycle
-   issuance, release readiness, professional approval, certification, sealing,
-   authentication, or code-compliance acceptance.
+   review under `{WORKING_ROOT}/AGENTS.md` closeout discipline. Git closeout
+   is source control hygiene only; it is not lifecycle issuance, release
+   readiness, professional approval, certification, sealing, authentication,
+   or code-compliance acceptance.

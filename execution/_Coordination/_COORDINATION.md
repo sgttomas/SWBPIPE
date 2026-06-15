@@ -5,8 +5,16 @@
 Keep this surface lean. Use canonical project instructions, approved DAG
 artifacts, and deliverable-local records as the active state.
 
+Path anchors for executable prompts:
+
+- Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
+- Set `WORKING_ROOT` to `{REPO_ROOT}/projects/chirality-piping`.
+
 Primary pointers:
 
+- `{REPO_ROOT}/AGENTS.md`
+- `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`
+- `{WORKING_ROOT}/AGENTS.md` - project-local agent posture and closeout discipline
 - `docs/DIRECTIVE.md`
 - `docs/CONTRACT.md`
 - `docs/TYPES.md`
@@ -46,6 +54,9 @@ selecting or executing work.
 
 Baseline intake for every new session:
 
+- `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md` for the active persona.
+- `{WORKING_ROOT}/AGENTS.md` for project-local agent posture, write-scope
+  discipline, and closeout routing.
 - `docs/DIRECTIVE.md` for founding intent and stop rules.
 - `docs/CONTRACT.md` for invariant authority.
 - `docs/TYPES.md` for lifecycle states, identifiers, artifact vocabulary, and
@@ -184,13 +195,9 @@ surfaces authorized by the tranche, the completion-plan and decision-register
 rows the tranche or a recorded human ruling affects, and any explicitly
 selected deliverable memory or review surfaces. After validation and evidence
 recording, autonomously hand off to a `CHANGE` agent/subagent for final
-Git/file-state review. `CHANGE` commits and pushes the completed validated
-tranche as the ordinary terminal action when git state allows closeout.
-Per-run `APPROVE:` tokens are not required for scoped closeout commit/push;
-destructive actions, merges, ambiguous staging, or unresolved dirty-state
-conflicts still require explicit human approval or ruling. Leave
-`NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol itself changes. Do
-not create a session-steering coordination state file.
+Git/file-state review under `{WORKING_ROOT}/AGENTS.md` closeout discipline.
+Leave `NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol itself
+changes. Do not create a session-steering coordination state file.
 
 ## Application Integration And Issuance Phase
 
@@ -268,7 +275,8 @@ an implementation, review, issuance, or release-readiness tranche, continue
 that tranche within its write bounds. Otherwise propose exactly one next
 bounded tranche.
 
-1. **Authority intake.** Read `/Users/ryan/ai-env/projects/chirality/agents/AGENT_TASK.md`,
+1. **Authority intake.** Read `{REPO_ROOT}/agents/AGENT_TASK.md`,
+   `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`, `{WORKING_ROOT}/AGENTS.md`,
    the baseline governance documents above, current app intake surfaces needed
    for the selected slice, `SOFTWARE_DECOMP`, and approved `DAG-006` graph
    authority.
@@ -357,12 +365,10 @@ bounded tranche.
    log; partially-landed items keep remaining scope in the row. Before
    pushing, run `python3 tools/release/run_evidence_sweep.py --execute` at
    the committed HEAD and commit the summary (DEC-025). Then autonomously hand
-   off to a `CHANGE` agent/subagent for final Git/file-state review. `CHANGE`
-   stages only tranche-scoped files, commits, and pushes the validated tranche
-   to the tracked remote branch as the ordinary terminal action, keeping the
-   commit message scoped to the app tranche and any explicitly authorized
-   coordination-instruction edits. Do not advance lifecycle state, make release
-   claims, or issue deliverables unless the human explicitly approves that gate.
+   off to a `CHANGE` agent/subagent for final Git/file-state review under
+   `{WORKING_ROOT}/AGENTS.md` closeout discipline. Do not advance lifecycle
+   state, make release claims, or issue deliverables unless the human
+   explicitly approves that gate.
 
 ## Execution Discipline
 
@@ -407,10 +413,10 @@ Review readiness requires:
 
 Human approval is required for lifecycle changes, candidate promotion, release
 claims, acceptance records, or any professional/code compliance claim. The
-human project authority has authorized `CHANGE` commit-and-push as the normal
-closeout step for completed, validated app-integration tranches; this git
-closeout does not itself create lifecycle approval, release readiness,
-professional acceptance, certification, sealing, authentication, or
-code-compliance claims.
+human project authority has authorized `CHANGE` closeout under
+`{WORKING_ROOT}/AGENTS.md` as the normal terminal step for completed,
+validated app-integration tranches; this git closeout does not itself create
+lifecycle approval, release readiness, professional acceptance,
+certification, sealing, authentication, or code-compliance claims.
 Read-only verification snapshots and derivative gap registers are not release,
 professional, code-compliance, or acceptance claims.
