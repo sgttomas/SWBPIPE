@@ -948,7 +948,7 @@
             "object_type": "RulePackRef",
             "id": "INV_FAKE_RULE_PACK_REF"
           },
-          "value": "sha256:63228952a01014a275a5b4804c524ba6b7163a4bb987477a83c5c282d005003c"
+          "value": "sha256:b63a4d270a743a51a4a8f8e2c2668fd164230c74d367cbc8c7b782751da468b8"
         },
         "source_notice": "Invented fake-rule demonstration only; no real rule or engineering acceptance basis is included.",
         "redistribution_status": "public_permissive",
@@ -1087,7 +1087,7 @@
           "object_type": "Project",
           "id": "INV_FAKE_RULE_TOY_PROJECT"
         },
-        "value": "sha256:fe0c0086d6292da136e226b3a8677a6b7c3e33ed7b065b69b27828b060ab2753"
+        "value": "sha256:5afe2b433cf3bf99b2905f08262f64b18d5e1643a8af1c994e45958d4ddaac7f"
       }
     ]
   }

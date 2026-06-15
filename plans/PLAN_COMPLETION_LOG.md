@@ -36,8 +36,12 @@ Version bump + checksum re-stamp only: the canonical demo pack
 (`fixtures/product_preview/invented_demo_rule_pack.json`), and the new-draft
 editor template (`rulePackService.ts`) declare 0.4.0; the demo/fixture
 `rule_pack_checksum` re-stamped to `c2b4ddce…`; the draft-version Vitest
-assertion updated. (`lib.rs:4780` `schema_version: "0.3.0"` is a project/model
-document version in a DEC-019 test — not a rule pack — and is untouched.)
+assertion updated. Transitively, `examples/models/invented/fake_rule_pack_toy_model.json`
+hash-references the demo-pack file bytes, so its rule-pack-ref raw-byte digest
+and recomputed JCS project hash were re-synced (same step as `DEC-038`; caught by
+the full pytest surface, `test_invented_example_models.py`). (`lib.rs:4780`
+`schema_version: "0.3.0"` is a project/model document version in a DEC-019 test —
+not a rule pack — and is untouched.)
 
 Evidence: pytest `test_rule_pack_schema.py` 5 (JCS checksum-parity recompute
 matches); `rule_pack_document` cargo 10 + `rule_check_runner` cargo 18 (demo

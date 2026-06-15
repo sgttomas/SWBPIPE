@@ -36,7 +36,7 @@ existed). `grammar_version` stays 1.0.0 (frozen, `DEC-022`); author content
 version `metadata.rule_pack_version` is unchanged (the demo content did not
 change and uses neither optional member).
 
-## Changes (version bump + checksum re-stamp only — no content change)
+## Changes (version bump + checksum re-stamp + transitive hash re-sync — no rule/grammar content change)
 
 - `examples/rule_packs/invented_demo.yaml`: top + `metadata` `schema_version`
   0.3.0 → 0.4.0; `rule_pack_checksum.value` re-stamped
@@ -48,6 +48,16 @@ change and uses neither optional member).
   top + `metadata` `schema_version` 0.3.0 → 0.4.0.
 - `apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx`: draft
   `schema_version` assertion 0.3.0 → 0.4.0.
+- `examples/models/invented/fake_rule_pack_toy_model.json` (transitive): this
+  invented model hash-references the demo rule-pack **file bytes** (a
+  `canonicalization: NONE` rule-pack-ref checksum), and carries its own JCS
+  project hash. Because the demo-pack bytes changed, both were re-synced:
+  rule-pack-ref `63228952… → b63a4d270a743a51a4a8f8e2c2668fd164230c74d367cbc8c7b782751da468b8`
+  (the new raw-byte digest) and the project hash
+  `fe0c0086… → 5afe2b433cf3bf99b2905f08262f64b18d5e1643a8af1c994e45958d4ddaac7f`
+  (recomputed over the canonical project minus its hashes). This is the same
+  transitive step `DEC-038` performed (commit `a0625a0d5`); the full-suite pytest
+  surface caught it (`test_invented_example_models.py`).
 - Decision/plan surfaces: `DEC-039` recorded; completion-plan C4 row
   "PROPOSAL awaiting ratification" wording cleared to RATIFIED for both members;
   completion log entry added.
@@ -58,9 +68,11 @@ and is intentionally untouched.)
 
 ## Evidence
 
-- `python3 -m pytest tests/test_rule_pack_schema.py`: **5 pass** — incl. the JCS
-  checksum-parity test, which recomputes the demo checksum and matches the
-  re-stamped 0.4.0 value.
+- `python3 -m pytest tests`: **359 pass** — incl. `test_rule_pack_schema.py` (5;
+  the JCS checksum-parity test recomputes the demo checksum and matches the
+  re-stamped 0.4.0 value) and `test_invented_example_models.py` (the transitive
+  toy-model rule-pack-ref raw-byte digest + JCS project hash re-synced above; this
+  surface caught the coupling on the first sweep).
 - `cargo test` `rule_pack_document`: **10 pass** (6 unit + 1 corpus + 3 demo) —
   the demo stamped-checksum and validation golden tests recompute and match.
 - `cargo test` `rule_check_runner`: **18 pass** (incl. the 3 invented-demo runs)

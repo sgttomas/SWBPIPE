@@ -5416,12 +5416,17 @@ notes:
   event → a **single** minor step: rule-pack `schema_version` **0.3.0 → 0.4.0**
   (not two bumps). `grammar_version` stays 1.0.0; author content version
   unchanged.
-- Version bump + checksum re-stamp only (no content change): the canonical demo
-  pack (`examples/rule_packs/invented_demo.yaml`), its preview fixture twin
+- Version bump + checksum re-stamp + transitive hash re-sync (no rule/grammar
+  content change): the canonical demo pack
+  (`examples/rule_packs/invented_demo.yaml`), its preview fixture twin
   (`fixtures/product_preview/invented_demo_rule_pack.json`), and the new-draft
   editor template (`rulePackService.ts`) all declare 0.4.0; the demo/fixture
   `rule_pack_checksum` re-stamped to `c2b4ddce…`; the draft-version Vitest
-  assertion updated to 0.4.0.
+  assertion updated to 0.4.0. Transitively, the invented model
+  `examples/models/invented/fake_rule_pack_toy_model.json` hash-references the
+  demo-pack file bytes, so its rule-pack-ref raw-byte digest and recomputed JCS
+  project hash were re-synced (same step as `DEC-038`; caught by the full pytest
+  surface).
 - Validation: `pytest tests/test_rule_pack_schema.py` **5** (JCS checksum-parity
   recompute matches the re-stamped value); `cargo test` `rule_pack_document`
   **10** and `rule_check_runner` **18** (demo golden checksum + validation +
