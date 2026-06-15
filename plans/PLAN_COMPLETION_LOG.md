@@ -13,6 +13,68 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C4 solver-result-selector: additive `solver_result_ref` member + authored-ref resolution (`TP-C4-SOLVERREF-001`)
+
+Lands the `solver-result-selector` half of the C4 "Remaining scope (non-GUI):
+the future additive `acceptability_relation` / solver-result-selector schema
+members" — the backend-resolution slice. Before this, a `solver_result`
+required input's binding to a solved result row was **caller-supplied only**:
+the runner module doc said it plainly ("The schema carries no selector tying a
+`solver_result` required input to a solved result row, so the binding is
+caller-supplied"), and the desktop command resolved a run-time
+`[{input_id, result_id}]` selector against the solved envelope's `results[]`.
+The rule pack itself could not declare which result row each solver input reads
+— exactly the authored, in-pack reference `library_value_ref` already
+established for private-library values.
+
+Additive, optional, backward-compatible PROPOSAL member (the established
+`library_value_ref`→`DEC-038` pattern):
+
+- **Schema** (`schemas/rule_pack.schema.yaml`): optional `solver_result_ref`
+  (`$defs.SolverResultRef`, `additionalProperties:false`, required
+  `{result_id: Id}`) on `RequiredInput`, mirroring `LibraryValueRef`. `result_id`
+  reuses the existing stable, deterministic envelope row id (e.g.
+  `result:stress:demo`, `result:disp:node-N-130:ux`; the `Id` pattern admits the
+  colon-delimited form) — no new addressing model. Not in `required` → packs
+  without it stay valid; the pytest schema-conformance suite passes (the demo
+  fixture omits it).
+- **Desktop command** (`apps/desktop/src-tauri/src/lib.rs`): a shared
+  `solver_result_row_value(envelope, result_id)` lookup (the caller-supplied
+  `resolve_solver_result_bindings` refactored onto it, behaviour unchanged) and a
+  new `resolve_authored_solver_result_bindings(document, envelope)` that resolves
+  each `solver_result` input carrying a `solver_result_ref` and returns the
+  bindings plus the set of input ids that carry a reference.
+  `run_rule_checks_core` resolves authored references first, then extends with
+  caller-supplied selectors **only for inputs without an authored reference**.
+- **Semantics**: the authored reference is canonical — the caller-supplied
+  selector for an authored input is dropped (no run-time override; matches the
+  `library_value_ref` ruling). An unresolvable reference (missing row, or no
+  numeric value / unit) blocks the input at `RULE_INPUTS_INCOMPLETE` — never a
+  silent pass, never a caller rescue (no-silent-defaults, CONTRACT). A pack with
+  no reference behaves exactly as before.
+- **Runner unchanged / stays pure**: the `rule_check_runner` crate still consumes
+  pre-resolved `SolverResultBinding`s; resolution lives in the impure desktop
+  command, exactly as the library path resolves from the local store.
+
+Evidence: src-tauri `cargo test` **61** (57 baseline + 4 new: two helper-level,
+two end-to-end — authored ref alone passes with no caller selector; authored ref
+to a missing row blocks over a would-resolve caller selector); `cargo fmt
+--check` clean; pytest `test_rule_pack_schema.py` **5**; runner `cargo test`
+**18** unchanged (runner untouched). No TypeScript changed → Vitest/build
+unaffected; backend-only slice with no user-visible behaviour change, so no
+Playwright/Vitest extension is owed under the H4 posture. Run record:
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-14_TP-C4-SOLVERREF-001.md`; SMOKE
+TP-MAC-164.
+
+Residual: **schema ratification** (PROPOSAL awaiting a human `DEC`; companion to
+`DEC-038`; bumps rule-pack `schema_version` per `DEC-033`, after the
+`acceptability_relation` ratification). Non-GUI follow-ups: GUI authoring of
+`solver_result_ref` (mirrors `TP-C3-LIBREFAUTHOR-001`) and a run-panel
+resolution preview (mirrors `TP-C3-LIBREFPICKER-001`). With this, C4's named
+non-GUI schema members are landed.
+
+---
+
 ## 2026-06-14 — C4 acceptability relation beyond `<=`: additive `acceptability_relation` member (`TP-C4-ACCEPTREL-001`)
 
 Lands the `acceptability_relation` half of the C4 "Remaining scope (non-GUI):

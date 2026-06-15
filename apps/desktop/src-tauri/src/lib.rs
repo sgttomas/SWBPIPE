@@ -14,7 +14,7 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fs,
     path::{Path, PathBuf},
     sync::{Arc, Mutex, MutexGuard},
@@ -2019,8 +2019,24 @@ fn run_rule_checks_core(
         None => run_preview_mechanics(model)?,
     };
 
-    let solver_results =
+    // Solver values for `solver_result` inputs come from two sources: an
+    // authored in-pack `solver_result_ref` (the additive solver-result-selector
+    // member, canonical) and the legacy caller-supplied `{input_id, result_id}`
+    // selectors (a fallback). An input that carries an authored reference is
+    // governed by it alone — the caller-supplied selector for that input is
+    // dropped (no run-time override; the authored reference even blocks the
+    // input when it does not resolve, never a caller rescue). Inputs without an
+    // authored reference still bind from caller-supplied selectors (backward
+    // compatible: a pack with no authored references behaves exactly as before).
+    let (mut solver_results, authored_solver_input_ids) =
+        resolve_authored_solver_result_bindings(&rule_pack_document, &envelope);
+    let caller_solver_results =
         resolve_solver_result_bindings(solver_result_bindings.as_ref(), &envelope)?;
+    solver_results.extend(
+        caller_solver_results
+            .into_iter()
+            .filter(|binding| !authored_solver_input_ids.contains(&binding.input_id)),
+    );
     let supplied_values = parse_supplied_value_bindings(supplied_value_bindings.as_ref())?;
     let library_values = parse_library_value_bindings(library_value_bindings.as_ref())?;
 
@@ -2320,11 +2336,30 @@ fn parse_library_value_bindings(
     Ok(parsed)
 }
 
+/// Read `{value, unit}` from a solved mechanics envelope's `results[]` row whose
+/// `id` matches `result_id`. Returns `None` when no row matches, or the matching
+/// row lacks a numeric `value` or a string `unit` — so the caller omits the
+/// binding and the required input stays unsupplied (the check blocks, never a
+/// silent pass). Shared by the caller-supplied selector path and the authored
+/// `solver_result_ref` path so both address result rows identically.
+fn solver_result_row_value(envelope: &Value, result_id: &str) -> Option<(f64, String)> {
+    let row = envelope
+        .pointer("/results")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|row| row.pointer("/id").and_then(Value::as_str) == Some(result_id))?;
+    let value = row.pointer("/value").and_then(Value::as_f64)?;
+    let unit = row.pointer("/unit").and_then(Value::as_str)?.to_string();
+    Some((value, unit))
+}
+
 /// Resolve caller-supplied `{input_id, result_id}` selectors against a solved
 /// mechanics envelope's `results[]`, reading `value`/`unit` by result id. A
 /// selector with no matching row (or a row missing value/unit) is omitted, so
 /// the required input is treated as unsupplied and the check blocks — never a
-/// silent pass.
+/// silent pass. This is the legacy caller-supplied solver binding; an authored
+/// `solver_result_ref` in the pack supersedes it (see
+/// [`resolve_authored_solver_result_bindings`]).
 fn resolve_solver_result_bindings(
     selectors: Option<&Value>,
     envelope: &Value,
@@ -2335,7 +2370,6 @@ fn resolve_solver_result_bindings(
     let array = selectors
         .as_array()
         .ok_or_else(|| "solver_result_bindings must be an array".to_string())?;
-    let rows = envelope.pointer("/results").and_then(Value::as_array);
     let mut bindings = Vec::new();
     for selector in array {
         let input_id = selector
@@ -2346,25 +2380,76 @@ fn resolve_solver_result_bindings(
             .pointer("/result_id")
             .and_then(Value::as_str)
             .ok_or_else(|| "each solver_result binding requires result_id".to_string())?;
-        let row = rows.and_then(|rows| {
-            rows.iter()
-                .find(|row| row.pointer("/id").and_then(Value::as_str) == Some(result_id))
-        });
-        if let Some(row) = row {
-            if let (Some(value), Some(unit)) = (
-                row.pointer("/value").and_then(Value::as_f64),
-                row.pointer("/unit").and_then(Value::as_str),
-            ) {
-                bindings.push(rule_check_runner::SolverResultBinding {
-                    input_id: input_id.to_string(),
-                    result_id: result_id.to_string(),
-                    value,
-                    unit: unit.to_string(),
-                });
-            }
+        if let Some((value, unit)) = solver_result_row_value(envelope, result_id) {
+            bindings.push(rule_check_runner::SolverResultBinding {
+                input_id: input_id.to_string(),
+                result_id: result_id.to_string(),
+                value,
+                unit,
+            });
         }
     }
     Ok(bindings)
+}
+
+/// Resolve every `solver_result` required input that carries an authored
+/// `solver_result_ref` (the additive solver-result-selector schema member;
+/// PROPOSAL, precedent `DEC-038` / `library_value_ref`) to a
+/// [`rule_check_runner::SolverResultBinding`] by reading the referenced row from
+/// the solved envelope's `results[]` by id. The authored reference is the
+/// canonical, in-pack form of the previously caller-supplied solver binding.
+///
+/// Returns the resolved bindings plus the set of input ids that carry an
+/// authored reference (resolvable or not), so the caller can exclude those
+/// inputs from the legacy caller-supplied fallback: an authored reference
+/// governs its input alone — the caller cannot override or rescue it at run
+/// time (run-time override is a deferred non-goal, matching the
+/// `library_value_ref` ruling). An unresolvable reference yields no binding (its
+/// input then blocks at `RULE_INPUTS_INCOMPLETE`, never a silent pass).
+fn resolve_authored_solver_result_bindings(
+    document: &Value,
+    envelope: &Value,
+) -> (Vec<rule_check_runner::SolverResultBinding>, HashSet<String>) {
+    let mut bindings = Vec::new();
+    let mut authored_input_ids = HashSet::new();
+    let Some(required_inputs) = document.get("required_inputs").and_then(Value::as_array) else {
+        return (bindings, authored_input_ids);
+    };
+    for input in required_inputs {
+        if input.pointer("/source_kind").and_then(Value::as_str) != Some("solver_result") {
+            continue;
+        }
+        let Some(reference) = input.get("solver_result_ref") else {
+            continue;
+        };
+        let input_id = input
+            .pointer("/input_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if input_id.is_empty() {
+            // No usable key; treat as if it carried no authored reference.
+            continue;
+        }
+        // The input carries an authored reference: it is governed by that
+        // reference alone, even if the reference does not resolve.
+        authored_input_ids.insert(input_id.to_string());
+        let result_id = reference
+            .pointer("/result_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if result_id.is_empty() {
+            continue;
+        }
+        if let Some((value, unit)) = solver_result_row_value(envelope, result_id) {
+            bindings.push(rule_check_runner::SolverResultBinding {
+                input_id: input_id.to_string(),
+                result_id: result_id.to_string(),
+                value,
+                unit,
+            });
+        }
+    }
+    (bindings, authored_input_ids)
 }
 
 /// Parse caller-supplied `{ref_id, value, unit, dimension}` user values (for
@@ -5085,6 +5170,43 @@ mod tests {
         pack
     }
 
+    /// Give the demo pack's `demo_actual_quantity` (the `solver_result` input,
+    /// required_inputs[0]) an authored in-pack `solver_result_ref` to a solved
+    /// result row, then re-stamp the checksum so validation does not block.
+    fn pack_with_solver_result_ref(result_id: &str) -> Value {
+        let mut pack = example_rule_pack_document();
+        pack["required_inputs"][0]["solver_result_ref"] = json!({ "result_id": result_id });
+        let computed =
+            rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
+        pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+        pack
+    }
+
+    #[test]
+    fn resolve_authored_solver_result_bindings_resolves_ref_and_records_input_id() {
+        let pack = pack_with_solver_result_ref("result:stress:demo");
+        let envelope = demo_solved_envelope(42.0);
+        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope);
+        assert_eq!(bindings.len(), 1);
+        assert_eq!(bindings[0].input_id, "demo_actual_quantity");
+        assert_eq!(bindings[0].result_id, "result:stress:demo");
+        assert_eq!(bindings[0].value, 42.0);
+        assert_eq!(bindings[0].unit, "demo_unit");
+        assert!(authored_ids.contains("demo_actual_quantity"));
+    }
+
+    #[test]
+    fn resolve_authored_solver_result_bindings_records_input_id_but_omits_unresolvable_binding() {
+        // An authored ref to a missing row records the input id (so the
+        // caller-supplied fallback is excluded) but yields no binding: the input
+        // then blocks, never a silent pass and never a caller rescue.
+        let pack = pack_with_solver_result_ref("result:absent");
+        let envelope = demo_solved_envelope(42.0);
+        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope);
+        assert!(bindings.is_empty());
+        assert!(authored_ids.contains("demo_actual_quantity"));
+    }
+
     #[test]
     fn extract_library_slot_value_reads_material_allowable() {
         let document = material_library_with_allowable();
@@ -5271,6 +5393,53 @@ mod tests {
         // a silent pass).
         let outcome = run_rule_checks_core(
             pack_with_library_ref(),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values()),
+            None,
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+    }
+
+    #[test]
+    fn run_rule_checks_core_authored_solver_result_ref_resolves_without_caller_selector() {
+        // The authored in-pack solver_result_ref binds the solver value end to
+        // end with NO caller-supplied selector: actual 50 / limit 100 = 0.5
+        // <= ratio_limit 1.0 -> pass. This is the additive solver-result-selector
+        // member retiring the caller-supplied solver binding.
+        let outcome = run_rule_checks_core(
+            pack_with_solver_result_ref("result:stress:demo"),
+            None,
+            Some(demo_solved_envelope(50.0)),
+            None,
+            Some(demo_supplied_values()),
+            None,
+        )
+        .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
+        let bound = outcome["checks"][0]["bound_inputs"]
+            .as_array()
+            .expect("bound inputs")
+            .iter()
+            .find(|binding| binding["input_id"] == json!("demo_actual_quantity"))
+            .expect("solver-sourced input present");
+        assert_eq!(bound["supplied"], json!(true));
+        assert_eq!(bound["result_id"], json!("result:stress:demo"));
+    }
+
+    #[test]
+    fn run_rule_checks_core_authored_solver_result_ref_unresolvable_blocks_over_caller_selector() {
+        // The authored ref points at a missing row, so the solver_result input
+        // stays unsupplied and the check blocks -- even though a caller-supplied
+        // selector for the SAME input would resolve. An authored reference is
+        // canonical: the caller cannot override or rescue it (run-time override
+        // is a deferred non-goal). Never a silent pass.
+        let outcome = run_rule_checks_core(
+            pack_with_solver_result_ref("result:absent"),
             None,
             Some(demo_solved_envelope(50.0)),
             Some(demo_solver_selectors()),

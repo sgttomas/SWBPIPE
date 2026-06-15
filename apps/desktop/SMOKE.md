@@ -5357,3 +5357,49 @@ notes:
   default; unknown token blocks); deliverables stay CHECKING; no release-
   readiness, professional, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-164 author a `solver_result` input's result-row reference in the pack (`TP-C4-SOLVERREF-001`, 2026-06-14)
+
+- Lands the `solver-result-selector` half of the Phase C **C4** named remaining
+  scope ("a selector tying a `solver_result` input to a solved result row,
+  retiring the caller-supplied binding"). Before this, a `solver_result` input's
+  binding to a solved result row was **caller-supplied only** — the pack could
+  not declare which result row each solver input reads. This is the
+  **backend-resolution slice**; GUI authoring and a run-panel picker are
+  follow-ups.
+- **Additive, optional, backward-compatible PROPOSAL member.** New optional
+  `solver_result_ref` (`{result_id}`) on `RequiredInput`, mirroring
+  `library_value_ref` exactly. `result_id` reuses the existing stable envelope
+  row id (e.g. `result:stress:demo`, `result:disp:node-N-130:ux`) — no new
+  addressing model. Built as a PROPOSAL awaiting human ratification (precedent
+  `DEC-038` / `library_value_ref`); ratification bumps rule-pack `schema_version`
+  under the `DEC-033` additive-minor policy.
+- **Authored reference is canonical.** A `solver_result` input that carries a
+  `solver_result_ref` is governed by it alone — the caller-supplied selector for
+  that input is dropped (no run-time override; matches the `library_value_ref`
+  ruling). An unresolvable reference (missing row, or no numeric value / unit)
+  **blocks** the input at `RULE_INPUTS_INCOMPLETE` — never a silent pass, and
+  never a caller rescue. A pack with no reference behaves exactly as before
+  (every solver value still comes from the caller-supplied selectors).
+- Runner unchanged / stays pure (still consumes pre-resolved
+  `SolverResultBinding`s). Resolution lives in the desktop command, exactly as the
+  library path resolves from the local store.
+- Automation posture (H4 default): backend-only slice, no user-visible behaviour
+  change (the GUI does not yet author or consume the member), so no
+  Playwright/Vitest extension is owed. Resolution semantics are covered by the
+  Rust src-tauri integration tests (no caller selector → authored ref alone
+  passes; authored ref to a missing row blocks over a would-resolve caller
+  selector).
+- Validation: `cargo test` (src-tauri) **61** (57 baseline + 4 new); `cargo fmt
+  --check` clean; `pytest tests/test_rule_pack_schema.py` **5** (schema valid,
+  fixtures conform); `cargo test` runner crate **18** unchanged (runner not
+  touched); no TS changed → Vitest/build unaffected; five-surface DEC-025 sweep —
+  see the committed sweep summary.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C4-SOLVERREF-001.md` (DEL-06-02 primary;
+  coupled DEL-06-01 schema).
+- Boundary review: local-only resolution + invented fixtures; authored reference
+  carries only a result-row id, never an embedded solver value; status-
+  vocabulary-only; no silent default (unresolvable reference blocks); deliverables
+  stay CHECKING; no release-readiness, professional, certification, sealing,
+  authentication, or code-compliance claim.

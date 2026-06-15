@@ -1152,6 +1152,9 @@
         },
         "library_value_ref": {
           "$ref": "#/$defs/LibraryValueRef"
+        },
+        "solver_result_ref": {
+          "$ref": "#/$defs/SolverResultRef"
         }
       }
     },
@@ -1181,6 +1184,19 @@
           "$ref": "#/$defs/Id"
         },
         "slot_id": {
+          "$ref": "#/$defs/Id"
+        }
+      }
+    },
+    "SolverResultRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional reference from a solver_result required input to a specific row of a solved mechanics result envelope (the row id, e.g. 'result:stress:...' or 'result:disp:node-...:ux'). The value is resolved at rule-check run time from the solved envelope's results[] by id; it is the authored, in-pack form of the previously caller-supplied {input_id, result_id} solver binding (PRD §12.5; the 'result_envelope_integration' open decision). An authored reference is the canonical binding for its input: if the referenced row is absent (or lacks a numeric value / unit) the input stays unsupplied and the check blocks at RULE_INPUTS_INCOMPLETE — never a silent pass. Only meaningful when source_kind is solver_result.",
+      "required": [
+        "result_id"
+      ],
+      "properties": {
+        "result_id": {
           "$ref": "#/$defs/Id"
         }
       }
