@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
 import {
   COMPLETENESS_STATUSES,
   DeclarationsEditor,
@@ -21,6 +25,7 @@ import {
   type DeclarationDocument
 } from "./DeclarationsEditor";
 import { buildDraftRulePackDocument } from "../../services/rulePackService";
+import type { UnitCatalog } from "../../services/unitCatalogService";
 
 // TP-C2-DECLEDITOR-001 — required-input / value-slot declaration form builders.
 // Pure-helper tests pin the schema-valid default shapes, the unique-id rule,
@@ -28,7 +33,73 @@ import { buildDraftRulePackDocument } from "../../services/rulePackService";
 // visible controls and assert the rewritten document (including that nested
 // quantity_intent edits preserve the const-true relaxation flags).
 
-afterEach(cleanup);
+const catalogFixture: UnitCatalog = {
+  schema_version: "0.1.0",
+  catalog_id: "unit-system:dec-018-si-dual-display",
+  decision_basis: "DEC-018",
+  calculation_basis: "si_canonical",
+  storage_convention: "entered_units_preserved",
+  entry_count: 4,
+  entries: [
+    {
+      unit_id: "unit:meter",
+      symbol: "m",
+      dimension_id: "length",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 m/m, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pascal",
+      symbol: "Pa",
+      dimension_id: "pressure",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 Pa/Pa, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:megapascal",
+      symbol: "MPa",
+      dimension_id: "pressure",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "1000000 Pa/MPa, exact public definition",
+      offset_representation: null,
+      provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pound_force",
+      symbol: "lbf",
+      dimension_id: "force",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "0.45359237 kg/lb * 9.80665 m/s^2 per lbf",
+      offset_representation: null,
+      provenance: "conventional_public_constant",
+      review_status: "accepted"
+    }
+  ],
+  boundary: {
+    source: "core/units open_pipe_stress_units catalog",
+    protected_content_included: false,
+    private_project_data_included: false,
+    professional_approval_claimed: false,
+    code_compliance_claimed: false
+  }
+};
+
+afterEach(() => {
+  cleanup();
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
 
 function inputsOf(document: DeclarationDocument): Array<Record<string, unknown>> {
   return document.required_inputs as Array<Record<string, unknown>>;
@@ -263,6 +334,62 @@ describe("DeclarationsEditor component", () => {
     });
   });
 
+  it("uses the DEC-018 catalog for required-input unit refs without offering incompatible dimensions", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(catalogFixture);
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    fireEvent.change(screen.getByTestId("rule-pack-input-dimension"), {
+      target: { value: "stress" }
+    });
+
+    const unitSelect = screen.getByTestId("rule-pack-input-unit") as HTMLSelectElement;
+    await waitFor(() => expect(Array.from(unitSelect.options).map((option) => option.value)).toContain("Pa"));
+    const optionValues = Array.from(unitSelect.options).map((option) => option.value);
+    expect(optionValues).toContain("MPa");
+    expect(optionValues).not.toContain("m");
+    expect(optionValues).not.toContain("lbf");
+
+    fireEvent.change(unitSelect, { target: { value: "MPa" } });
+    expect(inputsOf(harnessDoc())[0].quantity_intent).toEqual({
+      dimension: "stress",
+      unit_ref: "MPa",
+      unit_required: true,
+      dimension_check_required: true
+    });
+  });
+
+  it("keeps an out-of-catalog stored unit visible as current instead of snapping it", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(catalogFixture);
+    const document = setRequiredInputs(buildDraftRulePackDocument(), [
+      {
+        input_id: "legacy",
+        quantity_intent: {
+          dimension: "stress",
+          unit_ref: "legacy_private_unit",
+          unit_required: true,
+          dimension_check_required: true
+        }
+      }
+    ]);
+    render(<Harness initial={document} />);
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    const unitSelect = screen.getByTestId("rule-pack-input-unit") as HTMLSelectElement;
+    await waitFor(() => expect(unitSelect.value).toBe("legacy_private_unit"));
+    expect(screen.getByText("legacy_private_unit, catalog mismatch")).toBeTruthy();
+
+    fireEvent.change(unitSelect, { target: { value: "Pa" } });
+    expect(inputsOf(harnessDoc())[0].quantity_intent).toEqual({
+      dimension: "stress",
+      unit_ref: "Pa",
+      unit_required: true,
+      dimension_check_required: true
+    });
+  });
+
   it("blocks removing the last required input and supports add-then-remove losslessly", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     // Schema floor: required_inputs minItems 1, so the only row's remove is blocked.
@@ -302,6 +429,29 @@ describe("DeclarationsEditor component", () => {
     expect(slot.quantity_intent).toEqual({
       dimension: "stress",
       unit_ref: "TBD",
+      unit_required: true,
+      dimension_check_required: true
+    });
+  });
+
+  it("uses the DEC-018 catalog for value-slot unit refs", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(catalogFixture);
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    fireEvent.change(screen.getByTestId("rule-pack-slot-dimension"), {
+      target: { value: "stress" }
+    });
+    const slotUnitSelect = screen.getByTestId("rule-pack-slot-unit") as HTMLSelectElement;
+    await waitFor(() =>
+      expect(Array.from(slotUnitSelect.options).map((option) => option.value)).toContain("MPa")
+    );
+    fireEvent.change(slotUnitSelect, { target: { value: "Pa" } });
+
+    expect(slotsOf(harnessDoc())[0].quantity_intent).toEqual({
+      dimension: "stress",
+      unit_ref: "Pa",
       unit_required: true,
       dimension_check_required: true
     });

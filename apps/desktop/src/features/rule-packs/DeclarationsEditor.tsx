@@ -1,6 +1,13 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { DimensionSelect } from "./ExpressionComposer";
 import { draftPlaceholderProvenance } from "../../services/rulePackService";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  unitEntryMatchesDimension,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
 
 // Rule-pack declarations editor (Phase C2 slice 4, TP-C2-DECLEDITOR-001).
 //
@@ -50,6 +57,13 @@ import { draftPlaceholderProvenance } from "../../services/rulePackService";
 // packs that do not use them. Both are now ratified parts of the schema:
 // `library_value_ref` (DEC-038) and `solver_result_ref` (DEC-039), carried at
 // rule-pack `schema_version` 0.4.0.
+//
+// Unit I/O (TP-UNITS-B2-RULEPACKUNITS-001): declaration `quantity_intent`
+// unit refs use the reviewed DEC-018 catalog when the desktop backend exposes
+// it. Browser preview and backend-unavailable routes keep the prior text input
+// rather than synthesizing unit options. The picker filters catalog entries by
+// the selected dimension, keeps any stored out-of-catalog value visible as the
+// current value, and never silently rewrites a dimension/unit pair.
 
 export type DeclarationDocument = Record<string, unknown>;
 
@@ -98,6 +112,11 @@ export const VALUE_STATUSES = [
 // reference defaults library_kind to the first kind and leaves the *ids* as
 // visible "TBD" placeholders instead.
 export const LIBRARY_KINDS = ["material", "section", "component"] as const;
+
+type UnitOption = {
+  symbol: string;
+  label: string;
+};
 
 function asObject(value: unknown): Record<string, unknown> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
@@ -288,6 +307,74 @@ export function TextField({
   );
 }
 
+function hasTauriInternals(): boolean {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, currentSymbol: string): UnitOption[] {
+  const current = currentSymbol.trim() || "TBD";
+  const basis = describeUnitBasis(route, current, dimensionId);
+  const fallback = { symbol: basis.symbol, label: basis.label };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const entryBasis = describeUnitBasis(route, entry.symbol, dimensionId);
+      return { symbol: entry.symbol, label: entryBasis.label };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) {
+    options.unshift(fallback);
+  }
+  return options.length > 0 ? options : [fallback];
+}
+
+function UnitRefField({
+  testId,
+  label,
+  value,
+  dimension,
+  disabled,
+  unitCatalogRoute,
+  onChange
+}: {
+  testId: string;
+  label: string;
+  value: string;
+  dimension: string;
+  disabled: boolean;
+  unitCatalogRoute: UnitCatalogRoute | null;
+  onChange: (next: string) => void;
+}) {
+  // Until the desktop catalog is available, preserve the previous free-text
+  // behavior so browser preview does not invent a fallback catalog.
+  if (unitCatalogRoute?.route !== "tauri_unit_catalog") {
+    return (
+      <TextField testId={testId} label={label} value={value} disabled={disabled} onChange={onChange} />
+    );
+  }
+
+  const options = unitOptions(unitCatalogRoute, dimension, value);
+  return (
+    <Field label={label}>
+      <select
+        data-testid={testId}
+        value={value.trim() || "TBD"}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option.symbol} value={option.symbol}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
 export function EnumSelect({
   testId,
   label,
@@ -350,10 +437,30 @@ export function DeclarationsEditor({
   disabled,
   disabledReason
 }: DeclarationsEditorProps) {
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const rawInputs = asArray(document.required_inputs);
   const rawSlots = asArray(document.value_slots);
   const inputIds = readRequiredInputIds(document);
   const slotIds = readValueSlotIds(document);
+
+  useEffect(() => {
+    if (!hasTauriInternals()) return undefined;
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => {
+        if (active) setUnitCatalogRoute(route);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: `UNIT-CATALOG-LOAD-FAILED: ${String(error)}`
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Patch one required input by index; untouched entries round-trip verbatim.
   const updateInput = (index: number, patch: Record<string, unknown>) =>
@@ -533,11 +640,13 @@ export function DeclarationsEditor({
                   onChange={(next) => updateInputQuantity(index, { dimension: next })}
                 />
               </Field>
-              <TextField
+              <UnitRefField
                 testId="rule-pack-input-unit"
                 label="unit_ref"
                 value={asString(quantity.unit_ref) ?? "TBD"}
+                dimension={asString(quantity.dimension) ?? "TBD"}
                 disabled={disabled}
+                unitCatalogRoute={unitCatalogRoute}
                 onChange={(next) => updateInputQuantity(index, { unit_ref: next })}
               />
               <EnumSelect
@@ -704,11 +813,13 @@ export function DeclarationsEditor({
                   onChange={(next) => updateSlotQuantity(index, { dimension: next })}
                 />
               </Field>
-              <TextField
+              <UnitRefField
                 testId="rule-pack-slot-unit"
                 label="unit_ref"
                 value={asString(quantity.unit_ref) ?? "TBD"}
+                dimension={asString(quantity.dimension) ?? "TBD"}
                 disabled={disabled}
+                unitCatalogRoute={unitCatalogRoute}
                 onChange={(next) => updateSlotQuantity(index, { unit_ref: next })}
               />
               <EnumSelect

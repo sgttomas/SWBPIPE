@@ -183,3 +183,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
   continuity with `TP-C3C4-LIBREF-001`):
   `WORKING_ITEMS_RUN_2026-06-14_TP-C3-LIBREFAUTHOR-001.md`; SMOKE TP-MAC-158.
   Vitest 345 (+5), build clean, Playwright 10/10.
+
+## 2026-06-15 - TP-UNITS-B2-RULEPACKUNITS-001 rule-pack declaration unit selectors
+
+- The DEL-07-03 `DeclarationsEditor` now presents DEC-018-backed desktop unit
+  selectors for rule-pack required-input and value-slot `quantity_intent.unit_ref`
+  fields when the Tauri unit catalog route is available.
+- The editor preserves the C2 form-builder boundaries: AST/reference structured
+  authoring only; no expression text parser; no schema/backend/evaluator
+  change; no private value embedded in the rule pack.
+- Browser preview remains manual text entry for unit refs and does not invent a
+  fallback catalog. Desktop selector behavior and browser fallback behavior are
+  both test-covered.
+- Primary evidence is owned by DEL-02-02:
+  `execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEPACKUNITS-001.md`;
+  SMOKE TP-MAC-168; completion log updated.
+- Validation: focused `DeclarationsEditor` Vitest 29/29; desktop Vitest
+  381/381; desktop build passed; Playwright e2e 10/10.
+- DEL-07-03 remains CHECKING; no lifecycle, release, professional,
+  certification, sealing, authentication, or code-compliance claim.

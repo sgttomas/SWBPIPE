@@ -5525,3 +5525,29 @@ notes:
   status-vocabulary-only; no private value or protected content embedded; no
   release-readiness, professional, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-168 rule-pack declaration unit selectors (`TP-UNITS-B2-RULEPACKUNITS-001`, 2026-06-15)
+
+- Phase B2 rule-pack unit I/O slice: `DeclarationsEditor` now uses the reviewed
+  DEC-018 unit catalog for `required_inputs[].quantity_intent.unit_ref` and
+  `value_slots[].quantity_intent.unit_ref` when the desktop/Tauri
+  `get_unit_catalog` route is available.
+- Desktop behavior covered by mocked-Tauri component tests: the selector offers
+  dimension-compatible accepted units only (for stress declarations, `Pa` and
+  `MPa`; not length/force units), preserves a stored out-of-catalog unit as the
+  current value instead of snapping it, and writes the selected unit back while
+  preserving the quantity-intent flags.
+- Browser behavior covered in Playwright: no fallback catalog is synthesized;
+  the rule-pack manager journey keeps manual declaration unit entry available
+  and records `dimension=stress`, `unit_ref=MPa` in the canonical draft JSON.
+- Validation: focused `DeclarationsEditor` Vitest **29/29**; desktop Vitest
+  **381/381**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; Playwright e2e **10/10** across the configured
+  desktop/compact Chromium projects.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEPACKUNITS-001.md` (DEL-02-02
+  primary); completion plan/log updated.
+- Boundary review: frontend-only; no schema/backend/evaluator/grammar change;
+  no protected standards content, private value, browser fallback catalog,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

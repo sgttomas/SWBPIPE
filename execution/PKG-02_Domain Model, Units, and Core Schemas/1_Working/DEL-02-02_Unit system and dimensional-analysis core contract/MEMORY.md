@@ -391,3 +391,28 @@ Boundary note:
   conversion witnesses beyond disclosure, broader app unit entry/pickers
   outside covered forms, and rule-pack unit I/O; B3 still owns broader
   conversion witness and tolerance corpus coverage.
+
+## 2026-06-15 - TP-UNITS-B2-RULEPACKUNITS-001 rule-pack declaration unit selectors
+
+- Extended B2 unit-aware I/O into the C2 rule-pack declarations form-builder:
+  `required_inputs[].quantity_intent.unit_ref` and
+  `value_slots[].quantity_intent.unit_ref` now use DEC-018-backed desktop unit
+  selectors when Tauri `get_unit_catalog` is available.
+- Browser preview keeps manual unit text entry and does not synthesize a
+  fallback unit catalog; desktop selectors filter by declaration dimension,
+  preserve out-of-catalog stored units, and avoid silent dimension/unit
+  rewrites.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEPACKUNITS-001.md`;
+  coupled DEL-07-03 memory addendum; `apps/desktop/SMOKE.md` TP-MAC-168.
+- Validation: focused `DeclarationsEditor` Vitest 29/29; full desktop Vitest
+  381/381; desktop build passed with the existing Vite chunk-size warning;
+  Playwright e2e 10/10.
+- Boundaries preserved: frontend-only; no schema/backend/evaluator/grammar
+  change, protected standards content, private value embedding, browser
+  fallback catalog, release-readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claim.
+- Residual handoffs: B2 still owns rule-pack expression literal/table unit I/O
+  and broader import/export conversion work outside covered forms; B3 still
+  owns broader conversion-witness, incompatible-unit rejection, and DEC-026
+  tolerance corpus coverage.

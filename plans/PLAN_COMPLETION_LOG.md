@@ -13,6 +13,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-15 — B2 rule-pack declaration unit selectors (`TP-UNITS-B2-RULEPACKUNITS-001`)
+
+Extends the DEC-018 unit-catalog UI pattern into the C2 rule-pack declarations
+form-builder. Before this slice, `required_inputs[].quantity_intent.unit_ref`
+and `value_slots[].quantity_intent.unit_ref` were plain text fields even in the
+desktop runtime, so Phase B2 still named "rule-pack unit I/O" as open after the
+material/section/load/editor unit work.
+
+`DeclarationsEditor` now loads the reviewed desktop unit catalog only when the
+Tauri runtime is present, then renders catalog-backed selectors for
+declaration `unit_ref` fields. The selector filters accepted catalog entries by
+the selected declaration dimension, uses the existing equivalent-dimension
+rules (`stress` through pressure units), preserves any stored out-of-catalog
+unit as the current value instead of snapping it, and never mutates the
+dimension/unit pair silently. Browser preview keeps the previous free-text
+field and does not synthesize a fallback catalog.
+
+Evidence: focused `DeclarationsEditor` Vitest **29/29**; full desktop Vitest
+**381/381**; desktop production build clean with the existing Vite chunk-size
+warning; Playwright e2e **10/10** across configured desktop/compact Chromium
+projects after adding a browser-mode manual-unit fallback assertion to the
+rule-pack manager journey. Run record:
+`DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEPACKUNITS-001.md`;
+SMOKE TP-MAC-168.
+
+Boundary: frontend-only; no schema, backend command, evaluator, expression
+grammar, or persistence change. No protected standards content, private value,
+fallback browser catalog, release-readiness, professional approval,
+certification, sealing, authentication, or code-compliance claim.
+
+Residual: B2 still has rule-pack expression literal/table unit I/O plus broader
+unit-entry/import/export conversion work outside the already-covered forms; B3
+still owns the larger conversion-witness, incompatible-unit, and tolerance
+corpus beyond the declaration-picker witnesses.
+
+---
+
 ## 2026-06-15 — C4 run-panel preview for authored solver-result references (`TP-C4-SOLVERREFPICKER-001`)
 
 Closes the remaining C4 follow-up named after `TP-C4-SOLVERREFAUTHOR-001`: a

@@ -500,8 +500,18 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // structured-only (D-02b).
   await expect(page.getByTestId("rule-pack-declarations-editor")).toBeVisible();
   await page.getByTestId("rule-pack-input-add").click();
+  // TP-UNITS-B2-RULEPACKUNITS-001: browser preview cannot call the desktop
+  // get_unit_catalog command, so declaration unit refs stay editable as stored
+  // unit text here. The desktop catalog-picker path is covered by mocked-Tauri
+  // Vitest; this e2e assertion protects the no-fallback/manual-entry route.
+  await page.getByTestId("rule-pack-input-dimension").last().selectOption("stress");
+  await page.getByTestId("rule-pack-input-unit").last().fill("MPa");
   const declText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(declText).required_inputs).toHaveLength(2);
+  expect(JSON.parse(declText).required_inputs[1].quantity_intent).toMatchObject({
+    dimension: "stress",
+    unit_ref: "MPa"
+  });
   await expect(page.getByTestId("rule-pack-variable-browser")).toContainText(
     "user_required_input_2 (required_input)"
   );
