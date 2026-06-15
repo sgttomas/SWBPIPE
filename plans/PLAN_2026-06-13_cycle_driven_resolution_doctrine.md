@@ -286,5 +286,66 @@ Recommended rollout (smallest coherent unit first):
 
 ---
 
+## Amendment 2026-06-15 — DAG re-derivation (DAG-007): not warranted now; same trigger as this doctrine
+
+**Author:** `WORKING_ITEMS`. **Status:** PROPOSAL (non-governing), consistent with
+the parent plan. Records a 2026-06-15 assessment of whether a new dependency-graph
+run (`DAG-007`) is warranted, and folds two corrections back into §3.7 and §4.
+
+**Finding — `DAG-007` is not warranted at this time.** The approved graph
+authority `DAG-006` is bound to decomposition revision `0.7` (its
+`APPROVAL_RECORD`), and `SOFTWARE_DECOMP.md` is still at revision `0.7`: every
+change since the 2026-06-03 freeze is a decision-log append (DEC-022…039), not a
+structural decomposition change. The last scope-change record is dated
+2026-05-03; no SCA-005 / v0.8 exists. New DAG versions are **event-driven by a
+decomposition/scope change** (DAG-002←SCA-002, 004←SCA-003, 005←SCA-004; 006 was
+a metadata-only cleanup over the 005 edge set), not periodic. The inputs to a
+re-derivation are therefore essentially static — only 3 of ~101
+`Dependencies.csv` registers changed since the freeze, and the touched source
+docs were lifecycle/evidence refreshes, not edge changes — so a run would
+reproduce `DAG-006`'s topology (945 active edges, 0 active SCCs, 2 candidate
+SCCs) at human-gated cost, informing no current decision. App-integration
+consumes mature `CHECKING` design authority and writes code; it does not
+re-author the decomposition the DAG models, and `_COORDINATION.md` already
+demotes the DAG to design-context discovery only during this phase.
+
+**Connection to this doctrine — same trigger, first live application.** A
+`DAG-007` run and this doctrine's operational machinery (§3.2b/c, §3.3) share one
+trigger: the **next decomposition revision / SCA** — most concretely Phase D (R4)
+component deliverables and the assembled nonlinear-solve seam, a D-12 disposition
+that changes the deliverable set, or newly decomposed Phase E deliverables. At
+that event the correct cycle is: bump the revision under an SCA → re-run
+`dependency-extract` on the changed deliverables → AGGREGATION →
+`audit_dag.py` / `analyze_dep_closure.py` closure audit → `DAG-007` + human
+`APPROVAL_RECORD`. That closure audit is exactly where the doctrine earns its
+first real use: any *new active* SCC is resolved by a recorded
+decompose/invert/merge/cut move, and the two standing candidate SCCs (§4) become
+co-resolution candidates at the same sitting because their clusters are the
+Phase D/E surfaces. **Adopt the principle now; let both the cycle-resolution
+machinery and graph re-derivation activate together at that event — not before.**
+This is §5 proportionality applied to the graph itself.
+
+**Correction to §3.7.** `tools/coordination/audit_dag.py` **exists** — at the
+shared repo-root `tools/coordination/` (per the `DAG-006` approval record's
+validation commands), alongside `analyze_dep_closure.py`,
+`materialize_local_dependencies.py`, and `tools/aggregation/`. It already
+computes SCCs (Tarjan) and generated `DAG_Audit.md`. The §3.7 premise stands; its
+proposed additions (`--list-sccs`, `--scc <id>`, an "Open SCCs" backlog section)
+are feasible edits to an existing tool, not new tooling. (An earlier reviewer
+note that the file was absent reflected a check of the project-local `tools/`
+rather than the shared repo-root `tools/`.)
+
+**Caution carried from doctrine principle #1 (do not conflate objectives).** If
+the impulse to re-run is "the frozen graph no longer reflects the application,"
+note that the application's structure is a **code/build dependency graph** — a
+different objective and edge semantics from the decomposition-dependency DAG this
+doctrine and `DAG-006` concern. That would be a new artifact with its own
+justification, not a `DAG-007` successor, and is not currently needed (cargo/npm
+already encode build deps; selection runs off the completion plan and app
+surfaces). "Re-validate the graph" must not be silently satisfied by a `DAG-007`
+run.
+
+---
+
 *This plan is a proposal. Nothing here is applied. It makes no lifecycle,
 release, professional, certification, or code-compliance claim.*
