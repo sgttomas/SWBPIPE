@@ -112,10 +112,12 @@ the diagnostic of where ordering is undecided, resolving each by an explicit,
 recorded move (decompose / invert / merge / cut), and holding cycle-participating
 edges non-gating until resolved. This localizes the subjective calls to
 cycle-closing edges and keeps them auditable. A new approved DAG version is
-event-driven by a decomposition revision / SCA, not periodic. The operative
-practice lives in
-[_COORDINATION.md](../execution/_Coordination/_COORDINATION.md); the full
-doctrine, rationale, and the DAG-007 re-derivation trigger are in
+event-driven by a decomposition revision / SCA, not periodic. The canonical
+doctrine is the shared repo-root
+[CYCLE_DRIVEN_RESOLUTION.md](../../../docs/CYCLE_DRIVEN_RESOLUTION.md); the
+operative practice lives in
+[_COORDINATION.md](../execution/_Coordination/_COORDINATION.md); and this
+project's adoption, rollout, and DAG-007 re-derivation trigger are in
 [PLAN_2026-06-13_cycle_driven_resolution_doctrine.md](../plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md).
 
 ## 4. Current roadmap posture

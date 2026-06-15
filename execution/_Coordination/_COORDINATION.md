@@ -139,9 +139,10 @@ Authoritative state:
    new approved DAG version is event-driven by a decomposition revision / SCA —
    not periodic — and is the occasion to re-run the closure audit
    (`audit_dag.py`) and resolve any new SCC; a `DAG-007` re-derivation is not
-   warranted before that trigger. Method, rationale, and the re-derivation
-   trigger: `plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md` (with its
-   2026-06-15 DAG-007 amendment).
+   warranted before that trigger. Canonical doctrine: the shared repo-root
+   `docs/CYCLE_DRIVEN_RESOLUTION.md`. This project's adoption, rollout, and
+   DAG-007 re-derivation trigger: `plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md`
+   (with its 2026-06-15 DAG-007 amendment).
 3. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
    lifecycle, working memory, and execution evidence inside each deliverable's
    ownership boundary.
