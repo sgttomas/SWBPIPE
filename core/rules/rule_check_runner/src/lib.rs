@@ -23,11 +23,16 @@
 //!   directly as the acceptability predicate.
 //! - A check whose formula evaluates to a **quantity** (e.g. a ratio) is
 //!   compared against the single user-supplied limit named by the check's
-//!   `value_slot_refs`, via a synthesized `Compare(formula, <=, limit)`
+//!   `value_slot_refs`, via a synthesized `Compare(formula, <relation>, limit)`
 //!   evaluated through the same evaluator (so unit/dimension safety is enforced
-//!   in one place). `<=` is the labelled v1 relation; the schema cannot yet
-//!   express other directions (a future additive `acceptability_relation`
-//!   member is a separate decision, not built here).
+//!   in one place). The relation is the check's optional `acceptability_relation`
+//!   member (`TP-C4-ACCEPTREL-001`; one of the four ordering relations
+//!   less_than / less_than_or_equal / greater_than / greater_than_or_equal),
+//!   defaulting to `less_than_or_equal` when absent (backward compatible). An
+//!   explicit but unrecognized token blocks the check rather than defaulting
+//!   silently. The member is an additive PROPOSAL awaiting human ratification
+//!   (precedent `DEC-038` / `library_value_ref`); equality acceptance is a
+//!   deliberate non-goal of the member.
 //!
 //! ## Input binding (C4-defined minimal mechanism)
 //!
@@ -199,7 +204,10 @@ pub struct CheckOutcome {
     pub computed_value: Option<ComputedQuantity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit_value: Option<ComputedQuantity>,
-    /// `"less_than_or_equal"` (quantity-vs-limit), `"formula_predicate"`
+    /// The relation that governed the result: one of the four ordering relations
+    /// for a quantity-vs-limit check (`less_than`, `less_than_or_equal`,
+    /// `greater_than`, `greater_than_or_equal`; the check's `acceptability_relation`,
+    /// defaulting to `less_than_or_equal` when absent), `"formula_predicate"`
     /// (boolean formula), or `"none"` (blocked before acceptability).
     pub acceptability_relation: String,
     pub bound_inputs: Vec<BoundInput>,
@@ -688,6 +696,44 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
             }
         }
         Some(EvaluationValue::Quantity(formula_quantity)) => {
+            // The top-level acceptability relation (computed <relation> limit).
+            // Absent => less_than_or_equal (backward compatible); an explicit but
+            // unrecognized token blocks the check rather than defaulting silently.
+            let acceptability_operator = match resolve_acceptability_relation(check) {
+                Ok(operator) => operator,
+                Err(token) => {
+                    evaluator_findings.push(RunFinding {
+                        code: "RULE_EVALUATOR_ERROR".to_string(),
+                        severity: "blocking".to_string(),
+                        subject_id: check_id.clone(),
+                        message: format!(
+                            "check declares an unsupported acceptability_relation '{token}'; \
+                             expected one of less_than, less_than_or_equal, greater_than, \
+                             greater_than_or_equal"
+                        ),
+                    });
+                    push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "evaluator_error");
+                    let status = enforce_declared(
+                        RuleCheckStatus::RuleInputsIncomplete,
+                        &result_statuses,
+                        &mut evaluator_findings,
+                    );
+                    return CheckOutcome {
+                        check_id,
+                        status,
+                        computed_value: Some(quantity_to_computed(&formula_quantity)),
+                        limit_value: None,
+                        acceptability_relation: "none".to_string(),
+                        bound_inputs,
+                        completeness_findings,
+                        evaluator_findings,
+                        diagnostic_codes,
+                    };
+                }
+            };
+            let acceptability_label =
+                acceptability_relation_label(&acceptability_operator).to_string();
+
             let computed_value = Some(quantity_to_computed(&formula_quantity));
             let limit = resolve_limit(check, ctx);
             let Some((limit_value, limit_unit, limit_dimension)) = limit else {
@@ -709,7 +755,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     status,
                     computed_value,
                     limit_value: None,
-                    acceptability_relation: "less_than_or_equal".to_string(),
+                    acceptability_relation: acceptability_label,
                     bound_inputs,
                     completeness_findings,
                     evaluator_findings,
@@ -740,7 +786,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                         status,
                         computed_value,
                         limit_value: None,
-                        acceptability_relation: "less_than_or_equal".to_string(),
+                        acceptability_relation: acceptability_label,
                         bound_inputs,
                         completeness_findings,
                         evaluator_findings,
@@ -752,7 +798,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
 
             let comparison = evaluate(&EvaluationInput {
                 expression: Expression::Compare {
-                    operator: ComparisonOperator::LessThanOrEqual,
+                    operator: acceptability_operator,
                     left: Box::new(Expression::Literal(formula_quantity)),
                     right: Box::new(Expression::Literal(limit_quantity)),
                 },
@@ -784,7 +830,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 status,
                 computed_value,
                 limit_value: limit_computed,
-                acceptability_relation: "less_than_or_equal".to_string(),
+                acceptability_relation: acceptability_label,
                 bound_inputs,
                 completeness_findings,
                 evaluator_findings,
@@ -821,6 +867,48 @@ fn resolve_limit(check: &Value, ctx: &RunContext) -> Option<(f64, String, Option
         }
     }
     None
+}
+
+/// Resolve a check's acceptability relation — the top-level pass/fail comparison
+/// of the computed formula quantity against the user-supplied value-slot limit
+/// (`computed <relation> limit`) — to a frozen-grammar comparison operator.
+///
+/// An absent member resolves to `LessThanOrEqual`, preserving the historical
+/// hard-coded behaviour for packs authored before the additive
+/// `acceptability_relation` member existed (the sole documented default; the
+/// editor authors the member explicitly, so new packs never rely on it). An
+/// explicit but unrecognized token is never silently defaulted — `Err(token)`
+/// is returned so the caller blocks the check (no-silent-defaults, CONTRACT).
+/// The member is restricted to the four ordering relations; equality acceptance
+/// is a deliberate non-goal (a boolean-predicate formula can express equality).
+fn resolve_acceptability_relation(check: &Value) -> Result<ComparisonOperator, String> {
+    match check
+        .pointer("/acceptability_relation")
+        .and_then(Value::as_str)
+    {
+        None => Ok(ComparisonOperator::LessThanOrEqual),
+        Some(token) => match token.trim() {
+            "" => Ok(ComparisonOperator::LessThanOrEqual),
+            "less_than" => Ok(ComparisonOperator::LessThan),
+            "less_than_or_equal" => Ok(ComparisonOperator::LessThanOrEqual),
+            "greater_than" => Ok(ComparisonOperator::GreaterThan),
+            "greater_than_or_equal" => Ok(ComparisonOperator::GreaterThanOrEqual),
+            other => Err(other.to_string()),
+        },
+    }
+}
+
+/// Canonical string label for an acceptability relation operator, reported on
+/// the check outcome so the GUI shows the relation that governed the result.
+fn acceptability_relation_label(operator: &ComparisonOperator) -> &'static str {
+    match operator {
+        ComparisonOperator::LessThan => "less_than",
+        ComparisonOperator::LessThanOrEqual => "less_than_or_equal",
+        ComparisonOperator::GreaterThan => "greater_than",
+        ComparisonOperator::GreaterThanOrEqual => "greater_than_or_equal",
+        ComparisonOperator::Equal => "equal",
+        ComparisonOperator::NotEqual => "not_equal",
+    }
 }
 
 fn quantity_to_computed(quantity: &Quantity) -> ComputedQuantity {

@@ -157,6 +157,16 @@
             "TBD"
           ]
         },
+        "acceptability_relation": {
+          "type": "string",
+          "enum": [
+            "less_than",
+            "less_than_or_equal",
+            "greater_than",
+            "greater_than_or_equal"
+          ],
+          "description": "Optional top-level acceptability relation comparing the check's computed formula quantity against its user-supplied value-slot limit: the check passes when computed_value <relation> limit_value. Maps to the frozen expression grammar's comparison operators (DEC-022). When absent, the runner uses less_than_or_equal, preserving the historical behaviour of packs authored before this member existed (the sole documented default; the editor authors the member explicitly, so new packs never rely on a silent default). Restricted to the four ordering relations; floating-point equality acceptance is a deliberate non-goal of this member (a boolean-predicate formula can express equality directly if ever required)."
+        },
         "result_statuses": {
           "type": "array",
           "minItems": 1,

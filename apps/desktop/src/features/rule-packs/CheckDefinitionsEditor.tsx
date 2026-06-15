@@ -47,6 +47,20 @@ export const ACCEPTABILITY_BASES = [
   "TBD"
 ] as const;
 
+// The optional top-level acceptability relation (computed_value <relation>
+// limit_value), copied verbatim from rule_pack.schema.yaml CheckDefinition. The
+// four ordering relations only — equality acceptance is a deliberate schema
+// non-goal. Maps to the frozen grammar's comparison operators (DEC-022); the
+// runner defaults an absent member to less_than_or_equal, so the editor authors
+// it explicitly (never a silent default). Exported so a schema-conformance test
+// can assert set equality against the schema.
+export const ACCEPTABILITY_RELATIONS = [
+  "less_than",
+  "less_than_or_equal",
+  "greater_than",
+  "greater_than_or_equal"
+] as const;
+
 export const ANALYSIS_STATUSES = [
   "MODEL_INCOMPLETE",
   "MECHANICS_SOLVED",
@@ -160,6 +174,7 @@ export function defaultCheckDefinition(
     value_slot_refs: [{ ref_id: slotIds[0] ?? "TBD", ref_type: "value_slot" }],
     formula_ref: { ref_id: formulaIds[0] ?? "TBD", ref_type: "formula" },
     acceptability_basis: "user_supplied_rule_pack",
+    acceptability_relation: "less_than_or_equal",
     result_statuses: [
       "RULE_INPUTS_INCOMPLETE",
       "USER_RULE_CHECKED",
@@ -511,6 +526,15 @@ export function CheckDefinitionsEditor({
                 value={asString(record.acceptability_basis) ?? "TBD"}
                 disabled={disabled}
                 onChange={(next) => updateCheck(index, { acceptability_basis: next })}
+              />
+
+              <EnumSelect
+                testId="rule-pack-check-acceptability-relation"
+                label="acceptability_relation"
+                options={ACCEPTABILITY_RELATIONS}
+                value={asString(record.acceptability_relation) ?? "less_than_or_equal"}
+                disabled={disabled}
+                onChange={(next) => updateCheck(index, { acceptability_relation: next })}
               />
 
               <ResultStatusToggles

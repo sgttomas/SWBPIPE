@@ -551,6 +551,23 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   const statusText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(statusText).check_definitions[0].result_statuses).toContain("MODEL_INCOMPLETE");
 
+  // TP-C4-ACCEPTREL-001: the check authors its top-level acceptability relation
+  // (computed <relation> limit) through a structured selector — the template
+  // authors the explicit less_than_or_equal default (no reliance on the runner's
+  // absent->default fallback); choosing another ordering relation rewrites the
+  // canonical document. No text syntax (D-02b); equality acceptance is not offered.
+  await expect(page.getByTestId("rule-pack-check-acceptability-relation").first()).toHaveValue(
+    "less_than_or_equal"
+  );
+  await page
+    .getByTestId("rule-pack-check-acceptability-relation")
+    .first()
+    .selectOption("greater_than_or_equal");
+  const relationText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(relationText).check_definitions[0].acceptability_relation).toBe(
+    "greater_than_or_equal"
+  );
+
   // TP-C3-LIBREFAUTHOR-001: an input that draws from a private library authors a
   // library_value_ref (library_kind/library_id/record_id/slot_id) through
   // structured controls — the pointer the C4 runner resolves from the local

@@ -5314,3 +5314,46 @@ notes:
   raw solve-envelope hash never mutated; deliverables stay CHECKING; no
   release-readiness, professional, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-163 author a check's acceptability relation beyond `<=` (`TP-C4-ACCEPTREL-001`, 2026-06-14)
+
+- Lands the `acceptability_relation` half of the Phase C **C4** named remaining
+  scope ("the future additive `acceptability_relation` / solver-result-selector
+  schema members"). Before this, rule checks could only express `≤`: the runner
+  hard-coded `LessThanOrEqual`, so a pack could not state that a check passes
+  when the computed quantity is `≥` / `<` / `>` its user-supplied limit.
+- **Additive, optional, backward-compatible PROPOSAL member.** New optional
+  `acceptability_relation` on `CheckDefinition` (four ordering relations only:
+  `less_than` / `less_than_or_equal` / `greater_than` / `greater_than_or_equal`),
+  mapped to the frozen grammar's existing comparison operators (DEC-022 — no
+  grammar change). Absent → `less_than_or_equal` (the demo and every existing
+  pack are byte-identical and behave identically). An explicit but unrecognized
+  token **blocks** the check (`RULE_EVALUATOR_ERROR` → `RULE_INPUTS_INCOMPLETE`),
+  never a silent `≤`. Equality acceptance is a deliberate non-goal. Built as a
+  PROPOSAL awaiting human ratification (precedent `DEC-038` / `library_value_ref`);
+  ratification bumps rule-pack `schema_version` 0.3.0 → 0.4.0 (`DEC-033`).
+- GUI: the C2 check-definitions editor gains a relation selector
+  (`rule-pack-check-acceptability-relation`); the draft template authors the
+  explicit `less_than_or_equal` default; out-of-vocabulary stored tokens surface
+  as `(current) …` (no silent snap). The Run Rule Checks panel already renders
+  the relation the backend reports — it now varies with the authored member.
+- Automation posture (H4 default): the browser Playwright `rule-pack manager`
+  spec is extended to assert the relation selector shows the `less_than_or_equal`
+  default and that choosing `greater_than_or_equal` rewrites the canonical
+  document JSON — the changed authoring behaviour exercised in a real browser on
+  both viewports. Relation *evaluation* semantics (which require the Tauri
+  backend) are covered by the Rust runner integration tests.
+- Validation: `cargo test` runner crate **18** (11 unit + 4 new relation
+  integration + 3 demo, demo unchanged → backward compat); `cargo fmt --check`
+  clean; `pytest tests/test_rule_pack_schema.py` **5** (schema valid, fixtures
+  conform); desktop Vitest **367** (+2 net); `npm run build` clean (1653
+  modules); `npx playwright test -g "rule-pack manager"` **2/2**; five-surface
+  DEC-025 sweep — see the committed sweep summary.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C4-ACCEPTREL-001.md` (DEL-06-02 primary;
+  coupled DEL-06-01 schema, DEL-07-03 editor).
+- Boundary review: local-only pure runner + invented fixtures; status-
+  vocabulary-only; no silent default (absent→`≤` is a documented backward-compat
+  default; unknown token blocks); deliverables stay CHECKING; no release-
+  readiness, professional, certification, sealing, authentication, or
+  code-compliance claim.

@@ -13,6 +13,59 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C4 acceptability relation beyond `<=`: additive `acceptability_relation` member (`TP-C4-ACCEPTREL-001`)
+
+Lands the `acceptability_relation` half of the C4 "Remaining scope (non-GUI):
+the future additive `acceptability_relation` / solver-result-selector schema
+members". Before this, rule checks could only ever express `≤`: the runner
+hard-coded `ComparisonOperator::LessThanOrEqual` for the top-level
+computed-vs-limit acceptability comparison, so a pack could not say a check
+passes when the computed quantity is `≥` / `<` / `>` its user-supplied limit
+(a minimum-thickness or margin check). The frozen grammar (DEC-022) already
+carried all six comparison operators and `rule_pack_document` already had the
+string↔operator codec — only the runner's acceptability step was fixed.
+
+Additive, optional, backward-compatible PROPOSAL member (the established
+`library_value_ref`→`DEC-038` pattern):
+
+- **Schema** (`schemas/rule_pack.schema.yaml`): optional `acceptability_relation`
+  on `CheckDefinition`, enum of the four ordering relations (`less_than`,
+  `less_than_or_equal`, `greater_than`, `greater_than_or_equal`). Not in
+  `required` → packs without it stay valid; the pytest schema-conformance suite
+  passes because the demo/example fixtures omit it.
+- **Runner** (`core/rules/rule_check_runner`): `resolve_acceptability_relation`
+  (absent/empty → `LessThanOrEqual`; the four tokens → their operator; any other
+  explicit token → `Err`) drives the synthesized `Compare(formula, <relation>,
+  limit)` and the outcome label. An unrecognized explicit token pushes a blocking
+  `RULE_EVALUATOR_ERROR` finding and blocks at `RULE_INPUTS_INCOMPLETE` — never a
+  silent `≤` (no-silent-defaults, CONTRACT). Equality acceptance (`equal`/
+  `not_equal`) is a deliberate non-goal of the member (float-fragile; a
+  boolean-predicate formula can express equality).
+- **GUI** (`CheckDefinitionsEditor` + `rulePackService` draft template): a
+  relation `EnumSelect`; the draft template authors the explicit
+  `less_than_or_equal` default so new packs never rely on the runner's absent
+  fallback; out-of-vocabulary stored tokens surface as `(current) …`.
+
+Default rationale: absent → `less_than_or_equal` is a backward-compatibility
+default for a *missing* member (preserving every pre-member pack), not a silent
+fill of a blank — distinct from the no-silent-defaults rule, which the
+unrecognized-token-blocks behaviour upholds.
+
+Evidence: runner `cargo test` 18 (11 unit + 4 new relation integration + 3 demo,
+demo unchanged → backward compat); `cargo fmt --check` clean; pytest
+`test_rule_pack_schema.py` 5; desktop Vitest 367 (+2 net); `npm run build`
+clean; `npx playwright test -g "rule-pack manager"` 2/2 (both viewports; the
+r2-smoke spec now drives the relation selector and asserts the rewritten
+document). Run record:
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-14_TP-C4-ACCEPTREL-001.md`; SMOKE
+TP-MAC-163.
+
+Residual: **schema ratification** (PROPOSAL awaiting a human `DEC`; bumps
+rule-pack `schema_version` 0.3.0 → 0.4.0 per `DEC-033`); the
+`solver-result-selector` member is still a named C4 follow-up.
+
+---
+
 ## 2026-06-14 — C4 app-side residual closed: wire the GUI rule-check aggregate into the app-held analysis-run envelope (`TP-C4-APPAGG-001`)
 
 The C4 "Remaining scope (non-GUI): app-side wiring of the GUI run aggregate into

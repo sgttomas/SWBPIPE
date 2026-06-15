@@ -331,6 +331,7 @@ export function buildDraftRulePackDocument(): RulePackDocument {
         value_slot_refs: [{ ref_id: "user_limit_slot_1", ref_type: "value_slot" }],
         formula_ref: { ref_id: "user_formula_1", ref_type: "formula" },
         acceptability_basis: "user_supplied_rule_pack",
+        acceptability_relation: "less_than_or_equal",
         result_statuses: [
           "RULE_INPUTS_INCOMPLETE",
           "USER_RULE_CHECKED",

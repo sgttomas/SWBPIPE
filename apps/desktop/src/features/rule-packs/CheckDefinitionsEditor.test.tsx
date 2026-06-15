@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   ACCEPTABILITY_BASES,
+  ACCEPTABILITY_RELATIONS,
   ANALYSIS_STATUSES,
   CheckDefinitionsEditor,
   DIAGNOSTIC_CODES,
@@ -72,6 +73,7 @@ describe("CheckDefinitionsEditor pure helpers", () => {
       value_slot_refs: [{ ref_id: "slot1", ref_type: "value_slot" }],
       formula_ref: { ref_id: "f1", ref_type: "formula" },
       acceptability_basis: "user_supplied_rule_pack",
+      acceptability_relation: "less_than_or_equal",
       result_statuses: [
         "RULE_INPUTS_INCOMPLETE",
         "USER_RULE_CHECKED",
@@ -108,6 +110,12 @@ describe("CheckDefinitionsEditor pure helpers", () => {
       "private_project_basis",
       "invented_non_engineering_example",
       "TBD"
+    ]);
+    expect(ACCEPTABILITY_RELATIONS).toEqual([
+      "less_than",
+      "less_than_or_equal",
+      "greater_than",
+      "greater_than_or_equal"
     ]);
     expect(ANALYSIS_STATUSES).toEqual([
       "MODEL_INCOMPLETE",
@@ -326,6 +334,34 @@ describe("CheckDefinitionsEditor component", () => {
     const select = screen.getByTestId("rule-pack-check-acceptability-basis") as HTMLSelectElement;
     expect(select.value).toBe("future_basis_from_a_newer_schema");
     expect(screen.getByText("(current) future_basis_from_a_newer_schema")).toBeTruthy();
+  });
+
+  it("authors the acceptability relation through the selector", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    const select = screen.getByTestId("rule-pack-check-acceptability-relation") as HTMLSelectElement;
+    // The draft template authors the explicit default; the editor never relies
+    // on the runner's absent->less_than_or_equal fallback.
+    expect(select.value).toBe("less_than_or_equal");
+    fireEvent.change(select, { target: { value: "greater_than_or_equal" } });
+    expect(checksOf(harnessDoc())[0].acceptability_relation).toBe("greater_than_or_equal");
+  });
+
+  it("shows the less_than_or_equal default for a pack with no relation, without mutating it", () => {
+    // Opening a pre-member pack: the runner defaults absent -> less_than_or_equal,
+    // and the editor mirrors that as the displayed value WITHOUT writing the
+    // member back (lossless round-trip until the user edits it).
+    const { acceptability_relation: _omitted, ...checkWithout } = (
+      buildDraftRulePackDocument().check_definitions as Array<Record<string, unknown>>
+    )[0];
+    void _omitted;
+    render(
+      <Harness initial={{ ...buildDraftRulePackDocument(), check_definitions: [checkWithout] }} />
+    );
+    const select = screen.getByTestId("rule-pack-check-acceptability-relation") as HTMLSelectElement;
+    expect(select.value).toBe("less_than_or_equal");
+    // No "(current)" escape option: less_than_or_equal is in vocabulary.
+    expect(screen.queryByText(/\(current\)/)).toBeNull();
+    expect("acceptability_relation" in checksOf(harnessDoc())[0]).toBe(false);
   });
 
   it("surfaces an out-of-vocabulary result status as a removable (current) option", () => {

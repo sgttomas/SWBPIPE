@@ -162,6 +162,9 @@ describe("RuleCheckRunPanel", () => {
     const outcome = screen.getByTestId("rule-check-outcome-demo_training_check");
     expect(outcome.textContent).toContain("USER_RULE_FAILED");
     expect(outcome.textContent).toContain("computed=1.5 ratio");
+    // The acceptability relation the backend reported is surfaced (the runner now
+    // derives this from the check's acceptability_relation; TP-C4-ACCEPTREL-001).
+    expect(outcome.textContent).toContain("relation=less_than_or_equal");
     expect(screen.getByTestId("rule-check-professional-boundary").textContent).toContain(
       "not a professional claim"
     );

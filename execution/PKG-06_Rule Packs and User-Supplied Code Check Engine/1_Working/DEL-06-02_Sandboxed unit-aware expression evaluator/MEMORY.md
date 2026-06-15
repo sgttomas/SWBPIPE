@@ -182,3 +182,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
   assumptions. Grammar v1.0.0 content unchanged; no code edit was needed.
 - No lifecycle promotion, release claim, or professional/code-compliance
   claim is implied; evidence is `CHECKING` state only.
+
+## 2026-06-14 - TP-C4-ACCEPTREL-001: acceptability relation beyond `<=`
+
+- The rule-check runner (`core/rules/rule_check_runner`) no longer hard-codes
+  `<=` for the top-level computed-vs-limit acceptability comparison. It reads an
+  optional `acceptability_relation` on each `CheckDefinition` (four ordering
+  relations `less_than` / `less_than_or_equal` / `greater_than` /
+  `greater_than_or_equal`), maps it to the frozen grammar's existing
+  `ComparisonOperator` (DEC-022; no grammar change), and reports the relation on
+  the outcome.
+- Backward compatible: **absent → `less_than_or_equal`** (the demo and every
+  pre-member pack behave identically — witnessed by the unchanged
+  `invented_demo_run` integration tests). An explicit but **unrecognized token
+  blocks** the check (`RULE_EVALUATOR_ERROR` → `RULE_INPUTS_INCOMPLETE`), never a
+  silent `<=`. Equality acceptance is a deliberate non-goal of the member.
+- Additive **PROPOSAL** schema member (`schemas/rule_pack.schema.yaml`
+  `CheckDefinition.acceptability_relation`), awaiting human ratification
+  (companion to `DEC-038`; ratification bumps rule-pack `schema_version`
+  0.3.0 → 0.4.0 per `DEC-033`). Authored via the C2 check-definitions selector
+  (DEL-07-03); the draft template authors the explicit default.
+- Evidence: run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-14_TP-C4-ACCEPTREL-001.md`; SMOKE
+  TP-MAC-163. Runner `cargo test` 18; pytest schema 5; Vitest 367; e2e 2/2.
+- No lifecycle promotion, release claim, or professional/code-compliance
+  claim is implied; evidence is `CHECKING` state only.
