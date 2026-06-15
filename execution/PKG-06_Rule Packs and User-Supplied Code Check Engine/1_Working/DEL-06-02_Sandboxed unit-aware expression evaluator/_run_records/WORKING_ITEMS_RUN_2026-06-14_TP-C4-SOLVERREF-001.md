@@ -123,7 +123,20 @@ Decisions inside the slice, all surfaced (no silent choices):
 - Frontend unaffected (no TypeScript changed; the GUI does not yet author or
   consume `solver_result_ref`). No Playwright/Vitest extension is owed under the
   H4 evidence posture — there is no user-visible behaviour change in this slice.
-- Five-surface DEC-025 sweep: committed sweep summary at the tranche HEAD.
+- Five-surface DEC-025 sweep: **overall pass** —
+  `validation/evidence/sweeps/SWEEP_20260615T033429Z_c161a7053cb5-dirty.json`
+  (cargo 32 crates, pytest 359, desktop Vitest 367, Playwright e2e 10/10,
+  desktop production build — all five surfaces pass). The summary binds to
+  `c161a7053` because a concurrent monorepo agent committed external-scope
+  `tools/retrieval` work on top of this tranche's `ad27dc4d7` during the first
+  sweep run; `ad27dc4d7` is an ancestor of `c161a7053`, so the summary validates
+  a superset that includes this change (the `c161a7053` delta is outside
+  `chirality-piping`). The first sweep run was marked `fail` solely on a
+  Playwright worker-teardown timeout ("worker did not exit within 300000ms after
+  stop") — all 10 e2e tests passed; no test or code failure, an environmental
+  flake under concurrent load — and was green on a clean re-run with no lingering
+  processes. This tranche's `ad27dc4d7` was already on `origin/main` (carried by
+  the concurrent agent's push); this evidence commit adds the green summary.
 
 ## Residuals and hand-offs
 
