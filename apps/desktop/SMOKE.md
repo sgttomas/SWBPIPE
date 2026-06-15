@@ -5551,3 +5551,32 @@ notes:
   no protected standards content, private value, browser fallback catalog,
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-169 rule-pack expression unit selectors (`TP-UNITS-B2-RULEEXPRUNITS-001`, 2026-06-15)
+
+- Phase B2/B3 rule-pack unit I/O slice: `ExpressionComposer` now uses the
+  reviewed DEC-018 unit catalog for expression literal `quantity.unit_ref`,
+  table `argument_unit_ref`, and table `result_unit_ref` when the
+  desktop/Tauri `get_unit_catalog` route is available.
+- Desktop behavior covered by mocked-Tauri component tests: selectors offer
+  dimension-compatible accepted units only (for stress expressions, `Pa` and
+  `MPa`; not length/force units), preserve stored out-of-catalog units as the
+  current value instead of snapping them, and write selected table/literal units
+  back into the canonical AST.
+- Browser behavior covered in Playwright: no fallback catalog is synthesized;
+  the rule-pack manager journey keeps manual expression unit entry available
+  and records literal `dimension=stress`, `unit_ref=MPa` plus table
+  `argument_dimension=temperature`, `argument_unit_ref=degC`,
+  `result_dimension=stress`, and `result_unit_ref=MPa` in the canonical draft
+  JSON.
+- Validation: focused `ExpressionComposer` Vitest **19/19**; desktop Vitest
+  **384/384**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; Playwright e2e **10/10** across the configured
+  desktop/compact Chromium projects.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEEXPRUNITS-001.md` (DEL-02-02
+  primary and DEL-06-02 companion); completion plan/log updated.
+- Boundary review: frontend-only; no schema/backend/evaluator/grammar/parser
+  change; no protected standards content, private value, browser fallback
+  catalog, release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

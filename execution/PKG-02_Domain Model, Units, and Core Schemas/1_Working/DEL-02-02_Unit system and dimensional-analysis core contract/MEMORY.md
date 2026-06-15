@@ -416,3 +416,30 @@ Boundary note:
   and broader import/export conversion work outside covered forms; B3 still
   owns broader conversion-witness, incompatible-unit rejection, and DEC-026
   tolerance corpus coverage.
+
+## 2026-06-15 - TP-UNITS-B2-RULEEXPRUNITS-001 rule-pack expression unit selectors
+
+- Extended B2 unit-aware I/O into the C2 expression composer: literal
+  `quantity.unit_ref`, table `argument_unit_ref`, and table `result_unit_ref`
+  now use DEC-018-backed desktop unit selectors when Tauri `get_unit_catalog`
+  is available.
+- Browser preview keeps manual unit text entry and does not synthesize a
+  fallback unit catalog; desktop selectors filter by authored expression/table
+  dimension, preserve out-of-catalog stored units, and avoid silent
+  dimension/unit rewrites.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEEXPRUNITS-001.md`;
+  corresponding DEL-06-02 run record; `apps/desktop/SMOKE.md` TP-MAC-169.
+- Validation: focused `ExpressionComposer` Vitest 19/19; full desktop Vitest
+  384/384; desktop build passed with the existing Vite chunk-size warning;
+  Playwright e2e 10/10.
+- Boundaries preserved: frontend-only; no schema/backend/evaluator/grammar
+  change, protected standards content, private value embedding, browser
+  fallback catalog, release-readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claim.
+- Residual handoffs: B2 still owns broader app unit entry/pickers outside
+  material/section/primitive-load create/edit and rule-pack
+  declaration/expression forms, import round-trip unit I/O, and target-format
+  conversion witnesses beyond disclosure; B3 still owns broader
+  conversion-witness, incompatible-unit rejection, and DEC-026 tolerance corpus
+  coverage.

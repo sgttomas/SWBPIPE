@@ -1,4 +1,11 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  unitEntryMatchesDimension,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
 
 // Structured AST expression composer (Phase C2 slice 2, TP-C2-COMPOSER-001).
 //
@@ -20,6 +27,12 @@ import { useState, type ReactNode } from "react";
 // and unit refs, and the {argument, result} rows, plus the recursive argument
 // expression. Monotonicity and out-of-range remain evaluator-enforced
 // diagnostics (surfaced as authoring guidance, never silently clamped here).
+//
+// Unit I/O (TP-UNITS-B2-RULEEXPRUNITS-001): expression literal/table unit refs
+// use the reviewed DEC-018 catalog when the desktop backend exposes it.
+// Browser preview keeps manual unit text instead of synthesizing a fallback
+// catalog; stored out-of-catalog units remain visible and selectable as the
+// current value.
 //
 // Lossless preservation: any unrecognized node tag and the refusal markers
 // (unsupported_form / unsafe_host_access) are rendered read-only and preserved
@@ -375,6 +388,7 @@ type NodeEditorProps = {
   variables: RulePackVariable[];
   disabled: boolean;
   disabledReason?: string;
+  unitCatalogRoute: UnitCatalogRoute | null;
   depth: number;
   label: string;
 };
@@ -478,8 +492,81 @@ export function DimensionSelect({
   );
 }
 
+type UnitOption = {
+  symbol: string;
+  label: string;
+};
+
+function hasTauriInternals(): boolean {
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, currentSymbol: string): UnitOption[] {
+  const current = currentSymbol.trim() || "TBD";
+  const basis = describeUnitBasis(route, current, dimensionId);
+  const fallback = { symbol: basis.symbol, label: basis.label };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const entryBasis = describeUnitBasis(route, entry.symbol, dimensionId);
+      return { symbol: entry.symbol, label: entryBasis.label };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) {
+    options.unshift(fallback);
+  }
+  return options.length > 0 ? options : [fallback];
+}
+
+function UnitRefField({
+  testId,
+  value,
+  dimension,
+  disabled,
+  unitCatalogRoute,
+  onChange
+}: {
+  testId: string;
+  value: string;
+  dimension: string;
+  disabled: boolean;
+  unitCatalogRoute: UnitCatalogRoute | null;
+  onChange: (next: string) => void;
+}) {
+  if (unitCatalogRoute?.route !== "tauri_unit_catalog") {
+    return (
+      <input
+        type="text"
+        data-testid={testId}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    );
+  }
+
+  const options = unitOptions(unitCatalogRoute, dimension, value);
+  return (
+    <select
+      data-testid={testId}
+      value={value.trim() || "TBD"}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      {options.map((option) => (
+        <option key={option.symbol} value={option.symbol}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function ExpressionNodeEditor(props: NodeEditorProps) {
-  const { node, onChange, variables, disabled, disabledReason, depth, label } = props;
+  const { node, onChange, variables, disabled, disabledReason, depth, label, unitCatalogRoute } = props;
   const kind = nodeKind(node);
 
   // Read-only, preserved nodes: the refusal markers (unsupported_form /
@@ -537,12 +624,13 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
         </label>
         <label className="rule-pack-node-field">
           <span>unit_ref</span>
-          <input
-            type="text"
-            data-testid="rule-pack-literal-unit"
+          <UnitRefField
+            testId="rule-pack-literal-unit"
             value={unitRef}
+            dimension={dimension}
             disabled={disabled}
-            onChange={(event) => updateQuantity({ unit_ref: event.target.value })}
+            unitCatalogRoute={unitCatalogRoute}
+            onChange={(next) => updateQuantity({ unit_ref: next })}
           />
         </label>
       </NodeShell>
@@ -609,6 +697,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="operand"
         />
@@ -654,6 +743,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="left"
         />
@@ -663,6 +753,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="right"
         />
@@ -680,6 +771,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="condition"
         />
@@ -689,6 +781,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="then"
         />
@@ -698,6 +791,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="else"
         />
@@ -772,12 +866,13 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
         </label>
         <label className="rule-pack-node-field">
           <span>arg unit_ref</span>
-          <input
-            type="text"
-            data-testid="rule-pack-table-argument-unit"
+          <UnitRefField
+            testId="rule-pack-table-argument-unit"
             value={argumentUnitRef}
+            dimension={argumentDimension}
             disabled={disabled}
-            onChange={(event) => updateTable({ argument_unit_ref: event.target.value })}
+            unitCatalogRoute={unitCatalogRoute}
+            onChange={(next) => updateTable({ argument_unit_ref: next })}
           />
         </label>
         <label className="rule-pack-node-field">
@@ -791,12 +886,13 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
         </label>
         <label className="rule-pack-node-field">
           <span>result unit_ref</span>
-          <input
-            type="text"
-            data-testid="rule-pack-table-result-unit"
+          <UnitRefField
+            testId="rule-pack-table-result-unit"
             value={resultUnitRef}
+            dimension={resultDimension}
             disabled={disabled}
-            onChange={(event) => updateTable({ result_unit_ref: event.target.value })}
+            unitCatalogRoute={unitCatalogRoute}
+            onChange={(next) => updateTable({ result_unit_ref: next })}
           />
         </label>
         <small className="rule-pack-node-readonly" data-testid="rule-pack-table-guidance">
@@ -857,6 +953,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
           variables={variables}
           disabled={disabled}
           disabledReason={disabledReason}
+          unitCatalogRoute={unitCatalogRoute}
           depth={depth + 1}
           label="argument"
         />
@@ -900,6 +997,7 @@ function ExpressionNodeEditor(props: NodeEditorProps) {
             variables={variables}
             disabled={disabled}
             disabledReason={disabledReason}
+            unitCatalogRoute={unitCatalogRoute}
             depth={depth + 1}
             label={`operand ${index + 1}`}
           />
@@ -955,12 +1053,32 @@ export function ExpressionComposer({
 }: ExpressionComposerProps) {
   const variables = collectRulePackVariables(document);
   const formulas = readFormulaDeclarations(document);
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [selectedFormulaId, setSelectedFormulaId] = useState<string | null>(null);
   const activeFormulaId =
     selectedFormulaId && formulas.some((formula) => formula.id === selectedFormulaId)
       ? selectedFormulaId
       : (formulas[0]?.id ?? null);
   const activeFormula = formulas.find((formula) => formula.id === activeFormulaId) ?? null;
+
+  useEffect(() => {
+    if (!hasTauriInternals()) return undefined;
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => {
+        if (active) setUnitCatalogRoute(route);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: `UNIT-CATALOG-LOAD-FAILED: ${String(error)}`
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="report-list rule-pack-expression-composer" data-testid="rule-pack-expression-composer">
@@ -1004,6 +1122,7 @@ export function ExpressionComposer({
               variables={variables}
               disabled={disabled}
               disabledReason={disabledReason}
+              unitCatalogRoute={unitCatalogRoute}
               depth={0}
               label="expression"
             />

@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
 import {
   DIMENSIONS,
   ExpressionComposer,
@@ -16,13 +20,91 @@ import {
   type RulePackDocument
 } from "./ExpressionComposer";
 import { buildDraftRulePackDocument } from "../../services/rulePackService";
+import type { UnitCatalog } from "../../services/unitCatalogService";
 
 // TP-C2-COMPOSER-001 — structured AST expression composer.
 // Pure-helper tests pin the grammar v1.0.0 node encoding and the lossless
 // document rewrite; component tests drive the composer through visible
 // controls and assert the rewritten document.
 
-afterEach(cleanup);
+const catalogFixture: UnitCatalog = {
+  schema_version: "0.1.0",
+  catalog_id: "unit-system:dec-018-si-dual-display",
+  decision_basis: "DEC-018",
+  calculation_basis: "si_canonical",
+  storage_convention: "entered_units_preserved",
+  entry_count: 5,
+  entries: [
+    {
+      unit_id: "unit:meter",
+      symbol: "m",
+      dimension_id: "length",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 m/m, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pascal",
+      symbol: "Pa",
+      dimension_id: "pressure",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 Pa/Pa, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:megapascal",
+      symbol: "MPa",
+      dimension_id: "pressure",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "1000000 Pa/MPa, exact public definition",
+      offset_representation: null,
+      provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:degree_celsius",
+      symbol: "degC",
+      dimension_id: "temperature",
+      canonical: false,
+      transform_kind: "affine",
+      factor_representation: "1 K/degC interval, exact public definition",
+      offset_representation: "273.15 K at 0 degC",
+      provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pound_force",
+      symbol: "lbf",
+      dimension_id: "force",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "0.45359237 kg/lb * 9.80665 m/s^2 per lbf",
+      offset_representation: null,
+      provenance: "conventional_public_constant",
+      review_status: "accepted"
+    }
+  ],
+  boundary: {
+    source: "core/units open_pipe_stress_units catalog",
+    protected_content_included: false,
+    private_project_data_included: false,
+    professional_approval_claimed: false,
+    code_compliance_claimed: false
+  }
+};
+
+afterEach(() => {
+  cleanup();
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
 
 function expressionOf(document: RulePackDocument): AstNode {
   const formula = (document.formula_declarations as Array<Record<string, unknown>>)[0];
@@ -215,6 +297,45 @@ describe("ExpressionComposer component", () => {
     });
   });
 
+  it("uses the DEC-018 catalog for literal unit refs in desktop mode", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(catalogFixture);
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], { target: { value: "literal" } });
+    fireEvent.change(screen.getByTestId("rule-pack-literal-dimension"), {
+      target: { value: "stress" }
+    });
+
+    const unitSelect = screen.getByTestId("rule-pack-literal-unit") as HTMLSelectElement;
+    await waitFor(() => expect(Array.from(unitSelect.options).map((option) => option.value)).toContain("MPa"));
+    const optionValues = Array.from(unitSelect.options).map((option) => option.value);
+    expect(optionValues).toContain("Pa");
+    expect(optionValues).not.toContain("m");
+    expect(optionValues).not.toContain("lbf");
+
+    fireEvent.change(unitSelect, { target: { value: "MPa" } });
+    expect(harnessExpression()).toMatchObject({
+      node: "literal",
+      quantity: { dimension: "stress", unit_ref: "MPa" }
+    });
+  });
+
+  it("keeps browser-preview literal unit refs as manual text fields", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], { target: { value: "literal" } });
+
+    const unitField = screen.getByTestId("rule-pack-literal-unit") as HTMLInputElement;
+    expect(unitField.tagName).toBe("INPUT");
+    fireEvent.change(unitField, { target: { value: "MPa" } });
+    expect(invokeMock).not.toHaveBeenCalled();
+    expect(harnessExpression()).toMatchObject({
+      node: "literal",
+      quantity: { unit_ref: "MPa" }
+    });
+  });
+
   it("adds and removes aggregate operands and blocks dropping the last one", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], { target: { value: "aggregate" } });
@@ -295,6 +416,45 @@ describe("ExpressionComposer component", () => {
       { argument: 0, result: 1.5 },
       { argument: 1, result: 0 }
     ]);
+  });
+
+  it("uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(catalogFixture);
+    const document = setFormulaExpression(buildDraftRulePackDocument(), "user_formula_1", {
+      node: "interpolate",
+      table: {
+        table_id: "legacy_table",
+        argument_dimension: "temperature",
+        argument_unit_ref: "legacy_temperature_unit",
+        result_dimension: "stress",
+        result_unit_ref: "legacy_stress_unit",
+        rows: [
+          { argument: 0, result: 0 },
+          { argument: 1, result: 0 }
+        ]
+      },
+      argument: { node: "variable_ref", variable_id: "user_required_input_1" }
+    });
+    render(<Harness initial={document} />);
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    const argumentUnit = screen.getByTestId("rule-pack-table-argument-unit") as HTMLSelectElement;
+    const resultUnit = screen.getByTestId("rule-pack-table-result-unit") as HTMLSelectElement;
+    await waitFor(() => expect(argumentUnit.value).toBe("legacy_temperature_unit"));
+    await waitFor(() => expect(resultUnit.value).toBe("legacy_stress_unit"));
+    expect(screen.getByText("legacy_temperature_unit, catalog mismatch")).toBeTruthy();
+    expect(screen.getByText("legacy_stress_unit, catalog mismatch")).toBeTruthy();
+
+    fireEvent.change(argumentUnit, { target: { value: "degC" } });
+    fireEvent.change(resultUnit, { target: { value: "Pa" } });
+    const table = harnessExpression().table as Record<string, unknown>;
+    expect(table).toMatchObject({
+      argument_dimension: "temperature",
+      argument_unit_ref: "degC",
+      result_dimension: "stress",
+      result_unit_ref: "Pa"
+    });
   });
 
   it("adds and removes table rows and blocks dropping the last one", () => {

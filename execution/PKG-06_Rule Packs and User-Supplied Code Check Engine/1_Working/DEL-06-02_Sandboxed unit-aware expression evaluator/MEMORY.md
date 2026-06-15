@@ -228,3 +228,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No schema/backend/lifecycle/decision-register change; no private value or
   protected content embedded; no release, professional, certification, sealing,
   authentication, approval, or code-compliance claim is implied.
+
+## 2026-06-15 - TP-UNITS-B2-RULEEXPRUNITS-001: expression composer unit selectors
+
+- The C2 expression composer now offers DEC-018-backed desktop selectors for
+  existing AST unit metadata: literal `quantity.unit_ref`, table
+  `argument_unit_ref`, and table `result_unit_ref`.
+- The selector path is UI-only and dimension-filtered; it keeps
+  out-of-catalog stored units visible instead of silently rewriting the
+  rule-pack document. Browser preview remains manual unit text entry because
+  the reviewed unit catalog is desktop/Tauri-only.
+- Evidence: run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEEXPRUNITS-001.md`;
+  corresponding DEL-02-02 run record; SMOKE TP-MAC-169; focused
+  `ExpressionComposer` Vitest 19/19, full desktop Vitest 384/384, production
+  build clean, Playwright e2e 10/10.
+- No schema/backend/evaluator/parser/text-syntax/lifecycle change; no private
+  value or protected content embedded; no release, professional,
+  certification, sealing, authentication, approval, or code-compliance claim is
+  implied.

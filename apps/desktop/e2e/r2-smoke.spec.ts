@@ -516,12 +516,18 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
     "user_required_input_2 (required_input)"
   );
   await page.getByTestId("rule-pack-node-type").first().selectOption("compare");
+  // TP-UNITS-B2-RULEEXPRUNITS-001: browser preview cannot call the desktop
+  // catalog command for expression literal/table units either, so expression
+  // unit refs remain manual stored-unit text in this route. Mocked-Tauri
+  // Vitest covers the desktop catalog-selector path.
+  await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
+  await page.getByTestId("rule-pack-literal-unit").fill("MPa");
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "compare",
     operator: "less_than_or_equal",
     left: { node: "variable_ref" },
-    right: { node: "literal" }
+    right: { node: "literal", quantity: { dimension: "stress", unit_ref: "MPa" } }
   });
 
   // Slice 3 (TP-C2-TABLENODE-001): switch the root to a table-backed
@@ -529,14 +535,20 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // a schema-valid default table (uppercase "TBD" placeholders, two
   // strictly-increasing rows) plus the edited result. Still AST-only (D-02b).
   await page.getByTestId("rule-pack-node-type").first().selectOption("interpolate");
+  await page.getByTestId("rule-pack-table-argument-dimension").selectOption("temperature");
+  await page.getByTestId("rule-pack-table-argument-unit").fill("degC");
+  await page.getByTestId("rule-pack-table-result-dimension").selectOption("stress");
+  await page.getByTestId("rule-pack-table-result-unit").fill("MPa");
   await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
   const tableText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(tableText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "interpolate",
     table: {
       table_id: "user_table_1",
-      argument_dimension: "TBD",
-      result_dimension: "TBD",
+      argument_dimension: "temperature",
+      argument_unit_ref: "degC",
+      result_dimension: "stress",
+      result_unit_ref: "MPa",
       rows: [
         { argument: 0, result: 1.5 },
         { argument: 1, result: 0 }

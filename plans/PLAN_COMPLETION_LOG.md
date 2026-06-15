@@ -13,6 +13,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-15 — B2 rule-pack expression unit selectors (`TP-UNITS-B2-RULEEXPRUNITS-001`)
+
+Extends the DEC-018 unit-catalog UI pattern into the C2 rule-pack expression
+composer. Before this slice, expression literal `quantity.unit_ref` and table
+`argument_unit_ref` / `result_unit_ref` fields were still plain text fields in
+the desktop runtime, even after the prior declaration-unit selector tranche had
+closed `quantity_intent.unit_ref` for required inputs and value slots.
+
+`ExpressionComposer` now loads the reviewed desktop unit catalog only when the
+Tauri runtime is present, then renders catalog-backed selectors for expression
+literal and table unit fields. The selectors filter accepted catalog entries by
+the currently authored dimension, use the existing equivalent-dimension rules
+(`stress` through pressure units), preserve any stored out-of-catalog unit as
+the current value instead of snapping it, and never mutates a dimension/unit pair
+silently. Browser preview keeps the previous free-text field and does not
+synthesize a fallback catalog.
+
+Evidence: focused `ExpressionComposer` Vitest **19/19**; full desktop Vitest
+**384/384**; desktop production build clean with the existing Vite chunk-size
+warning; Playwright e2e **10/10** across configured desktop/compact Chromium
+projects after extending the rule-pack manager journey with browser-mode manual
+expression literal/table unit entry assertions. Run records:
+`DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEEXPRUNITS-001.md`
+and
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-RULEEXPRUNITS-001.md`;
+SMOKE TP-MAC-169.
+
+Boundary: frontend-only; no schema, backend command, evaluator, expression
+grammar, parser/text-syntax, rule-check status, checksum, or persistence change.
+No protected standards content, private value, fallback browser catalog,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim.
+
+Residual: B2 still has broader app unit entry/pickers outside the already
+covered material/section/primitive-load and rule-pack declaration/expression
+forms, import round-trip unit I/O, and target-format conversion witnesses beyond
+disclosure. B3 still owns the larger conversion-witness, incompatible-unit, and
+tolerance corpus beyond the named rule-pack picker witnesses.
+
+---
+
 ## 2026-06-15 — B2 rule-pack declaration unit selectors (`TP-UNITS-B2-RULEPACKUNITS-001`)
 
 Extends the DEC-018 unit-catalog UI pattern into the C2 rule-pack declarations
