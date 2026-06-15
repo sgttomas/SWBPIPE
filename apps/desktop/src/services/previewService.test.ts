@@ -1,9 +1,32 @@
 import { describe, expect, it } from "vitest";
-import type { PreviewModel } from "../types";
-import { loadPreviewModel, runPreviewMechanics } from "./previewService";
+import type { MechanicsResult, PreviewModel } from "../types";
+import {
+  appliedRuleCheckStatus,
+  buildAnalysisRunPreview,
+  loadPreviewModel,
+  runPreviewMechanics
+} from "./previewService";
 
 function cloneModel(model: PreviewModel): PreviewModel {
   return JSON.parse(JSON.stringify(model)) as PreviewModel;
+}
+
+// Minimal solved envelope whose plain solve leaves rule_check incomplete (the
+// solve runs no user rule checks), so the aggregate-threading behavior is
+// isolated from any fixture content.
+const solvedResultStub = {
+  schema_version: "0.1.0",
+  document_kind: "openpipestress.product_preview.mechanics_result",
+  run_id: "run:appagg-test",
+  model_ref: "project:appagg-test",
+  status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+  summary: {},
+  results: [],
+  diagnostics: []
+} as unknown as MechanicsResult;
+
+function hashByScope(env: Awaited<ReturnType<typeof buildAnalysisRunPreview>>, scope: string): string | undefined {
+  return env.analysis_run.hashes.find((entry) => entry.payload_scope === scope)?.value;
 }
 
 describe("previewService mechanics browser fallback", () => {
@@ -48,5 +71,57 @@ describe("previewService mechanics browser fallback", () => {
     });
     expect(original.project.id).toBe("project:invented-loop-01");
     expect(original.materials![0].elastic_modulus.value).toBe(200_000_000_000);
+  });
+});
+
+describe("appliedRuleCheckStatus (TP-C4-APPAGG-001)", () => {
+  it("uses a recognized rule-check aggregate over the solve rule_check", () => {
+    expect(appliedRuleCheckStatus("RULE_INPUTS_INCOMPLETE", "USER_RULE_FAILED")).toBe("USER_RULE_FAILED");
+    expect(appliedRuleCheckStatus("RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED")).toBe("USER_RULE_CHECKED");
+    expect(appliedRuleCheckStatus("USER_RULE_CHECKED", "RULE_INPUTS_INCOMPLETE")).toBe("RULE_INPUTS_INCOMPLETE");
+  });
+
+  it("falls back to the solve rule_check for an absent or unrecognized aggregate (no silent coercion)", () => {
+    expect(appliedRuleCheckStatus("RULE_INPUTS_INCOMPLETE")).toBe("RULE_INPUTS_INCOMPLETE");
+    expect(appliedRuleCheckStatus("RULE_INPUTS_INCOMPLETE", null)).toBe("RULE_INPUTS_INCOMPLETE");
+    expect(appliedRuleCheckStatus("RULE_INPUTS_INCOMPLETE", "")).toBe("RULE_INPUTS_INCOMPLETE");
+    // A non-rule-check status string is never trusted (no false pass).
+    expect(appliedRuleCheckStatus("RULE_INPUTS_INCOMPLETE", "HUMAN_APPROVED_FOR_PROJECT")).toBe(
+      "RULE_INPUTS_INCOMPLETE"
+    );
+  });
+});
+
+describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () => {
+  it("defaults to the solve envelope rule_check when no aggregate is supplied", async () => {
+    const env = await buildAnalysisRunPreview(solvedResultStub);
+    expect(env.analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(env.analysis_run.analysis_status).not.toContain("USER_RULE_FAILED");
+  });
+
+  it("drives a recognized aggregate into analysis_status and the run-record hash, leaving the solve-envelope hash byte-stable", async () => {
+    const base = await buildAnalysisRunPreview(solvedResultStub);
+    const withFail = await buildAnalysisRunPreview(solvedResultStub, "USER_RULE_FAILED");
+
+    expect(withFail.analysis_run.analysis_status).toContain("USER_RULE_FAILED");
+    expect(withFail.analysis_run.analysis_status).not.toContain("RULE_INPUTS_INCOMPLETE");
+    // The raw solve envelope is never mutated: its hash is byte-identical.
+    expect(hashByScope(withFail, "result_envelope")).toBe(hashByScope(base, "result_envelope"));
+    // The analysis-run record honestly binds the rule-check outcome: hash differs.
+    expect(hashByScope(withFail, "analysis_run_record")).not.toBe(hashByScope(base, "analysis_run_record"));
+  });
+
+  it("records a USER_RULE_CHECKED aggregate likewise", async () => {
+    const env = await buildAnalysisRunPreview(solvedResultStub, "USER_RULE_CHECKED");
+    expect(env.analysis_run.analysis_status).toContain("USER_RULE_CHECKED");
+    expect(env.analysis_run.analysis_status).not.toContain("RULE_INPUTS_INCOMPLETE");
+  });
+
+  it("ignores an unrecognized aggregate, reproducing the no-aggregate envelope exactly (no false pass)", async () => {
+    const base = await buildAnalysisRunPreview(solvedResultStub);
+    const bogus = await buildAnalysisRunPreview(solvedResultStub, "HUMAN_APPROVED_FOR_PROJECT");
+    expect(bogus.analysis_run.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(bogus.analysis_run.analysis_status).not.toContain("HUMAN_APPROVED_FOR_PROJECT");
+    expect(hashByScope(bogus, "analysis_run_record")).toBe(hashByScope(base, "analysis_run_record"));
   });
 });

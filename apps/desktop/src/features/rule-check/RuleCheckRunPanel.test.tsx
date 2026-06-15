@@ -169,6 +169,63 @@ describe("RuleCheckRunPanel", () => {
   });
 });
 
+// Phase C4 app-held envelope wiring (TP-C4-APPAGG-001). The panel lifts the
+// worst-of rule-check aggregate to the app via onAggregateChange so it can be
+// recorded in the app-held analysis-run envelope. It reports the aggregate on a
+// successful desktop run and null whenever there is no current run outcome.
+describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
+  const passingRun = {
+    document_kind: "openpipestress.rule_check.run",
+    rule_pack_id: "invented_demo_rule_pack",
+    grammar_version: "1.0.0",
+    aggregate_status: "USER_RULE_FAILED",
+    checks: [
+      {
+        check_id: "demo_training_check",
+        status: "USER_RULE_FAILED",
+        acceptability_relation: "less_than_or_equal",
+        bound_inputs: [],
+        completeness_findings: [],
+        evaluator_findings: [],
+        diagnostic_codes: []
+      }
+    ],
+    professional_boundary_notice: "Software rule-check evidence only; not a professional claim."
+  };
+
+  it("lifts the worst-of aggregate to onAggregateChange on a desktop run", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(passingRun);
+    const onAggregateChange = vi.fn();
+
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} onAggregateChange={onAggregateChange} />);
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+    await screen.findByTestId("rule-check-binding-plan");
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+
+    await screen.findByTestId("rule-check-run-result");
+    expect(onAggregateChange).toHaveBeenCalledWith("USER_RULE_FAILED");
+  });
+
+  it("clears the lifted aggregate on a new pack and on the desktop-only browser seam", async () => {
+    const onAggregateChange = vi.fn();
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} onAggregateChange={onAggregateChange} />);
+
+    // Loading a pack resets any prior run aggregate held by the app.
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+    await screen.findByTestId("rule-check-binding-plan");
+    expect(onAggregateChange).toHaveBeenCalledWith(null);
+
+    // A run in browser preview has no backend evaluator: report the seam and clear.
+    onAggregateChange.mockClear();
+    fireEvent.click(screen.getByTestId("rule-check-run"));
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-run-status").textContent).toContain("RULE-CHECK-BACKEND-DESKTOP-ONLY")
+    );
+    expect(onAggregateChange).toHaveBeenCalledWith(null);
+  });
+});
+
 // Phase C3 resolution-preview/browse picker (TP-C3-LIBREFPICKER-001). The panel
 // previously surfaced the authored library_value_ref read-only; these tests pin
 // the richer, read-only-to-the-pack picker: a "Preview resolution" action that

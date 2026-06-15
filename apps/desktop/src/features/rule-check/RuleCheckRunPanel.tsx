@@ -15,6 +15,7 @@ import {
   type LibraryValueRef,
   type RuleCheckBindingPlan,
   type RuleCheckRunResult,
+  type RuleCheckStatus,
   type SolverResultSelector,
   type SuppliedValueBinding
 } from "../../services/ruleCheckService";
@@ -156,10 +157,16 @@ function renderLibraryPreview(inputId: string, ref: LibraryValueRef, preview: Li
 
 export function RuleCheckRunPanel({
   model,
-  result
+  result,
+  onAggregateChange
 }: {
   model: PreviewModel | null;
   result: MechanicsResult | null;
+  // Lifts the worst-of rule-check aggregate to the app so it can be wired into
+  // the app-held analysis-run envelope (TP-C4-APPAGG-001). Called with the
+  // aggregate on a successful run, and with null whenever there is no current
+  // run outcome (new pack loaded/pasted, or a run that did not produce one).
+  onAggregateChange?: (aggregate: RuleCheckStatus | null) => void;
 }) {
   const [packText, setPackText] = useState("");
   const [actionStatus, setActionStatus] = useState("No rule-check run in this session.");
@@ -182,6 +189,8 @@ export function RuleCheckRunPanel({
     setValueBindings({});
     setRunResult(null);
     setLibraryPreviews({});
+    // A new pack invalidates any prior run's aggregate held by the app.
+    onAggregateChange?.(null);
   }
 
   // Preview whether a private_library_value input's authored library_value_ref
@@ -355,16 +364,21 @@ export function RuleCheckRunPanel({
       });
       if (route.route === "unavailable_browser_preview") {
         setRunResult(null);
+        onAggregateChange?.(null);
         setActionStatus(route.diagnostic);
         return;
       }
       setRunResult(route.result);
+      // Lift the worst-of aggregate so the app can record it in the app-held
+      // analysis-run envelope (TP-C4-APPAGG-001).
+      onAggregateChange?.(route.result.aggregate_status);
       setActionStatus(
         `Ran ${route.result.checks.length} check(s); aggregate=${route.result.aggregate_status} ` +
           `(grammar ${route.result.grammar_version}).`
       );
     } catch (error) {
       setRunResult(null);
+      onAggregateChange?.(null);
       setActionStatus(`RULE-CHECK-BACKEND-ERROR (run): ${String(error)}`);
     } finally {
       setInFlight(false);

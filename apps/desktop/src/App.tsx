@@ -83,6 +83,7 @@ import {
   warmupOperationEngine,
   type OperationEngineStatus
 } from "./services/operationService";
+import type { RuleCheckStatus } from "./services/ruleCheckService";
 import {
   buildBlankLocalModelDocument,
   createLocalProject,
@@ -209,6 +210,9 @@ export function App() {
   const [selection, setSelection] = useState<EntityRef | null>(null);
   const [result, setResult] = useState<MechanicsResult | null>(null);
   const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
+  // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
+  // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
+  const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
   const [editorIntents, setEditorIntents] = useState<EditorOperationIntent[]>([]);
   const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
@@ -287,6 +291,8 @@ export function App() {
   async function handleRun() {
     setRunning(true);
     setAnalysisRun(null);
+    // A fresh solve invalidates any prior rule-check run against the old result.
+    setRuleCheckAggregate(null);
     try {
       const startReceipt = await startPreviewMechanicsJob(model);
       setSolveJob(startSolveJob(model, startReceipt));
@@ -316,6 +322,25 @@ export function App() {
       setSolveJob((current) => failSolveJob(current, error));
     } finally {
       setRunning(false);
+    }
+  }
+
+  // Record (or clear) the GUI rule-check aggregate in the app-held analysis-run
+  // envelope (TP-C4-APPAGG-001). Rebuilding re-derives only the
+  // analysis_run_record status/hash and analysis_status; the embedded
+  // result_envelope hash still binds the raw solve, so the hash-bound solve
+  // envelope is never mutated. With no solved result there is no app-held
+  // envelope to annotate.
+  async function handleRuleCheckAggregate(aggregate: RuleCheckStatus | null) {
+    if (aggregate === ruleCheckAggregate) return;
+    setRuleCheckAggregate(aggregate);
+    if (!result) return;
+    try {
+      setAnalysisRun(await buildAnalysisRunPreview(result, aggregate));
+    } catch {
+      // Recording the aggregate failed (e.g. hashing unavailable); keep the
+      // solve-time analysis-run envelope rather than surfacing a false outcome.
+      setRuleCheckAggregate(null);
     }
   }
 
@@ -423,6 +448,7 @@ export function App() {
       // keeping it visible would overstate what was computed.
       setResult(null);
       setAnalysisRun(null);
+      setRuleCheckAggregate(null);
       setProposal(null);
       setSelectedReviewTarget(null);
       setSolveJob(modelChangedSolveJob(outcome));
@@ -485,6 +511,7 @@ export function App() {
   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
     setResult(null);
     setAnalysisRun(null);
+    setRuleCheckAggregate(null);
     setProposal(null);
     setSelectedReviewTarget(null);
     setSolveJob(nextSolveJob);
@@ -562,6 +589,7 @@ export function App() {
       setOperationMessage(null);
       setResult(null);
       setAnalysisRun(null);
+      setRuleCheckAggregate(null);
       setProposal(null);
       setEditorIntents(created.editor_intents ?? []);
       setSelectedReviewTarget(null);
@@ -603,6 +631,7 @@ export function App() {
       setAppliedOperations([]);
       setResult(restoredResult);
       setAnalysisRun(restoredAnalysisRun);
+      setRuleCheckAggregate(null);
       setProposal(opened.proposal ?? null);
       setEditorIntents(opened.editor_intents ?? []);
       setSelectedReviewTarget(opened.selected_review_target ?? null);
@@ -970,7 +999,7 @@ export function App() {
               />
               <MissingDataBlockingPanel model={model} result={result} />
               <RuleCheckPanel model={model} result={result} />
-              <RuleCheckRunPanel model={model} result={result} />
+              <RuleCheckRunPanel model={model} result={result} onAggregateChange={handleRuleCheckAggregate} />
               <KnowledgePanel knowledge={knowledge} result={result} />
             </section>
 

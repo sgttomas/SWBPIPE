@@ -13,6 +13,69 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C4 app-side residual closed: wire the GUI rule-check aggregate into the app-held analysis-run envelope (`TP-C4-APPAGG-001`)
+
+The C4 "Remaining scope (non-GUI): app-side wiring of the GUI run aggregate into
+an app-held/exported envelope" residual — the app-side analog of the headless
+assembly residual `TP-C4-AGGSTATUS-001` closed the same day. The GUI worst-of
+rule-check `aggregate_status` (`RULE_INPUTS_INCOMPLETE` / `USER_RULE_CHECKED` /
+`USER_RULE_FAILED`) lived only in the Run Rule Checks panel's ephemeral state.
+The app-held analysis-run envelope (DEL-14-02, built by
+`previewService.buildAnalysisRunPreview`) composed its `analysis_status` from
+`result.status.rule_check`, which a plain solve always leaves at
+`RULE_INPUTS_INCOMPLETE` (the solve runs no user rule checks) — so the app-held
+envelope, and its `ResultExportPanel` / `ReportPanel` consumers that read
+`run.analysis_status`, never reflected an actual rule-check run.
+
+Frontend-only wiring change, no schema/vocabulary change anywhere (`analysis_status`
+is already a `string[]` carrying the three rule-check strings):
+
+- New pure, exported `appliedRuleCheckStatus(solveRuleCheck, aggregate?)`
+  (mirrors the headless `analysis_status_for_rule_check`): a recognized aggregate
+  supersedes the solve `rule_check`; absent/unrecognized falls back to the solve
+  `rule_check` — no silent coercion, no false pass.
+- `buildAnalysisRunPreview(result, ruleCheckAggregate?)` takes an optional
+  aggregate (omitting it reproduces prior behavior byte-for-byte). A recognized
+  aggregate is composed into the analysis-run **record's own** status — the one
+  bound by the `analysis_run_record` hash and surfaced in `analysis_status`.
+  The embedded `result_envelope` hash still binds the **raw solve**
+  (`canonicalJson(result)`, unchanged), so the hash-bound solve envelope is
+  **never mutated** (two hash scopes, each honest about what it binds — exactly
+  the `TP-C4-AGGSTATUS-001` "drive into the record before its checksum binds"
+  pattern).
+- `RuleCheckRunPanel` gains an optional `onAggregateChange(aggregate | null)`
+  callback (backward compatible): the aggregate on a successful desktop run,
+  `null` on new pack / browser-only seam / run error. `App` holds the lifted
+  aggregate and rebuilds the app-held `analysisRun` from `(result, aggregate)`,
+  resetting it wherever the analysis-run is cleared/rebuilt (fresh solve, model
+  edit, computed-state clear, blank-create, project open) so it never goes stale.
+
+Evidence: desktop Vitest **365** (+8: 6 previewService — `appliedRuleCheckStatus`
+recognized/fallback/no-false-pass; `buildAnalysisRunPreview`
+default/recognized-with-byte-stable-result-envelope-hash/USER_RULE_CHECKED/
+unrecognized-reproduces-no-aggregate; 2 RuleCheckRunPanel — lifts the aggregate
+on a desktop run, clears on new pack and the desktop-only browser seam); `tsc -b`
+clean; `npm run build` clean; Playwright e2e 10/10 ×2 viewports (unchanged — no
+browser-visible regression). UI evidence posture (H4 exception): no new e2e
+spec — the aggregate→envelope flow is desktop-only (`run_rule_checks` needs the
+Tauri backend; browser preview produces no aggregate and leaves the envelope
+solve-only), so the browser harness cannot exercise it; both composition halves
+are Vitest-covered instead (same posture as `TP-C4-AGGSTATUS-001`). Five-surface
+DEC-025 sweep PASS. Status-vocabulary-only; conservative fallback prevents any
+false pass; `HUMAN_REVIEW_REQUIRED` still always present; raw solve-envelope hash
+never mutated; deliverables stay `CHECKING`; no lifecycle/release/professional/
+code-compliance claim. Run record:
+`WORKING_ITEMS_RUN_2026-06-14_TP-C4-APPAGG-001.md` (DEL-14-02 primary; coupled
+DEL-06-02 aggregate source, DEL-08-04 result-export consumer). Remaining C4
+(non-GUI): the future additive `acceptability_relation` / solver-result-selector
+schema members (likely ratification-gated). Pre-existing test-flake note: the
+heaviest full-App round-trip test (`App.test.tsx`) straddles the 10s global
+`testTimeout` under full-suite CPU load (passes with headroom in isolation /
+at a larger timeout); proven independent of this tranche; flagged as a hardening
+candidate, not altered here.
+
+---
+
 ## 2026-06-14 — C4 non-GUI residual closed: drive the rule-check aggregate into the result assembly (`TP-C4-AGGSTATUS-001`)
 
 The C4 "Remaining scope (non-GUI): driving `aggregate_status` into the solve

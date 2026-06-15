@@ -5271,3 +5271,46 @@ notes:
   read only at run time and never embedded/committed/rendered; deliverables stay
   CHECKING; no release-readiness, professional, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-162 wire the GUI rule-check aggregate into the app-held analysis-run envelope (`TP-C4-APPAGG-001`, 2026-06-14)
+
+- Closes the Phase C **C4** residual "app-side wiring of the GUI run aggregate
+  into an app-held/exported envelope" — the app-side analog of the non-GUI
+  assembly residual `TP-C4-AGGSTATUS-001` closed headless-side. Before this, the
+  GUI worst-of rule-check aggregate (`RULE_INPUTS_INCOMPLETE` /
+  `USER_RULE_CHECKED` / `USER_RULE_FAILED`) lived only in the Run Rule Checks
+  panel; the app-held analysis-run envelope (DEL-14-02) and its
+  `ResultExportPanel` / `ReportPanel` consumers (which read `run.analysis_status`)
+  still reported the plain solve's `RULE_INPUTS_INCOMPLETE`.
+- **Frontend only.** The panel now lifts its aggregate via an optional
+  `onAggregateChange` callback; `App` rebuilds the app-held analysis-run envelope
+  from `(result, aggregate)`; `buildAnalysisRunPreview` composes a recognized
+  aggregate into the analysis-run **record's own** `analysis_status` and its
+  `analysis_run_record` hash, while the embedded `result_envelope` hash still
+  binds the **raw solve** — so the hash-bound solve envelope is never mutated. An
+  absent or unrecognized aggregate falls back to the solve `rule_check` (no
+  silent coercion, no false pass).
+- Manual/automation posture (H4 exception, no new e2e spec): the end-to-end
+  aggregate→envelope flow is **desktop-only** — running rule checks
+  (`run_rule_checks`) needs the Tauri backend, and in browser preview a run
+  returns the explicit unavailable seam (producing no aggregate, leaving the
+  app-held envelope solve-only and browser-visible behavior unchanged). The
+  browser Playwright harness therefore cannot exercise the flow. Both composition
+  halves are instead covered by Vitest: the panel lift (desktop-mode mocked
+  `invoke`) and the envelope threading (`buildAnalysisRunPreview` pure test,
+  asserting the `result_envelope` hash stays byte-stable while `analysis_status`
+  and the run-record hash reflect the aggregate). Same posture as the
+  non-browser-reachable `TP-C4-AGGSTATUS-001` seam.
+- Validation: desktop Vitest **365** (+8: 6 previewService, 2 RuleCheckRunPanel);
+  `tsc -b` clean; `npm run build` clean; `npx playwright test` 10/10 (two
+  viewports, unchanged — confirms no browser-visible regression); five-surface
+  DEC-025 sweep PASS (cargo crate sweep, pytest, desktop Vitest+wasm, Playwright
+  e2e ×2, production build) — see the committed sweep summary.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C4-APPAGG-001.md` (DEL-14-02 primary; coupled
+  DEL-06-02 aggregate source, DEL-08-04 result-export consumer).
+- Boundary review: frontend/local-only; status-vocabulary-only; conservative
+  fallback prevents any false pass; `HUMAN_REVIEW_REQUIRED` still always present;
+  raw solve-envelope hash never mutated; deliverables stay CHECKING; no
+  release-readiness, professional, certification, sealing, authentication, or
+  code-compliance claim.

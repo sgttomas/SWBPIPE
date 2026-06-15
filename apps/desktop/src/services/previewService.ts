@@ -91,8 +91,42 @@ export async function cancelPreviewMechanicsJob(
   });
 }
 
-export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<AnalysisRunEnvelope> {
+// The three frozen automatic rule-check statuses a GUI rule-check run may
+// produce (mirrors core/runner/headless `analysis_status_for_rule_check`).
+// Anything outside this set is NOT silently coerced (CONTRACT
+// no-silent-defaults) — the analysis-run record falls back to the solve
+// envelope's own rule_check rather than trusting an unrecognized aggregate.
+const RULE_CHECK_RUN_STATUSES = new Set(["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"]);
+
+// Resolve the rule-check status the app-held analysis-run record should carry.
+// A recognized GUI rule-check aggregate (the worst-of over the checks the user
+// ran against THIS solve) supersedes the solve envelope's `rule_check`, which a
+// plain solve always leaves at RULE_INPUTS_INCOMPLETE because the solve runs no
+// user rule checks. An absent or unrecognized aggregate falls back to the solve
+// envelope's own rule_check — never a false pass.
+export function appliedRuleCheckStatus(solveRuleCheck: string, ruleCheckAggregate?: string | null): string {
+  if (ruleCheckAggregate && RULE_CHECK_RUN_STATUSES.has(ruleCheckAggregate)) {
+    return ruleCheckAggregate;
+  }
+  return solveRuleCheck;
+}
+
+// Build the app-held analysis-run envelope (DEL-14-02) for a solved result.
+// When a GUI rule-check aggregate is supplied (TP-C4-APPAGG-001), the record's
+// own `analysis_status` and its `analysis_run_record` hash honestly compose the
+// mechanics solve with the rule-check run executed against it; the embedded
+// `result_envelope` hash still binds the raw solve (which ran no rule checks),
+// so the hash-bound solve envelope is never mutated. Omitting the aggregate
+// reproduces the prior behavior byte-for-byte.
+export async function buildAnalysisRunPreview(
+  result: MechanicsResult,
+  ruleCheckAggregate?: string | null
+): Promise<AnalysisRunEnvelope> {
   const runRef = ref("AnalysisRun", result.run_id);
+  const effectiveRuleCheck = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
+  // The analysis-run record's own status carries the rule-check outcome; the
+  // raw solve envelope (hashed separately below) is left exactly as solved.
+  const recordStatus = { ...result.status, rule_check: effectiveRuleCheck };
   const resultEnvelopeRef = ref("ResultEnvelope", `result-envelope:${result.run_id}`);
   const resultRefs = await Promise.all(
     result.results
@@ -116,7 +150,7 @@ export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<
   const status = new Set([
     "HUMAN_REVIEW_REQUIRED",
     result.status.mechanics,
-    result.status.rule_check
+    effectiveRuleCheck
   ].filter(Boolean));
   const resultIds = result.results.map((item) => item.id).sort();
   const diagnosticIds = result.diagnostics.map((item) => item.id ?? "diagnostic:unknown").sort();
@@ -152,7 +186,7 @@ export async function buildAnalysisRunPreview(result: MechanicsResult): Promise<
             canonicalJson({
               run_id: result.run_id,
               model_ref: result.model_ref,
-              status: result.status,
+              status: recordStatus,
               load_basis_refs: loadBasisRefs,
               result_ids: resultIds,
               diagnostic_ids: diagnosticIds
