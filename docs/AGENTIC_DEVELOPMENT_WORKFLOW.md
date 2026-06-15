@@ -295,7 +295,7 @@ path.
 | 5 | Execute only the bounded task. Keep unknowns, unsettled policy decisions, missing engineering values, and unsupported source claims as `TBD`. | Changed files inside the allowed write scope. |
 | 6 | Run focused validation appropriate to the changed surface. | Commands, pass/fail/deferred results, and warnings. |
 | 7 | Update deliverable-local evidence surfaces explicitly authorized by the brief. | `MEMORY.md`, `_run_records/**`, or other approved evidence files. |
-| 8 | Hand off for review or human decision without changing lifecycle state unless that gate was explicitly authorized. | Changed paths, validation results, data-boundary notes, warnings, and open `TBD`s. |
+| 8 | Hand off for review or human decision without changing lifecycle state unless that gate was explicitly authorized; for completed validated development tranches, autonomously hand off to `CHANGE` for final Git/file-state review, scoped commit, and push. | Changed paths, validation results, data-boundary notes, warnings, open `TBD`s, and `CHANGE` closeout result. |
 
 ## Bounded TASK Checklist
 
@@ -375,3 +375,11 @@ Warnings and open TBDs:
 The handoff is evidence for review. It does not change decomposition truth,
 DAG authority, lifecycle state, release status, maintainer authority, legal
 policy, or engineering reliance status by itself.
+
+For completed validated development tranches, the handoff must include or be
+followed by an autonomous `CHANGE` agent/subagent closeout. `CHANGE` stages
+only tranche-scoped files, commits, and pushes as the ordinary terminal action
+when validation and git state allow it. Per-run `APPROVE:` tokens are not
+required for scoped closeout commit/push; destructive actions, merges,
+ambiguous staging, or unresolved dirty-state conflicts still require explicit
+human approval or ruling.

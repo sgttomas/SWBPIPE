@@ -22,8 +22,8 @@
    correct the plan, not the authority.
 5. `_COORDINATION.md` says how to execute work: app-integration tranches by
    default, local-status discovery, DAG-guided context selection, bounded
-   workers, fan-in, validation, evidence records, and git commit/push closeout
-   for completed validated tranches.
+   workers, fan-in, validation, evidence records, and autonomous `CHANGE`
+   closeout for completed validated tranches.
 6. Human decisions (`D-01..D-12` and any newly discovered human-gated `TBD`)
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
@@ -62,10 +62,10 @@
      if a packet already awaits ruling, take the next unblocked
      implementation item;
    - if no current-stage plan item remains unblocked, stop: prepare any
-     missing decision packets, finish and commit validated work in hand,
-     end the session with the pending-rulings summary, and await the human
-     ruling — do not substitute out-of-stage scope or unrelated hardening
-     work;
+     missing decision packets, finish any validated work in hand, route it
+     through autonomous `CHANGE` closeout, end the session with the
+     pending-rulings summary, and await the human ruling — do not substitute
+     out-of-stage scope or unrelated hardening work;
    - prefer regression repair (failed or insufficient tests, build breaks,
      smoke-evidence gaps) ahead of new scope, and residual hardening only
      when it blocks or de-risks a current-stage plan item;
@@ -95,9 +95,13 @@
 8. At completion of a validated tranche, record evidence, update the
    completion-plan and decision-register rows the tranche affects —
    compressing landed items per the plan-maintenance rule (one line plus
-   run-record and `plans/PLAN_COMPLETION_LOG.md` pointers) — then stage,
-   commit, and push the tranche to the tracked remote branch unless the human
-   pauses git closeout or a real validation/git blocker prevents it. Git
-   closeout is source control hygiene only; it is not lifecycle issuance,
-   release readiness, professional approval, certification, sealing,
+   run-record and `plans/PLAN_COMPLETION_LOG.md` pointers) — then
+   autonomously hand off to a `CHANGE` agent/subagent for final Git/file-state
+   review. `CHANGE` commits and pushes the validated tranche to the tracked
+   remote branch as the ordinary terminal action when validation and git state
+   allow closeout. Per-run `APPROVE:` tokens are not required for scoped
+   closeout commit/push; destructive actions, merges, ambiguous staging, or
+   unresolved dirty-state conflicts still require explicit human approval or
+   ruling. Git closeout is source control hygiene only; it is not lifecycle
+   issuance, release readiness, professional approval, certification, sealing,
    authentication, or code-compliance acceptance.

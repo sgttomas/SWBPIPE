@@ -181,11 +181,15 @@ At session closeout, update affected deliverable-local `MEMORY.md` and
 For application-integration work, update only the app/code/docs/test/evidence
 surfaces authorized by the tranche, the completion-plan and decision-register
 rows the tranche or a recorded human ruling affects, and any explicitly
-selected deliverable memory or review surfaces. After validation and evidence recording, commit and
-push the completed tranche unless the human explicitly pauses git closeout or a
-real git/validation blocker prevents it. Leave `NEXT_INSTANCE_PROMPT.md`
-stable unless the entry protocol itself changes. Do not create a
-session-steering coordination state file.
+selected deliverable memory or review surfaces. After validation and evidence
+recording, autonomously hand off to a `CHANGE` agent/subagent for final
+Git/file-state review. `CHANGE` commits and pushes the completed validated
+tranche as the ordinary terminal action when git state allows closeout.
+Per-run `APPROVE:` tokens are not required for scoped closeout commit/push;
+destructive actions, merges, ambiguous staging, or unresolved dirty-state
+conflicts still require explicit human approval or ruling. Leave
+`NEXT_INSTANCE_PROMPT.md` stable unless the entry protocol itself changes. Do
+not create a session-steering coordination state file.
 
 ## Application Integration And Issuance Phase
 
@@ -299,11 +303,12 @@ bounded tranche.
    - if a packet already awaits ruling, proceed to the next unblocked
      implementation item;
    - if no current-stage plan item remains unblocked, stop: do not
-     substitute out-of-stage scope or unrelated hardening work. Finish and
-     commit any validated work in hand, ensure every blocking decision has a
-     prepared packet, end the session with the pending-rulings summary, and
-     await the human ruling. A continuous or unsupervised loop halts here by
-     design and resumes only after a human records the ruling(s);
+     substitute out-of-stage scope or unrelated hardening work. Finish any
+     validated work in hand, route it through autonomous `CHANGE` closeout,
+     ensure every blocking decision has a prepared packet, end the session
+     with the pending-rulings summary, and await the human ruling. A
+     continuous or unsupervised loop halts here by design and resumes only
+     after a human records the ruling(s);
    - agents never resolve these decisions; rulings are human records,
      captured per existing `DEC`/`SCA` decision practice and reflected back
      into the register and plan;
@@ -350,9 +355,11 @@ bounded tranche.
    `plans/PLAN_COMPLETION_LOG.md` — and move the narrative detail to that
    log; partially-landed items keep remaining scope in the row. Before
    pushing, run `python3 tools/release/run_evidence_sweep.py --execute` at
-   the committed HEAD and commit the summary (DEC-025). Then stage,
-   commit, and push the validated tranche to the tracked remote branch, keeping
-   the commit message scoped to the app tranche and any explicitly authorized
+   the committed HEAD and commit the summary (DEC-025). Then autonomously hand
+   off to a `CHANGE` agent/subagent for final Git/file-state review. `CHANGE`
+   stages only tranche-scoped files, commits, and pushes the validated tranche
+   to the tracked remote branch as the ordinary terminal action, keeping the
+   commit message scoped to the app tranche and any explicitly authorized
    coordination-instruction edits. Do not advance lifecycle state, make release
    claims, or issue deliverables unless the human explicitly approves that gate.
 
@@ -399,9 +406,10 @@ Review readiness requires:
 
 Human approval is required for lifecycle changes, candidate promotion, release
 claims, acceptance records, or any professional/code compliance claim. The
-human project authority has authorized commit-and-push as the normal closeout
-step for completed, validated app-integration tranches; this git closeout does
-not itself create lifecycle approval, release readiness, professional
-acceptance, certification, sealing, authentication, or code-compliance claims.
+human project authority has authorized `CHANGE` commit-and-push as the normal
+closeout step for completed, validated app-integration tranches; this git
+closeout does not itself create lifecycle approval, release readiness,
+professional acceptance, certification, sealing, authentication, or
+code-compliance claims.
 Read-only verification snapshots and derivative gap registers are not release,
 professional, code-compliance, or acceptance claims.
