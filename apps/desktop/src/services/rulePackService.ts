@@ -227,13 +227,13 @@ export function draftPlaceholderProvenance(): Record<string, unknown> {
 export function buildDraftRulePackDocument(): RulePackDocument {
   const provenance = draftPlaceholderProvenance();
   return {
-    schema_version: "0.3.0",
+    schema_version: "0.4.0",
     rule_pack_kind: "open_pipe_stress_rule_pack",
     grammar_version: "1.0.0",
     metadata: {
       rule_pack_id: "private_draft_rule_pack",
       name: "Private Draft Rule Pack",
-      schema_version: "0.3.0",
+      schema_version: "0.4.0",
       rule_pack_version: "0.1.0",
       lifecycle_status: "draft",
       source_notice:

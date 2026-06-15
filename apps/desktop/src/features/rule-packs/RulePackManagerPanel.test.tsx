@@ -205,7 +205,7 @@ describe("RulePackManagerPanel", () => {
 describe("rulePackService draft helpers", () => {
   it("builds a schema-shaped private draft with the frozen grammar declared", () => {
     const draft = buildDraftRulePackDocument();
-    expect(draft.schema_version).toBe("0.3.0");
+    expect(draft.schema_version).toBe("0.4.0");
     expect(draft.grammar_version).toBe("1.0.0");
     const formulas = draft.formula_declarations as Array<Record<string, unknown>>;
     const payload = formulas[0].declaration_payload as Record<string, unknown>;

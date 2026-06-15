@@ -5403,3 +5403,36 @@ notes:
   vocabulary-only; no silent default (unresolvable reference blocks); deliverables
   stay CHECKING; no release-readiness, professional, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-165 ratify the two C4 additive schema members + bump rule-pack schema_version to 0.4.0 (`TP-C4-RATIFY-001`, DEC-039, 2026-06-14)
+
+- Human project authority ruling ("I approve adding the new schema members")
+  ratifies both PROPOSAL additive members — `acceptability_relation`
+  (`TP-C4-ACCEPTREL-001`) and `solver_result_ref` (`TP-C4-SOLVERREF-001`) — as
+  permanent parts of `schemas/rule_pack.schema.yaml`. Recorded as `DEC-039`.
+- Both members are already in the schema (no shape change); this is the bounded
+  ratification follow-up: lifecycle PROPOSAL → permanent, plus the
+  `DEC-033`/`DEC-038` additive-minor version bump. Both members ratified in one
+  event → a **single** minor step: rule-pack `schema_version` **0.3.0 → 0.4.0**
+  (not two bumps). `grammar_version` stays 1.0.0; author content version
+  unchanged.
+- Version bump + checksum re-stamp only (no content change): the canonical demo
+  pack (`examples/rule_packs/invented_demo.yaml`), its preview fixture twin
+  (`fixtures/product_preview/invented_demo_rule_pack.json`), and the new-draft
+  editor template (`rulePackService.ts`) all declare 0.4.0; the demo/fixture
+  `rule_pack_checksum` re-stamped to `c2b4ddce…`; the draft-version Vitest
+  assertion updated to 0.4.0.
+- Validation: `pytest tests/test_rule_pack_schema.py` **5** (JCS checksum-parity
+  recompute matches the re-stamped value); `cargo test` `rule_pack_document`
+  **10** and `rule_check_runner` **18** (demo golden checksum + validation +
+  invented-demo runs recompute and match); targeted desktop Vitest **95**
+  (`rule-packs`/`rule-check`/`rulePackService`/`ruleCheckService`; draft now
+  0.4.0, run-checks load the re-stamped fixture); five-surface DEC-025 sweep —
+  see the committed sweep summary.
+- Evidence: run record `WORKING_ITEMS_RUN_2026-06-14_TP-C4-RATIFY-001.md`
+  (DEL-06-02 primary; coupled DEL-06-01 schema). `DEC-039` in `SOFTWARE_DECOMP.md`
+  §12; completion-plan C4 row + completion log updated.
+- Boundary review: metadata-only (a version label + its binding hash); no new
+  pack content, rule, or grammar change; deliverables stay CHECKING; no release-
+  readiness, professional, certification, sealing, authentication, or
+  code-compliance claim.

@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — Ratify the two C4 additive schema members + bump rule-pack `schema_version` 0.3.0 → 0.4.0 (`TP-C4-RATIFY-001`, `DEC-039`)
+
+Human project authority ruling ("I approve adding the new schema members")
+ratifies both PROPOSAL additive members — `acceptability_relation`
+(`TP-C4-ACCEPTREL-001`, on `CheckDefinition`) and `solver_result_ref`
+(`TP-C4-SOLVERREF-001`, on `RequiredInput`) — as permanent parts of
+`schemas/rule_pack.schema.yaml`. Recorded as `DEC-039` in `SOFTWARE_DECOMP.md`
+§12. The members were already in the schema; this is the bounded ratification
+follow-up (lifecycle PROPOSAL → permanent) plus the `DEC-033`/`DEC-038`
+additive-minor version bump.
+
+Both ratified in one event → a single minor step: rule-pack `schema_version`
+**0.3.0 → 0.4.0** (each member is an `additionalProperties:false` addition a
+strict pre-member validator would reject — the minor-bump signal — but they
+ship together, so one minor release, not 0.4.0-then-0.5.0). `grammar_version`
+stays 1.0.0 (frozen, `DEC-022`); `metadata.rule_pack_version` unchanged (no
+content change; the demo uses neither optional member).
+
+Version bump + checksum re-stamp only: the canonical demo pack
+(`examples/rule_packs/invented_demo.yaml`), its preview fixture twin
+(`fixtures/product_preview/invented_demo_rule_pack.json`), and the new-draft
+editor template (`rulePackService.ts`) declare 0.4.0; the demo/fixture
+`rule_pack_checksum` re-stamped to `c2b4ddce…`; the draft-version Vitest
+assertion updated. (`lib.rs:4780` `schema_version: "0.3.0"` is a project/model
+document version in a DEC-019 test — not a rule pack — and is untouched.)
+
+Evidence: pytest `test_rule_pack_schema.py` 5 (JCS checksum-parity recompute
+matches); `rule_pack_document` cargo 10 + `rule_check_runner` cargo 18 (demo
+golden checksum/validation + invented-demo runs); targeted desktop Vitest 95;
+green five-surface DEC-025 sweep. Run record:
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-14_TP-C4-RATIFY-001.md`; SMOKE
+TP-MAC-165. Closes the "PROPOSAL awaiting ratification" residuals on both C4
+additive members.
+
+---
+
 ## 2026-06-14 — C4 solver-result-selector: additive `solver_result_ref` member + authored-ref resolution (`TP-C4-SOLVERREF-001`)
 
 Lands the `solver-result-selector` half of the C4 "Remaining scope (non-GUI):
