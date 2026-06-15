@@ -596,6 +596,29 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
     }
   });
 
+  // TP-C4-SOLVERREFAUTHOR-001: an input that draws from a solved result authors
+  // a solver_result_ref (a single result_id) through a structured control — the
+  // in-pack, canonical form of the previously caller-supplied {input_id,
+  // result_id} solver binding (PRD §12.5), resolved at run time from the solved
+  // envelope's results[] by id (TP-C4-SOLVERREF-001). Add a fresh input and set
+  // source_kind to solver_result: the sub-form reveals and seeds a
+  // {result_id:"TBD"} placeholder (unfilled -> blocks, never a silent pass); the
+  // authored reference supersedes the run panel's per-input selector. Still
+  // form-only (D-02b); no raw JSON. Target the appended (last) input row.
+  await page.getByTestId("rule-pack-input-add").click();
+  await page.getByTestId("rule-pack-input-source-kind").last().selectOption("solver_result");
+  await expect(page.getByTestId("rule-pack-input-solver-ref")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toContainText(
+    "supersedes the run panel"
+  );
+  await page.getByTestId("rule-pack-input-solver-result-id").fill("result:stress:demo");
+  const solverRefText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  const solverRefInputs = JSON.parse(solverRefText).required_inputs;
+  expect(solverRefInputs[solverRefInputs.length - 1]).toMatchObject({
+    source_kind: "solver_result",
+    solver_result_ref: { result_id: "result:stress:demo" }
+  });
+
   // Validate routes to the desktop-only seam: the status transitions away
   // from the just-created "private_user_data" draft message. (Per-button
   // seam coverage for compute-checksum and save lives in the Vitest panel

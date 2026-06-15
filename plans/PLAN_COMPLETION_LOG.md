@@ -13,6 +13,55 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-14 — C4 solver-result-reference GUI authoring in the declarations form-builder (`TP-C4-SOLVERREFAUTHOR-001`)
+
+Lands the **authoring half** of the C4 solver-result binding — the first of
+C4's two named non-GUI follow-ups ("GUI authoring of `solver_result_ref` in the
+C2 declarations form-builder, mirrors `TP-C3-LIBREFAUTHOR-001`"). The
+backend-resolution half landed in `TP-C4-SOLVERREF-001` (the member was ratified
+at `schema_version` 0.4.0 by `DEC-039`); before this slice, a `solver_result`
+required input's authored `solver_result_ref` could only be set by hand-editing
+raw document JSON. The rule-pack declarations form-builder
+(`DeclarationsEditor.tsx`) now authors it through a structured control.
+
+GUI: when a required input's `source_kind` is set to `solver_result`, a
+reference sub-form appears with a single `result_id` text field, a note, and a
+"Remove solver-result reference" control. Switching to `solver_result` seeds a
+complete reference (`result_id` → visible uppercase `"TBD"` placeholder), so an
+unfilled reference matches no result row and the input blocks at
+`RULE_INPUTS_INCOMPLETE` — never a partial shape, never a silent pass. Mirrors
+the `library_value_ref` pattern, with one semantic adaptation: because
+`solver_result` (unlike `private_library_value`) has a real run-panel
+caller-supplied fallback, the note states that an authored reference is the
+**canonical** binding and **supersedes** the run-panel per-input selector (per
+the backend `resolve_authored_solver_result_bindings` / PRD §12.5), and the
+"Remove" control is the visible escape hatch back to the run-panel binding path.
+A reference left after the source_kind is changed away stays visible and
+removable; seeding a solver reference does not also seed a library reference.
+Still form-only (no writable expression text — D-02b `DEC-037` Option O-C,
+AST-only).
+
+Boundary: frontend-only; no schema/backend change (the optional member, its
+run-time resolution, and its ratification all preceded this slice). The
+reference is carried in the pack; no solver result value is embedded.
+
+Evidence: desktop Vitest **372/372** (+5: default-ref shape; seed-on-switch with
+no library-seed; first-edit completion; lossless `result_id` edit; stale-ref
+visible+removable); `npm run build` clean; Playwright rule-pack journey **2/2**
+targeted + **10/10** under the sweep (two viewports; extended in
+`e2e/r2-smoke.spec.ts`); cargo crate sweep ok + pytest 359. **Committed (TP-C4-SOLVERREFAUTHOR-001
+commit, local `main`); push pending** — the commit-bound DEC-025 five-surface gate did not
+produce a single all-green run this session due to sustained external machine
+load causing rotating infrastructure timeouts (App.test.tsx per-test caps, then
+a Playwright worker-teardown force-kill after all 10 tests passed); every
+surface passed individually. Run record:
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-14_TP-C4-SOLVERREFAUTHOR-001.md`
+(Closeout status / Gate section); SMOKE TP-MAC-166. Residual: the run-panel
+resolution preview for `solver_result_ref` (mirrors `TP-C3-LIBREFPICKER-001`) —
+C4's last named non-GUI follow-up.
+
+---
+
 ## 2026-06-14 — Ratify the two C4 additive schema members + bump rule-pack `schema_version` 0.3.0 → 0.4.0 (`TP-C4-RATIFY-001`, `DEC-039`)
 
 Human project authority ruling ("I approve adding the new schema members")

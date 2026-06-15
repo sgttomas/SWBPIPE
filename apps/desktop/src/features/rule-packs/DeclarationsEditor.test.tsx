@@ -11,6 +11,7 @@ import {
   VALUE_STATUSES,
   defaultLibraryValueRef,
   defaultRequiredInput,
+  defaultSolverResultRef,
   defaultValueSlot,
   readRequiredInputIds,
   readValueSlotIds,
@@ -173,6 +174,14 @@ describe("DeclarationsEditor pure helpers", () => {
       record_id: "TBD",
       slot_id: "TBD"
     });
+  });
+
+  it("builds a schema-shaped default solver_result_ref: only result_id as a TBD placeholder", () => {
+    // toEqual pins the EXACT shape: the single required member present, the id
+    // the visible uppercase "TBD" placeholder (an unfilled reference matches no
+    // result row and the input blocks — never a silent pass; never a stored
+    // result value).
+    expect(defaultSolverResultRef()).toEqual({ result_id: "TBD" });
   });
 });
 
@@ -455,5 +464,96 @@ describe("DeclarationsEditor component", () => {
     expect(input).toEqual({ input_id: "legacy", source_kind: "solver_result", name: "kept" });
     // With the reference gone and a non-library source_kind, the sub-form hides.
     expect(screen.queryByTestId("rule-pack-input-library-ref")).toBeNull();
+  });
+
+  // --- solver_result_ref authoring (TP-C4-SOLVERREFAUTHOR-001) ---
+
+  it("shows the solver-result reference sub-form and seeds a complete reference when an input draws from a solved result", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    // The default input draws from user_supplied_rule_value: no solver sub-form.
+    expect(screen.queryByTestId("rule-pack-input-solver-ref")).toBeNull();
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-source-kind"), {
+      target: { value: "solver_result" }
+    });
+    // The sub-form appears and a complete (single-member) reference is seeded
+    // (never a schema-invalid empty object), with the supersede note shown.
+    expect(screen.getByTestId("rule-pack-input-solver-ref")).toBeTruthy();
+    expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual(defaultSolverResultRef());
+    expect(screen.getByTestId("rule-pack-input-solver-ref-note").textContent).toContain(
+      "supersedes the run panel"
+    );
+    // Seeding the solver ref must NOT also seed a library ref (independent kinds).
+    expect(inputsOf(harnessDoc())[0]).not.toHaveProperty("library_value_ref");
+  });
+
+  it("edits the solver-result reference id and keeps the rest of the input verbatim", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    fireEvent.change(screen.getByTestId("rule-pack-input-source-kind"), {
+      target: { value: "solver_result" }
+    });
+    const inputBefore = inputsOf(harnessDoc())[0];
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-result-id"), {
+      target: { value: "result:stress:demo" }
+    });
+    const input = inputsOf(harnessDoc())[0];
+    expect(input.solver_result_ref).toEqual({ result_id: "result:stress:demo" });
+    // Lossless: every non-reference member of the input is unchanged (toEqual
+    // ignores the undefined-keyed reference on both sides).
+    expect({ ...input, solver_result_ref: undefined }).toEqual({
+      ...inputBefore,
+      solver_result_ref: undefined
+    });
+  });
+
+  it("completes a partial solver reference on first edit when an opened input lacks one", () => {
+    // Edge case: a pack opened with source_kind solver_result but NO
+    // solver_result_ref (e.g. authored before this slice, or relying on the
+    // caller-supplied run-panel binding). Editing the id must still write a
+    // complete reference, never an empty object.
+    const document = setRequiredInputs(buildDraftRulePackDocument(), [
+      { input_id: "solver_input", source_kind: "solver_result" }
+    ]);
+    render(<Harness initial={document} />);
+    // The sub-form shows by source_kind even with no stored reference yet.
+    expect(screen.getByTestId("rule-pack-input-solver-ref")).toBeTruthy();
+    // Remove is disabled until a reference actually exists.
+    expect(screen.getByTestId("rule-pack-input-solver-remove")).toHaveProperty("disabled", true);
+
+    fireEvent.change(screen.getByTestId("rule-pack-input-solver-result-id"), {
+      target: { value: "result:disp:node-3:ux" }
+    });
+    expect(inputsOf(harnessDoc())[0].solver_result_ref).toEqual({
+      result_id: "result:disp:node-3:ux"
+    });
+  });
+
+  it("keeps a solver reference left on a non-solver input visible and removable", () => {
+    // A reference left behind after the source_kind was changed away from
+    // solver_result stays visible (never silently hidden) and removable.
+    const document = setRequiredInputs(buildDraftRulePackDocument(), [
+      {
+        input_id: "legacy",
+        source_kind: "user_supplied_rule_value",
+        name: "kept",
+        solver_result_ref: { result_id: "result:stress:legacy" }
+      }
+    ]);
+    render(<Harness initial={document} />);
+    expect(screen.getByTestId("rule-pack-input-solver-ref")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-input-solver-remove")).toHaveProperty("disabled", false);
+
+    fireEvent.click(screen.getByTestId("rule-pack-input-solver-remove"));
+    const input = inputsOf(harnessDoc())[0];
+    // The reference member is dropped; every other member round-trips verbatim.
+    expect("solver_result_ref" in input).toBe(false);
+    expect(input).toEqual({
+      input_id: "legacy",
+      source_kind: "user_supplied_rule_value",
+      name: "kept"
+    });
+    // With the reference gone and a non-solver source_kind, the sub-form hides.
+    expect(screen.queryByTestId("rule-pack-input-solver-ref")).toBeNull();
   });
 });

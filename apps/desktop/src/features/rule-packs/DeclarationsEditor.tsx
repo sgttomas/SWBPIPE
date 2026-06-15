@@ -34,9 +34,22 @@ import { draftPlaceholderProvenance } from "../../services/rulePackService";
 // store at run time (TP-C3C4-LIBREF-001). The reference is carried; the private
 // value is NEVER embedded in the rule-pack document (IP boundary, PRD
 // §13/§17.3), so authoring a reference here never redistributes a private value.
-// The `library_value_ref` schema member is an additive PROPOSAL awaiting human
-// ratification (companion to DEC-031); it is optional and changes nothing for
-// packs that do not use it.
+//
+// Solver-result references (TP-C4-SOLVERREFAUTHOR-001): a required input whose
+// source_kind is `solver_result` additionally authors a `solver_result_ref`
+// (a single `result_id`) — the pointer the C4 rule-check runner resolves from
+// the solved result envelope's `results[]` by id at run time
+// (TP-C4-SOLVERREF-001). It is the in-pack, canonical form of the previously
+// caller-supplied `{input_id, result_id}` solver binding (PRD §12.5): an
+// authored reference governs its input alone and supersedes the run panel's
+// per-input result selector. Removing it returns the input to the run-panel
+// binding path. An unfilled/unresolvable reference leaves the input unsupplied
+// so the check blocks at RULE_INPUTS_INCOMPLETE — never a silent pass.
+//
+// Both reference members are additive and optional; they change nothing for
+// packs that do not use them. Both are now ratified parts of the schema:
+// `library_value_ref` (DEC-038) and `solver_result_ref` (DEC-039), carried at
+// rule-pack `schema_version` 0.4.0.
 
 export type DeclarationDocument = Record<string, unknown>;
 
@@ -203,6 +216,23 @@ export function defaultLibraryValueRef(): Record<string, unknown> {
   };
 }
 
+/**
+ * A schema-shaped default `solver_result_ref` (SolverResultRef): the single
+ * required `result_id` member as the visible uppercase `"TBD"` placeholder the
+ * `Id` pattern accepts. An unfilled reference matches no result row, so the
+ * input stays unsupplied and the check blocks (never a silent pass). The
+ * authored reference is the canonical, in-pack form of the previously
+ * caller-supplied `{input_id, result_id}` solver binding (PRD §12.5) and
+ * supersedes the run panel's per-input result selector; no result *value* is
+ * ever stored here, only the row id resolved at run time from the solved
+ * envelope.
+ */
+export function defaultSolverResultRef(): Record<string, unknown> {
+  return {
+    result_id: "TBD"
+  };
+}
+
 /** Return a new document with the `required_inputs` array replaced. */
 export function setRequiredInputs(
   document: DeclarationDocument,
@@ -339,20 +369,24 @@ export function DeclarationsEditor({
     const quantity = asObject(asObject(rawInputs[index])?.quantity_intent) ?? {};
     updateInput(index, { quantity_intent: { ...quantity, ...patch } });
   };
-  // Change a required input's source_kind. Switching TO private_library_value
-  // seeds a placeholder library_value_ref when none exists yet, so the
-  // reference sub-form opens with a complete, schema-valid (but unresolved,
-  // hence blocking) reference rather than a partial one. Switching away leaves
-  // any existing reference in place (lossless); the sub-form stays visible so a
-  // now-meaningless reference is never silently hidden, and the explicit
-  // "Remove library reference" control lets the user drop it.
+  // Change a required input's source_kind. Switching TO a kind that uses a
+  // reference seeds a placeholder reference when none exists yet, so its
+  // sub-form opens with a complete, schema-valid (but unresolved, hence
+  // blocking) reference rather than a partial one: private_library_value seeds
+  // a library_value_ref, solver_result seeds a solver_result_ref. Switching
+  // away leaves any existing reference in place (lossless); its sub-form stays
+  // visible so a now-meaningless reference is never silently hidden, and the
+  // explicit "Remove ... reference" control lets the user drop it.
   const changeInputSourceKind = (index: number, next: string) => {
-    const hasRef = asObject(asObject(rawInputs[index])?.library_value_ref) !== null;
-    if (next === "private_library_value" && !hasRef) {
-      updateInput(index, { source_kind: next, library_value_ref: defaultLibraryValueRef() });
-    } else {
-      updateInput(index, { source_kind: next });
+    const record = asObject(rawInputs[index]) ?? {};
+    const patch: Record<string, unknown> = { source_kind: next };
+    if (next === "private_library_value" && asObject(record.library_value_ref) === null) {
+      patch.library_value_ref = defaultLibraryValueRef();
     }
+    if (next === "solver_result" && asObject(record.solver_result_ref) === null) {
+      patch.solver_result_ref = defaultSolverResultRef();
+    }
+    updateInput(index, patch);
   };
   // Patch one input's library_value_ref, merging into the existing reference
   // (or a fresh default when none exists yet — so the first field edit always
@@ -372,6 +406,28 @@ export function DeclarationsEditor({
           if (position !== index) return entry;
           const rest = { ...(asObject(entry) ?? {}) };
           delete rest.library_value_ref;
+          return rest;
+        })
+      )
+    );
+  // Patch one input's solver_result_ref, merging into the existing reference
+  // (or a fresh default when none exists yet — so the first field edit always
+  // produces a complete reference, never a schema-invalid empty object).
+  const updateInputSolverRef = (index: number, patch: Record<string, unknown>) => {
+    const ref = asObject(asObject(rawInputs[index])?.solver_result_ref) ?? defaultSolverResultRef();
+    updateInput(index, { solver_result_ref: { ...ref, ...patch } });
+  };
+  // Drop the solver_result_ref member entirely — returns the input to the
+  // run-panel caller-supplied binding path. Every other member round-trips
+  // verbatim.
+  const removeInputSolverRef = (index: number) =>
+    onChange(
+      setRequiredInputs(
+        document,
+        rawInputs.map((entry, position) => {
+          if (position !== index) return entry;
+          const rest = { ...(asObject(entry) ?? {}) };
+          delete rest.solver_result_ref;
           return rest;
         })
       )
@@ -431,11 +487,16 @@ export function DeclarationsEditor({
           const quantity = asObject(record.quantity_intent) ?? {};
           const sourceKind = asString(record.source_kind) ?? "TBD";
           const libraryRef = asObject(record.library_value_ref);
+          const solverRef = asObject(record.solver_result_ref);
           // Show the private-library reference sub-form whenever the input draws
           // from a private library, OR whenever a reference is already present
           // (so a reference left over from a since-changed source_kind stays
           // visible and removable rather than silently hidden).
           const showLibraryRef = sourceKind === "private_library_value" || libraryRef !== null;
+          // Same rule for the solver-result reference sub-form: shown for a
+          // solver_result input, or whenever a reference lingers from a
+          // since-changed source_kind (visible and removable, never hidden).
+          const showSolverRef = sourceKind === "solver_result" || solverRef !== null;
           return (
             <div
               className="rule-pack-node operation-record"
@@ -548,6 +609,41 @@ export function DeclarationsEditor({
                     onClick={() => removeInputLibraryRef(index)}
                   >
                     Remove library reference
+                  </button>
+                </div>
+              ) : null}
+              {showSolverRef ? (
+                <div className="rule-pack-node" data-testid="rule-pack-input-solver-ref">
+                  <small
+                    className="rule-pack-node-readonly"
+                    data-testid="rule-pack-input-solver-ref-note"
+                  >
+                    Solver-result reference. Binds this input to a specific row of the solved result
+                    envelope by result id, resolved at check-run time. An authored reference is the
+                    canonical binding — it supersedes the run panel&apos;s per-input result selector;
+                    remove it to bind from the run panel instead.
+                  </small>
+                  <TextField
+                    testId="rule-pack-input-solver-result-id"
+                    label="result_id"
+                    value={asString(solverRef?.result_id) ?? ""}
+                    disabled={disabled}
+                    onChange={(next) => updateInputSolverRef(index, { result_id: next })}
+                  />
+                  <button
+                    type="button"
+                    data-testid="rule-pack-input-solver-remove"
+                    disabled={disabled || solverRef === null}
+                    title={
+                      disabled
+                        ? disabledReason
+                        : solverRef === null
+                          ? "No solver-result reference to remove."
+                          : undefined
+                    }
+                    onClick={() => removeInputSolverRef(index)}
+                  >
+                    Remove solver-result reference
                   </button>
                 </div>
               ) : null}

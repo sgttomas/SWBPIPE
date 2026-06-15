@@ -5441,3 +5441,59 @@ notes:
   pack content, rule, or grammar change; deliverables stay CHECKING; no release-
   readiness, professional, certification, sealing, authentication, or
   code-compliance claim.
+
+## TP-MAC-166 author the solver-result reference in the rule-pack editor (`TP-C4-SOLVERREFAUTHOR-001`, 2026-06-14)
+
+- Phase C4 residual (the C2 authoring half of the solver-result binding): the
+  rule-pack declarations form-builder now authors a `solver_result` required
+  input's `solver_result_ref` through a structured control, instead of
+  hand-editing raw document JSON or relying solely on the run-panel selector.
+  Mirrors TP-MAC-158 (`library_value_ref` authoring) and pairs with TP-MAC-164
+  (`TP-C4-SOLVERREF-001`, which resolves the reference at run time): author
+  here → resolve there.
+- **GUI (`DeclarationsEditor.tsx`):** when a required input's `source_kind` is
+  set to `solver_result`, a reference sub-form appears with a single `result_id`
+  text field, a note ("Binds this input to a specific row of the solved result
+  envelope by result id, resolved at check-run time … an authored reference is
+  the canonical binding — it supersedes the run panel's per-input result
+  selector; remove it to bind from the run panel instead"), and a "Remove
+  solver-result reference" control. Switching to `solver_result` **seeds a
+  complete reference** (`result_id` → visible uppercase `"TBD"` placeholder), so
+  an unfilled reference matches no result row and the input blocks — never a
+  partial schema shape, never a silent pass. A reference left after the
+  source_kind is changed away stays **visible and removable** (never silently
+  hidden). Seeding a solver reference does not also seed a library reference
+  (independent kinds). Still form-only (no writable expression text — D-02b
+  `DEC-037` Option O-C: AST-only).
+- **Boundary:** frontend-only; no schema/backend change (the optional
+  `solver_result_ref` member and its run-time resolution landed in
+  TP-C4-SOLVERREF-001 and was ratified at `schema_version` 0.4.0 by `DEC-039`;
+  the Value-based `validate_rule_pack_document` tolerates it). The reference is
+  carried in the pack; no solver result *value* is embedded.
+- Manual check (browser e2e, both viewports): in the rule-pack manager draft,
+  adding an input and setting its `source_kind` to `solver_result` reveals the
+  sub-form + supersede note; filling `result_id` writes a complete
+  `solver_result_ref` into the canonical draft JSON
+  (`required_inputs[last].solver_result_ref`). Asserted in
+  `e2e/r2-smoke.spec.ts` (the rule-pack manager test).
+- Validation: desktop Vitest **372/372** (+5: default-ref shape, seed-on-switch
+  + no library-seed, first-edit completion, lossless id edit, stale-ref
+  visible+removable); `npm run build` clean (tsc typecheck + vite); Playwright
+  rule-pack manager journey **2/2** targeted + **10/10** under the sweep (two
+  viewports; the new authoring assertions ride the rule-pack manager test).
+- **Gate status (PUSH PENDING):** every surface passed individually — cargo
+  crate sweep (28 crates ok), pytest **359**, desktop Vitest **372/372**,
+  Playwright **10/10**, production build clean — but the combined commit-bound
+  five-surface DEC-025 sweep did **not** produce a single all-green run this
+  session. Sustained **external** machine load (a concurrent coding agent + git
+  + file sync, load avg 6–21 on 8 cores) caused rotating **infrastructure**
+  timeouts: App.test.tsx per-test 10–15s caps (unrelated to this slice; pass
+  52/52 standalone), then a Playwright worker-teardown force-kill *after all 10
+  tests passed*. No test or assertion failed. Gate PASS + `git push` are pending
+  a quiet-machine sweep re-run or a human ruling — see the run record.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-14_TP-C4-SOLVERREFAUTHOR-001.md` (DEL-06-02
+  primary).
+- Boundary review: local-only; status-vocabulary-only; deliverables stay
+  CHECKING; no release-readiness, professional, certification, sealing,
+  authentication, or code-compliance claim.
