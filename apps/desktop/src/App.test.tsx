@@ -3684,7 +3684,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.redaction_policy.source_model_mutated).toBe(false);
     expect(reviewManifest.data_boundary.private_data_policy).toBe("no_private_project_data");
     expect(reviewManifest.professional_boundary.software_makes_compliance_claim).toBe(false);
-  }, 10000);
+    // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
+    // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+  });
 
   it("round trips local create, save, and open project controls without external file copies", async () => {
     render(<App />);
@@ -4126,7 +4128,9 @@ describe("OpenPipeStress desktop preview", () => {
     const reportPanel = await screen.findByTestId("report-panel");
     expect(within(reportPanel).getByTestId("report-packet-body").textContent).toContain("MODEL INCOMPLETE");
     expect(within(reportPanel).getByTestId("report-export-summary").textContent).toContain("0 refs");
-  }, 10000);
+    // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
+    // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+  });
 
   it("round trips review-only proposal operations through local save and open", async () => {
     render(<App />);
@@ -4557,7 +4561,9 @@ describe("OpenPipeStress desktop preview", () => {
       "result: result:stress:pipe-P-120:end-j:torsional-shear"
     );
     expect(openedByIdStoragePacket.summary.persisted_analysis_run_ref).toBe("run:preview-linear-static-001");
-  }, 10000);
+    // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
+    // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+  });
 
   it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
     render(<App />);
@@ -6090,7 +6096,9 @@ describe("OpenPipeStress desktop preview", () => {
       clearedReviewManifest.exports.find((item: { export_id: string }) => item.export_id === "operation_review_ledger")
         .readiness
     ).toBe("empty_operation_queue");
-  }, 15000);
+    // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
+    // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
+  });
 
   it("links selected diagnostics to affected result and model context", async () => {
     render(<App />);

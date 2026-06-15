@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -358,6 +359,15 @@ def main(argv: list[str] | None = None) -> int:
         for tool in tools:
             print(f"  - {tool}", file=sys.stderr)
         return 1
+
+    # The Playwright surface runs last, after the cargo + wasm + vitest surfaces
+    # have loaded the machine. At Playwright's default worker count (~half the
+    # cores) the extra Chromium workers are slow to reap under that load and
+    # trip the internal 300s worker-stop grace ("worker process did not exit
+    # within 300000ms after stop, force-killed it"), failing an otherwise
+    # all-green run. Run the e2e workers serially for the gate; the configs read
+    # PLAYWRIGHT_WORKERS and `setdefault` lets an explicit caller value win.
+    os.environ.setdefault("PLAYWRIGHT_WORKERS", "1")
 
     summary = run_sweep(surfaces, root)
     output_path = write_summary(summary, root / args.output_dir)

@@ -10,8 +10,26 @@ const executablePath =
       ? macChrome
       : undefined;
 
+// Worker cap (DEC-025 evidence-sweep robustness): the e2e lanes run last in the
+// five-surface sweep, after the cargo + wasm + vitest surfaces have saturated
+// the machine. Playwright's default (~half the logical cores) then spawns
+// several Chromium workers whose OS processes are slow to reap under that load;
+// worker teardown trips Playwright's internal 300s worker-stop grace
+// ("worker process did not exit within 300000ms after stop, force-killed it"),
+// failing a run whose tests all passed. The sweep sets PLAYWRIGHT_WORKERS=1 to
+// run e2e workers serially under load; a standalone local run keeps Playwright's
+// smart default. CI runs serial too. An explicit PLAYWRIGHT_WORKERS value wins.
+const parsedWorkers = Number(process.env.PLAYWRIGHT_WORKERS);
+const workers =
+  Number.isInteger(parsedWorkers) && parsedWorkers > 0
+    ? parsedWorkers
+    : process.env.CI
+      ? 1
+      : undefined;
+
 export default defineConfig({
   testDir: "./e2e",
+  workers,
   // `*-dist.spec.ts` specs run against the built dist via
   // playwright.dist.config.ts (`npm run test:e2e:dist`), not against this
   // dev-server lane. (A `dist/` subfolder would match the repo .gitignore.)

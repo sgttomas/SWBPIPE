@@ -16,8 +16,23 @@ const executablePath =
       ? macChrome
       : undefined;
 
+// Worker cap: identical rationale to playwright.config.ts — run e2e workers
+// serially under the DEC-025 sweep's machine load so slow Chromium teardown
+// does not trip Playwright's 300s worker-stop grace ("worker process did not
+// exit within 300000ms after stop, force-killed it"). The sweep sets
+// PLAYWRIGHT_WORKERS=1; standalone local runs keep Playwright's smart default.
+// CI runs serial too. An explicit PLAYWRIGHT_WORKERS value wins.
+const parsedWorkers = Number(process.env.PLAYWRIGHT_WORKERS);
+const workers =
+  Number.isInteger(parsedWorkers) && parsedWorkers > 0
+    ? parsedWorkers
+    : process.env.CI
+      ? 1
+      : undefined;
+
 export default defineConfig({
   testDir: "./e2e",
+  workers,
   // Only the production-dist specs; the dev-server lane (playwright.config.ts)
   // ignores this same pattern, so each spec runs in exactly one lane.
   testMatch: ["**/*-dist.spec.ts"],
