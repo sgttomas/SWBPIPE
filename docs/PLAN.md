@@ -100,6 +100,24 @@ When a lower layer and a higher authority disagree, the discrepancy is surfaced
 and the lower layer (this map, the completion plan, a register) is corrected —
 never the authority.
 
+### Dependency epistemics — how the DAG is built and maintained
+
+A dependency graph is not a fact to be discovered but a model relative to a
+stated objective and edge semantics; individual edges are frequently a judgment
+call. The one objective invariant, once semantics are fixed, is the
+strongly-connected-component (SCC) decomposition: contracting each SCC yields a
+unique condensation that is always a DAG. The project therefore builds and
+maintains its dependency graph by *cycle-driven resolution* — treating SCCs as
+the diagnostic of where ordering is undecided, resolving each by an explicit,
+recorded move (decompose / invert / merge / cut), and holding cycle-participating
+edges non-gating until resolved. This localizes the subjective calls to
+cycle-closing edges and keeps them auditable. A new approved DAG version is
+event-driven by a decomposition revision / SCA, not periodic. The operative
+practice lives in
+[_COORDINATION.md](../execution/_Coordination/_COORDINATION.md); the full
+doctrine, rationale, and the DAG-007 re-derivation trigger are in
+[PLAN_2026-06-13_cycle_driven_resolution_doctrine.md](../plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md).
+
 ## 4. Current roadmap posture
 
 - **Target stage: R3 / Phase C** (`DEC-035`, superseding the `DEC-029` hold).

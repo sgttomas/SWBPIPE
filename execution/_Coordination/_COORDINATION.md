@@ -131,7 +131,17 @@ Authoritative state:
 1. `execution/_Decomposition/SOFTWARE_DECOMP.md` says what must be built and why.
 2. `execution/_DAG/DAG-006/` says what depends on what, using approved active
    edges only. Candidate rows remain non-gating unless explicitly promoted by a
-   later human gate and graph revalidation.
+   later human gate and graph revalidation. SCCs are the primary diagnostic of
+   undecided ordering: any edge that participates in a cycle is non-gating until
+   the SCC is resolved by a recorded move (decompose / invert / merge / cut;
+   cut/merge are human-gated). The active edge set is kept acyclic by
+   construction; cycles live only in the candidate layer pending resolution. A
+   new approved DAG version is event-driven by a decomposition revision / SCA —
+   not periodic — and is the occasion to re-run the closure audit
+   (`audit_dag.py`) and resolve any new SCC; a `DAG-007` re-derivation is not
+   warranted before that trigger. Method, rationale, and the re-derivation
+   trigger: `plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md` (with its
+   2026-06-15 DAG-007 amendment).
 3. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
    lifecycle, working memory, and execution evidence inside each deliverable's
    ownership boundary.

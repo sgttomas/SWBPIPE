@@ -270,6 +270,24 @@ Recommended rollout (smallest coherent unit first):
   for cut/merge (§3.3)?
 - **D-CDR-5:** Skill vs. `docs/` procedure, and where, for §3.6?
 
+**Ruling 2026-06-15 (`DEC-040`, human project authority).** Doctrine kernel
+adopted as posture (**D-CDR-1**); rollout = the in-project routing + the
+cross-project agent-instruction habit, with the operational machinery deferred
+(**D-CDR-2**); `agents/` framework edits authorized (**D-CDR-3**); future
+cut/merge reuse the `SCA-` id space, no new namespace (**D-CDR-4**); a standalone
+skill/procedure is deferred, a `docs/` procedure preferred if ever (**D-CDR-5**).
+**Applied this sitting:** `docs/PLAN.md` dependency-epistemics subsection;
+`_COORDINATION.md` State-Tracking DAG bullet (+ the re-derivation trigger);
+completion-plan Phase D DAG-007 trigger note; `agents/AGENT_WORKING_ITEMS.md`
+(Conflict-transparency invariant extended to structural cycles + a Phase 3
+companion); `agents/AGENT_TASK.md` (an epistemic-controls SCC bullet); and the
+`D-CDR` register row. **Deferred to the next decomposition revision / SCA (the
+DAG-007 trigger, §Amendment 2026-06-15):** the loop step-4 SCC-resolution branch
+(§3.2b), per-session open-SCCs surfacing (§3.2c), the register SCC-row convention
+(§3.3), the `audit_dag.py` backlog/edge-lister flags (§3.7), and the standalone
+skill/procedure (§3.6) — deferred on §5 proportionality (0 active SCCs; the
+graph matches its rev-0.7 basis), not on authority.
+
 ---
 
 ## 8. Verification (how we would know it is working)

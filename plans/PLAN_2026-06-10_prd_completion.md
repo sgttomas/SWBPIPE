@@ -98,6 +98,8 @@ Interim posture until B lands: Phase A authoring may proceed SI-consistent with 
 
 **Objective:** PRD §22.5 exit criteria — nonlinear support validation cases converge; component provenance appears in reports. Closes FR-017..021. All component factors are **user-entered** (SIFs, flexibility factors, stiffnesses) per PRD §9.2 — the code-neutral boundary means the solver never computes code-derived factors from protected tables.
 
+**Dependency-graph trigger (DAG-007):** Phase D adds new component deliverables and the assembled nonlinear-solve seam — the first decomposition-structure change since the 2026-06-03 `DAG-006` freeze (still rev 0.7). That decomposition revision / SCA is the trigger to re-derive the dependency graph (re-run `dependency-extract` → AGGREGATION → `audit_dag.py` closure audit → human `APPROVAL_RECORD` = `DAG-007`) and to apply the cycle-driven resolution doctrine to any new active SCC. A `DAG-007` run is **not warranted before this trigger** (the approved graph matches its rev-0.7 basis and is dormant during app-integration). Method + trigger detail: [PLAN_2026-06-13_cycle_driven_resolution_doctrine.md](PLAN_2026-06-13_cycle_driven_resolution_doctrine.md) (2026-06-15 amendment).
+
 | # | Tranche scope |
 |---|---|
 | D1 | **Bend element**: curved-pipe behavior via user-entered flexibility factors and SIFs (FR-017) applied to element stiffness/stress recovery; radius/angle/orientation geometry in model + viewport |
