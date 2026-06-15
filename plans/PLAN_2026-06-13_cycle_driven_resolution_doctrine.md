@@ -1,14 +1,21 @@
-# Cycle-Driven Resolution Doctrine — governance/coordination/agent augmentation
+# Cycle-Driven Resolution Doctrine — chirality-piping adoption + rollout record
 
-**Date:** 2026-06-13
-**Epistemic status:** PROPOSAL (non-governing). Authored by `WORKING_ITEMS`. This
-plan proposes amendments to authority and tool-root surfaces (strategy,
-coordination, the decision register, the shared `agents/` framework, a skill,
-and the DAG audit tool). It changes nothing by itself: governance, the
-coordination root, and `agents/` are human-/owner-gated surfaces, and several
-targets live **outside** this project's write scope (see §6). Every item below
-is a candidate edit to be ruled on, then applied through the normal approval
-path.
+> **Canonical doctrine relocated (2026-06-15).** The project-neutral doctrine now
+> lives at the shared **`docs/CYCLE_DRIVEN_RESOLUTION.md`** (adopted `DEC-040`).
+> This file is retained as **chirality-piping's adoption, rollout, and DAG-007
+> re-derivation record**: the surface-by-surface rollout (§3), the worked example
+> (§4), the §7 / `DEC-040` ruling, and the 2026-06-15 DAG-007 trigger amendment
+> are piping-specific and stay here. For the reusable principle itself, read the
+> shared doctrine.
+
+**Date:** 2026-06-13 (adopted `DEC-040`, 2026-06-15)
+**Epistemic status:** Adopted, non-governing record (originally a PROPOSAL
+authored by `WORKING_ITEMS`). This plan proposed amendments to authority and
+tool-root surfaces (strategy, coordination, the decision register, the shared
+`agents/` framework, a skill, and the DAG audit tool); the accepted subset was
+applied under `DEC-040` and the principle promoted to the shared doctrine above.
+The §6 scope/authority map and §7 open decisions are retained as the adoption
+audit trail.
 
 **Provenance:** distilled from the 2026-06-13 design discussion on dependency
 modeling. Core insight: a DAG is objective-relative and its edges are often
