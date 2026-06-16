@@ -245,3 +245,37 @@ authentication, or code-compliance claim was introduced.
 F-4 and the authoring-usability finding remain open pending packaged human
 successor journey evidence. Next unblocked C5 tranche is
 `TP-R3UX-R3FLOW-001` / target TP-MAC-175.
+
+## 2026-06-16 - TP-R3UX-R3FLOW-001 R3 guided rule-pack/private-library flow
+
+Implemented the C5.5 R3 guided flow for TP-MAC-175. The guided workbench now
+has an R3 mode next to the A12 mode. The R3 path routes private local library
+template load/validate/save request, private non-code rule-pack draft/validate,
+checksum/save request, mechanics solve, rule-check binding review, and
+rule-check run request.
+
+The guide records visible actions from the existing library manager, rule-pack
+manager, and rule-check run panel. The implementation did not change rule-pack
+schema, evaluator grammar, solver behavior, persistence, backend API, checksum
+semantics, or local store commands.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-R3FLOW-001_1440x920_iab_r3_start.png`,
+`TP-R3UX-R3FLOW-001_1280x800_iab_r3_run.png`, and
+`TP-R3UX-R3FLOW-001_iab_probe.json`. The probe recorded no horizontal page
+overflow, no clipped R3 primary controls, `r3Progress=6/6`, and an explicit
+blocker that browser preview keeps pass/fail blocked until the desktop checker
+returns complete inputs.
+
+Validation: full desktop Vitest 18 files / 386 tests, permanent dead-control
+audit, desktop production build, full Playwright e2e 14/14 across 1440x920 and
+1280x800, and in-app browser visual verification.
+
+No lifecycle state was changed. No private data was committed. No protected
+content, network/telemetry posture change, release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim was
+introduced.
+
+F-4 and the authoring-usability finding remain open pending packaged human
+successor journey evidence. Next unblocked C5 tranche is
+`TP-R3UX-PACKAGEKIT-001` / target TP-MAC-176.

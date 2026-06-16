@@ -13,6 +13,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — C5 R3 rule-pack/private-library guided flow (`TP-R3UX-R3FLOW-001`)
+
+Adds the R3-specific guided mode inside the guided workbench. The mode routes a
+human through private local library import, private non-code rule-pack draft and
+validation, checksum/save request, mechanics solve, rule-check binding review,
+and rule-check run request.
+
+The guide is UI-only session state layered over existing panels. It records
+visible user actions from `LibraryManagerPanel`, `RulePackManagerPanel`, and
+`RuleCheckRunPanel`; it does not change the rule-pack schema, evaluator
+grammar, solver, persistence, backend commands, checksum semantics, or desktop
+store behavior. The R3 path exposes stable IDs including `r3-guided-flow`,
+`r3-flow-step-*`, `r3-flow-missing-input-blocker`, and the existing
+`r3-exit-journey-status`.
+
+The final browser-preview path reaches all guided steps while still reporting
+that pass/fail remains blocked until the desktop checker returns complete
+inputs. This preserves the PRD 22.4 rule: missing required inputs block
+pass/fail, never silently default or synthesize a code-compliance result.
+
+Evidence: full desktop Vitest **18/18 files, 386/386 tests**, permanent
+dead-control audit, desktop production build, full Playwright e2e **14/14**
+across 1440x920 and 1280x800, and in-app browser screenshots/probe JSON under
+DEL-07-06 `_run_records/assets/`; SMOKE TP-MAC-175; run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3UX-R3FLOW-001.md`.
+
+Boundary: frontend guided-workbench usability only; no private data committed,
+no protected content, no network/telemetry, no lifecycle state change, and no
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim. C5.6 remains the next ordinary C5
+tranche: packaged journey successor kit (`TP-R3UX-PACKAGEKIT-001`).
+
+---
+
 ## 2026-06-16 — C5 A12 authoring journey redesign (`TP-R3UX-A12FLOW-001`)
 
 Adds the A12-specific guided authoring path inside the guided workbench. The

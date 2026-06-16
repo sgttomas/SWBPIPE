@@ -244,6 +244,44 @@ type A12FlowStep = {
   status: string;
 };
 
+type GuidedJourneyMode = "a12" | "r3";
+
+type R3FlowStepId = "library" | "rule-pack" | "checksum-save" | "solve" | "bind" | "run";
+
+type R3FlowStep = {
+  id: R3FlowStepId;
+  label: string;
+  section: WorkspaceSectionId;
+  cue: string;
+  complete: boolean;
+  status: string;
+};
+
+type R3JourneyEvent =
+  | "library_template_loaded"
+  | "library_validate_requested"
+  | "library_save_requested"
+  | "rule_pack_draft_created"
+  | "rule_pack_validate_requested"
+  | "rule_pack_checksum_requested"
+  | "rule_pack_save_requested"
+  | "rule_check_pack_loaded"
+  | "rule_check_run_requested";
+
+type R3JourneyState = Record<R3JourneyEvent, boolean>;
+
+const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
+  library_template_loaded: false,
+  library_validate_requested: false,
+  library_save_requested: false,
+  rule_pack_draft_created: false,
+  rule_pack_validate_requested: false,
+  rule_pack_checksum_requested: false,
+  rule_pack_save_requested: false,
+  rule_check_pack_loaded: false,
+  rule_check_run_requested: false
+};
+
 const JOURNEY_STEPS: ReadonlyArray<JourneyStep> = [
   {
     id: "model",
@@ -333,6 +371,11 @@ export function App() {
   );
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
   const [activeA12StepId, setActiveA12StepId] = useState<A12FlowStepId | null>(null);
+  const [guidedJourneyMode, setGuidedJourneyMode] = useState<GuidedJourneyMode>("a12");
+  const [activeR3StepId, setActiveR3StepId] = useState<R3FlowStepId | null>(null);
+  const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
+    ...INITIAL_R3_JOURNEY_STATE
+  }));
   const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
   const intentSequence = useRef(0);
   const comparison = useMemo(
@@ -435,6 +478,13 @@ export function App() {
       // solve-time analysis-run envelope rather than surfacing a false outcome.
       setRuleCheckAggregate(null);
     }
+  }
+
+  function recordR3JourneyEvent(event: R3JourneyEvent) {
+    setR3JourneyState((current) => {
+      if (current[event]) return current;
+      return { ...current, [event]: true };
+    });
   }
 
   function handleCancelRun() {
@@ -993,9 +1043,14 @@ export function App() {
             result={result}
             ruleCheckAggregate={ruleCheckAggregate}
             activeA12StepId={activeA12StepId}
+            activeR3StepId={activeR3StepId}
+            guidedJourneyMode={guidedJourneyMode}
             operationBusy={operationBusy}
+            r3JourneyState={r3JourneyState}
             onApplyNextQueuedIntent={handleApplyNextQueuedIntent}
             onSelectA12Step={setActiveA12StepId}
+            onSelectGuidedJourneyMode={setGuidedJourneyMode}
+            onSelectR3Step={setActiveR3StepId}
             onSelectSection={setActiveSection}
           />
 
@@ -1108,7 +1163,7 @@ export function App() {
               aria-label="Libraries section"
               data-testid="workspace-section-libraries"
             >
-              <LibraryManagerPanel model={model} />
+              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
             </section>
 
             <section
@@ -1116,7 +1171,7 @@ export function App() {
               aria-label="Rule Packs section"
               data-testid="workspace-section-rule-packs"
             >
-              <RulePackManagerPanel model={model} />
+              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
             </section>
 
             <section
@@ -1144,7 +1199,12 @@ export function App() {
               />
               <MissingDataBlockingPanel model={model} result={result} />
               <RuleCheckPanel model={model} result={result} />
-              <RuleCheckRunPanel model={model} result={result} onAggregateChange={handleRuleCheckAggregate} />
+              <RuleCheckRunPanel
+                model={model}
+                result={result}
+                onAggregateChange={handleRuleCheckAggregate}
+                onR3JourneyEvent={recordR3JourneyEvent}
+              />
               <KnowledgePanel knowledge={knowledge} result={result} />
             </section>
 
@@ -1327,9 +1387,14 @@ function GuidedWorkbench({
   result,
   ruleCheckAggregate,
   activeA12StepId,
+  activeR3StepId,
+  guidedJourneyMode,
   operationBusy,
+  r3JourneyState,
   onApplyNextQueuedIntent,
   onSelectA12Step,
+  onSelectGuidedJourneyMode,
+  onSelectR3Step,
   onSelectSection
 }: {
   activeSection: WorkspaceSectionId;
@@ -1343,9 +1408,14 @@ function GuidedWorkbench({
   result: MechanicsResult | null;
   ruleCheckAggregate: RuleCheckStatus | null;
   activeA12StepId: A12FlowStepId | null;
+  activeR3StepId: R3FlowStepId | null;
+  guidedJourneyMode: GuidedJourneyMode;
   operationBusy: boolean;
+  r3JourneyState: R3JourneyState;
   onApplyNextQueuedIntent: () => void;
   onSelectA12Step: (stepId: A12FlowStepId) => void;
+  onSelectGuidedJourneyMode: (mode: GuidedJourneyMode) => void;
+  onSelectR3Step: (stepId: R3FlowStepId) => void;
   onSelectSection: (section: WorkspaceSectionId) => void;
 }) {
   const current = currentJourneyStep({
@@ -1396,18 +1466,51 @@ function GuidedWorkbench({
           </span>
         </div>
       </article>
-      <A12AuthoringJourney
-        analysisRun={analysisRun}
-        activeA12StepId={activeA12StepId}
-        editorIntents={editorIntents}
-        model={model}
-        operationBusy={operationBusy}
-        projectOperation={projectOperation}
-        result={result}
-        onApplyNextQueuedIntent={onApplyNextQueuedIntent}
-        onSelectA12Step={onSelectA12Step}
-        onSelectSection={onSelectSection}
-      />
+      <div className="guided-journey-stack" data-testid="guided-journey-stack">
+        <div className="guided-journey-tabs" role="tablist" aria-label="Guided journey selector">
+          <button
+            type="button"
+            className={guidedJourneyMode === "a12" ? "guided-journey-tab active" : "guided-journey-tab"}
+            data-testid="guided-journey-tab-a12"
+            aria-pressed={guidedJourneyMode === "a12"}
+            onClick={() => onSelectGuidedJourneyMode("a12")}
+          >
+            A12 authoring
+          </button>
+          <button
+            type="button"
+            className={guidedJourneyMode === "r3" ? "guided-journey-tab active" : "guided-journey-tab"}
+            data-testid="guided-journey-tab-r3"
+            aria-pressed={guidedJourneyMode === "r3"}
+            onClick={() => onSelectGuidedJourneyMode("r3")}
+          >
+            R3 rule checks
+          </button>
+        </div>
+        {guidedJourneyMode === "a12" ? (
+          <A12AuthoringJourney
+            analysisRun={analysisRun}
+            activeA12StepId={activeA12StepId}
+            editorIntents={editorIntents}
+            model={model}
+            operationBusy={operationBusy}
+            projectOperation={projectOperation}
+            result={result}
+            onApplyNextQueuedIntent={onApplyNextQueuedIntent}
+            onSelectA12Step={onSelectA12Step}
+            onSelectSection={onSelectSection}
+          />
+        ) : (
+          <R3GuidedJourney
+            activeR3StepId={activeR3StepId}
+            r3JourneyState={r3JourneyState}
+            result={result}
+            ruleCheckAggregate={ruleCheckAggregate}
+            onSelectR3Step={onSelectR3Step}
+            onSelectSection={onSelectSection}
+          />
+        )}
+      </div>
     </section>
   );
 }
@@ -1675,6 +1778,206 @@ function isBlankAuthoringModel(model: PreviewModel): boolean {
 
 function countStatus(actual: number, required: number): string {
   return actual >= required ? "done" : `${actual}/${required}`;
+}
+
+function R3GuidedJourney({
+  activeR3StepId,
+  r3JourneyState,
+  result,
+  ruleCheckAggregate,
+  onSelectR3Step,
+  onSelectSection
+}: {
+  activeR3StepId: R3FlowStepId | null;
+  r3JourneyState: R3JourneyState;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  onSelectR3Step: (stepId: R3FlowStepId) => void;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const journey = buildR3FlowState({ r3JourneyState, result, ruleCheckAggregate });
+  const actionSection = journey.nextStep?.section ?? "evidence";
+  return (
+    <section className="r3-guided-flow" aria-label="R3 rule-pack guided flow" data-testid="r3-guided-flow">
+      <div className="r3-flow-header">
+        <div>
+          <span>R3 rule-pack flow</span>
+          <h2 data-testid="r3-flow-next-action">
+            {journey.nextStep ? journey.nextStep.cue : "Review R3 guided evidence before packaged pass"}
+          </h2>
+        </div>
+        <strong data-testid="r3-flow-progress">
+          {journey.completedCount}/{journey.steps.length}
+        </strong>
+      </div>
+      <div className="r3-flow-grid" aria-label="R3 journey steps">
+        {journey.steps.map((step) => (
+          <button
+            key={step.id}
+            type="button"
+            className={r3StepClass(step, journey.nextStep?.id, activeR3StepId)}
+            data-testid={`r3-flow-step-${step.id}`}
+            data-status={step.complete ? "complete" : step.id === journey.nextStep?.id ? "next" : "pending"}
+            title={step.cue}
+            aria-pressed={activeR3StepId === step.id}
+            aria-current={step.id === journey.nextStep?.id ? "step" : undefined}
+            onClick={() => {
+              onSelectR3Step(step.id);
+              onSelectSection(step.section);
+            }}
+          >
+            <span>{step.label}</span>
+            <small>{step.status}</small>
+          </button>
+        ))}
+      </div>
+      <div className="r3-flow-blocker" data-testid="r3-flow-missing-input-blocker">
+        {r3MissingInputBlockerText({ r3JourneyState, ruleCheckAggregate })}
+      </div>
+      <div className="r3-flow-actions">
+        <span data-testid="r3-flow-status">{journey.status}</span>
+        <button
+          type="button"
+          data-testid="r3-flow-next-action-button"
+          onClick={() => onSelectSection(actionSection)}
+        >
+          {journey.nextStep ? `Go to ${journey.nextStep.label}` : "Review evidence"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function buildR3FlowState({
+  r3JourneyState,
+  result,
+  ruleCheckAggregate
+}: {
+  r3JourneyState: R3JourneyState;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+}): {
+  completedCount: number;
+  nextStep: R3FlowStep | null;
+  status: string;
+  steps: R3FlowStep[];
+} {
+  const solved = Boolean(result && result.results.length > 0 && result.status.mechanics === "MECHANICS_SOLVED");
+  const libraryTouched =
+    r3JourneyState.library_template_loaded &&
+    (r3JourneyState.library_validate_requested || r3JourneyState.library_save_requested);
+  const packValidated = r3JourneyState.rule_pack_draft_created && r3JourneyState.rule_pack_validate_requested;
+  const packSaved = r3JourneyState.rule_pack_checksum_requested && r3JourneyState.rule_pack_save_requested;
+  const runAttempted = Boolean(ruleCheckAggregate || r3JourneyState.rule_check_run_requested);
+  const steps: R3FlowStep[] = [
+    {
+      id: "library",
+      label: "Library",
+      section: "libraries",
+      cue: "Load and validate a private local library template",
+      complete: libraryTouched,
+      status: r3JourneyState.library_save_requested
+        ? "save requested"
+        : r3JourneyState.library_validate_requested
+          ? "validate requested"
+          : r3JourneyState.library_template_loaded
+            ? "template loaded"
+            : "not started"
+    },
+    {
+      id: "rule-pack",
+      label: "Rule pack",
+      section: "rule-packs",
+      cue: "Create and validate a private non-code rule-pack draft",
+      complete: packValidated,
+      status: r3JourneyState.rule_pack_validate_requested
+        ? "validate requested"
+        : r3JourneyState.rule_pack_draft_created
+          ? "draft ready"
+          : "not started"
+    },
+    {
+      id: "checksum-save",
+      label: "Checksum/save",
+      section: "rule-packs",
+      cue: "Compute the checksum and request local save",
+      complete: packSaved,
+      status: r3JourneyState.rule_pack_save_requested
+        ? "save requested"
+        : r3JourneyState.rule_pack_checksum_requested
+          ? "checksum requested"
+          : "pending"
+    },
+    {
+      id: "solve",
+      label: "Solve",
+      section: "solve",
+      cue: "Run mechanics before rule checks",
+      complete: solved,
+      status: solved ? `${result?.results.length ?? 0} rows` : "not run"
+    },
+    {
+      id: "bind",
+      label: "Bind",
+      section: "solve",
+      cue: "Load a rule pack for checking and review required bindings",
+      complete: r3JourneyState.rule_check_pack_loaded,
+      status: r3JourneyState.rule_check_pack_loaded ? "binding plan visible" : "load pack"
+    },
+    {
+      id: "run",
+      label: "Run checks",
+      section: "solve",
+      cue: "Run rule checks and confirm missing inputs block pass/fail",
+      complete: runAttempted,
+      status: ruleCheckAggregate ?? (r3JourneyState.rule_check_run_requested ? "run requested" : "not run")
+    }
+  ];
+  const nextStep = steps.find((step) => !step.complete) ?? null;
+  return {
+    completedCount: steps.filter((step) => step.complete).length,
+    nextStep,
+    status: `private library=${steps[0].status}; rule_pack=${steps[1].status}; checksum_save=${
+      steps[2].status
+    }; rule_check=${
+      ruleCheckAggregate ?? (runAttempted ? "requested" : "not run")
+    }`,
+    steps
+  };
+}
+
+function r3StepClass(
+  step: R3FlowStep,
+  nextStepId: R3FlowStepId | undefined,
+  activeR3StepId: R3FlowStepId | null
+): string {
+  const classes = ["r3-flow-step"];
+  if (step.complete) classes.push("complete");
+  if (step.id === nextStepId) classes.push("next");
+  if (step.id === activeR3StepId) classes.push("selected");
+  return classes.join(" ");
+}
+
+function r3MissingInputBlockerText({
+  r3JourneyState,
+  ruleCheckAggregate
+}: {
+  r3JourneyState: R3JourneyState;
+  ruleCheckAggregate: RuleCheckStatus | null;
+}): string {
+  if (ruleCheckAggregate === "RULE_INPUTS_INCOMPLETE") {
+    return "Missing inputs block pass/fail: aggregate=RULE_INPUTS_INCOMPLETE.";
+  }
+  if (!r3JourneyState.rule_check_pack_loaded) {
+    return "Missing-input gate pending: load a rule pack, then bind required values before pass/fail.";
+  }
+  if (!r3JourneyState.rule_check_run_requested && !ruleCheckAggregate) {
+    return "Binding review active: required missing values remain a blocker until supplied.";
+  }
+  if (!ruleCheckAggregate) {
+    return "Run requested; browser preview keeps pass/fail blocked until the desktop checker returns complete inputs.";
+  }
+  return `Rule-check aggregate=${ruleCheckAggregate}; software finding only, no code-compliance claim.`;
 }
 
 function journeyStepIcon(stepId: JourneyStepId): React.ReactNode {

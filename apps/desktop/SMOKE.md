@@ -5719,3 +5719,39 @@ notes:
   approval, certification, sealing, authentication, or code-compliance change.
   F-4 and the authoring-usability finding remain open until packaged human
   successor journey evidence is recorded.
+
+## TP-MAC-175 R3 guided rule-pack/private-library flow (`TP-R3UX-R3FLOW-001`, 2026-06-16)
+
+- Adds an R3-specific guided mode beside the A12 mode in the guided workbench.
+  The path routes private library import, private non-code rule-pack draft and
+  validation, checksum/save request, mechanics solve, rule-check binding
+  review, and rule-check run request through existing panels.
+- The implementation is UI-only session state. `LibraryManagerPanel`,
+  `RulePackManagerPanel`, and `RuleCheckRunPanel` report visible user actions
+  to the guided workbench; no rule-pack schema, evaluator grammar, solver,
+  persistence, backend API, checksum, or store semantics changed.
+- New stable IDs include `guided-journey-tab-r3`, `r3-guided-flow`,
+  `r3-flow-next-action`, `r3-flow-progress`, `r3-flow-step-*`,
+  `r3-flow-status`, `r3-flow-next-action-button`, and
+  `r3-flow-missing-input-blocker`.
+- The browser-preview journey intentionally reaches `6/6` only as guided action
+  coverage. The visible blocker remains explicit: pass/fail stays blocked until
+  the desktop checker returns complete inputs. This preserves PRD 22.4 missing
+  input behavior and makes no code-compliance claim.
+- In-app browser evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-R3FLOW-001_1440x920_iab_r3_start.png`,
+  `.../TP-R3UX-R3FLOW-001_1280x800_iab_r3_run.png`, and
+  `.../TP-R3UX-R3FLOW-001_iab_probe.json`. Probe results: no horizontal page
+  overflow, no clipped R3 primary controls, `r3Progress=6/6`, and blocker text
+  `browser preview keeps pass/fail blocked until the desktop checker returns
+  complete inputs`.
+- Validation completed before closeout: full desktop Vitest **18 files / 386
+  tests**, permanent dead-control audit, desktop production build, full
+  Playwright e2e **14/14** across 1440x920 and 1280x800, plus in-app browser
+  visual verification.
+- Boundary review: frontend guided-workbench usability only; no private data
+  committed, no protected content, no network/telemetry posture change, no
+  lifecycle state change, and no release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim. F-4 and the
+  authoring-usability finding remain open until packaged human successor
+  journey evidence is recorded.

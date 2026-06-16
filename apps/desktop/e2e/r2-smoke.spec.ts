@@ -897,6 +897,76 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   );
 });
 
+test("R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+
+  await page.getByTestId("guided-journey-tab-r3").click();
+  await expect(page.getByTestId("r3-guided-flow")).toBeVisible();
+  await expect(page.getByTestId("r3-flow-next-action")).toContainText(
+    "Load and validate a private local library"
+  );
+  await expect(page.getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "next");
+  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText("Missing-input gate pending");
+
+  await page.getByTestId("r3-flow-step-library").click();
+  await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
+  await page.getByTestId("library-load-template").click();
+  await page.getByTestId("library-validate").click();
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+  await expect(page.getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "complete");
+  await page.getByTestId("library-save").click();
+  await expect(page.getByTestId("r3-flow-status")).toContainText("private library=save requested");
+
+  await page.getByTestId("r3-flow-step-rule-pack").click();
+  await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
+  await page.getByTestId("rule-pack-new-draft").click();
+  await page.getByTestId("rule-pack-validate").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+  await expect(page.getByTestId("r3-flow-step-rule-pack")).toHaveAttribute("data-status", "complete");
+  await page.getByTestId("rule-pack-compute-checksum").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+  await page.getByTestId("rule-pack-save").click();
+  await expect(page.getByTestId("r3-flow-step-checksum-save")).toHaveAttribute("data-status", "complete");
+
+  await page.getByTestId("r3-flow-step-solve").click();
+  await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await page.getByTestId("run-mechanics-preview").click();
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+  await expect(page.getByTestId("r3-flow-step-solve")).toHaveAttribute("data-status", "complete");
+
+  await page.getByTestId("rule-check-load-demo").click();
+  await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  await expect(page.getByTestId("r3-flow-step-bind")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText("Binding review active");
+
+  await page.getByTestId("rule-check-run").click();
+  await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");
+  await expect(page.getByTestId("r3-flow-step-run")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText(
+    "browser preview keeps pass/fail blocked"
+  );
+  await expect(page.getByTestId("r3-exit-journey-status")).toContainText(
+    "Packaged A12/R3 human pass not recorded"
+  );
+
+  const horizontalOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+      document.body.scrollWidth > document.body.clientWidth
+  );
+  expect(horizontalOverflow).toBe(false);
+});
+
 function stepPayload(changeKind: string, ref: string): any {
   const step = rehearsal.steps.find(
     (candidate) =>

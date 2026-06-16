@@ -73,6 +73,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(a12Journey).getByTestId("a12-queue-status").textContent).toContain("No queued operations");
     expect(within(a12Journey).getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "next");
     expect(within(a12Journey).getByTestId("a12-journey-step-save-reopen")).toBeInTheDocument();
+    expect(within(guided).getByTestId("guided-journey-tab-a12")).toHaveAttribute("aria-pressed", "true");
+    expect(within(guided).getByTestId("guided-journey-tab-r3")).toHaveAttribute("aria-pressed", "false");
 
     const drawer = screen.getByTestId("review-apply-drawer");
     expect(drawer.className).not.toContain("open");
@@ -87,6 +89,28 @@ describe("OpenPipeStress desktop preview", () => {
       "Draft the private non-code rule pack"
     );
     expect(screen.getByTestId("workspace-section-rule-packs")).toBeInTheDocument();
+
+    fireEvent.click(within(guided).getByTestId("guided-journey-tab-r3"));
+    expect(within(guided).getByTestId("guided-journey-tab-r3")).toHaveAttribute("aria-pressed", "true");
+    const r3Flow = within(guided).getByTestId("r3-guided-flow");
+    expect(within(r3Flow).getByTestId("r3-flow-next-action").textContent).toContain(
+      "Load and validate a private local library"
+    );
+    expect(within(r3Flow).getByTestId("r3-flow-missing-input-blocker").textContent).toContain(
+      "Missing-input gate pending"
+    );
+    expect(within(r3Flow).getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "next");
+
+    fireEvent.click(within(r3Flow).getByTestId("r3-flow-step-library"));
+    expect(screen.getByTestId("workspace-section-libraries")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    fireEvent.click(screen.getByTestId("library-validate"));
+    await waitFor(() =>
+      expect(within(r3Flow).getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "complete")
+    );
+
+    fireEvent.click(within(r3Flow).getByTestId("r3-flow-step-bind"));
+    expect(screen.getByTestId("workspace-section-solve")).toBeInTheDocument();
     // Heavy full-<App/> Three.js render plus shell-level integration checks:
     // allow the same DEC-025/full-suite worker load that exercised this path.
   }, 60000);
