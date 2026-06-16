@@ -172,3 +172,33 @@ Validation: `npm test --workspace apps/desktop -- App.deadControls` passed
 1/1. Product behavior was not changed. F-4 and the A3 authoring-journey
 usability finding remain open; next unblocked tranche is
 `TP-R3UX-SHELL-001` / target TP-MAC-173, the guided workbench shell.
+
+## 2026-06-16 - TP-R3UX-SHELL-001 guided workbench shell
+
+Implemented the first C5 guided-workbench shell for TP-MAC-173. The desktop
+app keeps the spatial core visible (model tree, 3D centerline viewport,
+property inspector) and adds a task-guided lower workspace with journey rail,
+current-step panel, compact queue facts, and compact R3 exit journey status.
+
+The prior default evidence-heavy surfaces remain mounted and reachable behind
+the Review evidence detail drawer in Operation Apply: editor contract,
+operation diff preview, operation ledger, and agent proposal context. Existing
+panel test IDs remain available after details open; new C5 shell test IDs cover
+the guided workbench, journey steps, review/apply drawer, and R3 exit journey
+status.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-SHELL-001_1440x920_iab.png`,
+`TP-R3UX-SHELL-001_1280x800_iab.png`, and
+`TP-R3UX-SHELL-001_iab_probe.json`. The probe recorded no horizontal page
+overflow and no clipped guided-workbench primary controls at both viewports.
+
+Validation: focused guided-workbench Vitest, dead-control audit, focused
+Playwright guided-workbench e2e at 1440x920 and 1280x800, full desktop Vitest,
+and desktop production build. No lifecycle state was changed. No schema,
+evaluator grammar, solver, persistence, backend API, private-data, protected
+content, release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim was introduced.
+
+F-4 and the authoring-journey usability finding remain open. Next unblocked C5
+tranche is `TP-R3UX-A12FLOW-001` / target TP-MAC-174.

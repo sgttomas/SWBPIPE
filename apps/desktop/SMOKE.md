@@ -5653,3 +5653,33 @@ notes:
 - Boundary review: discovery/evidence only; no product behavior change, no
   lifecycle state change, and no release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-173 guided workbench shell (`TP-R3UX-SHELL-001`, 2026-06-16)
+
+- Adds the first C5 guided-workbench shell: the persistent model tree,
+  3D centerline viewport, and property inspector remain visible, while the
+  default lower workspace now starts with a task rail and current-step panel.
+- The rail covers the ordinary journeys: model edits, loads, private
+  libraries, rule packs, solve/check, results, report, and save/reopen. New
+  stable IDs include `guided-workbench`, `journey-step-*`,
+  `journey-current-step`, `review-apply-drawer`,
+  `review-apply-drawer-toggle`, and `r3-exit-journey-status`.
+- Evidence-heavy surfaces remain available but are no longer the default
+  work surface. `Editor Contract`, operation diff internals, operation ledger,
+  and agent proposal context are mounted behind the Review evidence detail
+  drawer in Operation Apply; existing panel test IDs are preserved after the
+  drawer opens.
+- In-app browser evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-SHELL-001_1440x920_iab.png`,
+  `.../TP-R3UX-SHELL-001_1280x800_iab.png`, and
+  `.../TP-R3UX-SHELL-001_iab_probe.json`. Probe results: no horizontal page
+  overflow and no clipped guided-workbench primary controls at either
+  1440x920 or 1280x800.
+- Validation completed before closeout: focused guided-workbench Vitest,
+  dead-control audit, focused Playwright guided-workbench e2e at both
+  configured viewports, full desktop Vitest, and desktop production build.
+- Boundary review: frontend shell/usability only; no schema, evaluator
+  grammar, solver, persistence, backend API, rule-pack checksum, lifecycle,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance change. F-4 and the authoring-usability
+  finding remain open pending C5 packaged human journey evidence.

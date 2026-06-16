@@ -13,6 +13,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — C5 guided workbench shell (`TP-R3UX-SHELL-001`)
+
+Adds the first implementation slice of the C5 guided-workbench redesign. The
+desktop shell keeps the persistent spatial core (model tree, 3D centerline
+viewport, property inspector) and inserts a default guided lower workspace:
+task rail, current-step panel, compact queue/status facts, and compact R3 exit
+journey status.
+
+The evidence-heavy surfaces remain available but no longer dominate the
+default lower workspace. `EditorContractPanel`, `DiffPreviewPanel`,
+`OperationLedgerPanel`, and `AgentProposalPanel` are mounted behind a
+review/apply detail drawer in the existing operation-apply section. Existing
+panel test IDs remain present after opening details, and new stable IDs cover
+the C5 shell (`guided-workbench`, `journey-step-*`,
+`review-apply-drawer`, `review-apply-drawer-toggle`,
+`r3-exit-journey-status`).
+
+Evidence: focused guided-workbench Vitest, dead-control audit, focused
+Playwright e2e at 1440x920 and 1280x800, in-app browser screenshots and probe
+JSON under DEL-07-06 `_run_records/assets/`, SMOKE TP-MAC-173, and DEL-07-06
+run record `WORKING_ITEMS_RUN_2026-06-16_TP-R3UX-SHELL-001.md`.
+
+Boundary: frontend shell/usability only; no schema, evaluator grammar, solver,
+persistence, backend API, rule-pack checksum, lifecycle, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance change. C5.4 remains the next ordinary C5 tranche for the A12
+authoring journey.
+
+---
+
 ## 2026-06-16 — C5 R3 exit readiness plan revision (`TP-R3EXIT-PLAN-001`)
 
 Adds Phase C5 to the active completion plan after landed C4 and before Phase D.

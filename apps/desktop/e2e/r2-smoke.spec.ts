@@ -28,6 +28,35 @@ async function openWorkspaceSection(page: Page, sectionId: string): Promise<void
   await expect(page.getByTestId(`workspace-section-${sectionId}`)).toBeVisible();
 }
 
+test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("guided-workbench")).toBeVisible();
+  await expect(page.getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("journey-current-step")).toContainText("Queue a model edit");
+  await expect(page.getByTestId("r3-exit-journey-status")).toContainText(
+    "Packaged A12/R3 human pass not recorded"
+  );
+  await expect(page.getByTestId("review-apply-drawer")).not.toHaveClass(/open/);
+  await page.getByTestId("review-apply-drawer-toggle").click();
+  await expect(page.getByTestId("review-apply-drawer")).toHaveClass(/open/);
+  await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
+  await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
+
+  await page.getByTestId("journey-step-rule-pack").click();
+  await expect(page.getByTestId("journey-step-rule-pack")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("journey-current-step")).toContainText("Draft the private non-code rule pack");
+  await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
+
+  const horizontalOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+      document.body.scrollWidth > document.body.clientWidth
+  );
+  expect(horizontalOverflow).toBe(false);
+});
+
 test("R2 desktop preview smoke covers solve, results, report, and viewport overlay", async ({ page }) => {
   await page.goto("/");
 

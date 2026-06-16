@@ -204,6 +204,74 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
   }
 ];
 
+type JourneyStepId =
+  | "model"
+  | "loads"
+  | "private-libraries"
+  | "rule-pack"
+  | "solve-check"
+  | "results"
+  | "report"
+  | "save-reopen";
+
+type JourneyStep = {
+  id: JourneyStepId;
+  label: string;
+  section: WorkspaceSectionId;
+  description: string;
+};
+
+const JOURNEY_STEPS: ReadonlyArray<JourneyStep> = [
+  {
+    id: "model",
+    label: "Model edits",
+    section: "operations",
+    description: "Select geometry, queue structured edits, then review and apply them"
+  },
+  {
+    id: "loads",
+    label: "Loads",
+    section: "loads",
+    description: "Create or edit load cases, primitive loads, and combinations"
+  },
+  {
+    id: "private-libraries",
+    label: "Libraries",
+    section: "libraries",
+    description: "Review private local library import status before rule-pack references"
+  },
+  {
+    id: "rule-pack",
+    label: "Rule pack",
+    section: "rule-packs",
+    description: "Draft, validate, checksum, and store a private non-code rule pack"
+  },
+  {
+    id: "solve-check",
+    label: "Solve/check",
+    section: "solve",
+    description: "Run mechanics, review missing inputs, then run rule checks"
+  },
+  {
+    id: "results",
+    label: "Results",
+    section: "results",
+    description: "Inspect solved results, comparison context, and design-authoring state"
+  },
+  {
+    id: "report",
+    label: "Report",
+    section: "report",
+    description: "Render the calculation report and report packet after solve/check evidence exists"
+  },
+  {
+    id: "save-reopen",
+    label: "Save/reopen",
+    section: "project",
+    description: "Save the local project and verify local project persistence"
+  }
+];
+
 export function App() {
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
@@ -241,6 +309,7 @@ export function App() {
     initialOperationEngineStatus()
   );
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
+  const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
   const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
@@ -880,6 +949,18 @@ export function App() {
         </section>
 
         <section className="workspace-dock" aria-label="Workspace sections">
+          <GuidedWorkbench
+            activeSection={activeSection}
+            analysisRun={analysisRun}
+            appliedOperationCount={appliedOperations.length}
+            editorIntents={editorIntents}
+            projectMessage={projectMessage}
+            projectSummary={projectSummary}
+            result={result}
+            ruleCheckAggregate={ruleCheckAggregate}
+            onSelectSection={setActiveSection}
+          />
+
           <nav className="workspace-nav" aria-label="Workspace section navigation" data-testid="workspace-nav">
             {WORKSPACE_SECTIONS.map((section) => (
               <button
@@ -921,28 +1002,54 @@ export function App() {
                 onUndo={handleUndoSessionModelEdit}
                 onRedo={handleRedoSessionModelEdit}
               />
-              <EditorContractPanel editorIntents={editorIntents} model={model} />
-              <DiffPreviewPanel
-                model={model}
-                analysisRun={analysisRun}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-              />
-              <OperationLedgerPanel
-                model={model}
-                analysisRun={analysisRun}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-                onClearReviewQueue={handleClearReviewQueue}
-              />
-              <AgentProposalPanel
-                proposal={proposal}
-                mechanicsReady={Boolean(result)}
-                selectedReviewTarget={selectedReviewTarget}
-                onLoad={handleProposal}
-              />
+              <section
+                className={reviewDetailsOpen ? "review-apply-drawer open" : "review-apply-drawer"}
+                aria-label="Review and apply detail views"
+                data-testid="review-apply-drawer"
+              >
+                <div className="review-apply-drawer-header">
+                  <div>
+                    <span>Detail views</span>
+                    <h2>Review evidence</h2>
+                    <p>
+                      Editor contract, operation diffs, review ledger, and agent proposal context stay available here
+                      without owning the default work surface.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-expanded={reviewDetailsOpen}
+                    data-testid="review-apply-drawer-toggle"
+                    onClick={() => setReviewDetailsOpen((open) => !open)}
+                  >
+                    {reviewDetailsOpen ? "Hide details" : "Show details"}
+                  </button>
+                </div>
+                <div className="review-apply-detail-grid">
+                  <EditorContractPanel editorIntents={editorIntents} model={model} />
+                  <DiffPreviewPanel
+                    model={model}
+                    analysisRun={analysisRun}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                  />
+                  <OperationLedgerPanel
+                    model={model}
+                    analysisRun={analysisRun}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                    onClearReviewQueue={handleClearReviewQueue}
+                  />
+                  <AgentProposalPanel
+                    proposal={proposal}
+                    mechanicsReady={Boolean(result)}
+                    selectedReviewTarget={selectedReviewTarget}
+                    onLoad={handleProposal}
+                  />
+                </div>
+              </section>
             </section>
 
             <section
@@ -1168,6 +1275,228 @@ export function App() {
 // removes them from the accessibility tree in a real browser.
 function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: WorkspaceSectionId): string {
   return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
+}
+
+function GuidedWorkbench({
+  activeSection,
+  analysisRun,
+  appliedOperationCount,
+  editorIntents,
+  projectMessage,
+  projectSummary,
+  result,
+  ruleCheckAggregate,
+  onSelectSection
+}: {
+  activeSection: WorkspaceSectionId;
+  analysisRun: AnalysisRunEnvelope | null;
+  appliedOperationCount: number;
+  editorIntents: EditorOperationIntent[];
+  projectMessage: string;
+  projectSummary: LocalProjectSummary | null;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const current = currentJourneyStep({
+    activeSection,
+    analysisRun,
+    appliedOperationCount,
+    editorIntents,
+    projectMessage,
+    projectSummary,
+    result,
+    ruleCheckAggregate
+  });
+
+  return (
+    <section className="guided-workbench" aria-label="Guided workbench" data-testid="guided-workbench">
+      <nav className="journey-rail" aria-label="Guided journey steps">
+        {JOURNEY_STEPS.map((step) => (
+          <button
+            key={step.id}
+            type="button"
+            className={activeSection === step.section ? "journey-step active" : "journey-step"}
+            aria-pressed={activeSection === step.section}
+            data-testid={`journey-step-${step.id}`}
+            title={step.description}
+            onClick={() => onSelectSection(step.section)}
+          >
+            {journeyStepIcon(step.id)}
+            <span>{step.label}</span>
+            <small data-testid={`journey-step-status-${step.id}`}>
+              {journeyStepStatus({ step, activeSection, editorIntents, result, analysisRun, projectSummary })}
+            </small>
+          </button>
+        ))}
+      </nav>
+      <article className="current-step-panel" data-testid="journey-current-step">
+        <div>
+          <span className="current-step-kicker">Current step</span>
+          <h2>{current.title}</h2>
+          <p>{current.body}</p>
+        </div>
+        <div className="current-step-facts" data-testid="journey-current-step-status">
+          <span title={current.status}>{current.status}</span>
+          <span
+            data-testid="r3-exit-journey-status"
+            title={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+          >
+            {r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+          </span>
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function journeyStepIcon(stepId: JourneyStepId): React.ReactNode {
+  switch (stepId) {
+    case "model":
+      return <List size={15} aria-hidden="true" />;
+    case "loads":
+      return <Activity size={15} aria-hidden="true" />;
+    case "private-libraries":
+      return <LockKeyhole size={15} aria-hidden="true" />;
+    case "rule-pack":
+      return <FileWarning size={15} aria-hidden="true" />;
+    case "solve-check":
+      return <ShieldCheck size={15} aria-hidden="true" />;
+    case "results":
+      return <Database size={15} aria-hidden="true" />;
+    case "report":
+      return <FilePlus size={15} aria-hidden="true" />;
+    case "save-reopen":
+      return <Save size={15} aria-hidden="true" />;
+  }
+}
+
+function journeyStepStatus({
+  step,
+  activeSection,
+  editorIntents,
+  result,
+  analysisRun,
+  projectSummary
+}: {
+  step: JourneyStep;
+  activeSection: WorkspaceSectionId;
+  editorIntents: EditorOperationIntent[];
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  projectSummary: LocalProjectSummary | null;
+}): string {
+  if (activeSection === step.section) return "current";
+  if (step.id === "model") return editorIntents.length > 0 ? `${editorIntents.length} queued` : "ready";
+  if (step.id === "solve-check") return result ? "solved" : "not run";
+  if (step.id === "results") return result ? `${result.results.length} rows` : "after solve";
+  if (step.id === "report") return analysisRun ? "ready" : "after solve";
+  if (step.id === "save-reopen") return projectSummary ? "local" : "not saved";
+  return "available";
+}
+
+function currentJourneyStep({
+  activeSection,
+  analysisRun,
+  appliedOperationCount,
+  editorIntents,
+  projectMessage,
+  projectSummary,
+  result,
+  ruleCheckAggregate
+}: {
+  activeSection: WorkspaceSectionId;
+  analysisRun: AnalysisRunEnvelope | null;
+  appliedOperationCount: number;
+  editorIntents: EditorOperationIntent[];
+  projectMessage: string;
+  projectSummary: LocalProjectSummary | null;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+}): { title: string; body: string; status: string } {
+  switch (activeSection) {
+    case "operations":
+      return editorIntents.length > 0
+        ? {
+            title: "Review and apply queued model edits",
+            body: "Validate queued operations, apply accepted edits to the local session model, then save when ready.",
+            status: `${editorIntents.length} queued; ${appliedOperationCount} applied this session`
+          }
+        : {
+            title: "Queue a model edit",
+            body: "Select in the tree or viewport, queue an inspector or viewport edit, then review/apply here.",
+            status: "No queued operations"
+          };
+    case "loads":
+      return {
+        title: "Author load cases and combinations",
+        body: "Use the load manager to create or edit loads before solving. Proposed edits still pass through Operation Apply before they mutate the local session model.",
+        status: `${editorIntents.length} queued operation${editorIntents.length === 1 ? "" : "s"}`
+      };
+    case "libraries":
+      return {
+        title: "Prepare private local libraries",
+        body: "Import or inspect private library records locally. Public fixtures remain invented and private payloads stay out of the repository.",
+        status: "Private-library route available"
+      };
+    case "rule-packs":
+      return {
+        title: "Draft the private non-code rule pack",
+        body: "Create, validate, checksum, and save rule-pack drafts through the structured composer. Writable expression text remains out of scope under DEC-037.",
+        status: "AST composer only; no text parser"
+      };
+    case "solve":
+      return {
+        title: "Run solve and rule checks",
+        body: "Run mechanics first, then review missing rule-check inputs and check results. Missing inputs block pass/fail instead of being guessed.",
+        status: result
+          ? `Solved ${result.results.length} rows; rule_check=${ruleCheckAggregate ?? "not run"}`
+          : "Solve not run in this session"
+      };
+    case "results":
+      return {
+        title: "Review results and model-state context",
+        body: "Inspect result rows, diagnostics, deformed shape status, comparison context, and selected-review targets before reporting.",
+        status: result ? `${result.results.length} result rows available` : "Results populate after solve"
+      };
+    case "report":
+      return {
+        title: "Render the calculation report",
+        body: "Generate the hash-bound report surface after solving. Reports disclose assumptions, warnings, provenance, and boundary status without professional approval claims.",
+        status: analysisRun ? `analysis_run=${analysisRun.analysis_run.run_id}` : "Report evidence waits for solve"
+      };
+    case "project":
+      return {
+        title: "Save and reopen the local project",
+        body: "Persist the current local session model and verify the local store. User-created models remain local project data and are not committed to the repository.",
+        status: projectSummary ? projectMessage : "No local project summary yet"
+      };
+    case "exports":
+      return {
+        title: "Use export and handoff details deliberately",
+        body: "Export surfaces are available for review evidence and local handoff packages after the main journey state is ready.",
+        status: "Detail route; no external solver invocation"
+      };
+    case "evidence":
+      return {
+        title: "Audit boundaries and evidence",
+        body: "Inspect validation evidence, build readiness, telemetry/privacy, private-library, security, and accessibility boundary panels.",
+        status: "Audit details only; no release or professional claim"
+      };
+  }
+}
+
+function r3ExitJourneyStatus({
+  result,
+  ruleCheckAggregate,
+  projectSummary
+}: {
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  projectSummary: LocalProjectSummary | null;
+}): string {
+  const solveStatus = result && ruleCheckAggregate && projectSummary ? "journey evidence started" : "journey evidence incomplete";
+  return `Packaged A12/R3 human pass not recorded; ${solveStatus}; R3 exit review not started.`;
 }
 
 function Badge({ icon, label }: { icon: React.ReactNode; label: string }) {

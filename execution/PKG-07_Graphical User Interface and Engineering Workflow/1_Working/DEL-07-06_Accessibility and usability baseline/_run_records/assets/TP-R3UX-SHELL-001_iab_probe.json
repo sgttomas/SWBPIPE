@@ -1,0 +1,312 @@
+{
+  "captured_at": "2026-06-16T17:01:19.997Z",
+  "url": "http://127.0.0.1:5174/",
+  "screenshots": [
+    "TP-R3UX-SHELL-001_1440x920_iab.png",
+    "TP-R3UX-SHELL-001_1280x800_iab.png"
+  ],
+  "captures": [
+    {
+      "filename": "TP-R3UX-SHELL-001_1440x920_iab.png",
+      "probe": {
+        "bodyScrollWidth": 1440,
+        "clippedPrimaryControls": [],
+        "currentStepText": "Current stepQueue a model editSelect in the tree or viewport, queue an inspector or viewport edit, then review/apply here.No queued operationsPackaged A12/R3 human pass not recorded; journey evidence incomplete; R3 exit review not started.",
+        "documentScrollWidth": 1440,
+        "guidedWorkbench": {
+          "bottom": 705.36,
+          "height": 120.7,
+          "left": 10,
+          "right": 1430,
+          "top": 584.66,
+          "width": 1420
+        },
+        "hasHorizontalOverflow": false,
+        "primaryControls": [
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-model",
+            "rect": {
+              "bottom": 641.51,
+              "height": 47.84,
+              "left": 21,
+              "right": 223.95,
+              "top": 593.66,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-loads",
+            "rect": {
+              "bottom": 641.51,
+              "height": 47.84,
+              "left": 230.95,
+              "right": 433.9,
+              "top": 593.66,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-private-libraries",
+            "rect": {
+              "bottom": 641.51,
+              "height": 47.84,
+              "left": 440.9,
+              "right": 643.84,
+              "top": 593.66,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-rule-pack",
+            "rect": {
+              "bottom": 641.51,
+              "height": 47.84,
+              "left": 650.84,
+              "right": 853.8,
+              "top": 593.66,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-solve-check",
+            "rect": {
+              "bottom": 696.36,
+              "height": 47.85,
+              "left": 21,
+              "right": 223.95,
+              "top": 648.51,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-results",
+            "rect": {
+              "bottom": 696.36,
+              "height": 47.85,
+              "left": 230.95,
+              "right": 433.9,
+              "top": 648.51,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-report",
+            "rect": {
+              "bottom": 696.36,
+              "height": 47.85,
+              "left": 440.9,
+              "right": 643.84,
+              "top": 648.51,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-save-reopen",
+            "rect": {
+              "bottom": 696.36,
+              "height": 47.85,
+              "left": 650.84,
+              "right": 853.8,
+              "top": 648.51,
+              "width": 202.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "review-apply-drawer-toggle",
+            "rect": {
+              "bottom": 815.8,
+              "height": 31,
+              "left": 1307.13,
+              "right": 1419,
+              "top": 784.8,
+              "width": 111.88
+            }
+          }
+        ],
+        "r3ExitStatus": "Packaged A12/R3 human pass not recorded; journey evidence incomplete; R3 exit review not started.",
+        "reviewApplyDrawer": {
+          "bottom": 847.25,
+          "height": 93.89,
+          "left": 725,
+          "right": 1430,
+          "top": 753.36,
+          "width": 705
+        },
+        "reviewApplyDrawerClass": "review-apply-drawer",
+        "viewport": {
+          "height": 920,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "filename": "TP-R3UX-SHELL-001_1280x800_iab.png",
+      "probe": {
+        "bodyScrollWidth": 1280,
+        "clippedPrimaryControls": [],
+        "currentStepText": "Current stepQueue a model editSelect in the tree or viewport, queue an inspector or viewport edit, then review/apply here.No queued operationsPackaged A12/R3 human pass not recorded; journey evidence incomplete; R3 exit review not started.",
+        "documentScrollWidth": 1280,
+        "guidedWorkbench": {
+          "bottom": 654.89,
+          "height": 136.89,
+          "left": 10,
+          "right": 1270,
+          "top": 518,
+          "width": 1260
+        },
+        "hasHorizontalOverflow": false,
+        "primaryControls": [
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-model",
+            "rect": {
+              "bottom": 582.95,
+              "height": 55.95,
+              "left": 21,
+              "right": 199.95,
+              "top": 527,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-loads",
+            "rect": {
+              "bottom": 582.95,
+              "height": 55.95,
+              "left": 206.95,
+              "right": 385.9,
+              "top": 527,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-private-libraries",
+            "rect": {
+              "bottom": 582.95,
+              "height": 55.95,
+              "left": 392.9,
+              "right": 571.84,
+              "top": 527,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-rule-pack",
+            "rect": {
+              "bottom": 582.95,
+              "height": 55.95,
+              "left": 578.84,
+              "right": 757.8,
+              "top": 527,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-solve-check",
+            "rect": {
+              "bottom": 645.89,
+              "height": 55.95,
+              "left": 21,
+              "right": 199.95,
+              "top": 589.95,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-results",
+            "rect": {
+              "bottom": 645.89,
+              "height": 55.95,
+              "left": 206.95,
+              "right": 385.9,
+              "top": 589.95,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-report",
+            "rect": {
+              "bottom": 645.89,
+              "height": 55.95,
+              "left": 392.9,
+              "right": 571.84,
+              "top": 589.95,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "journey-step-save-reopen",
+            "rect": {
+              "bottom": 645.89,
+              "height": 55.95,
+              "left": 578.84,
+              "right": 757.8,
+              "top": 589.95,
+              "width": 178.95
+            }
+          },
+          {
+            "clipped": false,
+            "exists": true,
+            "id": "review-apply-drawer-toggle",
+            "rect": {
+              "bottom": 765.34,
+              "height": 31,
+              "left": 1147.13,
+              "right": 1259,
+              "top": 734.34,
+              "width": 111.88
+            }
+          }
+        ],
+        "r3ExitStatus": "Packaged A12/R3 human pass not recorded; journey evidence incomplete; R3 exit review not started.",
+        "reviewApplyDrawer": {
+          "bottom": 796.78,
+          "height": 93.89,
+          "left": 645,
+          "right": 1270,
+          "top": 702.89,
+          "width": 625
+        },
+        "reviewApplyDrawerClass": "review-apply-drawer",
+        "viewport": {
+          "height": 800,
+          "width": 1280
+        }
+      }
+    }
+  ]
+}

@@ -58,6 +58,34 @@ function displacementComponentRows(
 }
 
 describe("OpenPipeStress desktop preview", () => {
+  it("presents the C5 guided workbench shell with reachable detail views", async () => {
+    render(<App />);
+
+    expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
+    const guided = await screen.findByTestId("guided-workbench");
+    expect(within(guided).getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
+    expect(within(guided).getByTestId("journey-current-step").textContent).toContain("Queue a model edit");
+    expect(within(guided).getByTestId("r3-exit-journey-status").textContent).toContain(
+      "Packaged A12/R3 human pass not recorded"
+    );
+
+    const drawer = screen.getByTestId("review-apply-drawer");
+    expect(drawer.className).not.toContain("open");
+    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
+    expect(drawer.className).toContain("open");
+    expect(screen.getByLabelText("Editor contract review")).toBeInTheDocument();
+    expect(screen.getByLabelText("Operation diff preview")).toBeInTheDocument();
+
+    fireEvent.click(within(guided).getByTestId("journey-step-rule-pack"));
+    expect(within(guided).getByTestId("journey-step-rule-pack")).toHaveAttribute("aria-pressed", "true");
+    expect(within(guided).getByTestId("journey-current-step").textContent).toContain(
+      "Draft the private non-code rule pack"
+    );
+    expect(screen.getByTestId("workspace-section-rule-packs")).toBeInTheDocument();
+    // Heavy full-<App/> Three.js render plus shell-level integration checks:
+    // allow the same DEC-025/full-suite worker load that exercised this path.
+  }, 60000);
+
   it("renders the engineering workspace from invented local fixtures", async () => {
     render(<App />);
 
