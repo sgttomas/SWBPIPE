@@ -5746,3 +5746,29 @@ notes:
   format, target compatibility, comparison pass/fail, solver validation,
   protected content, private data, release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-176 rule-check mixed-unit normalization (`TP-UNITS-B2B3-RULECHECKNORM-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the rule-check runner now normalizes compatible
+  DEC-018 catalog units to each rule-pack declaration's unit before formula
+  evaluation and top-level acceptability comparison.
+- Behavior: exact non-catalog demonstration units still pass only when entered
+  and declared strings match; compatible catalog values such as `0.05 MPa`
+  against a `Pa` stress declaration convert to `50_000 Pa`; incompatible
+  substitutions such as `mm` for stress block at `RULE_INPUTS_INCOMPLETE` with
+  `UnitMismatch` rather than evaluating.
+- Desktop command evidence: the Tauri `run_rule_checks_core` regression
+  re-stamps an invented demo pack whose stress inputs declare `Pa` and verifies
+  `0.05 MPa` solver output plus `100 kPa` user limit normalize to `Pa` and
+  compute the expected `0.5` ratio through the app command wrapper.
+- Validation: rule-check runner cargo tests passed (13 unit + 7 integration
+  tests); desktop Tauri cargo tests passed (62/62); desktop Vitest passed
+  (18 files, 386 tests); desktop production build passed with the existing Vite
+  chunk-size warning.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-RULECHECKNORM-001.md`
+  (DEL-06-02 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: no grammar change, schema change, text parser, protected
+  standards content, private project data, network/telemetry path,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

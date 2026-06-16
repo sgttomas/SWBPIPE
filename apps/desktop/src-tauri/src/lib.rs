@@ -5127,6 +5127,10 @@ mod tests {
     }
 
     fn demo_solved_envelope(actual: f64) -> Value {
+        demo_solved_envelope_with_unit(actual, "demo_unit")
+    }
+
+    fn demo_solved_envelope_with_unit(actual: f64, unit: &str) -> Value {
         json!({
             "status": {
                 "mechanics": "MECHANICS_SOLVED",
@@ -5137,7 +5141,7 @@ mod tests {
                     "id": "result:stress:demo",
                     "kind": "stress",
                     "value": actual,
-                    "unit": "demo_unit",
+                    "unit": unit,
                     "entity_ref": "pipe:demo"
                 }
             ]
@@ -5155,6 +5159,23 @@ mod tests {
         ])
     }
 
+    fn demo_supplied_values_with_stress_unit(value: f64, unit: &str) -> Value {
+        json!([
+            { "ref_id": "demo_limit_quantity", "value": value, "unit": unit, "dimension": "stress" },
+            { "ref_id": "demo_limit_slot", "value": 1.0, "unit": "ratio", "dimension": "dimensionless" }
+        ])
+    }
+
+    fn example_rule_pack_with_stress_unit(unit: &str) -> Value {
+        let mut pack = example_rule_pack_document();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!(unit);
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!(unit);
+        let computed =
+            rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
+        pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+        pack
+    }
+
     #[test]
     fn run_rule_checks_command_passing_demo_reports_user_rule_checked() {
         let outcome = run_rule_checks_core(
@@ -5170,6 +5191,37 @@ mod tests {
         assert_eq!(outcome["rule_pack_id"], json!("invented_demo_rule_pack"));
         assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
         assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
+    }
+
+    #[test]
+    fn run_rule_checks_command_normalizes_compatible_rule_check_units() {
+        let outcome = run_rule_checks_core(
+            example_rule_pack_with_stress_unit("Pa"),
+            None,
+            Some(demo_solved_envelope_with_unit(0.05, "MPa")),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values_with_stress_unit(100.0, "kPa")),
+            None,
+        )
+        .expect("rule checks run");
+
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
+        let bound_inputs = outcome["checks"][0]["bound_inputs"]
+            .as_array()
+            .expect("bound inputs");
+        let actual = bound_inputs
+            .iter()
+            .find(|binding| binding["input_id"] == json!("demo_actual_quantity"))
+            .expect("actual input");
+        assert_eq!(actual["value"], json!(50_000.0));
+        assert_eq!(actual["unit"], json!("Pa"));
+        let limit = bound_inputs
+            .iter()
+            .find(|binding| binding["input_id"] == json!("demo_limit_quantity"))
+            .expect("limit input");
+        assert_eq!(limit["value"], json!(100_000.0));
+        assert_eq!(limit["unit"], json!("Pa"));
     }
 
     #[test]

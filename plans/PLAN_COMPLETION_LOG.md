@@ -13,6 +13,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 rule-check mixed-unit normalization (`TP-UNITS-B2B3-RULECHECKNORM-001`)
+
+Adds DEC-018 compatible-unit normalization at the rule-check runner boundary.
+Before this slice, the C4 rule-check path carried explicit unit strings into
+the exact-unit expression evaluator, so a pack whose declaration said `Pa`
+could not accept compatible runtime values entered as `MPa` or `kPa`.
+
+`core/rules/rule_check_runner` now depends on the accepted `core/units` crate.
+For each required input and value-slot limit, the runner converts compatible
+catalog units to the rule-pack declaration's unit before formula evaluation and
+acceptability comparison. Exact non-catalog demonstration units still pass only
+when the entered and declared strings match. Incompatible or unknown
+substitutions block at `RULE_INPUTS_INCOMPLETE` with a `UnitMismatch` finding;
+they are never coerced or evaluated.
+
+The desktop Tauri `run_rule_checks_core` regression re-stamps an invented
+example pack whose stress declarations use `Pa`, then proves `0.05 MPa` actual
+and `100 kPa` limit normalize to `50_000 Pa` and `100_000 Pa` and produce the
+same ratio result (`0.5`) through the app command wrapper.
+
+Validation: `cargo test --manifest-path core/rules/rule_check_runner/Cargo.toml`
+passed (13 unit tests, 4 acceptability-relation integration tests, 3 invented
+demo integration tests); `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`
+passed (62 tests); desktop Vitest passed (18 files, 386 tests); desktop
+production build passed with the existing Vite chunk-size warning.
+
+Evidence: run records
+`WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-RULECHECKNORM-001.md` (DEL-06-02
+primary and DEL-02-02 supporting); SMOKE TP-MAC-176; completion plan rows B2
+and B3 updated.
+
+Boundary review: no grammar change, schema change, text parser, protected
+standards content, private project data, network/telemetry path, release-
+readiness claim, professional approval, certification, sealing, authentication,
+or code-compliance claim changed.
+
 ## 2026-06-16 — B2/B3 stress-neutral unit preservation witnesses (`TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001`)
 
 Adds auditable per-row unit-preservation witnesses to the desktop

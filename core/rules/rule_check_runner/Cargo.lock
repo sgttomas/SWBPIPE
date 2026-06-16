@@ -37,6 +37,7 @@ dependencies = [
  "open_pipe_stress_completeness_checker",
  "open_pipe_stress_expression_evaluator",
  "open_pipe_stress_rule_pack_document",
+ "open_pipe_stress_units",
  "serde",
  "serde_json",
 ]
@@ -54,6 +55,10 @@ dependencies = [
 
 [[package]]
 name = "open_pipe_stress_rule_pack_lifecycle"
+version = "0.1.0"
+
+[[package]]
+name = "open_pipe_stress_units"
 version = "0.1.0"
 
 [[package]]

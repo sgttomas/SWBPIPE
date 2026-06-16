@@ -247,3 +247,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   value or protected content embedded; no release, professional,
   certification, sealing, authentication, approval, or code-compliance claim is
   implied.
+
+## 2026-06-16 - TP-UNITS-B2B3-RULECHECKNORM-001: rule-check mixed-unit normalization
+
+- `core/rules/rule_check_runner` now normalizes compatible DEC-018 catalog
+  units to the rule-pack declaration unit before invoking the exact-unit
+  expression evaluator. This keeps the frozen evaluator semantics intact while
+  allowing authored packs with `Pa` declarations to accept compatible runtime
+  values entered as `MPa` or `kPa`.
+- Exact non-catalog demonstration units remain valid only when entered and
+  declared strings match. Unknown or incompatible substitutions block with a
+  `UnitMismatch` finding and `RULE_INPUTS_INCOMPLETE`; no value is silently
+  coerced or evaluated.
+- Desktop command coverage proves the behavior through `run_rule_checks_core`
+  with a re-stamped invented demo pack (`0.05 MPa` actual, `100 kPa` limit,
+  declared `Pa`).
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-RULECHECKNORM-001.md`;
+  supporting DEL-02-02 run record; SMOKE TP-MAC-176. Validation: runner cargo
+  tests (13 unit + 7 integration), desktop Tauri cargo tests 62/62, desktop
+  Vitest 386/386, desktop build.
+- No grammar, schema, parser, lifecycle, release, professional, certification,
+  sealing, authentication, approval, or code-compliance claim is implied.

@@ -544,3 +544,23 @@ Boundary note:
   solver, Python export-package contract, protected content, private data,
   target compatibility, release-readiness claim, or professional/code-
   compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2B3-RULECHECKNORM-001 rule-check mixed-unit normalization
+
+- Added supporting B2/B3 unit evidence for rule-pack checks: compatible
+  DEC-018 units are normalized at the `core/rules/rule_check_runner` boundary
+  to the rule-pack declaration unit before formula evaluation and
+  acceptability comparison.
+- New witnesses cover `MPa`/`kPa` stress values normalized to declared `Pa`
+  and an incompatible `mm` stress input blocked with `UnitMismatch` /
+  `RULE_INPUTS_INCOMPLETE`.
+- Evidence:
+  `execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-RULECHECKNORM-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-176; completion log
+  entry.
+- Validation passed: rule-check runner cargo tests (13 unit + 7 integration);
+  desktop Tauri cargo tests 62/62; desktop Vitest 386/386; desktop build with
+  existing Vite chunk-size warning.
+- Boundary unchanged: no unit catalog constant, grammar, schema, parser,
+  protected content, private data, release-readiness claim, or professional/
+  code-compliance claim changed.
