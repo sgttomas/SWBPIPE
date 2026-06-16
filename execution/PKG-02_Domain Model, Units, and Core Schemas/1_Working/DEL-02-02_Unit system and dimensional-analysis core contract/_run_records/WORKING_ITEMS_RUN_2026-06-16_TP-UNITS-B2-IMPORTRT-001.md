@@ -34,8 +34,10 @@ runtime surface is local project persistence.
 - Focused Tauri local-project store regression: PASS.
 - In-app Browser fallback: PASS for `New blank` -> `Save local` -> `Open local`
   visible unit round-trip rows.
-- Playwright e2e: spec extended, but execution blocked by missing Chromium
-  binary and repeated Playwright CDN download timeouts.
+- Direct pre-sweep Playwright execution initially failed before assertions
+  because the Chromium binary was missing and browser install timed out against
+  the Playwright CDN. This was superseded by the passing DEC-025 sweep:
+  Playwright dev-server e2e 10/10 and production-dist e2e 1/1.
 
 ## Boundary Review
 
@@ -50,4 +52,3 @@ certification, sealing, authentication, or code-compliance posture.
   `execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`
 - Smoke entry: `apps/desktop/SMOKE.md` TP-MAC-173.
 - Completion log: `plans/PLAN_COMPLETION_LOG.md`.
-

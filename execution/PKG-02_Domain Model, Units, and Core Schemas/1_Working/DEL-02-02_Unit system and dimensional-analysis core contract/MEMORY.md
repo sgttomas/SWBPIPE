@@ -497,9 +497,10 @@ Boundary note:
   entry.
 - Validation passed: focused project service/App Vitest 61/61; full desktop
   Vitest 386/386; desktop build; rustfmt package check; focused Tauri store
-  regression; in-app Browser visible-row verification. Playwright e2e was
-  extended but not executed because the local Chromium binary was missing and
-  the Playwright CDN download repeatedly timed out.
+  regression; in-app Browser visible-row verification. Initial direct
+  Playwright execution found a missing local Chromium cache and browser-install
+  CDN timeouts; the later DEC-025 sweep ran the updated Playwright smoke
+  successfully (10/10 dev-server lane plus 1/1 production-dist lane).
 - Boundary unchanged: no unit conversion, import target compatibility, solver
   behavior, protected content, private data, network/telemetry path,
   release-readiness claim, or professional/code-compliance claim changed.

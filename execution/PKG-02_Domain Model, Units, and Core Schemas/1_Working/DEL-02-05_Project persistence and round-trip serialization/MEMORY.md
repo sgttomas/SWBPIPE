@@ -365,9 +365,10 @@ Boundaries preserved:
 - Validation passed: focused `projectService.test.ts` + `App.test.tsx`
   Vitest 61/61; full desktop Vitest 386/386; desktop build; rustfmt package
   check; focused Tauri store regression. In-app Browser verified
-  `New blank` -> `Save local` -> `Open local` visible rows. Playwright e2e
-  was extended but could not execute in this environment because the Chromium
-  binary was absent and the CDN browser download repeatedly timed out.
+  `New blank` -> `Save local` -> `Open local` visible rows. Initial direct
+  Playwright execution found a missing local Chromium cache and browser-install
+  CDN timeouts; the later DEC-025 sweep ran the updated Playwright smoke
+  successfully (10/10 dev-server lane plus 1/1 production-dist lane).
 - No lifecycle state changed. This is persistence/evidence absorption only;
   no unit conversion, target import compatibility, solver behavior,
   protected content, private data, release-readiness, professional approval,

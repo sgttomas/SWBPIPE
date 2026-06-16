@@ -5683,12 +5683,10 @@ notes:
   passed; rustfmt check passed for `openpipestress-desktop`; in-app Browser
   fallback verified `New blank` -> `Save local` -> `Open local` shows
   `unit_metadata_preserved_in_local_project_envelope` and six blank-project
-  unit refs in both storage and validation rows.
-- Playwright note: `npx playwright test apps/desktop/e2e/r2-smoke.spec.ts`
-  did not execute because the local Chromium binary was absent and
-  `npx playwright install chromium` timed out repeatedly while downloading
-  from the Playwright CDN. The e2e spec was extended with the same visible row
-  assertions for the next environment with a working browser cache.
+  unit refs in both storage and validation rows. Initial direct Playwright
+  execution found a missing local Chromium cache and timed out during browser
+  install, but the later DEC-025 sweep ran the updated Playwright smoke
+  successfully (**10/10** dev-server lane plus **1/1** production-dist lane).
 - Evidence: run records
   `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md` (DEL-02-05
   primary and DEL-02-02 supporting); completion plan/log updated.

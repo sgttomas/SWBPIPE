@@ -40,10 +40,11 @@ Tauri focused store regression
 `local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot` passed;
 in-app Browser fallback verified `New blank` -> `Save local` -> `Open local`
 shows `unit_metadata_preserved_in_local_project_envelope` and six
-blank-project unit refs in both visible rows. Playwright e2e was extended but
-not executed because the local Chromium binary was absent and
-`npx playwright install chromium` repeatedly timed out against the Playwright
-CDN. Run records:
+blank-project unit refs in both visible rows. Initial direct Playwright
+execution found a missing local Chromium cache and browser-install CDN
+timeouts, but the later DEC-025 sweep ran the updated Playwright smoke
+successfully: **10/10** dev-server lane plus **1/1** production-dist lane. Run
+records:
 `DEL-02-05 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`;
 `DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`;
 SMOKE TP-MAC-173.

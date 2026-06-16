@@ -49,17 +49,18 @@ I/O slice selected from the completion plan residuals.
     `unit_metadata_preserved_in_local_project_envelope`, `checked_refs=6`,
     and the six blank-project unit refs in both `project-storage-unit-round-trip`
     and `project-validation-unit-round-trip`.
+- DEC-025 sweep at committed tranche HEAD
+  - PASS: cargo crate sweep, repository pytest, desktop Vitest, Playwright
+    dev-server e2e 10/10, Playwright production-dist e2e 1/1, and desktop
+    production build.
 
 ## Skipped / Blocked Evidence
 
-- `npx playwright test apps/desktop/e2e/r2-smoke.spec.ts`
-  - NOT EXECUTED: Playwright Chromium executable was absent from the local
-    cache.
-- `npx playwright install chromium`
-  - BLOCKED: repeated 30-second CDN timeouts while downloading
-    `chrome-mac-arm64.zip`.
-- The e2e spec was still extended with the visible row assertions so the next
-  environment with a working browser cache can exercise the browser path.
+- Direct pre-sweep `npx playwright test apps/desktop/e2e/r2-smoke.spec.ts`
+  initially failed before executing assertions because the local Chromium
+  executable was absent from the cache and a manual browser install timed out
+  against the Playwright CDN. This was superseded by the passing DEC-025
+  Playwright dev-server and production-dist lanes above.
 
 ## Boundary Review
 
@@ -76,4 +77,3 @@ authentication, or code-compliance claims.
 - B3 still owns broader mixed-unit round-trip, conversion-witness,
   incompatible-unit rejection, and D-04/DEC-026 tolerance corpus outside the
   named witnesses.
-
