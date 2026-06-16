@@ -5894,3 +5894,40 @@ notes:
   evaluator, parser, writable text syntax, protected content, private data,
   network/telemetry path, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-181 viewport draft length-unit controls (`TP-UNITS-B2-VIEWPORTDRAFTUNITS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the viewport create-node and straight-pipe draft
+  forms now expose length-unit selectors with visible unit-basis text before
+  queueing structured operation intents.
+- Viewport behavior: browser preview records the explicit model-metadata
+  fallback (`browser preview uses model metadata for viewport length units`);
+  Tauri-capable runs load the DEC-018 unit catalog and filter accepted length
+  entries. Node draft coordinates carry the selected coordinate length unit;
+  pipe geometry drafts carry the selected pipe length unit.
+- Operation-seam behavior: `create_node` now normalizes compatible DEC-018
+  length units back to the stored `project.units.length` scalar basis, while
+  `connect_pipe_run` validates compatible OD/wall units and checks wall
+  thickness after conversion without erasing the entered section unit.
+- Browser/e2e proof: the R2 Playwright smoke checks the viewport unit status,
+  node selector value, node unit-basis text, pipe selector value, and pipe
+  unit-basis text in both desktop and compact viewports. In-app Browser
+  verification observed the same model-metadata fallback and confirmed a
+  filled node draft enabled queueing with unit `m`.
+- Validation: operation-applier focused explicit tests passed **28/28**;
+  full operation-applier cargo suite passed **60 unit** tests plus canonical
+  hash and contract corpus checks; focused App Vitest passed **54/54**; full
+  desktop Vitest passed **388/388**; desktop production build passed with the
+  existing Vite chunk-size warning; focused R2 Playwright smoke passed **2/2**;
+  full desktop Playwright passed **10/10** with `--workers=1`; five-surface
+  DEC-025 dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T033649Z_40c8d2530ca8-dirty.json`.
+- Evidence: DEL-07-01 primary run record plus DEL-16-02 and DEL-02-02
+  supporting run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`;
+  completion plan/log updated.
+- Boundary review: viewport draft and operation-seam unit evidence only; no
+  project-unit mutation, hidden unit fallback, release-readiness claim,
+  professional approval, certification, sealing, authentication, code-
+  compliance claim, protected content, private project data, network path, or
+  telemetry path changed.

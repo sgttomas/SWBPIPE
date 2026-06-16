@@ -714,3 +714,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Boundary unchanged: no direct mutation, no hidden unit fallback, no protected
   content, private data, network/telemetry path, release-readiness claim, or
   professional/code-compliance claim.
+
+## 2026-06-16 - TP-UNITS-B2-VIEWPORTDRAFTUNITS-001 viewport draft unit operation seam
+
+- Operation applier now accepts explicit viewport `create_node` coordinate
+  values in compatible accepted DEC-018 length units and normalizes them to
+  the model document's stored `project.units.length` scalar basis.
+- Explicit `connect_pipe_run` validation now accepts compatible length units
+  for draft pipe section OD/wall values, compares wall thickness after
+  conversion, and preserves the entered section quantity unit in the created
+  segment.
+- Witnesses cover node coordinates entered as millimetres normalized to
+  metres and pipe OD/wall values entered as millimetres.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`;
+  primary DEL-07-01 and supporting DEL-02-02 records; SMOKE TP-MAC-181;
+  completion log entry.
+- Validation passed: operation-applier focused explicit tests 28/28; full
+  operation-applier cargo suite 60 unit tests plus canonical hash and contract
+  corpus checks; desktop Vitest, build, Playwright suites, and DEC-025
+  dirty-tree sweep passed.
+- Boundary unchanged: no direct mutation bypass, hidden fallback unit,
+  protected content, private data, network/telemetry path, release-readiness
+  claim, or professional/code-compliance claim changed.

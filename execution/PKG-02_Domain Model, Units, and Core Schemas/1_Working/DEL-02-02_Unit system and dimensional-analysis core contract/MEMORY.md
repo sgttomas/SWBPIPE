@@ -606,3 +606,25 @@ Boundary note:
 - Boundary unchanged: no DEC-018 catalog constant, unit-conversion API,
   tolerance policy, schema dimension enum, protected content, private data,
   release-readiness claim, or professional/code-compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2-VIEWPORTDRAFTUNITS-001 viewport draft length-unit controls
+
+- Added supporting B2/B3 unit evidence for viewport draft node and pipe
+  creation forms.
+- The viewport forms expose selected length units and visible basis text;
+  browser preview records the model-metadata fallback, while Tauri-capable
+  runs can use accepted DEC-018 length catalog entries.
+- The operation seam validates compatible DEC-018 length units, normalizes
+  node coordinate values back to `project.units.length`, and preserves entered
+  pipe section units after dimension-compatible validation.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`;
+  supporting run records in DEL-16-02 and this deliverable; SMOKE TP-MAC-181;
+  completion log entry.
+- Validation passed: operation-applier cargo focused/full suites, desktop
+  Vitest focused/full suites, desktop build, focused/full Playwright, and
+  in-app Browser viewport verification; DEC-025 dirty-tree sweep passed.
+- Boundary unchanged: no DEC-018 catalog constant, schema dimension enum,
+  tolerance policy, project-unit mutation, hidden unit fallback, protected
+  content, private data, release-readiness claim, or professional/code-
+  compliance claim changed.

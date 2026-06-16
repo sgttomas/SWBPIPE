@@ -13,6 +13,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 viewport draft length-unit controls (`TP-UNITS-B2-VIEWPORTDRAFTUNITS-001`)
+
+Adds explicit length-unit controls to the viewport create-node and
+straight-pipe draft forms. The forms now show the selected coordinate/pipe
+geometry unit basis before queueing structured operation intents, and browser
+preview exposes its model-metadata fallback instead of implying a loaded
+catalog.
+
+The operation seam now accepts compatible DEC-018 length units for explicit
+node creation and straight-pipe creation. Node coordinates normalize back to
+the model document's stored `project.units.length` scalar basis; pipe OD/wall
+inputs are dimension-checked, wall thickness is compared after conversion,
+and the entered section units remain visible in the created pipe segment.
+
+Evidence: operation-applier focused explicit tests passed **28/28**; full
+operation-applier cargo suite passed **60 unit** tests plus canonical hash and
+contract corpus checks; focused App Vitest passed **54/54**; full desktop
+Vitest passed **388/388**; desktop build passed with the existing Vite
+chunk-size warning; focused R2 Playwright smoke passed **2/2**; full desktop
+Playwright passed **10/10** with `--workers=1`; in-app Browser verified the
+viewport model-metadata unit fallback and enabled node draft; five-surface
+DEC-025 dirty-tree sweep passed and wrote
+`validation/evidence/sweeps/SWEEP_20260616T033649Z_40c8d2530ca8-dirty.json`.
+Run records:
+`DEL-07-01 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`
+plus supporting DEL-16-02 and DEL-02-02 records; SMOKE TP-MAC-181.
+
+Boundary: viewport draft and operation-seam unit evidence only; no
+project-unit mutation, hidden unit fallback, protected content, private
+project data, network/telemetry path, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
 ## 2026-06-16 — C2 read-only AST-to-text expression preview (`TP-C2-ASTTEXTVIEW-001`)
 
 Adds the optional `DEC-037`-permitted one-way AST-to-text preview to the C2

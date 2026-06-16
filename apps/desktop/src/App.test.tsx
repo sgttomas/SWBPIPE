@@ -7051,6 +7051,17 @@ describe("OpenPipeStress desktop preview", () => {
     const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
     const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-node-intent");
     expect(queueButton).toBeDisabled();
+    await waitFor(() =>
+      expect(within(viewportIntentPanel).getByTestId("viewport-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    expect(within(viewportIntentPanel).getByTestId("viewport-create-node-unit")).toHaveValue("m");
+    await waitFor(() =>
+      expect(within(viewportIntentPanel).getByTestId("viewport-create-node-unit-basis").textContent).toContain(
+        "Coordinates: m, model metadata"
+      )
+    );
 
     fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-id"), {
       target: { value: "node:N-150" }
@@ -7164,6 +7175,17 @@ describe("OpenPipeStress desktop preview", () => {
     const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
     const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-pipe-intent");
     expect(queueButton).toBeDisabled();
+    await waitFor(() =>
+      expect(within(viewportIntentPanel).getByTestId("viewport-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    expect(within(viewportIntentPanel).getByTestId("viewport-create-pipe-length-unit")).toHaveValue("m");
+    await waitFor(() =>
+      expect(within(viewportIntentPanel).getByTestId("viewport-create-pipe-unit-basis").textContent).toContain(
+        "Pipe geometry: m, model metadata"
+      )
+    );
 
     fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-pipe-id"), {
       target: { value: "pipe:P-150" }

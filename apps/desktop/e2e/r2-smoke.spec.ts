@@ -275,6 +275,17 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();
+  await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
+    "browser preview uses model metadata"
+  );
+  await expect(page.getByTestId("viewport-create-node-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-create-node-unit-basis")).toContainText(
+    "Coordinates: m, model metadata"
+  );
+  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
+    "Pipe geometry: m, model metadata"
+  );
   await canvas.click({ position: { x: 64, y: 64 } });
   await expect(page.getByTestId("viewport-create-node-id")).toHaveValue("node:V-001");
   await expect(page.getByTestId("viewport-create-node-label")).toHaveValue("Viewport node V-001");
