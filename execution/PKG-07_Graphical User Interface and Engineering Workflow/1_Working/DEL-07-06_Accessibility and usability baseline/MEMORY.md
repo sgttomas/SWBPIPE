@@ -202,3 +202,46 @@ authentication, or code-compliance claim was introduced.
 
 F-4 and the authoring-journey usability finding remain open. Next unblocked C5
 tranche is `TP-R3UX-A12FLOW-001` / target TP-MAC-174.
+
+## 2026-06-16 - TP-R3UX-A12FLOW-001 A12 guided authoring journey
+
+Implemented the C5.4 A12 authoring journey redesign for TP-MAC-174. The
+guided workbench now includes an A12-specific checklist for blank-model
+authoring: blank document, nodes, material, section, pipe, support, load case,
+primitive load, combination, solve, report, and save/reopen.
+
+The checklist is derived from current model/session state instead of hard-coded
+A12 values. It reports a clear next action, per-step completion counts, and the
+current operation queue. When an operation is queued, the A12 panel names the
+created object when available and exposes `Apply queued`; that affordance uses
+the existing structured-operation apply handler and receipt path, preserving
+undo/result-reset behavior and keeping Operation Apply available as the audit
+surface.
+
+The A12 step buttons also maintain selected-step state so controls that route
+to the same underlying workspace section still produce visible feedback and do
+not regress the permanent dead-control audit.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-A12FLOW-001_1440x920_iab_blank.png`,
+`TP-R3UX-A12FLOW-001_1280x800_iab_queued.png`,
+`TP-R3UX-A12FLOW-001_1280x800_iab_applied.png`, and
+`TP-R3UX-A12FLOW-001_iab_probe.json`. The probe recorded no horizontal page
+overflow and no clipped A12 primary controls at 1440x920 or 1280x800; the
+compact queued state showed the inline apply button visible inside the
+viewport, and the applied state recorded `route=local_wasm_engine`.
+
+Validation: focused guided-workbench Vitest, dead-control audit, focused A12
+Playwright e2e at 1440x920 and 1280x800, full desktop Vitest 18 files / 386
+tests, desktop production build, full Playwright e2e 12/12, and in-app browser
+visual verification.
+
+No lifecycle state was changed. No rule-pack schema, evaluator grammar,
+solver, persistence, backend API, project-store semantics, rule-pack checksum,
+private-data boundary, protected-content boundary, network/telemetry posture,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim was introduced.
+
+F-4 and the authoring-usability finding remain open pending packaged human
+successor journey evidence. Next unblocked C5 tranche is
+`TP-R3UX-R3FLOW-001` / target TP-MAC-175.

@@ -5683,3 +5683,39 @@ notes:
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance change. F-4 and the authoring-usability
   finding remain open pending C5 packaged human journey evidence.
+
+## TP-MAC-174 A12 guided authoring journey (`TP-R3UX-A12FLOW-001`, 2026-06-16)
+
+- Adds an A12-specific guided authoring panel inside the guided workbench for
+  blank-model authoring. The checklist covers blank document, nodes, material,
+  section, pipe, support, load case, primitive load, combination, solve,
+  report, and save/reopen.
+- The checklist is derived from the current model/session state, not from
+  hard-coded A12 fixture values. It reports the next unmet step, step counts,
+  and current queue status; queued creation operations name the created object
+  when the operation payload carries an `id`.
+- Adds an inline `Apply queued` affordance for A12. It calls the existing
+  structured operation apply handler, records the normal operation receipt,
+  preserves result-reset/undo behavior, and leaves Operation Apply available as
+  the receipt and audit surface.
+- A12 step buttons now maintain visible selected-step state when several steps
+  route to the same work section, preventing no-op controls and making
+  node/material/section/pipe/support/load/solve/report/save-reopen navigation
+  explicit.
+- In-app browser evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-A12FLOW-001_1440x920_iab_blank.png`,
+  `.../TP-R3UX-A12FLOW-001_1280x800_iab_queued.png`,
+  `.../TP-R3UX-A12FLOW-001_1280x800_iab_applied.png`, and
+  `.../TP-R3UX-A12FLOW-001_iab_probe.json`. Probe results: no horizontal
+  page overflow; A12 primary controls and compact inline apply remain inside
+  the viewport at 1440x920 and 1280x800.
+- Validation completed before closeout: focused guided-workbench Vitest,
+  permanent dead-control audit, focused A12 Playwright e2e at both configured
+  viewports, full desktop Vitest **18 files / 386 tests**, desktop production
+  build, and full Playwright e2e **12/12**.
+- Boundary review: frontend guided-authoring usability only; no rule-pack
+  schema, evaluator grammar, solver, persistence, backend API, project-store
+  semantics, rule-pack checksum, lifecycle, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance change.
+  F-4 and the authoring-usability finding remain open until packaged human
+  successor journey evidence is recorded.

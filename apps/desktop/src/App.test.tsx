@@ -68,6 +68,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(guided).getByTestId("r3-exit-journey-status").textContent).toContain(
       "Packaged A12/R3 human pass not recorded"
     );
+    const a12Journey = within(guided).getByTestId("a12-authoring-journey");
+    expect(within(a12Journey).getByTestId("a12-next-action").textContent).toContain("Start with New blank");
+    expect(within(a12Journey).getByTestId("a12-queue-status").textContent).toContain("No queued operations");
+    expect(within(a12Journey).getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "next");
+    expect(within(a12Journey).getByTestId("a12-journey-step-save-reopen")).toBeInTheDocument();
 
     const drawer = screen.getByTestId("review-apply-drawer");
     expect(drawer.className).not.toContain("open");

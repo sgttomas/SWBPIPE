@@ -1,0 +1,174 @@
+{
+  "generated_at": "2026-06-16T17:43:16.753Z",
+  "tranche": "TP-R3UX-A12FLOW-001",
+  "smoke_id": "TP-MAC-174",
+  "browser_surface": "in-app browser",
+  "viewports": {
+    "1440x920_blank": {
+      "clipped": [
+        {
+          "id": "a12-journey-step-blank",
+          "outsideViewport": false,
+          "text": "Blankready",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-nodes",
+          "outsideViewport": false,
+          "text": "Nodes0/2",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-material",
+          "outsideViewport": false,
+          "text": "Material0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-section",
+          "outsideViewport": false,
+          "text": "Section0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-pipe",
+          "outsideViewport": false,
+          "text": "Pipe0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-support",
+          "outsideViewport": false,
+          "text": "Support0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-load-case",
+          "outsideViewport": false,
+          "text": "Load case0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-primitive-load",
+          "outsideViewport": false,
+          "text": "Load0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-combination",
+          "outsideViewport": false,
+          "text": "Combination0/1",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-solve",
+          "outsideViewport": false,
+          "text": "Solvenot run",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-report",
+          "outsideViewport": false,
+          "text": "Reportafter solve",
+          "visible": true
+        },
+        {
+          "id": "a12-journey-step-save-reopen",
+          "outsideViewport": false,
+          "text": "Save/reopenpending",
+          "visible": true
+        },
+        {
+          "id": "a12-next-action-button",
+          "outsideViewport": false,
+          "text": "Go to Nodes",
+          "visible": true
+        }
+      ],
+      "nextAction": "Add two nodes in the viewport",
+      "nodesStatus": "next",
+      "overflowX": false,
+      "progress": "1/12",
+      "queueStatus": "No queued operations",
+      "rects": {
+        "a12": {
+          "bottom": 734.8984375,
+          "height": 129.8984375,
+          "left": 911.3125,
+          "right": 1419,
+          "top": 605,
+          "width": 507.6875
+        },
+        "body": {
+          "bottom": 1028.6171875,
+          "height": 236.71875,
+          "left": 10,
+          "right": 1430,
+          "top": 791.8984375,
+          "width": 1420
+        },
+        "guided": {
+          "bottom": 743.8984375,
+          "height": 147.8984375,
+          "left": 10,
+          "right": 1430,
+          "top": 596,
+          "width": 1420
+        },
+        "nav": {
+          "bottom": 783.8984375,
+          "height": 32,
+          "left": 10,
+          "right": 1430,
+          "top": 751.8984375,
+          "width": 1420
+        }
+      }
+    },
+    "1280x800_queued": {
+      "applyButton": {
+        "rect": {
+          "bottom": 583.3984375,
+          "height": 24,
+          "left": 1156.96875,
+          "right": 1250,
+          "top": 559.3984375,
+          "width": 93.03125
+        },
+        "visibleInViewport": true
+      },
+      "guided": {
+        "bottom": 599.8984375,
+        "height": 147.8984375,
+        "left": 10,
+        "right": 1270,
+        "top": 452,
+        "width": 1260
+      },
+      "nav": {
+        "bottom": 639.8984375,
+        "height": 32,
+        "left": 10,
+        "right": 1270,
+        "top": 607.8984375,
+        "width": 1260
+      },
+      "nextAction": "Review/apply queued edits",
+      "operationSummary": "1 queued; 0 applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.",
+      "overflowX": false,
+      "queueStatus": "1 queued operation: node:IB-100",
+      "viewport": {
+        "height": 800,
+        "width": 1280
+      }
+    },
+    "1280x800_applied": {
+      "nodesStatus": "next",
+      "nodesStep": "Nodes1/2",
+      "operationSummary": "0 queued; 1 applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.",
+      "overflowX": false,
+      "queueStatus": "No queued operations",
+      "route": "route=local_wasm_engine; acceptance=user_initiated_apply_in_local_session; persistence=session_state_only_not_yet_saved; professional_approval=false"
+    }
+  }
+}

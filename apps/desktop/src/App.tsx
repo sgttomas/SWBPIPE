@@ -221,6 +221,29 @@ type JourneyStep = {
   description: string;
 };
 
+type A12FlowStepId =
+  | "blank"
+  | "nodes"
+  | "material"
+  | "section"
+  | "pipe"
+  | "support"
+  | "load-case"
+  | "primitive-load"
+  | "combination"
+  | "solve"
+  | "report"
+  | "save-reopen";
+
+type A12FlowStep = {
+  id: A12FlowStepId;
+  label: string;
+  section: WorkspaceSectionId;
+  cue: string;
+  complete: boolean;
+  status: string;
+};
+
 const JOURNEY_STEPS: ReadonlyArray<JourneyStep> = [
   {
     id: "model",
@@ -309,6 +332,7 @@ export function App() {
     initialOperationEngineStatus()
   );
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
+  const [activeA12StepId, setActiveA12StepId] = useState<A12FlowStepId | null>(null);
   const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
   const intentSequence = useRef(0);
   const comparison = useMemo(
@@ -529,6 +553,14 @@ export function App() {
     } finally {
       setOperationBusy(false);
     }
+  }
+
+  function handleApplyNextQueuedIntent() {
+    if (operationBusy) return;
+    const [nextIntent] = editorIntents;
+    if (!nextIntent) return;
+    setActiveSection("operations");
+    void handleApplyIntent(nextIntent);
   }
 
   function handleUndoSessionModelEdit() {
@@ -954,10 +986,16 @@ export function App() {
             analysisRun={analysisRun}
             appliedOperationCount={appliedOperations.length}
             editorIntents={editorIntents}
+            model={model}
             projectMessage={projectMessage}
+            projectOperation={projectOperation}
             projectSummary={projectSummary}
             result={result}
             ruleCheckAggregate={ruleCheckAggregate}
+            activeA12StepId={activeA12StepId}
+            operationBusy={operationBusy}
+            onApplyNextQueuedIntent={handleApplyNextQueuedIntent}
+            onSelectA12Step={setActiveA12StepId}
             onSelectSection={setActiveSection}
           />
 
@@ -1282,20 +1320,32 @@ function GuidedWorkbench({
   analysisRun,
   appliedOperationCount,
   editorIntents,
+  model,
   projectMessage,
+  projectOperation,
   projectSummary,
   result,
   ruleCheckAggregate,
+  activeA12StepId,
+  operationBusy,
+  onApplyNextQueuedIntent,
+  onSelectA12Step,
   onSelectSection
 }: {
   activeSection: WorkspaceSectionId;
   analysisRun: AnalysisRunEnvelope | null;
   appliedOperationCount: number;
   editorIntents: EditorOperationIntent[];
+  model: PreviewModel;
   projectMessage: string;
+  projectOperation: string;
   projectSummary: LocalProjectSummary | null;
   result: MechanicsResult | null;
   ruleCheckAggregate: RuleCheckStatus | null;
+  activeA12StepId: A12FlowStepId | null;
+  operationBusy: boolean;
+  onApplyNextQueuedIntent: () => void;
+  onSelectA12Step: (stepId: A12FlowStepId) => void;
   onSelectSection: (section: WorkspaceSectionId) => void;
 }) {
   const current = currentJourneyStep({
@@ -1346,8 +1396,285 @@ function GuidedWorkbench({
           </span>
         </div>
       </article>
+      <A12AuthoringJourney
+        analysisRun={analysisRun}
+        activeA12StepId={activeA12StepId}
+        editorIntents={editorIntents}
+        model={model}
+        operationBusy={operationBusy}
+        projectOperation={projectOperation}
+        result={result}
+        onApplyNextQueuedIntent={onApplyNextQueuedIntent}
+        onSelectA12Step={onSelectA12Step}
+        onSelectSection={onSelectSection}
+      />
     </section>
   );
+}
+
+function A12AuthoringJourney({
+  analysisRun,
+  activeA12StepId,
+  editorIntents,
+  model,
+  operationBusy,
+  projectOperation,
+  result,
+  onApplyNextQueuedIntent,
+  onSelectA12Step,
+  onSelectSection
+}: {
+  analysisRun: AnalysisRunEnvelope | null;
+  activeA12StepId: A12FlowStepId | null;
+  editorIntents: EditorOperationIntent[];
+  model: PreviewModel;
+  operationBusy: boolean;
+  projectOperation: string;
+  result: MechanicsResult | null;
+  onApplyNextQueuedIntent: () => void;
+  onSelectA12Step: (stepId: A12FlowStepId) => void;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const journey = buildA12FlowState({ analysisRun, editorIntents, model, projectOperation, result });
+  const queued = editorIntents.length;
+  const actionSection = queued > 0 ? "operations" : journey.nextStep?.section ?? "operations";
+  return (
+    <section className="a12-authoring-journey" aria-label="A12 authoring journey" data-testid="a12-authoring-journey">
+      <div className="a12-journey-header">
+        <div>
+          <span>A12 authoring</span>
+          <h2 data-testid="a12-next-action">
+            {queued > 0
+              ? "Review/apply queued edits"
+              : journey.nextStep
+                ? journey.nextStep.cue
+                : "A12 path is ready for packaged verification"}
+          </h2>
+        </div>
+        <strong data-testid="a12-journey-progress">
+          {journey.completedCount}/{journey.steps.length}
+        </strong>
+      </div>
+      <div className="a12-journey-grid" aria-label="A12 journey steps">
+        {journey.steps.map((step) => (
+          <button
+            key={step.id}
+            type="button"
+            className={a12StepClass(step, journey.nextStep?.id, activeA12StepId)}
+            data-testid={`a12-journey-step-${step.id}`}
+            data-status={step.complete ? "complete" : step.id === journey.nextStep?.id ? "next" : "pending"}
+            title={step.cue}
+            aria-pressed={activeA12StepId === step.id}
+            aria-current={step.id === journey.nextStep?.id ? "step" : undefined}
+            onClick={() => {
+              onSelectA12Step(step.id);
+              onSelectSection(step.section);
+            }}
+          >
+            <span>{step.label}</span>
+            <small>{step.status}</small>
+          </button>
+        ))}
+      </div>
+      <div className="a12-journey-actions">
+        <span data-testid="a12-queue-status">{journey.queueStatus}</span>
+        <button
+          type="button"
+          data-testid={queued > 0 ? "a12-review-apply-button" : "a12-next-action-button"}
+          disabled={queued > 0 && operationBusy}
+          onClick={() => {
+            if (queued > 0) {
+              onApplyNextQueuedIntent();
+              return;
+            }
+            onSelectSection(actionSection);
+          }}
+        >
+          {queued > 0
+            ? operationBusy
+              ? "Applying"
+              : "Apply queued"
+            : journey.nextStep
+              ? `Go to ${journey.nextStep.label}`
+              : "Review saved path"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function a12StepClass(
+  step: A12FlowStep,
+  nextStepId: A12FlowStepId | undefined,
+  activeA12StepId: A12FlowStepId | null
+): string {
+  const classes = ["a12-journey-step"];
+  if (step.complete) classes.push("complete");
+  if (step.id === nextStepId) classes.push("next");
+  if (step.id === activeA12StepId) classes.push("selected");
+  return classes.join(" ");
+}
+
+function buildA12FlowState({
+  analysisRun,
+  editorIntents,
+  model,
+  projectOperation,
+  result
+}: {
+  analysisRun: AnalysisRunEnvelope | null;
+  editorIntents: EditorOperationIntent[];
+  model: PreviewModel;
+  projectOperation: string;
+  result: MechanicsResult | null;
+}): {
+  completedCount: number;
+  nextStep: A12FlowStep | null;
+  queueStatus: string;
+  steps: A12FlowStep[];
+} {
+  const materials = model.materials ?? [];
+  const sections = model.sections ?? [];
+  const combinations = model.combinations ?? [];
+  const primitiveLoadCount = model.load_cases.reduce(
+    (count, loadCase) => count + (loadCase.primitive_loads?.length ?? 0),
+    0
+  );
+  const solved = Boolean(result && result.results.length > 0 && result.status.mechanics === "MECHANICS_SOLVED");
+  const reportReady = Boolean(solved && analysisRun);
+  const reopened = projectOperation === "open" || projectOperation === "open_by_id";
+  const saved = projectOperation === "save" || reopened;
+  const steps: A12FlowStep[] = [
+    {
+      id: "blank",
+      label: "Blank",
+      section: "project",
+      cue: "Start with New blank",
+      complete: isBlankAuthoringModel(model),
+      status: isBlankAuthoringModel(model) ? "ready" : "start"
+    },
+    {
+      id: "nodes",
+      label: "Nodes",
+      section: "operations",
+      cue: "Add two nodes in the viewport",
+      complete: model.nodes.length >= 2,
+      status: countStatus(model.nodes.length, 2)
+    },
+    {
+      id: "material",
+      label: "Material",
+      section: "operations",
+      cue: "Add a material in the property inspector",
+      complete: materials.length >= 1,
+      status: countStatus(materials.length, 1)
+    },
+    {
+      id: "section",
+      label: "Section",
+      section: "operations",
+      cue: "Add a pipe section in the property inspector",
+      complete: sections.length >= 1,
+      status: countStatus(sections.length, 1)
+    },
+    {
+      id: "pipe",
+      label: "Pipe",
+      section: "operations",
+      cue: "Connect a straight pipe in the viewport",
+      complete: model.pipe_segments.length >= 1,
+      status: countStatus(model.pipe_segments.length, 1)
+    },
+    {
+      id: "support",
+      label: "Support",
+      section: "operations",
+      cue: "Add a support in the property inspector",
+      complete: model.supports.length >= 1,
+      status: countStatus(model.supports.length, 1)
+    },
+    {
+      id: "load-case",
+      label: "Load case",
+      section: "loads",
+      cue: "Create a load case",
+      complete: model.load_cases.length >= 1,
+      status: countStatus(model.load_cases.length, 1)
+    },
+    {
+      id: "primitive-load",
+      label: "Load",
+      section: "loads",
+      cue: "Add a primitive load",
+      complete: primitiveLoadCount >= 1,
+      status: countStatus(primitiveLoadCount, 1)
+    },
+    {
+      id: "combination",
+      label: "Combination",
+      section: "loads",
+      cue: "Create a mechanics combination",
+      complete: combinations.length >= 1,
+      status: countStatus(combinations.length, 1)
+    },
+    {
+      id: "solve",
+      label: "Solve",
+      section: "solve",
+      cue: "Run mechanics preview",
+      complete: solved,
+      status: solved ? `${result?.results.length ?? 0} rows` : "not run"
+    },
+    {
+      id: "report",
+      label: "Report",
+      section: "report",
+      cue: "Review the report packet",
+      complete: reportReady,
+      status: reportReady ? "ready" : "after solve"
+    },
+    {
+      id: "save-reopen",
+      label: "Save/reopen",
+      section: "project",
+      cue: saved ? "Reopen the saved local project" : "Save the local project",
+      complete: reopened,
+      status: reopened ? "opened" : saved ? "saved" : "pending"
+    }
+  ];
+  const nextStep = steps.find((step) => !step.complete) ?? null;
+  const nextQueuedIntent = editorIntents[0];
+  return {
+    completedCount: steps.filter((step) => step.complete).length,
+    nextStep,
+    queueStatus:
+      editorIntents.length > 0 && nextQueuedIntent
+        ? `${editorIntents.length} queued operation${editorIntents.length === 1 ? "" : "s"}: ${
+            operationIntentDisplayRef(nextQueuedIntent)
+          }`
+        : "No queued operations",
+    steps
+  };
+}
+
+function operationIntentDisplayRef(intent: EditorOperationIntent): string {
+  try {
+    const afterPayload = JSON.parse(intent.change.after) as { id?: unknown };
+    if (typeof afterPayload.id === "string" && afterPayload.id.trim().length > 0) {
+      return afterPayload.id;
+    }
+  } catch {
+    // Non-JSON after-values fall back to the target reference.
+  }
+  return intent.target.ref;
+}
+
+function isBlankAuthoringModel(model: PreviewModel): boolean {
+  return model.data_boundary.public_examples_policy.includes("blank_user_created_local_document");
+}
+
+function countStatus(actual: number, required: number): string {
+  return actual >= required ? "done" : `${actual}/${required}`;
 }
 
 function journeyStepIcon(stepId: JourneyStepId): React.ReactNode {

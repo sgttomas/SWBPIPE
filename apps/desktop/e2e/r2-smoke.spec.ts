@@ -383,6 +383,36 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
+  await expect(page.getByTestId("a12-authoring-journey")).toBeVisible();
+  await expect(page.getByTestId("a12-next-action")).toContainText("Add two nodes");
+  await expect(page.getByTestId("a12-queue-status")).toContainText("No queued operations");
+  await expect(page.getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("a12-journey-step-nodes")).toHaveAttribute("data-status", "next");
+  for (const stepId of [
+    "nodes",
+    "material",
+    "section",
+    "pipe",
+    "support",
+    "load-case",
+    "primitive-load",
+    "combination",
+    "solve",
+    "report",
+    "save-reopen"
+  ]) {
+    await expect(page.getByTestId(`a12-journey-step-${stepId}`)).toBeVisible();
+  }
+  await page.getByTestId("a12-journey-step-load-case").click();
+  await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
+  await page.getByTestId("a12-journey-step-solve").click();
+  await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await page.getByTestId("a12-journey-step-report").click();
+  await expect(page.getByTestId("workspace-section-report")).toBeVisible();
+  await page.getByTestId("a12-journey-step-save-reopen").click();
+  await expect(page.getByTestId("workspace-section-project")).toBeVisible();
+  await page.getByTestId("a12-journey-step-nodes").click();
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "0 load cases; 0 primitive loads; 0 combinations"
   );
@@ -390,12 +420,16 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   const startNode = stepPayload("create_node", "node:R2-100");
   await fillNodeDraft(page, startNode);
   await page.getByTestId("queue-explicit-node-intent").click();
+  await expect(page.getByTestId("a12-queue-status")).toContainText("1 queued operation");
   await applyQueuedIntent(page, 1, startNode.id);
+  await expect(page.getByTestId("a12-journey-step-nodes")).toContainText("1/2");
 
   const loadedNode = stepPayload("create_node", "node:R2-110");
   await fillNodeDraft(page, loadedNode);
   await page.getByTestId("queue-explicit-node-intent").click();
   await applyQueuedIntent(page, 2, loadedNode.id);
+  await expect(page.getByTestId("a12-journey-step-nodes")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("a12-next-action")).toContainText("Add a material");
 
   const material = stepPayload("create_material", "material:r2-carbon-steel");
   await page.getByTestId("create-material-id").fill(material.id);
@@ -882,13 +916,12 @@ async function fillNodeDraft(page: Page, payload: any): Promise<void> {
 
 async function applyQueuedIntent(page: Page, sequence: number, expectedOperation: string): Promise<void> {
   // Authoring forms live in the persistent core or the Load Cases section;
-  // applying always goes through the Operation Apply section, like the
-  // TP-MAC-141 manual journey.
-  await openWorkspaceSection(page, "operations");
+  // the guided A12 control applies the next queued operation while leaving
+  // the Operation Apply section as the receipt and audit surface.
   const key = `editor-intent-${sequence}`;
-  const row = page.getByTestId(`operation-apply-row-${key}`);
-  await expect(row).toContainText(expectedOperation);
-  await page.getByTestId(`apply-intent-${key}`).click();
+  await expect(page.getByTestId("a12-queue-status")).toContainText(`1 queued operation: ${expectedOperation}`);
+  await page.getByTestId("a12-review-apply-button").click();
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${sequence} applied`);
   await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
     "route=local_wasm_engine"

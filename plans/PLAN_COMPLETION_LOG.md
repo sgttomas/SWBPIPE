@@ -13,6 +13,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — C5 A12 authoring journey redesign (`TP-R3UX-A12FLOW-001`)
+
+Adds the A12-specific guided authoring path inside the guided workbench. The
+panel derives its checklist from the current model/session state rather than
+hard-coded A12 payload values: blank document, nodes, material, section, pipe,
+support, load case, primitive load, combination, solve, report, and
+save/reopen.
+
+The A12 panel now exposes a clear next action, current queue status naming the
+created object when available, selected-step state for controls that share the
+same work surface, and an inline `Apply queued` affordance. That affordance
+calls the existing structured operation apply handler, records the existing
+operation receipt, preserves undo/result-reset behavior, and leaves Operation
+Apply as the receipt/audit surface.
+
+Evidence: focused guided-workbench Vitest, permanent dead-control audit, full
+desktop Vitest **18/18 files, 386/386 tests**, desktop production build, full
+Playwright e2e **12/12** across 1440x920 and 1280x800, and in-app browser
+screenshots/probe JSON under DEL-07-06 `_run_records/assets/`; SMOKE
+TP-MAC-174; run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3UX-A12FLOW-001.md`.
+
+Boundary: frontend guided-authoring usability only; no rule-pack schema,
+evaluator grammar, solver, persistence, backend API, project-store semantics,
+rule-pack checksum, lifecycle, release-readiness, professional approval,
+certification, sealing, authentication, or code-compliance change. C5.5 remains
+the next ordinary C5 tranche for the R3 rule-pack/private-library guided flow.
+
+---
+
 ## 2026-06-16 — C5 guided workbench shell (`TP-R3UX-SHELL-001`)
 
 Adds the first implementation slice of the C5 guided-workbench redesign. The

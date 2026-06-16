@@ -234,7 +234,8 @@ button:focus-visible {
 
 .guided-workbench {
   display: grid;
-  grid-template-columns: minmax(430px, 1.35fr) minmax(320px, 0.9fr);
+  grid-template-columns: minmax(360px, 1fr) minmax(280px, 0.8fr) minmax(360px, 1.05fr);
+  align-items: start;
   gap: 10px;
   min-height: 96px;
   padding: 8px 10px;
@@ -349,6 +350,143 @@ button:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.a12-authoring-journey {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #d7ded9;
+  border-radius: 5px;
+  background: #ffffff;
+}
+
+.a12-journey-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.a12-journey-header span {
+  display: block;
+  color: #68736f;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.a12-journey-header h2 {
+  margin: 1px 0 0;
+  color: #1f2c29;
+  font-size: 12px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.a12-journey-header strong {
+  padding: 2px 5px;
+  border: 1px solid #dbe2dd;
+  border-radius: 10px;
+  color: #263331;
+  background: #f4f7f5;
+  font-size: 11px;
+}
+
+.a12-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.a12-journey-step {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  min-height: 21px;
+  padding: 2px 4px;
+  border: 1px solid #d6ded9;
+  border-radius: 4px;
+  color: #31403d;
+  background: #f8faf8;
+  cursor: pointer;
+  text-align: left;
+}
+
+.a12-journey-step.next {
+  border-color: #8d7033;
+  background: #fff7df;
+}
+
+.a12-journey-step.complete {
+  border-color: #9fb8aa;
+  background: #edf5ef;
+}
+
+.a12-journey-step.selected {
+  border-color: #2d5b50;
+  box-shadow: inset 0 -2px 0 #2d5b50;
+}
+
+.a12-journey-step span,
+.a12-journey-step small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.a12-journey-step span {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.a12-journey-step small {
+  color: #64716d;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.a12-journey-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+}
+
+.a12-journey-actions span {
+  min-width: 0;
+  padding: 5px 7px;
+  border: 1px solid #e1e6e3;
+  border-radius: 4px;
+  background: #f8faf8;
+  color: #52605b;
+  font-size: 11px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.a12-journey-actions button {
+  min-height: 24px;
+  padding: 3px 7px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #263331;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.a12-journey-actions button:disabled {
+  color: #71807a;
+  background: #eef2ef;
+  cursor: progress;
 }
 
 .workspace-nav {
@@ -1039,6 +1177,23 @@ button:focus-visible {
   .viewport-node-form,
   .viewport-pipe-form {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-height: 840px) {
+  .workspace {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .modeling-workspace {
+    flex: 0 1 210px;
+    min-height: 210px;
+  }
+
+  .workspace-dock {
+    flex: 1 1 0;
+    min-height: 300px;
   }
 }
 
