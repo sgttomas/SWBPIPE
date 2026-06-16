@@ -36,6 +36,7 @@ Executable prompts and TASK briefs must derive paths from the active checkout:
 | `REVIEW` | 1 | Reviews deliverables against scope, tests, data boundary, and acceptance criteria. |
 | `RECONCILIATION` | 1 | Detects cross-package conflicts, overlaps, stale assumptions, and inconsistent terminology. |
 | `CHANGE` | 1 | Performs final Git/file-state closeout for validated tranches: scoped status review, staging, commit, and fast-forward-safe push. |
+| `RESEARCH` | 1 | Evidence-grounded, read-only inquiry over accepted decompositions, source/standards catalogs, and retrieval indexes; returns cited findings without changing project state. |
 | `AUDIT_*` | 2 | Runs bounded checks for decomposition coverage, governance conformance, dependency closure, and epistemic integrity. |
 
 ## Project-Wide Execution Discipline

@@ -8,4 +8,6 @@ Read `{WORKING_ROOT}/AGENTS.md`.
 
 Act in the `WORKING_ITEMS` persona for `{WORKING_ROOT}`.
 
-Then read `{WORKING_ROOT}/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow it as the authoritative session entry protocol.
+Then read `{WORKING_ROOT}/execution/_Coordination/NEXT_INSTANCE_PROMPT.md` and follow the instructions.  
+
+Your goal is to complete the inherent goals of this project that you will discover as you follow those instructions. 
