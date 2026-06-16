@@ -13,6 +13,56 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — C5 R3 exit readiness plan revision (`TP-R3EXIT-PLAN-001`)
+
+Adds Phase C5 to the active completion plan after landed C4 and before Phase D.
+C5 is now the ordinary R3 in-stage program for guided-workbench redesign,
+packaged A12/R3 human-journey evidence, and R3 exit evidence assembly. It
+exists to close the two `DEC-035` blockers before any R3 exit review: F-4
+(completed human packaged-GUI journey) and the authoring-journey usability
+finding.
+
+Updated routing surfaces: `plans/PLAN_2026-06-10_prd_completion.md`,
+`docs/PLAN.md`, `execution/_Coordination/_COORDINATION.md`, and
+`execution/_Coordination/NEXT_INSTANCE_PROMPT.md`. C1-C4 remain landed
+implementation evidence; Phase D remains behind C5 unless the human explicitly
+overrides.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-171 and DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3EXIT-PLAN-001_TP-R3UX-DISCOVERY-001.md`.
+
+Boundary: plan/evidence routing only; no app behavior, schema, solver,
+rule-pack grammar, parser, persistence, package, lifecycle, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim.
+
+---
+
+## 2026-06-16 — C5 R3 authoring-usability baseline (`TP-R3UX-DISCOVERY-001`)
+
+Records the C5 starting baseline for the guided-workbench redesign. Evidence
+sources: TP-MAC-141 human attempts 1-3, the human-provided 2026-06-16
+screenshot and user-perspective evaluation, current 1440x920 and 1280x800
+screenshots, viewport overflow/console probe, and the dead-control audit.
+
+Findings: the post-TP-MAC-146 shell is structurally stable, with no horizontal
+page overflow, no horizontally clipped visible primary controls, and zero
+console errors at both viewport sizes. The existing dead-control audit passed
+1 file / 1 test. The remaining user-facing blocker is not mechanical
+correctness but work-surface clarity: the default view still exposes internal
+state and evidence panels before the user knows the next task.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-172; screenshots and probe JSON under
+DEL-07-06 `_run_records/assets/`; run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3EXIT-PLAN-001_TP-R3UX-DISCOVERY-001.md`.
+
+Boundary: discovery/evidence only; no product behavior change, no lifecycle
+state change, and no release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim. Next implementation tranche:
+`TP-R3UX-SHELL-001` / target SMOKE TP-MAC-173.
+
+---
+
 ## 2026-06-16 — C2 read-only AST text display (`TP-C2-ASTTEXT-001`)
 
 Implements the `DEC-037` / D-02b Option O-C permission for a labeled,

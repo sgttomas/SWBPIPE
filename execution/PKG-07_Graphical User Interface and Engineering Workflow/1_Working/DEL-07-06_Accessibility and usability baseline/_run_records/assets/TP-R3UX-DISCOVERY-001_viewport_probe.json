@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-06-16T16:24:43.997Z",
+  "results": [
+    {
+      "viewport": "1440x920",
+      "screenshot": "TP-R3UX-DISCOVERY-001_1440x920.png",
+      "consoleErrors": [],
+      "probe": {
+        "viewportWidth": 1440,
+        "documentScrollWidth": 1440,
+        "bodyScrollWidth": 1440,
+        "horizontalOverflow": false,
+        "overflowElements": [],
+        "horizontallyClippedVisiblePrimaryControls": [],
+        "activeSection": "Operation Apply0 queued",
+        "visibleDockText": null
+      }
+    },
+    {
+      "viewport": "1280x800",
+      "screenshot": "TP-R3UX-DISCOVERY-001_1280x800.png",
+      "consoleErrors": [],
+      "probe": {
+        "viewportWidth": 1280,
+        "documentScrollWidth": 1280,
+        "bodyScrollWidth": 1280,
+        "horizontalOverflow": false,
+        "overflowElements": [],
+        "horizontallyClippedVisiblePrimaryControls": [],
+        "activeSection": "Operation Apply0 queued",
+        "visibleDockText": null
+      }
+    }
+  ]
+}

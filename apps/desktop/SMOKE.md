@@ -5606,3 +5606,50 @@ notes:
   checksum, persistence, local-store, or rule-check status change; no protected
   standards content, private value, release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-171 R3 exit readiness plan revision (`TP-R3EXIT-PLAN-001`, 2026-06-16)
+
+- Establishes completion-plan Phase C5: R3 exit readiness and
+  authoring-usability closure, inserted after landed C4 and before Phase D.
+- Updates `plans/PLAN_2026-06-10_prd_completion.md`, `docs/PLAN.md`,
+  `execution/_Coordination/_COORDINATION.md`, and
+  `execution/_Coordination/NEXT_INSTANCE_PROMPT.md` so ordinary R3 work
+  continues through C5 before Phase D unless the human explicitly overrides.
+- C5 records the guided-workbench direction: keep the persistent model tree,
+  viewport, and property inspector, but make the lower workspace task-guided
+  and move evidence/debug-heavy surfaces behind details or `Audit &
+  Boundaries`.
+- C1-C4 remain implementation evidence for PRD §22.4. This row does not begin
+  or pass an R3 exit review; F-4 and the authoring-journey usability finding
+  remain open until packaged human evidence closes them.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-R3EXIT-PLAN-001_TP-R3UX-DISCOVERY-001.md`;
+  completion log updated.
+- Boundary review: plan/evidence routing only; no app behavior, schema,
+  solver, rule-pack grammar, parser, persistence, package, lifecycle,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim.
+
+## TP-MAC-172 R3 authoring-usability failure baseline (`TP-R3UX-DISCOVERY-001`, 2026-06-16)
+
+- Records the C5 starting baseline for the guided-workbench redesign: TP-MAC-141
+  attempts 1-3, the human-provided 2026-06-16 screenshot evaluation, and the
+  finding that the current shell is credible as an internal technical preview
+  but still overloaded for a working engineer user.
+- Baseline screenshots captured at 1440x920 and 1280x800:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-DISCOVERY-001_1440x920.png`
+  and
+  `.../TP-R3UX-DISCOVERY-001_1280x800.png`.
+- Viewport probe artifact:
+  `.../_run_records/assets/TP-R3UX-DISCOVERY-001_viewport_probe.json`.
+  Results: zero console errors, no horizontal page overflow, and no
+  horizontally clipped visible primary controls at either viewport.
+- Dead-control audit rerun: `npm test --workspace apps/desktop --
+  App.deadControls` passed 1 file / 1 test.
+- Baseline conclusion: the shell is structurally stable after TP-MAC-146, but
+  the default working surface still makes the next action unclear and exposes
+  developer/evidence panels too prominently. C5.3 (`TP-R3UX-SHELL-001`) is the
+  next implementation tranche.
+- Boundary review: discovery/evidence only; no product behavior change, no
+  lifecycle state change, and no release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

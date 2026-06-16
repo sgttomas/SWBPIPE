@@ -142,3 +142,33 @@ DEL-07-06-CF-001. Evidence: `_run_records/TASK_RUN_2026-06-12_1756.md`.
 No lifecycle state change; no release-readiness, professional approval,
 accessibility certification, sealing, authentication, or code-compliance
 claim.
+
+## 2026-06-16 - TP-R3EXIT-PLAN-001 / TP-R3UX-DISCOVERY-001 C5 routing and UX baseline
+
+The human approved the R3 Exit Readiness + Guided Workbench Redesign Program
+as a revision to the active completion plan. WORKING_ITEMS implemented the
+first two bounded tranches:
+
+- `TP-R3EXIT-PLAN-001` / TP-MAC-171: inserted Phase C5 after landed C4 and
+  before Phase D in `plans/PLAN_2026-06-10_prd_completion.md`; updated
+  `docs/PLAN.md`, `_COORDINATION.md`, and `NEXT_INSTANCE_PROMPT.md` so
+  ordinary R3 work selects C5 before Phase D unless the human explicitly
+  overrides.
+- `TP-R3UX-DISCOVERY-001` / TP-MAC-172: recorded the C5 UX baseline from
+  TP-MAC-141 attempts, the human-provided 2026-06-16 screenshot/user
+  evaluation, current 1440x920 and 1280x800 screenshots, viewport probe JSON,
+  and the dead-control audit rerun.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-DISCOVERY-001_1440x920.png`,
+`TP-R3UX-DISCOVERY-001_1280x800.png`, and
+`TP-R3UX-DISCOVERY-001_viewport_probe.json`. The probe recorded zero console
+errors, no horizontal page overflow, and no horizontally clipped visible
+primary controls at both viewport sizes. The current blocker is work-surface
+clarity, not structural clipping: the default shell still exposes too much
+internal/evidence state before the user knows the next action.
+
+Validation: `npm test --workspace apps/desktop -- App.deadControls` passed
+1/1. Product behavior was not changed. F-4 and the A3 authoring-journey
+usability finding remain open; next unblocked tranche is
+`TP-R3UX-SHELL-001` / target TP-MAC-173, the guided workbench shell.

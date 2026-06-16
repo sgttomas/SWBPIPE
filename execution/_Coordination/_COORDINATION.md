@@ -236,7 +236,9 @@ that:
 `DEC-035`, superseding the `DEC-029` hold).** A user can define a private,
 non-code rule pack and run checks from the GUI, with pass/fail blocked on
 missing inputs (PRD §22.4), reached through the completion plan's Phase C
-items. R2-stage evidence was reviewed per
+items. C1-C4 implementation is landed; the next ordinary R3-stage program is
+Phase C5, which prepares guided-workbench usability closure and packaged
+human-journey evidence before any R3 exit review. R2-stage evidence was reviewed per
 `plans/VERIFICATION_2026-06-12_r2_exit_chain.md` and the human packaged-pass
 attempts recorded in `apps/desktop/SMOKE.md` TP-MAC-141 (attempt 3:
 steps 1–5 pass; remainder blocked on authoring-journey usability, not
@@ -288,11 +290,12 @@ bounded tranche.
 3. **Default candidate selection.** For ordinary development, select the
    highest-leverage application-integration tranche in this order:
    1. the earliest unblocked item on the completion plan's dependency spine
-      for the current target stage (R3/Phase C per `DEC-035`: C2 rule-pack
-      editor GUI — AST-based per `DEC-022`, with the D-02b text-syntax
-      packet prepared at the C2 lead-up — then C3 private-library GUI and
-      C4 end-to-end rule checks; the A3 usability lane and B2/B3 units
-      remainder run alongside, A3 feeding the R3-exit blocking residual);
+      for the current target stage (R3/Phase C per `DEC-035`). C1-C4 are
+      landed; select Phase C5 R3 exit readiness and authoring-usability
+      closure before any Phase D work unless the human explicitly overrides.
+      The Phase B unit-aware-I/O remainder may run alongside only when it does
+      not block or displace C5, and the A3 usability lane now feeds directly
+      into C5's packaged human-journey closure evidence;
    2. regression repair: failed or insufficient app tests, build breaks, or
       smoke-evidence gaps in already-landed surfaces;
    3. residual hardening (missing app-to-core seams, preview workflow gaps,
