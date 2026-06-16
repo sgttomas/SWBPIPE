@@ -43,6 +43,19 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
+  await page.getByTestId("tree-row-node:N-110").click();
+  const editorIntentPanel = page.getByTestId("editor-intent-panel");
+  await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("m");
+  await expect(page.getByText("Proposed value (m, model metadata)")).toBeVisible();
+  await editorIntentPanel.getByTestId("editor-intent-value").fill("1.25");
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    'after={"value":1.25,"unit":"m"}'
+  );
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    "entered unit captured explicitly"
+  );
+  await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");

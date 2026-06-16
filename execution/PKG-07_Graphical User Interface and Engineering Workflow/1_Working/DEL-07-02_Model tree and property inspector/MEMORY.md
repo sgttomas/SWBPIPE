@@ -717,3 +717,19 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+## 2026-06-15 - TP-UNITS-B2-NODECOORDUNITS-001: node coordinate unit payloads
+
+- Property Inspector node coordinate edits (`position.x`, `position.y`,
+  `position.z`) now expose the unit-aware editor control and queue explicit
+  `{value, unit}` payloads.
+- Browser preview still uses model metadata only; it does not synthesize a
+  DEC-018 fallback catalog. The R2 Playwright smoke pins the visible
+  `position.y` unit selector and payload preview for `node:N-110`.
+- Evidence:
+  `DEL-16-02 .../_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md`;
+  SMOKE TP-MAC-170; desktop Vitest 385/385; desktop build clean; focused
+  Playwright R2 smoke 2/2.
+- Boundary unchanged: local-only editor intent behavior; no durable
+  persistence, private data, protected content, network/telemetry path,
+  professional approval, release-readiness, certification, sealing,
+  authentication, or code-compliance claim.

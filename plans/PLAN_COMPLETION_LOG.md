@@ -13,6 +13,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-15 — B2 node coordinate unit payloads (`TP-UNITS-B2-NODECOORDUNITS-001`)
+
+Extends the B2 unit-aware editor pattern to node coordinate edits. Before this
+slice, `PropertyInspector` displayed node `position.x/y/z` values with the
+model length unit in metadata, but the edit intent path still emitted a bare
+scalar and offered no explicit unit field. That left node coordinates outside
+the already covered material/section/primitive-load and rule-pack unit-entry
+surfaces.
+
+`PropertyInspector` now marks node coordinates as unit-editable length fields
+and emits explicit `{ value, unit }` payloads. The `operation_applier` now
+accepts project-unit quantity edits in either legacy scalar form or explicit
+payload form. For bare project-unit fields, accepted DEC-018 length units are
+converted to the model document's stored `project.units.length` basis before
+writing the scalar coordinate; incompatible units remain blocked with
+`OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`. The shared operation contract corpus
+unit-mismatch case was updated from `ksi` (now an accepted DEC-018 stress unit)
+to a true incompatible length/stress mismatch.
+
+Evidence: operation-applier cargo suite **58 unit + canonical hash + 66-case
+contract corpus**; full desktop Vitest **385/385**; desktop production build
+clean with the existing Vite chunk-size warning; focused Playwright R2 smoke
+**2/2** across configured desktop/compact Chromium projects after adding a
+browser preview assertion for the node-coordinate unit payload. Run record:
+`DEL-16-02 .../WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md`;
+SMOKE TP-MAC-170.
+
+Boundary: no schema, persistence, solver, rule-pack, private-data,
+protected-content, network, telemetry, release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed. Browser preview still does not synthesize a DEC-018 fallback catalog.
+
+Residual: B2 still has broader unit entry/pickers outside the material,
+section, node-coordinate, primitive-load, and rule-pack declaration/expression
+forms; import round-trip unit I/O; and target-format conversion witnesses
+beyond disclosure. B3 still owns the larger mixed-unit round-trip,
+incompatible-unit rejection, and D-04/DEC-026 tolerance corpus outside the
+named operation-seam witnesses.
+
+---
+
 ## 2026-06-15 — B2 rule-pack expression unit selectors (`TP-UNITS-B2-RULEEXPRUNITS-001`)
 
 Extends the DEC-018 unit-catalog UI pattern into the C2 rule-pack expression

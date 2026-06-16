@@ -4444,7 +4444,25 @@ fn resolve_field(
                     .and_then(Value::as_str)
                     .map(str::to_string),
             };
-            let quantity_edit = if matches!(unit_source, UnitSource::SiblingUnitField) {
+            let dimension_enum = match Dimension::from_schema_value(dimension) {
+                Ok(dimension_enum) => dimension_enum,
+                Err(error) => {
+                    checker.unit_state = "blocked";
+                    checker.push(
+                        "OP-UNIT-DIMENSION-UNKNOWN",
+                        "blocking",
+                        format!(
+                            "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
+                        ),
+                        "Use a governed dimension token for quantity edits.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                }
+            };
+            let quantity_edit = if matches!(unit_source, UnitSource::SiblingUnitField)
+                || after.trim_start().starts_with('{')
+            {
                 parse_quantity_edit(after, target_ref, field_path, checker)?
             } else {
                 None
@@ -4466,28 +4484,8 @@ fn resolve_field(
                 );
                 return None;
             }
-            let quantity_payload_dimension = if quantity_edit.is_some() {
-                match Dimension::from_schema_value(dimension) {
-                    Ok(dimension_enum) => Some(dimension_enum),
-                    Err(error) => {
-                        checker.unit_state = "blocked";
-                        checker.push(
-                            "OP-UNIT-DIMENSION-UNKNOWN",
-                            "blocking",
-                            format!(
-                                "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
-                            ),
-                            "Use a governed dimension token for sibling-unit quantity edits.",
-                            vec![target_ref.to_string()],
-                        );
-                        return None;
-                    }
-                }
-            } else {
-                None
-            };
             checker.unit_state = "passed";
-            match stored_unit {
+            let stored_unit = match stored_unit {
                 None => {
                     checker.unit_state = "blocked";
                     checker.push(
@@ -4501,9 +4499,8 @@ fn resolve_field(
                 }
                 Some(stored) => {
                     let unit_matches_stored = unit == stored;
-                    let unit_matches_dimension = quantity_payload_dimension
-                        .map(|dimension_enum| unit_symbol_matches_dimension(unit, dimension_enum))
-                        .unwrap_or(false);
+                    let unit_matches_dimension =
+                        unit_symbol_matches_dimension(unit, dimension_enum);
                     if !unit_matches_stored && !unit_matches_dimension {
                         checker.unit_state = "blocked";
                         checker.push(
@@ -4517,8 +4514,24 @@ fn resolve_field(
                         );
                         return None;
                     }
+                    if matches!(unit_source, UnitSource::ProjectUnits(_))
+                        && !unit_symbol_matches_dimension(&stored, dimension_enum)
+                    {
+                        checker.unit_state = "blocked";
+                        checker.push(
+                            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                            "blocking",
+                            format!(
+                                "Stored project unit `{stored}` is not accepted for dimension `{dimension}`."
+                            ),
+                            "Repair the model document's project unit metadata before editing this quantity.",
+                            vec![target_ref.to_string()],
+                        );
+                        return None;
+                    }
+                    stored
                 }
-            }
+            };
             if !CANONICAL_DIMENSIONS.contains(&dimension) {
                 checker.unit_state = "blocked";
                 checker.push(
@@ -4533,7 +4546,7 @@ fn resolve_field(
 
             check_before_numeric(current_number, before, target_ref, field_path, checker);
 
-            let parsed = if let Some(edit) = quantity_edit.as_ref() {
+            let entered_value = if let Some(edit) = quantity_edit.as_ref() {
                 edit.value
             } else {
                 let Some(parsed) = parse_finite_number(after) else {
@@ -4549,6 +4562,32 @@ fn resolve_field(
                     return None;
                 };
                 parsed
+            };
+            let parsed = if matches!(unit_source, UnitSource::ProjectUnits(_))
+                && requested_unit != stored_unit
+            {
+                let entered_quantity = EnteredQuantity {
+                    value: entered_value,
+                    unit: requested_unit.to_string(),
+                };
+                let Some(converted) =
+                    quantity_value_in_unit(&entered_quantity, &stored_unit, dimension_enum)
+                else {
+                    checker.unit_state = "blocked";
+                    checker.push(
+                        "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                        "blocking",
+                        format!(
+                            "Intent unit `{requested_unit}` could not be converted to stored project unit `{stored_unit}` for `{field_path}`."
+                        ),
+                        "Select an accepted DEC-018 unit for the project-unit field.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                };
+                converted
+            } else {
+                entered_value
             };
             if require_positive && parsed <= 0.0 {
                 checker.push(
@@ -4570,14 +4609,15 @@ fn resolve_field(
                 );
                 return None;
             };
-            let additional_writes = if let Some(edit) = quantity_edit {
-                let mut unit_segments = segments.clone();
-                unit_segments.pop();
-                unit_segments.push("unit".to_string());
-                vec![(unit_segments, Value::String(edit.unit))]
-            } else {
-                Vec::new()
-            };
+            let additional_writes =
+                if let (UnitSource::SiblingUnitField, Some(edit)) = (unit_source, quantity_edit) {
+                    let mut unit_segments = segments.clone();
+                    unit_segments.pop();
+                    unit_segments.push("unit".to_string());
+                    vec![(unit_segments, Value::String(edit.unit))]
+                } else {
+                    Vec::new()
+                };
             Some(ResolvedField {
                 kind,
                 current_display: display_number(current_number),
@@ -7343,7 +7383,7 @@ mod tests {
             "elastic_modulus.value",
             "200000000000",
             "29000",
-            "ksi",
+            "m",
             "stress",
         );
         let outcome = apply_operation(&model, &intent, None);
@@ -9032,7 +9072,57 @@ mod tests {
             json!(1.1)
         );
 
-        let mismatched = apply_operation(
+        let converted = apply_operation(
+            &model,
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                "3.280839895013123",
+                "ft",
+                "length",
+            ),
+            None,
+        );
+        assert!(
+            converted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            converted.diagnostics
+        );
+        let converted_model = converted.applied_model.expect("applied model");
+        let converted_y = converted_model["nodes"][1]["position"]["y"]
+            .as_f64()
+            .expect("converted y coordinate");
+        assert!((converted_y - 1.0).abs() <= 1.0e-12);
+
+        let payload = json!({ "value": 1200.0, "unit": "mm" });
+        let payload_converted = apply_operation(
+            &model,
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                &payload.to_string(),
+                "mm",
+                "length",
+            ),
+            None,
+        );
+        assert!(
+            payload_converted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            payload_converted.diagnostics
+        );
+        assert_eq!(
+            payload_converted.applied_model.expect("applied model")["nodes"][1]["position"]["y"],
+            json!(1.2)
+        );
+
+        let incompatible = apply_operation(
             &model,
             &modify_intent(
                 "Node",
@@ -9041,12 +9131,12 @@ mod tests {
                 "position.y",
                 "0",
                 "3.6",
-                "ft",
+                "Pa",
                 "length",
             ),
             None,
         );
-        assert!(codes(&mismatched).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        assert!(codes(&incompatible).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
 
         let mut unitless_model = sample_model();
         unitless_model["project"]["units"]

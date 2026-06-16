@@ -695,3 +695,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no hidden deletion cascade, no durable persistence,
   no protected/private data, and no professional, release, or code-compliance
   claim.
+## 2026-06-15 - TP-UNITS-B2-NODECOORDUNITS-001: node coordinate unit payloads
+
+- Operation applier now accepts project-unit quantity edits as either legacy
+  scalar values or explicit `{value, unit}` payloads.
+- Bare project-unit node coordinate fields normalize accepted DEC-018 length
+  units back to the model document's stored `project.units.length` scalar basis;
+  witnesses cover `ft` and `mm` conversion to meters and incompatible stress
+  unit refusal.
+- Shared operation contract corpus case
+  `case_20_block_unit_mismatch_set_field.json` now uses a true incompatible
+  length/stress unit mismatch; `ksi` is no longer a mismatch under the accepted
+  DEC-018 stress catalog.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md`;
+  SMOKE TP-MAC-170; operation-applier cargo suite, desktop Vitest, desktop
+  build, and focused Playwright R2 smoke passed.
+- Boundary unchanged: no direct mutation, no hidden unit fallback, no protected
+  content, private data, network/telemetry path, release-readiness claim, or
+  professional/code-compliance claim.

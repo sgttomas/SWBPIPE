@@ -4,7 +4,7 @@ import { App } from "./App";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { buildDeformationOverlay, PipeViewport } from "./features/viewport/PipeViewport";
 import { loadPreviewModel } from "./services/previewService";
-import type { MechanicsResult } from "./types";
+import type { EditorOperationIntent, MechanicsResult } from "./types";
 
 function deformationResultRows(results: MechanicsResult["results"]): MechanicsResult {
   return {
@@ -2840,6 +2840,44 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("m, model metadata");
     expect(screen.getByTestId("property-unit-basis-summary").textContent).toContain("Pa, model metadata");
+  });
+
+  it("queues node coordinate edits with an explicit unit payload", async () => {
+    const model = await loadPreviewModel();
+    const queued: EditorOperationIntent[] = [];
+
+    render(
+      <PropertyInspector
+        model={model}
+        onQueueIntent={(intent) => queued.push(intent)}
+        selection={{ type: "node", id: "node:N-110" }}
+      />
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("property-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    const intentPanel = screen.getByLabelText("Editor operation intent");
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+      target: { value: "position.y" }
+    });
+
+    expect(within(intentPanel).getByTestId("editor-intent-unit")).toHaveValue("m");
+    expect(within(intentPanel).getByText("Proposed value (m, model metadata)")).toBeInTheDocument();
+
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+      target: { value: "1.25" }
+    });
+    fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
+
+    expect(queued).toHaveLength(1);
+    expect(queued[0].change.field_path).toBe("position.y");
+    expect(queued[0].change.dimension).toBe("length");
+    expect(queued[0].change.unit).toBe("m");
+    expect(JSON.parse(queued[0].change.after)).toEqual({ value: 1.25, unit: "m" });
+    expect(queued[0].change.source_note).toContain("entered unit captured explicitly");
   });
 
   it("applies the solved global displacement direction to the deformation overlay", async () => {

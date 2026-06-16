@@ -5580,3 +5580,31 @@ notes:
   change; no protected standards content, private value, browser fallback
   catalog, release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-170 node coordinate unit payloads (`TP-UNITS-B2-NODECOORDUNITS-001`, 2026-06-15)
+
+- Phase B2/B3 units slice: Property Inspector node coordinate edits
+  (`position.x`, `position.y`, `position.z`) now expose the existing unit-aware
+  editor control and emit an explicit `{value, unit}` payload instead of a bare
+  scalar.
+- The operation applier now accepts project-unit quantity edits in scalar or
+  payload form, converts compatible DEC-018 length units (`ft`, `mm`, etc.) to
+  the model document's stored `project.units.length` value for scalar node
+  coordinates, and still blocks incompatible units with
+  `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`.
+- Browser evidence: the R2 Playwright smoke selects node `node:N-110`, previews
+  a `position.y` edit with `unit=m`, verifies the explicit payload
+  `{"value":1.25,"unit":"m"}`, and keeps the existing queue/apply numbering
+  unchanged by not queuing this preview-only assertion.
+- Validation: operation-applier cargo suite **58 unit + canonical hash + 66
+  corpus cases**; desktop Vitest **385/385**; `npm run build --workspace
+  apps/desktop` clean with the existing Vite chunk-size warning; focused
+  Playwright R2 smoke **2/2** across configured desktop/compact Chromium
+  projects.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md` (DEL-16-02
+  primary); completion plan/log updated.
+- Boundary review: no schema, persistence, solver, rule-pack, private-data,
+  protected-content, network, telemetry, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
