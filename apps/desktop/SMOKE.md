@@ -5835,3 +5835,35 @@ notes:
   target-compatibility claim, protected content, private data,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-179 native JSON package unit preservation witnesses (`TP-UNITS-B2B3-NATIVEUNITWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop native JSON package review packet now
+  declares a `maps/unit_preservation_witnesses.json` package member and
+  carries `unit_preservation` evidence for project-owned JSON quantity fields.
+- Packet behavior: the native package declares
+  `unit-system:dec-018-si-dual-display`, preserves source model/result
+  quantity value+unit fields, and records `conversion_performed=false`.
+- Witness coverage: 6 project unit declarations, 18 model quantity witnesses,
+  and 739 result quantity witnesses are reported in the visible Native JSON
+  package panel. Regression checks prove a model pipe outside-diameter witness
+  and a result axial-force witness preserve source and target quantities.
+- Browser/e2e proof: the R2 Playwright smoke checks the visible Native JSON
+  package `Unit witnesses` line reports `project_units=6`,
+  `model_quantities=18`, `result_quantities=739`, and `conversion=false`.
+  In-app Browser verification completed the solve path and observed
+  `state=completed; result_rows=737` plus the same native-package witness
+  counts.
+- Validation: focused App Vitest passed **54/54**; full desktop Vitest passed
+  **386/386**; desktop production build passed with the existing Vite
+  chunk-size warning; full desktop Playwright passed **10/10**; five-surface
+  DEC-025 dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T025334Z_92ba64e2b4e3-dirty.json`.
+- Evidence: DEL-17-03 primary run record and DEL-02-02 supporting run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-NATIVEUNITWITNESS-001.md`;
+  completion plan/log updated.
+- Boundary review: native JSON browser-preview evidence only; no Python native
+  export schema, writer, fixture, parser, public API, downstream target
+  compatibility claim, protected content, private data, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

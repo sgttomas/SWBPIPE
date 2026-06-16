@@ -584,3 +584,25 @@ Boundary note:
 - Boundary unchanged: no unit catalog constant, conversion API, tolerance
   policy, schema dimension enum, protected content, private data,
   release-readiness claim, or professional/code-compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2B3-NATIVEUNITWITNESS-001 native JSON unit preservation witnesses
+
+- Added supporting B2/B3 unit evidence for the desktop native JSON package
+  review packet.
+- The packet records the accepted
+  `unit-system:dec-018-si-dual-display` basis and preserves project/model/
+  result value+unit fields without conversion.
+- The witness set covers 6 project unit declarations, 18 model quantity
+  witnesses, and 739 result quantity witnesses in the invented preview
+  fixture.
+- Evidence:
+  `execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-NATIVEUNITWITNESS-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-179; completion log
+  entry.
+- Validation passed: focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build with existing Vite chunk-size warning; full desktop
+  Playwright 10/10; in-app Browser solve/export verification pass; DEC-025
+  dirty-tree sweep pass.
+- Boundary unchanged: no DEC-018 catalog constant, unit-conversion API,
+  tolerance policy, schema dimension enum, protected content, private data,
+  release-readiness claim, or professional/code-compliance claim changed.

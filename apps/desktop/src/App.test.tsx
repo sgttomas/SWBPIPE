@@ -5228,7 +5228,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(localFeaPacket.handoff_package.professional_boundary.software_makes_authentication_claim).toBe(false);
     const nativePackage = await screen.findByLabelText("Native JSON package");
     expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("ready");
-    expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("members=9");
+    expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("members=10");
     expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("entities=19");
     expect(within(nativePackage).getByTestId("native-package-summary").textContent).toContain("results=737");
     expect(within(nativePackage).getByTestId("native-package-profile").textContent).toContain(
@@ -5240,6 +5240,21 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(nativePackage).getByTestId("native-package-members").textContent).toContain("manifest.json");
     expect(within(nativePackage).getByTestId("native-package-members").textContent).toContain(
       "maps/stable_id_map.json"
+    );
+    expect(within(nativePackage).getByTestId("native-package-members").textContent).toContain(
+      "maps/unit_preservation_witnesses.json"
+    );
+    expect(within(nativePackage).getByTestId("native-package-unit-witnesses").textContent).toContain(
+      "project_units=6"
+    );
+    expect(within(nativePackage).getByTestId("native-package-unit-witnesses").textContent).toContain(
+      "model_quantities=18"
+    );
+    expect(within(nativePackage).getByTestId("native-package-unit-witnesses").textContent).toContain(
+      "result_quantities=739"
+    );
+    expect(within(nativePackage).getByTestId("native-package-unit-witnesses").textContent).toContain(
+      "conversion=false"
     );
     expect(within(nativePackage).getByTestId("native-package-validation").textContent).toContain(
       "review_manifest_complete"
@@ -5298,11 +5313,71 @@ describe("OpenPipeStress desktop preview", () => {
     expect(nativePackagePacket.export_profile.profile_id).toBe("native_open_json_preview");
     expect(nativePackagePacket.export_profile.physical_project_container).toBe("TBD");
     expect(nativePackagePacket.export_profile.public_transport_protocol).toBe("TBD");
-    expect(nativePackagePacket.manifest.package_members).toHaveLength(9);
+    expect(nativePackagePacket.export_profile.unit_witness_policy).toBe(
+      "required_sidecar_for_native_json_quantity_fields"
+    );
+    expect(nativePackagePacket.manifest.package_members).toHaveLength(10);
     expect(nativePackagePacket.manifest.package_members.map((item: { path: string }) => item.path)).toContain(
       "results/result_envelope_ref.json"
     );
+    expect(nativePackagePacket.manifest.package_members.map((item: { path: string }) => item.path)).toContain(
+      "maps/unit_preservation_witnesses.json"
+    );
     expect(nativePackagePacket.manifest.runtime_timestamp_fields_in_hash_inputs).toBe(false);
+    expect(nativePackagePacket.unit_preservation.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(nativePackagePacket.unit_preservation.conversion_performed).toBe(false);
+    expect(nativePackagePacket.unit_preservation.project_unit_declarations).toHaveLength(6);
+    expect(nativePackagePacket.unit_preservation.model_quantity_witnesses).toHaveLength(18);
+    expect(nativePackagePacket.unit_preservation.result_quantity_witnesses).toHaveLength(739);
+    expect(nativePackagePacket.unit_preservation.summary.total_witness_count).toBe(763);
+    expect(
+      nativePackagePacket.unit_preservation.model_quantity_witnesses.find(
+        (witness: { witness_id: string }) =>
+          witness.witness_id === "native-unit:model:pipe:P-120:section.outside_diameter"
+      )
+    ).toMatchObject({
+      source_ref: {
+        ref_type: "pipe_segment",
+        ref_id: "pipe:P-120",
+        field_path: "section.outside_diameter"
+      },
+      target_ref: {
+        member_path: "model/project.json",
+        field_path: "section.outside_diameter"
+      },
+      source_quantity: {
+        value: 0.168,
+        unit: "m",
+        dimension: "length"
+      },
+      target_quantity: {
+        value: 0.168,
+        unit: "m",
+        dimension: "length"
+      },
+      conversion_performed: false,
+      preservation_status: "unit_and_value_preserved"
+    });
+    expect(
+      nativePackagePacket.unit_preservation.result_quantity_witnesses.find(
+        (witness: { witness_id: string }) =>
+          witness.witness_id === "native-unit:result:result:force:pipe-P-120:axial:value"
+      )
+    ).toMatchObject({
+      source_ref: {
+        ref_type: "result_row",
+        ref_id: "result:force:pipe-P-120:axial",
+        field_path: "value"
+      },
+      target_ref: {
+        member_path: "results/result_envelope_ref.json",
+        field_path: "value"
+      },
+      conversion_performed: false,
+      preservation_status: "unit_and_value_preserved"
+    });
     expect(nativePackagePacket.stable_id_map.entity_ref_count).toBe(19);
     expect(nativePackagePacket.stable_id_map.result_ref_count).toBe(737);
     expect(nativePackagePacket.stable_id_map.operation_ref_count).toBe(0);

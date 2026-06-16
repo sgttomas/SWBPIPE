@@ -13,6 +13,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 native JSON package unit preservation witnesses (`TP-UNITS-B2B3-NATIVEUNITWITNESS-001`)
+
+Adds target-format unit evidence to the desktop native JSON package review
+packet. The package now declares a
+`maps/unit_preservation_witnesses.json` member, a
+`unit_witness_policy`, and a `unit_preservation` sidecar with the accepted
+DEC-018 unit-system reference. Because native JSON is a project-owned
+unit-preserving format, the packet records `conversion_performed=false`.
+
+The sidecar records 6 project unit declarations, 18 model quantity witnesses,
+and 739 result quantity witnesses from the invented preview fixture. Witnesses
+bind source refs to target package member paths and prove value+unit
+preservation for model quantities and result-envelope rows; regression
+coverage checks concrete pipe outside-diameter and axial-force witnesses.
+The visible Native JSON package panel reports the witness counts and
+conversion posture.
+
+Evidence: focused App Vitest passed **54/54**; full desktop Vitest passed
+**386/386**; desktop build passed with the existing Vite chunk-size warning;
+full desktop Playwright passed **10/10**; in-app Browser verified the solve
+completed with `result_rows=737` and the export panel showed
+`project_units=6`, `model_quantities=18`, `result_quantities=739`, and
+`conversion=false`; five-surface DEC-025 dirty-tree sweep passed and wrote
+`validation/evidence/sweeps/SWEEP_20260616T025334Z_92ba64e2b4e3-dirty.json`.
+Run records:
+`DEL-17-03 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-NATIVEUNITWITNESS-001.md`
+and the supporting DEL-02-02 record; SMOKE TP-MAC-179.
+
+Boundary: native JSON browser-preview evidence only; no Python native export
+schema, writer, fixture, parser, public API, downstream target compatibility
+claim, protected content, private project data, network/telemetry path,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-16 — B2/B3 review-geometry coordinate unit witnesses (`TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001`)
 
 Adds target-format unit evidence to the desktop review-geometry glTF JSON

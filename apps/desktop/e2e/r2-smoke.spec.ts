@@ -372,6 +372,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
     "target=m"
   );
+  await openWorkspaceSection(page, "exports");
+  const nativeJsonPackage = page.getByLabel("Native JSON package");
+  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
+    "project_units=6"
+  );
+  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
+    "model_quantities=18"
+  );
+  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
+    "result_quantities=739"
+  );
+  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
+    "conversion=false"
+  );
 
   // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
   // node intent through the structured-operation seam in a real browser and
