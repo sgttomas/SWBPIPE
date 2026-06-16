@@ -159,6 +159,26 @@ Boundary note:
 - Boundaries preserved: no visible unit picker/display retrofit, solver-boundary normalization, report renderer change, import/export change, rule-pack evaluator change, browser fallback unit catalog, protected-content ingestion, private-data ingestion, professional approval, certification, sealing, authentication, release-readiness, or code-compliance claim.
 - Residual handoffs: B2 still owns visible app unit fields, solver-boundary normalization, report unit disclosure, imports/exports, and rule-pack unit I/O; B3 still owns broader conversion witness and tolerance corpus coverage.
 
+## 2026-06-16 - TP-UNITS-B2B3-PCFCONVWITNESS-001 PCF conversion witnesses
+
+- Added a desktop PCF export conversion-witness package member for DEC-018
+  source-to-target length conversions already performed by the conservative PCF
+  preview.
+- Witnesses record source value/unit/dimension, target PCF millimeter
+  value/unit/field, conversion factor, DEC-018/DEL-02-02 basis refs, and
+  preview provenance for node coordinate and pipe OD/wall fields.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-PCFCONVWITNESS-001.md`;
+  corresponding DEL-17-07 run record; `apps/desktop/SMOKE.md` TP-MAC-172.
+- Validation: focused App Vitest 54/54; full desktop Vitest 386/386; desktop
+  build passed with the existing Vite chunk-size warning; focused Playwright
+  R2 smoke 2/2.
+- Boundaries preserved: no unit catalog change, no runtime conversion-engine
+  change, no schema-owned Python export contract change, no protected-content
+  ingestion, no private-data ingestion, and no professional approval,
+  certification, sealing, authentication, release-readiness, target
+  compatibility, or code-compliance claim.
+
 ## 2026-06-12 - TP-UNITS-B2-INSPECTORLABELS-001 Property Inspector unit basis labels
 
 - Added catalog-aware unit display helpers to the frontend unit-catalog

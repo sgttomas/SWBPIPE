@@ -5631,3 +5631,31 @@ notes:
   solver, rule-pack, private-data, protected-content, network, telemetry,
   release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-172 PCF conversion witnesses (`TP-UNITS-B2B3-PCFCONVWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop conservative PCF export package now
+  embeds `conversion_witnesses` so its millimeter target fields are auditable
+  beyond the previously landed unit-system disclosure.
+- Package behavior: downloaded PCF JSON includes one witness for each node
+  coordinate component and pipe OD/wall field. Each witness records source
+  object/field, source value/unit/dimension, target PCF value/unit/field,
+  conversion factor, DEC-018/DEL-02-02 basis refs, and preview provenance.
+  The manifest now lists `conversion_witnesses.json`, and the validation
+  report checks witness count and `MM` target units.
+- Regression evidence: `App.test.tsx` decodes the PCF package and verifies the
+  `pipe:P-120` outside diameter witness converts `0.168 m` to `168 MM`, that a
+  node coordinate witness targets `MM`, that the manifest member is present,
+  and that the PCF text carries `OUTSIDE-DIAMETER 168`.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; focused Playwright R2 smoke **2/2** across the
+  configured desktop/compact Chromium projects.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-PCFCONVWITNESS-001.md`
+  (DEL-17-07 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: desktop PCF package only; no downstream import
+  compatibility, solver-deck validation, target-profile closure, hidden target
+  default, protected content, private data, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

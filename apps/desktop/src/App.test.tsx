@@ -383,7 +383,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("target=bolt_diameter=MM");
     expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("coordinates=MM");
     expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("conversion=true");
-    expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("members=7");
+    expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("members=8");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("stable_ids=4");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("diagnostics=4");
     await waitFor(() =>
@@ -422,9 +422,34 @@ describe("OpenPipeStress desktop preview", () => {
     expect(pcfPacket.unit_system_disclosure.conversion_performed).toBe(true);
     expect(pcfPacket.unit_system_disclosure.conversion_scope).toContain("node.coordinates");
     expect(pcfPacket.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(pcfPacket.conversion_witnesses).toHaveLength(23);
+    expect(pcfPacket.manifest.package_members.map((item: { member_role: string }) => item.member_role)).toContain(
+      "conversion_witnesses"
+    );
+    const pcfOdWitness = pcfPacket.conversion_witnesses.find(
+      (item: { witness_id: string }) => item.witness_id === "pcf-conversion:pipe-p-120:outside_diameter"
+    );
+    expect(pcfOdWitness.source_quantity).toEqual({ value: 0.168, unit: "m", dimension: "length" });
+    expect(pcfOdWitness.target_quantity).toEqual({
+      value: 168,
+      unit: "MM",
+      target_field: "pcf_payload.pipe_segments.pipe:P-120.outside_diameter"
+    });
+    expect(pcfOdWitness.conversion_factor_to_target).toBe(1000);
+    expect(pcfOdWitness.conversion_status).toBe("converted_to_target_unit");
+    const pcfNodeWitness = pcfPacket.conversion_witnesses.find(
+      (item: { witness_id: string }) => item.witness_id === "pcf-conversion:node-n-100:position:x"
+    );
+    expect(pcfNodeWitness.source_quantity).toEqual({ value: 0, unit: "m", dimension: "length" });
+    expect(pcfNodeWitness.target_quantity.unit).toBe("MM");
     expect(pcfPacket.pcf_payload.nodes).toHaveLength(5);
     expect(pcfPacket.pcf_payload.pipe_segments).toHaveLength(4);
+    expect(
+      pcfPacket.pcf_payload.pipe_segments.find((item: { element_id: string }) => item.element_id === "pipe:P-120")
+        .outside_diameter
+    ).toBe("168");
     expect(pcfPacket.pcf_text).toContain("UNITS-CO-ORDS MM");
+    expect(pcfPacket.pcf_text).toContain("OUTSIDE-DIAMETER 168");
     expect(pcfPacket.pcf_text).toContain("COMPONENT-IDENTIFIER OPS-PIPE-P-120");
     expect(pcfPacket.pcf_text).toContain("TBD_SOURCE_REQUIRED");
     expect(pcfPacket.pcf_text).toContain("END-ISOGEN");
@@ -434,6 +459,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(pcfPacket.validation_report.validation_status).toBe("blocked_missing_explicit_pcf_target_fields");
     expect(pcfPacket.validation_report.schema_validation_status).toBe(
       "desktop_preview_shape_aligned_not_runtime_json_schema_validated"
+    );
+    expect(pcfPacket.validation_report.checks.map((item: { check_id: string }) => item.check_id)).toContain(
+      "conversion_witness_per_converted_length_field"
     );
     expect(pcfPacket.diagnostics.map((item: { code: string }) => item.code)).toContain(
       "PCF-NOMINAL-SIZE-TBD"

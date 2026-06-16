@@ -13,6 +13,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 PCF conversion witnesses (`TP-UNITS-B2B3-PCFCONVWITNESS-001`)
+
+Adds auditable target-format conversion witnesses to the desktop conservative
+PCF export package. The earlier export-disclosure tranche stated that the PCF
+text uses millimeter coordinate and pipe-geometry fields, but the downloaded
+desktop package did not include a per-field source-to-target record proving the
+conversion.
+
+`PcfExportPanel` now emits `conversion_witnesses` in the downloaded JSON
+package and lists `conversion_witnesses.json` in the manifest. Each witness
+names the source object and field path, source value/unit/dimension, target
+PCF field/value/unit (`MM`), the conversion factor, DEC-018/DEL-02-02 basis
+refs, and preview provenance. The validation report now checks that each
+converted length field has a witness and that all witness target units are
+millimeters. The existing PCF text remains conservative and blocked for target
+compatibility because nominal size/profile and downstream behavior remain TBD.
+
+Evidence: focused `App.test.tsx` Vitest **54/54**; full desktop Vitest
+**386/386**; desktop production build clean with the existing Vite chunk-size
+warning; focused Playwright R2 smoke **2/2**. Run records:
+`DEL-17-07 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-PCFCONVWITNESS-001.md`;
+`DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-PCFCONVWITNESS-001.md`;
+SMOKE TP-MAC-172.
+
+Boundary: desktop PCF package surface only; no Python/schema export package
+contract change, no downstream import compatibility claim, no solver-deck
+validation, no hidden target default, no protected standards content, no
+private data, and no release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim.
+
+Residual: B2 still owns import round-trip unit I/O and broader app unit
+entry/pickers outside the named covered forms. B3 still owns broader
+mixed-unit round-trip, conversion-witness, incompatible-unit rejection, and
+D-04/DEC-026 tolerance corpus outside the product-physics, operation,
+rule-pack, node-coordinate, and PCF export witness boundaries.
+
+---
+
 ## 2026-06-16 — B2 load-case inspector primitive unit payloads (`TP-UNITS-B2-LOADINSPECTORUNITS-001`)
 
 Extends the B2 unit-aware editor pattern to the Property Inspector's load-case
