@@ -13,6 +13,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 rule-check run-time unit binding controls (`TP-UNITS-B2-RULECHECKRUNUNITS-001`)
+
+Adds catalog-aware unit controls to the C4 run-check panel for runtime
+user-supplied value bindings and value-slot limit bindings. Desktop/Tauri
+runs load the reviewed DEC-018 catalog only when the loaded rule pack has
+runtime value units, filter accepted unit options by declared dimension, and
+keep any out-of-catalog stored unit visible as the current value.
+
+Browser preview deliberately keeps the previous manual text-entry route for
+the same test ids and reports that no fallback catalog was synthesized. The
+binding payload sent to the runner remains the explicit `{value, unit,
+dimension}` shape; this tranche changes the GUI unit control and witness
+surface, not the schema or evaluator semantics.
+
+Evidence: focused `RuleCheckRunPanel` Vitest passed **18/18**; full desktop
+Vitest passed **389/389**; desktop build passed with the existing Vite
+chunk-size warning; focused run-check Playwright passed **2/2**; full desktop
+Playwright passed **10/10** with `--workers=1`; in-app Browser verified the
+browser fallback status, text-input tags, `demo_unit`/`ratio` values, and
+model-metadata basis text; five-surface DEC-025 dirty-tree sweep passed and
+wrote
+`validation/evidence/sweeps/SWEEP_20260616T034816Z_9be2d805ab17-dirty.json`.
+Run records:
+`DEL-07-04 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-RULECHECKRUNUNITS-001.md`
+plus supporting DEL-06-02 and DEL-02-02 records; SMOKE TP-MAC-182.
+
+Boundary: GUI run-time binding unit controls only; no schema, evaluator,
+rule-pack parser, writable expression text syntax, protected content, private
+project data, network/telemetry path, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
 ## 2026-06-16 — B2/B3 viewport draft length-unit controls (`TP-UNITS-B2-VIEWPORTDRAFTUNITS-001`)
 
 Adds explicit length-unit controls to the viewport create-node and

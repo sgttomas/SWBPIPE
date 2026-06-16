@@ -65,3 +65,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Recommendation is `MOVE_TO_CHECKING` because `PKG07-DEL0704-PKG02-001` and `PKG07-DEL0704-PKG02-002` now show `HumanDisposition=ACCEPT_AS_IS` and `Status=RESOLVED`, and current test-discovery evidence supports the DEL-07-04 pytest wrapper plus PKG-07 validation fan-in.
 - Read-only dependency context: local `Dependencies.csv` still carries May 10 `PENDING` satisfaction labels for `DEL-04-06`, `DEL-05-04`, and `DEL-06-03`; their current local `_STATUS.md` files read `CHECKING`. This review did not edit dependency artifacts or claim dependency closure.
 - No lifecycle state, `_STATUS.md`, dependency register, DAG artifact, code, schema, fixture, test, four-document artifact, release status, professional approval, certification, sealing, authentication, code-compliance status, or `ISSUED` status was changed.
+
+## 2026-06-16 - TP-UNITS-B2-RULECHECKRUNUNITS-001 run-check runtime unit controls
+
+- WORKING_ITEMS B2/B3 units tranche added catalog-aware unit controls to the
+  run-rule-checks panel for runtime user-supplied values and value-slot
+  limits.
+- Desktop/Tauri paths load the DEC-018 catalog when the loaded pack has
+  runtime value bindings, filter options by binding dimension, and preserve
+  out-of-catalog current units. Browser preview keeps manual unit text fields
+  and reports that no fallback catalog was synthesized.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-RULECHECKRUNUNITS-001.md`;
+  supporting DEL-06-02 and DEL-02-02 records; SMOKE TP-MAC-182; completion
+  log entry.
+- Validation passed: focused RuleCheckRunPanel Vitest 18/18; full desktop
+  Vitest 389/389; desktop build with existing Vite chunk-size warning;
+  focused run-check Playwright 2/2; full desktop Playwright 10/10; in-app
+  Browser run-check unit verification pass; DEC-025 dirty-tree sweep pass.
+- Boundary unchanged: no schema, evaluator, rule-pack parser, private data,
+  protected content, network/telemetry path, release-readiness claim, or
+  professional/code-compliance claim changed.

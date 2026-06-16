@@ -628,3 +628,24 @@ Boundary note:
   tolerance policy, project-unit mutation, hidden unit fallback, protected
   content, private data, release-readiness claim, or professional/code-
   compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2-RULECHECKRUNUNITS-001 run-check runtime unit controls
+
+- Added supporting B2/B3 unit evidence for C4 run-check runtime value binding
+  controls.
+- The GUI now presents DEC-018-backed desktop unit selectors for user-supplied
+  value and value-slot bindings, filtered by declared dimension, with browser
+  preview retaining explicit manual stored-unit text entry.
+- The unit catalog is consumed as metadata for controls only; no catalog
+  constant, schema dimension enum, tolerance policy, or evaluator behavior was
+  changed.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-RULECHECKRUNUNITS-001.md`;
+  supporting run records in DEL-06-02 and this deliverable; SMOKE TP-MAC-182;
+  completion log entry.
+- Validation passed: focused RuleCheckRunPanel Vitest, full desktop Vitest,
+  desktop build, focused/full Playwright, in-app Browser verification, and
+  DEC-025 dirty-tree sweep.
+- Boundary unchanged: no DEC-018 catalog constant, schema dimension enum,
+  tolerance policy, hidden unit fallback, protected content, private data,
+  release-readiness claim, or professional/code-compliance claim changed.

@@ -857,6 +857,9 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   // plan is derived from the loaded document.
   await page.getByTestId("rule-check-load-demo").click();
   await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  await expect(page.getByTestId("rule-check-unit-catalog-status")).toContainText(
+    "stored manual text"
+  );
   const packText = await page.getByTestId("rule-check-pack-json").inputValue();
   expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
 
@@ -865,6 +868,14 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeVisible();
   await expect(page.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeVisible();
   await expect(page.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeVisible();
+  await expect(page.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
+  await expect(page.getByTestId("rule-check-slot-unit-demo_limit_slot")).toHaveValue("ratio");
+  await expect(page.getByTestId("rule-check-value-unit-basis-demo_limit_quantity")).toContainText(
+    "demo_unit, model metadata"
+  );
+  await expect(page.getByTestId("rule-check-slot-unit-basis-demo_limit_slot")).toContainText(
+    "ratio, model metadata"
+  );
 
   // Running routes to the desktop-only seam in browser preview: the runner
   // (completeness gate + frozen-grammar evaluation + acceptability comparison)

@@ -5931,3 +5931,36 @@ notes:
   professional approval, certification, sealing, authentication, code-
   compliance claim, protected content, private project data, network path, or
   telemetry path changed.
+
+## TP-MAC-182 rule-check run-time unit binding controls (`TP-UNITS-B2-RULECHECKRUNUNITS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice on the C4 run-check GUI: runtime
+  user-supplied values and value-slot limits in `RuleCheckRunPanel` now use
+  catalog-aware unit controls for their binding units.
+- Desktop/Tauri behavior: the panel loads the DEC-018 catalog only when a
+  loaded rule pack has runtime value bindings, filters accepted unit options by
+  the binding dimension, preserves out-of-catalog stored units as current
+  values, and shows per-binding unit-basis text.
+- Browser behavior: browser preview keeps the existing manual unit text fields
+  for the same `data-testid` controls and reports
+  `browser preview keeps run-check unit refs as stored manual text; no fallback
+  catalog synthesized`.
+- Browser/e2e proof: the run-rule-checks Playwright smoke asserts the browser
+  fallback status, `demo_unit` user-value unit, `ratio` slot unit, and both
+  model-metadata unit-basis witnesses in desktop and compact viewports.
+  In-app Browser verification observed the same status and text-input tags.
+- Validation: focused `RuleCheckRunPanel` Vitest passed **18/18**; full
+  desktop Vitest passed **389/389**; desktop production build passed with the
+  existing Vite chunk-size warning; focused run-check Playwright passed
+  **2/2**; full desktop Playwright passed **10/10** with `--workers=1`;
+  five-surface DEC-025 dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T034816Z_9be2d805ab17-dirty.json`.
+- Evidence: DEL-07-04 primary run record plus DEL-06-02 and DEL-02-02
+  supporting run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-RULECHECKRUNUNITS-001.md`;
+  completion plan/log updated.
+- Boundary review: GUI run-time binding unit controls only; no schema,
+  evaluator, rule-pack parser, writable expression text syntax, protected
+  content, private data, network/telemetry path, release-readiness claim,
+  professional approval, certification, sealing, authentication, or code-
+  compliance claim changed.

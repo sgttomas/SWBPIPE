@@ -24,6 +24,76 @@ const resultStub = {
   ]
 } as unknown as MechanicsResult;
 
+const unitCatalogStub = {
+  schema_version: "1.0.0",
+  catalog_id: "unit-system:dec-018-si-dual-display",
+  decision_basis: "DEC-018",
+  calculation_basis: "si_canonical",
+  storage_convention: "entered_units_preserved",
+  entry_count: 4,
+  entries: [
+    {
+      unit_id: "unit:pascal",
+      symbol: "Pa",
+      dimension_id: "pressure",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:kilopascal",
+      symbol: "kPa",
+      dimension_id: "pressure",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "1000",
+      offset_representation: null,
+      provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:megapascal",
+      symbol: "MPa",
+      dimension_id: "pressure",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "1000000",
+      offset_representation: null,
+      provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:ratio",
+      symbol: "ratio",
+      dimension_id: "dimensionless",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1",
+      offset_representation: null,
+      provenance: "project_governed_decision",
+      review_status: "accepted"
+    }
+  ],
+  boundary: {
+    source: "core/units open_pipe_stress_units catalog",
+    protected_content_included: false,
+    private_project_data_included: false,
+    professional_approval_claimed: false,
+    code_compliance_claimed: false
+  }
+};
+
+function mockCatalogAndRuleRun(result: unknown) {
+  invokeMock.mockImplementation((command) => {
+    if (command === "get_unit_catalog") return Promise.resolve(unitCatalogStub);
+    if (command === "run_rule_checks") return Promise.resolve(result);
+    return Promise.resolve(null);
+  });
+}
+
 beforeEach(() => {
   invokeMock.mockReset();
 });
@@ -59,15 +129,47 @@ describe("RuleCheckRunPanel", () => {
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
 
     await screen.findByTestId("rule-check-binding-plan");
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-unit-catalog-status").textContent).toContain(
+        "stored manual text"
+      )
+    );
     // solver_result input -> result-row select; user value input + value slot -> entry fields.
     expect(screen.getByTestId("rule-check-solver-select-demo_actual_quantity")).toBeInTheDocument();
     expect(screen.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeInTheDocument();
     expect(screen.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeInTheDocument();
+    expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
+    expect(screen.getByTestId("rule-check-slot-unit-demo_limit_slot")).toHaveValue("ratio");
+    expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
+      "demo_unit, model metadata"
+    );
     // The solved result row is offered as a binding option.
     expect(
       screen.getByTestId("rule-check-solver-select-demo_actual_quantity").textContent
     ).toContain("result:stress:demo");
     expect(screen.getByTestId("rule-check-run")).toHaveProperty("disabled", false);
+  });
+
+  it("loads the DEC-018 catalog for runtime value units in desktop mode", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unitCatalogStub);
+
+    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-unit-catalog-status").textContent).toContain(
+        "DEC-018 unit catalog loaded"
+      )
+    );
+    expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity").tagName).toBe("SELECT");
+    expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity").textContent).toContain("MPa");
+    expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity").textContent).not.toContain("ratio");
+    expect(screen.getByTestId("rule-check-slot-unit-demo_limit_slot").textContent).toContain("ratio");
+    expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
+      "catalog mismatch"
+    );
+    expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog");
   });
 
   it("reports a JSON parse error for an invalid pasted pack", () => {
@@ -180,7 +282,7 @@ describe("RuleCheckRunPanel", () => {
 
   it("renders per-check outcomes and the aggregate from a desktop run", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue({
+    mockCatalogAndRuleRun({
       document_kind: "openpipestress.rule_check.run",
       rule_pack_id: "invented_demo_rule_pack",
       grammar_version: "1.0.0",
@@ -289,7 +391,7 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
 
   it("lifts the worst-of aggregate to onAggregateChange on a desktop run", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue(passingRun);
+    mockCatalogAndRuleRun(passingRun);
     const onAggregateChange = vi.fn();
 
     render(<RuleCheckRunPanel model={modelStub} result={resultStub} onAggregateChange={onAggregateChange} />);
