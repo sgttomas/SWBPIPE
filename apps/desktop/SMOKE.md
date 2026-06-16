@@ -5803,3 +5803,35 @@ notes:
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed. **F-4 remains open** until the human
   packaged GUI journey is completed.
+
+## TP-MAC-178 review-geometry coordinate unit witnesses (`TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop review-geometry glTF JSON preview now
+  emits `coordinate_unit_witnesses` and a package member
+  `coordinate_unit_witnesses.json`.
+- Packet behavior: the review-geometry export declares
+  `unit-system:dec-018-si-dual-display`, source model units, target glTF
+  coordinate unit `m`, `conversion_performed=false`, and the existing
+  `preview_z_up_to_gltf_y_up_rotation_x_minus_90` axis transform.
+- Witness coverage: 54 coordinate-component records cover pipe endpoints,
+  node markers, support markers, and component markers in the same vertex
+  order as emitted glTF positions. Regression checks prove `pipe:P-120`
+  source Y maps to target glTF Z with the documented sign flip.
+- Browser/e2e proof: the R2 Playwright smoke checks the visible Review
+  Geometry Export `Unit witnesses` line reports `count=54` and `target=m`.
+  In-app Browser verification was attempted but its URL policy blocked
+  `http://127.0.0.1:4179/` before navigation; no workaround was used.
+- Validation: focused App Vitest passed **54/54**; full desktop Vitest passed
+  **386/386**; desktop production build passed with the existing Vite
+  chunk-size warning; full desktop Playwright passed **10/10** after rerunning
+  an initial Chrome launch SIGKILL before app startup; five-surface DEC-025
+  sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T013908Z_673a4de9628e-dirty.json`.
+- Evidence: DEL-17-08 primary run record and DEL-02-02 supporting run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001.md`;
+  completion plan/log updated.
+- Boundary review: review-geometry browser-preview evidence only; no binary
+  GLB package, viewer compatibility claim, solver-geometry equivalence,
+  target-compatibility claim, protected content, private data,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

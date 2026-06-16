@@ -318,6 +318,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(reviewGeometry).getByTestId("review-geometry-coverage").textContent).toContain("supports");
     expect(within(reviewGeometry).getByTestId("review-geometry-coverage").textContent).toContain("load_cases");
     expect(within(reviewGeometry).getByTestId("review-geometry-stable-ids").textContent).toContain("sidecar=required");
+    expect(within(reviewGeometry).getByTestId("review-geometry-unit-witnesses").textContent).toContain("count=54");
+    expect(within(reviewGeometry).getByTestId("review-geometry-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(reviewGeometry).getByTestId("review-geometry-unit-witnesses").textContent).toContain(
+      "target=m"
+    );
     expect(within(reviewGeometry).getByTestId("review-geometry-boundary").textContent).toContain(
       "visual_review_geometry_only"
     );
@@ -338,6 +345,17 @@ describe("OpenPipeStress desktop preview", () => {
     expect(geometryPacket.review_geometry_profile.gltf_version_basis).toBe("2.0");
     expect(geometryPacket.review_geometry_profile.target_artifact).toBe("glTF_2_0_json_preview");
     expect(geometryPacket.review_geometry_profile.glb_binary_writer_status).toBe("TBD");
+    expect(geometryPacket.review_geometry_profile.unit_witness_policy).toBe(
+      "coordinate_sidecar_required_for_emitted_positions"
+    );
+    expect(geometryPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(geometryPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(geometryPacket.unit_system_disclosure.target_export_units.coordinates).toBe("m");
+    expect(geometryPacket.unit_system_disclosure.axis_transform_policy).toBe(
+      "preview_z_up_to_gltf_y_up_rotation_x_minus_90"
+    );
     expect(geometryPacket.geometry_summary.pipe_segment_count).toBe(4);
     expect(geometryPacket.geometry_summary.stable_id_count).toBe(19);
     expect(geometryPacket.gltf_asset.asset.version).toBe("2.0");
@@ -346,6 +364,43 @@ describe("OpenPipeStress desktop preview", () => {
     expect(geometryPacket.gltf_asset.buffers[0].byteLength).toBeGreaterThan(0);
     expect(geometryPacket.gltf_asset.extras.gltf_boundary).toBe("visual_review_only_not_solver_geometry");
     expect(geometryPacket.sidecar_id_map.entries).toHaveLength(19);
+    expect(geometryPacket.package_members.map((member: { filename: string }) => member.filename)).toContain(
+      "coordinate_unit_witnesses.json"
+    );
+    expect(geometryPacket.coordinate_unit_witnesses).toHaveLength(54);
+    expect(
+      geometryPacket.coordinate_unit_witnesses.find(
+        (witness: { witness_id: string }) => witness.witness_id === "review-geometry-unit:pipe:P-120:from.position.y"
+      )
+    ).toMatchObject({
+      source_ref: {
+        ref_type: "pipe_segment_endpoint",
+        ref_id: "pipe:P-120",
+        source_node_ref: "node:N-120",
+        field_path: "from.position.y"
+      },
+      target_ref: {
+        group_name: "OpenPipeStress pipe centerline review geometry",
+        vertex_index: 4,
+        coordinate_index: 2,
+        target_axis: "z"
+      },
+      source_quantity: {
+        value: 2.4,
+        unit: "m",
+        dimension: "length",
+        axis: "y"
+      },
+      target_quantity: {
+        value: -2.4,
+        unit: "m",
+        dimension: "length",
+        axis: "z"
+      },
+      conversion_performed: false,
+      axis_transform: "preview_z_up_to_gltf_y_up_rotation_x_minus_90",
+      conversion_status: "unit_preserved_axis_transformed"
+    });
     expect(
       geometryPacket.sidecar_id_map.entries.find((entry: { stable_id: string }) => entry.stable_id === "pipe:P-120")
         .export_status

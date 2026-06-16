@@ -13,6 +13,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 review-geometry coordinate unit witnesses (`TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001`)
+
+Adds target-format unit evidence to the desktop review-geometry glTF JSON
+preview. The packet now includes `unit_system_disclosure` with the accepted
+DEC-018 unit-system reference, source model units, target glTF coordinate unit
+`m`, `conversion_performed=false`, and the existing
+`preview_z_up_to_gltf_y_up_rotation_x_minus_90` axis transform.
+
+The export now carries a `coordinate_unit_witnesses` sidecar member. Witnesses
+are generated in the same vertex order as emitted glTF positions and cover
+pipe endpoints, node markers, support markers, and component markers. Each
+record binds source value/unit/dimension/axis to target glTF
+value/unit/dimension/axis plus vertex coordinate location and basis refs. The
+visible Review Geometry Export panel reports the witness count and target unit.
+
+Evidence: focused App Vitest passed **54/54**; full desktop Vitest passed
+**386/386**; desktop build passed with the existing Vite chunk-size warning;
+full desktop Playwright passed **10/10** after rerunning an initial Chrome
+launch SIGKILL before app startup; in-app Browser verification was attempted
+but blocked by its URL policy before localhost navigation; five-surface
+DEC-025 sweep passed and wrote
+`validation/evidence/sweeps/SWEEP_20260616T013908Z_673a4de9628e-dirty.json`.
+Run records:
+`DEL-17-08 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001.md`
+and the supporting DEL-02-02 record; SMOKE TP-MAC-178.
+
+Boundary: review-geometry browser-preview evidence only; no binary GLB
+package, viewer compatibility claim, solver-geometry equivalence,
+target-compatibility claim, protected content, private project data,
+network/telemetry path, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-16 — A3 authoring journey status rail (`TP-APP-R3-A3-JOURNEYPATH-001`)
 
 Adds a compact authoring-journey status rail to the desktop shell to reduce

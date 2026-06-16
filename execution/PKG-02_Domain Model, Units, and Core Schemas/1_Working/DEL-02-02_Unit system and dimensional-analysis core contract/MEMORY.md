@@ -564,3 +564,23 @@ Boundary note:
 - Boundary unchanged: no unit catalog constant, grammar, schema, parser,
   protected content, private data, release-readiness claim, or professional/
   code-compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001 review-geometry unit witnesses
+
+- Added supporting B2/B3 unit evidence for the DEL-17-08 review-geometry glTF
+  JSON preview packet.
+- The packet now records `unit-system:dec-018-si-dual-display`, source model
+  units, target coordinate unit `m`, `conversion_performed=false`, and the
+  glTF +Y-up axis transform policy.
+- The witness set covers 54 emitted coordinate components for pipe endpoints,
+  node markers, support markers, and component markers in the invented preview
+  fixture.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001.md`;
+  primary DEL-17-08 run record; SMOKE TP-MAC-178; completion log entry.
+- Validation passed: focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build with existing Vite chunk-size warning; final full desktop
+  Playwright 10/10; DEC-025 sweep pass.
+- Boundary unchanged: no unit catalog constant, conversion API, tolerance
+  policy, schema dimension enum, protected content, private data,
+  release-readiness claim, or professional/code-compliance claim changed.
