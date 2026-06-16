@@ -5580,3 +5580,29 @@ notes:
   change; no protected standards content, private value, browser fallback
   catalog, release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-170 rule-pack read-only AST text display (`TP-C2-ASTTEXT-001`, 2026-06-16)
+
+- Phase C2 / D-02b follow-up slice: `ExpressionComposer` now shows a
+  deterministic read-only text rendering of the selected formula AST above the
+  structured editor, as permitted by `DEC-037` Option O-C.
+- The display is explicitly labeled `Display only; not input; notation
+  non-frozen.` It is not an input control, is never serialized into the pack,
+  and no parser or writable expression text syntax is introduced. The typed AST
+  remains the sole canonical, checksum-bound expression form.
+- Browser Playwright smoke extends the existing rule-pack manager journey:
+  it asserts the display label, the initial `variable_ref` rendering, the
+  composed compare rendering, and the table-backed `interpolate(...)` rendering
+  while still verifying that canonical draft JSON carries the AST.
+- Validation: focused `ExpressionComposer` Vitest **20/20**; desktop Vitest
+  **385/385**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; focused Playwright rule-pack manager smoke **2/2**;
+  full Playwright e2e **10/10** across configured desktop/compact Chromium
+  projects.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXT-001.md` (DEL-07-03 primary and
+  DEL-06-02 companion); completion plan/log updated.
+- Boundary review: frontend-only; no schema/backend/evaluator/grammar/parser,
+  checksum, persistence, local-store, or rule-check status change; no protected
+  standards content, private value, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

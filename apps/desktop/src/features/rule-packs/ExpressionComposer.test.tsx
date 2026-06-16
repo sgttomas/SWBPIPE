@@ -15,6 +15,7 @@ import {
   nodeKind,
   parseRulePackDocument,
   readFormulaDeclarations,
+  renderExpressionText,
   setFormulaExpression,
   type AstNode,
   type RulePackDocument
@@ -245,6 +246,29 @@ describe("ExpressionComposer pure helpers", () => {
     const parsed = parseRulePackDocument('{"a":1}');
     expect(parsed).toEqual({ ok: true, document: { a: 1 } });
   });
+
+  it("renders a deterministic display-only text view of the frozen AST", () => {
+    const expression: AstNode = {
+      node: "compare",
+      operator: "less_than_or_equal",
+      left: {
+        node: "binary",
+        operator: "divide",
+        left: { node: "variable_ref", variable_id: "actual_stress" },
+        right: { node: "literal", quantity: { value: 2, dimension: "dimensionless", unit_ref: "ratio" } }
+      },
+      right: { node: "variable_ref", variable_id: "allowable_stress" }
+    };
+
+    expect(renderExpressionText(expression)).toBe(
+      "((actual_stress / 2 ratio [dimensionless]) <= allowable_stress)"
+    );
+    expect(renderExpressionText({ node: "lookup", mode: "step", table: { table_id: "t1" }, argument: expression })).toBe(
+      "lookup:step(t1, ((actual_stress / 2 ratio [dimensionless]) <= allowable_stress))"
+    );
+    expect(renderExpressionText({ node: "unsafe_host_access" })).toBe("[refusal:unsafe_host_access]");
+    expect(renderExpressionText({ node: "future_feature" })).toBe("[unrecognized:future_feature]");
+  });
 });
 
 function Harness({ initial }: { initial: RulePackDocument }) {
@@ -274,6 +298,13 @@ describe("ExpressionComposer component", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     // The draft starts with a single variable_ref root node.
     expect(harnessExpression()).toEqual({ node: "variable_ref", variable_id: "user_required_input_1" });
+    expect(screen.getByTestId("rule-pack-expression-rendering").textContent).toContain(
+      "user_required_input_1"
+    );
+    expect(screen.getByTestId("rule-pack-expression-rendering").textContent).toContain(
+      "Display only; not input; notation non-frozen."
+    );
+    expect(screen.getByTestId("rule-pack-expression-rendering").querySelector("input")).toBeNull();
 
     fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], {
       target: { value: "compare" }
@@ -283,6 +314,9 @@ describe("ExpressionComposer component", () => {
     expect(compare.operator).toBe("less_than_or_equal");
     expect((compare.left as AstNode).node).toBe("variable_ref");
     expect((compare.right as AstNode).node).toBe("literal");
+    expect(screen.getByTestId("rule-pack-expression-rendering").textContent).toContain(
+      "(user_required_input_1 <= 0 TBD [TBD])"
+    );
   });
 
   it("edits a literal value, dimension, and unit", () => {

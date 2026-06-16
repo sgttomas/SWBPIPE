@@ -13,6 +13,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — C2 read-only AST text display (`TP-C2-ASTTEXT-001`)
+
+Implements the `DEC-037` / D-02b Option O-C permission for a labeled,
+read-only, one-way rendering of the structured rule-pack expression AST. Before
+this slice, the C2 composer was structured-only and the completion plan still
+tracked the permitted rendering as a future candidate.
+
+`ExpressionComposer` now renders the selected formula's current AST as a
+deterministic display-only text string above the structured node editor. The
+display is explicitly labeled "Display only; not input; notation non-frozen";
+it is not an input control, is never serialized into the rule-pack document,
+and no parser or writable expression text syntax is introduced. The typed AST
+remains the sole edited and checksum-bound expression form under `DEC-022`.
+
+Evidence: focused `ExpressionComposer` Vitest **20/20**; full desktop Vitest
+**385/385**; desktop production build clean with the existing Vite chunk-size
+warning; focused Playwright rule-pack manager smoke **2/2** and full Playwright
+e2e **10/10** across configured desktop/compact Chromium projects. Run records:
+`DEL-07-03 .../WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXT-001.md` and
+`DEL-06-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXT-001.md`; SMOKE
+TP-MAC-170.
+
+Boundary: frontend-only; no schema, backend command, evaluator, expression
+grammar, parser, checksum, persistence, local-store, or rule-check status
+change. No protected standards content, private value, writable text syntax,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim.
+
+Residual: the writable expression text syntax remains deferred behind the
+composer-usability trigger named by `DEC-037`. The advanced metadata members
+in the rule-pack editor remain raw-JSON-editable by design, not a C2
+form-builder gap.
+
+---
+
 ## 2026-06-15 — B2 rule-pack expression unit selectors (`TP-UNITS-B2-RULEEXPRUNITS-001`)
 
 Extends the DEC-018 unit-catalog UI pattern into the C2 rule-pack expression

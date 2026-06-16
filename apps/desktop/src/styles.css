@@ -2080,6 +2080,27 @@ th {
   color: #59645f;
 }
 
+.rule-pack-expression-rendering {
+  display: grid;
+  gap: 4px;
+  padding: 6px 8px;
+  border: 1px solid #d9dfdb;
+  border-radius: 6px;
+  background: #f8faf8;
+  color: #304139;
+}
+
+.rule-pack-expression-rendering > small {
+  color: #59645f;
+}
+
+.rule-pack-expression-rendering > pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
 .rule-pack-node {
   display: grid;
   gap: 4px;

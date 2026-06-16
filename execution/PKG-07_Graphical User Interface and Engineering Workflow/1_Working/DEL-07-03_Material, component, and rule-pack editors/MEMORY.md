@@ -202,3 +202,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   381/381; desktop build passed; Playwright e2e 10/10.
 - DEL-07-03 remains CHECKING; no lifecycle, release, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-16 - TP-C2-ASTTEXT-001 read-only expression AST text display
+
+- The DEL-07-03 rule-pack editor now shows a deterministic display-only text
+  rendering of the selected formula AST above the structured expression
+  composer, as permitted by `DEC-037` / D-02b Option O-C.
+- The display is explicitly labeled `Display only; not input; notation
+  non-frozen.` It is not an input control, is never saved into the rule-pack
+  document, and does not add a parser or writable expression text syntax.
+- Primary evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXT-001.md`; companion
+  DEL-06-02 run record; SMOKE TP-MAC-170; completion plan/log updated.
+- Validation: focused `ExpressionComposer` Vitest 20/20; desktop Vitest
+  385/385; desktop build passed; focused Playwright rule-pack manager 2/2;
+  full Playwright e2e 10/10.
+- DEL-07-03 remains CHECKING; no schema/backend/evaluator/grammar/parser,
+  lifecycle, release, professional, certification, sealing, authentication, or
+  code-compliance claim.

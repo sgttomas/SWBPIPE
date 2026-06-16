@@ -485,12 +485,17 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   expect(draft.classification.redistribution_status).toBe("private_only");
   await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
 
-  // Slice 2 (TP-C2-COMPOSER-001): the structured AST composer rewrites the
-  // selected formula's expression through visible controls — no text syntax
-  // (D-02b). Switching the root node type rewrites the canonical document
-  // JSON the validate/save flow reads.
+  // Slice 2 (TP-C2-COMPOSER-001) + DEC-037 follow-up: the structured AST
+  // composer rewrites the selected formula's expression through visible
+  // controls. It may render display-only text, but ships no writable text
+  // syntax and no parser. Switching the root node type rewrites the canonical
+  // document JSON the validate/save flow reads.
   await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
   await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
+  await expect(page.getByTestId("rule-pack-expression-rendering")).toContainText(
+    "Display only; not input; notation non-frozen."
+  );
+  await expect(page.getByTestId("rule-pack-expression-rendering")).toContainText("user_required_input_1");
   expect(draft.formula_declarations[0].declaration_payload.expression_ast.node).toBe("variable_ref");
 
   // Slice 4 (TP-C2-DECLEDITOR-001): the declarations editor authors the
@@ -522,6 +527,9 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest covers the desktop catalog-selector path.
   await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-literal-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-rendering")).toContainText(
+    "(user_required_input_1 <= 0 MPa [stress])"
+  );
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "compare",
@@ -540,6 +548,9 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-table-result-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-table-result-unit").fill("MPa");
   await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
+  await expect(page.getByTestId("rule-pack-expression-rendering")).toContainText(
+    "interpolate(user_table_1, user_required_input_1)"
+  );
   const tableText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(tableText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "interpolate",

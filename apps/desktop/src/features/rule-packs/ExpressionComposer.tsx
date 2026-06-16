@@ -16,11 +16,12 @@ import {
 // frozen grammar v1.0.0 typed AST (DEC-022) directly, so a user never writes
 // node-tagged JSON by hand.
 //
-// Boundary (D-02b AWAITING_RULING): the composer is purely structured. There
-// is no writable expression *text* syntax and no text *rendering* of the AST
-// — whether even a read-only rendering is permitted is itself an open D-02b
-// question (§3 Q5). The typed AST remains the sole canonical, checksum-bound
-// form (DEC-022); this component only reads and rewrites that AST.
+// Boundary (D-02b RULED, DEC-037 Option O-C): the composer is purely
+// structured. There is no writable expression *text* syntax and no parser
+// anywhere. The display below is a read-only, one-way AST rendering; its
+// notation is explicitly non-frozen and is never stored in the pack document.
+// The typed AST remains the sole canonical, checksum-bound form (DEC-022);
+// this component only reads and rewrites that AST.
 //
 // Table-backed nodes (interpolate / lookup) are authored through a structured
 // table sub-editor (TP-C2-TABLENODE-001): table id, argument/result dimension
@@ -376,6 +377,96 @@ function rowNumber(row: unknown, key: "argument" | "result"): number {
   const record = asObject(row);
   const value = record ? record[key] : undefined;
   return typeof value === "number" ? value : 0;
+}
+
+function renderQuantity(quantity: Record<string, unknown>): string {
+  const value = typeof quantity.value === "number" ? String(quantity.value) : "TBD";
+  const dimension = asString(quantity.dimension) ?? "TBD";
+  const unitRef = asString(quantity.unit_ref) ?? "TBD";
+  return `${value} ${unitRef} [${dimension}]`;
+}
+
+function renderTableRef(node: AstNode, functionName: "interpolate" | "lookup"): string {
+  const table = tableOf(node);
+  const tableId = asString(table.table_id) ?? "TBD";
+  const argument = renderExpressionText(childNode(node, "argument"));
+  if (functionName === "lookup") {
+    const mode = asString(node.mode) ?? "exact";
+    return `lookup:${mode}(${tableId}, ${argument})`;
+  }
+  return `interpolate(${tableId}, ${argument})`;
+}
+
+/**
+ * Deterministic, display-only AST rendering permitted by DEC-037. This is not
+ * a parser contract and is not stored in the rule-pack document.
+ */
+export function renderExpressionText(node: AstNode): string {
+  const kind = nodeKind(node);
+  switch (kind) {
+    case "literal":
+      return renderQuantity(quantityOf(node));
+    case "variable_ref":
+      return asString(node.variable_id) ?? "TBD";
+    case "unary": {
+      const operator = asString(node.operator) ?? "unknown";
+      const operand = renderExpressionText(childNode(node, "operand"));
+      if (operator === "negate") return `-(${operand})`;
+      if (operator === "abs") return `abs(${operand})`;
+      if (operator === "not") return `not(${operand})`;
+      return `${operator}(${operand})`;
+    }
+    case "binary": {
+      const operator = asString(node.operator) ?? "unknown";
+      const symbol: Record<string, string> = {
+        add: "+",
+        subtract: "-",
+        multiply: "*",
+        divide: "/"
+      };
+      return `(${renderExpressionText(childNode(node, "left"))} ${symbol[operator] ?? operator} ${renderExpressionText(
+        childNode(node, "right")
+      )})`;
+    }
+    case "compare": {
+      const operator = asString(node.operator) ?? "unknown";
+      const symbol: Record<string, string> = {
+        less_than: "<",
+        less_than_or_equal: "<=",
+        greater_than: ">",
+        greater_than_or_equal: ">=",
+        equal: "==",
+        not_equal: "!="
+      };
+      return `(${renderExpressionText(childNode(node, "left"))} ${symbol[operator] ?? operator} ${renderExpressionText(
+        childNode(node, "right")
+      )})`;
+    }
+    case "logical": {
+      const operator = asString(node.operator) ?? "unknown";
+      return `(${renderExpressionText(childNode(node, "left"))} ${operator} ${renderExpressionText(
+        childNode(node, "right")
+      )})`;
+    }
+    case "select":
+      return `select(${renderExpressionText(childNode(node, "condition"))}, ${renderExpressionText(
+        childNode(node, "then")
+      )}, ${renderExpressionText(childNode(node, "else"))})`;
+    case "aggregate": {
+      const fnName = asString(node.function) ?? "aggregate";
+      const operands = operandsOf(node).map(renderExpressionText);
+      return `${fnName}(${operands.length > 0 ? operands.join(", ") : "TBD"})`;
+    }
+    case "interpolate":
+      return renderTableRef(node, "interpolate");
+    case "lookup":
+      return renderTableRef(node, "lookup");
+    case "unsupported_form":
+    case "unsafe_host_access":
+      return `[refusal:${kind}]`;
+    default:
+      return `[unrecognized:${kind}]`;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1082,7 +1173,7 @@ export function ExpressionComposer({
 
   return (
     <div className="report-list rule-pack-expression-composer" data-testid="rule-pack-expression-composer">
-      <strong>Expression composer (structured AST; no text syntax — D-02b)</strong>
+      <strong>Expression composer (structured AST; read-only text display — DEC-037)</strong>
 
       <div className="rule-pack-variable-browser" data-testid="rule-pack-variable-browser">
         <small>
@@ -1116,16 +1207,26 @@ export function ExpressionComposer({
             </select>
           </label>
           {activeFormula ? (
-            <ExpressionNodeEditor
-              node={activeFormula.expression}
-              onChange={(next) => onChange(setFormulaExpression(document, activeFormula.id, next))}
-              variables={variables}
-              disabled={disabled}
-              disabledReason={disabledReason}
-              unitCatalogRoute={unitCatalogRoute}
-              depth={0}
-              label="expression"
-            />
+            <>
+              <div
+                className="rule-pack-expression-rendering"
+                data-testid="rule-pack-expression-rendering"
+                aria-readonly="true"
+              >
+                <small>Display only; not input; notation non-frozen.</small>
+                <pre>{renderExpressionText(activeFormula.expression)}</pre>
+              </div>
+              <ExpressionNodeEditor
+                node={activeFormula.expression}
+                onChange={(next) => onChange(setFormulaExpression(document, activeFormula.id, next))}
+                variables={variables}
+                disabled={disabled}
+                disabledReason={disabledReason}
+                unitCatalogRoute={unitCatalogRoute}
+                depth={0}
+                label="expression"
+              />
+            </>
           ) : null}
         </>
       )}

@@ -247,3 +247,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   value or protected content embedded; no release, professional,
   certification, sealing, authentication, approval, or code-compliance claim is
   implied.
+
+## 2026-06-16 - TP-C2-ASTTEXT-001: read-only AST text display
+
+- The C2 expression composer now displays the selected formula's structured
+  AST as deterministic read-only text, per `DEC-037` Option O-C. The display is
+  labeled `Display only; not input; notation non-frozen.`
+- This is a one-way frontend rendering over the existing AST object. No parser,
+  writable text syntax, schema member, evaluator behavior, grammar version,
+  checksum semantics, rule-check status, or conformance corpus changed.
+- Evidence: companion run record
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXT-001.md`; primary
+  DEL-07-03 run record; SMOKE TP-MAC-170; focused `ExpressionComposer` Vitest
+  20/20, full desktop Vitest 385/385, production build clean, focused
+  Playwright rule-pack manager 2/2, full Playwright e2e 10/10.
+- D-02b writable text syntax remains deferred behind the composer-usability
+  trigger recorded in `DEC-037`; no lifecycle, release, professional,
+  certification, sealing, authentication, approval, or code-compliance claim is
+  implied.
