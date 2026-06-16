@@ -1,0 +1,15 @@
+{
+  "clippedPrimaryControls": [],
+  "guidedWorkbenchVisible": true,
+  "horizontalOverflow": false,
+  "missingInputBlocker": "Run requested; browser preview keeps pass/fail blocked until the desktop checker returns complete inputs.",
+  "r3ExitStatus": "Packaged A12/R3 human pass not recorded; journey evidence incomplete; R3 exit review not started.",
+  "r3NextAction": "Review R3 guided evidence before packaged pass",
+  "r3Progress": "6/6",
+  "r3Status": "private library=save requested; rule_pack=validate requested; checksum_save=save requested; rule_check=requested",
+  "url": "http://127.0.0.1:5173/",
+  "viewport": {
+    "height": 800,
+    "width": 1280
+  }
+}

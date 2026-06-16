@@ -486,6 +486,152 @@ named operation-seam witnesses.
 
 ---
 
+## 2026-06-16 — C5 R3 rule-pack/private-library guided flow (`TP-R3UX-R3FLOW-001`)
+
+Adds the R3-specific guided mode inside the guided workbench. The mode routes a
+human through private local library import, private non-code rule-pack draft and
+validation, checksum/save request, mechanics solve, rule-check binding review,
+and rule-check run request.
+
+The guide is UI-only session state layered over existing panels. It records
+visible user actions from `LibraryManagerPanel`, `RulePackManagerPanel`, and
+`RuleCheckRunPanel`; it does not change the rule-pack schema, evaluator
+grammar, solver, persistence, backend commands, checksum semantics, or desktop
+store behavior. The R3 path exposes stable IDs including `r3-guided-flow`,
+`r3-flow-step-*`, `r3-flow-missing-input-blocker`, and the existing
+`r3-exit-journey-status`.
+
+The final browser-preview path reaches all guided steps while still reporting
+that pass/fail remains blocked until the desktop checker returns complete
+inputs. This preserves the PRD 22.4 rule: missing required inputs block
+pass/fail, never silently default or synthesize a code-compliance result.
+
+Evidence: full desktop Vitest **18/18 files, 386/386 tests**, permanent
+dead-control audit, desktop production build, full Playwright e2e **14/14**
+across 1440x920 and 1280x800, and in-app browser screenshots/probe JSON under
+DEL-07-06 `_run_records/assets/`; SMOKE TP-MAC-187; run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3UX-R3FLOW-001.md`.
+
+Boundary: frontend guided-workbench usability only; no private data committed,
+no protected content, no network/telemetry, no lifecycle state change, and no
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim. C5.6 remains the next ordinary C5
+tranche: packaged journey successor kit (`TP-R3UX-PACKAGEKIT-001`).
+
+---
+
+## 2026-06-16 — C5 A12 authoring journey redesign (`TP-R3UX-A12FLOW-001`)
+
+Adds the A12-specific guided authoring path inside the guided workbench. The
+panel derives its checklist from the current model/session state rather than
+hard-coded A12 payload values: blank document, nodes, material, section, pipe,
+support, load case, primitive load, combination, solve, report, and
+save/reopen.
+
+The A12 panel now exposes a clear next action, current queue status naming the
+created object when available, selected-step state for controls that share the
+same work surface, and an inline `Apply queued` affordance. That affordance
+calls the existing structured operation apply handler, records the existing
+operation receipt, preserves undo/result-reset behavior, and leaves Operation
+Apply as the receipt/audit surface.
+
+Evidence: focused guided-workbench Vitest, permanent dead-control audit, full
+desktop Vitest **18/18 files, 386/386 tests**, desktop production build, full
+Playwright e2e **12/12** across 1440x920 and 1280x800, and in-app browser
+screenshots/probe JSON under DEL-07-06 `_run_records/assets/`; SMOKE
+TP-MAC-186; run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3UX-A12FLOW-001.md`.
+
+Boundary: frontend guided-authoring usability only; no rule-pack schema,
+evaluator grammar, solver, persistence, backend API, project-store semantics,
+rule-pack checksum, lifecycle, release-readiness, professional approval,
+certification, sealing, authentication, or code-compliance change. C5.5 remains
+the next ordinary C5 tranche for the R3 rule-pack/private-library guided flow.
+
+---
+
+## 2026-06-16 — C5 guided workbench shell (`TP-R3UX-SHELL-001`)
+
+Adds the first implementation slice of the C5 guided-workbench redesign. The
+desktop shell keeps the persistent spatial core (model tree, 3D centerline
+viewport, property inspector) and inserts a default guided lower workspace:
+task rail, current-step panel, compact queue/status facts, and compact R3 exit
+journey status.
+
+The evidence-heavy surfaces remain available but no longer dominate the
+default lower workspace. `EditorContractPanel`, `DiffPreviewPanel`,
+`OperationLedgerPanel`, and `AgentProposalPanel` are mounted behind a
+review/apply detail drawer in the existing operation-apply section. Existing
+panel test IDs remain present after opening details, and new stable IDs cover
+the C5 shell (`guided-workbench`, `journey-step-*`,
+`review-apply-drawer`, `review-apply-drawer-toggle`,
+`r3-exit-journey-status`).
+
+Evidence: focused guided-workbench Vitest, dead-control audit, focused
+Playwright e2e at 1440x920 and 1280x800, in-app browser screenshots and probe
+JSON under DEL-07-06 `_run_records/assets/`, SMOKE TP-MAC-185, and DEL-07-06
+run record `WORKING_ITEMS_RUN_2026-06-16_TP-R3UX-SHELL-001.md`.
+
+Boundary: frontend shell/usability only; no schema, evaluator grammar, solver,
+persistence, backend API, rule-pack checksum, lifecycle, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance change. C5.4 remains the next ordinary C5 tranche for the A12
+authoring journey.
+
+---
+
+## 2026-06-16 — C5 R3 exit readiness plan revision (`TP-R3EXIT-PLAN-001`)
+
+Adds Phase C5 to the active completion plan after landed C4 and before Phase D.
+C5 is now the ordinary R3 in-stage program for guided-workbench redesign,
+packaged A12/R3 human-journey evidence, and R3 exit evidence assembly. It
+exists to close the two `DEC-035` blockers before any R3 exit review: F-4
+(completed human packaged-GUI journey) and the authoring-journey usability
+finding.
+
+Updated routing surfaces: `plans/PLAN_2026-06-10_prd_completion.md`,
+`docs/PLAN.md`, `execution/_Coordination/_COORDINATION.md`, and
+`execution/_Coordination/NEXT_INSTANCE_PROMPT.md`. C1-C4 remain landed
+implementation evidence; Phase D remains behind C5 unless the human explicitly
+overrides.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-183 and DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3EXIT-PLAN-001_TP-R3UX-DISCOVERY-001.md`.
+
+Boundary: plan/evidence routing only; no app behavior, schema, solver,
+rule-pack grammar, parser, persistence, package, lifecycle, release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim.
+
+---
+
+## 2026-06-16 — C5 R3 authoring-usability baseline (`TP-R3UX-DISCOVERY-001`)
+
+Records the C5 starting baseline for the guided-workbench redesign. Evidence
+sources: TP-MAC-141 human attempts 1-3, the human-provided 2026-06-16
+screenshot and user-perspective evaluation, current 1440x920 and 1280x800
+screenshots, viewport overflow/console probe, and the dead-control audit.
+
+Findings: the post-TP-MAC-146 shell is structurally stable, with no horizontal
+page overflow, no horizontally clipped visible primary controls, and zero
+console errors at both viewport sizes. The existing dead-control audit passed
+1 file / 1 test. The remaining user-facing blocker is not mechanical
+correctness but work-surface clarity: the default view still exposes internal
+state and evidence panels before the user knows the next task.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-184; screenshots and probe JSON under
+DEL-07-06 `_run_records/assets/`; run record
+`WORKING_ITEMS_RUN_2026-06-16_TP-R3EXIT-PLAN-001_TP-R3UX-DISCOVERY-001.md`.
+
+Boundary: discovery/evidence only; no product behavior change, no lifecycle
+state change, and no release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim. Next implementation tranche:
+`TP-R3UX-SHELL-001` / target SMOKE TP-MAC-185.
+
+---
+
+---
+
 ## 2026-06-15 — B2 rule-pack expression unit selectors (`TP-UNITS-B2-RULEEXPRUNITS-001`)
 
 Extends the DEC-018 unit-catalog UI pattern into the C2 rule-pack expression

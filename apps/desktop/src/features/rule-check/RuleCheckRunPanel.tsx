@@ -298,7 +298,8 @@ function renderSolverPreview(
 export function RuleCheckRunPanel({
   model,
   result,
-  onAggregateChange
+  onAggregateChange,
+  onR3JourneyEvent
 }: {
   model: PreviewModel | null;
   result: MechanicsResult | null;
@@ -307,6 +308,7 @@ export function RuleCheckRunPanel({
   // aggregate on a successful run, and with null whenever there is no current
   // run outcome (new pack loaded/pasted, or a run that did not produce one).
   onAggregateChange?: (aggregate: RuleCheckStatus | null) => void;
+  onR3JourneyEvent?: (event: "rule_check_pack_loaded" | "rule_check_run_requested") => void;
 }) {
   const [packText, setPackText] = useState("");
   const [actionStatus, setActionStatus] = useState("No rule-check run in this session.");
@@ -448,6 +450,7 @@ export function RuleCheckRunPanel({
     try {
       const demo = await loadDemoRuleCheckPack();
       resetForNewPack(JSON.stringify(demo, null, 2));
+      onR3JourneyEvent?.("rule_check_pack_loaded");
       setActionStatus(
         "Loaded the bundled invented demonstration rule pack (invented non-engineering example; " +
           "not an engineering design basis). Bind its inputs below, then run checks."
@@ -494,6 +497,7 @@ export function RuleCheckRunPanel({
         return;
       }
       resetForNewPack(JSON.stringify(route.envelope.document, null, 2));
+      onR3JourneyEvent?.("rule_check_pack_loaded");
       setActionStatus(`Loaded saved rule pack ${entry.rule_pack_id} for run. Bind its inputs below, then run checks.`);
     } catch (error) {
       setActionStatus(`RULE-CHECK-BACKEND-ERROR (open): ${String(error)}`);
@@ -528,6 +532,7 @@ export function RuleCheckRunPanel({
       setActionStatus(NO_PACK_REASON);
       return;
     }
+    onR3JourneyEvent?.("rule_check_run_requested");
     setInFlight(true);
     try {
       const route = await runRuleChecks({

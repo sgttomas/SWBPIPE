@@ -71,7 +71,7 @@ lives in the completion plan and `plans/PLAN_COMPLETION_LOG.md`. The
 | R0 Architecture Prototype | Met in substance | R0's deferred "Unit system" is pulled onto the critical path as Phase B (B1 units crate landed 2026-06-12; B2/B3 unit-aware I/O in progress) |
 | R1 Core Solver MVP | Substantially met (linear static, dense solve) | Tolerance thresholds **RULED** (`DEC-024`/`DEC-026`, D-04) |
 | R2 GUI MVP | Met in substance | Exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](../plans/VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`). Two named residuals carried to the R3 exit review: **F-4** (a completed human packaged-GUI journey, SMOKE TP-MAC-141) and the **A3 authoring-journey usability** finding |
-| R3 Rule packs + private libraries (current target) | In progress | Expression grammar frozen (C1, `DEC-022`); rule-pack editor GUI largely landed (C2 slices 1–4); remaining: private-library management GUI (C3), end-to-end rule checks on authored models (C4), plus the two R2-carried residuals above |
+| R3 Rule packs + private libraries (current target) | In progress | C1-C4 landed: expression grammar, rule-pack editor, private-library GUI, and end-to-end rule checks are GUI-true. Remaining before any R3 exit review: C5 guided-workbench / packaged-journey closure for the two R2-carried residuals above |
 | R4 Components + nonlinear supports | Schema/data-model only; sparse-solver strategy decided (`DEC-023`, first slice landed) | No bend/branch/expansion-joint/hanger elements; no assembled nonlinear iterative solve (Phase D) |
 | R5 Engineering Beta | Distant | All release machinery TBD; validation manual; redaction workflow; signed releases (Phase E) |
 
@@ -123,15 +123,17 @@ project's adoption, rollout, and DAG-007 re-derivation trigger are in
 ## 4. Current roadmap posture
 
 - **Target stage: R3 / Phase C** (`DEC-035`, superseding the `DEC-029` hold).
-  Ordinary development is the Phase C dependency spine: **C1** expression
-  grammar freeze (landed) → **C2** rule-pack editor GUI (landed — every
-  document-structure member now has a form builder; advanced metadata stays
-  raw-JSON by design) → **C3** private-library management GUI → **C4**
-  end-to-end rule checks on authored models. The A3 usability lane and the
-  Phase B unit-aware-I/O remainder run alongside.
+  Ordinary development has completed the Phase C implementation spine:
+  **C1** expression grammar freeze, **C2** rule-pack editor GUI, **C3**
+  private-library management GUI, and **C4** end-to-end rule checks on authored
+  models are landed. The next in-stage program is **C5 R3 exit readiness and
+  authoring-usability closure**: guided-workbench redesign, packaged A12/R3
+  journey successor evidence, and an R3 exit evidence package. The Phase B
+  unit-aware-I/O remainder can still run alongside when it does not block C5.
 - **Two blocking residuals gate any R3 exit review:** F-4 (a completed human
-  packaged-GUI journey) and the A3 authoring-journey usability finding. These
-  are R3-exit gating, not ordinary-tranche scope.
+  packaged-GUI journey) and the A3 authoring-journey usability finding. C5 is
+  the ordinary-tranche program that must prepare and record their closure
+  evidence before any human R3 exit review can begin.
 - **Later stages** follow the completion plan: R4 (piping components and
   nonlinear supports), R5 (engineering beta and release machinery).
 - Stage advancement is human-ruled: agents propose with evidence; only a

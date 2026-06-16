@@ -57,10 +57,13 @@
 3. If no active human-approved tranche exists, propose exactly one next bounded
    tranche:
    - select the earliest unblocked item on the completion plan's dependency
-     spine for the current target stage (R3/Phase C per `DEC-035`: C2
-     rule-pack editor GUI — AST-based per `DEC-022`, D-02b packet at the C2
-     lead-up — then C3 and C4; the A3 usability lane and B2/B3 units
-     remainder run alongside, A3 feeding the R3-exit blocking residual);
+     spine for the current target stage (R3/Phase C per `DEC-035`). C1-C4
+     are landed; continue **Phase C5 — R3 exit readiness and
+     authoring-usability closure** before any Phase D work unless the human
+     explicitly overrides. C5.1-C5.5 are landed. The next C5 implementation
+     item is the packaged journey successor kit (`TP-R3UX-PACKAGEKIT-001` /
+     target SMOKE TP-MAC-188), with the Phase B unit-aware-I/O remainder
+     allowed alongside only when it does not block or displace C5;
    - if that item is blocked by a human decision, run the loop's
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked

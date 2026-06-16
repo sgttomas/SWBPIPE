@@ -58,6 +58,63 @@ function displacementComponentRows(
 }
 
 describe("OpenPipeStress desktop preview", () => {
+  it("presents the C5 guided workbench shell with reachable detail views", async () => {
+    render(<App />);
+
+    expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
+    const guided = await screen.findByTestId("guided-workbench");
+    expect(within(guided).getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
+    expect(within(guided).getByTestId("journey-current-step").textContent).toContain("Queue a model edit");
+    expect(within(guided).getByTestId("r3-exit-journey-status").textContent).toContain(
+      "Packaged A12/R3 human pass not recorded"
+    );
+    const a12Journey = within(guided).getByTestId("a12-authoring-journey");
+    expect(within(a12Journey).getByTestId("a12-next-action").textContent).toContain("Start with New blank");
+    expect(within(a12Journey).getByTestId("a12-queue-status").textContent).toContain("No queued operations");
+    expect(within(a12Journey).getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "next");
+    expect(within(a12Journey).getByTestId("a12-journey-step-save-reopen")).toBeInTheDocument();
+    expect(within(guided).getByTestId("guided-journey-tab-a12")).toHaveAttribute("aria-pressed", "true");
+    expect(within(guided).getByTestId("guided-journey-tab-r3")).toHaveAttribute("aria-pressed", "false");
+
+    const drawer = screen.getByTestId("review-apply-drawer");
+    expect(drawer.className).not.toContain("open");
+    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
+    expect(drawer.className).toContain("open");
+    expect(screen.getByLabelText("Editor contract review")).toBeInTheDocument();
+    expect(screen.getByLabelText("Operation diff preview")).toBeInTheDocument();
+
+    fireEvent.click(within(guided).getByTestId("journey-step-rule-pack"));
+    expect(within(guided).getByTestId("journey-step-rule-pack")).toHaveAttribute("aria-pressed", "true");
+    expect(within(guided).getByTestId("journey-current-step").textContent).toContain(
+      "Draft the private non-code rule pack"
+    );
+    expect(screen.getByTestId("workspace-section-rule-packs")).toBeInTheDocument();
+
+    fireEvent.click(within(guided).getByTestId("guided-journey-tab-r3"));
+    expect(within(guided).getByTestId("guided-journey-tab-r3")).toHaveAttribute("aria-pressed", "true");
+    const r3Flow = within(guided).getByTestId("r3-guided-flow");
+    expect(within(r3Flow).getByTestId("r3-flow-next-action").textContent).toContain(
+      "Load and validate a private local library"
+    );
+    expect(within(r3Flow).getByTestId("r3-flow-missing-input-blocker").textContent).toContain(
+      "Missing-input gate pending"
+    );
+    expect(within(r3Flow).getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "next");
+
+    fireEvent.click(within(r3Flow).getByTestId("r3-flow-step-library"));
+    expect(screen.getByTestId("workspace-section-libraries")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("library-load-template"));
+    fireEvent.click(screen.getByTestId("library-validate"));
+    await waitFor(() =>
+      expect(within(r3Flow).getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "complete")
+    );
+
+    fireEvent.click(within(r3Flow).getByTestId("r3-flow-step-bind"));
+    expect(screen.getByTestId("workspace-section-solve")).toBeInTheDocument();
+    // Heavy full-<App/> Three.js render plus shell-level integration checks:
+    // allow the same DEC-025/full-suite worker load that exercised this path.
+  }, 60000);
+
   it("renders the engineering workspace from invented local fixtures", async () => {
     render(<App />);
 
@@ -4276,17 +4333,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("preview-boundary-strip").textContent).toContain(
       "local_user_document_not_committed_to_repository"
     );
-    const journey = screen.getByTestId("workspace-journey");
-    expect(within(journey).getByTestId("workspace-journey-model").textContent).toContain(
-      "0 nodes; 0 pipes; 0 supports"
-    );
-    expect(within(journey).getByTestId("workspace-journey-loads").textContent).toContain(
-      "0 cases; 0 loads; 0 combos"
-    );
-    expect(within(journey).getByTestId("workspace-journey-solve").textContent).toContain(
-      "not_started; rows=0"
-    );
-    fireEvent.click(within(journey).getByTestId("workspace-journey-loads"));
+    const journey = screen.getByTestId("guided-workbench");
+    expect(within(journey).getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
+    expect(within(journey).getByTestId("journey-step-status-model").textContent).toContain("current");
+    expect(within(journey).getByTestId("journey-step-status-loads").textContent).toContain("available");
+    expect(within(journey).getByTestId("journey-step-status-solve-check").textContent).toContain("not run");
+    fireEvent.click(within(journey).getByTestId("journey-step-loads"));
     expect(screen.getByTestId("workspace-nav-loads")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("workspace-section-loads").className).toBe("workspace-dock-section");
 

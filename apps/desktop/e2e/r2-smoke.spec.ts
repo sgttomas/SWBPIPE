@@ -28,6 +28,35 @@ async function openWorkspaceSection(page: Page, sectionId: string): Promise<void
   await expect(page.getByTestId(`workspace-section-${sectionId}`)).toBeVisible();
 }
 
+test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("guided-workbench")).toBeVisible();
+  await expect(page.getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("journey-current-step")).toContainText("Queue a model edit");
+  await expect(page.getByTestId("r3-exit-journey-status")).toContainText(
+    "Packaged A12/R3 human pass not recorded"
+  );
+  await expect(page.getByTestId("review-apply-drawer")).not.toHaveClass(/open/);
+  await page.getByTestId("review-apply-drawer-toggle").click();
+  await expect(page.getByTestId("review-apply-drawer")).toHaveClass(/open/);
+  await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
+  await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
+
+  await page.getByTestId("journey-step-rule-pack").click();
+  await expect(page.getByTestId("journey-step-rule-pack")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("journey-current-step")).toContainText("Draft the private non-code rule pack");
+  await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
+
+  const horizontalOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+      document.body.scrollWidth > document.body.clientWidth
+  );
+  expect(horizontalOverflow).toBe(false);
+});
+
 test("R2 desktop preview smoke covers solve, results, report, and viewport overlay", async ({ page }) => {
   await page.goto("/");
 
@@ -43,15 +72,15 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
-  await expect(page.getByTestId("workspace-journey")).toContainText("Model");
-  await expect(page.getByTestId("workspace-journey-loads")).toContainText("2 cases; 7 loads; 1 combos");
-  await page.getByTestId("workspace-journey-loads").click();
+  await expect(page.getByTestId("guided-workbench")).toContainText("Model edits");
+  await expect(page.getByTestId("journey-step-status-loads")).toContainText("available");
+  await page.getByTestId("journey-step-loads").click();
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
   const compactJourneyGeometry = await page.evaluate(() => {
     const dock = document.querySelector<HTMLElement>(".workspace-dock");
     const dockBody = document.querySelector<HTMLElement>(".workspace-dock-body");
-    const journey = document.querySelector<HTMLElement>(".workspace-journey");
-    const items = Array.from(document.querySelectorAll<HTMLElement>(".workspace-journey-item"));
+    const journey = document.querySelector<HTMLElement>(".journey-rail");
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".journey-step"));
     const body = document.body;
     if (!dock || !dockBody || !journey || items.length === 0) {
       return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, journeyHeight: 0 };
@@ -75,8 +104,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(compactJourneyGeometry.bodyOverflow).toBe(0);
   expect(compactJourneyGeometry.viewportOverflow).toBe(0);
   expect(compactJourneyGeometry.itemOverflow).toBe(0);
-  expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(150);
-  expect(compactJourneyGeometry.journeyHeight).toBeLessThan(80);
+  expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(64);
+  expect(compactJourneyGeometry.journeyHeight).toBeGreaterThan(0);
   await page.getByTestId("tree-row-node:N-110").click();
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
@@ -454,6 +483,36 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
+  await expect(page.getByTestId("a12-authoring-journey")).toBeVisible();
+  await expect(page.getByTestId("a12-next-action")).toContainText("Add two nodes");
+  await expect(page.getByTestId("a12-queue-status")).toContainText("No queued operations");
+  await expect(page.getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("a12-journey-step-nodes")).toHaveAttribute("data-status", "next");
+  for (const stepId of [
+    "nodes",
+    "material",
+    "section",
+    "pipe",
+    "support",
+    "load-case",
+    "primitive-load",
+    "combination",
+    "solve",
+    "report",
+    "save-reopen"
+  ]) {
+    await expect(page.getByTestId(`a12-journey-step-${stepId}`)).toBeVisible();
+  }
+  await page.getByTestId("a12-journey-step-load-case").click();
+  await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
+  await page.getByTestId("a12-journey-step-solve").click();
+  await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await page.getByTestId("a12-journey-step-report").click();
+  await expect(page.getByTestId("workspace-section-report")).toBeVisible();
+  await page.getByTestId("a12-journey-step-save-reopen").click();
+  await expect(page.getByTestId("workspace-section-project")).toBeVisible();
+  await page.getByTestId("a12-journey-step-nodes").click();
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "0 load cases; 0 primitive loads; 0 combinations"
   );
@@ -461,12 +520,16 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   const startNode = stepPayload("create_node", "node:R2-100");
   await fillNodeDraft(page, startNode);
   await page.getByTestId("queue-explicit-node-intent").click();
+  await expect(page.getByTestId("a12-queue-status")).toContainText("1 queued operation");
   await applyQueuedIntent(page, 1, startNode.id);
+  await expect(page.getByTestId("a12-journey-step-nodes")).toContainText("1/2");
 
   const loadedNode = stepPayload("create_node", "node:R2-110");
   await fillNodeDraft(page, loadedNode);
   await page.getByTestId("queue-explicit-node-intent").click();
   await applyQueuedIntent(page, 2, loadedNode.id);
+  await expect(page.getByTestId("a12-journey-step-nodes")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("a12-next-action")).toContainText("Add a material");
 
   const material = stepPayload("create_material", "material:r2-carbon-steel");
   await page.getByTestId("create-material-id").fill(material.id);
@@ -599,18 +662,19 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   expect(draft.classification.redistribution_status).toBe("private_only");
   await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
 
-  // Slice 2 (TP-C2-COMPOSER-001): the structured AST composer rewrites the
-  // selected formula's expression through visible controls — no text syntax
-  // (D-02b). Switching the root node type rewrites the canonical document
-  // JSON the validate/save flow reads.
+  // Slice 2 (TP-C2-COMPOSER-001) + DEC-037 follow-up: the structured AST
+  // composer rewrites the selected formula's expression through visible
+  // controls. It may render display-only text, but ships no writable text
+  // syntax and no parser. Switching the root node type rewrites the canonical
+  // document JSON the validate/save flow reads.
   await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
   await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
-  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
-    "Read-only AST-to-text preview"
-  );
-  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
-    "user_required_input_1"
-  );
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+	    "Read-only AST-to-text preview"
+	  );
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+	    "user_required_input_1"
+	  );
   expect(draft.formula_declarations[0].declaration_payload.expression_ast.node).toBe("variable_ref");
 
   // Slice 4 (TP-C2-DECLEDITOR-001): the declarations editor authors the
@@ -642,8 +706,8 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest covers the desktop catalog-selector path.
   await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-literal-unit").fill("MPa");
-  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("<=");
-  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("MPa [stress]");
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("<=");
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("MPa [stress]");
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "compare",
@@ -662,6 +726,9 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-table-result-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-table-result-unit").fill("MPa");
   await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
+  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+    "interpolate(user_table_1, user_required_input_1)"
+  );
   const tableText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(tableText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "interpolate",
@@ -956,6 +1023,76 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   );
 });
 
+test("R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+
+  await page.getByTestId("guided-journey-tab-r3").click();
+  await expect(page.getByTestId("r3-guided-flow")).toBeVisible();
+  await expect(page.getByTestId("r3-flow-next-action")).toContainText(
+    "Load and validate a private local library"
+  );
+  await expect(page.getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "next");
+  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText("Missing-input gate pending");
+
+  await page.getByTestId("r3-flow-step-library").click();
+  await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
+  await page.getByTestId("library-load-template").click();
+  await page.getByTestId("library-validate").click();
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+  await expect(page.getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "complete");
+  await page.getByTestId("library-save").click();
+  await expect(page.getByTestId("r3-flow-status")).toContainText("private library=save requested");
+
+  await page.getByTestId("r3-flow-step-rule-pack").click();
+  await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
+  await page.getByTestId("rule-pack-new-draft").click();
+  await page.getByTestId("rule-pack-validate").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+  await expect(page.getByTestId("r3-flow-step-rule-pack")).toHaveAttribute("data-status", "complete");
+  await page.getByTestId("rule-pack-compute-checksum").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+  await page.getByTestId("rule-pack-save").click();
+  await expect(page.getByTestId("r3-flow-step-checksum-save")).toHaveAttribute("data-status", "complete");
+
+  await page.getByTestId("r3-flow-step-solve").click();
+  await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await page.getByTestId("run-mechanics-preview").click();
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+  await expect(page.getByTestId("r3-flow-step-solve")).toHaveAttribute("data-status", "complete");
+
+  await page.getByTestId("rule-check-load-demo").click();
+  await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  await expect(page.getByTestId("r3-flow-step-bind")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText("Binding review active");
+
+  await page.getByTestId("rule-check-run").click();
+  await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");
+  await expect(page.getByTestId("r3-flow-step-run")).toHaveAttribute("data-status", "complete");
+  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText(
+    "browser preview keeps pass/fail blocked"
+  );
+  await expect(page.getByTestId("r3-exit-journey-status")).toContainText(
+    "Packaged A12/R3 human pass not recorded"
+  );
+
+  const horizontalOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+      document.body.scrollWidth > document.body.clientWidth
+  );
+  expect(horizontalOverflow).toBe(false);
+});
+
 function stepPayload(changeKind: string, ref: string): any {
   const step = rehearsal.steps.find(
     (candidate) =>
@@ -975,13 +1112,12 @@ async function fillNodeDraft(page: Page, payload: any): Promise<void> {
 
 async function applyQueuedIntent(page: Page, sequence: number, expectedOperation: string): Promise<void> {
   // Authoring forms live in the persistent core or the Load Cases section;
-  // applying always goes through the Operation Apply section, like the
-  // TP-MAC-141 manual journey.
-  await openWorkspaceSection(page, "operations");
+  // the guided A12 control applies the next queued operation while leaving
+  // the Operation Apply section as the receipt and audit surface.
   const key = `editor-intent-${sequence}`;
-  const row = page.getByTestId(`operation-apply-row-${key}`);
-  await expect(row).toContainText(expectedOperation);
-  await page.getByTestId(`apply-intent-${key}`).click();
+  await expect(page.getByTestId("a12-queue-status")).toContainText(`1 queued operation: ${expectedOperation}`);
+  await page.getByTestId("a12-review-apply-button").click();
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${sequence} applied`);
   await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
     "route=local_wasm_engine"

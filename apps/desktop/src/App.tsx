@@ -1,8 +1,5 @@
 import {
   Activity,
-  CheckCircle2,
-  Circle,
-  CircleDot,
   Database,
   FileWarning,
   FilePlus,
@@ -207,13 +204,134 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
   }
 ];
 
-type JourneyItem = {
-  id: string;
+type JourneyStepId =
+  | "model"
+  | "loads"
+  | "private-libraries"
+  | "rule-pack"
+  | "solve-check"
+  | "results"
+  | "report"
+  | "save-reopen";
+
+type JourneyStep = {
+  id: JourneyStepId;
   label: string;
-  status: "complete" | "current" | "pending";
-  summary: string;
-  targetSection: WorkspaceSectionId;
+  section: WorkspaceSectionId;
+  description: string;
 };
+
+type A12FlowStepId =
+  | "blank"
+  | "nodes"
+  | "material"
+  | "section"
+  | "pipe"
+  | "support"
+  | "load-case"
+  | "primitive-load"
+  | "combination"
+  | "solve"
+  | "report"
+  | "save-reopen";
+
+type A12FlowStep = {
+  id: A12FlowStepId;
+  label: string;
+  section: WorkspaceSectionId;
+  cue: string;
+  complete: boolean;
+  status: string;
+};
+
+type GuidedJourneyMode = "a12" | "r3";
+
+type R3FlowStepId = "library" | "rule-pack" | "checksum-save" | "solve" | "bind" | "run";
+
+type R3FlowStep = {
+  id: R3FlowStepId;
+  label: string;
+  section: WorkspaceSectionId;
+  cue: string;
+  complete: boolean;
+  status: string;
+};
+
+type R3JourneyEvent =
+  | "library_template_loaded"
+  | "library_validate_requested"
+  | "library_save_requested"
+  | "rule_pack_draft_created"
+  | "rule_pack_validate_requested"
+  | "rule_pack_checksum_requested"
+  | "rule_pack_save_requested"
+  | "rule_check_pack_loaded"
+  | "rule_check_run_requested";
+
+type R3JourneyState = Record<R3JourneyEvent, boolean>;
+
+const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
+  library_template_loaded: false,
+  library_validate_requested: false,
+  library_save_requested: false,
+  rule_pack_draft_created: false,
+  rule_pack_validate_requested: false,
+  rule_pack_checksum_requested: false,
+  rule_pack_save_requested: false,
+  rule_check_pack_loaded: false,
+  rule_check_run_requested: false
+};
+
+const JOURNEY_STEPS: ReadonlyArray<JourneyStep> = [
+  {
+    id: "model",
+    label: "Model edits",
+    section: "operations",
+    description: "Select geometry, queue structured edits, then review and apply them"
+  },
+  {
+    id: "loads",
+    label: "Loads",
+    section: "loads",
+    description: "Create or edit load cases, primitive loads, and combinations"
+  },
+  {
+    id: "private-libraries",
+    label: "Libraries",
+    section: "libraries",
+    description: "Review private local library import status before rule-pack references"
+  },
+  {
+    id: "rule-pack",
+    label: "Rule pack",
+    section: "rule-packs",
+    description: "Draft, validate, checksum, and store a private non-code rule pack"
+  },
+  {
+    id: "solve-check",
+    label: "Solve/check",
+    section: "solve",
+    description: "Run mechanics, review missing inputs, then run rule checks"
+  },
+  {
+    id: "results",
+    label: "Results",
+    section: "results",
+    description: "Inspect solved results, comparison context, and design-authoring state"
+  },
+  {
+    id: "report",
+    label: "Report",
+    section: "report",
+    description: "Render the calculation report and report packet after solve/check evidence exists"
+  },
+  {
+    id: "save-reopen",
+    label: "Save/reopen",
+    section: "project",
+    description: "Save the local project and verify local project persistence"
+  }
+];
 
 export function App() {
   const [model, setModel] = useState<PreviewModel | null>(null);
@@ -252,31 +370,13 @@ export function App() {
     initialOperationEngineStatus()
   );
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
-  const journeyItems = useMemo(
-    () => {
-      if (!model) return [];
-      return buildJourneyItems({
-        appliedOperationCount: appliedOperations.length,
-        editorIntentCount: editorIntents.length,
-        model,
-        projectOperation,
-        projectSummary,
-        result,
-        ruleCheckAggregate,
-        solveState: solveJob.state
-      });
-    },
-    [
-      appliedOperations.length,
-      editorIntents.length,
-      model,
-      projectOperation,
-      projectSummary,
-      result,
-      ruleCheckAggregate,
-      solveJob.state
-    ]
-  );
+  const [activeA12StepId, setActiveA12StepId] = useState<A12FlowStepId | null>(null);
+  const [guidedJourneyMode, setGuidedJourneyMode] = useState<GuidedJourneyMode>("a12");
+  const [activeR3StepId, setActiveR3StepId] = useState<R3FlowStepId | null>(null);
+  const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
+    ...INITIAL_R3_JOURNEY_STATE
+  }));
+  const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
   const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
@@ -378,6 +478,13 @@ export function App() {
       // solve-time analysis-run envelope rather than surfacing a false outcome.
       setRuleCheckAggregate(null);
     }
+  }
+
+  function recordR3JourneyEvent(event: R3JourneyEvent) {
+    setR3JourneyState((current) => {
+      if (current[event]) return current;
+      return { ...current, [event]: true };
+    });
   }
 
   function handleCancelRun() {
@@ -496,6 +603,14 @@ export function App() {
     } finally {
       setOperationBusy(false);
     }
+  }
+
+  function handleApplyNextQueuedIntent() {
+    if (operationBusy) return;
+    const [nextIntent] = editorIntents;
+    if (!nextIntent) return;
+    setActiveSection("operations");
+    void handleApplyIntent(nextIntent);
   }
 
   function handleUndoSessionModelEdit() {
@@ -916,6 +1031,29 @@ export function App() {
         </section>
 
         <section className="workspace-dock" aria-label="Workspace sections">
+          <GuidedWorkbench
+            activeSection={activeSection}
+            analysisRun={analysisRun}
+            appliedOperationCount={appliedOperations.length}
+            editorIntents={editorIntents}
+            model={model}
+            projectMessage={projectMessage}
+            projectOperation={projectOperation}
+            projectSummary={projectSummary}
+            result={result}
+            ruleCheckAggregate={ruleCheckAggregate}
+            activeA12StepId={activeA12StepId}
+            activeR3StepId={activeR3StepId}
+            guidedJourneyMode={guidedJourneyMode}
+            operationBusy={operationBusy}
+            r3JourneyState={r3JourneyState}
+            onApplyNextQueuedIntent={handleApplyNextQueuedIntent}
+            onSelectA12Step={setActiveA12StepId}
+            onSelectGuidedJourneyMode={setGuidedJourneyMode}
+            onSelectR3Step={setActiveR3StepId}
+            onSelectSection={setActiveSection}
+          />
+
           <nav className="workspace-nav" aria-label="Workspace section navigation" data-testid="workspace-nav">
             {WORKSPACE_SECTIONS.map((section) => (
               <button
@@ -937,24 +1075,6 @@ export function App() {
             ))}
           </nav>
 
-          <div className="workspace-journey" aria-label="Authoring journey status" data-testid="workspace-journey">
-            {journeyItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`workspace-journey-item ${item.status}`}
-                data-testid={`workspace-journey-${item.id}`}
-                aria-pressed={activeSection === item.targetSection}
-                title={`${item.label}: ${item.summary}`}
-                onClick={() => setActiveSection(item.targetSection)}
-              >
-                <JourneyStatusIcon status={item.status} />
-                <span>{item.label}</span>
-                <code>{item.summary}</code>
-              </button>
-            ))}
-          </div>
-
           <div className="workspace-dock-body">
             <section
               className={dockSectionClass("operations", activeSection)}
@@ -975,28 +1095,54 @@ export function App() {
                 onUndo={handleUndoSessionModelEdit}
                 onRedo={handleRedoSessionModelEdit}
               />
-              <EditorContractPanel editorIntents={editorIntents} model={model} />
-              <DiffPreviewPanel
-                model={model}
-                analysisRun={analysisRun}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-              />
-              <OperationLedgerPanel
-                model={model}
-                analysisRun={analysisRun}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-                onClearReviewQueue={handleClearReviewQueue}
-              />
-              <AgentProposalPanel
-                proposal={proposal}
-                mechanicsReady={Boolean(result)}
-                selectedReviewTarget={selectedReviewTarget}
-                onLoad={handleProposal}
-              />
+              <section
+                className={reviewDetailsOpen ? "review-apply-drawer open" : "review-apply-drawer"}
+                aria-label="Review and apply detail views"
+                data-testid="review-apply-drawer"
+              >
+                <div className="review-apply-drawer-header">
+                  <div>
+                    <span>Detail views</span>
+                    <h2>Review evidence</h2>
+                    <p>
+                      Editor contract, operation diffs, review ledger, and agent proposal context stay available here
+                      without owning the default work surface.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-expanded={reviewDetailsOpen}
+                    data-testid="review-apply-drawer-toggle"
+                    onClick={() => setReviewDetailsOpen((open) => !open)}
+                  >
+                    {reviewDetailsOpen ? "Hide details" : "Show details"}
+                  </button>
+                </div>
+                <div className="review-apply-detail-grid">
+                  <EditorContractPanel editorIntents={editorIntents} model={model} />
+                  <DiffPreviewPanel
+                    model={model}
+                    analysisRun={analysisRun}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                  />
+                  <OperationLedgerPanel
+                    model={model}
+                    analysisRun={analysisRun}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                    onClearReviewQueue={handleClearReviewQueue}
+                  />
+                  <AgentProposalPanel
+                    proposal={proposal}
+                    mechanicsReady={Boolean(result)}
+                    selectedReviewTarget={selectedReviewTarget}
+                    onLoad={handleProposal}
+                  />
+                </div>
+              </section>
             </section>
 
             <section
@@ -1017,7 +1163,7 @@ export function App() {
               aria-label="Libraries section"
               data-testid="workspace-section-libraries"
             >
-              <LibraryManagerPanel model={model} />
+              <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
             </section>
 
             <section
@@ -1025,7 +1171,7 @@ export function App() {
               aria-label="Rule Packs section"
               data-testid="workspace-section-rule-packs"
             >
-              <RulePackManagerPanel model={model} />
+              <RulePackManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent} />
             </section>
 
             <section
@@ -1053,7 +1199,12 @@ export function App() {
               />
               <MissingDataBlockingPanel model={model} result={result} />
               <RuleCheckPanel model={model} result={result} />
-              <RuleCheckRunPanel model={model} result={result} onAggregateChange={handleRuleCheckAggregate} />
+              <RuleCheckRunPanel
+                model={model}
+                result={result}
+                onAggregateChange={handleRuleCheckAggregate}
+                onR3JourneyEvent={recordR3JourneyEvent}
+              />
               <KnowledgePanel knowledge={knowledge} result={result} />
             </section>
 
@@ -1224,91 +1375,758 @@ function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: Workspac
   return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
 }
 
-function buildJourneyItems({
+function GuidedWorkbench({
+  activeSection,
+  analysisRun,
   appliedOperationCount,
-  editorIntentCount,
+  editorIntents,
   model,
+  projectMessage,
   projectOperation,
   projectSummary,
   result,
   ruleCheckAggregate,
-  solveState
+  activeA12StepId,
+  activeR3StepId,
+  guidedJourneyMode,
+  operationBusy,
+  r3JourneyState,
+  onApplyNextQueuedIntent,
+  onSelectA12Step,
+  onSelectGuidedJourneyMode,
+  onSelectR3Step,
+  onSelectSection
 }: {
+  activeSection: WorkspaceSectionId;
+  analysisRun: AnalysisRunEnvelope | null;
   appliedOperationCount: number;
-  editorIntentCount: number;
+  editorIntents: EditorOperationIntent[];
   model: PreviewModel;
+  projectMessage: string;
   projectOperation: string;
   projectSummary: LocalProjectSummary | null;
   result: MechanicsResult | null;
   ruleCheckAggregate: RuleCheckStatus | null;
-  solveState: SolveJobAuditState["state"];
-}): JourneyItem[] {
+  activeA12StepId: A12FlowStepId | null;
+  activeR3StepId: R3FlowStepId | null;
+  guidedJourneyMode: GuidedJourneyMode;
+  operationBusy: boolean;
+  r3JourneyState: R3JourneyState;
+  onApplyNextQueuedIntent: () => void;
+  onSelectA12Step: (stepId: A12FlowStepId) => void;
+  onSelectGuidedJourneyMode: (mode: GuidedJourneyMode) => void;
+  onSelectR3Step: (stepId: R3FlowStepId) => void;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const current = currentJourneyStep({
+    activeSection,
+    analysisRun,
+    appliedOperationCount,
+    editorIntents,
+    projectMessage,
+    projectSummary,
+    result,
+    ruleCheckAggregate
+  });
+
+  return (
+    <section className="guided-workbench" aria-label="Guided workbench" data-testid="guided-workbench">
+      <nav className="journey-rail" aria-label="Guided journey steps">
+        {JOURNEY_STEPS.map((step) => (
+          <button
+            key={step.id}
+            type="button"
+            className={activeSection === step.section ? "journey-step active" : "journey-step"}
+            aria-pressed={activeSection === step.section}
+            data-testid={`journey-step-${step.id}`}
+            title={step.description}
+            onClick={() => onSelectSection(step.section)}
+          >
+            {journeyStepIcon(step.id)}
+            <span>{step.label}</span>
+            <small data-testid={`journey-step-status-${step.id}`}>
+              {journeyStepStatus({ step, activeSection, editorIntents, result, analysisRun, projectSummary })}
+            </small>
+          </button>
+        ))}
+      </nav>
+      <article className="current-step-panel" data-testid="journey-current-step">
+        <div>
+          <span className="current-step-kicker">Current step</span>
+          <h2>{current.title}</h2>
+          <p>{current.body}</p>
+        </div>
+        <div className="current-step-facts" data-testid="journey-current-step-status">
+          <span title={current.status}>{current.status}</span>
+          <span
+            data-testid="r3-exit-journey-status"
+            title={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+          >
+            {r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+          </span>
+        </div>
+      </article>
+      <div className="guided-journey-stack" data-testid="guided-journey-stack">
+        <div className="guided-journey-tabs" role="tablist" aria-label="Guided journey selector">
+          <button
+            type="button"
+            className={guidedJourneyMode === "a12" ? "guided-journey-tab active" : "guided-journey-tab"}
+            data-testid="guided-journey-tab-a12"
+            aria-pressed={guidedJourneyMode === "a12"}
+            onClick={() => onSelectGuidedJourneyMode("a12")}
+          >
+            A12 authoring
+          </button>
+          <button
+            type="button"
+            className={guidedJourneyMode === "r3" ? "guided-journey-tab active" : "guided-journey-tab"}
+            data-testid="guided-journey-tab-r3"
+            aria-pressed={guidedJourneyMode === "r3"}
+            onClick={() => onSelectGuidedJourneyMode("r3")}
+          >
+            R3 rule checks
+          </button>
+        </div>
+        {guidedJourneyMode === "a12" ? (
+          <A12AuthoringJourney
+            analysisRun={analysisRun}
+            activeA12StepId={activeA12StepId}
+            editorIntents={editorIntents}
+            model={model}
+            operationBusy={operationBusy}
+            projectOperation={projectOperation}
+            result={result}
+            onApplyNextQueuedIntent={onApplyNextQueuedIntent}
+            onSelectA12Step={onSelectA12Step}
+            onSelectSection={onSelectSection}
+          />
+        ) : (
+          <R3GuidedJourney
+            activeR3StepId={activeR3StepId}
+            r3JourneyState={r3JourneyState}
+            result={result}
+            ruleCheckAggregate={ruleCheckAggregate}
+            onSelectR3Step={onSelectR3Step}
+            onSelectSection={onSelectSection}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function A12AuthoringJourney({
+  analysisRun,
+  activeA12StepId,
+  editorIntents,
+  model,
+  operationBusy,
+  projectOperation,
+  result,
+  onApplyNextQueuedIntent,
+  onSelectA12Step,
+  onSelectSection
+}: {
+  analysisRun: AnalysisRunEnvelope | null;
+  activeA12StepId: A12FlowStepId | null;
+  editorIntents: EditorOperationIntent[];
+  model: PreviewModel;
+  operationBusy: boolean;
+  projectOperation: string;
+  result: MechanicsResult | null;
+  onApplyNextQueuedIntent: () => void;
+  onSelectA12Step: (stepId: A12FlowStepId) => void;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const journey = buildA12FlowState({ analysisRun, editorIntents, model, projectOperation, result });
+  const queued = editorIntents.length;
+  const actionSection = queued > 0 ? "operations" : journey.nextStep?.section ?? "operations";
+  return (
+    <section className="a12-authoring-journey" aria-label="A12 authoring journey" data-testid="a12-authoring-journey">
+      <div className="a12-journey-header">
+        <div>
+          <span>A12 authoring</span>
+          <h2 data-testid="a12-next-action">
+            {queued > 0
+              ? "Review/apply queued edits"
+              : journey.nextStep
+                ? journey.nextStep.cue
+                : "A12 path is ready for packaged verification"}
+          </h2>
+        </div>
+        <strong data-testid="a12-journey-progress">
+          {journey.completedCount}/{journey.steps.length}
+        </strong>
+      </div>
+      <div className="a12-journey-grid" aria-label="A12 journey steps">
+        {journey.steps.map((step) => (
+          <button
+            key={step.id}
+            type="button"
+            className={a12StepClass(step, journey.nextStep?.id, activeA12StepId)}
+            data-testid={`a12-journey-step-${step.id}`}
+            data-status={step.complete ? "complete" : step.id === journey.nextStep?.id ? "next" : "pending"}
+            title={step.cue}
+            aria-pressed={activeA12StepId === step.id}
+            aria-current={step.id === journey.nextStep?.id ? "step" : undefined}
+            onClick={() => {
+              onSelectA12Step(step.id);
+              onSelectSection(step.section);
+            }}
+          >
+            <span>{step.label}</span>
+            <small>{step.status}</small>
+          </button>
+        ))}
+      </div>
+      <div className="a12-journey-actions">
+        <span data-testid="a12-queue-status">{journey.queueStatus}</span>
+        <button
+          type="button"
+          data-testid={queued > 0 ? "a12-review-apply-button" : "a12-next-action-button"}
+          disabled={queued > 0 && operationBusy}
+          onClick={() => {
+            if (queued > 0) {
+              onApplyNextQueuedIntent();
+              return;
+            }
+            onSelectSection(actionSection);
+          }}
+        >
+          {queued > 0
+            ? operationBusy
+              ? "Applying"
+              : "Apply queued"
+            : journey.nextStep
+              ? `Go to ${journey.nextStep.label}`
+              : "Review saved path"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function a12StepClass(
+  step: A12FlowStep,
+  nextStepId: A12FlowStepId | undefined,
+  activeA12StepId: A12FlowStepId | null
+): string {
+  const classes = ["a12-journey-step"];
+  if (step.complete) classes.push("complete");
+  if (step.id === nextStepId) classes.push("next");
+  if (step.id === activeA12StepId) classes.push("selected");
+  return classes.join(" ");
+}
+
+function buildA12FlowState({
+  analysisRun,
+  editorIntents,
+  model,
+  projectOperation,
+  result
+}: {
+  analysisRun: AnalysisRunEnvelope | null;
+  editorIntents: EditorOperationIntent[];
+  model: PreviewModel;
+  projectOperation: string;
+  result: MechanicsResult | null;
+}): {
+  completedCount: number;
+  nextStep: A12FlowStep | null;
+  queueStatus: string;
+  steps: A12FlowStep[];
+} {
+  const materials = model.materials ?? [];
+  const sections = model.sections ?? [];
+  const combinations = model.combinations ?? [];
   const primitiveLoadCount = model.load_cases.reduce(
     (count, loadCase) => count + (loadCase.primitive_loads?.length ?? 0),
     0
   );
-  const combinationCount = model.combinations?.length ?? 0;
-  const authoredModelReady = model.nodes.length >= 2 && model.pipe_segments.length >= 1;
-  const loadsReady = model.load_cases.length >= 1 && primitiveLoadCount >= 1 && combinationCount >= 1;
-  const solveComplete = solveState === "completed" && Boolean(result);
-  const savedThisSession = projectOperation === "save" || (projectSummary?.persisted_model_hash_count ?? 0) > 0;
-
-  return [
+  const solved = Boolean(result && result.results.length > 0 && result.status.mechanics === "MECHANICS_SOLVED");
+  const reportReady = Boolean(solved && analysisRun);
+  const reopened = projectOperation === "open" || projectOperation === "open_by_id";
+  const saved = projectOperation === "save" || reopened;
+  const steps: A12FlowStep[] = [
     {
-      id: "model",
-      label: "Model",
-      status: authoredModelReady ? "complete" : "current",
-      summary: `${model.nodes.length} nodes; ${model.pipe_segments.length} pipes; ${model.supports.length} supports`,
-      targetSection: "operations"
+      id: "blank",
+      label: "Blank",
+      section: "project",
+      cue: "Start with New blank",
+      complete: isBlankAuthoringModel(model),
+      status: isBlankAuthoringModel(model) ? "ready" : "start"
     },
     {
-      id: "apply",
-      label: "Apply",
-      status: editorIntentCount > 0 ? "current" : appliedOperationCount > 0 ? "complete" : "pending",
-      summary: `${editorIntentCount} queued; ${appliedOperationCount} applied`,
-      targetSection: "operations"
+      id: "nodes",
+      label: "Nodes",
+      section: "operations",
+      cue: "Add two nodes in the viewport",
+      complete: model.nodes.length >= 2,
+      status: countStatus(model.nodes.length, 2)
     },
     {
-      id: "loads",
-      label: "Loads",
-      status: loadsReady ? "complete" : authoredModelReady ? "current" : "pending",
-      summary: `${model.load_cases.length} cases; ${primitiveLoadCount} loads; ${combinationCount} combos`,
-      targetSection: "loads"
+      id: "material",
+      label: "Material",
+      section: "operations",
+      cue: "Add a material in the property inspector",
+      complete: materials.length >= 1,
+      status: countStatus(materials.length, 1)
+    },
+    {
+      id: "section",
+      label: "Section",
+      section: "operations",
+      cue: "Add a pipe section in the property inspector",
+      complete: sections.length >= 1,
+      status: countStatus(sections.length, 1)
+    },
+    {
+      id: "pipe",
+      label: "Pipe",
+      section: "operations",
+      cue: "Connect a straight pipe in the viewport",
+      complete: model.pipe_segments.length >= 1,
+      status: countStatus(model.pipe_segments.length, 1)
+    },
+    {
+      id: "support",
+      label: "Support",
+      section: "operations",
+      cue: "Add a support in the property inspector",
+      complete: model.supports.length >= 1,
+      status: countStatus(model.supports.length, 1)
+    },
+    {
+      id: "load-case",
+      label: "Load case",
+      section: "loads",
+      cue: "Create a load case",
+      complete: model.load_cases.length >= 1,
+      status: countStatus(model.load_cases.length, 1)
+    },
+    {
+      id: "primitive-load",
+      label: "Load",
+      section: "loads",
+      cue: "Add a primitive load",
+      complete: primitiveLoadCount >= 1,
+      status: countStatus(primitiveLoadCount, 1)
+    },
+    {
+      id: "combination",
+      label: "Combination",
+      section: "loads",
+      cue: "Create a mechanics combination",
+      complete: combinations.length >= 1,
+      status: countStatus(combinations.length, 1)
     },
     {
       id: "solve",
       label: "Solve",
-      status: solveComplete ? "complete" : loadsReady ? "current" : "pending",
-      summary: `${solveState}; rows=${result?.results.length ?? 0}`,
-      targetSection: "solve"
-    },
-    {
-      id: "rules",
-      label: "Rules",
-      status:
-        ruleCheckAggregate === "USER_RULE_CHECKED" || ruleCheckAggregate === "USER_RULE_FAILED"
-          ? "complete"
-          : solveComplete
-            ? "current"
-            : "pending",
-      summary: ruleCheckAggregate ?? model.analysis_status.rule_check,
-      targetSection: "solve"
+      section: "solve",
+      cue: "Run mechanics preview",
+      complete: solved,
+      status: solved ? `${result?.results.length ?? 0} rows` : "not run"
     },
     {
       id: "report",
       label: "Report",
-      status: solveComplete ? "current" : "pending",
-      summary: solveComplete ? "renderable" : "no solved run",
-      targetSection: "report"
+      section: "report",
+      cue: "Review the report packet",
+      complete: reportReady,
+      status: reportReady ? "ready" : "after solve"
     },
     {
-      id: "project",
-      label: "Project",
-      status: savedThisSession ? "complete" : appliedOperationCount > 0 ? "current" : "pending",
-      summary: projectOperation,
-      targetSection: "project"
+      id: "save-reopen",
+      label: "Save/reopen",
+      section: "project",
+      cue: saved ? "Reopen the saved local project" : "Save the local project",
+      complete: reopened,
+      status: reopened ? "opened" : saved ? "saved" : "pending"
     }
   ];
+  const nextStep = steps.find((step) => !step.complete) ?? null;
+  const nextQueuedIntent = editorIntents[0];
+  return {
+    completedCount: steps.filter((step) => step.complete).length,
+    nextStep,
+    queueStatus:
+      editorIntents.length > 0 && nextQueuedIntent
+        ? `${editorIntents.length} queued operation${editorIntents.length === 1 ? "" : "s"}: ${
+            operationIntentDisplayRef(nextQueuedIntent)
+          }`
+        : "No queued operations",
+    steps
+  };
+}
+
+function operationIntentDisplayRef(intent: EditorOperationIntent): string {
+  try {
+    const afterPayload = JSON.parse(intent.change.after) as { id?: unknown };
+    if (typeof afterPayload.id === "string" && afterPayload.id.trim().length > 0) {
+      return afterPayload.id;
+    }
+  } catch {
+    // Non-JSON after-values fall back to the target reference.
+  }
+  return intent.target.ref;
+}
+
+function isBlankAuthoringModel(model: PreviewModel): boolean {
+  return model.data_boundary.public_examples_policy.includes("blank_user_created_local_document");
+}
+
+function countStatus(actual: number, required: number): string {
+  return actual >= required ? "done" : `${actual}/${required}`;
+}
+
+function R3GuidedJourney({
+  activeR3StepId,
+  r3JourneyState,
+  result,
+  ruleCheckAggregate,
+  onSelectR3Step,
+  onSelectSection
+}: {
+  activeR3StepId: R3FlowStepId | null;
+  r3JourneyState: R3JourneyState;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  onSelectR3Step: (stepId: R3FlowStepId) => void;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const journey = buildR3FlowState({ r3JourneyState, result, ruleCheckAggregate });
+  const actionSection = journey.nextStep?.section ?? "evidence";
+  return (
+    <section className="r3-guided-flow" aria-label="R3 rule-pack guided flow" data-testid="r3-guided-flow">
+      <div className="r3-flow-header">
+        <div>
+          <span>R3 rule-pack flow</span>
+          <h2 data-testid="r3-flow-next-action">
+            {journey.nextStep ? journey.nextStep.cue : "Review R3 guided evidence before packaged pass"}
+          </h2>
+        </div>
+        <strong data-testid="r3-flow-progress">
+          {journey.completedCount}/{journey.steps.length}
+        </strong>
+      </div>
+      <div className="r3-flow-grid" aria-label="R3 journey steps">
+        {journey.steps.map((step) => (
+          <button
+            key={step.id}
+            type="button"
+            className={r3StepClass(step, journey.nextStep?.id, activeR3StepId)}
+            data-testid={`r3-flow-step-${step.id}`}
+            data-status={step.complete ? "complete" : step.id === journey.nextStep?.id ? "next" : "pending"}
+            title={step.cue}
+            aria-pressed={activeR3StepId === step.id}
+            aria-current={step.id === journey.nextStep?.id ? "step" : undefined}
+            onClick={() => {
+              onSelectR3Step(step.id);
+              onSelectSection(step.section);
+            }}
+          >
+            <span>{step.label}</span>
+            <small>{step.status}</small>
+          </button>
+        ))}
+      </div>
+      <div className="r3-flow-blocker" data-testid="r3-flow-missing-input-blocker">
+        {r3MissingInputBlockerText({ r3JourneyState, ruleCheckAggregate })}
+      </div>
+      <div className="r3-flow-actions">
+        <span data-testid="r3-flow-status">{journey.status}</span>
+        <button
+          type="button"
+          data-testid="r3-flow-next-action-button"
+          onClick={() => onSelectSection(actionSection)}
+        >
+          {journey.nextStep ? `Go to ${journey.nextStep.label}` : "Review evidence"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function buildR3FlowState({
+  r3JourneyState,
+  result,
+  ruleCheckAggregate
+}: {
+  r3JourneyState: R3JourneyState;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+}): {
+  completedCount: number;
+  nextStep: R3FlowStep | null;
+  status: string;
+  steps: R3FlowStep[];
+} {
+  const solved = Boolean(result && result.results.length > 0 && result.status.mechanics === "MECHANICS_SOLVED");
+  const libraryTouched =
+    r3JourneyState.library_template_loaded &&
+    (r3JourneyState.library_validate_requested || r3JourneyState.library_save_requested);
+  const packValidated = r3JourneyState.rule_pack_draft_created && r3JourneyState.rule_pack_validate_requested;
+  const packSaved = r3JourneyState.rule_pack_checksum_requested && r3JourneyState.rule_pack_save_requested;
+  const runAttempted = Boolean(ruleCheckAggregate || r3JourneyState.rule_check_run_requested);
+  const steps: R3FlowStep[] = [
+    {
+      id: "library",
+      label: "Library",
+      section: "libraries",
+      cue: "Load and validate a private local library template",
+      complete: libraryTouched,
+      status: r3JourneyState.library_save_requested
+        ? "save requested"
+        : r3JourneyState.library_validate_requested
+          ? "validate requested"
+          : r3JourneyState.library_template_loaded
+            ? "template loaded"
+            : "not started"
+    },
+    {
+      id: "rule-pack",
+      label: "Rule pack",
+      section: "rule-packs",
+      cue: "Create and validate a private non-code rule-pack draft",
+      complete: packValidated,
+      status: r3JourneyState.rule_pack_validate_requested
+        ? "validate requested"
+        : r3JourneyState.rule_pack_draft_created
+          ? "draft ready"
+          : "not started"
+    },
+    {
+      id: "checksum-save",
+      label: "Checksum/save",
+      section: "rule-packs",
+      cue: "Compute the checksum and request local save",
+      complete: packSaved,
+      status: r3JourneyState.rule_pack_save_requested
+        ? "save requested"
+        : r3JourneyState.rule_pack_checksum_requested
+          ? "checksum requested"
+          : "pending"
+    },
+    {
+      id: "solve",
+      label: "Solve",
+      section: "solve",
+      cue: "Run mechanics before rule checks",
+      complete: solved,
+      status: solved ? `${result?.results.length ?? 0} rows` : "not run"
+    },
+    {
+      id: "bind",
+      label: "Bind",
+      section: "solve",
+      cue: "Load a rule pack for checking and review required bindings",
+      complete: r3JourneyState.rule_check_pack_loaded,
+      status: r3JourneyState.rule_check_pack_loaded ? "binding plan visible" : "load pack"
+    },
+    {
+      id: "run",
+      label: "Run checks",
+      section: "solve",
+      cue: "Run rule checks and confirm missing inputs block pass/fail",
+      complete: runAttempted,
+      status: ruleCheckAggregate ?? (r3JourneyState.rule_check_run_requested ? "run requested" : "not run")
+    }
+  ];
+  const nextStep = steps.find((step) => !step.complete) ?? null;
+  return {
+    completedCount: steps.filter((step) => step.complete).length,
+    nextStep,
+    status: `private library=${steps[0].status}; rule_pack=${steps[1].status}; checksum_save=${
+      steps[2].status
+    }; rule_check=${
+      ruleCheckAggregate ?? (runAttempted ? "requested" : "not run")
+    }`,
+    steps
+  };
+}
+
+function r3StepClass(
+  step: R3FlowStep,
+  nextStepId: R3FlowStepId | undefined,
+  activeR3StepId: R3FlowStepId | null
+): string {
+  const classes = ["r3-flow-step"];
+  if (step.complete) classes.push("complete");
+  if (step.id === nextStepId) classes.push("next");
+  if (step.id === activeR3StepId) classes.push("selected");
+  return classes.join(" ");
+}
+
+function r3MissingInputBlockerText({
+  r3JourneyState,
+  ruleCheckAggregate
+}: {
+  r3JourneyState: R3JourneyState;
+  ruleCheckAggregate: RuleCheckStatus | null;
+}): string {
+  if (ruleCheckAggregate === "RULE_INPUTS_INCOMPLETE") {
+    return "Missing inputs block pass/fail: aggregate=RULE_INPUTS_INCOMPLETE.";
+  }
+  if (!r3JourneyState.rule_check_pack_loaded) {
+    return "Missing-input gate pending: load a rule pack, then bind required values before pass/fail.";
+  }
+  if (!r3JourneyState.rule_check_run_requested && !ruleCheckAggregate) {
+    return "Binding review active: required missing values remain a blocker until supplied.";
+  }
+  if (!ruleCheckAggregate) {
+    return "Run requested; browser preview keeps pass/fail blocked until the desktop checker returns complete inputs.";
+  }
+  return `Rule-check aggregate=${ruleCheckAggregate}; software finding only, no code-compliance claim.`;
+}
+
+function journeyStepIcon(stepId: JourneyStepId): React.ReactNode {
+  switch (stepId) {
+    case "model":
+      return <List size={15} aria-hidden="true" />;
+    case "loads":
+      return <Activity size={15} aria-hidden="true" />;
+    case "private-libraries":
+      return <LockKeyhole size={15} aria-hidden="true" />;
+    case "rule-pack":
+      return <FileWarning size={15} aria-hidden="true" />;
+    case "solve-check":
+      return <ShieldCheck size={15} aria-hidden="true" />;
+    case "results":
+      return <Database size={15} aria-hidden="true" />;
+    case "report":
+      return <FilePlus size={15} aria-hidden="true" />;
+    case "save-reopen":
+      return <Save size={15} aria-hidden="true" />;
+  }
+}
+
+function journeyStepStatus({
+  step,
+  activeSection,
+  editorIntents,
+  result,
+  analysisRun,
+  projectSummary
+}: {
+  step: JourneyStep;
+  activeSection: WorkspaceSectionId;
+  editorIntents: EditorOperationIntent[];
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  projectSummary: LocalProjectSummary | null;
+}): string {
+  if (activeSection === step.section) return "current";
+  if (step.id === "model") return editorIntents.length > 0 ? `${editorIntents.length} queued` : "ready";
+  if (step.id === "solve-check") return result ? "solved" : "not run";
+  if (step.id === "results") return result ? `${result.results.length} rows` : "after solve";
+  if (step.id === "report") return analysisRun ? "ready" : "after solve";
+  if (step.id === "save-reopen") return projectSummary ? "local" : "not saved";
+  return "available";
+}
+
+function currentJourneyStep({
+  activeSection,
+  analysisRun,
+  appliedOperationCount,
+  editorIntents,
+  projectMessage,
+  projectSummary,
+  result,
+  ruleCheckAggregate
+}: {
+  activeSection: WorkspaceSectionId;
+  analysisRun: AnalysisRunEnvelope | null;
+  appliedOperationCount: number;
+  editorIntents: EditorOperationIntent[];
+  projectMessage: string;
+  projectSummary: LocalProjectSummary | null;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+}): { title: string; body: string; status: string } {
+  switch (activeSection) {
+    case "operations":
+      return editorIntents.length > 0
+        ? {
+            title: "Review and apply queued model edits",
+            body: "Validate queued operations, apply accepted edits to the local session model, then save when ready.",
+            status: `${editorIntents.length} queued; ${appliedOperationCount} applied this session`
+          }
+        : {
+            title: "Queue a model edit",
+            body: "Select in the tree or viewport, queue an inspector or viewport edit, then review/apply here.",
+            status: "No queued operations"
+          };
+    case "loads":
+      return {
+        title: "Author load cases and combinations",
+        body: "Use the load manager to create or edit loads before solving. Proposed edits still pass through Operation Apply before they mutate the local session model.",
+        status: `${editorIntents.length} queued operation${editorIntents.length === 1 ? "" : "s"}`
+      };
+    case "libraries":
+      return {
+        title: "Prepare private local libraries",
+        body: "Import or inspect private library records locally. Public fixtures remain invented and private payloads stay out of the repository.",
+        status: "Private-library route available"
+      };
+    case "rule-packs":
+      return {
+        title: "Draft the private non-code rule pack",
+        body: "Create, validate, checksum, and save rule-pack drafts through the structured composer. Writable expression text remains out of scope under DEC-037.",
+        status: "AST composer only; no text parser"
+      };
+    case "solve":
+      return {
+        title: "Run solve and rule checks",
+        body: "Run mechanics first, then review missing rule-check inputs and check results. Missing inputs block pass/fail instead of being guessed.",
+        status: result
+          ? `Solved ${result.results.length} rows; rule_check=${ruleCheckAggregate ?? "not run"}`
+          : "Solve not run in this session"
+      };
+    case "results":
+      return {
+        title: "Review results and model-state context",
+        body: "Inspect result rows, diagnostics, deformed shape status, comparison context, and selected-review targets before reporting.",
+        status: result ? `${result.results.length} result rows available` : "Results populate after solve"
+      };
+    case "report":
+      return {
+        title: "Render the calculation report",
+        body: "Generate the hash-bound report surface after solving. Reports disclose assumptions, warnings, provenance, and boundary status without professional approval claims.",
+        status: analysisRun ? `analysis_run=${analysisRun.analysis_run.run_id}` : "Report evidence waits for solve"
+      };
+    case "project":
+      return {
+        title: "Save and reopen the local project",
+        body: "Persist the current local session model and verify the local store. User-created models remain local project data and are not committed to the repository.",
+        status: projectSummary ? projectMessage : "No local project summary yet"
+      };
+    case "exports":
+      return {
+        title: "Use export and handoff details deliberately",
+        body: "Export surfaces are available for review evidence and local handoff packages after the main journey state is ready.",
+        status: "Detail route; no external solver invocation"
+      };
+    case "evidence":
+      return {
+        title: "Audit boundaries and evidence",
+        body: "Inspect validation evidence, build readiness, telemetry/privacy, private-library, security, and accessibility boundary panels.",
+        status: "Audit details only; no release or professional claim"
+      };
+  }
+}
+
+function r3ExitJourneyStatus({
+  result,
+  ruleCheckAggregate,
+  projectSummary
+}: {
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  projectSummary: LocalProjectSummary | null;
+}): string {
+  const solveStatus = result && ruleCheckAggregate && projectSummary ? "journey evidence started" : "journey evidence incomplete";
+  return `Packaged A12/R3 human pass not recorded; ${solveStatus}; R3 exit review not started.`;
 }
 
 function Badge({ icon, label }: { icon: React.ReactNode; label: string }) {
@@ -1318,12 +2136,6 @@ function Badge({ icon, label }: { icon: React.ReactNode; label: string }) {
       {label}
     </span>
   );
-}
-
-function JourneyStatusIcon({ status }: { status: JourneyItem["status"] }) {
-  if (status === "complete") return <CheckCircle2 size={14} aria-hidden="true" />;
-  if (status === "current") return <CircleDot size={14} aria-hidden="true" />;
-  return <Circle size={14} aria-hidden="true" />;
 }
 
 function BoundaryItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

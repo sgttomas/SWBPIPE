@@ -5964,3 +5964,152 @@ notes:
   content, private data, network/telemetry path, release-readiness claim,
   professional approval, certification, sealing, authentication, or code-
   compliance claim changed.
+
+## TP-MAC-183 R3 exit readiness plan revision (`TP-R3EXIT-PLAN-001`, 2026-06-16)
+
+- Establishes completion-plan Phase C5: R3 exit readiness and
+  authoring-usability closure, inserted after landed C4 and before Phase D.
+- Updates `plans/PLAN_2026-06-10_prd_completion.md`, `docs/PLAN.md`,
+  `execution/_Coordination/_COORDINATION.md`, and
+  `execution/_Coordination/NEXT_INSTANCE_PROMPT.md` so ordinary R3 work
+  continues through C5 before Phase D unless the human explicitly overrides.
+- C5 records the guided-workbench direction: keep the persistent model tree,
+  viewport, and property inspector, but make the lower workspace task-guided
+  and move evidence/debug-heavy surfaces behind details or `Audit &
+  Boundaries`.
+- C1-C4 remain implementation evidence for PRD §22.4. This row does not begin
+  or pass an R3 exit review; F-4 and the authoring-journey usability finding
+  remain open until packaged human evidence closes them.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-R3EXIT-PLAN-001_TP-R3UX-DISCOVERY-001.md`;
+  completion log updated.
+- Boundary review: plan/evidence routing only; no app behavior, schema,
+  solver, rule-pack grammar, parser, persistence, package, lifecycle,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim.
+
+## TP-MAC-184 R3 authoring-usability failure baseline (`TP-R3UX-DISCOVERY-001`, 2026-06-16)
+
+- Records the C5 starting baseline for the guided-workbench redesign: TP-MAC-141
+  attempts 1-3, the human-provided 2026-06-16 screenshot evaluation, and the
+  finding that the current shell is credible as an internal technical preview
+  but still overloaded for a working engineer user.
+- Baseline screenshots captured at 1440x920 and 1280x800:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-DISCOVERY-001_1440x920.png`
+  and
+  `.../TP-R3UX-DISCOVERY-001_1280x800.png`.
+- Viewport probe artifact:
+  `.../_run_records/assets/TP-R3UX-DISCOVERY-001_viewport_probe.json`.
+  Results: zero console errors, no horizontal page overflow, and no
+  horizontally clipped visible primary controls at either viewport.
+- Dead-control audit rerun: `npm test --workspace apps/desktop --
+  App.deadControls` passed 1 file / 1 test.
+- Baseline conclusion: the shell is structurally stable after TP-MAC-146, but
+  the default working surface still makes the next action unclear and exposes
+  developer/evidence panels too prominently. C5.3 (`TP-R3UX-SHELL-001`) is the
+  next implementation tranche.
+- Boundary review: discovery/evidence only; no product behavior change, no
+  lifecycle state change, and no release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim.
+
+## TP-MAC-185 guided workbench shell (`TP-R3UX-SHELL-001`, 2026-06-16)
+
+- Adds the first C5 guided-workbench shell: the persistent model tree,
+  3D centerline viewport, and property inspector remain visible, while the
+  default lower workspace now starts with a task rail and current-step panel.
+- The rail covers the ordinary journeys: model edits, loads, private
+  libraries, rule packs, solve/check, results, report, and save/reopen. New
+  stable IDs include `guided-workbench`, `journey-step-*`,
+  `journey-current-step`, `review-apply-drawer`,
+  `review-apply-drawer-toggle`, and `r3-exit-journey-status`.
+- Evidence-heavy surfaces remain available but are no longer the default
+  work surface. `Editor Contract`, operation diff internals, operation ledger,
+  and agent proposal context are mounted behind the Review evidence detail
+  drawer in Operation Apply; existing panel test IDs are preserved after the
+  drawer opens.
+- In-app browser evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-SHELL-001_1440x920_iab.png`,
+  `.../TP-R3UX-SHELL-001_1280x800_iab.png`, and
+  `.../TP-R3UX-SHELL-001_iab_probe.json`. Probe results: no horizontal page
+  overflow and no clipped guided-workbench primary controls at either
+  1440x920 or 1280x800.
+- Validation completed before closeout: focused guided-workbench Vitest,
+  dead-control audit, focused Playwright guided-workbench e2e at both
+  configured viewports, full desktop Vitest, and desktop production build.
+- Boundary review: frontend shell/usability only; no schema, evaluator
+  grammar, solver, persistence, backend API, rule-pack checksum, lifecycle,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance change. F-4 and the authoring-usability
+  finding remain open pending C5 packaged human journey evidence.
+
+## TP-MAC-186 A12 guided authoring journey (`TP-R3UX-A12FLOW-001`, 2026-06-16)
+
+- Adds an A12-specific guided authoring panel inside the guided workbench for
+  blank-model authoring. The checklist covers blank document, nodes, material,
+  section, pipe, support, load case, primitive load, combination, solve,
+  report, and save/reopen.
+- The checklist is derived from the current model/session state, not from
+  hard-coded A12 fixture values. It reports the next unmet step, step counts,
+  and current queue status; queued creation operations name the created object
+  when the operation payload carries an `id`.
+- Adds an inline `Apply queued` affordance for A12. It calls the existing
+  structured operation apply handler, records the normal operation receipt,
+  preserves result-reset/undo behavior, and leaves Operation Apply available as
+  the receipt and audit surface.
+- A12 step buttons now maintain visible selected-step state when several steps
+  route to the same work section, preventing no-op controls and making
+  node/material/section/pipe/support/load/solve/report/save-reopen navigation
+  explicit.
+- In-app browser evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-A12FLOW-001_1440x920_iab_blank.png`,
+  `.../TP-R3UX-A12FLOW-001_1280x800_iab_queued.png`,
+  `.../TP-R3UX-A12FLOW-001_1280x800_iab_applied.png`, and
+  `.../TP-R3UX-A12FLOW-001_iab_probe.json`. Probe results: no horizontal
+  page overflow; A12 primary controls and compact inline apply remain inside
+  the viewport at 1440x920 and 1280x800.
+- Validation completed before closeout: focused guided-workbench Vitest,
+  permanent dead-control audit, focused A12 Playwright e2e at both configured
+  viewports, full desktop Vitest **18 files / 386 tests**, desktop production
+  build, and full Playwright e2e **12/12**.
+- Boundary review: frontend guided-authoring usability only; no rule-pack
+  schema, evaluator grammar, solver, persistence, backend API, project-store
+  semantics, rule-pack checksum, lifecycle, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance change.
+  F-4 and the authoring-usability finding remain open until packaged human
+  successor journey evidence is recorded.
+
+## TP-MAC-187 R3 guided rule-pack/private-library flow (`TP-R3UX-R3FLOW-001`, 2026-06-16)
+
+- Adds an R3-specific guided mode beside the A12 mode in the guided workbench.
+  The path routes private library import, private non-code rule-pack draft and
+  validation, checksum/save request, mechanics solve, rule-check binding
+  review, and rule-check run request through existing panels.
+- The implementation is UI-only session state. `LibraryManagerPanel`,
+  `RulePackManagerPanel`, and `RuleCheckRunPanel` report visible user actions
+  to the guided workbench; no rule-pack schema, evaluator grammar, solver,
+  persistence, backend API, checksum, or store semantics changed.
+- New stable IDs include `guided-journey-tab-r3`, `r3-guided-flow`,
+  `r3-flow-next-action`, `r3-flow-progress`, `r3-flow-step-*`,
+  `r3-flow-status`, `r3-flow-next-action-button`, and
+  `r3-flow-missing-input-blocker`.
+- The browser-preview journey intentionally reaches `6/6` only as guided action
+  coverage. The visible blocker remains explicit: pass/fail stays blocked until
+  the desktop checker returns complete inputs. This preserves PRD 22.4 missing
+  input behavior and makes no code-compliance claim.
+- In-app browser evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_run_records/assets/TP-R3UX-R3FLOW-001_1440x920_iab_r3_start.png`,
+  `.../TP-R3UX-R3FLOW-001_1280x800_iab_r3_run.png`, and
+  `.../TP-R3UX-R3FLOW-001_iab_probe.json`. Probe results: no horizontal page
+  overflow, no clipped R3 primary controls, `r3Progress=6/6`, and blocker text
+  `browser preview keeps pass/fail blocked until the desktop checker returns
+  complete inputs`.
+- Validation completed before closeout: full desktop Vitest **18 files / 386
+  tests**, permanent dead-control audit, desktop production build, full
+  Playwright e2e **14/14** across 1440x920 and 1280x800, plus in-app browser
+  visual verification.
+- Boundary review: frontend guided-workbench usability only; no private data
+  committed, no protected content, no network/telemetry posture change, no
+  lifecycle state change, and no release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim. F-4 and the
+  authoring-usability finding remain open until packaged human successor
+  journey evidence is recorded.

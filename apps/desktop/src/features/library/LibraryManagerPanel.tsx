@@ -58,7 +58,15 @@ type DraftState = {
   origin: string;
 };
 
-export function LibraryManagerPanel({ model }: { model: PreviewModel | null }) {
+type LibraryR3JourneyEvent = "library_template_loaded" | "library_validate_requested" | "library_save_requested";
+
+export function LibraryManagerPanel({
+  model,
+  onR3JourneyEvent
+}: {
+  model: PreviewModel | null;
+  onR3JourneyEvent?: (event: LibraryR3JourneyEvent) => void;
+}) {
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [libraryKind, setLibraryKind] = useState<LibraryKind>("material");
   const [intendedVisibility, setIntendedVisibility] = useState<IntendedVisibility>("private");
@@ -117,6 +125,7 @@ export function LibraryManagerPanel({ model }: { model: PreviewModel | null }) {
       origin: `invented_${libraryKind}_template_private_by_default`
     });
     setValidation(null);
+    onR3JourneyEvent?.("library_template_loaded");
     setActionStatus(
       `Invented private ${libraryKind}-library template loaded in memory ` +
         "(privacy_class=private_user_data, redistribution_status=private_only). " +
@@ -155,6 +164,7 @@ export function LibraryManagerPanel({ model }: { model: PreviewModel | null }) {
   async function handleValidate() {
     const document = parseDraft();
     if (!document) return;
+    onR3JourneyEvent?.("library_validate_requested");
     setInFlight(true);
     try {
       const route = await validateLibraryImport(document, libraryKind, intendedVisibility);
@@ -183,6 +193,7 @@ export function LibraryManagerPanel({ model }: { model: PreviewModel | null }) {
     }
     const document = parseDraft();
     if (!document) return;
+    onR3JourneyEvent?.("library_save_requested");
     setInFlight(true);
     try {
       const route = await saveLocalLibrary(projectId, libraryKind, document);

@@ -49,7 +49,19 @@ type DraftState = {
   origin: string;
 };
 
-export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) {
+type RulePackR3JourneyEvent =
+  | "rule_pack_draft_created"
+  | "rule_pack_validate_requested"
+  | "rule_pack_checksum_requested"
+  | "rule_pack_save_requested";
+
+export function RulePackManagerPanel({
+  model,
+  onR3JourneyEvent
+}: {
+  model: PreviewModel | null;
+  onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
+}) {
   const [draft, setDraft] = useState<DraftState | null>(null);
   const [actionStatus, setActionStatus] = useState<string>(
     "No rule-pack action has run in this session."
@@ -110,6 +122,7 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
     });
     setValidation(null);
     setChecksum(null);
+    onR3JourneyEvent?.("rule_pack_draft_created");
     setActionStatus(
       "New private draft created in memory (privacy_class=private_user_data, " +
         "redistribution_status=private_only). Nothing is stored until you save."
@@ -148,6 +161,7 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
   async function handleValidate() {
     const document = parseDraft();
     if (!document) return;
+    onR3JourneyEvent?.("rule_pack_validate_requested");
     setInFlight(true);
     try {
       const route = await validateRulePack(document);
@@ -171,6 +185,7 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
   async function handleComputeChecksum() {
     const document = parseDraft();
     if (!document) return;
+    onR3JourneyEvent?.("rule_pack_checksum_requested");
     setInFlight(true);
     try {
       const route = await computeRulePackChecksum(document);
@@ -199,6 +214,7 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
     }
     const document = parseDraft();
     if (!document) return;
+    onR3JourneyEvent?.("rule_pack_save_requested");
     setInFlight(true);
     try {
       const route = await saveLocalRulePack(projectId, document);

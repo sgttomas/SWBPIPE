@@ -170,3 +170,140 @@ F-4 remains open: the human packaged GUI journey still must be completed to
 close the recorded finding. This tranche does not change lifecycle state,
 release-readiness, professional approval, accessibility certification, sealing,
 authentication, or code-compliance status.
+
+## 2026-06-16 - TP-R3EXIT-PLAN-001 / TP-R3UX-DISCOVERY-001 C5 routing and UX baseline
+
+The human approved the R3 Exit Readiness + Guided Workbench Redesign Program
+as a revision to the active completion plan. WORKING_ITEMS implemented the
+first two bounded tranches:
+
+- `TP-R3EXIT-PLAN-001` / TP-MAC-183: inserted Phase C5 after landed C4 and
+  before Phase D in `plans/PLAN_2026-06-10_prd_completion.md`; updated
+  `docs/PLAN.md`, `_COORDINATION.md`, and `NEXT_INSTANCE_PROMPT.md` so
+  ordinary R3 work selects C5 before Phase D unless the human explicitly
+  overrides.
+- `TP-R3UX-DISCOVERY-001` / TP-MAC-184: recorded the C5 UX baseline from
+  TP-MAC-141 attempts, the human-provided 2026-06-16 screenshot/user
+  evaluation, current 1440x920 and 1280x800 screenshots, viewport probe JSON,
+  and the dead-control audit rerun.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-DISCOVERY-001_1440x920.png`,
+`TP-R3UX-DISCOVERY-001_1280x800.png`, and
+`TP-R3UX-DISCOVERY-001_viewport_probe.json`. The probe recorded zero console
+errors, no horizontal page overflow, and no horizontally clipped visible
+primary controls at both viewport sizes. The current blocker is work-surface
+clarity, not structural clipping: the default shell still exposes too much
+internal/evidence state before the user knows the next action.
+
+Validation: `npm test --workspace apps/desktop -- App.deadControls` passed
+1/1. Product behavior was not changed. F-4 and the A3 authoring-journey
+usability finding remain open; next unblocked tranche is
+`TP-R3UX-SHELL-001` / target TP-MAC-185, the guided workbench shell.
+
+## 2026-06-16 - TP-R3UX-SHELL-001 guided workbench shell
+
+Implemented the first C5 guided-workbench shell for TP-MAC-185. The desktop
+app keeps the spatial core visible (model tree, 3D centerline viewport,
+property inspector) and adds a task-guided lower workspace with journey rail,
+current-step panel, compact queue facts, and compact R3 exit journey status.
+
+The prior default evidence-heavy surfaces remain mounted and reachable behind
+the Review evidence detail drawer in Operation Apply: editor contract,
+operation diff preview, operation ledger, and agent proposal context. Existing
+panel test IDs remain available after details open; new C5 shell test IDs cover
+the guided workbench, journey steps, review/apply drawer, and R3 exit journey
+status.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-SHELL-001_1440x920_iab.png`,
+`TP-R3UX-SHELL-001_1280x800_iab.png`, and
+`TP-R3UX-SHELL-001_iab_probe.json`. The probe recorded no horizontal page
+overflow and no clipped guided-workbench primary controls at both viewports.
+
+Validation: focused guided-workbench Vitest, dead-control audit, focused
+Playwright guided-workbench e2e at 1440x920 and 1280x800, full desktop Vitest,
+and desktop production build. No lifecycle state was changed. No schema,
+evaluator grammar, solver, persistence, backend API, private-data, protected
+content, release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim was introduced.
+
+F-4 and the authoring-journey usability finding remain open. Next unblocked C5
+tranche is `TP-R3UX-A12FLOW-001` / target TP-MAC-186.
+
+## 2026-06-16 - TP-R3UX-A12FLOW-001 A12 guided authoring journey
+
+Implemented the C5.4 A12 authoring journey redesign for TP-MAC-186. The
+guided workbench now includes an A12-specific checklist for blank-model
+authoring: blank document, nodes, material, section, pipe, support, load case,
+primitive load, combination, solve, report, and save/reopen.
+
+The checklist is derived from current model/session state instead of hard-coded
+A12 values. It reports a clear next action, per-step completion counts, and the
+current operation queue. When an operation is queued, the A12 panel names the
+created object when available and exposes `Apply queued`; that affordance uses
+the existing structured-operation apply handler and receipt path, preserving
+undo/result-reset behavior and keeping Operation Apply available as the audit
+surface.
+
+The A12 step buttons also maintain selected-step state so controls that route
+to the same underlying workspace section still produce visible feedback and do
+not regress the permanent dead-control audit.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-A12FLOW-001_1440x920_iab_blank.png`,
+`TP-R3UX-A12FLOW-001_1280x800_iab_queued.png`,
+`TP-R3UX-A12FLOW-001_1280x800_iab_applied.png`, and
+`TP-R3UX-A12FLOW-001_iab_probe.json`. The probe recorded no horizontal page
+overflow and no clipped A12 primary controls at 1440x920 or 1280x800; the
+compact queued state showed the inline apply button visible inside the
+viewport, and the applied state recorded `route=local_wasm_engine`.
+
+Validation: focused guided-workbench Vitest, dead-control audit, focused A12
+Playwright e2e at 1440x920 and 1280x800, full desktop Vitest 18 files / 386
+tests, desktop production build, full Playwright e2e 12/12, and in-app browser
+visual verification.
+
+No lifecycle state was changed. No rule-pack schema, evaluator grammar,
+solver, persistence, backend API, project-store semantics, rule-pack checksum,
+private-data boundary, protected-content boundary, network/telemetry posture,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim was introduced.
+
+F-4 and the authoring-usability finding remain open pending packaged human
+successor journey evidence. Next unblocked C5 tranche is
+`TP-R3UX-R3FLOW-001` / target TP-MAC-187.
+
+## 2026-06-16 - TP-R3UX-R3FLOW-001 R3 guided rule-pack/private-library flow
+
+Implemented the C5.5 R3 guided flow for TP-MAC-187. The guided workbench now
+has an R3 mode next to the A12 mode. The R3 path routes private local library
+template load/validate/save request, private non-code rule-pack draft/validate,
+checksum/save request, mechanics solve, rule-check binding review, and
+rule-check run request.
+
+The guide records visible actions from the existing library manager, rule-pack
+manager, and rule-check run panel. The implementation did not change rule-pack
+schema, evaluator grammar, solver behavior, persistence, backend API, checksum
+semantics, or local store commands.
+
+Evidence assets live under `_run_records/assets/`:
+`TP-R3UX-R3FLOW-001_1440x920_iab_r3_start.png`,
+`TP-R3UX-R3FLOW-001_1280x800_iab_r3_run.png`, and
+`TP-R3UX-R3FLOW-001_iab_probe.json`. The probe recorded no horizontal page
+overflow, no clipped R3 primary controls, `r3Progress=6/6`, and an explicit
+blocker that browser preview keeps pass/fail blocked until the desktop checker
+returns complete inputs.
+
+Validation: full desktop Vitest 18 files / 386 tests, permanent dead-control
+audit, desktop production build, full Playwright e2e 14/14 across 1440x920 and
+1280x800, and in-app browser visual verification.
+
+No lifecycle state was changed. No private data was committed. No protected
+content, network/telemetry posture change, release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim was
+introduced.
+
+F-4 and the authoring-usability finding remain open pending packaged human
+successor journey evidence. Next unblocked C5 tranche is
+`TP-R3UX-PACKAGEKIT-001` / target TP-MAC-188.
