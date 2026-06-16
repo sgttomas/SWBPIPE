@@ -499,8 +499,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("source=angle=rad");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("length=m");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("target=force=N");
-    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("conversion=false");
-    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("members=7");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("length=mm");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-units").textContent).toContain("conversion=true");
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-conversion-witnesses").textContent).toContain(
+      "count=15"
+    );
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-conversion-witnesses").textContent).toContain(
+      "target_length=mm"
+    );
+    expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("members=8");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("stable_ids=14");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-package").textContent).toContain("diagnostics=0");
     expect(within(caepipeMbfExport).getByTestId("caepipe-mbf-boundary").textContent).toContain(
@@ -538,13 +545,32 @@ describe("OpenPipeStress desktop preview", () => {
       "unit-system:dec-018-si-dual-display"
     );
     expect(caepipeMbfPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(caepipeMbfPacket.unit_system_disclosure.target_export_units.length).toBe("mm");
     expect(caepipeMbfPacket.unit_system_disclosure.target_export_units.force).toBe("N");
-    expect(caepipeMbfPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(caepipeMbfPacket.unit_system_disclosure.conversion_performed).toBe(true);
+    expect(caepipeMbfPacket.unit_system_disclosure.conversion_scope).toContain("node.coordinates");
     expect(caepipeMbfPacket.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(caepipeMbfPacket.conversion_witnesses).toHaveLength(15);
+    expect(caepipeMbfPacket.manifest.package_members.map((item: { member_role: string }) => item.member_role)).toContain(
+      "conversion_witnesses"
+    );
+    const caepipeNodeWitness = caepipeMbfPacket.conversion_witnesses.find(
+      (item: { witness_id: string }) => item.witness_id === "caepipe-mbf-conversion:node-n-120:position:x"
+    );
+    expect(caepipeNodeWitness.source_quantity).toEqual({ value: 3.2, unit: "m", dimension: "length" });
+    expect(caepipeNodeWitness.target_quantity).toEqual({
+      value: 3200,
+      unit: "mm",
+      target_field: "model_payload.nodes.node:N-120.x"
+    });
+    expect(caepipeNodeWitness.conversion_factor_to_target).toBe(1000);
+    expect(caepipeNodeWitness.conversion_status).toBe("converted_to_target_unit");
     expect(caepipeMbfPacket.model_payload.nodes).toHaveLength(5);
     expect(caepipeMbfPacket.model_payload.elements).toHaveLength(4);
     expect(caepipeMbfPacket.model_payload.supports).toHaveLength(3);
     expect(caepipeMbfPacket.mbf_text).toContain("UNITS");
+    expect(caepipeMbfPacket.mbf_text).toContain("UNIT,mm,N,degC");
+    expect(caepipeMbfPacket.mbf_text).toContain("NODE,N003,3200,2400,0");
     expect(caepipeMbfPacket.mbf_text).toContain("PIPE,P003,N003,N004");
     expect(caepipeMbfPacket.mbf_text).toContain("END");
     expect(caepipeMbfPacket.stable_id_map).toHaveLength(14);
@@ -553,6 +579,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(caepipeMbfPacket.validation_report.validation_status).toBe("boundary_checked");
     expect(caepipeMbfPacket.validation_report.schema_validation_status).toBe(
       "desktop_preview_shape_aligned_not_runtime_json_schema_validated"
+    );
+    expect(caepipeMbfPacket.validation_report.checks.map((item: { check_id: string }) => item.check_id)).toContain(
+      "conversion_witness_per_node_coordinate_field"
     );
     expect(caepipeMbfPacket.diagnostics).toHaveLength(0);
     expect(caepipeMbfPacket.private_payload_included).toBe(false);

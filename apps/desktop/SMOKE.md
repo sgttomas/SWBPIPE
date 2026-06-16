@@ -5694,3 +5694,30 @@ notes:
   target compatibility, solver behavior, protected content, private project
   data, network, telemetry, release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-174 CAEPIPE MBF conversion witnesses (`TP-UNITS-B2B3-CAEPIPECONVWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop CAEPIPE MBF smoke-subset export package
+  now embeds `conversion_witnesses` for node-coordinate target-format
+  conversion beyond the previously landed unit-system disclosure.
+- Package behavior: downloaded CAEPIPE MBF JSON includes one witness per node
+  coordinate component. Each witness records source node/field, source
+  value/unit/dimension, target MBF payload value/unit/field, conversion factor,
+  DEC-018/DEL-02-02 basis refs, and preview provenance. The manifest lists
+  `conversion_witnesses.json`, and validation checks witness count and `mm`
+  target units.
+- Export text behavior: MBF node records now use millimeter coordinate values
+  with an explicit `UNIT,mm,...` record. The invented preview witness for
+  `node:N-120` records `3.2 m -> 3200 mm`, and the MBF text carries
+  `NODE,N003,3200,2400,0`.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build` clean with the existing Vite chunk-size
+  warning; targeted Playwright R2 smoke spec **10/10** after wasm rebuild.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-CAEPIPECONVWITNESS-001.md`
+  (DEL-17-04 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: desktop CAEPIPE MBF smoke package only; no CAEPIPE target
+  version/profile closure, direct MBF stable-ID carrier, downstream import
+  compatibility, external CAEPIPE execution, solver validation, protected
+  content, private data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

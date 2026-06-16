@@ -504,3 +504,23 @@ Boundary note:
 - Boundary unchanged: no unit conversion, import target compatibility, solver
   behavior, protected content, private data, network/telemetry path,
   release-readiness claim, or professional/code-compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2B3-CAEPIPECONVWITNESS-001 CAEPIPE MBF conversion witnesses
+
+- Added supporting B2/B3 unit evidence for desktop CAEPIPE MBF node-coordinate
+  source-to-target conversion witnesses.
+- Each witness records DEC-018/DEL-02-02 basis refs, source node coordinate
+  value/unit/dimension, target MBF payload value/unit (`mm`), and conversion
+  factor. The invented preview witness for `node:N-120` records
+  `3.2 m -> 3200 mm`.
+- Evidence:
+  `execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-CAEPIPECONVWITNESS-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-174; completion log
+  entry.
+- Validation passed: focused `App.test.tsx` 54/54; full desktop Vitest
+  386/386; desktop build with existing Vite chunk-size warning; targeted R2
+  Playwright smoke spec 10/10 after wasm rebuild.
+- Boundary unchanged: no unit catalog, conversion constant, schema, runtime
+  solver, Python export-package contract, protected content, private data,
+  target compatibility, release-readiness claim, or professional/code-
+  compliance claim changed.

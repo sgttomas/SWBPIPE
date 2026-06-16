@@ -125,3 +125,27 @@
 - Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005 wording is provenance only.
 - Closed the DAG-authority review warning in `Review_Findings.csv`; open target-support TBDs remain non-blocking for CHECKING.
 - Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, release claim, target compatibility claim, code-compliance claim, professional-acceptance claim, commercial solver behavior, protected standards content, or external-validation claim.
+
+## 2026-06-16 - TP-UNITS-B2B3-CAEPIPECONVWITNESS-001 CAEPIPE MBF conversion witnesses
+
+- Added desktop CAEPIPE MBF `conversion_witnesses` for node-coordinate
+  source-to-target length conversion.
+- The desktop smoke-subset payload and MBF text now emit node coordinates in
+  millimeters with an explicit `UNIT,mm,...` record while preserving the
+  sidecar stable-ID map, loss report, target-version/subset TBDs, and
+  no-compatibility boundary.
+- Each witness records source node/field, source quantity, target MBF payload
+  quantity, conversion factor, DEC-018/DEL-02-02 basis refs, and provenance;
+  the manifest lists `conversion_witnesses.json` and validation checks count
+  plus `mm` target units.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-CAEPIPECONVWITNESS-001.md`;
+  supporting DEL-02-02 run record; `apps/desktop/SMOKE.md` TP-MAC-174.
+- Validation passed: focused `App.test.tsx` 54/54; full desktop Vitest
+  386/386; desktop build with existing Vite chunk-size warning; targeted R2
+  Playwright smoke spec 10/10 after wasm rebuild.
+- Boundaries preserved: no Python/schema export-package contract change,
+  CAEPIPE target version/profile closure, direct MBF stable-ID carrier claim,
+  downstream import compatibility claim, external CAEPIPE execution, solver
+  validation, protected content, private data, release-readiness claim, or
+  professional/code-compliance claim.

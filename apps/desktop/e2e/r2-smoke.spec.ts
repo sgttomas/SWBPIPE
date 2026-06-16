@@ -323,6 +323,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);
+  const caepipeMbfExport = page.getByLabel("CAEPIPE MBF export");
+  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
+  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
+    "target_length=mm"
+  );
 
   // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
   // node intent through the structured-operation seam in a real browser and

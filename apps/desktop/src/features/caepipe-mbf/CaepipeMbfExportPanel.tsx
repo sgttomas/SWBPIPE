@@ -8,11 +8,32 @@ type CaePipeMbfReference = {
   ref: string;
 };
 
+type CaePipeMbfConversionWitness = {
+  witness_id: string;
+  source_ref: CaePipeMbfReference;
+  field_path: string;
+  source_quantity: {
+    value: number;
+    unit: string;
+    dimension: "length";
+  };
+  target_quantity: {
+    value: number;
+    unit: "mm";
+    target_field: string;
+  };
+  conversion_factor_to_target: number;
+  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit";
+  decision_basis_refs: CaePipeMbfReference[];
+  provenance: ReturnType<typeof previewProvenance>;
+};
+
 type CaePipeMbfLossCategory = "exported" | "omitted" | "approximated" | "delegated" | "unsupported" | "tbd";
 
 const CAEPIPE_MBF_EXPORT_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
+const CAEPIPE_MBF_TARGET_LENGTH_UNIT = "mm";
 const TARGET_VERSION_TBD = "TBD-17-01-001";
 const RECORD_SUBSET_TBD = "TBD-17-01-002";
 const DIRECT_STABLE_ID_TBD = "TBD-17-01-003";
@@ -95,6 +116,11 @@ export function CaepipeMbfExportPanel({
           testId="caepipe-mbf-units"
         />
         <CaePipeMbfLine
+          label="Conversion witnesses"
+          value={`count=${packet.conversion_witnesses.length}; scope=node.coordinates; target_length=${packet.model_payload.units.length}`}
+          testId="caepipe-mbf-conversion-witnesses"
+        />
+        <CaePipeMbfLine
           label="Package"
           value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; mbf_lines=${packet.manifest.mbf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="caepipe-mbf-package"
@@ -138,18 +164,19 @@ function buildCaePipeMbfExportPacket({
   const payload = caepipeMbfPayload(model);
   const exportProfile = caepipeMbfExportProfile();
   const mbfText = renderCaePipeMbfText(payload, exportProfile);
+  const conversionWitnesses = caepipeMbfConversionWitnesses(model);
   const unitSystemDisclosure = buildExportUnitSystemDisclosure({
     model,
     result,
     targetExportUnits: payload.units,
-    conversionPolicy: "caepipe_mbf_smoke_subset_records_source_model_units_without_export_time_conversion",
-    conversionPerformed: false,
-    conversionScope: [],
+    conversionPolicy: "caepipe_mbf_smoke_subset_converts_node_coordinates_to_millimeters_with_source_unit_witnesses",
+    conversionPerformed: true,
+    conversionScope: ["node.coordinates"],
     sourceLocation: "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx"
   });
   const stableIdMap = caepipeMbfStableIdMap(payload);
   const lossReport = caepipeMbfLossReport({ model, result, analysisRunRef });
-  const diagnostics = caepipeMbfDiagnostics({ payload, stableIdMap, lossReport, exportProfile, mbfText });
+  const diagnostics = caepipeMbfDiagnostics({ model, payload, stableIdMap, lossReport, exportProfile, mbfText });
   const blockingCount = diagnostics.filter((item) => item.severity === "blocking").length;
   const validationStatus = blockingCount === 0 ? "boundary_checked" : "blocked";
 
@@ -170,6 +197,7 @@ function buildCaePipeMbfExportPacket({
     result_ref: result ? reference("MechanicsResult", result.run_id) : reference("MechanicsResult", "not generated"),
     export_profile: exportProfile,
     unit_system_disclosure: unitSystemDisclosure,
+    conversion_witnesses: conversionWitnesses,
     manifest: {
       manifest_id: `caepipe-mbf:${safeFileToken(model.project.id)}:manifest`,
       source_model_ref: sourceModelRef,
@@ -189,6 +217,7 @@ function buildCaePipeMbfExportPacket({
         member("manifest", "manifest.json", "json", 1),
         member("mbf_text", "model.mbf", "text/plain", mbfText.trimEnd().split("\n").length),
         member("unit_system_disclosure", "unit_system_disclosure.json", "json", 1),
+        member("conversion_witnesses", "conversion_witnesses.json", "json", conversionWitnesses.length),
         member("stable_id_map", "stable_id_map.json", "json", stableIdMap.length),
         member("loss_report", "loss_report.json", "json", lossReport.length),
         member("validation_report", "validation_report.json", "json", 1),
@@ -208,6 +237,14 @@ function buildCaePipeMbfExportPacket({
       checks: [
         check("mbf_text_has_terminal_record", mbfText.endsWith("END\n")),
         check("smoke_subset_has_nodes_and_pipe_elements", payload.nodes.length > 0 && payload.elements.length > 0),
+        check(
+          "conversion_witness_per_node_coordinate_field",
+          conversionWitnesses.length === expectedCaePipeMbfConversionWitnessCount(model)
+        ),
+        check(
+          "conversion_witnesses_target_millimeters",
+          conversionWitnesses.every((witness) => witness.target_quantity.unit === CAEPIPE_MBF_TARGET_LENGTH_UNIT)
+        ),
         check("sidecar_id_map_present", stableIdMap.length > 0),
         check("loss_report_has_required_taxonomy", requiredLossCategoriesPresent(lossReport)),
         check("profile_tbd_refs_carried", REQUIRED_LOSS_CATEGORIES.length === 6 && exportProfile.carried_tbd_refs.includes(DIRECT_STABLE_ID_TBD)),
@@ -288,6 +325,7 @@ function caepipeMbfExportProfile() {
 
 function caepipeMbfPayload(model: PreviewModel) {
   const nodeTargetById = new Map<string, string>();
+  const sourceLengthUnit = model.project.units.length ?? "m";
   const nodes = model.nodes
     .slice()
     .sort((left, right) => left.id.localeCompare(right.id))
@@ -297,9 +335,9 @@ function caepipeMbfPayload(model: PreviewModel) {
       return {
         node_id: node.id,
         target_id: nodeTargetId,
-        x: node.position.x,
-        y: node.position.y,
-        z: node.position.z
+        x: convertLengthToMillimeters(node.position.x, sourceLengthUnit).value,
+        y: convertLengthToMillimeters(node.position.y, sourceLengthUnit).value,
+        z: convertLengthToMillimeters(node.position.z, sourceLengthUnit).value
       };
     });
 
@@ -337,7 +375,7 @@ function caepipeMbfPayload(model: PreviewModel) {
   return {
     payload_kind: "caepipe_mbf_smoke_subset_payload",
     units: {
-      length: model.project.units.length ?? "m",
+      length: CAEPIPE_MBF_TARGET_LENGTH_UNIT,
       force: model.project.units.force ?? "N",
       temperature: model.project.units.temperature ?? "C"
     },
@@ -348,6 +386,65 @@ function caepipeMbfPayload(model: PreviewModel) {
     unsupported_entities: [reference("BoundaryCondition", "free_end_and_equipment_nozzle_semantics")],
     provenance: previewProvenance()
   };
+}
+
+function caepipeMbfConversionWitnesses(model: PreviewModel): CaePipeMbfConversionWitness[] {
+  return model.nodes
+    .slice()
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .flatMap((node) =>
+      (["x", "y", "z"] as const).map((axis) =>
+        conversionWitness({
+          witnessId: `caepipe-mbf-conversion:${safeFileToken(node.id)}:position:${axis}`,
+          sourceRef: reference("Node", node.id),
+          fieldPath: `nodes.${node.id}.position.${axis}`,
+          sourceValue: node.position[axis],
+          sourceUnit: model.project.units.length ?? "m",
+          targetField: `model_payload.nodes.${node.id}.${axis}`
+        })
+      )
+    );
+}
+
+function conversionWitness({
+  witnessId,
+  sourceRef,
+  fieldPath,
+  sourceValue,
+  sourceUnit,
+  targetField
+}: {
+  witnessId: string;
+  sourceRef: CaePipeMbfReference;
+  fieldPath: string;
+  sourceValue: number;
+  sourceUnit: string;
+  targetField: string;
+}): CaePipeMbfConversionWitness {
+  const conversion = convertLengthToMillimeters(sourceValue, sourceUnit);
+  return {
+    witness_id: witnessId,
+    source_ref: sourceRef,
+    field_path: fieldPath,
+    source_quantity: {
+      value: sourceValue,
+      unit: sourceUnit,
+      dimension: "length"
+    },
+    target_quantity: {
+      value: conversion.value,
+      unit: CAEPIPE_MBF_TARGET_LENGTH_UNIT,
+      target_field: targetField
+    },
+    conversion_factor_to_target: conversion.factor,
+    conversion_status: conversion.factor === 1 ? "source_unit_matches_target_unit" : "converted_to_target_unit",
+    decision_basis_refs: [reference("Decision", "DEC-018"), reference("Deliverable", "DEL-02-02")],
+    provenance: previewProvenance()
+  };
+}
+
+function expectedCaePipeMbfConversionWitnessCount(model: PreviewModel): number {
+  return model.nodes.length * 3;
 }
 
 function renderCaePipeMbfText(
@@ -472,12 +569,14 @@ function caepipeMbfLossReport({
 }
 
 function caepipeMbfDiagnostics({
+  model,
   payload,
   stableIdMap,
   lossReport,
   exportProfile,
   mbfText
 }: {
+  model: PreviewModel;
   payload: ReturnType<typeof caepipeMbfPayload>;
   stableIdMap: ReturnType<typeof caepipeMbfStableIdMap>;
   lossReport: ReturnType<typeof caepipeMbfLossReport>;
@@ -490,6 +589,18 @@ function caepipeMbfDiagnostics({
   }
   if (!isAscii(mbfText)) {
     diagnostics.push(diagnostic("MBF-TEXT-NON-ASCII", "blocking", "EXPORT_BLOCKING", "Rendered MBF text contains non-ASCII characters.", "Use ASCII-safe invented labels for MBF text output.", reference("ExportProfile", exportProfile.profile_id)));
+  }
+  if (!isSupportedMillimeterConversionUnit(model.project.units.length ?? "m")) {
+    diagnostics.push(
+      diagnostic(
+        "MBF-NODE-COORDINATE-UNIT-TBD",
+        "blocking",
+        "UNIT_WARNING",
+        `Preview model length unit ${model.project.units.length} is not mapped to the CAEPIPE MBF millimeter node-coordinate policy.`,
+        "Select an explicit coordinate conversion policy before exporting CAEPIPE MBF text.",
+        reference("Project", model.project.id)
+      )
+    );
   }
   if (stableIdMap.length === 0) {
     diagnostics.push(diagnostic("MBF-STABLE-ID-SIDECAR-MISSING", "blocking", "TARGET_MAPPING_WARNING", "CAEPIPE MBF package has no sidecar stable ID map entries.", "Use sidecar mapping while direct MBF stable-ID carrying remains TBD-17-01-003.", reference("ExportProfile", exportProfile.profile_id)));
@@ -629,6 +740,18 @@ function safeFileToken(value: string): string {
 
 function safeMbfField(value: string): string {
   return value.replace(/[,\n\r]/g, "_").replace(/[^\x20-\x7E]/g, "_");
+}
+
+function convertLengthToMillimeters(value: number, unit: string): { value: number; factor: number } {
+  const factor = unit === "m" ? 1000 : 1;
+  return {
+    value: Number((value * factor).toFixed(6)),
+    factor
+  };
+}
+
+function isSupportedMillimeterConversionUnit(unit: string): boolean {
+  return ["m", CAEPIPE_MBF_TARGET_LENGTH_UNIT].includes(unit);
 }
 
 function formatNumber(value: number): string {

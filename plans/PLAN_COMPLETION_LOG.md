@@ -13,6 +13,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 CAEPIPE MBF conversion witnesses (`TP-UNITS-B2B3-CAEPIPECONVWITNESS-001`)
+
+Adds auditable target-format conversion witnesses to the desktop CAEPIPE MBF
+smoke-subset export package. The earlier export-disclosure tranche stated the
+package's source and target units, but the downloaded desktop package still
+lacked per-field source-to-target evidence for a non-PCF target-format
+conversion path.
+
+`CaepipeMbfExportPanel` now emits `conversion_witnesses` in the downloaded
+JSON package, lists `conversion_witnesses.json` in the manifest, and exposes a
+visible witness-count line in the panel. Each witness names the source node
+and coordinate field, source value/unit/dimension, target MBF payload
+field/value/unit (`mm`), the conversion factor, DEC-018/DEL-02-02 basis refs,
+and preview provenance. The MBF text now emits millimeter node coordinates
+with an explicit `UNIT,mm,...` record while preserving the smoke-subset
+profile, loss report, sidecar stable-ID map, and no-compatibility boundary.
+
+Evidence: focused `App.test.tsx` Vitest **54/54**; full desktop Vitest
+**386/386**; desktop production build clean with the existing Vite chunk-size
+warning; targeted Playwright R2 smoke spec **10/10** after wasm rebuild. Run
+records:
+`DEL-17-04 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-CAEPIPECONVWITNESS-001.md`;
+`DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-CAEPIPECONVWITNESS-001.md`;
+SMOKE TP-MAC-174.
+
+Boundary: desktop CAEPIPE MBF smoke package surface only; no Python/schema
+export package contract change, no CAEPIPE target version/profile closure, no
+direct MBF stable-ID carrier claim, no downstream import compatibility claim,
+no external CAEPIPE execution, no solver validation, no hidden target default,
+no protected standards content, no private data, and no release-readiness,
+professional approval, certification, sealing, authentication, or
+code-compliance claim.
+
+Residual: B2 still owns broader app unit entry/pickers outside the named
+covered forms and remaining target-format conversion witnesses outside the PCF
+and CAEPIPE smoke-package boundaries. B3 still owns broader mixed-unit
+round-trip, conversion-witness, incompatible-unit rejection, and D-04/DEC-026
+tolerance corpus outside the named witnesses.
+
+---
+
 ## 2026-06-16 — B2 local project unit round-trip evidence (`TP-UNITS-B2-IMPORTRT-001`)
 
 Adds explicit unit metadata round-trip evidence to local project
