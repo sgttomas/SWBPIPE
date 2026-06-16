@@ -124,10 +124,12 @@ describe("RulePackManagerPanel", () => {
     );
   });
 
-  it("keeps the D-02b and professional boundaries visible", () => {
+  it("keeps the DEC-037 and professional boundaries visible", () => {
     render(<RulePackManagerPanel model={modelStub} />);
     const note = screen.getByTestId("rule-pack-boundary-note").textContent ?? "";
-    expect(note).toContain("D-02b");
+    expect(note).toContain("DEC-037");
+    expect(note).toContain("read-only");
+    expect(note).toContain("no expression text parser");
     expect(note).toContain("never committed to the repository");
     expect(note).toContain("never a code-compliance");
   });

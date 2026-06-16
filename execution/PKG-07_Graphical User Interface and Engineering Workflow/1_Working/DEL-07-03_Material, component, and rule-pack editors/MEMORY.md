@@ -202,3 +202,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   381/381; desktop build passed; Playwright e2e 10/10.
 - DEL-07-03 remains CHECKING; no lifecycle, release, professional,
   certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-16 - TP-C2-ASTTEXTVIEW-001 read-only AST-to-text expression preview
+
+- Added the `DEC-037`-permitted labeled one-way AST-to-text preview to the C2
+  `ExpressionComposer`.
+- The preview is read-only, has no editable controls, is never parsed, and
+  leaves the structured DEC-022 AST as the sole canonical/checksum-bound
+  rule-pack expression member.
+- Parent rule-pack manager boundary copy now reflects the ruled posture:
+  read-only text preview permitted; no writable expression text syntax or
+  parser.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXTVIEW-001.md`;
+  supporting DEL-06-01 run record; SMOKE TP-MAC-180; completion log entry.
+- Validation passed: focused `ExpressionComposer` Vitest 21/21; focused
+  rule-pack Playwright 2/2; full desktop Vitest 388/388; desktop build with
+  existing Vite chunk-size warning; full desktop Playwright 10/10
+  (`--workers=1`); in-app Browser verification pass; DEC-025 dirty-tree sweep
+  pass at
+  `validation/evidence/sweeps/SWEEP_20260616T031013Z_b431a1676620-dirty.json`.
+- Boundary unchanged: no schema, evaluator, parser, writable text syntax,
+  protected content, private data, release-readiness claim, or professional/
+  code-compliance claim changed.

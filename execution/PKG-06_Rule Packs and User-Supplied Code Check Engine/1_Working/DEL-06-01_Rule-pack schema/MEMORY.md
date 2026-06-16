@@ -133,3 +133,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Validation: full root pytest 358 passed. Run record:
   `_run_records/WORKING_ITEMS_RUN_2026-06-12_TP-C2-SCHEMA-001.md`.
 - No lifecycle state, release, professional, or code-compliance claim changed.
+
+## 2026-06-16 - TP-C2-ASTTEXTVIEW-001 read-only AST-to-text expression preview
+
+- Added supporting C2 evidence for the DEL-07-03 rule-pack editor's
+  `DEC-037`-permitted read-only AST-to-text preview.
+- The rule-pack schema contract is unchanged: the structured DEC-022 AST
+  remains the canonical/checksum-bound expression member, and the preview text
+  is never parsed or written back into the document.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXTVIEW-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-180; completion log
+  entry.
+- Validation passed: focused `ExpressionComposer` Vitest 21/21; focused
+  rule-pack Playwright 2/2; full desktop Vitest 388/388; desktop build with
+  existing Vite chunk-size warning; full desktop Playwright 10/10
+  (`--workers=1`); in-app Browser verification pass; DEC-025 dirty-tree sweep
+  pass at
+  `validation/evidence/sweeps/SWEEP_20260616T031013Z_b431a1676620-dirty.json`.
+- Boundary unchanged: no schema grammar change, evaluator behavior, parser,
+  writable expression text syntax, protected content, private data,
+  release-readiness claim, or professional/code-compliance claim changed.

@@ -13,6 +13,35 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — C2 read-only AST-to-text expression preview (`TP-C2-ASTTEXTVIEW-001`)
+
+Adds the optional `DEC-037`-permitted one-way AST-to-text preview to the C2
+rule-pack expression composer. The selected formula now renders a labeled
+read-only text view beside the structured editor, so users can inspect the
+current expression without switching to raw JSON.
+
+The preview is deliberately display-only: it contains no editable controls, is
+never parsed, and does not change the canonical authored member. The
+checksum-bound rule-pack expression remains the structured DEC-022 AST.
+Unsupported and refusal-marker nodes render as explicit bracketed placeholders
+instead of being silently interpreted.
+
+Evidence: focused `ExpressionComposer` Vitest passed **21/21**; focused
+rule-pack Playwright passed **2/2**; full desktop Vitest passed **388/388**;
+desktop build passed with the existing Vite chunk-size warning; full desktop
+Playwright passed **10/10** with `--workers=1`; in-app Browser verified the
+preview text, `DEC-037` boundary copy, and zero editable controls inside the
+preview. DEC-025 dirty-tree sweep passed and wrote
+`validation/evidence/sweeps/SWEEP_20260616T031013Z_b431a1676620-dirty.json`.
+Run records:
+`DEL-07-03 .../WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXTVIEW-001.md`
+and the supporting DEL-06-01 record; SMOKE TP-MAC-180.
+
+Boundary: frontend display-only rule-pack editor evidence only; no schema,
+evaluator, parser, writable text syntax, protected content, private project
+data, network/telemetry path, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-16 — B2/B3 native JSON package unit preservation witnesses (`TP-UNITS-B2B3-NATIVEUNITWITNESS-001`)
 
 Adds target-format unit evidence to the desktop native JSON package review

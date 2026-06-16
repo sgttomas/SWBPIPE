@@ -577,7 +577,7 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
 
   await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("rule-pack-scope-status")).toContainText("local SQLite only");
-  await expect(page.getByTestId("rule-pack-boundary-note")).toContainText("D-02b");
+  await expect(page.getByTestId("rule-pack-boundary-note")).toContainText("DEC-037");
 
   await page.getByTestId("rule-pack-new-draft").click();
   const draftText = await page.getByTestId("rule-pack-draft-json").inputValue();
@@ -594,6 +594,12 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // JSON the validate/save flow reads.
   await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
   await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
+  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+    "Read-only AST-to-text preview"
+  );
+  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+    "user_required_input_1"
+  );
   expect(draft.formula_declarations[0].declaration_payload.expression_ast.node).toBe("variable_ref");
 
   // Slice 4 (TP-C2-DECLEDITOR-001): the declarations editor authors the
@@ -625,6 +631,8 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest covers the desktop catalog-selector path.
   await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-literal-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("<=");
+  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("MPa [stress]");
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
     node: "compare",

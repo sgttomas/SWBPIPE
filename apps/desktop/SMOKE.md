@@ -5867,3 +5867,30 @@ notes:
   compatibility claim, protected content, private data, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-180 rule-pack expression read-only text preview (`TP-C2-ASTTEXTVIEW-001`, 2026-06-16)
+
+- Phase C2 rule-pack editor follow-up under `DEC-037`: the structured
+  expression composer now shows a labeled read-only AST-to-text preview for
+  the selected formula.
+- Boundary behavior: the preview is not editable, has no input/select/textarea
+  controls, is never parsed, and the checksum-bound rule-pack member remains
+  the structured DEC-022 AST. No writable expression text syntax shipped.
+- Browser/e2e proof: the rule-pack Playwright journey asserts the `DEC-037`
+  boundary note, the initial preview text for `user_required_input_1`, and the
+  updated preview after the AST is changed to a comparison with a `MPa`
+  stress literal. In-app Browser verification observed the same preview with
+  `editableControlsInPreview=0`.
+- Validation: focused `ExpressionComposer` Vitest passed **21/21**; focused
+  rule-pack Playwright passed **2/2**; full desktop Vitest passed **388/388**;
+  desktop production build passed with the existing Vite chunk-size warning;
+  full desktop Playwright passed **10/10** with `--workers=1`; DEC-025
+  dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T031013Z_b431a1676620-dirty.json`.
+- Evidence: DEL-07-03 primary run record and DEL-06-01 supporting run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXTVIEW-001.md`; completion
+  plan/log updated.
+- Boundary review: frontend display-only rule-pack editor evidence; no schema,
+  evaluator, parser, writable text syntax, protected content, private data,
+  network/telemetry path, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

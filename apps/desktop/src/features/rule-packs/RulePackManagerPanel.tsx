@@ -36,8 +36,8 @@ import { CheckDefinitionsEditor } from "./CheckDefinitionsEditor";
 // document-structure member that had no form builder. The raw document JSON
 // stays as the canonical/fallback surface for the remaining metadata members
 // (diagnostics, classification, checksums, provenance, professional_boundary,
-// open_decisions). No expression text syntax is provided anywhere — D-02b
-// awaits the human ruling.
+// open_decisions). DEC-037 permits a labeled read-only one-way AST-to-text
+// preview, but no writable expression text syntax or parser is provided.
 
 const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
 const NO_PROJECT_REASON = "Local rule packs are project-scoped; create or open a local project first.";
@@ -504,8 +504,8 @@ export function RulePackManagerPanel({ model }: { model: PreviewModel | null }) 
       <small className="report-note" data-testid="rule-pack-boundary-note">
         <ShieldAlert size={12} aria-hidden="true" /> Private rule packs stay in local project
         storage only — never committed to the repository, transmitted, or bundled into public
-        artifacts. Expressions are composed as a structured AST (DEC-022 grammar v1.0.0); no
-        expression text syntax is provided until the D-02b human ruling. Rule-check output is a
+        artifacts. Expressions are composed as a structured AST (DEC-022 grammar v1.0.0); the
+        text preview is read-only per DEC-037 and no expression text parser is provided. Rule-check output is a
         software computation over user-supplied data, never a code-compliance, certification,
         sealing, approval, or professional acceptance claim.
       </small>
