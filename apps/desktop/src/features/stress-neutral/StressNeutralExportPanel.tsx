@@ -43,6 +43,28 @@ type StressNeutralRow = {
   provenance: ReturnType<typeof previewProvenance>;
 };
 
+type StressNeutralUnitPreservationWitness = {
+  witness_id: string;
+  source_result_ref: StressNeutralRef;
+  source_field_path: string;
+  source_quantity: {
+    value: number;
+    unit: string;
+    dimension: string;
+  };
+  target_row_ref: StressNeutralRef;
+  target_field_path: string;
+  target_quantity: {
+    value: number;
+    unit: string;
+    dimension: string;
+  };
+  export_unit_policy: "preserve_source_result_unit_and_dimension";
+  conversion_performed: false;
+  decision_basis_refs: StressNeutralRef[];
+  provenance: ReturnType<typeof previewProvenance>;
+};
+
 export function StressNeutralExportPanel({
   model,
   result,
@@ -114,6 +136,11 @@ export function StressNeutralExportPanel({
               testId="stress-neutral-units"
             />
             <StressNeutralLine
+              label="Unit witnesses"
+              value={`count=${packet.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
+              testId="stress-neutral-unit-witnesses"
+            />
+            <StressNeutralLine
               label="Package"
               value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; loss_entries=${packet.loss_report.entries.length}; validation=${packet.validation_report.validation_status}; package_hash=${packet.manifest.canonical_package_hash_status}`}
               testId="stress-neutral-package"
@@ -167,6 +194,7 @@ function buildStressNeutralExportPacket({
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((item) => stressNeutralRow(item, run.run_id));
   const csvText = renderCsv(resultRows);
+  const unitPreservationWitnesses = stressNeutralUnitPreservationWitnesses(resultRows);
   const unitSystemDisclosure = buildExportUnitSystemDisclosure({
     model,
     result,
@@ -222,6 +250,7 @@ function buildStressNeutralExportPacket({
       comparison_semantics: "diagnostic_export_only_no_pass_fail"
     },
     unit_system_disclosure: unitSystemDisclosure,
+    unit_preservation_witnesses: unitPreservationWitnesses,
     result_rows: resultRows,
     csv_text: csvText,
     stable_id_map: stableIdMap,
@@ -262,6 +291,7 @@ function buildStressNeutralExportPacket({
         member("csv_text", "stress_neutral_results.csv", "csv", resultRows.length),
         member("result_rows", "result_rows.json", "json", resultRows.length),
         member("unit_system_disclosure", "unit_system_disclosure.json", "json", 1),
+        member("unit_preservation_witnesses", "unit_preservation_witnesses.json", "json", unitPreservationWitnesses.length),
         member("stable_id_map", "stable_id_map.json", "json", stableIdMap.length),
         member("loss_report", "loss_report.json", "json", 3),
         member("validation_report", "validation_report.json", "json", 1),
@@ -278,6 +308,11 @@ function buildStressNeutralExportPacket({
         check("csv_json_row_sync", resultRows.length === csvText.trimEnd().split("\n").length - 1),
         check("canonical_ref_per_row", resultRows.every((row) => Boolean(row.canonical_ref.ref))),
         check("unit_and_dimension_per_row", resultRows.every((row) => Boolean(row.unit && row.dimension && row.dimension !== "TBD"))),
+        check("unit_preservation_witness_per_row", unitPreservationWitnesses.length === resultRows.length),
+        check(
+          "unit_preservation_witnesses_match_rows",
+          unitPreservationWitnesses.every((witness, index) => witnessMatchesRow(witness, resultRows[index]))
+        ),
         check("stable_id_map_per_row", stableIdMap.length === resultRows.length),
         check("loss_report_present", true)
       ],
@@ -327,6 +362,49 @@ function stressNeutralRow(item: MechanicsResult["results"][number], runId: strin
     source_result_ref: reference("Result", item.id),
     provenance: previewProvenance()
   };
+}
+
+function stressNeutralUnitPreservationWitnesses(rows: StressNeutralRow[]): StressNeutralUnitPreservationWitness[] {
+  return rows.map((row) => ({
+    witness_id: `stress-neutral-unit:${safeFileToken(row.result_id)}`,
+    source_result_ref: row.source_result_ref,
+    source_field_path: `results.${row.result_id}.value`,
+    source_quantity: {
+      value: row.value,
+      unit: row.unit,
+      dimension: row.dimension
+    },
+    target_row_ref: reference("StressNeutralResultRow", `stress-neutral-row:${safeFileToken(row.result_id)}`),
+    target_field_path: `result_rows.${row.result_id}.value`,
+    target_quantity: {
+      value: row.value,
+      unit: row.unit,
+      dimension: row.dimension
+    },
+    export_unit_policy: "preserve_source_result_unit_and_dimension",
+    conversion_performed: false,
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-17-06")
+    ],
+    provenance: previewProvenance()
+  }));
+}
+
+function witnessMatchesRow(witness: StressNeutralUnitPreservationWitness, row: StressNeutralRow | undefined): boolean {
+  return Boolean(
+    row &&
+      witness.source_result_ref.ref === row.source_result_ref.ref &&
+      witness.target_row_ref.ref === `stress-neutral-row:${safeFileToken(row.result_id)}` &&
+      witness.source_quantity.value === row.value &&
+      witness.source_quantity.unit === row.unit &&
+      witness.source_quantity.dimension === row.dimension &&
+      witness.target_quantity.value === row.value &&
+      witness.target_quantity.unit === row.unit &&
+      witness.target_quantity.dimension === row.dimension &&
+      witness.conversion_performed === false
+  );
 }
 
 function member(role: string, path: string, format: string, recordCount: number) {

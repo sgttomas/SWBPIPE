@@ -123,6 +123,13 @@ export function ProjectStorageAuditPanel({
           testId="model-hash-integrity"
         />
         <StorageLine
+          label="Unit round-trip"
+          value={`status=${packet.summary.unit_round_trip_status}; checked_refs=${
+            packet.summary.unit_round_trip_checked_ref_count
+          }; signature=${packet.summary.unit_round_trip_signature}`}
+          testId="project-storage-unit-round-trip"
+        />
+        <StorageLine
           label="Payload boundary"
           value={`private payload=false; protected content=false; release/professional claim=false`}
           testId="project-storage-payload-boundary"
@@ -177,7 +184,7 @@ function buildProjectStorageAuditPacket({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.local_project_persistence_audit",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-02-05", "DEL-12-01", "DEL-12-02"],
+    deliverable_refs: ["DEL-02-02", "DEL-02-05", "DEL-12-01", "DEL-12-02"],
     scope_items: ["SOW-029", "SOW-040", "SOW-050"],
     objectives: ["OBJ-010", "OBJ-012"],
     project_ref: model.project.id,
@@ -199,6 +206,9 @@ function buildProjectStorageAuditPacket({
       persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
       persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
       persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
+      unit_round_trip_status: projectSummary?.unit_round_trip_status ?? "not_persisted_this_session",
+      unit_round_trip_checked_ref_count: projectSummary?.unit_round_trip_checked_ref_count ?? 0,
+      unit_round_trip_signature: projectSummary?.unit_round_trip_signature ?? "not_persisted",
       project_index_state: projectIndex ? "listed" : "not_requested",
       listed_project_count: projectIndex?.length ?? 0,
       applied_operation_count: 0,

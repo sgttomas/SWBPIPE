@@ -142,3 +142,31 @@ DEL-07-06-CF-001. Evidence: `_run_records/TASK_RUN_2026-06-12_1756.md`.
 No lifecycle state change; no release-readiness, professional approval,
 accessibility certification, sealing, authentication, or code-compliance
 claim.
+
+## 2026-06-16 - TP-APP-R3-A3-JOURNEYPATH-001 Authoring Journey Status Rail
+
+Executed a bounded A3 usability follow-up for the R3 blocking residual carried
+from TP-MAC-141. The desktop shell now exposes a compact authoring-journey
+status rail below the existing workspace section navigation. The rail is
+derived from existing model/session state and reports model, apply, loads,
+solve, rules, report, and project status. Each item is a real navigation
+control into the corresponding workspace section.
+
+Layout changes are limited to the desktop shell. The persistent model tree,
+3D viewport, and property inspector remain the core workspace. The compact
+1280x800 layout now allocates more height to the lower dock while keeping the
+journey rail bounded and non-overflowing.
+
+Validation: focused App + dead-control Vitest passed (55/55); desktop
+production build passed with the existing Vite chunk-size warning; focused
+compact Playwright smoke passed (1/1); in-app Browser at 1280x800 verified
+zero body/viewport/item overflow, active Loads navigation, dock body height
+168px, and rail height 66px; full desktop Vitest passed (386/386); full
+desktop Playwright passed (10/10 across 1440x920 and 1280x800).
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-177 and
+`_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-APP-R3-A3-JOURNEYPATH-001.md`.
+F-4 remains open: the human packaged GUI journey still must be completed to
+close the recorded finding. This tranche does not change lifecycle state,
+release-readiness, professional approval, accessibility certification, sealing,
+authentication, or code-compliance status.

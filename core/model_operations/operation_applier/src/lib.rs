@@ -1350,13 +1350,24 @@ fn resolve_create_node(
         );
         return None;
     };
-    if unit != stored_unit {
+    if !unit_symbol_matches_dimension(stored_unit, Dimension::Length) {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
             "blocking",
-            format!("Intent unit `{unit}` does not match project length unit `{stored_unit}`; unit conversion is unavailable until the units engine lands."),
-            "Enter node coordinates in the project length unit; no silent conversion is performed.",
+            format!("Project length unit metadata `{stored_unit}` is not an accepted DEC-018 length unit."),
+            "Repair the model document's project.units.length metadata before creating nodes.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if !unit_symbol_matches_dimension(unit, Dimension::Length) {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` is not an accepted DEC-018 length unit; project length metadata is `{stored_unit}`."),
+            "Select an accepted length unit from the DEC-018 catalog; no hidden fallback unit is supplied.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -1460,10 +1471,41 @@ fn resolve_create_node(
         return None;
     }
 
+    let Some(x) = length_value_in_unit(
+        x.unwrap(),
+        unit,
+        stored_unit,
+        target_ref,
+        "Node X coordinate",
+        checker,
+    ) else {
+        return None;
+    };
+    let Some(y) = length_value_in_unit(
+        y.unwrap(),
+        unit,
+        stored_unit,
+        target_ref,
+        "Node Y coordinate",
+        checker,
+    ) else {
+        return None;
+    };
+    let Some(z) = length_value_in_unit(
+        z.unwrap(),
+        unit,
+        stored_unit,
+        target_ref,
+        "Node Z coordinate",
+        checker,
+    ) else {
+        return None;
+    };
+
     Some(serde_json::json!({
         "id": id,
         "label": label,
-        "position": { "x": x.unwrap(), "y": y.unwrap(), "z": z.unwrap() },
+        "position": { "x": x, "y": y, "z": z },
         "provenance": provenance,
     }))
 }
@@ -1611,13 +1653,24 @@ fn resolve_connect_pipe_run(
         );
         return None;
     };
-    if unit != stored_unit {
+    if !unit_symbol_matches_dimension(stored_unit, Dimension::Length) {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
             "blocking",
-            format!("Intent unit `{unit}` does not match project length unit `{stored_unit}`; unit conversion is unavailable until the units engine lands."),
-            "Enter pipe section dimensions in the project length unit; no silent conversion is performed.",
+            format!("Project length unit metadata `{stored_unit}` is not an accepted DEC-018 length unit."),
+            "Repair the model document's project.units.length metadata before creating pipe segments.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if !unit_symbol_matches_dimension(unit, Dimension::Length) {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!("Intent unit `{unit}` is not an accepted DEC-018 length unit; project length metadata is `{stored_unit}`."),
+            "Select an accepted length unit from the DEC-018 catalog; no hidden fallback unit is supplied.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -1696,8 +1749,18 @@ fn resolve_connect_pipe_run(
         .and_then(Value::as_str)
         .unwrap_or("")
         .trim();
-    let outside_diameter = quantity_value(record, &["section", "outside_diameter"], stored_unit);
-    let wall_thickness = quantity_value(record, &["section", "wall_thickness"], stored_unit);
+    let outside_diameter = dimensioned_quantity(
+        record,
+        &["section", "outside_diameter"],
+        Dimension::Length,
+        true,
+    );
+    let wall_thickness = dimensioned_quantity(
+        record,
+        &["section", "wall_thickness"],
+        Dimension::Length,
+        true,
+    );
     let y_reference = vector_value(record, "y_reference");
 
     if id != target_ref
@@ -1714,8 +1777,47 @@ fn resolve_connect_pipe_run(
         checker.push(
             "OP-CONNECT-PIPE-PAYLOAD-INVALID",
             "blocking",
-            "Connect-pipe payload must include matching id, non-empty label/from/to/material/provenance, distinct endpoint nodes, positive OD/wall quantities in the project length unit, and a non-zero y_reference vector.".to_string(),
+            "Connect-pipe payload must include matching id, non-empty label/from/to/material/provenance, distinct endpoint nodes, positive OD/wall quantities in accepted DEC-018 length units, and a non-zero y_reference vector.".to_string(),
             "Refresh the viewport connect-pipe intent from explicit user-entered pipe fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let outside_diameter = outside_diameter.unwrap();
+    let wall_thickness = wall_thickness.unwrap();
+    let Some(outside_diameter_for_check) =
+        quantity_value_in_unit(&outside_diameter, stored_unit, Dimension::Length)
+    else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            "Pipe outside-diameter unit could not be converted through the accepted DEC-018 length catalog.".to_string(),
+            "Select an accepted length unit from the DEC-018 catalog.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    let Some(wall_thickness_for_check) =
+        quantity_value_in_unit(&wall_thickness, stored_unit, Dimension::Length)
+    else {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            "Pipe wall-thickness unit could not be converted through the accepted DEC-018 length catalog.".to_string(),
+            "Select an accepted length unit from the DEC-018 catalog.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    };
+    if wall_thickness_for_check >= outside_diameter_for_check / 2.0 {
+        checker.push(
+            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            "Connect-pipe wall thickness must be less than the outside-diameter radius."
+                .to_string(),
+            "Enter physically possible pipe section dimensions before connecting a pipe segment.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -1751,8 +1853,8 @@ fn resolve_connect_pipe_run(
         "from": from,
         "to": to,
         "section": {
-            "outside_diameter": { "value": outside_diameter.unwrap(), "unit": stored_unit },
-            "wall_thickness": { "value": wall_thickness.unwrap(), "unit": stored_unit }
+            "outside_diameter": { "value": outside_diameter.value, "unit": outside_diameter.unit },
+            "wall_thickness": { "value": wall_thickness.value, "unit": wall_thickness.unit }
         },
         "material": material,
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
@@ -4444,7 +4546,25 @@ fn resolve_field(
                     .and_then(Value::as_str)
                     .map(str::to_string),
             };
-            let quantity_edit = if matches!(unit_source, UnitSource::SiblingUnitField) {
+            let dimension_enum = match Dimension::from_schema_value(dimension) {
+                Ok(dimension_enum) => dimension_enum,
+                Err(error) => {
+                    checker.unit_state = "blocked";
+                    checker.push(
+                        "OP-UNIT-DIMENSION-UNKNOWN",
+                        "blocking",
+                        format!(
+                            "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
+                        ),
+                        "Use a governed dimension token for quantity edits.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                }
+            };
+            let quantity_edit = if matches!(unit_source, UnitSource::SiblingUnitField)
+                || after.trim_start().starts_with('{')
+            {
                 parse_quantity_edit(after, target_ref, field_path, checker)?
             } else {
                 None
@@ -4466,28 +4586,8 @@ fn resolve_field(
                 );
                 return None;
             }
-            let quantity_payload_dimension = if quantity_edit.is_some() {
-                match Dimension::from_schema_value(dimension) {
-                    Ok(dimension_enum) => Some(dimension_enum),
-                    Err(error) => {
-                        checker.unit_state = "blocked";
-                        checker.push(
-                            "OP-UNIT-DIMENSION-UNKNOWN",
-                            "blocking",
-                            format!(
-                                "Dimension `{dimension}` is outside the DEC-018 catalog vocabulary: {error}."
-                            ),
-                            "Use a governed dimension token for sibling-unit quantity edits.",
-                            vec![target_ref.to_string()],
-                        );
-                        return None;
-                    }
-                }
-            } else {
-                None
-            };
             checker.unit_state = "passed";
-            match stored_unit {
+            let stored_unit = match stored_unit {
                 None => {
                     checker.unit_state = "blocked";
                     checker.push(
@@ -4501,9 +4601,8 @@ fn resolve_field(
                 }
                 Some(stored) => {
                     let unit_matches_stored = unit == stored;
-                    let unit_matches_dimension = quantity_payload_dimension
-                        .map(|dimension_enum| unit_symbol_matches_dimension(unit, dimension_enum))
-                        .unwrap_or(false);
+                    let unit_matches_dimension =
+                        unit_symbol_matches_dimension(unit, dimension_enum);
                     if !unit_matches_stored && !unit_matches_dimension {
                         checker.unit_state = "blocked";
                         checker.push(
@@ -4517,8 +4616,24 @@ fn resolve_field(
                         );
                         return None;
                     }
+                    if matches!(unit_source, UnitSource::ProjectUnits(_))
+                        && !unit_symbol_matches_dimension(&stored, dimension_enum)
+                    {
+                        checker.unit_state = "blocked";
+                        checker.push(
+                            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                            "blocking",
+                            format!(
+                                "Stored project unit `{stored}` is not accepted for dimension `{dimension}`."
+                            ),
+                            "Repair the model document's project unit metadata before editing this quantity.",
+                            vec![target_ref.to_string()],
+                        );
+                        return None;
+                    }
+                    stored
                 }
-            }
+            };
             if !CANONICAL_DIMENSIONS.contains(&dimension) {
                 checker.unit_state = "blocked";
                 checker.push(
@@ -4533,7 +4648,7 @@ fn resolve_field(
 
             check_before_numeric(current_number, before, target_ref, field_path, checker);
 
-            let parsed = if let Some(edit) = quantity_edit.as_ref() {
+            let entered_value = if let Some(edit) = quantity_edit.as_ref() {
                 edit.value
             } else {
                 let Some(parsed) = parse_finite_number(after) else {
@@ -4549,6 +4664,32 @@ fn resolve_field(
                     return None;
                 };
                 parsed
+            };
+            let parsed = if matches!(unit_source, UnitSource::ProjectUnits(_))
+                && requested_unit != stored_unit
+            {
+                let entered_quantity = EnteredQuantity {
+                    value: entered_value,
+                    unit: requested_unit.to_string(),
+                };
+                let Some(converted) =
+                    quantity_value_in_unit(&entered_quantity, &stored_unit, dimension_enum)
+                else {
+                    checker.unit_state = "blocked";
+                    checker.push(
+                        "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+                        "blocking",
+                        format!(
+                            "Intent unit `{requested_unit}` could not be converted to stored project unit `{stored_unit}` for `{field_path}`."
+                        ),
+                        "Select an accepted DEC-018 unit for the project-unit field.",
+                        vec![target_ref.to_string()],
+                    );
+                    return None;
+                };
+                converted
+            } else {
+                entered_value
             };
             if require_positive && parsed <= 0.0 {
                 checker.push(
@@ -4570,14 +4711,15 @@ fn resolve_field(
                 );
                 return None;
             };
-            let additional_writes = if let Some(edit) = quantity_edit {
-                let mut unit_segments = segments.clone();
-                unit_segments.pop();
-                unit_segments.push("unit".to_string());
-                vec![(unit_segments, Value::String(edit.unit))]
-            } else {
-                Vec::new()
-            };
+            let additional_writes =
+                if let (UnitSource::SiblingUnitField, Some(edit)) = (unit_source, quantity_edit) {
+                    let mut unit_segments = segments.clone();
+                    unit_segments.pop();
+                    unit_segments.push("unit".to_string());
+                    vec![(unit_segments, Value::String(edit.unit))]
+                } else {
+                    Vec::new()
+                };
             Some(ResolvedField {
                 kind,
                 current_display: display_number(current_number),
@@ -5311,20 +5453,6 @@ fn primitive_load_target_display(primitive_load: &Value) -> String {
     format!("{target_type}:TBD")
 }
 
-fn quantity_value(
-    record: &serde_json::Map<String, Value>,
-    path: &[&str],
-    expected_unit: &str,
-) -> Option<f64> {
-    let quantity = value_in_object(record, path)?.as_object()?;
-    let unit = quantity.get("unit").and_then(Value::as_str)?;
-    if unit != expected_unit {
-        return None;
-    }
-    let value = quantity.get("value").and_then(Value::as_f64)?;
-    (value.is_finite() && value > 0.0).then_some(value)
-}
-
 fn dimensioned_quantity(
     record: &serde_json::Map<String, Value>,
     path: &[&str],
@@ -5362,6 +5490,34 @@ fn quantity_value_in_unit(
     let from = unit_by_symbol(&quantity.unit, dimension).ok()?;
     let to = unit_by_symbol(target_unit, dimension).ok()?;
     convert_for_dimension(quantity.value, dimension, from, to).ok()
+}
+
+fn length_value_in_unit(
+    value: f64,
+    unit: &str,
+    target_unit: &str,
+    target_ref: &str,
+    label: &str,
+    checker: &mut Checker,
+) -> Option<f64> {
+    let quantity = EnteredQuantity {
+        value,
+        unit: unit.to_string(),
+    };
+    let converted = quantity_value_in_unit(&quantity, target_unit, Dimension::Length);
+    if converted.is_none() {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            "blocking",
+            format!(
+                "{label} unit could not be converted through the accepted DEC-018 length catalog."
+            ),
+            "Select an accepted length unit from the DEC-018 catalog.",
+            vec![target_ref.to_string()],
+        );
+    }
+    converted
 }
 
 fn unit_symbol_matches_dimension(symbol: &str, dimension: Dimension) -> bool {
@@ -6038,6 +6194,41 @@ mod tests {
             outcome.professional_boundary["software_makes_approval_claim"],
             json!(false)
         );
+    }
+
+    #[test]
+    fn explicit_create_node_payload_normalizes_compatible_entered_length_units() {
+        let model = sample_model();
+        let payload = json!({
+            "id": "node:N-3",
+            "label": "Metric draft node",
+            "position": { "x": 4500.0, "y": 1250.0, "z": 750.0 },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Node",
+            "node:N-3",
+            "create_node",
+            "nodes",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "mm",
+            "length",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(applied["nodes"][2]["position"]["x"], json!(4.5));
+        assert_eq!(applied["nodes"][2]["position"]["y"], json!(1.25));
+        assert_eq!(applied["nodes"][2]["position"]["z"], json!(0.75));
     }
 
     #[test]
@@ -7312,6 +7503,61 @@ mod tests {
     }
 
     #[test]
+    fn explicit_connect_pipe_payload_preserves_compatible_entered_length_units() {
+        let model = sample_model();
+        let payload = json!({
+            "id": "pipe:P-2",
+            "label": "Millimeter pipe",
+            "from": "node:N-1",
+            "to": "node:N-2",
+            "section": {
+                "outside_diameter": { "value": 114.0, "unit": "mm" },
+                "wall_thickness": { "value": 6.0, "unit": "mm" }
+            },
+            "material": "material:steel",
+            "y_reference": { "x": 0.0, "y": 0.0, "z": 1.0 },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Element",
+            "pipe:P-2",
+            "connect_pipe_run",
+            "pipe_segments",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "mm",
+            "length",
+        );
+        intent["operation_kind"] = json!("connect");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
+        assert_eq!(
+            applied["pipe_segments"][1]["section"]["outside_diameter"]["value"],
+            json!(114.0)
+        );
+        assert_eq!(
+            applied["pipe_segments"][1]["section"]["outside_diameter"]["unit"],
+            json!("mm")
+        );
+        assert_eq!(
+            applied["pipe_segments"][1]["section"]["wall_thickness"]["value"],
+            json!(6.0)
+        );
+        assert_eq!(
+            applied["pipe_segments"][1]["section"]["wall_thickness"]["unit"],
+            json!("mm")
+        );
+    }
+
+    #[test]
     fn underspecified_connect_pipe_gesture_remains_blocked() {
         let model = sample_model();
         let mut intent = modify_intent(
@@ -7343,7 +7589,7 @@ mod tests {
             "elastic_modulus.value",
             "200000000000",
             "29000",
-            "ksi",
+            "m",
             "stress",
         );
         let outcome = apply_operation(&model, &intent, None);
@@ -9032,7 +9278,57 @@ mod tests {
             json!(1.1)
         );
 
-        let mismatched = apply_operation(
+        let converted = apply_operation(
+            &model,
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                "3.280839895013123",
+                "ft",
+                "length",
+            ),
+            None,
+        );
+        assert!(
+            converted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            converted.diagnostics
+        );
+        let converted_model = converted.applied_model.expect("applied model");
+        let converted_y = converted_model["nodes"][1]["position"]["y"]
+            .as_f64()
+            .expect("converted y coordinate");
+        assert!((converted_y - 1.0).abs() <= 1.0e-12);
+
+        let payload = json!({ "value": 1200.0, "unit": "mm" });
+        let payload_converted = apply_operation(
+            &model,
+            &modify_intent(
+                "Node",
+                "node:N-2",
+                "set_field",
+                "position.y",
+                "0",
+                &payload.to_string(),
+                "mm",
+                "length",
+            ),
+            None,
+        );
+        assert!(
+            payload_converted.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            payload_converted.diagnostics
+        );
+        assert_eq!(
+            payload_converted.applied_model.expect("applied model")["nodes"][1]["position"]["y"],
+            json!(1.2)
+        );
+
+        let incompatible = apply_operation(
             &model,
             &modify_intent(
                 "Node",
@@ -9041,12 +9337,12 @@ mod tests {
                 "position.y",
                 "0",
                 "3.6",
-                "ft",
+                "Pa",
                 "length",
             ),
             None,
         );
-        assert!(codes(&mismatched).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+        assert!(codes(&incompatible).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
 
         let mut unitless_model = sample_model();
         unitless_model["project"]["units"]

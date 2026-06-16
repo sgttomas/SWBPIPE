@@ -27,6 +27,31 @@ type Props = {
   storageCapability: LocalStorageCapability | null;
 };
 
+type QuantityRecord = { value: number; unit: string };
+
+type UnitPreservationWitness = {
+  witness_id: string;
+  source_ref: {
+    ref_type: string;
+    ref_id: string;
+    field_path: string;
+  };
+  target_ref: {
+    member_path: string;
+    field_path: string;
+  };
+  source_quantity: QuantityRecord & {
+    dimension?: string;
+  };
+  target_quantity: QuantityRecord & {
+    dimension?: string;
+  };
+  conversion_performed: false;
+  preservation_status: "unit_and_value_preserved";
+  basis_refs: string[];
+  provenance: string;
+};
+
 export function NativePackagePanel({
   analysisRun,
   editorIntents,
@@ -94,6 +119,11 @@ export function NativePackagePanel({
               label="Members"
               value={packet.manifest.package_members.map((member) => member.path).join(", ")}
               testId="native-package-members"
+            />
+            <PackageLine
+              label="Unit witnesses"
+              value={`project_units=${packet.unit_preservation.project_unit_declarations.length}; model_quantities=${packet.unit_preservation.summary.model_quantity_witness_count}; result_quantities=${packet.unit_preservation.summary.result_quantity_witness_count}; conversion=${String(packet.unit_preservation.conversion_performed)}`}
+              testId="native-package-unit-witnesses"
             />
             <PackageLine
               label="Stable IDs"
@@ -171,6 +201,7 @@ export function buildNativePackageReview({
   const operationRefs = operationReviewRefs({ editorIntents, proposal });
   const proposalRefs = proposal ? [proposal.proposal_id] : [];
   const diagnostics = normalizeDiagnostics([...model.diagnostics, ...result.diagnostics]);
+  const unitPreservation = buildUnitPreservationEvidence({ model, result });
   const runHashRefs = analysisRun.analysis_run.hashes.map((hash) => ({
     algorithm: hash.algorithm,
     canonicalization: hash.canonicalization,
@@ -187,6 +218,7 @@ export function buildNativePackageReview({
     member("diagnostics/diagnostics.json", "diagnostics", "model and mechanics diagnostics by stable ID", "TBD_diagnostics_hash_not_available"),
     member("runs/analysis_run_ref.json", "analysis_run_ref", "analysis run references and accepted run hashes", runHashStatus(runHashRefs)),
     member("results/result_envelope_ref.json", "result_envelope_ref", "result-envelope reference, status, and hash scope", runHashStatus(runHashRefs, "result_envelope")),
+    member("maps/unit_preservation_witnesses.json", "unit_preservation_witnesses", "native package unit/value preservation witnesses", "TBD_unit_preservation_witness_hash_not_available"),
     member("operations/pending_operations.json", "operation_queue", "review-only editor/proposal operations", "TBD_operation_queue_hash_not_available")
   ];
 
@@ -206,6 +238,7 @@ export function buildNativePackageReview({
       profile_version: "0.1.0",
       source_basis_refs: ["DEL-17-02", "DEL-17-03"],
       unit_policy: "preserve explicit units from model and result envelopes",
+      unit_witness_policy: "required_sidecar_for_native_json_quantity_fields",
       coordinate_policy: "preserve source model coordinates",
       stable_id_policy: "package sidecar stable ID map",
       loss_report_policy: "mandatory",
@@ -272,6 +305,7 @@ export function buildNativePackageReview({
       direct_target_carried_ids: [],
       target_generated_ids: []
     },
+    unit_preservation: unitPreservation,
     operation_review: {
       record_count: operationRefs.length,
       editor_intent_count: editorIntents.length,
@@ -344,6 +378,7 @@ export function buildNativePackageReview({
       checks: [
         "package member paths declared",
         "stable entity/result/operation refs declared",
+        "native JSON unit preservation witnesses declared",
         "review-only operation refs declared when present",
         "persisted local project review-context summary carried when available",
         "loss report uses exported/omitted/approximated/delegated/unsupported/tbd categories",
@@ -393,6 +428,215 @@ export function buildNativePackageReview({
       software_makes_approval_claim: false,
       software_makes_authentication_claim: false
     }
+  };
+}
+
+function buildUnitPreservationEvidence({
+  model,
+  result
+}: {
+  model: PreviewModel;
+  result: MechanicsResult;
+}) {
+  const modelQuantityWitnesses: UnitPreservationWitness[] = [];
+  const resultQuantityWitnesses: UnitPreservationWitness[] = [];
+
+  const pushModelWitness = ({
+    dimension,
+    fieldPath,
+    quantity,
+    refId,
+    refType
+  }: {
+    dimension?: string;
+    fieldPath: string;
+    quantity: QuantityRecord;
+    refId: string;
+    refType: string;
+  }) => {
+    modelQuantityWitnesses.push(
+      unitPreservationWitness({
+        dimension,
+        fieldPath,
+        memberPath: "model/project.json",
+        quantity,
+        refId,
+        refType,
+        witnessPrefix: "native-unit:model"
+      })
+    );
+  };
+
+  for (const material of model.materials ?? []) {
+    pushModelWitness({
+      dimension: "stress",
+      fieldPath: "elastic_modulus",
+      quantity: material.elastic_modulus,
+      refId: material.id,
+      refType: "material"
+    });
+    pushModelWitness({
+      dimension: "stress",
+      fieldPath: "shear_modulus",
+      quantity: material.shear_modulus,
+      refId: material.id,
+      refType: "material"
+    });
+    if (material.thermal_expansion_coefficient) {
+      pushModelWitness({
+        dimension: "thermal_expansion_coefficient",
+        fieldPath: "thermal_expansion_coefficient",
+        quantity: material.thermal_expansion_coefficient,
+        refId: material.id,
+        refType: "material"
+      });
+    }
+  }
+
+  for (const segment of model.pipe_segments) {
+    for (const [field, quantity] of Object.entries(segment.section)) {
+      pushModelWitness({
+        dimension: "length",
+        fieldPath: `section.${field}`,
+        quantity,
+        refId: segment.id,
+        refType: "pipe_segment"
+      });
+    }
+  }
+
+  for (const loadCase of model.load_cases) {
+    for (const primitiveLoad of loadCase.primitive_loads ?? []) {
+      const quantity = quantityRecord(primitiveLoad.magnitude);
+      const primitiveId = typeof primitiveLoad.id === "string" ? primitiveLoad.id : `${loadCase.id}:primitive`;
+      const dimension = typeof primitiveLoad.dimension === "string" ? primitiveLoad.dimension : undefined;
+      if (!quantity) continue;
+      pushModelWitness({
+        dimension,
+        fieldPath: "magnitude",
+        quantity,
+        refId: primitiveId,
+        refType: "primitive_load"
+      });
+    }
+  }
+
+  const summaryQuantities = [
+    { fieldPath: "summary.max_displacement", quantity: result.summary.max_displacement, refId: "summary:max_displacement" },
+    {
+      fieldPath: "summary.max_open_formula_stress",
+      quantity: result.summary.max_open_formula_stress,
+      refId: "summary:max_open_formula_stress"
+    }
+  ];
+  for (const summaryQuantity of summaryQuantities) {
+    const quantity = quantityRecord(summaryQuantity.quantity);
+    if (!quantity) continue;
+    resultQuantityWitnesses.push(
+      unitPreservationWitness({
+        fieldPath: summaryQuantity.fieldPath,
+        memberPath: "results/result_envelope_ref.json",
+        quantity,
+        refId: summaryQuantity.refId,
+        refType: "result_summary",
+        witnessPrefix: "native-unit:result"
+      })
+    );
+  }
+
+  for (const resultRow of result.results) {
+    resultQuantityWitnesses.push(
+      unitPreservationWitness({
+        fieldPath: "value",
+        memberPath: "results/result_envelope_ref.json",
+        quantity: { value: resultRow.value, unit: resultRow.unit },
+        refId: resultRow.id,
+        refType: "result_row",
+        witnessPrefix: "native-unit:result"
+      })
+    );
+  }
+
+  return {
+    schema_version: "0.1.0",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    preservation_policy: "native_open_json_preserves_source_quantity_value_and_unit_fields",
+    conversion_performed: false,
+    target_package_units: {
+      policy: "same_as_source_json_fields",
+      target_family: "project_owned_native_json"
+    },
+    project_unit_declarations: Object.entries(model.project.units)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([dimension, unit]) => ({
+        dimension,
+        unit,
+        source_ref: {
+          ref_type: "project_units",
+          ref_id: model.project.id,
+          field_path: `project.units.${dimension}`
+        },
+        target_ref: {
+          member_path: "model/project.json",
+          field_path: `project.units.${dimension}`
+        },
+        preservation_status: "unit_declaration_preserved",
+        conversion_performed: false
+      })),
+    model_quantity_witnesses: modelQuantityWitnesses,
+    result_quantity_witnesses: resultQuantityWitnesses,
+    summary: {
+      project_unit_declaration_count: Object.keys(model.project.units).length,
+      model_quantity_witness_count: modelQuantityWitnesses.length,
+      result_quantity_witness_count: resultQuantityWitnesses.length,
+      total_witness_count:
+        Object.keys(model.project.units).length + modelQuantityWitnesses.length + resultQuantityWitnesses.length
+    }
+  };
+}
+
+function unitPreservationWitness({
+  dimension,
+  fieldPath,
+  memberPath,
+  quantity,
+  refId,
+  refType,
+  witnessPrefix
+}: {
+  dimension?: string;
+  fieldPath: string;
+  memberPath: string;
+  quantity: QuantityRecord;
+  refId: string;
+  refType: string;
+  witnessPrefix: string;
+}): UnitPreservationWitness {
+  return {
+    witness_id: `${witnessPrefix}:${refId}:${fieldPath}`,
+    source_ref: {
+      ref_type: refType,
+      ref_id: refId,
+      field_path: fieldPath
+    },
+    target_ref: {
+      member_path: memberPath,
+      field_path: fieldPath
+    },
+    source_quantity: {
+      value: round(quantity.value),
+      unit: quantity.unit,
+      ...(dimension ? { dimension } : {})
+    },
+    target_quantity: {
+      value: round(quantity.value),
+      unit: quantity.unit,
+      ...(dimension ? { dimension } : {})
+    },
+    conversion_performed: false,
+    preservation_status: "unit_and_value_preserved",
+    basis_refs: ["DEC-018", "DEL-02-02", "DEL-17-03"],
+    provenance: "apps/desktop native JSON browser-preview packet generated from invented fixture state"
   };
 }
 
@@ -465,6 +709,13 @@ function reference(objectType: string, ref: string): ObjectRef {
   return { object_type: objectType, ref };
 }
 
+function quantityRecord(value: unknown): QuantityRecord | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as { value?: unknown; unit?: unknown };
+  if (typeof candidate.value !== "number" || typeof candidate.unit !== "string") return null;
+  return { value: candidate.value, unit: candidate.unit };
+}
+
 function runHashStatus(
   runHashRefs: Array<{ payload_scope: string; value: string }>,
   scope?: string
@@ -491,4 +742,8 @@ function nativePackageBoundary(packet: ReturnType<typeof buildNativePackageRevie
 
 function safeFileToken(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "project";
+}
+
+function round(value: number): number {
+  return Number(value.toFixed(6));
 }

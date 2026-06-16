@@ -164,7 +164,7 @@
   },
   "case_id": "block-unit-mismatch-set-field",
   "claimed_model_hash": null,
-  "description": "Block class unit mismatch: intent unit token differs from the stored unit; no silent conversion.",
+  "description": "Block class unit mismatch: intent unit token is incompatible with the stress dimension; no silent conversion.",
   "expected": {
     "applied_model": null,
     "applied_model_canonical_sha256": null,
@@ -249,7 +249,7 @@
       "field_label": "elastic_modulus.value",
       "field_path": "elastic_modulus.value",
       "source_note": "contract_corpus_invented",
-      "unit": "ksi"
+      "unit": "m"
     },
     "operation_id": "op:corpus-block-unit-mismatch-set-field",
     "operation_kind": "modify",

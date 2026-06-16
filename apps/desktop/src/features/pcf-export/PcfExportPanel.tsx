@@ -38,6 +38,26 @@ type PcfPayloadSegment = {
   material_label: string;
 };
 
+type PcfConversionWitness = {
+  witness_id: string;
+  source_ref: PcfReference;
+  field_path: string;
+  source_quantity: {
+    value: number;
+    unit: string;
+    dimension: "length";
+  };
+  target_quantity: {
+    value: number;
+    unit: "MM";
+    target_field: string;
+  };
+  conversion_factor_to_target: number;
+  conversion_status: "converted_to_target_unit" | "source_unit_matches_target_unit";
+  decision_basis_refs: PcfReference[];
+  provenance: ReturnType<typeof previewProvenance>;
+};
+
 const PCF_EXPORT_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
@@ -153,6 +173,7 @@ function buildPcfExportPacket({
   const analysisRunRef = run ? reference("AnalysisRun", run.run_id) : reference("AnalysisRun", "not generated");
   const payload = pcfPayload(model);
   const pcfText = renderPcfText(payload);
+  const conversionWitnesses = pcfConversionWitnesses(model);
   const unitSystemDisclosure = buildExportUnitSystemDisclosure({
     model,
     result,
@@ -217,6 +238,7 @@ function buildPcfExportPacket({
       ]
     },
     unit_system_disclosure: unitSystemDisclosure,
+    conversion_witnesses: conversionWitnesses,
     pcf_payload: payload,
     pcf_text: pcfText,
     stable_id_map: stableIdMap,
@@ -238,6 +260,12 @@ function buildPcfExportPacket({
         member("manifest", "manifest.json", "manifest and package inventory", 1),
         member("model_pcf", "model.pcf", "deterministic ASCII PCF review text", pcfText.trimEnd().split("\n").length),
         member("unit_system_disclosure", "unit_system_disclosure.json", "DEC-018 source and target unit disclosure", 1),
+        member(
+          "conversion_witnesses",
+          "conversion_witnesses.json",
+          "auditable source-to-PCF millimeter conversion witnesses",
+          conversionWitnesses.length
+        ),
         member("stable_id_map", "id_map.json", "authoritative canonical-to-PCF sidecar", stableIdMap.length),
         member("loss_report", "loss_report.json", "unsupported, approximated, delegated, omitted, exported, and TBD behavior", lossReport.length),
         member("validation_report", "validation_report.json", "desktop preview validation and blocking diagnostics", 1),
@@ -255,6 +283,14 @@ function buildPcfExportPacket({
       checks: [
         check("pcf_text_has_terminal_record", pcfText.endsWith("END-ISOGEN\n")),
         check("sidecar_id_map_per_pipe_segment", stableIdMap.length === payload.pipe_segments.length),
+        check(
+          "conversion_witness_per_converted_length_field",
+          conversionWitnesses.length === expectedPcfConversionWitnessCount(model)
+        ),
+        check(
+          "conversion_witnesses_target_millimeters",
+          conversionWitnesses.every((witness) => witness.target_quantity.unit === "MM")
+        ),
         check("loss_report_has_required_taxonomy", requiredLossCategoriesPresent(lossReport)),
         check("target_profile_version_remains_tbd", true),
         check("nominal_size_not_silently_invented", payload.pipe_segments.every((segment) => segment.nominal_size === "TBD_SOURCE_REQUIRED"))
@@ -356,6 +392,96 @@ function pcfPayload(model: PreviewModel) {
     ],
     provenance: previewProvenance()
   };
+}
+
+function pcfConversionWitnesses(model: PreviewModel): PcfConversionWitness[] {
+  const nodeWitnesses = model.nodes
+    .slice()
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .flatMap((node) =>
+      (["x", "y", "z"] as const).map((axis) =>
+        conversionWitness({
+          witnessId: `pcf-conversion:${safeFileToken(node.id)}:position:${axis}`,
+          sourceRef: reference("Node", node.id),
+          fieldPath: `nodes.${node.id}.position.${axis}`,
+          sourceValue: node.position[axis],
+          sourceUnit: model.project.units.length ?? "m",
+          targetField: `pcf_payload.nodes.${node.id}.${axis}`
+        })
+      )
+    );
+
+  const pipeSegmentWitnesses = model.pipe_segments
+    .slice()
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .flatMap((segment) =>
+      ([
+        ["outside_diameter", "outside_diameter"],
+        ["wall_thickness", "wall_thickness"]
+      ] as const).flatMap(([field, targetField]) => {
+        const quantity = segment.section[field];
+        if (!quantity) return [];
+        return [
+          conversionWitness({
+            witnessId: `pcf-conversion:${safeFileToken(segment.id)}:${field}`,
+            sourceRef: reference("PipeSegment", segment.id),
+            fieldPath: `pipe_segments.${segment.id}.section.${field}`,
+            sourceValue: quantity.value,
+            sourceUnit: quantity.unit,
+            targetField: `pcf_payload.pipe_segments.${segment.id}.${targetField}`
+          })
+        ];
+      })
+    );
+
+  return [...nodeWitnesses, ...pipeSegmentWitnesses];
+}
+
+function conversionWitness({
+  witnessId,
+  sourceRef,
+  fieldPath,
+  sourceValue,
+  sourceUnit,
+  targetField
+}: {
+  witnessId: string;
+  sourceRef: PcfReference;
+  fieldPath: string;
+  sourceValue: number;
+  sourceUnit: string;
+  targetField: string;
+}): PcfConversionWitness {
+  const conversion = convertLengthToMillimeters(sourceValue, sourceUnit);
+  return {
+    witness_id: witnessId,
+    source_ref: sourceRef,
+    field_path: fieldPath,
+    source_quantity: {
+      value: sourceValue,
+      unit: sourceUnit,
+      dimension: "length"
+    },
+    target_quantity: {
+      value: conversion.value,
+      unit: "MM",
+      target_field: targetField
+    },
+    conversion_factor_to_target: conversion.factor,
+    conversion_status: conversion.factor === 1 ? "source_unit_matches_target_unit" : "converted_to_target_unit",
+    decision_basis_refs: [reference("Decision", "DEC-018"), reference("Deliverable", "DEL-02-02")],
+    provenance: previewProvenance()
+  };
+}
+
+function expectedPcfConversionWitnessCount(model: PreviewModel): number {
+  const nodeCoordinateFields = model.nodes.length * 3;
+  const pipeSectionFields = model.pipe_segments.reduce(
+    (count, segment) =>
+      count + (segment.section.outside_diameter ? 1 : 0) + (segment.section.wall_thickness ? 1 : 0),
+    0
+  );
+  return nodeCoordinateFields + pipeSectionFields;
 }
 
 function renderPcfText(payload: ReturnType<typeof pcfPayload>): string {
@@ -554,18 +680,24 @@ function requiredLossCategoriesPresent(lossReport: ReturnType<typeof pcfLossRepo
 }
 
 function toMillimeters(point: PreviewModel["nodes"][number]["position"], unit: string) {
-  const scale = unit === "m" ? 1000 : 1;
   return {
-    x: Number((point.x * scale).toFixed(6)),
-    y: Number((point.y * scale).toFixed(6)),
-    z: Number((point.z * scale).toFixed(6))
+    x: convertLengthToMillimeters(point.x, unit).value,
+    y: convertLengthToMillimeters(point.y, unit).value,
+    z: convertLengthToMillimeters(point.z, unit).value
   };
 }
 
 function formatQuantityAsMillimeters(quantity: { value: number; unit: string } | undefined, fallback: string): string {
   if (!quantity) return `TBD_${fallback}`;
-  const scale = quantity.unit === "m" ? 1000 : 1;
-  return formatNumber(quantity.value * scale);
+  return formatNumber(convertLengthToMillimeters(quantity.value, quantity.unit).value);
+}
+
+function convertLengthToMillimeters(value: number, unit: string): { value: number; factor: number } {
+  const factor = unit === "m" ? 1000 : 1;
+  return {
+    value: Number((value * factor).toFixed(6)),
+    factor
+  };
 }
 
 function formatPoint(point: PcfPayloadNode | undefined): string {

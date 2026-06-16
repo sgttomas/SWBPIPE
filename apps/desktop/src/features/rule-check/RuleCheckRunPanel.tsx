@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ListChecks, Play, ShieldAlert } from "lucide-react";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {
@@ -32,6 +32,13 @@ import {
   type LibraryRecordIndex,
   type LibraryReferenceResolution
 } from "../../services/libraryImportService";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  unitEntryMatchesDimension,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
 
 // Run Rule Checks (PRD §22.4 / §14.5; completion plan C4 GUI slice
 // TP-C4-CHECKGUI-001). The C4 backend (run_rule_checks command +
@@ -52,6 +59,10 @@ const NO_PROJECT_REASON = "Saved rule packs are project-scoped; create or open a
 const BUSY_REASON = "A rule-check backend request is in progress; wait for it to finish.";
 
 type ParsedPack = { ok: true; document: RulePackDocument } | { ok: false; error: string };
+type UnitOption = {
+  symbol: string;
+  label: string;
+};
 
 function parsePack(text: string): ParsedPack | null {
   const trimmed = text.trim();
@@ -65,6 +76,74 @@ function parsePack(text: string): ParsedPack | null {
   } catch (error) {
     return { ok: false, error: String(error) };
   }
+}
+
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, currentSymbol: string): UnitOption[] {
+  const current = currentSymbol.trim() || "TBD";
+  const basis = describeUnitBasis(route, current, dimensionId);
+  const fallback = { symbol: basis.symbol, label: basis.label };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const entryBasis = describeUnitBasis(route, entry.symbol, dimensionId);
+      return { symbol: entry.symbol, label: entryBasis.label };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) {
+    options.unshift(fallback);
+  }
+  return options.length > 0 ? options : [fallback];
+}
+
+function UnitBindingControl({
+  testId,
+  basisTestId,
+  value,
+  dimension,
+  disabled,
+  unitCatalogRoute,
+  onChange
+}: {
+  testId: string;
+  basisTestId: string;
+  value: string;
+  dimension: string;
+  disabled: boolean;
+  unitCatalogRoute: UnitCatalogRoute | null;
+  onChange: (next: string) => void;
+}) {
+  const basis = describeUnitBasis(unitCatalogRoute, value, dimension);
+
+  return (
+    <>
+      {unitCatalogRoute?.route === "tauri_unit_catalog" ? (
+        <select
+          data-testid={testId}
+          value={value.trim() || "TBD"}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          {unitOptions(unitCatalogRoute, dimension, value).map((option) => (
+            <option key={option.symbol} value={option.symbol}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type="text"
+          data-testid={testId}
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      )}
+      <small data-testid={basisTestId}>Unit basis: {basis.label}</small>
+    </>
+  );
 }
 
 // --- Library reference resolution preview (Phase C3, TP-C3-LIBREFPICKER-001) --
@@ -238,12 +317,36 @@ export function RuleCheckRunPanel({
   const [runResult, setRunResult] = useState<RuleCheckRunResult | null>(null);
   const [libraryPreviews, setLibraryPreviews] = useState<Record<string, LibraryPreviewState>>({});
   const [solverPreviews, setSolverPreviews] = useState<Record<string, SolverPreviewState>>({});
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
   const parsed = useMemo(() => parsePack(packText), [packText]);
   const plan: RuleCheckBindingPlan | null = parsed?.ok ? deriveRuleCheckBindingPlan(parsed.document) : null;
   const resultRows = result?.results ?? [];
+  const hasRuntimeUnitBindings = Boolean(plan && (plan.valueInputs.length > 0 || plan.valueSlots.length > 0));
+
+  useEffect(() => {
+    if (!hasRuntimeUnitBindings) {
+      setUnitCatalogRoute(null);
+      return undefined;
+    }
+    let cancelled = false;
+    loadUnitCatalog()
+      .then((route) => {
+        if (!cancelled) setUnitCatalogRoute(route);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: error instanceof Error ? error.message : "UNIT-CATALOG-UNAVAILABLE"
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hasRuntimeUnitBindings]);
 
   function resetForNewPack(text: string) {
     setPackText(text);
@@ -556,6 +659,13 @@ export function RuleCheckRunPanel({
             Unbound or missing inputs block the check at RULE_INPUTS_INCOMPLETE (pass/fail is never
             reported on missing inputs).
           </small>
+          <small data-testid="rule-check-unit-catalog-status">
+            {!hasRuntimeUnitBindings
+              ? "No runtime value units require catalog-backed controls."
+              : unitCatalogRoute?.route === "tauri_unit_catalog"
+                ? `DEC-018 unit catalog loaded for run-check value bindings; entries=${unitCatalogRoute.catalog.entry_count}`
+                : "browser preview keeps run-check unit refs as stored manual text; no fallback catalog synthesized"}
+          </small>
 
           {plan.solverInputs.map((input) => {
             const ref = input.solver_result_ref;
@@ -638,15 +748,17 @@ export function RuleCheckRunPanel({
                     }))
                   }
                 />
-                <input
-                  type="text"
-                  data-testid={`rule-check-value-unit-${input.ref_id}`}
+                <UnitBindingControl
+                  testId={`rule-check-value-unit-${input.ref_id}`}
+                  basisTestId={`rule-check-value-unit-basis-${input.ref_id}`}
                   value={bindingUnit(input.ref_id, input.unit_ref)}
+                  dimension={input.dimension}
                   disabled={inFlight}
-                  onChange={(event) =>
+                  unitCatalogRoute={unitCatalogRoute}
+                  onChange={(next) =>
                     setValueBindings((current) => ({
                       ...current,
-                      [input.ref_id]: { value: current[input.ref_id]?.value ?? "", unit: event.target.value }
+                      [input.ref_id]: { value: current[input.ref_id]?.value ?? "", unit: next }
                     }))
                   }
                 />
@@ -673,15 +785,17 @@ export function RuleCheckRunPanel({
                     }))
                   }
                 />
-                <input
-                  type="text"
-                  data-testid={`rule-check-slot-unit-${slot.slot_id}`}
+                <UnitBindingControl
+                  testId={`rule-check-slot-unit-${slot.slot_id}`}
+                  basisTestId={`rule-check-slot-unit-basis-${slot.slot_id}`}
                   value={bindingUnit(slot.slot_id, slot.unit_ref)}
+                  dimension={slot.dimension}
                   disabled={inFlight}
-                  onChange={(event) =>
+                  unitCatalogRoute={unitCatalogRoute}
+                  onChange={(next) =>
                     setValueBindings((current) => ({
                       ...current,
-                      [slot.slot_id]: { value: current[slot.slot_id]?.value ?? "", unit: event.target.value }
+                      [slot.slot_id]: { value: current[slot.slot_id]?.value ?? "", unit: next }
                     }))
                   }
                 />

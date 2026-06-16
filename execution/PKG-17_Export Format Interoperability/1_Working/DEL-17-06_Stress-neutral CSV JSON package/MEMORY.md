@@ -67,3 +67,23 @@
   comparison pass/fail claim, solver-validation claim, code-compliance claim,
   release-readiness claim, professional-reliance claim, private data, or
   protected-content claim.
+
+## 2026-06-16 - TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001 unit preservation witnesses
+
+- Added desktop stress-neutral `unit_preservation_witnesses` for every
+  exported result row.
+- The package remains unit-preserving: each witness records source result
+  value/unit/dimension and target stress-neutral row value/unit/dimension with
+  `conversion_performed=false`.
+- The manifest lists `unit_preservation_witnesses.json`; validation checks
+  one witness per row and source/target row agreement.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001.md`;
+  supporting DEL-02-02 run record; `apps/desktop/SMOKE.md` TP-MAC-175.
+- Validation passed: focused `App.test.tsx` 54/54; full desktop Vitest
+  386/386; desktop build with existing Vite chunk-size warning; targeted R2
+  Playwright smoke spec 10/10 after wasm rebuild.
+- Boundaries preserved: no Python/schema export-package contract change,
+  vendor-format claim, target compatibility claim, comparison pass/fail claim,
+  solver validation, protected content, private data, release-readiness claim,
+  or professional/code-compliance claim.

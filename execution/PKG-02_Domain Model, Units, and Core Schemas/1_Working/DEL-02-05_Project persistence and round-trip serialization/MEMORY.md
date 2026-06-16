@@ -346,3 +346,30 @@ Boundaries preserved:
   schema versioning (DEC-019/DEC-033) is unaffected.
 - Primary record: DEL-06-04
   `WORKING_ITEMS_RUN_2026-06-12_TP-C2-RPLIFE-001.md`; SMOKE TP-MAC-147.
+
+## 2026-06-16 - TP-UNITS-B2-IMPORTRT-001 local project unit round-trip evidence
+
+- WORKING_ITEMS app-integration tranche added explicit unit metadata
+  round-trip evidence to local project create/save/open summaries in both the
+  browser-preview service and the Tauri SQLite backend.
+- `LocalProjectSummary` now carries `unit_round_trip_status`,
+  `unit_round_trip_checked_ref_count`, and `unit_round_trip_signature`,
+  computed from restored project-envelope unit refs (`project.units`,
+  materials, sections, pipe segment section quantities, and primitive-load
+  magnitudes). Project Storage Audit and Project Validation Preflight expose
+  the same evidence in visible rows and JSON packets.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`,
+  supporting DEL-02-02 run record, `apps/desktop/SMOKE.md` TP-MAC-173, and
+  `plans/PLAN_COMPLETION_LOG.md`.
+- Validation passed: focused `projectService.test.ts` + `App.test.tsx`
+  Vitest 61/61; full desktop Vitest 386/386; desktop build; rustfmt package
+  check; focused Tauri store regression. In-app Browser verified
+  `New blank` -> `Save local` -> `Open local` visible rows. Initial direct
+  Playwright execution found a missing local Chromium cache and browser-install
+  CDN timeouts; the later DEC-025 sweep ran the updated Playwright smoke
+  successfully (10/10 dev-server lane plus 1/1 production-dist lane).
+- No lifecycle state changed. This is persistence/evidence absorption only;
+  no unit conversion, target import compatibility, solver behavior,
+  protected content, private data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

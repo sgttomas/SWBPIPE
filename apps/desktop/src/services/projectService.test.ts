@@ -79,13 +79,20 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     const created = await createLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION));
     expect(created.model_document_migration?.status).toBe("current");
     expect(created.model_migration_ledger).toEqual([]);
+    expect(created.summary.unit_round_trip_status).toBe("unit_metadata_preserved_in_local_project_envelope");
+    expect(created.summary.unit_round_trip_checked_ref_count).toBe(1);
+    expect(created.summary.unit_round_trip_signature).toBe("project.units.length=m");
 
     const saved = await saveLocalProject(sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION));
     expect(saved.model_document_migration?.status).toBe("current");
+    expect(saved.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
+    expect(saved.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
 
     const opened = await openLocalProject();
     expect(opened?.model_document_migration?.status).toBe("current");
     expect(opened?.model_migration_ledger).toEqual([]);
+    expect(opened?.summary.unit_round_trip_status).toBe(created.summary.unit_round_trip_status);
+    expect(opened?.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
   });
 
   it("builds and persists an explicit blank local authoring document", async () => {
@@ -111,12 +118,17 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(created.summary.project_name).toBe("Blank Local Model");
     expect(created.summary.persisted_mechanics_result_count).toBe(0);
     expect(created.summary.persisted_model_hash_count).toBe(0);
+    expect(created.summary.unit_round_trip_status).toBe("unit_metadata_preserved_in_local_project_envelope");
+    expect(created.summary.unit_round_trip_checked_ref_count).toBe(6);
+    expect(created.summary.unit_round_trip_signature).toContain("project.units.length=m");
+    expect(created.summary.unit_round_trip_signature).toContain("project.units.force=N");
     expect(created.model_document_migration?.status).toBe("current");
 
     const opened = await openLocalProject("project:blank-local-20260612t000000z");
     expect(opened?.model.project.id).toBe("project:blank-local-20260612t000000z");
     expect(opened?.model.nodes).toEqual([]);
     expect(opened?.summary.storage_mode).toBe("browser_memory_preview");
+    expect(opened?.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
   });
 
   it("refuses to persist documents with refused schema versions", async () => {

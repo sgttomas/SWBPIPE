@@ -15,6 +15,7 @@ import {
   nodeKind,
   parseRulePackDocument,
   readFormulaDeclarations,
+  renderExpressionText,
   setFormulaExpression,
   type AstNode,
   type RulePackDocument
@@ -245,6 +246,29 @@ describe("ExpressionComposer pure helpers", () => {
     const parsed = parseRulePackDocument('{"a":1}');
     expect(parsed).toEqual({ ok: true, document: { a: 1 } });
   });
+
+  it("renders a read-only AST text preview without changing canonical AST shape", () => {
+    const expression: AstNode = {
+      node: "compare",
+      operator: "less_than_or_equal",
+      left: {
+        node: "binary",
+        operator: "divide",
+        left: { node: "variable_ref", variable_id: "stress_actual" },
+        right: { node: "literal", quantity: { value: 2, dimension: "dimensionless", unit_ref: "1" } }
+      },
+      right: { node: "variable_ref", variable_id: "stress_limit" }
+    };
+    expect(renderExpressionText(expression)).toBe(
+      "((stress_actual / 2 1 [dimensionless]) <= stress_limit)"
+    );
+    expect(renderExpressionText({ node: "unsafe_host_access", request: "filesystem" })).toBe(
+      "[refusal:unsafe_host_access]"
+    );
+    expect(renderExpressionText({ node: "future_feature", custom: true })).toBe(
+      "[unrecognized:future_feature]"
+    );
+  });
 });
 
 function Harness({ initial }: { initial: RulePackDocument }) {
@@ -268,6 +292,15 @@ describe("ExpressionComposer component", () => {
     const browser = screen.getByTestId("rule-pack-variable-browser").textContent ?? "";
     expect(browser).toContain("user_required_input_1 (required_input)");
     expect(browser).toContain("user_limit_slot_1 (value_slot)");
+  });
+
+  it("shows a labeled read-only expression text preview and no expression text input", () => {
+    render(<Harness initial={buildDraftRulePackDocument()} />);
+    const preview = screen.getByTestId("rule-pack-expression-text-preview");
+    expect(preview.textContent).toContain("Read-only AST-to-text preview");
+    expect(preview.textContent).toContain("user_required_input_1");
+    expect(preview.querySelector("textarea")).toBeNull();
+    expect(preview.querySelector("input")).toBeNull();
   });
 
   it("switches the root node type and rewrites the expression AST", () => {

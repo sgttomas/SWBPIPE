@@ -247,3 +247,43 @@ Durable context preserved after PKG-02 grounded finding resolution:
   value or protected content embedded; no release, professional,
   certification, sealing, authentication, approval, or code-compliance claim is
   implied.
+
+## 2026-06-16 - TP-UNITS-B2B3-RULECHECKNORM-001: rule-check mixed-unit normalization
+
+- `core/rules/rule_check_runner` now normalizes compatible DEC-018 catalog
+  units to the rule-pack declaration unit before invoking the exact-unit
+  expression evaluator. This keeps the frozen evaluator semantics intact while
+  allowing authored packs with `Pa` declarations to accept compatible runtime
+  values entered as `MPa` or `kPa`.
+- Exact non-catalog demonstration units remain valid only when entered and
+  declared strings match. Unknown or incompatible substitutions block with a
+  `UnitMismatch` finding and `RULE_INPUTS_INCOMPLETE`; no value is silently
+  coerced or evaluated.
+- Desktop command coverage proves the behavior through `run_rule_checks_core`
+  with a re-stamped invented demo pack (`0.05 MPa` actual, `100 kPa` limit,
+  declared `Pa`).
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-RULECHECKNORM-001.md`;
+  supporting DEL-02-02 run record; SMOKE TP-MAC-176. Validation: runner cargo
+  tests (13 unit + 7 integration), desktop Tauri cargo tests 62/62, desktop
+  Vitest 386/386, desktop build.
+- No grammar, schema, parser, lifecycle, release, professional, certification,
+  sealing, authentication, approval, or code-compliance claim is implied.
+
+## 2026-06-16 - TP-UNITS-B2-RULECHECKRUNUNITS-001 run-check binding unit controls
+
+- Added supporting B2/B3 unit evidence for the GUI side of C4 run-time
+  user-supplied rule-check value bindings.
+- The run-check panel now uses DEC-018-backed desktop selectors for runtime
+  value and value-slot binding units while preserving browser manual text
+  entry. The runner payload remains explicit `{value, unit, dimension}` and
+  the evaluator/normalization semantics are unchanged.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-RULECHECKRUNUNITS-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-182; completion log
+  entry.
+- Validation passed: focused RuleCheckRunPanel Vitest 18/18; full desktop
+  Vitest 389/389; desktop build; focused/full Playwright; in-app Browser
+  verification; DEC-025 dirty-tree sweep pass.
+- Boundary unchanged: no schema, evaluator, grammar, parser, writable
+  expression text syntax, protected content, private data, release-readiness
+  claim, or professional/code-compliance claim changed.

@@ -1,5 +1,8 @@
 import {
   Activity,
+  CheckCircle2,
+  Circle,
+  CircleDot,
   Database,
   FileWarning,
   FilePlus,
@@ -204,6 +207,14 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
   }
 ];
 
+type JourneyItem = {
+  id: string;
+  label: string;
+  status: "complete" | "current" | "pending";
+  summary: string;
+  targetSection: WorkspaceSectionId;
+};
+
 export function App() {
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
@@ -241,6 +252,31 @@ export function App() {
     initialOperationEngineStatus()
   );
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
+  const journeyItems = useMemo(
+    () => {
+      if (!model) return [];
+      return buildJourneyItems({
+        appliedOperationCount: appliedOperations.length,
+        editorIntentCount: editorIntents.length,
+        model,
+        projectOperation,
+        projectSummary,
+        result,
+        ruleCheckAggregate,
+        solveState: solveJob.state
+      });
+    },
+    [
+      appliedOperations.length,
+      editorIntents.length,
+      model,
+      projectOperation,
+      projectSummary,
+      result,
+      ruleCheckAggregate,
+      solveJob.state
+    ]
+  );
   const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
@@ -901,6 +937,24 @@ export function App() {
             ))}
           </nav>
 
+          <div className="workspace-journey" aria-label="Authoring journey status" data-testid="workspace-journey">
+            {journeyItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`workspace-journey-item ${item.status}`}
+                data-testid={`workspace-journey-${item.id}`}
+                aria-pressed={activeSection === item.targetSection}
+                title={`${item.label}: ${item.summary}`}
+                onClick={() => setActiveSection(item.targetSection)}
+              >
+                <JourneyStatusIcon status={item.status} />
+                <span>{item.label}</span>
+                <code>{item.summary}</code>
+              </button>
+            ))}
+          </div>
+
           <div className="workspace-dock-body">
             <section
               className={dockSectionClass("operations", activeSection)}
@@ -1170,6 +1224,93 @@ function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: Workspac
   return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
 }
 
+function buildJourneyItems({
+  appliedOperationCount,
+  editorIntentCount,
+  model,
+  projectOperation,
+  projectSummary,
+  result,
+  ruleCheckAggregate,
+  solveState
+}: {
+  appliedOperationCount: number;
+  editorIntentCount: number;
+  model: PreviewModel;
+  projectOperation: string;
+  projectSummary: LocalProjectSummary | null;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  solveState: SolveJobAuditState["state"];
+}): JourneyItem[] {
+  const primitiveLoadCount = model.load_cases.reduce(
+    (count, loadCase) => count + (loadCase.primitive_loads?.length ?? 0),
+    0
+  );
+  const combinationCount = model.combinations?.length ?? 0;
+  const authoredModelReady = model.nodes.length >= 2 && model.pipe_segments.length >= 1;
+  const loadsReady = model.load_cases.length >= 1 && primitiveLoadCount >= 1 && combinationCount >= 1;
+  const solveComplete = solveState === "completed" && Boolean(result);
+  const savedThisSession = projectOperation === "save" || (projectSummary?.persisted_model_hash_count ?? 0) > 0;
+
+  return [
+    {
+      id: "model",
+      label: "Model",
+      status: authoredModelReady ? "complete" : "current",
+      summary: `${model.nodes.length} nodes; ${model.pipe_segments.length} pipes; ${model.supports.length} supports`,
+      targetSection: "operations"
+    },
+    {
+      id: "apply",
+      label: "Apply",
+      status: editorIntentCount > 0 ? "current" : appliedOperationCount > 0 ? "complete" : "pending",
+      summary: `${editorIntentCount} queued; ${appliedOperationCount} applied`,
+      targetSection: "operations"
+    },
+    {
+      id: "loads",
+      label: "Loads",
+      status: loadsReady ? "complete" : authoredModelReady ? "current" : "pending",
+      summary: `${model.load_cases.length} cases; ${primitiveLoadCount} loads; ${combinationCount} combos`,
+      targetSection: "loads"
+    },
+    {
+      id: "solve",
+      label: "Solve",
+      status: solveComplete ? "complete" : loadsReady ? "current" : "pending",
+      summary: `${solveState}; rows=${result?.results.length ?? 0}`,
+      targetSection: "solve"
+    },
+    {
+      id: "rules",
+      label: "Rules",
+      status:
+        ruleCheckAggregate === "USER_RULE_CHECKED" || ruleCheckAggregate === "USER_RULE_FAILED"
+          ? "complete"
+          : solveComplete
+            ? "current"
+            : "pending",
+      summary: ruleCheckAggregate ?? model.analysis_status.rule_check,
+      targetSection: "solve"
+    },
+    {
+      id: "report",
+      label: "Report",
+      status: solveComplete ? "current" : "pending",
+      summary: solveComplete ? "renderable" : "no solved run",
+      targetSection: "report"
+    },
+    {
+      id: "project",
+      label: "Project",
+      status: savedThisSession ? "complete" : appliedOperationCount > 0 ? "current" : "pending",
+      summary: projectOperation,
+      targetSection: "project"
+    }
+  ];
+}
+
 function Badge({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <span className="badge">
@@ -1177,6 +1318,12 @@ function Badge({ icon, label }: { icon: React.ReactNode; label: string }) {
       {label}
     </span>
   );
+}
+
+function JourneyStatusIcon({ status }: { status: JourneyItem["status"] }) {
+  if (status === "complete") return <CheckCircle2 size={14} aria-hidden="true" />;
+  if (status === "current") return <CircleDot size={14} aria-hidden="true" />;
+  return <Circle size={14} aria-hidden="true" />;
 }
 
 function BoundaryItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

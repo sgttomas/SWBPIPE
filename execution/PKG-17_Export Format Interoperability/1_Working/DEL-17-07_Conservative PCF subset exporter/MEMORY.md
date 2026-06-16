@@ -68,3 +68,23 @@
   compatibility claim, solver-validation claim, code-compliance claim,
   release-readiness claim, professional-acceptance claim, protected standards
   content, private data, commercial solver behavior, or reverse-engineering.
+
+## 2026-06-16 - TP-UNITS-B2B3-PCFCONVWITNESS-001 PCF conversion witnesses
+
+- Added desktop PCF package `conversion_witnesses` for node coordinate
+  components and pipe OD/wall fields converted to PCF millimeters.
+- Added `conversion_witnesses.json` to the manifest package members and
+  validation checks for expected witness count and `MM` target units.
+- App regression coverage decodes the downloaded PCF package and proves the
+  `pipe:P-120` outside diameter witness converts `0.168 m` to `168 MM`, while
+  the PCF text carries `OUTSIDE-DIAMETER 168`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-PCFCONVWITNESS-001.md`;
+  corresponding DEL-02-02 run record; `apps/desktop/SMOKE.md` TP-MAC-172.
+- Validation: focused App Vitest 54/54; full desktop Vitest 386/386; desktop
+  build passed with the existing Vite chunk-size warning; focused Playwright
+  R2 smoke 2/2.
+- Boundaries preserved: no PCF completeness claim, downstream import
+  compatibility claim, solver-validation claim, code-compliance claim,
+  release-readiness claim, professional-acceptance claim, protected standards
+  content, private data, commercial solver behavior, or reverse-engineering.

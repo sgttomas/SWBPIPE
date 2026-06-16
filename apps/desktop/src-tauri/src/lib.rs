@@ -165,6 +165,9 @@ struct LocalProjectSummary {
     persisted_model_hash_ref: String,
     persisted_project_envelope_hash_count: usize,
     persisted_project_envelope_hash_ref: String,
+    unit_round_trip_status: String,
+    unit_round_trip_checked_ref_count: usize,
+    unit_round_trip_signature: String,
     message: String,
 }
 
@@ -904,9 +907,140 @@ fn selected_review_target_ref(selected_review_target: &Value) -> String {
     format!("{target_type}: {id}")
 }
 
+fn unit_round_trip_summary(model: &Value) -> (String, usize, String) {
+    let mut unit_refs: Vec<String> = Vec::new();
+    let mut missing_refs: Vec<String> = Vec::new();
+    if let Some(units) = model
+        .get("project")
+        .and_then(|project| project.get("units"))
+        .and_then(Value::as_object)
+    {
+        for (dimension, unit) in units {
+            match unit.as_str().filter(|value| !value.is_empty()) {
+                Some(unit) => unit_refs.push(format!("project.units.{dimension}={unit}")),
+                None => missing_refs.push(format!("project.units.{dimension}")),
+            }
+        }
+    }
+    if let Some(materials) = model.get("materials").and_then(Value::as_array) {
+        for material in materials {
+            let material_id = value_id(material);
+            collect_quantity_unit(
+                &mut unit_refs,
+                &mut missing_refs,
+                format!("materials.{material_id}.elastic_modulus"),
+                material.get("elastic_modulus"),
+            );
+            collect_quantity_unit(
+                &mut unit_refs,
+                &mut missing_refs,
+                format!("materials.{material_id}.shear_modulus"),
+                material.get("shear_modulus"),
+            );
+            collect_quantity_unit(
+                &mut unit_refs,
+                &mut missing_refs,
+                format!("materials.{material_id}.thermal_expansion_coefficient"),
+                material.get("thermal_expansion_coefficient"),
+            );
+        }
+    }
+    if let Some(sections) = model.get("sections").and_then(Value::as_array) {
+        for section in sections {
+            let section_id = value_id(section);
+            if let Some(properties) = section.get("properties").and_then(Value::as_object) {
+                for (field, quantity) in properties {
+                    collect_quantity_unit(
+                        &mut unit_refs,
+                        &mut missing_refs,
+                        format!("sections.{section_id}.{field}"),
+                        Some(quantity),
+                    );
+                }
+            }
+        }
+    }
+    if let Some(segments) = model.get("pipe_segments").and_then(Value::as_array) {
+        for segment in segments {
+            let segment_id = value_id(segment);
+            if let Some(section) = segment.get("section").and_then(Value::as_object) {
+                for (field, quantity) in section {
+                    collect_quantity_unit(
+                        &mut unit_refs,
+                        &mut missing_refs,
+                        format!("pipe_segments.{segment_id}.section.{field}"),
+                        Some(quantity),
+                    );
+                }
+            }
+        }
+    }
+    if let Some(load_cases) = model.get("load_cases").and_then(Value::as_array) {
+        for load_case in load_cases {
+            let load_case_id = value_id(load_case);
+            if let Some(primitive_loads) =
+                load_case.get("primitive_loads").and_then(Value::as_array)
+            {
+                for primitive_load in primitive_loads {
+                    let primitive_id = value_id(primitive_load);
+                    collect_quantity_unit(
+                        &mut unit_refs,
+                        &mut missing_refs,
+                        format!(
+                            "load_cases.{load_case_id}.primitive_loads.{primitive_id}.magnitude"
+                        ),
+                        primitive_load.get("magnitude"),
+                    );
+                }
+            }
+        }
+    }
+    unit_refs.sort();
+    let signature = if unit_refs.is_empty() {
+        "no_unit_metadata".to_string()
+    } else {
+        unit_refs.join("|")
+    };
+    let status = if !unit_refs.is_empty() && missing_refs.is_empty() {
+        "unit_metadata_preserved_in_local_project_envelope"
+    } else {
+        "unit_metadata_missing_review_required"
+    };
+    (status.to_string(), unit_refs.len(), signature)
+}
+
+fn collect_quantity_unit(
+    unit_refs: &mut Vec<String>,
+    missing_refs: &mut Vec<String>,
+    reference: String,
+    value: Option<&Value>,
+) {
+    let Some(value) = value else {
+        return;
+    };
+    if let Some(unit) = value
+        .get("unit")
+        .and_then(Value::as_str)
+        .filter(|unit| !unit.is_empty())
+    {
+        unit_refs.push(format!("{reference}={unit}"));
+    } else if value.get("value").is_some() {
+        missing_refs.push(reference);
+    }
+}
+
+fn value_id(value: &Value) -> String {
+    value
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("unidentified")
+        .to_string()
+}
+
 fn project_summary(
     project_id: String,
     project_name: String,
+    model: &Value,
     database_path: PathBuf,
     migration: &StoreMigrationEvidence,
     editor_intents: &Value,
@@ -918,6 +1052,8 @@ fn project_summary(
     project_envelope_hash: &Value,
     message: String,
 ) -> LocalProjectSummary {
+    let (unit_round_trip_status, unit_round_trip_checked_ref_count, unit_round_trip_signature) =
+        unit_round_trip_summary(model);
     LocalProjectSummary {
         project_id,
         project_name,
@@ -943,6 +1079,9 @@ fn project_summary(
         persisted_project_envelope_hash_ref: persisted_project_envelope_hash_ref(
             project_envelope_hash,
         ),
+        unit_round_trip_status,
+        unit_round_trip_checked_ref_count,
+        unit_round_trip_signature,
         message,
     }
 }
@@ -1550,6 +1689,7 @@ fn create_local_project(
         summary: project_summary(
             project_id,
             project_name,
+            &model,
             path,
             &migration,
             &editor_intents,
@@ -1601,6 +1741,7 @@ fn open_local_project(
                 summary: project_summary(
                     record.project_id,
                     record.project_name,
+                    &model,
                     path.clone(),
                     &migration,
                     &record.editor_intents,
@@ -1676,6 +1817,7 @@ fn save_local_project(
         summary: project_summary(
             request.project_id,
             request.project_name,
+            &model,
             path,
             &migration,
             &editor_intents,
@@ -3698,8 +3840,9 @@ mod tests {
         assert!(html.contains("Result units"));
 
         let summary = project_summary(
-            loaded.project_id,
-            loaded.project_name,
+            loaded.project_id.clone(),
+            loaded.project_name.clone(),
+            &loaded.model,
             PathBuf::from(":memory:"),
             &migration,
             &json!([]),
@@ -3716,6 +3859,11 @@ mod tests {
             "Saved A12 authored project opened, solved, and rendered.".to_string(),
         );
         assert_eq!(summary.persisted_mechanics_result_count, 1);
+        assert_eq!(
+            summary.unit_round_trip_status,
+            "unit_metadata_preserved_in_local_project_envelope"
+        );
+        assert!(summary.unit_round_trip_checked_ref_count > 0);
         assert_eq!(
             summary.persisted_analysis_run_ref,
             solved["run_id"].as_str().expect("run id")
@@ -3734,8 +3882,50 @@ mod tests {
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
-                "name": "Test Local Project"
-            }
+                "name": "Test Local Project",
+                "units": {
+                    "length": "m",
+                    "force": "N"
+                }
+            },
+            "materials": [
+                {
+                    "id": "material:test",
+                    "elastic_modulus": {
+                        "value": 200000000000.0,
+                        "unit": "Pa"
+                    },
+                    "shear_modulus": {
+                        "value": 77000000000.0,
+                        "unit": "Pa"
+                    }
+                }
+            ],
+            "pipe_segments": [
+                {
+                    "id": "pipe:test",
+                    "section": {
+                        "outside_diameter": {
+                            "value": 0.1,
+                            "unit": "m"
+                        }
+                    }
+                }
+            ],
+            "load_cases": [
+                {
+                    "id": "load:test",
+                    "primitive_loads": [
+                        {
+                            "id": "load:test:F",
+                            "magnitude": {
+                                "value": 1.0,
+                                "unit": "N"
+                            }
+                        }
+                    ]
+                }
+            ]
         });
         let editor_intents = json!([
             {
@@ -3872,6 +4062,7 @@ mod tests {
         let summary = project_summary(
             "project:test-local".to_string(),
             "Test Local Project".to_string(),
+            &model,
             PathBuf::from(":memory:"),
             &migration,
             &editor_intents,
@@ -3906,9 +4097,21 @@ mod tests {
             summary.persisted_project_envelope_hash_ref,
             "sha256:4567ef014567ef014567ef014567ef014567ef014567ef014567ef014567ef01"
         );
+        assert_eq!(
+            summary.unit_round_trip_status,
+            "unit_metadata_preserved_in_local_project_envelope"
+        );
+        assert_eq!(summary.unit_round_trip_checked_ref_count, 6);
+        assert!(summary
+            .unit_round_trip_signature
+            .contains("project.units.length=m"));
+        assert!(summary
+            .unit_round_trip_signature
+            .contains("load_cases.load:test.primitive_loads.load:test:F.magnitude=N"));
         let empty_summary = project_summary(
             "project:test-local".to_string(),
             "Test Local Project".to_string(),
+            &model,
             PathBuf::from(":memory:"),
             &migration,
             &json!([]),
@@ -3929,6 +4132,10 @@ mod tests {
         assert_eq!(
             empty_summary.persisted_project_envelope_hash_ref,
             "not_persisted"
+        );
+        assert_eq!(
+            empty_summary.unit_round_trip_signature,
+            summary.unit_round_trip_signature
         );
 
         let indexed_count: i64 = connection
@@ -4920,6 +5127,10 @@ mod tests {
     }
 
     fn demo_solved_envelope(actual: f64) -> Value {
+        demo_solved_envelope_with_unit(actual, "demo_unit")
+    }
+
+    fn demo_solved_envelope_with_unit(actual: f64, unit: &str) -> Value {
         json!({
             "status": {
                 "mechanics": "MECHANICS_SOLVED",
@@ -4930,7 +5141,7 @@ mod tests {
                     "id": "result:stress:demo",
                     "kind": "stress",
                     "value": actual,
-                    "unit": "demo_unit",
+                    "unit": unit,
                     "entity_ref": "pipe:demo"
                 }
             ]
@@ -4948,6 +5159,23 @@ mod tests {
         ])
     }
 
+    fn demo_supplied_values_with_stress_unit(value: f64, unit: &str) -> Value {
+        json!([
+            { "ref_id": "demo_limit_quantity", "value": value, "unit": unit, "dimension": "stress" },
+            { "ref_id": "demo_limit_slot", "value": 1.0, "unit": "ratio", "dimension": "dimensionless" }
+        ])
+    }
+
+    fn example_rule_pack_with_stress_unit(unit: &str) -> Value {
+        let mut pack = example_rule_pack_document();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!(unit);
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!(unit);
+        let computed =
+            rule_pack_document::compute_rule_pack_checksum(&pack).expect("checksum recomputes");
+        pack["checksums"]["rule_pack_checksum"]["value"] = json!(computed.value);
+        pack
+    }
+
     #[test]
     fn run_rule_checks_command_passing_demo_reports_user_rule_checked() {
         let outcome = run_rule_checks_core(
@@ -4963,6 +5191,37 @@ mod tests {
         assert_eq!(outcome["rule_pack_id"], json!("invented_demo_rule_pack"));
         assert_eq!(outcome["checks"][0]["status"], json!("USER_RULE_CHECKED"));
         assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
+    }
+
+    #[test]
+    fn run_rule_checks_command_normalizes_compatible_rule_check_units() {
+        let outcome = run_rule_checks_core(
+            example_rule_pack_with_stress_unit("Pa"),
+            None,
+            Some(demo_solved_envelope_with_unit(0.05, "MPa")),
+            Some(demo_solver_selectors()),
+            Some(demo_supplied_values_with_stress_unit(100.0, "kPa")),
+            None,
+        )
+        .expect("rule checks run");
+
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
+        assert_eq!(outcome["checks"][0]["computed_value"]["value"], json!(0.5));
+        let bound_inputs = outcome["checks"][0]["bound_inputs"]
+            .as_array()
+            .expect("bound inputs");
+        let actual = bound_inputs
+            .iter()
+            .find(|binding| binding["input_id"] == json!("demo_actual_quantity"))
+            .expect("actual input");
+        assert_eq!(actual["value"], json!(50_000.0));
+        assert_eq!(actual["unit"], json!("Pa"));
+        let limit = bound_inputs
+            .iter()
+            .find(|binding| binding["input_id"] == json!("demo_limit_quantity"))
+            .expect("limit input");
+        assert_eq!(limit["value"], json!(100_000.0));
+        assert_eq!(limit["unit"], json!("Pa"));
     }
 
     #[test]

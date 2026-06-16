@@ -241,6 +241,7 @@ function envelope(
       persisted_model_hash_ref: modelHash?.value ?? "not_persisted",
       persisted_project_envelope_hash_count: projectEnvelopeHash ? 1 : 0,
       persisted_project_envelope_hash_ref: projectEnvelopeHash?.value ?? "not_persisted",
+      ...unitRoundTripSummary(snapshot),
       message
     },
     model: snapshot,
@@ -307,6 +308,87 @@ function persistedAnalysisRunRef(
   mechanicsResult: MechanicsResult | null
 ): string {
   return analysisRun?.analysis_run?.run_id ?? mechanicsResult?.run_id ?? "not_persisted";
+}
+
+function unitRoundTripSummary(model: PreviewModel): {
+  unit_round_trip_status: string;
+  unit_round_trip_checked_ref_count: number;
+  unit_round_trip_signature: string;
+} {
+  const unitRefs: string[] = [];
+  const missingRefs: string[] = [];
+  for (const [dimension, unit] of Object.entries(model.project.units ?? {})) {
+    if (unit.length > 0) {
+      unitRefs.push(`project.units.${dimension}=${unit}`);
+    } else {
+      missingRefs.push(`project.units.${dimension}`);
+    }
+  }
+  for (const material of model.materials ?? []) {
+    collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.elastic_modulus`, material.elastic_modulus);
+    collectQuantityUnit(unitRefs, missingRefs, `materials.${material.id}.shear_modulus`, material.shear_modulus);
+    collectQuantityUnit(
+      unitRefs,
+      missingRefs,
+      `materials.${material.id}.thermal_expansion_coefficient`,
+      material.thermal_expansion_coefficient
+    );
+  }
+  for (const section of model.sections ?? []) {
+    for (const [field, quantity] of Object.entries(section.properties ?? {})) {
+      collectQuantityUnit(unitRefs, missingRefs, `sections.${section.id}.${field}`, quantity);
+    }
+  }
+  for (const segment of model.pipe_segments ?? []) {
+    for (const [field, quantity] of Object.entries(segment.section ?? {})) {
+      collectQuantityUnit(unitRefs, missingRefs, `pipe_segments.${segment.id}.section.${field}`, quantity);
+    }
+  }
+  for (const loadCase of model.load_cases ?? []) {
+    for (const primitiveLoad of loadCase.primitive_loads ?? []) {
+      const primitiveId = typeof primitiveLoad.id === "string" ? primitiveLoad.id : "unidentified";
+      collectQuantityUnit(
+        unitRefs,
+        missingRefs,
+        `load_cases.${loadCase.id}.primitive_loads.${primitiveId}.magnitude`,
+        primitiveLoad.magnitude
+      );
+    }
+  }
+  const signature = unitRefs.sort().join("|");
+  return {
+    unit_round_trip_status:
+      unitRefs.length > 0 && missingRefs.length === 0
+        ? "unit_metadata_preserved_in_local_project_envelope"
+        : "unit_metadata_missing_review_required",
+    unit_round_trip_checked_ref_count: unitRefs.length,
+    unit_round_trip_signature: signature || "no_unit_metadata"
+  };
+}
+
+function collectQuantityUnit(unitRefs: string[], missingRefs: string[], ref: string, value: unknown): void {
+  if (value === undefined || value === null) return;
+  if (hasUnit(value)) {
+    unitRefs.push(`${ref}=${value.unit}`);
+    return;
+  }
+  if (hasQuantityValue(value)) {
+    missingRefs.push(ref);
+  }
+}
+
+function hasUnit(value: unknown): value is { unit: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "unit" in value &&
+    typeof (value as { unit?: unknown }).unit === "string" &&
+    (value as { unit: string }).unit.length > 0
+  );
+}
+
+function hasQuantityValue(value: unknown): boolean {
+  return typeof value === "object" && value !== null && "value" in value;
 }
 
 export async function getLocalStorageCapability(): Promise<LocalStorageCapability> {

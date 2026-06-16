@@ -16,11 +16,11 @@ import {
 // frozen grammar v1.0.0 typed AST (DEC-022) directly, so a user never writes
 // node-tagged JSON by hand.
 //
-// Boundary (D-02b AWAITING_RULING): the composer is purely structured. There
-// is no writable expression *text* syntax and no text *rendering* of the AST
-// — whether even a read-only rendering is permitted is itself an open D-02b
-// question (§3 Q5). The typed AST remains the sole canonical, checksum-bound
-// form (DEC-022); this component only reads and rewrites that AST.
+// Boundary (D-02b RULED, DEC-037): the composer is purely structured. It may
+// show a labeled read-only one-way AST-to-text preview, but provides no
+// writable expression text input and no parser. The typed AST remains the sole
+// canonical, checksum-bound form (DEC-022); this component only reads and
+// rewrites that AST.
 //
 // Table-backed nodes (interpolate / lookup) are authored through a structured
 // table sub-editor (TP-C2-TABLENODE-001): table id, argument/result dimension
@@ -376,6 +376,81 @@ function rowNumber(row: unknown, key: "argument" | "result"): number {
   const record = asObject(row);
   const value = record ? record[key] : undefined;
   return typeof value === "number" ? value : 0;
+}
+
+function expressionOperator(node: AstNode, fallback: string): string {
+  return asString(node.operator) ?? fallback;
+}
+
+function renderLiteralQuantity(node: AstNode): string {
+  const quantity = quantityOf(node);
+  const value = typeof quantity.value === "number" || typeof quantity.value === "string" ? String(quantity.value) : "?";
+  const unit = asString(quantity.unit_ref) ?? "TBD";
+  const dimension = asString(quantity.dimension) ?? "TBD";
+  return `${value} ${unit} [${dimension}]`;
+}
+
+function renderTableName(node: AstNode): string {
+  return asString(tableOf(node).table_id) ?? "table:TBD";
+}
+
+/**
+ * Deterministic read-only rendering for DEC-037's permitted one-way AST text
+ * preview. This is display-only: no parser consumes this string, and the AST
+ * remains the canonical authored/checksummed rule-pack member.
+ */
+export function renderExpressionText(node: AstNode): string {
+  const kind = nodeKind(node);
+  if (kind === "literal") return renderLiteralQuantity(node);
+  if (kind === "variable_ref") return asString(node.variable_id) ?? "<missing_variable>";
+  if (kind === "unary") {
+    const operand = renderExpressionText(childNode(node, "operand"));
+    const operator = expressionOperator(node, "negate");
+    if (operator === "negate") return `-(${operand})`;
+    return `${operator}(${operand})`;
+  }
+  if (kind === "binary" || kind === "compare" || kind === "logical") {
+    const operator = expressionOperator(node, kind === "compare" ? "less_than_or_equal" : "and");
+    const textOperator =
+      {
+        add: "+",
+        subtract: "-",
+        multiply: "*",
+        divide: "/",
+        less_than: "<",
+        less_than_or_equal: "<=",
+        greater_than: ">",
+        greater_than_or_equal: ">=",
+        equal: "==",
+        not_equal: "!=",
+        and: "and",
+        or: "or"
+      }[operator] ?? operator;
+    return `(${renderExpressionText(childNode(node, "left"))} ${textOperator} ${renderExpressionText(
+      childNode(node, "right")
+    )})`;
+  }
+  if (kind === "select") {
+    return `if ${renderExpressionText(childNode(node, "condition"))} then ${renderExpressionText(
+      childNode(node, "then")
+    )} else ${renderExpressionText(childNode(node, "else"))}`;
+  }
+  if (kind === "aggregate") {
+    const aggregateFunction = asString(node.function) ?? "min";
+    const operands = operandsOf(node).map((operand) => renderExpressionText(operand));
+    return `${aggregateFunction}(${operands.join(", ")})`;
+  }
+  if (kind === "interpolate") {
+    return `interpolate(${renderTableName(node)}, ${renderExpressionText(childNode(node, "argument"))})`;
+  }
+  if (kind === "lookup") {
+    const mode = asString(node.mode) ?? "exact";
+    return `lookup:${mode}(${renderTableName(node)}, ${renderExpressionText(childNode(node, "argument"))})`;
+  }
+  if (kind === "unsupported_form" || kind === "unsafe_host_access") {
+    return `[refusal:${kind}]`;
+  }
+  return `[unrecognized:${kind}]`;
 }
 
 // ---------------------------------------------------------------------------
@@ -1082,7 +1157,7 @@ export function ExpressionComposer({
 
   return (
     <div className="report-list rule-pack-expression-composer" data-testid="rule-pack-expression-composer">
-      <strong>Expression composer (structured AST; no text syntax — D-02b)</strong>
+      <strong>Expression composer (structured AST; no writable text syntax - DEC-037)</strong>
 
       <div className="rule-pack-variable-browser" data-testid="rule-pack-variable-browser">
         <small>
@@ -1116,16 +1191,29 @@ export function ExpressionComposer({
             </select>
           </label>
           {activeFormula ? (
-            <ExpressionNodeEditor
-              node={activeFormula.expression}
-              onChange={(next) => onChange(setFormulaExpression(document, activeFormula.id, next))}
-              variables={variables}
-              disabled={disabled}
-              disabledReason={disabledReason}
-              unitCatalogRoute={unitCatalogRoute}
-              depth={0}
-              label="expression"
-            />
+            <>
+              <div
+                className="operation-record"
+                data-testid="rule-pack-expression-text-preview"
+                aria-label="Read-only expression text preview"
+              >
+                <small>
+                  Read-only AST-to-text preview (DEC-037); this text is not editable and is never
+                  parsed. The checksum-bound rule-pack member remains the structured AST.
+                </small>
+                <code>{renderExpressionText(activeFormula.expression)}</code>
+              </div>
+              <ExpressionNodeEditor
+                node={activeFormula.expression}
+                onChange={(next) => onChange(setFormulaExpression(document, activeFormula.id, next))}
+                variables={variables}
+                disabled={disabled}
+                disabledReason={disabledReason}
+                unitCatalogRoute={unitCatalogRoute}
+                depth={0}
+                label="expression"
+              />
+            </>
           ) : null}
         </>
       )}

@@ -695,3 +695,45 @@ Durable context preserved after PKG-02 grounded finding resolution:
   silent unit conversion, no hidden deletion cascade, no durable persistence,
   no protected/private data, and no professional, release, or code-compliance
   claim.
+## 2026-06-15 - TP-UNITS-B2-NODECOORDUNITS-001: node coordinate unit payloads
+
+- Operation applier now accepts project-unit quantity edits as either legacy
+  scalar values or explicit `{value, unit}` payloads.
+- Bare project-unit node coordinate fields normalize accepted DEC-018 length
+  units back to the model document's stored `project.units.length` scalar basis;
+  witnesses cover `ft` and `mm` conversion to meters and incompatible stress
+  unit refusal.
+- Shared operation contract corpus case
+  `case_20_block_unit_mismatch_set_field.json` now uses a true incompatible
+  length/stress unit mismatch; `ksi` is no longer a mismatch under the accepted
+  DEC-018 stress catalog.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md`;
+  SMOKE TP-MAC-170; operation-applier cargo suite, desktop Vitest, desktop
+  build, and focused Playwright R2 smoke passed.
+- Boundary unchanged: no direct mutation, no hidden unit fallback, no protected
+  content, private data, network/telemetry path, release-readiness claim, or
+  professional/code-compliance claim.
+
+## 2026-06-16 - TP-UNITS-B2-VIEWPORTDRAFTUNITS-001 viewport draft unit operation seam
+
+- Operation applier now accepts explicit viewport `create_node` coordinate
+  values in compatible accepted DEC-018 length units and normalizes them to
+  the model document's stored `project.units.length` scalar basis.
+- Explicit `connect_pipe_run` validation now accepts compatible length units
+  for draft pipe section OD/wall values, compares wall thickness after
+  conversion, and preserves the entered section quantity unit in the created
+  segment.
+- Witnesses cover node coordinates entered as millimetres normalized to
+  metres and pipe OD/wall values entered as millimetres.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`;
+  primary DEL-07-01 and supporting DEL-02-02 records; SMOKE TP-MAC-181;
+  completion log entry.
+- Validation passed: operation-applier focused explicit tests 28/28; full
+  operation-applier cargo suite 60 unit tests plus canonical hash and contract
+  corpus checks; desktop Vitest, build, Playwright suites, and DEC-025
+  dirty-tree sweep passed.
+- Boundary unchanged: no direct mutation bypass, hidden fallback unit,
+  protected content, private data, network/telemetry path, release-readiness
+  claim, or professional/code-compliance claim changed.

@@ -57,3 +57,26 @@
 - Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
 - Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
 - Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-16 - TP-UNITS-B2B3-NATIVEUNITWITNESS-001 native JSON unit preservation witnesses
+
+- Added primary B2/B3 unit evidence for the desktop native JSON package review
+  packet owned by this deliverable.
+- The packet now declares `maps/unit_preservation_witnesses.json`,
+  `unit_witness_policy=required_sidecar_for_native_json_quantity_fields`, and
+  a `unit_preservation` sidecar referencing
+  `unit-system:dec-018-si-dual-display`.
+- The sidecar records 6 project unit declarations, 18 model quantity
+  witnesses, and 739 result quantity witnesses. Native JSON remains a
+  unit-preserving project-owned package, so `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-NATIVEUNITWITNESS-001.md`;
+  supporting DEL-02-02 run record; SMOKE TP-MAC-179; completion log entry.
+- Validation passed: focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build with existing Vite chunk-size warning; full desktop
+  Playwright 10/10; in-app Browser solve/export verification pass; DEC-025
+  dirty-tree sweep pass.
+- Boundary unchanged: no Python native export schema, writer, fixture, parser,
+  public API, downstream target compatibility claim, protected content,
+  private data, release-readiness claim, or professional/code-compliance claim
+  changed.

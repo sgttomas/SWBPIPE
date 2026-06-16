@@ -45,3 +45,22 @@
 - Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005 wording is provenance only.
 - Closed the active-surface DAG-authority warning in `Review_Findings.csv`; remaining Phase A/future-only wording remains non-blocking for CHECKING.
 - Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, solver-geometry claim, analysis-fidelity claim, target compatibility claim, release claim, code-compliance claim, professional-acceptance claim, or external-validation claim.
+
+## 2026-06-16 - TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001 review-geometry unit witnesses
+
+- Added coordinate unit witnesses to the desktop review-geometry glTF JSON
+  preview packet.
+- The packet now declares DEC-018 source units, target glTF coordinate unit
+  `m`, `conversion_performed=false`, and the existing
+  `preview_z_up_to_gltf_y_up_rotation_x_minus_90` axis transform.
+- Witnesses cover emitted pipe endpoint, node marker, support marker, and
+  component marker coordinates in glTF vertex order.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001.md`;
+  supporting DEL-02-02 run record; SMOKE TP-MAC-178; completion log entry.
+- Validation passed: focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build with existing Vite chunk-size warning; full desktop Playwright
+  10/10 after rerunning an initial Chrome launch SIGKILL; DEC-025 sweep pass.
+- Boundary unchanged: no binary GLB package, viewer compatibility claim,
+  solver-geometry equivalence, target-compatibility claim, protected content,
+  private data, release-readiness claim, or professional/code-compliance claim.

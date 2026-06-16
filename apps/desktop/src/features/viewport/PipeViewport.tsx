@@ -1,6 +1,13 @@
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
 import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import {
+  describeUnitBasis,
+  loadUnitCatalog,
+  type UnitCatalogRoute,
+  type UnitCatalogEntry,
+  unitEntryMatchesDimension
+} from "../../services/unitCatalogService";
 import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewModel, Vec3 } from "../../types";
 
 type Props = {
@@ -24,6 +31,7 @@ type ViewportSelectionTarget = {
 type NodeDraft = {
   id: string;
   label: string;
+  coordinateUnit: string;
   x: string;
   y: string;
   z: string;
@@ -35,6 +43,7 @@ type PipeDraft = {
   from: string;
   to: string;
   material: string;
+  lengthUnit: string;
   outsideDiameter: string;
   wallThickness: string;
   yReferenceX: string;
@@ -47,6 +56,8 @@ type PipeEndpointPickMode = "from" | "to" | null;
 
 type DraftProjector = (event: { clientX: number; clientY: number }) => Vec3 | null;
 
+type UnitOption = Pick<UnitCatalogEntry, "symbol" | "unit_id">;
+
 type DeformationOverlay = {
   state: "not_started" | "available" | "blocked" | "unavailable";
   summary: string;
@@ -57,15 +68,39 @@ type DeformationOverlay = {
 export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], result = null, selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const draftProjectorRef = useRef<DraftProjector | null>(null);
+  const defaultLengthUnit = model.project.units.length ?? "TBD";
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
-  const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft());
-  const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft());
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const nodeDraftValid = isNodeDraftValid(nodeDraft);
   const pipeDraftValid = isPipeDraftValid(pipeDraft);
+  const nodeUnitBasis = describeUnitBasis(unitCatalogRoute, nodeDraft.coordinateUnit, "length");
+  const pipeUnitBasis = describeUnitBasis(unitCatalogRoute, pipeDraft.lengthUnit, "length");
+  const nodeLengthUnitOptions = unitOptions(unitCatalogRoute, "length", nodeDraft.coordinateUnit || defaultLengthUnit);
+  const pipeLengthUnitOptions = unitOptions(unitCatalogRoute, "length", pipeDraft.lengthUnit || defaultLengthUnit);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadUnitCatalog()
+      .then((route) => {
+        if (!cancelled) setUnitCatalogRoute(route);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: error instanceof Error ? error.message : "UNIT-CATALOG-UNAVAILABLE"
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -171,14 +206,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     if (!nodeDraftValid) return;
     const intent = buildExplicitNodeIntent(model, nodeDraft, queuedIntents.length + localIntents.length + 1);
     queueIntent(intent);
-    setNodeDraft(emptyNodeDraft());
+    setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
   }
 
   function addExplicitPipeIntent() {
     if (!pipeDraftValid) return;
     const intent = buildExplicitPipeIntent(model, pipeDraft, queuedIntents.length + localIntents.length + 1);
     queueIntent(intent);
-    setPipeDraft(emptyPipeDraft());
+    setPipeDraft(emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
     setPipeEndpointPickMode(null);
   }
 
@@ -218,7 +253,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     if (event.button !== 0 && event.button !== undefined) return;
     const projected = draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
     if (!projected) return;
-    setNodeDraft(buildDraftNodeFromViewportPoint(model, [...queuedIntents, ...localIntents], projected));
+    setNodeDraft((current) =>
+      buildDraftNodeFromViewportPoint(
+        model,
+        [...queuedIntents, ...localIntents],
+        projected,
+        current.coordinateUnit || defaultLengthUnit
+      )
+    );
   }
 
   return (
@@ -322,6 +364,22 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
                 value={nodeDraft.z}
               />
             </label>
+            <label>
+              <span>Coordinate unit</span>
+              <select
+                aria-label="New node coordinate unit"
+                data-testid="viewport-create-node-unit"
+                onChange={(event) => updateNodeDraft("coordinateUnit", event.target.value)}
+                value={nodeDraft.coordinateUnit}
+              >
+                {nodeLengthUnitOptions.map((option) => (
+                  <option key={option.symbol} value={option.symbol}>
+                    {option.symbol}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <small data-testid="viewport-create-node-unit-basis">Coordinates: {nodeUnitBasis.label}</small>
             <button
               data-testid="queue-explicit-node-intent"
               disabled={!nodeDraftValid}
@@ -451,6 +509,22 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
               />
             </label>
             <label>
+              <span>Length unit</span>
+              <select
+                aria-label="New pipe length unit"
+                data-testid="viewport-create-pipe-length-unit"
+                onChange={(event) => updatePipeDraft("lengthUnit", event.target.value)}
+                value={pipeDraft.lengthUnit}
+              >
+                {pipeLengthUnitOptions.map((option) => (
+                  <option key={option.symbol} value={option.symbol}>
+                    {option.symbol}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <small data-testid="viewport-create-pipe-unit-basis">Pipe geometry: {pipeUnitBasis.label}</small>
+            <label>
               <span>Yref X</span>
               <input
                 aria-label="New pipe y-reference X"
@@ -503,6 +577,11 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
               Queue pipe
             </button>
           </div>
+          <small data-testid="viewport-unit-catalog-status">
+            {unitCatalogRoute?.route === "tauri_unit_catalog"
+              ? `DEC-018 unit catalog loaded; entries=${unitCatalogRoute.catalog.entry_count}`
+              : "browser preview uses model metadata for viewport length units"}
+          </small>
           <div className="viewport-intent-actions">
             <button type="button" onClick={() => addIntent("create_node")}>
               <CirclePlus size={15} aria-hidden="true" />
@@ -540,17 +619,18 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   );
 }
 
-function emptyNodeDraft(): NodeDraft {
-  return { id: "", label: "", x: "", y: "", z: "" };
+function emptyNodeDraft(lengthUnit: string): NodeDraft {
+  return { id: "", label: "", coordinateUnit: lengthUnit, x: "", y: "", z: "" };
 }
 
-function emptyPipeDraft(): PipeDraft {
+function emptyPipeDraft(lengthUnit: string): PipeDraft {
   return {
     id: "",
     label: "",
     from: "",
     to: "",
     material: "",
+    lengthUnit,
     outsideDiameter: "",
     wallThickness: "",
     yReferenceX: "",
@@ -572,7 +652,10 @@ function nextPipeDraftWithEndpoint(
 }
 
 function isNodeDraftValid(draft: NodeDraft): boolean {
-  return Boolean(draft.id.trim() && draft.label.trim()) && [draft.x, draft.y, draft.z].every(isFiniteInput);
+  return (
+    Boolean(draft.id.trim() && draft.label.trim() && validUnitSymbol(draft.coordinateUnit)) &&
+    [draft.x, draft.y, draft.z].every(isFiniteInput)
+  );
 }
 
 function isPipeDraftValid(draft: PipeDraft): boolean {
@@ -584,6 +667,7 @@ function isPipeDraftValid(draft: PipeDraft): boolean {
         draft.to.trim() &&
         draft.from !== draft.to &&
         draft.material.trim() &&
+        validUnitSymbol(draft.lengthUnit) &&
         draft.provenance.trim()
     ) &&
     [draft.outsideDiameter, draft.wallThickness].every(isPositiveInput) &&
@@ -600,11 +684,33 @@ function isPositiveInput(value: string): boolean {
   return isFiniteInput(value) && Number(value) > 0;
 }
 
-function buildDraftNodeFromViewportPoint(model: PreviewModel, queuedIntents: EditorOperationIntent[], point: Vec3): NodeDraft {
+function validUnitSymbol(value: string): boolean {
+  const unit = value.trim();
+  return Boolean(unit && unit !== "TBD");
+}
+
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
+  const fallback = { symbol: fallbackSymbol.trim() || "TBD", unit_id: "current" };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+  const options = route.catalog.entries
+    .filter((entry) => entry.review_status === "accepted")
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .map((entry) => ({ symbol: entry.symbol, unit_id: entry.unit_id }));
+  if (!options.some((option) => option.symbol === fallback.symbol)) options.unshift(fallback);
+  return options;
+}
+
+function buildDraftNodeFromViewportPoint(
+  model: PreviewModel,
+  queuedIntents: EditorOperationIntent[],
+  point: Vec3,
+  coordinateUnit: string
+): NodeDraft {
   const id = nextViewportNodeId(model, queuedIntents);
   return {
     id,
     label: `Viewport node ${shortEntityToken(id)}`,
+    coordinateUnit,
     x: formatDraftCoordinate(point.x),
     y: formatDraftCoordinate(point.y),
     z: formatDraftCoordinate(point.z)
@@ -836,10 +942,10 @@ function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequ
   };
 }
 
-function buildExplicitNodeIntent(model: PreviewModel, draft: NodeDraft, sequence: number): EditorOperationIntent {
+function buildExplicitNodeIntent(_model: PreviewModel, draft: NodeDraft, sequence: number): EditorOperationIntent {
   const nodeId = draft.id.trim();
   const label = draft.label.trim();
-  const lengthUnit = model.project.units.length ?? "TBD";
+  const lengthUnit = draft.coordinateUnit.trim() || "TBD";
   const payload = {
     id: nodeId,
     label,
@@ -898,10 +1004,10 @@ function buildExplicitNodeIntent(model: PreviewModel, draft: NodeDraft, sequence
   };
 }
 
-function buildExplicitPipeIntent(model: PreviewModel, draft: PipeDraft, sequence: number): EditorOperationIntent {
+function buildExplicitPipeIntent(_model: PreviewModel, draft: PipeDraft, sequence: number): EditorOperationIntent {
   const pipeId = draft.id.trim();
   const label = draft.label.trim();
-  const lengthUnit = model.project.units.length ?? "TBD";
+  const lengthUnit = draft.lengthUnit.trim() || "TBD";
   const payload = {
     id: pipeId,
     label,

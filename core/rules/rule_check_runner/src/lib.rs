@@ -24,8 +24,12 @@
 //! - A check whose formula evaluates to a **quantity** (e.g. a ratio) is
 //!   compared against the single user-supplied limit named by the check's
 //!   `value_slot_refs`, via a synthesized `Compare(formula, <relation>, limit)`
-//!   evaluated through the same evaluator (so unit/dimension safety is enforced
-//!   in one place). The relation is the check's optional `acceptability_relation`
+//!   evaluated through the same evaluator. Before the evaluator boundary, B2/B3
+//!   unit normalization converts compatible DEC-018 catalog units to the
+//!   declaration's unit; exact non-catalog demonstration units remain valid only
+//!   when the entered and declared unit strings match; incompatible or unknown
+//!   unit substitutions block rather than evaluating. The relation is the
+//!   check's optional `acceptability_relation`
 //!   member (`TP-C4-ACCEPTREL-001`; one of the four ordering relations
 //!   less_than / less_than_or_equal / greater_than / greater_than_or_equal),
 //!   defaulting to `less_than_or_equal` when absent (backward compatible). An
@@ -64,6 +68,7 @@ use open_pipe_stress_expression_evaluator::{
     EvaluationValue, Expression, Quantity, VariableBinding,
 };
 use open_pipe_stress_rule_pack_document::{decode_dimension, decode_expression, encode_dimension};
+use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension as UnitDimension};
 
 /// Document kind tag on a serialized run result.
 pub const DOCUMENT_KIND: &str = "openpipestress.rule_check.run";
@@ -244,6 +249,7 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
 
     let ctx = RunContext {
         required_index: index_by(doc, "required_inputs", "input_id"),
+        value_slot_index: index_by(doc, "value_slots", "slot_id"),
         formula_index: index_by(doc, "formula_declarations", "formula_id"),
         solver_by_input: input
             .solver_results
@@ -298,6 +304,7 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
 
 struct RunContext<'a> {
     required_index: HashMap<&'a str, &'a Value>,
+    value_slot_index: HashMap<&'a str, &'a Value>,
     formula_index: HashMap<&'a str, &'a Value>,
     solver_by_input: HashMap<&'a str, &'a SolverResultBinding>,
     supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
@@ -424,7 +431,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         });
 
         // Resolve the supplied value per source kind.
-        let (value, unit, result_id, binding_source, note) = match source_kind {
+        let (raw_value, raw_unit, result_id, binding_source, note) = match source_kind {
             SourceKind::SolverResult => match ctx.solver_by_input.get(ref_id) {
                 Some(b) => (
                     Some(b.value),
@@ -480,6 +487,20 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 ),
                 None => (None, None, None, BindingSource::RulePackRequiredInput, None),
             },
+        };
+        let (value, unit) = match (raw_value, raw_unit) {
+            (Some(v), Some(u)) => {
+                match normalize_value_to_declared_unit(v, &u, &unit_ref, dimension_token, ref_id) {
+                    Ok((normalized_value, normalized_unit)) => {
+                        (Some(normalized_value), Some(normalized_unit))
+                    }
+                    Err(finding) => {
+                        evaluator_findings.push(finding);
+                        (None, None)
+                    }
+                }
+            }
+            (value, unit) => (value, unit),
         };
 
         bound_inputs.push(BoundInput {
@@ -735,7 +756,29 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 acceptability_relation_label(&acceptability_operator).to_string();
 
             let computed_value = Some(quantity_to_computed(&formula_quantity));
-            let limit = resolve_limit(check, ctx);
+            let limit = match resolve_limit(check, ctx) {
+                Ok(limit) => limit,
+                Err(finding) => {
+                    evaluator_findings.push(finding);
+                    push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "evaluator_error");
+                    let status = enforce_declared(
+                        RuleCheckStatus::RuleInputsIncomplete,
+                        &result_statuses,
+                        &mut evaluator_findings,
+                    );
+                    return CheckOutcome {
+                        check_id,
+                        status,
+                        computed_value,
+                        limit_value: None,
+                        acceptability_relation: acceptability_label,
+                        bound_inputs,
+                        completeness_findings,
+                        evaluator_findings,
+                        diagnostic_codes,
+                    };
+                }
+            };
             let Some((limit_value, limit_unit, limit_dimension)) = limit else {
                 evaluator_findings.push(RunFinding {
                     code: "RULE_INPUT_MISSING".to_string(),
@@ -852,21 +895,117 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
 /// Resolve a check's governing limit from the first `value_slot_refs` entry,
 /// taking the numeric value from the caller's supplied-value map (keyed by the
 /// slot id). Returns `(value, unit, eval_dimension)`.
-fn resolve_limit(check: &Value, ctx: &RunContext) -> Option<(f64, String, Option<EvalDimension>)> {
-    let slot_refs = check.get("value_slot_refs").and_then(Value::as_array)?;
+fn resolve_limit(
+    check: &Value,
+    ctx: &RunContext,
+) -> Result<Option<(f64, String, Option<EvalDimension>)>, RunFinding> {
+    let Some(slot_refs) = check.get("value_slot_refs").and_then(Value::as_array) else {
+        return Ok(None);
+    };
     for slot_ref in slot_refs {
         let Some(slot_id) = slot_ref.pointer("/ref_id").and_then(Value::as_str) else {
             continue;
         };
         if let Some(binding) = ctx.supplied_by_ref.get(slot_id) {
-            return Some((
+            let declared = ctx.value_slot_index.get(slot_id);
+            let declared_dimension = declared
+                .and_then(|slot| slot.pointer("/quantity_intent/dimension"))
+                .and_then(Value::as_str)
+                .unwrap_or(binding.dimension.as_str());
+            let declared_unit = declared
+                .and_then(|slot| slot.pointer("/quantity_intent/unit_ref"))
+                .and_then(Value::as_str)
+                .unwrap_or(binding.unit.as_str());
+            let (value, unit) = normalize_value_to_declared_unit(
                 binding.value,
-                binding.unit.clone(),
-                decode_dimension(&binding.dimension),
-            ));
+                &binding.unit,
+                declared_unit,
+                declared_dimension,
+                slot_id,
+            )?;
+            return Ok(Some((value, unit, decode_dimension(declared_dimension))));
         }
     }
-    None
+    Ok(None)
+}
+
+fn normalize_value_to_declared_unit(
+    value: f64,
+    entered_unit: &str,
+    declared_unit: &str,
+    dimension_token: &str,
+    subject_id: &str,
+) -> Result<(f64, String), RunFinding> {
+    let entered = entered_unit.trim();
+    let declared = declared_unit.trim();
+    if entered == declared {
+        return Ok((value, declared.to_string()));
+    }
+    if entered.is_empty() || declared.is_empty() || declared == "TBD" {
+        return Err(unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            "missing declared or entered unit metadata",
+        ));
+    }
+
+    let dimension = UnitDimension::from_schema_value(dimension_token).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("unknown declared dimension: {err}"),
+        )
+    })?;
+    let from = unit_by_symbol(entered, dimension).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("entered unit is not compatible with the declared dimension: {err}"),
+        )
+    })?;
+    let to = unit_by_symbol(declared, dimension).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("declared unit is not compatible with the declared dimension: {err}"),
+        )
+    })?;
+    let normalized = convert_for_dimension(value, dimension, from, to).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("unit conversion failed: {err}"),
+        )
+    })?;
+    Ok((normalized, declared.to_string()))
+}
+
+fn unit_mismatch_finding(
+    subject_id: &str,
+    entered_unit: &str,
+    declared_unit: &str,
+    dimension_token: &str,
+    reason: &str,
+) -> RunFinding {
+    RunFinding {
+        code: "UnitMismatch".to_string(),
+        severity: "blocking".to_string(),
+        subject_id: subject_id.to_string(),
+        message: format!(
+            "unit '{entered_unit}' cannot be normalized to declared unit '{declared_unit}' for \
+             dimension '{dimension_token}': {reason}"
+        ),
+    }
 }
 
 /// Resolve a check's acceptability relation — the top-level pass/fail comparison
@@ -1317,6 +1456,80 @@ mod tests {
             .diagnostic_codes
             .iter()
             .any(|c| c == "RULE_EVALUATOR_ERROR"));
+    }
+
+    #[test]
+    fn compatible_rule_check_units_normalize_to_declared_units() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!("Pa");
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!("Pa");
+
+        let mut actual = solver("actual", 0.05);
+        actual.unit = "MPa".to_string();
+
+        let result = run(
+            &pack,
+            vec![actual],
+            vec![
+                supplied("limit", 100.0, "kPa", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(check.computed_value.as_ref().expect("ratio").value, 0.5);
+        assert!(check.evaluator_findings.is_empty());
+        let actual_binding = check
+            .bound_inputs
+            .iter()
+            .find(|input| input.input_id == "actual")
+            .expect("actual binding");
+        assert_eq!(actual_binding.value, Some(50_000.0));
+        assert_eq!(actual_binding.unit.as_deref(), Some("Pa"));
+        let limit_binding = check
+            .bound_inputs
+            .iter()
+            .find(|input| input.input_id == "limit")
+            .expect("limit binding");
+        assert_eq!(limit_binding.value, Some(100_000.0));
+        assert_eq!(limit_binding.unit.as_deref(), Some("Pa"));
+    }
+
+    #[test]
+    fn incompatible_rule_check_units_block_before_evaluation() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!("Pa");
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!("Pa");
+
+        let mut actual = solver("actual", 50.0);
+        actual.unit = "mm".to_string();
+
+        let result = run(
+            &pack,
+            vec![actual],
+            vec![
+                supplied("limit", 100.0, "kPa", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        assert!(check.computed_value.is_none());
+        assert!(check
+            .evaluator_findings
+            .iter()
+            .any(|finding| finding.code == "UnitMismatch"
+                && finding.subject_id == "actual"
+                && finding.message.contains("declared unit 'Pa'")));
+        let actual_binding = check
+            .bound_inputs
+            .iter()
+            .find(|input| input.input_id == "actual")
+            .expect("actual binding");
+        assert!(!actual_binding.supplied);
+        assert_eq!(actual_binding.unit, None);
     }
 
     #[test]

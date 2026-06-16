@@ -891,9 +891,36 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
   if (node) {
     return [
       scalarField("Label", "label", node.label, "Node", "dimensionless", "none", "node label only"),
-      quantityField("X position", "position.x", node.position.x, "Node", "length", model.project.units.length ?? "m"),
-      quantityField("Y position", "position.y", node.position.y, "Node", "length", model.project.units.length ?? "m"),
-      quantityField("Z position", "position.z", node.position.z, "Node", "length", model.project.units.length ?? "m"),
+      quantityField(
+        "X position",
+        "position.x",
+        node.position.x,
+        "Node",
+        "length",
+        model.project.units.length ?? "m",
+        "set_field",
+        true
+      ),
+      quantityField(
+        "Y position",
+        "position.y",
+        node.position.y,
+        "Node",
+        "length",
+        model.project.units.length ?? "m",
+        "set_field",
+        true
+      ),
+      quantityField(
+        "Z position",
+        "position.z",
+        node.position.z,
+        "Node",
+        "length",
+        model.project.units.length ?? "m",
+        "set_field",
+        true
+      ),
       scalarField("Provenance", "provenance", node.provenance, "Node", "dimensionless", "none", "public/private source note")
     ];
   }
@@ -962,7 +989,8 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "Load",
         typeof firstLoad.dimension === "string" ? firstLoad.dimension : "TBD",
         typeof firstMagnitude?.unit === "string" ? firstMagnitude.unit : "TBD",
-        "update_load"
+        "update_load",
+        true
       ),
       scalarField("Provenance", "provenance", loadCase.provenance, "Load", "dimensionless", "none", "public/private source note", "update_load")
     ];
@@ -1063,7 +1091,7 @@ function buildOperationIntent({
       after: changeAfter,
       unit: intentUnit,
       dimension: field.dimension,
-      source_note: field.unitEditable ? `${field.sourceNote}; sibling unit updated atomically` : field.sourceNote
+      source_note: field.unitEditable ? `${field.sourceNote}; entered unit captured explicitly` : field.sourceNote
     },
     validation: {
       schema_validation: "not_run",

@@ -205,6 +205,27 @@ Durable context preserved after reconciliation review:
   standards data, private project data, network path, telemetry path, or DAG
   authority changed.
 
+## 2026-06-16 - TP-UNITS-B2-VIEWPORTDRAFTUNITS-001 viewport draft length-unit controls
+
+- WORKING_ITEMS B2/B3 units tranche added visible length-unit selectors and
+  unit-basis text to the viewport create-node and straight-pipe draft forms.
+- Browser preview reports the explicit model-metadata fallback for viewport
+  length units; Tauri-capable runs load the DEC-018 catalog and filter
+  accepted length entries.
+- Draft node coordinates and pipe geometry now queue structured operation
+  intents with explicit selected length units.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`;
+  supporting DEL-16-02 and DEL-02-02 records; SMOKE TP-MAC-181; completion
+  log entry.
+- Validation passed: focused App Vitest 54/54; full desktop Vitest 388/388;
+  desktop build with existing Vite chunk-size warning; focused R2 Playwright
+  smoke 2/2; full desktop Playwright 10/10 with `--workers=1`; in-app
+  Browser viewport unit verification pass; DEC-025 dirty-tree sweep pass.
+- Boundary unchanged: no project-unit mutation, hidden unit fallback,
+  protected content, private data, network/telemetry path, release-readiness
+  claim, or professional/code-compliance claim changed.
+
 ## 2026-06-11 - TP-APP-R2-CANVASNODE-001 viewport canvas node drafting
 
 - WORKING_ITEMS app-integration tranche added primary-pointer canvas drafting

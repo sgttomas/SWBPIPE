@@ -5580,3 +5580,387 @@ notes:
   change; no protected standards content, private value, browser fallback
   catalog, release-readiness, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## TP-MAC-170 node coordinate unit payloads (`TP-UNITS-B2-NODECOORDUNITS-001`, 2026-06-15)
+
+- Phase B2/B3 units slice: Property Inspector node coordinate edits
+  (`position.x`, `position.y`, `position.z`) now expose the existing unit-aware
+  editor control and emit an explicit `{value, unit}` payload instead of a bare
+  scalar.
+- The operation applier now accepts project-unit quantity edits in scalar or
+  payload form, converts compatible DEC-018 length units (`ft`, `mm`, etc.) to
+  the model document's stored `project.units.length` value for scalar node
+  coordinates, and still blocks incompatible units with
+  `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`.
+- Browser evidence: the R2 Playwright smoke selects node `node:N-110`, previews
+  a `position.y` edit with `unit=m`, verifies the explicit payload
+  `{"value":1.25,"unit":"m"}`, and keeps the existing queue/apply numbering
+  unchanged by not queuing this preview-only assertion.
+- Validation: operation-applier cargo suite **58 unit + canonical hash + 66
+  corpus cases**; desktop Vitest **385/385**; `npm run build --workspace
+  apps/desktop` clean with the existing Vite chunk-size warning; focused
+  Playwright R2 smoke **2/2** across configured desktop/compact Chromium
+  projects.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md` (DEL-16-02
+  primary); completion plan/log updated.
+- Boundary review: no schema, persistence, solver, rule-pack, private-data,
+  protected-content, network, telemetry, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-171 load-case inspector primitive unit payloads (`TP-UNITS-B2-LOADINSPECTORUNITS-001`, 2026-06-16)
+
+- Phase B2 units slice: the Property Inspector's selected load-case "First
+  primitive magnitude" field now uses the same unit-aware editor control as the
+  already-landed material, section, node-coordinate, and load-manager primitive
+  magnitude paths.
+- Browser evidence: the R2 Playwright smoke selects load case `load:L-100`,
+  previews `primitive_loads.0.magnitude.value`, verifies `unit=N/m`, and checks
+  the explicit payload `{"value":-225,"unit":"N/m"}` with the
+  `update_load` operation intent. The assertion is preview-only and does not
+  alter downstream queue/apply numbering in the smoke.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; focused Playwright R2 smoke **2/2** across the
+  configured desktop/compact Chromium projects.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-LOADINSPECTORUNITS-001.md`
+  (DEL-07-02 primary); completion plan/log updated.
+- Boundary review: frontend-only; no schema, backend operation, persistence,
+  solver, rule-pack, private-data, protected-content, network, telemetry,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-172 PCF conversion witnesses (`TP-UNITS-B2B3-PCFCONVWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop conservative PCF export package now
+  embeds `conversion_witnesses` so its millimeter target fields are auditable
+  beyond the previously landed unit-system disclosure.
+- Package behavior: downloaded PCF JSON includes one witness for each node
+  coordinate component and pipe OD/wall field. Each witness records source
+  object/field, source value/unit/dimension, target PCF value/unit/field,
+  conversion factor, DEC-018/DEL-02-02 basis refs, and preview provenance.
+  The manifest now lists `conversion_witnesses.json`, and the validation
+  report checks witness count and `MM` target units.
+- Regression evidence: `App.test.tsx` decodes the PCF package and verifies the
+  `pipe:P-120` outside diameter witness converts `0.168 m` to `168 MM`, that a
+  node coordinate witness targets `MM`, that the manifest member is present,
+  and that the PCF text carries `OUTSIDE-DIAMETER 168`.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; focused Playwright R2 smoke **2/2** across the
+  configured desktop/compact Chromium projects.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-PCFCONVWITNESS-001.md`
+  (DEL-17-07 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: desktop PCF package only; no downstream import
+  compatibility, solver-deck validation, target-profile closure, hidden target
+  default, protected content, private data, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-173 local project unit round-trip evidence (`TP-UNITS-B2-IMPORTRT-001`, 2026-06-16)
+
+- Phase B2 import/open/save unit I/O slice: local project create/save/open
+  summaries now carry deterministic unit round-trip evidence for the restored
+  project envelope: `unit_round_trip_status`,
+  `unit_round_trip_checked_ref_count`, and `unit_round_trip_signature`.
+- Browser and Tauri parity: the browser-preview project service and the
+  Tauri SQLite backend both compute the signature from explicit
+  `project.units`, material, section, pipe-section, and primitive-load
+  magnitude unit refs. Missing unit-bearing values report
+  `unit_metadata_missing_review_required`; preserved unit metadata reports
+  `unit_metadata_preserved_in_local_project_envelope`.
+- UI/export evidence: Project Storage Audit and Project Validation Preflight
+  now show a dedicated unit round-trip line and include the same fields in
+  their local JSON packets.
+- Validation: focused `projectService.test.ts` + `App.test.tsx` Vitest
+  **61/61**; desktop Vitest **386/386**; `npm run build --workspace
+  apps/desktop` clean with the existing Vite chunk-size warning; Tauri
+  focused store regression
+  `local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot`
+  passed; rustfmt check passed for `openpipestress-desktop`; in-app Browser
+  fallback verified `New blank` -> `Save local` -> `Open local` shows
+  `unit_metadata_preserved_in_local_project_envelope` and six blank-project
+  unit refs in both storage and validation rows. Initial direct Playwright
+  execution found a missing local Chromium cache and timed out during browser
+  install, but the later DEC-025 sweep ran the updated Playwright smoke
+  successfully (**10/10** dev-server lane plus **1/1** production-dist lane).
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md` (DEL-02-05
+  primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: persistence/evidence only; no unit conversion, import
+  target compatibility, solver behavior, protected content, private project
+  data, network, telemetry, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-174 CAEPIPE MBF conversion witnesses (`TP-UNITS-B2B3-CAEPIPECONVWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop CAEPIPE MBF smoke-subset export package
+  now embeds `conversion_witnesses` for node-coordinate target-format
+  conversion beyond the previously landed unit-system disclosure.
+- Package behavior: downloaded CAEPIPE MBF JSON includes one witness per node
+  coordinate component. Each witness records source node/field, source
+  value/unit/dimension, target MBF payload value/unit/field, conversion factor,
+  DEC-018/DEL-02-02 basis refs, and preview provenance. The manifest lists
+  `conversion_witnesses.json`, and validation checks witness count and `mm`
+  target units.
+- Export text behavior: MBF node records now use millimeter coordinate values
+  with an explicit `UNIT,mm,...` record. The invented preview witness for
+  `node:N-120` records `3.2 m -> 3200 mm`, and the MBF text carries
+  `NODE,N003,3200,2400,0`.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build` clean with the existing Vite chunk-size
+  warning; targeted Playwright R2 smoke spec **10/10** after wasm rebuild.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-CAEPIPECONVWITNESS-001.md`
+  (DEL-17-04 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: desktop CAEPIPE MBF smoke package only; no CAEPIPE target
+  version/profile closure, direct MBF stable-ID carrier, downstream import
+  compatibility, external CAEPIPE execution, solver validation, protected
+  content, private data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-175 stress-neutral unit preservation witnesses (`TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop stress-neutral CSV/JSON package now
+  embeds `unit_preservation_witnesses` for every exported result row. The
+  package remains unit-preserving: it records source result units and
+  dimensions without export-time conversion.
+- Package behavior: downloaded stress-neutral JSON includes one witness per
+  result row, with source result ref/field, source value/unit/dimension,
+  target row ref/field, target value/unit/dimension, `conversion_performed=false`,
+  DEC-018/DEL-02-02/DEL-17-06 basis refs, and preview provenance. The manifest
+  lists `unit_preservation_witnesses.json`, and validation checks witness
+  count plus source/target row agreement.
+- Browser evidence: the R2 Playwright smoke checks the visible
+  `Unit witnesses` line reports `count=737` and `conversion=false`.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build` clean with the existing Vite chunk-size
+  warning; targeted Playwright R2 smoke spec **10/10** after wasm rebuild.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001.md`
+  (DEL-17-06 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: desktop stress-neutral review package only; no vendor
+  format, target compatibility, comparison pass/fail, solver validation,
+  protected content, private data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-176 rule-check mixed-unit normalization (`TP-UNITS-B2B3-RULECHECKNORM-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the rule-check runner now normalizes compatible
+  DEC-018 catalog units to each rule-pack declaration's unit before formula
+  evaluation and top-level acceptability comparison.
+- Behavior: exact non-catalog demonstration units still pass only when entered
+  and declared strings match; compatible catalog values such as `0.05 MPa`
+  against a `Pa` stress declaration convert to `50_000 Pa`; incompatible
+  substitutions such as `mm` for stress block at `RULE_INPUTS_INCOMPLETE` with
+  `UnitMismatch` rather than evaluating.
+- Desktop command evidence: the Tauri `run_rule_checks_core` regression
+  re-stamps an invented demo pack whose stress inputs declare `Pa` and verifies
+  `0.05 MPa` solver output plus `100 kPa` user limit normalize to `Pa` and
+  compute the expected `0.5` ratio through the app command wrapper.
+- Validation: rule-check runner cargo tests passed (13 unit + 7 integration
+  tests); desktop Tauri cargo tests passed (62/62); desktop Vitest passed
+  (18 files, 386 tests); desktop production build passed with the existing Vite
+  chunk-size warning.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-RULECHECKNORM-001.md`
+  (DEL-06-02 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: no grammar change, schema change, text parser, protected
+  standards content, private project data, network/telemetry path,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-177 authoring journey status rail and compact dock proof (`TP-APP-R3-A3-JOURNEYPATH-001`, 2026-06-16)
+
+- A3/R3 usability follow-up: the desktop shell now exposes a compact
+  authoring-journey status rail below the existing workspace section tabs.
+  The rail is derived from existing state and reports Model, Apply, Loads,
+  Solve, Rules, Report, and Project status; each item navigates to the
+  corresponding workspace section.
+- Compact layout: the workspace flex ratio now gives the lower dock more
+  usable height at the 1280x800 lane while keeping the persistent model tree,
+  3D viewport, and property inspector visible. The rail wraps to bounded rows
+  at compact width.
+- Browser/e2e proof: the R2 smoke spec now asserts the rail text, clicks the
+  Loads journey item, and checks real-browser geometry (`bodyOverflow=0`,
+  `viewportOverflow=0`, `itemOverflow=0`, dock body height >150px, rail height
+  <80px) in the compact lane. In-app Browser at 1280x800 separately measured
+  `dockBodyHeight=168` and `journeyHeight=66` after activating Loads.
+- Validation: focused App + dead-control Vitest passed (55/55); desktop
+  production build passed with the existing Vite chunk-size warning; focused
+  compact Playwright smoke passed (1/1); full desktop Vitest passed (18 files,
+  386 tests); full desktop Playwright passed (10/10 across 1440x920 and
+  1280x800).
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-APP-R3-A3-JOURNEYPATH-001.md`;
+  completion plan/log updated.
+- Boundary review: shell usability/evidence only; no schema, solver,
+  rule-check math, persistence semantics, protected content, private project
+  data, network/telemetry behavior, lifecycle state, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed. **F-4 remains open** until the human
+  packaged GUI journey is completed.
+
+## TP-MAC-178 review-geometry coordinate unit witnesses (`TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop review-geometry glTF JSON preview now
+  emits `coordinate_unit_witnesses` and a package member
+  `coordinate_unit_witnesses.json`.
+- Packet behavior: the review-geometry export declares
+  `unit-system:dec-018-si-dual-display`, source model units, target glTF
+  coordinate unit `m`, `conversion_performed=false`, and the existing
+  `preview_z_up_to_gltf_y_up_rotation_x_minus_90` axis transform.
+- Witness coverage: 54 coordinate-component records cover pipe endpoints,
+  node markers, support markers, and component markers in the same vertex
+  order as emitted glTF positions. Regression checks prove `pipe:P-120`
+  source Y maps to target glTF Z with the documented sign flip.
+- Browser/e2e proof: the R2 Playwright smoke checks the visible Review
+  Geometry Export `Unit witnesses` line reports `count=54` and `target=m`.
+  In-app Browser verification was attempted but its URL policy blocked
+  `http://127.0.0.1:4179/` before navigation; no workaround was used.
+- Validation: focused App Vitest passed **54/54**; full desktop Vitest passed
+  **386/386**; desktop production build passed with the existing Vite
+  chunk-size warning; full desktop Playwright passed **10/10** after rerunning
+  an initial Chrome launch SIGKILL before app startup; five-surface DEC-025
+  sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T013908Z_673a4de9628e-dirty.json`.
+- Evidence: DEL-17-08 primary run record and DEL-02-02 supporting run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-REVIEWGEOMUNITWITNESS-001.md`;
+  completion plan/log updated.
+- Boundary review: review-geometry browser-preview evidence only; no binary
+  GLB package, viewer compatibility claim, solver-geometry equivalence,
+  target-compatibility claim, protected content, private data,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-179 native JSON package unit preservation witnesses (`TP-UNITS-B2B3-NATIVEUNITWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop native JSON package review packet now
+  declares a `maps/unit_preservation_witnesses.json` package member and
+  carries `unit_preservation` evidence for project-owned JSON quantity fields.
+- Packet behavior: the native package declares
+  `unit-system:dec-018-si-dual-display`, preserves source model/result
+  quantity value+unit fields, and records `conversion_performed=false`.
+- Witness coverage: 6 project unit declarations, 18 model quantity witnesses,
+  and 739 result quantity witnesses are reported in the visible Native JSON
+  package panel. Regression checks prove a model pipe outside-diameter witness
+  and a result axial-force witness preserve source and target quantities.
+- Browser/e2e proof: the R2 Playwright smoke checks the visible Native JSON
+  package `Unit witnesses` line reports `project_units=6`,
+  `model_quantities=18`, `result_quantities=739`, and `conversion=false`.
+  In-app Browser verification completed the solve path and observed
+  `state=completed; result_rows=737` plus the same native-package witness
+  counts.
+- Validation: focused App Vitest passed **54/54**; full desktop Vitest passed
+  **386/386**; desktop production build passed with the existing Vite
+  chunk-size warning; full desktop Playwright passed **10/10**; five-surface
+  DEC-025 dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T025334Z_92ba64e2b4e3-dirty.json`.
+- Evidence: DEL-17-03 primary run record and DEL-02-02 supporting run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-NATIVEUNITWITNESS-001.md`;
+  completion plan/log updated.
+- Boundary review: native JSON browser-preview evidence only; no Python native
+  export schema, writer, fixture, parser, public API, downstream target
+  compatibility claim, protected content, private data, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-180 rule-pack expression read-only text preview (`TP-C2-ASTTEXTVIEW-001`, 2026-06-16)
+
+- Phase C2 rule-pack editor follow-up under `DEC-037`: the structured
+  expression composer now shows a labeled read-only AST-to-text preview for
+  the selected formula.
+- Boundary behavior: the preview is not editable, has no input/select/textarea
+  controls, is never parsed, and the checksum-bound rule-pack member remains
+  the structured DEC-022 AST. No writable expression text syntax shipped.
+- Browser/e2e proof: the rule-pack Playwright journey asserts the `DEC-037`
+  boundary note, the initial preview text for `user_required_input_1`, and the
+  updated preview after the AST is changed to a comparison with a `MPa`
+  stress literal. In-app Browser verification observed the same preview with
+  `editableControlsInPreview=0`.
+- Validation: focused `ExpressionComposer` Vitest passed **21/21**; focused
+  rule-pack Playwright passed **2/2**; full desktop Vitest passed **388/388**;
+  desktop production build passed with the existing Vite chunk-size warning;
+  full desktop Playwright passed **10/10** with `--workers=1`; DEC-025
+  dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T031013Z_b431a1676620-dirty.json`.
+- Evidence: DEL-07-03 primary run record and DEL-06-01 supporting run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-C2-ASTTEXTVIEW-001.md`; completion
+  plan/log updated.
+- Boundary review: frontend display-only rule-pack editor evidence; no schema,
+  evaluator, parser, writable text syntax, protected content, private data,
+  network/telemetry path, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-181 viewport draft length-unit controls (`TP-UNITS-B2-VIEWPORTDRAFTUNITS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the viewport create-node and straight-pipe draft
+  forms now expose length-unit selectors with visible unit-basis text before
+  queueing structured operation intents.
+- Viewport behavior: browser preview records the explicit model-metadata
+  fallback (`browser preview uses model metadata for viewport length units`);
+  Tauri-capable runs load the DEC-018 unit catalog and filter accepted length
+  entries. Node draft coordinates carry the selected coordinate length unit;
+  pipe geometry drafts carry the selected pipe length unit.
+- Operation-seam behavior: `create_node` now normalizes compatible DEC-018
+  length units back to the stored `project.units.length` scalar basis, while
+  `connect_pipe_run` validates compatible OD/wall units and checks wall
+  thickness after conversion without erasing the entered section unit.
+- Browser/e2e proof: the R2 Playwright smoke checks the viewport unit status,
+  node selector value, node unit-basis text, pipe selector value, and pipe
+  unit-basis text in both desktop and compact viewports. In-app Browser
+  verification observed the same model-metadata fallback and confirmed a
+  filled node draft enabled queueing with unit `m`.
+- Validation: operation-applier focused explicit tests passed **28/28**;
+  full operation-applier cargo suite passed **60 unit** tests plus canonical
+  hash and contract corpus checks; focused App Vitest passed **54/54**; full
+  desktop Vitest passed **388/388**; desktop production build passed with the
+  existing Vite chunk-size warning; focused R2 Playwright smoke passed **2/2**;
+  full desktop Playwright passed **10/10** with `--workers=1`; five-surface
+  DEC-025 dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T033649Z_40c8d2530ca8-dirty.json`.
+- Evidence: DEL-07-01 primary run record plus DEL-16-02 and DEL-02-02
+  supporting run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-VIEWPORTDRAFTUNITS-001.md`;
+  completion plan/log updated.
+- Boundary review: viewport draft and operation-seam unit evidence only; no
+  project-unit mutation, hidden unit fallback, release-readiness claim,
+  professional approval, certification, sealing, authentication, code-
+  compliance claim, protected content, private project data, network path, or
+  telemetry path changed.
+
+## TP-MAC-182 rule-check run-time unit binding controls (`TP-UNITS-B2-RULECHECKRUNUNITS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice on the C4 run-check GUI: runtime
+  user-supplied values and value-slot limits in `RuleCheckRunPanel` now use
+  catalog-aware unit controls for their binding units.
+- Desktop/Tauri behavior: the panel loads the DEC-018 catalog only when a
+  loaded rule pack has runtime value bindings, filters accepted unit options by
+  the binding dimension, preserves out-of-catalog stored units as current
+  values, and shows per-binding unit-basis text.
+- Browser behavior: browser preview keeps the existing manual unit text fields
+  for the same `data-testid` controls and reports
+  `browser preview keeps run-check unit refs as stored manual text; no fallback
+  catalog synthesized`.
+- Browser/e2e proof: the run-rule-checks Playwright smoke asserts the browser
+  fallback status, `demo_unit` user-value unit, `ratio` slot unit, and both
+  model-metadata unit-basis witnesses in desktop and compact viewports.
+  In-app Browser verification observed the same status and text-input tags.
+- Validation: focused `RuleCheckRunPanel` Vitest passed **18/18**; full
+  desktop Vitest passed **389/389**; desktop production build passed with the
+  existing Vite chunk-size warning; focused run-check Playwright passed
+  **2/2**; full desktop Playwright passed **10/10** with `--workers=1`;
+  five-surface DEC-025 dirty-tree sweep passed and wrote
+  `validation/evidence/sweeps/SWEEP_20260616T034816Z_9be2d805ab17-dirty.json`.
+- Evidence: DEL-07-04 primary run record plus DEL-06-02 and DEL-02-02
+  supporting run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-RULECHECKRUNUNITS-001.md`;
+  completion plan/log updated.
+- Boundary review: GUI run-time binding unit controls only; no schema,
+  evaluator, rule-pack parser, writable expression text syntax, protected
+  content, private data, network/telemetry path, release-readiness claim,
+  professional approval, certification, sealing, authentication, or code-
+  compliance claim changed.

@@ -10,7 +10,8 @@
  *      .workspace-pane), .workspace-dock (always-visible .workspace-nav
  *      section tabs + scrolling .workspace-dock-body holding one
  *      .workspace-dock-section per nav item; inactive sections are
- *      display:none but stay mounted so panel state survives navigation)
+ *      display:none but stay mounted so panel state survives navigation),
+ *      .workspace-journey (compact A12/R3 authoring status rail)
  *   3. Panel primitives ...... .panel, .panel-title, .panel-subtitle
  *   4. Feature panels ........ model tree, inspector/editor intents,
  *      viewport, load-case manager, solve/results/report, exports, audit
@@ -202,8 +203,8 @@ button:focus-visible {
   display: grid;
   grid-template-columns: 280px minmax(420px, 1fr) 380px;
   gap: 10px;
-  flex: 1.25 1 0;
-  min-height: 260px;
+  flex: 1 1 0;
+  min-height: 240px;
 }
 
 /* Each core column scrolls independently; panels inside grow with content. */
@@ -227,8 +228,8 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1 1 0;
-  min-height: 220px;
+  flex: 1.15 1 0;
+  min-height: 260px;
 }
 
 .workspace-nav {
@@ -265,6 +266,61 @@ button:focus-visible {
   color: #1d2424;
   font-size: 11px;
   font-weight: 700;
+}
+
+.workspace-journey {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.workspace-journey-item {
+  display: grid;
+  grid-template-columns: 14px minmax(0, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid #c5cec8;
+  border-radius: 5px;
+  color: #263331;
+  background: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.workspace-journey-item.current {
+  border-color: #9b6a2c;
+  background: #fff8ef;
+}
+
+.workspace-journey-item.complete {
+  border-color: #7d9c86;
+  background: #f0f6f0;
+}
+
+.workspace-journey-item[aria-pressed="true"] {
+  outline: 2px solid #31403d;
+  outline-offset: -2px;
+}
+
+.workspace-journey-item span,
+.workspace-journey-item code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-journey-item span {
+  font-weight: 700;
+}
+
+.workspace-journey-item code {
+  color: #586460;
+  font-family: inherit;
+  font-size: 11px;
 }
 
 .workspace-dock-body {
@@ -1985,10 +2041,35 @@ th {
 
   .modeling-workspace {
     grid-template-columns: 250px minmax(400px, 1fr) 340px;
+    min-height: 230px;
+  }
+
+  .workspace {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .workspace-dock {
+    min-height: 280px;
   }
 
   .workspace-dock-section {
     grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  }
+
+  .workspace-nav-item {
+    min-height: 30px;
+    padding: 4px 9px;
+    font-size: 12px;
+  }
+
+  .workspace-journey {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .workspace-journey-item {
+    min-height: 30px;
+    padding: 4px 7px;
   }
 }
 

@@ -16,6 +16,39 @@ type StableIdMapEntry = {
   review_note: string;
 };
 
+type CoordinateUnitWitness = {
+  witness_id: string;
+  source_ref: {
+    ref_type: "pipe_segment_endpoint" | "node_position" | "support_marker" | "component_marker";
+    ref_id: string;
+    source_node_ref: string;
+    field_path: string;
+  };
+  target_ref: {
+    group_name: string;
+    vertex_index: number;
+    coordinate_index: 0 | 1 | 2;
+    target_axis: "x" | "y" | "z";
+  };
+  source_quantity: {
+    value: number;
+    unit: string;
+    dimension: "length";
+    axis: "x" | "y" | "z";
+  };
+  target_quantity: {
+    value: number;
+    unit: "m";
+    dimension: "length";
+    axis: "x" | "y" | "z";
+  };
+  conversion_performed: false;
+  axis_transform: "preview_z_up_to_gltf_y_up_rotation_x_minus_90";
+  conversion_status: "unit_preserved_axis_transformed";
+  basis_refs: string[];
+  provenance: string;
+};
+
 export function ReviewGeometryPanel({
   model,
   result,
@@ -71,6 +104,11 @@ export function ReviewGeometryPanel({
           testId="review-geometry-stable-ids"
         />
         <ReviewGeometryLine
+          label="Unit witnesses"
+          value={`count=${packet.coordinate_unit_witnesses.length}; conversion=${String(packet.unit_system_disclosure.conversion_performed)}; target=${packet.unit_system_disclosure.target_export_units.coordinates}; axis_transform=${packet.unit_system_disclosure.axis_transform_policy}`}
+          testId="review-geometry-unit-witnesses"
+        />
+        <ReviewGeometryLine
           label="Boundary"
           value={reviewGeometryBoundary(packet)}
           testId="review-geometry-boundary"
@@ -106,6 +144,7 @@ function buildReviewGeometryPacket({
   const stableIdMap = stableIdEntries(model);
   const gltfGroups = buildGltfPositionGroups(model);
   const gltfAsset = buildGltfAsset({ model, groups: gltfGroups });
+  const coordinateUnitWitnesses = buildCoordinateUnitWitnesses(model);
   const modelStateRef = run?.model_state_ref ?? reference("ModelState", "state:TBD");
   const analysisRunRef = run ? reference("AnalysisRun", run.run_id) : reference("AnalysisRun", "not generated");
 
@@ -147,8 +186,21 @@ function buildReviewGeometryPacket({
       },
       direct_metadata_policy: "name_and_extras_candidate_only",
       sidecar_id_map_policy: "required_auditable_fallback",
+      unit_witness_policy: "coordinate_sidecar_required_for_emitted_positions",
       extension_policy: "no_required_extensions",
       viewer_compatibility: "TBD"
+    },
+    unit_system_disclosure: {
+      unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+      source_units: model.project.units,
+      target_export_units: {
+        coordinates: "m"
+      },
+      conversion_performed: false,
+      axis_transform_performed: true,
+      axis_transform_policy: "preview_z_up_to_gltf_y_up_rotation_x_minus_90",
+      entered_unit_preservation: "source model units preserved as meter quantities before glTF axis transform",
+      basis_refs: ["DEC-018", "DEL-02-02", "DEL-17-08", "GLTF-2.0"]
     },
     geometry_summary: {
       node_count: model.nodes.length,
@@ -188,6 +240,13 @@ function buildReviewGeometryPacket({
         document_kind: "openpipestress.review_geometry_loss_report",
         hash_status: "TBD_browser_preview_does_not_emit_canonical_package_hash",
         payload_embedded_in_download: true
+      },
+      {
+        member_id: "member:review-geometry-coordinate-unit-witnesses",
+        filename: "coordinate_unit_witnesses.json",
+        document_kind: "openpipestress.review_geometry_coordinate_unit_witnesses",
+        hash_status: "TBD_browser_preview_does_not_emit_canonical_package_hash",
+        payload_embedded_in_download: true
       }
     ],
     gltf_asset: gltfAsset,
@@ -197,6 +256,7 @@ function buildReviewGeometryPacket({
       canonical_id_authority: "OpenPipeStress preview model stable IDs",
       entries: stableIdMap
     },
+    coordinate_unit_witnesses: coordinateUnitWitnesses,
     loss_report: reviewGeometryLossReport(model),
     diagnostics: reviewGeometryDiagnostics(model),
     unresolved_tbd: [
@@ -297,6 +357,133 @@ function buildGltfPositionGroups(model: PreviewModel): GltfPositionGroup[] {
     }
   ];
   return groups.filter((group) => group.positions.length > 0);
+}
+
+function buildCoordinateUnitWitnesses(model: PreviewModel): CoordinateUnitWitness[] {
+  const nodeMap = new Map(model.nodes.map((node) => [node.id, node.position]));
+  const witnesses: CoordinateUnitWitness[] = [];
+  const lengthUnit = model.project.units.length;
+
+  const addWitnesses = ({
+    refType,
+    refId,
+    sourceNodeRef,
+    fieldPrefix,
+    groupName,
+    vertexIndex,
+    position
+  }: {
+    refType: CoordinateUnitWitness["source_ref"]["ref_type"];
+    refId: string;
+    sourceNodeRef: string;
+    fieldPrefix: string;
+    groupName: string;
+    vertexIndex: number;
+    position: Vec3;
+  }) => {
+    const sourceComponents: Array<{ axis: "x" | "y" | "z"; value: number; targetAxis: "x" | "y" | "z"; targetIndex: 0 | 1 | 2; targetValue: number }> = [
+      { axis: "x", value: position.x, targetAxis: "x", targetIndex: 0, targetValue: position.x },
+      { axis: "y", value: position.y, targetAxis: "z", targetIndex: 2, targetValue: -position.y },
+      { axis: "z", value: position.z, targetAxis: "y", targetIndex: 1, targetValue: position.z }
+    ];
+
+    for (const component of sourceComponents) {
+      witnesses.push({
+        witness_id: `review-geometry-unit:${refId}:${fieldPrefix}.${component.axis}`,
+        source_ref: {
+          ref_type: refType,
+          ref_id: refId,
+          source_node_ref: sourceNodeRef,
+          field_path: `${fieldPrefix}.${component.axis}`
+        },
+        target_ref: {
+          group_name: groupName,
+          vertex_index: vertexIndex,
+          coordinate_index: component.targetIndex,
+          target_axis: component.targetAxis
+        },
+        source_quantity: {
+          value: round(component.value),
+          unit: lengthUnit,
+          dimension: "length",
+          axis: component.axis
+        },
+        target_quantity: {
+          value: round(component.targetValue),
+          unit: "m",
+          dimension: "length",
+          axis: component.targetAxis
+        },
+        conversion_performed: false,
+        axis_transform: "preview_z_up_to_gltf_y_up_rotation_x_minus_90",
+        conversion_status: "unit_preserved_axis_transformed",
+        basis_refs: ["DEC-018", "DEL-02-02", "DEL-17-08", "GLTF-2.0"],
+        provenance: "apps/desktop review geometry browser-preview packet generated from invented fixture coordinates"
+      });
+    }
+  };
+
+  for (const [segmentIndex, segment] of model.pipe_segments.entries()) {
+    const from = nodeMap.get(segment.from);
+    const to = nodeMap.get(segment.to);
+    if (!from || !to) continue;
+    addWitnesses({
+      refType: "pipe_segment_endpoint",
+      refId: segment.id,
+      sourceNodeRef: segment.from,
+      fieldPrefix: "from.position",
+      groupName: "OpenPipeStress pipe centerline review geometry",
+      vertexIndex: segmentIndex * 2,
+      position: from
+    });
+    addWitnesses({
+      refType: "pipe_segment_endpoint",
+      refId: segment.id,
+      sourceNodeRef: segment.to,
+      fieldPrefix: "to.position",
+      groupName: "OpenPipeStress pipe centerline review geometry",
+      vertexIndex: segmentIndex * 2 + 1,
+      position: to
+    });
+  }
+
+  for (const [nodeIndex, node] of model.nodes.entries()) {
+    addWitnesses({
+      refType: "node_position",
+      refId: node.id,
+      sourceNodeRef: node.id,
+      fieldPrefix: "position",
+      groupName: "OpenPipeStress node review markers",
+      vertexIndex: nodeIndex,
+      position: node.position
+    });
+  }
+
+  for (const [supportIndex, support] of model.supports.entries()) {
+    addWitnesses({
+      refType: "support_marker",
+      refId: support.id,
+      sourceNodeRef: support.node,
+      fieldPrefix: "node.position",
+      groupName: "OpenPipeStress support review markers",
+      vertexIndex: supportIndex,
+      position: nodeMap.get(support.node) ?? origin()
+    });
+  }
+
+  for (const [componentIndex, component] of model.components.entries()) {
+    addWitnesses({
+      refType: "component_marker",
+      refId: component.id,
+      sourceNodeRef: component.node,
+      fieldPrefix: "node.position",
+      groupName: "OpenPipeStress component review markers",
+      vertexIndex: componentIndex,
+      position: nodeMap.get(component.node) ?? origin()
+    });
+  }
+
+  return witnesses;
 }
 
 function buildGltfAsset({ model, groups }: { model: PreviewModel; groups: GltfPositionGroup[] }) {

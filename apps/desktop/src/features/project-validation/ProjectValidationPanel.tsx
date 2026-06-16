@@ -107,6 +107,13 @@ export function ProjectValidationPanel({
           testId="project-validation-round-trip"
         />
         <ValidationLine
+          label="Unit round-trip evidence"
+          value={`status=${packet.summary.unit_round_trip_status}; checked_refs=${
+            packet.summary.unit_round_trip_checked_ref_count
+          }; signature=${packet.summary.unit_round_trip_signature}`}
+          testId="project-validation-unit-round-trip"
+        />
+        <ValidationLine
           label="Model hash evidence"
           value={`model_hash=${packet.summary.model_hash_status}; persisted_model_hashes=${
             packet.summary.persisted_model_hash_count
@@ -244,7 +251,7 @@ function buildProjectValidationPacket({
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.project_validation_preflight",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-02-05", "DEL-12-01"],
+    deliverable_refs: ["DEL-02-02", "DEL-02-05", "DEL-12-01"],
     scope_items: ["SOW-050", "SOW-041", "SOW-029"],
     objectives: ["OBJ-001", "OBJ-010", "OBJ-012"],
     project_ref: model.project.id,
@@ -268,6 +275,9 @@ function buildProjectValidationPacket({
       persisted_mechanics_result_count: projectSummary?.persisted_mechanics_result_count ?? 0,
       persisted_analysis_run_count: projectSummary?.persisted_analysis_run_count ?? 0,
       persisted_analysis_run_ref: projectSummary?.persisted_analysis_run_ref ?? "not_persisted",
+      unit_round_trip_status: projectSummary?.unit_round_trip_status ?? "not_persisted_this_session",
+      unit_round_trip_checked_ref_count: projectSummary?.unit_round_trip_checked_ref_count ?? 0,
+      unit_round_trip_signature: projectSummary?.unit_round_trip_signature ?? "not_persisted",
       model_hash_status: modelHashStatus,
       persisted_model_hash_count: projectSummary?.persisted_model_hash_count ?? 0,
       persisted_model_hash_ref: projectSummary?.persisted_model_hash_ref ?? "not_persisted",
@@ -306,6 +316,13 @@ function buildProjectValidationPacket({
         "unit-bearing values must retain explicit unit metadata",
         "missing optional rule-pack references remain explicit not-present records"
       ]
+    },
+    unit_round_trip_evidence: {
+      status: projectSummary?.unit_round_trip_status ?? "not_persisted_this_session",
+      checked_ref_count: projectSummary?.unit_round_trip_checked_ref_count ?? 0,
+      signature: projectSummary?.unit_round_trip_signature ?? "not_persisted",
+      evidence_source: projectSummary ? "local_project_summary" : "not_persisted_this_session",
+      comparison_basis: "deterministic_unit_metadata_signature_from_restored_local_project_envelope"
     },
     service_operations: buildServiceOperations({ projectSummary, projectOperation, validationStatus, versionCheckStatus }),
     store_migration: storeMigration,

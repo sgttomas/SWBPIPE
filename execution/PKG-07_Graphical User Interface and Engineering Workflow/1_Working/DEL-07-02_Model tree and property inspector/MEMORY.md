@@ -717,3 +717,37 @@ Durable context preserved after reconciliation review:
   readiness, professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards data, private project data,
   network path, or telemetry path changed.
+## 2026-06-15 - TP-UNITS-B2-NODECOORDUNITS-001: node coordinate unit payloads
+
+- Property Inspector node coordinate edits (`position.x`, `position.y`,
+  `position.z`) now expose the unit-aware editor control and queue explicit
+  `{value, unit}` payloads.
+- Browser preview still uses model metadata only; it does not synthesize a
+  DEC-018 fallback catalog. The R2 Playwright smoke pins the visible
+  `position.y` unit selector and payload preview for `node:N-110`.
+- Evidence:
+  `DEL-16-02 .../_run_records/WORKING_ITEMS_RUN_2026-06-15_TP-UNITS-B2-NODECOORDUNITS-001.md`;
+  SMOKE TP-MAC-170; desktop Vitest 385/385; desktop build clean; focused
+  Playwright R2 smoke 2/2.
+- Boundary unchanged: local-only editor intent behavior; no durable
+  persistence, private data, protected content, network/telemetry path,
+  professional approval, release-readiness, certification, sealing,
+  authentication, or code-compliance claim.
+
+## 2026-06-16 - TP-UNITS-B2-LOADINSPECTORUNITS-001 load-case inspector primitive unit payloads
+
+- Property Inspector load-case editing now treats "First primitive magnitude"
+  (`primitive_loads.0.magnitude.value`) as a unit-editable quantity and queues
+  explicit `{value, unit}` payloads through the existing `update_load` operation
+  intent path.
+- Browser preview remains honest: it uses model metadata (`N/m` for the
+  invented `load:L-100` first primitive) and does not synthesize a DEC-018
+  fallback catalog.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-LOADINSPECTORUNITS-001.md`;
+  SMOKE TP-MAC-171; focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build passed; focused Playwright R2 smoke 2/2.
+- Boundary unchanged: frontend-only; no backend operation, durable
+  persistence, private data, protected content, network/telemetry path,
+  professional approval, release-readiness, certification, sealing,
+  authentication, or code-compliance claim.
