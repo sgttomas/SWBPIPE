@@ -5608,3 +5608,26 @@ notes:
   protected-content, network, telemetry, release-readiness, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-171 load-case inspector primitive unit payloads (`TP-UNITS-B2-LOADINSPECTORUNITS-001`, 2026-06-16)
+
+- Phase B2 units slice: the Property Inspector's selected load-case "First
+  primitive magnitude" field now uses the same unit-aware editor control as the
+  already-landed material, section, node-coordinate, and load-manager primitive
+  magnitude paths.
+- Browser evidence: the R2 Playwright smoke selects load case `load:L-100`,
+  previews `primitive_loads.0.magnitude.value`, verifies `unit=N/m`, and checks
+  the explicit payload `{"value":-225,"unit":"N/m"}` with the
+  `update_load` operation intent. The assertion is preview-only and does not
+  alter downstream queue/apply numbering in the smoke.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build --workspace apps/desktop` clean with the existing
+  Vite chunk-size warning; focused Playwright R2 smoke **2/2** across the
+  configured desktop/compact Chromium projects.
+- Evidence: run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-LOADINSPECTORUNITS-001.md`
+  (DEL-07-02 primary); completion plan/log updated.
+- Boundary review: frontend-only; no schema, backend operation, persistence,
+  solver, rule-pack, private-data, protected-content, network, telemetry,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

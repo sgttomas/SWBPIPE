@@ -443,3 +443,20 @@ Boundary note:
   conversion witnesses beyond disclosure; B3 still owns broader
   conversion-witness, incompatible-unit rejection, and DEC-026 tolerance corpus
   coverage.
+
+## 2026-06-16 - TP-UNITS-B2-LOADINSPECTORUNITS-001 load-case inspector primitive unit payloads
+
+- Extended B2 app unit I/O into the Property Inspector load-case path:
+  `primitive_loads.0.magnitude.value` now uses the unit-aware editor control
+  and queues an explicit `{value, unit}` after-value payload.
+- This is a frontend binding to the already-landed primitive-load magnitude
+  operation seam; no units crate, schema, backend operation, solver,
+  import/export, report, or rule-pack behavior changed.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-LOADINSPECTORUNITS-001.md`;
+  SMOKE TP-MAC-171; focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build passed; focused Playwright R2 smoke 2/2.
+- Boundary unchanged: browser preview uses model metadata only and does not
+  synthesize a DEC-018 fallback catalog; no protected content, private data,
+  network/telemetry path, release-readiness claim, or professional/code-
+  compliance claim changed.

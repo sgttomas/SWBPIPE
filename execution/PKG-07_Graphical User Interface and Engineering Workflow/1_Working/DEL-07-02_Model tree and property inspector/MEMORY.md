@@ -733,3 +733,21 @@ Durable context preserved after reconciliation review:
   persistence, private data, protected content, network/telemetry path,
   professional approval, release-readiness, certification, sealing,
   authentication, or code-compliance claim.
+
+## 2026-06-16 - TP-UNITS-B2-LOADINSPECTORUNITS-001 load-case inspector primitive unit payloads
+
+- Property Inspector load-case editing now treats "First primitive magnitude"
+  (`primitive_loads.0.magnitude.value`) as a unit-editable quantity and queues
+  explicit `{value, unit}` payloads through the existing `update_load` operation
+  intent path.
+- Browser preview remains honest: it uses model metadata (`N/m` for the
+  invented `load:L-100` first primitive) and does not synthesize a DEC-018
+  fallback catalog.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-LOADINSPECTORUNITS-001.md`;
+  SMOKE TP-MAC-171; focused App Vitest 54/54; full desktop Vitest 386/386;
+  desktop build passed; focused Playwright R2 smoke 2/2.
+- Boundary unchanged: frontend-only; no backend operation, durable
+  persistence, private data, protected content, network/telemetry path,
+  professional approval, release-readiness, certification, sealing,
+  authentication, or code-compliance claim.

@@ -989,7 +989,8 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "Load",
         typeof firstLoad.dimension === "string" ? firstLoad.dimension : "TBD",
         typeof firstMagnitude?.unit === "string" ? firstMagnitude.unit : "TBD",
-        "update_load"
+        "update_load",
+        true
       ),
       scalarField("Provenance", "provenance", loadCase.provenance, "Load", "dimensionless", "none", "public/private source note", "update_load")
     ];

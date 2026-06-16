@@ -2880,6 +2880,45 @@ describe("OpenPipeStress desktop preview", () => {
     expect(queued[0].change.source_note).toContain("entered unit captured explicitly");
   });
 
+  it("queues load-case primitive magnitude inspector edits with an explicit unit payload", async () => {
+    const model = await loadPreviewModel();
+    const queued: EditorOperationIntent[] = [];
+
+    render(
+      <PropertyInspector
+        model={model}
+        onQueueIntent={(intent) => queued.push(intent)}
+        selection={{ type: "load", id: "load:L-100" }}
+      />
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("property-unit-catalog-status").textContent).toContain(
+        "browser preview uses model metadata"
+      )
+    );
+    const intentPanel = screen.getByLabelText("Editor operation intent");
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
+      target: { value: "primitive_loads.0.magnitude.value" }
+    });
+
+    expect(within(intentPanel).getByTestId("editor-intent-unit")).toHaveValue("N/m");
+    expect(within(intentPanel).getByText("Proposed value (N/m, model metadata)")).toBeInTheDocument();
+
+    fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+      target: { value: "-225" }
+    });
+    fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
+
+    expect(queued).toHaveLength(1);
+    expect(queued[0].change.change_kind).toBe("update_load");
+    expect(queued[0].change.field_path).toBe("primitive_loads.0.magnitude.value");
+    expect(queued[0].change.dimension).toBe("force_per_length");
+    expect(queued[0].change.unit).toBe("N/m");
+    expect(JSON.parse(queued[0].change.after)).toEqual({ value: -225, unit: "N/m" });
+    expect(queued[0].change.source_note).toContain("entered unit captured explicitly");
+  });
+
   it("applies the solved global displacement direction to the deformation overlay", async () => {
     const model = await loadPreviewModel();
     const overlay = buildDeformationOverlay(

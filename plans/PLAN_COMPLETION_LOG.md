@@ -13,6 +13,45 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2 load-case inspector primitive unit payloads (`TP-UNITS-B2-LOADINSPECTORUNITS-001`)
+
+Extends the B2 unit-aware editor pattern to the Property Inspector's load-case
+primitive magnitude view. Before this slice, the Load Cases manager could edit
+existing primitive-load magnitudes with explicit `{ value, unit }` payloads, but
+the model-tree Property Inspector still rendered the selected load case's first
+primitive magnitude as a scalar-only field. That left one visible app path for
+primitive-load magnitude editing outside the explicit unit payload pattern.
+
+`PropertyInspector` now marks `primitive_loads.0.magnitude.value` as a
+unit-editable quantity when a load case is selected. The emitted operation
+intent remains `update_load` and now carries the selected primitive's dimension
+and unit in both intent metadata and the JSON after-value payload. This is a
+frontend-only binding to the existing operation seam; no backend operation
+contract, schema, persistence, solver, report, import/export, or rule-pack
+behavior changed.
+
+Evidence: focused `App.test.tsx` Vitest **54/54**; full desktop Vitest
+**386/386**; desktop production build clean with the existing Vite chunk-size
+warning; focused Playwright R2 smoke **2/2** across configured desktop/compact
+Chromium projects after adding a browser preview assertion for the
+load-inspector primitive unit payload. Run record:
+`DEL-07-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-LOADINSPECTORUNITS-001.md`;
+SMOKE TP-MAC-171.
+
+Boundary: frontend-only; no hidden unit fallback, no protected standards
+content, no private data, no network or telemetry path, and no
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+Residual: B2 still has broader unit entry/pickers outside the material,
+section, node-coordinate, primitive-load manager/inspector, and rule-pack
+declaration/expression surfaces; import round-trip unit I/O; and target-format
+conversion witnesses beyond disclosure. B3 still owns the larger mixed-unit
+round-trip, incompatible-unit rejection, and D-04/DEC-026 tolerance corpus
+outside the named witnesses.
+
+---
+
 ## 2026-06-15 — B2 node coordinate unit payloads (`TP-UNITS-B2-NODECOORDUNITS-001`)
 
 Extends the B2 unit-aware editor pattern to node coordinate edits. Before this

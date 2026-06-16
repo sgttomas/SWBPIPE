@@ -56,6 +56,19 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "entered unit captured explicitly"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
+  await page.getByTestId("tree-row-load:L-100").click();
+  await editorIntentPanel.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveValue("N/m");
+  await expect(page.getByText("Proposed value (N/m, model metadata)")).toBeVisible();
+  await editorIntentPanel.getByTestId("editor-intent-value").fill("-225");
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    'after={"value":-225,"unit":"N/m"}'
+  );
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText("update_load");
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    "entered unit captured explicitly"
+  );
+  await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
