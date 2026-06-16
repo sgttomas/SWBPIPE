@@ -13,6 +13,45 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2/B3 stress-neutral unit preservation witnesses (`TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001`)
+
+Adds auditable per-row unit-preservation witnesses to the desktop
+stress-neutral CSV/JSON package. Stress-neutral export is intentionally not a
+target-format conversion path; it preserves source result values, units, and
+dimensions so spreadsheet review and downstream adapter prototypes can inspect
+the same unit-bearing rows.
+
+`StressNeutralExportPanel` now emits `unit_preservation_witnesses` in the
+downloaded JSON package, lists `unit_preservation_witnesses.json` in the
+manifest, and exposes a visible witness-count line in the panel. Each witness
+names the source result row and field, source value/unit/dimension, target
+stress-neutral row and field, target value/unit/dimension, DEC-018/DEL-02-02
+and DEL-17-06 basis refs, and preview provenance. The validation report now
+checks that every result row has a witness and that source/target quantities
+match with `conversion_performed=false`.
+
+Evidence: focused `App.test.tsx` Vitest **54/54**; full desktop Vitest
+**386/386**; desktop production build clean with the existing Vite chunk-size
+warning; targeted Playwright R2 smoke spec **10/10** after wasm rebuild. Run
+records:
+`DEL-17-06 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001.md`;
+`DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001.md`;
+SMOKE TP-MAC-175.
+
+Boundary: desktop stress-neutral package surface only; no Python/schema export
+package contract change, no vendor format claim, no target compatibility
+claim, no comparison pass/fail claim, no solver validation, no protected
+standards content, no private data, and no release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim.
+
+Residual: B2 still owns broader app unit entry/pickers outside the named
+covered forms and remaining target-format conversion witnesses outside the PCF
+and CAEPIPE smoke-package boundaries. B3 still owns broader mixed-unit
+round-trip, conversion-witness, incompatible-unit rejection, and D-04/DEC-026
+tolerance corpus outside the named witnesses.
+
+---
+
 ## 2026-06-16 — B2/B3 CAEPIPE MBF conversion witnesses (`TP-UNITS-B2B3-CAEPIPECONVWITNESS-001`)
 
 Adds auditable target-format conversion witnesses to the desktop CAEPIPE MBF

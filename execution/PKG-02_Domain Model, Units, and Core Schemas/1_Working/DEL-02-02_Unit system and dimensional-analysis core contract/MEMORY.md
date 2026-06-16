@@ -524,3 +524,23 @@ Boundary note:
   solver, Python export-package contract, protected content, private data,
   target compatibility, release-readiness claim, or professional/code-
   compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001 stress-neutral unit preservation witnesses
+
+- Added supporting B2/B3 unit evidence for desktop stress-neutral per-row unit
+  preservation witnesses.
+- Each witness records DEC-018/DEL-02-02 basis refs, source result
+  value/unit/dimension, target row value/unit/dimension, and
+  `conversion_performed=false`. The package remains a unit-preserving review
+  format, not a target conversion path.
+- Evidence:
+  `execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-175; completion log
+  entry.
+- Validation passed: focused `App.test.tsx` 54/54; full desktop Vitest
+  386/386; desktop build with existing Vite chunk-size warning; targeted R2
+  Playwright smoke spec 10/10 after wasm rebuild.
+- Boundary unchanged: no unit catalog, conversion constant, schema, runtime
+  solver, Python export-package contract, protected content, private data,
+  target compatibility, release-readiness claim, or professional/code-
+  compliance claim changed.

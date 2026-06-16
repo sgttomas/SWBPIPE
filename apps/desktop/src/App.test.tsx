@@ -4903,7 +4903,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("length=m");
     expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("results=MPa");
     expect(within(stressNeutral).getByTestId("stress-neutral-units").textContent).toContain("conversion=false");
-    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("members=8");
+    expect(within(stressNeutral).getByTestId("stress-neutral-unit-witnesses").textContent).toContain("count=737");
+    expect(within(stressNeutral).getByTestId("stress-neutral-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("members=9");
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("stable_ids=737");
     expect(within(stressNeutral).getByTestId("stress-neutral-package").textContent).toContain("validation=passed");
     await waitFor(() =>
@@ -4953,6 +4957,17 @@ describe("OpenPipeStress desktop preview", () => {
     expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("mm");
     expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
     expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(737);
+    expect(stressNeutralPacket.manifest.package_members.map((item: { role: string }) => item.role)).toContain(
+      "unit_preservation_witnesses"
+    );
+    const stressNeutralUnitWitness = stressNeutralPacket.unit_preservation_witnesses.find(
+      (item: { witness_id: string }) => item.witness_id === "stress-neutral-unit:result-force-pipe-p-120-axial"
+    );
+    expect(stressNeutralUnitWitness.source_quantity).toEqual({ value: 0, unit: "N", dimension: "force" });
+    expect(stressNeutralUnitWitness.target_quantity).toEqual({ value: 0, unit: "N", dimension: "force" });
+    expect(stressNeutralUnitWitness.export_unit_policy).toBe("preserve_source_result_unit_and_dimension");
+    expect(stressNeutralUnitWitness.conversion_performed).toBe(false);
     expect(stressNeutralPacket.result_rows).toHaveLength(737);
     expect(stressNeutralPacket.stable_id_map).toHaveLength(737);
     expect(stressNeutralPacket.csv_text.split("\n")[0]).toBe(
@@ -4963,7 +4978,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(stressNeutralPacket.loss_report.entries.map((entry: { category: string }) => entry.category)).toContain(
       "tbd"
     );
-    expect(stressNeutralPacket.manifest.package_members).toHaveLength(8);
+    expect(stressNeutralPacket.manifest.package_members).toHaveLength(9);
     expect(stressNeutralPacket.manifest.canonical_package_hash_status).toBe("computed_local_preview_sha256");
     expect(stressNeutralPacket.manifest.canonical_package_hash.value).toMatch(/^sha256:[0-9a-f]{64}$/);
     expect(stressNeutralPacket.manifest.canonical_package_hash.payload_scope).toBe("package_review_payload");
@@ -4976,6 +4991,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(stressNeutralPacket.validation_report.validation_status).toBe("passed");
     expect(stressNeutralPacket.validation_report.schema_validation_status).toBe(
       "desktop_preview_shape_aligned_not_runtime_json_schema_validated"
+    );
+    expect(stressNeutralPacket.validation_report.checks.map((item: { check_id: string }) => item.check_id)).toContain(
+      "unit_preservation_witness_per_row"
     );
     expect(stressNeutralPacket.result_rows.every((row: { unit: string; dimension: string }) => row.unit && row.dimension)).toBe(
       true

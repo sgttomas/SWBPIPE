@@ -328,6 +328,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
     "target_length=mm"
   );
+  const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=737");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
+    "conversion=false"
+  );
 
   // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
   // node intent through the structured-operation seam in a real browser and

@@ -5721,3 +5721,28 @@ notes:
   compatibility, external CAEPIPE execution, solver validation, protected
   content, private data, release-readiness, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-175 stress-neutral unit preservation witnesses (`TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001`, 2026-06-16)
+
+- Phase B2/B3 units slice: the desktop stress-neutral CSV/JSON package now
+  embeds `unit_preservation_witnesses` for every exported result row. The
+  package remains unit-preserving: it records source result units and
+  dimensions without export-time conversion.
+- Package behavior: downloaded stress-neutral JSON includes one witness per
+  result row, with source result ref/field, source value/unit/dimension,
+  target row ref/field, target value/unit/dimension, `conversion_performed=false`,
+  DEC-018/DEL-02-02/DEL-17-06 basis refs, and preview provenance. The manifest
+  lists `unit_preservation_witnesses.json`, and validation checks witness
+  count plus source/target row agreement.
+- Browser evidence: the R2 Playwright smoke checks the visible
+  `Unit witnesses` line reports `count=737` and `conversion=false`.
+- Validation: focused `App.test.tsx` Vitest **54/54**; desktop Vitest
+  **386/386**; `npm run build` clean with the existing Vite chunk-size
+  warning; targeted Playwright R2 smoke spec **10/10** after wasm rebuild.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2B3-STRESSNEUTRALUNITWITNESS-001.md`
+  (DEL-17-06 primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: desktop stress-neutral review package only; no vendor
+  format, target compatibility, comparison pass/fail, solver validation,
+  protected content, private data, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
