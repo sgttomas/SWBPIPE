@@ -581,6 +581,9 @@ export type LocalProjectSummary = {
   persisted_model_hash_ref: string;
   persisted_project_envelope_hash_count: number;
   persisted_project_envelope_hash_ref: string;
+  unit_round_trip_status: string;
+  unit_round_trip_checked_ref_count: number;
+  unit_round_trip_signature: string;
   message: string;
 };
 

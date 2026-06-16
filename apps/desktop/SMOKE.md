@@ -5659,3 +5659,40 @@ notes:
   default, protected content, private data, release-readiness, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-173 local project unit round-trip evidence (`TP-UNITS-B2-IMPORTRT-001`, 2026-06-16)
+
+- Phase B2 import/open/save unit I/O slice: local project create/save/open
+  summaries now carry deterministic unit round-trip evidence for the restored
+  project envelope: `unit_round_trip_status`,
+  `unit_round_trip_checked_ref_count`, and `unit_round_trip_signature`.
+- Browser and Tauri parity: the browser-preview project service and the
+  Tauri SQLite backend both compute the signature from explicit
+  `project.units`, material, section, pipe-section, and primitive-load
+  magnitude unit refs. Missing unit-bearing values report
+  `unit_metadata_missing_review_required`; preserved unit metadata reports
+  `unit_metadata_preserved_in_local_project_envelope`.
+- UI/export evidence: Project Storage Audit and Project Validation Preflight
+  now show a dedicated unit round-trip line and include the same fields in
+  their local JSON packets.
+- Validation: focused `projectService.test.ts` + `App.test.tsx` Vitest
+  **61/61**; desktop Vitest **386/386**; `npm run build --workspace
+  apps/desktop` clean with the existing Vite chunk-size warning; Tauri
+  focused store regression
+  `local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot`
+  passed; rustfmt check passed for `openpipestress-desktop`; in-app Browser
+  fallback verified `New blank` -> `Save local` -> `Open local` shows
+  `unit_metadata_preserved_in_local_project_envelope` and six blank-project
+  unit refs in both storage and validation rows.
+- Playwright note: `npx playwright test apps/desktop/e2e/r2-smoke.spec.ts`
+  did not execute because the local Chromium binary was absent and
+  `npx playwright install chromium` timed out repeatedly while downloading
+  from the Playwright CDN. The e2e spec was extended with the same visible row
+  assertions for the next environment with a working browser cache.
+- Evidence: run records
+  `WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md` (DEL-02-05
+  primary and DEL-02-02 supporting); completion plan/log updated.
+- Boundary review: persistence/evidence only; no unit conversion, import
+  target compatibility, solver behavior, protected content, private project
+  data, network, telemetry, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

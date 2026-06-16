@@ -13,6 +13,54 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — B2 local project unit round-trip evidence (`TP-UNITS-B2-IMPORTRT-001`)
+
+Adds explicit unit metadata round-trip evidence to local project
+create/save/open summaries. Before this slice, the project validation manifest
+could report that the active model contained unit metadata, and the persistence
+service preserved the model payload, but no persisted/opened local project
+summary exposed a deterministic unit signature that tests and humans could
+compare after a project round trip.
+
+`projectService.ts` and the Tauri SQLite backend now compute
+`unit_round_trip_status`, `unit_round_trip_checked_ref_count`, and
+`unit_round_trip_signature` from explicit unit refs in `project.units`,
+materials, sections, pipe segment sections, and primitive-load magnitudes.
+The Project Storage Audit and Project Validation Preflight panels show a
+dedicated unit round-trip evidence row and export the same fields in local JSON
+packets. Missing unit-bearing values produce
+`unit_metadata_missing_review_required`; preserved local-project unit metadata
+produces `unit_metadata_preserved_in_local_project_envelope`.
+
+Evidence: focused `projectService.test.ts` + `App.test.tsx` Vitest **61/61**;
+full desktop Vitest **386/386**; desktop production build clean with the
+existing Vite chunk-size warning; `cargo fmt --manifest-path
+apps/desktop/src-tauri/Cargo.toml --check -p openpipestress-desktop`;
+Tauri focused store regression
+`local_project_store_uses_sqlite_fts5_and_round_trips_model_snapshot` passed;
+in-app Browser fallback verified `New blank` -> `Save local` -> `Open local`
+shows `unit_metadata_preserved_in_local_project_envelope` and six
+blank-project unit refs in both visible rows. Playwright e2e was extended but
+not executed because the local Chromium binary was absent and
+`npx playwright install chromium` repeatedly timed out against the Playwright
+CDN. Run records:
+`DEL-02-05 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`;
+`DEL-02-02 .../WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`;
+SMOKE TP-MAC-173.
+
+Boundary: local persistence and validation evidence only; no unit conversion,
+no import target compatibility claim, no solver behavior change, no hidden
+defaults, no protected standards content, no private data committed to the
+repository, and no release-readiness, professional approval, certification,
+sealing, authentication, or code-compliance claim.
+
+Residual: B2 still owns broader app unit entry/pickers outside the named
+covered forms and non-PCF target-format conversion witnesses. B3 still owns
+broader mixed-unit round-trip, conversion-witness, incompatible-unit rejection,
+and D-04/DEC-026 tolerance corpus outside the named witnesses.
+
+---
+
 ## 2026-06-16 — B2/B3 PCF conversion witnesses (`TP-UNITS-B2B3-PCFCONVWITNESS-001`)
 
 Adds auditable target-format conversion witnesses to the desktop conservative

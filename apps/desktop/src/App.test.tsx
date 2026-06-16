@@ -1187,6 +1187,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(storageAudit).getByTestId("project-storage-payload-boundary").textContent).toContain(
       "release/professional claim=false"
     );
+    expect(within(storageAudit).getByTestId("project-storage-unit-round-trip").textContent).toContain(
+      "status=not_persisted_this_session"
+    );
     const storageHref = within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
     const storagePacket = JSON.parse(decodeURIComponent(storageHref.split(",", 2)[1]));
     expect(storagePacket.document_kind).toBe("openpipestress.technical_preview.local_project_persistence_audit");
@@ -1203,6 +1206,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(storagePacket.summary.telemetry_enabled).toBe(false);
     expect(storagePacket.summary.project_index_state).toBe("not_requested");
     expect(storagePacket.summary.listed_project_count).toBe(0);
+    expect(storagePacket.summary.unit_round_trip_status).toBe("not_persisted_this_session");
+    expect(storagePacket.summary.unit_round_trip_checked_ref_count).toBe(0);
+    expect(storagePacket.summary.unit_round_trip_signature).toBe("not_persisted");
     expect(storagePacket.project_index).toEqual([]);
     expect(storagePacket.project_index_refs).toEqual([]);
     expect(storagePacket.boundary.repository_default_private_write).toBe(false);
@@ -1259,6 +1265,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-round-trip").textContent).toContain(
       "reproducibility=model_hash_computed_not_persisted"
     );
+    expect(within(projectValidation).getByTestId("project-validation-unit-round-trip").textContent).toContain(
+      "status=not_persisted_this_session"
+    );
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "version_check=supported_current_schema"
     );
@@ -1276,6 +1285,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.summary.validation_status).toBe("preview_not_persisted");
     expect(validationPacket.summary.version_check_status).toBe("supported_current_schema");
     expect(validationPacket.summary.migration_status).toBe("not_persisted_this_session");
+    expect(validationPacket.summary.unit_round_trip_status).toBe("not_persisted_this_session");
+    expect(validationPacket.unit_round_trip_evidence).toMatchObject({
+      status: "not_persisted_this_session",
+      checked_ref_count: 0,
+      signature: "not_persisted",
+      evidence_source: "not_persisted_this_session"
+    });
     expect(validationPacket.store_migration.evidence_source).toBe("storage_capability_probe");
     expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
@@ -3899,6 +3915,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(storageAudit).getByTestId("model-hash-persistence").textContent).toContain(
       "persisted_model_hash_ref=sha256:"
     );
+    expect(within(storageAudit).getByTestId("project-storage-unit-round-trip").textContent).toContain(
+      "status=unit_metadata_preserved_in_local_project_envelope"
+    );
+    expect(within(storageAudit).getByTestId("project-storage-unit-round-trip").textContent).toContain(
+      "project.units.length=m"
+    );
     const auditHref = within(storageAudit).getByTestId("project-storage-export-link").getAttribute("href") ?? "";
     const auditPacket = JSON.parse(decodeURIComponent(auditHref.split(",", 2)[1]));
     expect(auditPacket.document_kind).toBe("openpipestress.technical_preview.local_project_persistence_audit");
@@ -3913,6 +3935,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(auditPacket.summary.pending_operation_count).toBe(1);
     expect(auditPacket.summary.editor_intent_count).toBe(1);
     expect(auditPacket.summary.persisted_editor_intent_count).toBe(1);
+    expect(auditPacket.summary.unit_round_trip_status).toBe("unit_metadata_preserved_in_local_project_envelope");
+    expect(auditPacket.summary.unit_round_trip_checked_ref_count).toBeGreaterThan(0);
+    expect(auditPacket.summary.unit_round_trip_signature).toContain("project.units.length=m");
     expect(auditPacket.summary.applied_operation_count).toBe(0);
     expect(auditPacket.summary.accepted_model_state_mutated).toBe(false);
     expect(auditPacket.summary.network_required).toBe(false);
@@ -3921,6 +3946,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(auditPacket.summary.copied_external_files).toBe(false);
     expect(auditPacket.project_summary.storage_mode).toBe("browser_memory_preview");
     expect(auditPacket.project_summary.editor_intent_count).toBe(1);
+    expect(auditPacket.project_summary.unit_round_trip_signature).toBe(
+      auditPacket.summary.unit_round_trip_signature
+    );
     expect(auditPacket.project_summary.copied_external_files).toBe(false);
     expect(auditPacket.editor_intent_refs).toContain(
       "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
@@ -3970,6 +3998,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-round-trip").textContent).toContain(
       "reproducibility=model_hash_verified_on_open"
     );
+    expect(within(projectValidation).getByTestId("project-validation-unit-round-trip").textContent).toContain(
+      "status=unit_metadata_preserved_in_local_project_envelope"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-unit-round-trip").textContent).toContain(
+      "project.units.length=m"
+    );
     await waitFor(() =>
       expect(within(projectValidation).getByTestId("project-validation-envelope-hash").textContent).toContain(
         "envelope_hash=project_envelope_hash_verified_on_open"
@@ -3996,6 +4030,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.summary.last_operation).toBe("open");
     expect(validationPacket.summary.storage_mode).toBe("browser_memory_preview");
     expect(validationPacket.summary.migration_status).toBe("browser_memory_snapshot_no_sql_store_migrations_applicable");
+    expect(validationPacket.summary.unit_round_trip_status).toBe(
+      "unit_metadata_preserved_in_local_project_envelope"
+    );
+    expect(validationPacket.unit_round_trip_evidence.signature).toBe(
+      validationPacket.summary.unit_round_trip_signature
+    );
+    expect(validationPacket.unit_round_trip_evidence.checked_ref_count).toBeGreaterThan(0);
     expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
     expect(validationPacket.store_migration.evidence_source).toBe("local_project_summary");
     expect(validationPacket.store_migration.migration_scope).toBe(

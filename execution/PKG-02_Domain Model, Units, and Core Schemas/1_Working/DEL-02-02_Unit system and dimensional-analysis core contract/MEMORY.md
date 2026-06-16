@@ -480,3 +480,26 @@ Boundary note:
   synthesize a DEC-018 fallback catalog; no protected content, private data,
   network/telemetry path, release-readiness claim, or professional/code-
   compliance claim changed.
+
+## 2026-06-16 - TP-UNITS-B2-IMPORTRT-001 local project unit round-trip evidence
+
+- Added a B2 import/open/save unit I/O witness: local project create/save/open
+  summaries now expose a deterministic unit metadata signature for restored
+  local project envelopes.
+- The evidence includes unit refs from `project.units`, materials, sections,
+  pipe segment section quantities, and primitive-load magnitudes. Project
+  Storage Audit and Project Validation Preflight display/export the same
+  `unit_round_trip_status`, `unit_round_trip_checked_ref_count`, and
+  `unit_round_trip_signature` fields.
+- Evidence:
+  `execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_run_records/WORKING_ITEMS_RUN_2026-06-16_TP-UNITS-B2-IMPORTRT-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-173; completion log
+  entry.
+- Validation passed: focused project service/App Vitest 61/61; full desktop
+  Vitest 386/386; desktop build; rustfmt package check; focused Tauri store
+  regression; in-app Browser visible-row verification. Playwright e2e was
+  extended but not executed because the local Chromium binary was missing and
+  the Playwright CDN download repeatedly timed out.
+- Boundary unchanged: no unit conversion, import target compatibility, solver
+  behavior, protected content, private data, network/telemetry path,
+  release-readiness claim, or professional/code-compliance claim changed.

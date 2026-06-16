@@ -474,6 +474,20 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "1 load cases; 1 primitive loads; 1 combinations"
   );
+  await openWorkspaceSection(page, "project");
+  await page.getByRole("button", { name: "Save local" }).click();
+  await expect(page.getByTestId("local-project-message")).toContainText(
+    "Saved local browser-preview project snapshot without external file copies."
+  );
+  await page.getByRole("button", { name: "Open local" }).click();
+  await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project snapshot.");
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText(
+    "status=unit_metadata_preserved_in_local_project_envelope"
+  );
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("project.units.length=m");
+  await expect(page.getByTestId("project-validation-unit-round-trip")).toContainText(
+    "status=unit_metadata_preserved_in_local_project_envelope"
+  );
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
