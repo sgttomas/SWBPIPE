@@ -13,6 +13,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-16 — A3 authoring journey status rail (`TP-APP-R3-A3-JOURNEYPATH-001`)
+
+Adds a compact authoring-journey status rail to the desktop shell to reduce
+the R3-carried authoring usability residual from TP-MAC-141. The rail is
+derived from existing session/model state and reports Model, Apply, Loads,
+Solve, Rules, Report, and Project status. Each item is a live navigation
+control into the existing workspace section, so the user can move through the
+same authoring path without hunting through the lower dock.
+
+The desktop layout flex ratio was adjusted so the lower dock receives more
+usable height at the compact 1280x800 lane while the persistent model tree,
+3D viewport, and property inspector remain visible. The rail is bounded and
+wraps compactly instead of expanding the page.
+
+Evidence: focused App + dead-control Vitest passed **55/55**; desktop
+production build passed with the existing Vite chunk-size warning; focused
+compact Playwright smoke passed **1/1**; in-app Browser at 1280x800 verified
+Loads rail navigation with `bodyOverflow=0`, `viewportOverflow=0`,
+`itemOverflow=0`, `dockBodyHeight=168`, and `journeyHeight=66`; full desktop
+Vitest passed **386/386**; full desktop Playwright passed **10/10** across
+1440x920 and 1280x800. Run record:
+`DEL-07-06 .../WORKING_ITEMS_RUN_2026-06-16_TP-APP-R3-A3-JOURNEYPATH-001.md`;
+SMOKE TP-MAC-177.
+
+Boundary: desktop-shell usability/evidence only; no schema, solver,
+rule-check math, persistence semantics, protected content, private project
+data, network/telemetry path, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+F-4 remains open until the human packaged GUI journey is completed.
+
 ## 2026-06-16 — B2/B3 rule-check mixed-unit normalization (`TP-UNITS-B2B3-RULECHECKNORM-001`)
 
 Adds DEC-018 compatible-unit normalization at the rule-check runner boundary.

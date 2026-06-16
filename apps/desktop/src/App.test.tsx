@@ -4221,6 +4221,19 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("preview-boundary-strip").textContent).toContain(
       "local_user_document_not_committed_to_repository"
     );
+    const journey = screen.getByTestId("workspace-journey");
+    expect(within(journey).getByTestId("workspace-journey-model").textContent).toContain(
+      "0 nodes; 0 pipes; 0 supports"
+    );
+    expect(within(journey).getByTestId("workspace-journey-loads").textContent).toContain(
+      "0 cases; 0 loads; 0 combos"
+    );
+    expect(within(journey).getByTestId("workspace-journey-solve").textContent).toContain(
+      "not_started; rows=0"
+    );
+    fireEvent.click(within(journey).getByTestId("workspace-journey-loads"));
+    expect(screen.getByTestId("workspace-nav-loads")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("workspace-section-loads").className).toBe("workspace-dock-section");
 
     const tree = screen.getByLabelText("Model tree");
     expect(within(tree).getByTestId("model-tree-filter-summary").textContent).toContain(

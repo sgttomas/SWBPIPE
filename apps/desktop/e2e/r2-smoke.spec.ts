@@ -43,6 +43,40 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
+  await expect(page.getByTestId("workspace-journey")).toContainText("Model");
+  await expect(page.getByTestId("workspace-journey-loads")).toContainText("2 cases; 7 loads; 1 combos");
+  await page.getByTestId("workspace-journey-loads").click();
+  await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
+  const compactJourneyGeometry = await page.evaluate(() => {
+    const dock = document.querySelector<HTMLElement>(".workspace-dock");
+    const dockBody = document.querySelector<HTMLElement>(".workspace-dock-body");
+    const journey = document.querySelector<HTMLElement>(".workspace-journey");
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".workspace-journey-item"));
+    const body = document.body;
+    if (!dock || !dockBody || !journey || items.length === 0) {
+      return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, journeyHeight: 0 };
+    }
+    const dockBounds = dock.getBoundingClientRect();
+    const bodyBounds = body.getBoundingClientRect();
+    return {
+      bodyOverflow: body.scrollWidth - body.clientWidth,
+      dockBodyHeight: dockBody.getBoundingClientRect().height,
+      itemOverflow: Math.max(
+        0,
+        ...items.map((item) => {
+          const bounds = item.getBoundingClientRect();
+          return Math.max(0, bounds.right - dockBounds.right, dockBounds.left - bounds.left);
+        })
+      ),
+      journeyHeight: journey.getBoundingClientRect().height,
+      viewportOverflow: Math.max(0, dockBounds.right - bodyBounds.right, bodyBounds.left - dockBounds.left)
+    };
+  });
+  expect(compactJourneyGeometry.bodyOverflow).toBe(0);
+  expect(compactJourneyGeometry.viewportOverflow).toBe(0);
+  expect(compactJourneyGeometry.itemOverflow).toBe(0);
+  expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(150);
+  expect(compactJourneyGeometry.journeyHeight).toBeLessThan(80);
   await page.getByTestId("tree-row-node:N-110").click();
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");

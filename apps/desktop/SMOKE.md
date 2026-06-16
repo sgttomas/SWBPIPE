@@ -5772,3 +5772,34 @@ notes:
   standards content, private project data, network/telemetry path,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-177 authoring journey status rail and compact dock proof (`TP-APP-R3-A3-JOURNEYPATH-001`, 2026-06-16)
+
+- A3/R3 usability follow-up: the desktop shell now exposes a compact
+  authoring-journey status rail below the existing workspace section tabs.
+  The rail is derived from existing state and reports Model, Apply, Loads,
+  Solve, Rules, Report, and Project status; each item navigates to the
+  corresponding workspace section.
+- Compact layout: the workspace flex ratio now gives the lower dock more
+  usable height at the 1280x800 lane while keeping the persistent model tree,
+  3D viewport, and property inspector visible. The rail wraps to bounded rows
+  at compact width.
+- Browser/e2e proof: the R2 smoke spec now asserts the rail text, clicks the
+  Loads journey item, and checks real-browser geometry (`bodyOverflow=0`,
+  `viewportOverflow=0`, `itemOverflow=0`, dock body height >150px, rail height
+  <80px) in the compact lane. In-app Browser at 1280x800 separately measured
+  `dockBodyHeight=168` and `journeyHeight=66` after activating Loads.
+- Validation: focused App + dead-control Vitest passed (55/55); desktop
+  production build passed with the existing Vite chunk-size warning; focused
+  compact Playwright smoke passed (1/1); full desktop Vitest passed (18 files,
+  386 tests); full desktop Playwright passed (10/10 across 1440x920 and
+  1280x800).
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-16_TP-APP-R3-A3-JOURNEYPATH-001.md`;
+  completion plan/log updated.
+- Boundary review: shell usability/evidence only; no schema, solver,
+  rule-check math, persistence semantics, protected content, private project
+  data, network/telemetry behavior, lifecycle state, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed. **F-4 remains open** until the human
+  packaged GUI journey is completed.
