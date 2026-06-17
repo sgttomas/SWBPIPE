@@ -272,3 +272,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   enum change, protected standards content, private project payload,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SECLIBQTYUNITS-001 section library quantity unit helper
+
+- Added a Private Library Manager section-quantity unit helper for
+  section-library import drafts. It writes one private section dimension or
+  property quantity into the JSON draft with explicit magnitude, unit,
+  dimension, provenance, and review status.
+- Desktop/Tauri route consumes the reviewed DEC-018 unit catalog and filters
+  section quantity unit choices by compatible dimensions; browser preview
+  keeps the selected default unit visible and records that no fallback catalog
+  is synthesized.
+- Validation passed: focused `LibraryManagerPanel` Vitest 15/15, full desktop
+  Vitest 397/397, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECLIBQTYUNITS-001.md`;
+  corresponding DEL-03-02 primary and DEL-02-02 supporting run records;
+  SMOKE TP-MAC-198; completion log entry.
+- Boundary unchanged: draft authoring only; no section-property calculator,
+  public section values, validation/storage rule change, schema enum change,
+  protected standards content, private project payload, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim.

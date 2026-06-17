@@ -911,6 +911,30 @@ test("library manager loads an invented private sample and reports the desktop-o
     }
   });
 
+  await page.getByTestId("library-kind-select").selectOption("section");
+  await page.getByTestId("library-load-template").click();
+  const sectionText = await page.getByTestId("library-draft-json").inputValue();
+  expect(JSON.parse(sectionText).section_library).toBeTruthy();
+  await expect(page.getByTestId("section-quantity-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("section-quantity-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("section-quantity-unit")).toHaveValue("m");
+  await page.getByTestId("section-quantity-value").fill("0.168");
+  await page.getByTestId("section-quantity-apply-draft").click();
+  const sectionDimensionText = await page.getByTestId("library-draft-json").inputValue();
+  const sectionDimensionDraft = JSON.parse(sectionDimensionText);
+  expect(sectionDimensionDraft.section_records[0].dimensions[0]).toMatchObject({
+    dimension_kind: "outside_diameter",
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 0.168,
+      unit: "m",
+      dimension: "length",
+      value_status: "private_user_supplied"
+    }
+  });
+
   // Switching the kind selector and reloading yields the matching library
   // family shape — the component library here.
   await page.getByTestId("library-kind-select").selectOption("component");

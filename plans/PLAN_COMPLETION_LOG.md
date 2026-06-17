@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail section-library quantity unit helper (`TP-UNITS-BTAIL-SECLIBQTYUNITS-001`)
+
+Landed one bounded Phase B-tail app unit-entry slice while C5.7 remains
+human-execution gated. The Private Library Manager now exposes a section
+quantity unit helper for section-library drafts. The helper drafts one private
+section `dimensions[]` or `properties[]` quantity with explicit magnitude,
+unit, dimension, provenance, and review status before the existing local-only
+import validation/store actions run.
+
+Browser preview remains honest: it does not synthesize a fallback catalog and
+keeps the selected schema-native default unit as the single explicit option
+with the desktop-only unit-catalog diagnostic. In Tauri/desktop mode, the
+helper uses the reviewed DEC-018 unit catalog and filters section quantity
+options by compatible dimensions, including area-compatible `m^2`/`in^2` for
+`cross_section_area` while excluding incompatible length units.
+
+The drafted section quantity is private-only:
+`value_status=private_user_supplied`; property slots keep
+`calculation_status=not_calculated`, so the helper does not claim the section
+property was calculated or reviewed. It does not introduce public section
+values, a section-property calculator, validation/storage policy changes, or
+catalog/schema enum changes.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-198; DEL-07-03 and DEL-03-02 primary
+run records
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECLIBQTYUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused LibraryManagerPanel Vitest passed 15/15; full desktop
+Vitest passed 18/18 files and 397/397 tests; desktop production build passed
+with the existing Vite large-chunk warning; focused Playwright library-manager
+smoke passed 2/2.
+
+Boundary: section-library draft authoring only. No section-property
+calculator, public section values, validation rule, local-store policy, schema
+enum change, DEC-018 catalog constant change, protected standards content,
+private payload, network/telemetry path, lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail material-library property unit helper (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`)
 
 Landed one bounded Phase B-tail app unit-entry slice while C5.7 remains

@@ -6446,3 +6446,44 @@ notes:
   private project payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-198 section library quantity unit helper - PASSED (`TP-UNITS-BTAIL-SECLIBQTYUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains
+  human-execution gated. The Private Library Manager now exposes a section
+  quantity unit helper for section-library drafts, so a user can add one
+  private section dimension or property quantity with explicit magnitude, unit,
+  dimension, provenance, and review status before running the existing
+  local-only import validation.
+- Unit behavior: browser preview does not synthesize a catalog and keeps the
+  selected schema-native default unit as a single explicit option with the
+  desktop-only catalog diagnostic. In Tauri/desktop mode, the helper uses the
+  DEC-018 unit catalog and filters section quantity choices by compatible
+  dimensions; for example, `cross_section_area` offers `m^2`/`in^2` and
+  excludes length units.
+- Draft payload: applying the helper can write either a private
+  `section_records[0].dimensions[]` slot such as
+  `dimension_kind=outside_diameter` or a private
+  `section_records[0].properties[]` slot such as
+  `property_kind=cross_section_area`. Values are recorded as
+  `value_status=private_user_supplied`; property slots keep
+  `calculation_status=not_calculated` so no reviewed/calculated engineering
+  claim is implied. Validation and storage are unchanged and still route
+  through the desktop-only local library backend.
+- Validation:
+  - `npm test --workspace apps/desktop -- LibraryManagerPanel.test.tsx`
+    passed 15/15 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "library manager loads"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-07-03 and DEL-03-02 primary run records
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECLIBQTYUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: section-library draft authoring only. No section-property
+  calculator, public section values, validation/storage rule change, schema
+  enum change, DEC-018 catalog constant change, protected standards content,
+  private project payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

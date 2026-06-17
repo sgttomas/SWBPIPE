@@ -779,3 +779,21 @@ Boundary note:
   public material values, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SECLIBQTYUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03/DEL-03-02 section-library authoring tranche:
+  the Private Library Manager now uses the DEC-018 unit catalog to filter a
+  section quantity draft selector by compatible dimension while writing
+  schema-native `{ magnitude, unit, dimension }` values.
+- Browser preview remains no-fallback: the selected section default unit stays
+  visible as model metadata and the route records the desktop-only catalog
+  diagnostic.
+- Validation passed: focused `LibraryManagerPanel` Vitest 15/15, full desktop
+  Vitest 397/397, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, section-property calculator, public
+  section values, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

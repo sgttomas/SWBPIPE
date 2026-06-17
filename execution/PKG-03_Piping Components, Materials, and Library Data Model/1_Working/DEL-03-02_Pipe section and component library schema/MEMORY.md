@@ -251,3 +251,27 @@ professional/code-compliance claims were introduced.
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SECLIBQTYUNITS-001 section library quantity unit evidence
+
+- Primary data-model role for DEL-07-03 app tranche: the Private Library
+  Manager now drafts schema-native section `dimensions[]` and `properties[]`
+  quantity payloads with explicit magnitude, unit, dimension, provenance, and
+  review status.
+- The helper preserves the section library provenance/privacy boundary:
+  drafted values are `private_user_supplied`, property slots keep
+  `calculation_status=not_calculated`, validation/storage still use the
+  existing local-only import backend, and public section values or calculated
+  engineering properties are not introduced.
+- Validation passed: focused `LibraryManagerPanel` Vitest 15/15, full desktop
+  Vitest 397/397, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECLIBQTYUNITS-001.md`;
+  corresponding DEL-07-03 primary and DEL-02-02 supporting run records;
+  `apps/desktop/SMOKE.md` TP-MAC-198.
+- Boundary preserved: no schema enum change, section-property calculator,
+  public section source/catalog authority, protected-content or
+  redistribution review disposition, lifecycle promotion, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

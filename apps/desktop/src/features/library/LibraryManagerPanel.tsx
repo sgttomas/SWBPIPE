@@ -78,7 +78,58 @@ type MaterialPropertyDraft = {
   unitRefId: string;
 };
 
+type SectionQuantityDraft = {
+  quantityKind: keyof typeof SECTION_QUANTITY_SPECS;
+  magnitude: string;
+  unit: string;
+};
+
 type LibraryR3JourneyEvent = "library_template_loaded" | "library_validate_requested" | "library_save_requested";
+
+const SECTION_QUANTITY_SPECS = {
+  outside_diameter: {
+    dimension: "length",
+    defaultUnit: "m",
+    label: "Outside diameter",
+    requiredFor: "section_property_calculation",
+    slotType: "dimension"
+  },
+  wall_thickness: {
+    dimension: "length",
+    defaultUnit: "m",
+    label: "Wall thickness",
+    requiredFor: "section_property_calculation",
+    slotType: "dimension"
+  },
+  cross_section_area: {
+    dimension: "area",
+    defaultUnit: "m^2",
+    label: "Cross-section area",
+    requiredFor: "mechanics_solve",
+    slotType: "property"
+  },
+  moment_of_inertia: {
+    dimension: "second_moment_area",
+    defaultUnit: "m^4",
+    label: "Moment of inertia",
+    requiredFor: "mechanics_solve",
+    slotType: "property"
+  },
+  section_modulus: {
+    dimension: "section_modulus",
+    defaultUnit: "m^3",
+    label: "Section modulus",
+    requiredFor: "rule_check",
+    slotType: "property"
+  },
+  mass_per_length: {
+    dimension: "mass_per_length",
+    defaultUnit: "kg/m",
+    label: "Mass per length",
+    requiredFor: "mechanics_solve",
+    slotType: "property"
+  }
+} as const;
 
 const MATERIAL_PROPERTY_SPECS = {
   density: {
@@ -150,6 +201,11 @@ export function LibraryManagerPanel({
     unit: MATERIAL_PROPERTY_SPECS.density.defaultUnit,
     unitRefId: MATERIAL_PROPERTY_SPECS.density.defaultUnitRefId
   });
+  const [sectionQuantityDraft, setSectionQuantityDraft] = useState<SectionQuantityDraft>({
+    quantityKind: "outside_diameter",
+    magnitude: "0",
+    unit: SECTION_QUANTITY_SPECS.outside_diameter.defaultUnit
+  });
   // In-request busy guard: while a backend command is awaiting, the draft
   // textarea, the kind/visibility selectors, and every action are disabled so
   // an async response that calls setDraft (open) cannot clobber a mid-request
@@ -169,6 +225,12 @@ export function LibraryManagerPanel({
     unitCatalogRoute,
     materialPropertyDraft.unit,
     materialSpec.dimension
+  );
+  const sectionSpec = SECTION_QUANTITY_SPECS[sectionQuantityDraft.quantityKind];
+  const sectionUnitBasis = describeUnitBasis(
+    unitCatalogRoute,
+    sectionQuantityDraft.unit,
+    sectionSpec.dimension
   );
 
   // The stored-library list is project-scoped. When the active project changes
@@ -271,6 +333,14 @@ export function LibraryManagerPanel({
     }));
   }
 
+  function handleSectionQuantityKindChange(quantityKind: SectionQuantityDraft["quantityKind"]) {
+    setSectionQuantityDraft((current) => ({
+      ...current,
+      quantityKind,
+      unit: SECTION_QUANTITY_SPECS[quantityKind].defaultUnit
+    }));
+  }
+
   function handleApplyComponentFieldDraft() {
     const document = parseDraft();
     if (!document) return;
@@ -315,6 +385,30 @@ export function LibraryManagerPanel({
     setActionStatus(
       `Material property draft updated: property_kind=${materialPropertyDraft.propertyKind}; ` +
         `dimension=${materialSpec.dimension}; unit=${materialPropertyDraft.unit}; ` +
+        "private_user_supplied only."
+    );
+  }
+
+  function handleApplySectionQuantityDraft() {
+    const document = parseDraft();
+    if (!document) return;
+    const magnitude = Number(sectionQuantityDraft.magnitude);
+    if (!Number.isFinite(magnitude)) {
+      setActionStatus("SECTION-QUANTITY-DRAFT-INVALID: quantity magnitude must be finite.");
+      return;
+    }
+    const nextDocument = applySectionQuantityDraft(document, {
+      ...sectionQuantityDraft,
+      magnitude: String(magnitude)
+    });
+    setDraft({
+      text: JSON.stringify(nextDocument, null, 2),
+      origin: `${draft?.origin ?? "session"}:section_quantity_unit_helper`
+    });
+    setValidation(null);
+    setActionStatus(
+      `Section quantity draft updated: quantity_kind=${sectionQuantityDraft.quantityKind}; ` +
+        `dimension=${sectionSpec.dimension}; unit=${sectionQuantityDraft.unit}; ` +
         "private_user_supplied only."
     );
   }
@@ -579,6 +673,74 @@ export function LibraryManagerPanel({
               onClick={handleApplyMaterialPropertyDraft}
             >
               Apply property to draft
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {libraryKind === "section" && draft ? (
+        <div className="report-list" data-testid="section-quantity-unit-helper">
+          <strong>Section quantity unit helper</strong>
+          <small data-testid="section-quantity-unit-boundary">
+            Drafts one private section dimension or property with explicit unit metadata. This
+            helper writes only the import JSON draft; validation and storage still run through the
+            local-only import backend.
+          </small>
+          <label htmlFor="section-quantity-kind-select">Quantity kind</label>
+          <select
+            id="section-quantity-kind-select"
+            data-testid="section-quantity-kind"
+            value={sectionQuantityDraft.quantityKind}
+            disabled={inFlight}
+            onChange={(event) =>
+              handleSectionQuantityKindChange(event.target.value as SectionQuantityDraft["quantityKind"])
+            }
+          >
+            {Object.entries(SECTION_QUANTITY_SPECS).map(([value, spec]) => (
+              <option key={value} value={value}>
+                {spec.label}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="section-quantity-value-input">Magnitude</label>
+          <input
+            id="section-quantity-value-input"
+            data-testid="section-quantity-value"
+            type="number"
+            value={sectionQuantityDraft.magnitude}
+            disabled={inFlight}
+            onChange={(event) =>
+              setSectionQuantityDraft((current) => ({ ...current, magnitude: event.target.value }))
+            }
+          />
+          <label htmlFor="section-quantity-unit-select">Unit</label>
+          <select
+            id="section-quantity-unit-select"
+            data-testid="section-quantity-unit"
+            value={sectionQuantityDraft.unit}
+            disabled={inFlight}
+            onChange={(event) =>
+              setSectionQuantityDraft((current) => ({ ...current, unit: event.target.value }))
+            }
+          >
+            {sectionUnitOptions(unitCatalogRoute, sectionSpec, sectionQuantityDraft.unit).map((option) => (
+              <option key={option.symbol} value={option.symbol}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <small data-testid="section-quantity-unit-basis">
+            slot={sectionSpec.slotType}; dimension={sectionSpec.dimension}; {sectionUnitBasis.label};{" "}
+            {sectionUnitBasis.detail}
+          </small>
+          <div className="report-actions">
+            <button
+              type="button"
+              data-testid="section-quantity-apply-draft"
+              disabled={inFlight}
+              onClick={handleApplySectionQuantityDraft}
+            >
+              Apply quantity to draft
             </button>
           </div>
         </div>
@@ -855,6 +1017,100 @@ function materialUnitOptions(
   return options.length ? options : [fallback];
 }
 
+function sectionUnitOptions(
+  route: UnitCatalogRoute | null,
+  spec: (typeof SECTION_QUANTITY_SPECS)[keyof typeof SECTION_QUANTITY_SPECS],
+  fallbackSymbol: string
+): { symbol: string; label: string }[] {
+  const fallbackBasis = describeUnitBasis(route, fallbackSymbol, spec.dimension);
+  const fallback = { symbol: fallbackBasis.symbol, label: fallbackBasis.label };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, spec.dimension))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const basis = describeUnitBasis(route, entry.symbol, spec.dimension);
+      return { symbol: entry.symbol, label: basis.label };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) options.unshift(fallback);
+  return options.length ? options : [fallback];
+}
+
+function applySectionQuantityDraft(
+  document: Record<string, unknown>,
+  draft: SectionQuantityDraft
+): Record<string, unknown> {
+  const spec = SECTION_QUANTITY_SPECS[draft.quantityKind];
+  const provenance = sectionDraftProvenance(document);
+  const sectionRecords = Array.isArray(document.section_records) ? [...document.section_records] : [];
+  const firstRecord =
+    typeof sectionRecords[0] === "object" && sectionRecords[0] !== null && !Array.isArray(sectionRecords[0])
+      ? { ...(sectionRecords[0] as Record<string, unknown>) }
+      : defaultSectionRecord(provenance);
+  const value = {
+    magnitude: Number(draft.magnitude),
+    unit: draft.unit,
+    dimension: spec.dimension,
+    value_status: "private_user_supplied",
+    provenance
+  };
+
+  if (spec.slotType === "dimension") {
+    const dimensionId = `dimension:${draft.quantityKind}:user_draft`;
+    const dimensions = Array.isArray(firstRecord.dimensions) ? [...firstRecord.dimensions] : [];
+    const dimensionSlot = {
+      dimension_id: dimensionId,
+      dimension_kind: draft.quantityKind,
+      value,
+      value_status: "private_user_supplied",
+      required_for: spec.requiredFor,
+      provenance,
+      review_status: "pending"
+    };
+    const existingIndex = dimensions.findIndex(
+      (dimension) =>
+        typeof dimension === "object" &&
+        dimension !== null &&
+        !Array.isArray(dimension) &&
+        (dimension as Record<string, unknown>).dimension_id === dimensionId
+    );
+    if (existingIndex >= 0) dimensions[existingIndex] = dimensionSlot;
+    else dimensions.push(dimensionSlot);
+    firstRecord.dimensions = dimensions;
+  } else {
+    const propertyId = `property:${draft.quantityKind}:user_draft`;
+    const properties = Array.isArray(firstRecord.properties) ? [...firstRecord.properties] : [];
+    const propertySlot = {
+      property_id: propertyId,
+      property_kind: draft.quantityKind,
+      value,
+      value_status: "private_user_supplied",
+      calculation_status: "not_calculated",
+      required_for: spec.requiredFor,
+      provenance,
+      review_status: "pending"
+    };
+    const existingIndex = properties.findIndex(
+      (property) =>
+        typeof property === "object" &&
+        property !== null &&
+        !Array.isArray(property) &&
+        (property as Record<string, unknown>).property_id === propertyId
+    );
+    if (existingIndex >= 0) properties[existingIndex] = propertySlot;
+    else properties.push(propertySlot);
+    firstRecord.properties = properties;
+  }
+
+  sectionRecords[0] = firstRecord;
+  return {
+    ...document,
+    section_records: sectionRecords
+  };
+}
+
 function applyMaterialPropertyDraft(
   document: Record<string, unknown>,
   draft: MaterialPropertyDraft
@@ -957,6 +1213,32 @@ function applyComponentFieldDraft(
   };
 }
 
+function sectionDraftProvenance(document: Record<string, unknown>): Record<string, unknown> {
+  const library =
+    typeof document.section_library === "object" &&
+    document.section_library !== null &&
+    !Array.isArray(document.section_library)
+      ? (document.section_library as Record<string, unknown>)
+      : {};
+  const provenance =
+    typeof library.provenance === "object" &&
+    library.provenance !== null &&
+    !Array.isArray(library.provenance)
+      ? (library.provenance as Record<string, unknown>)
+      : {};
+  return {
+    source_name: String(provenance.source_name ?? "Invented local section quantity draft"),
+    source_location: String(provenance.source_location ?? "user-authored private draft"),
+    source_license: String(provenance.source_license ?? "private user basis"),
+    contributor: String(provenance.contributor ?? "OpenPipeStress user"),
+    contributor_certification: String(
+      provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
+    ),
+    redistribution_status: "private_only",
+    review_status: "pending"
+  };
+}
+
 function materialDraftProvenance(document: Record<string, unknown>): Record<string, unknown> {
   const library =
     typeof document.material_library === "object" &&
@@ -1005,6 +1287,21 @@ function componentDraftProvenance(document: Record<string, unknown>): Record<str
       provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
     ),
     redistribution_status: "private_only",
+    review_status: "pending"
+  };
+}
+
+function defaultSectionRecord(provenance: Record<string, unknown>): Record<string, unknown> {
+  return {
+    section_id: "section:invented.local_draft",
+    name: "Invented private section draft",
+    section_type: "pipe",
+    privacy_class: "private_user_supplied",
+    redistribution_status: "private_only",
+    dimensions: [],
+    properties: [],
+    completeness: [],
+    provenance,
     review_status: "pending"
   };
 }
