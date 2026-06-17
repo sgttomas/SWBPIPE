@@ -112,3 +112,7 @@ Durable context preserved after reconciliation review:
 - Added `tests/test_security_threat_model.py` as a focused stdlib documentation guard for the new coverage and no-bypass/no-overclaim language.
 - Preserved local-first storage, telemetry-off-by-default, no license bypass, no reverse engineering, no proprietary examples, no private-data leakage by default, no direct SQLite bypass, and no professional/code-compliance/security-certification claims.
 - No lifecycle state, dependency register, DAG/coordination authority, review disposition, blocker queue, commit, or PKG-08 file was edited.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

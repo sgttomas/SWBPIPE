@@ -170,3 +170,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Focused test coverage in `tests/test_adapter_framework_contract.py` now exercises the application-service persistence no-bypass control.
 - The existing invented fixture at `fixtures/adapters/invented/invented_adapter_framework.json` is outside this run's write scope and still lacks those four newer controls. Under the hardened validator it is rejected until a later authorized fixture-refresh task updates it.
 - No lifecycle, review disposition, DAG, dependency, public transport/API, external format, release, code-compliance, or professional-approval claim was changed.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

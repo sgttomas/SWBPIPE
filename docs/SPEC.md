@@ -83,6 +83,20 @@ Minimum domain objects:
 | `RulePack` | User-defined code/design-basis check | required inputs, formulas, allowables, status, checksum |
 | `Report` | Auditable calculation output | input manifest, warnings, results, rule-pack refs, notices |
 
+### 3.0 Dependency-register type system
+
+Dependency registers are governed coordination artifacts. Current write-form
+registers must use the canonical v3.1 enum surface: `DependencyType` is one of
+`PREREQUISITE`, `INTERFACE`, `HANDOVER`, `CONSTRAINT`, `ENABLES`, or `OTHER`,
+and `Status` is one of `ACTIVE` or `RETIRED`. Candidate dependencies are
+non-authoritative worklist items until promoted by a human-gated graph refresh;
+they are not emitted as `Status=CANDIDATE`.
+
+`DAG-001` through `DAG-006` remain immutable historical snapshots with legacy
+read compatibility. Current successors, beginning with the proposed `DAG-007`
+rectification package, must validate in canonical mode and may preserve legacy
+labels only as provenance notes or extension metadata.
+
 Revision 0.5 treats the schema-backed physical model as the source of truth for
 editable piping design data. `schemas/model.schema.yaml` therefore exposes
 source-of-truth role metadata, unresolved assumptions, diagnostics/warnings,

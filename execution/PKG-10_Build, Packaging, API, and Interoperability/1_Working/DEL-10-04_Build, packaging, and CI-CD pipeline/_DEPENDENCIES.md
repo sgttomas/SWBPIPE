@@ -1,51 +1,52 @@
 # Dependencies: DEL-10-04 Build, packaging, and CI/CD pipeline
 
-## Declared Dependency Notes
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-No declared dependency rows are present in this deliverable-local register. This refresh preserves the previous aggregate-DAG rows as history where needed, but only source-supported rows remain `ACTIVE`.
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 20 total; 16 ACTIVE; 4 RETIRED.
+- **Classes:** ANCHOR=9; EXECUTION=11.
+- **Candidate/non-gating rows in register:** 0.
 
-- **Register schema:** v3.1
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer context:** RECONCILIATION
-- **Rows:** 20 total; 16 ACTIVE; 4 RETIRED
-- **ACTIVE classes:** 9 ANCHOR; 7 EXECUTION
+## Canonical Dependency Types
+- `CONSTRAINT`: 7
+- `OTHER`: 13
 
-| DependencyID | Class | Direction | Type | Target | Status | Evidence |
-|---|---|---:|---|---|---|---|
-| DEP-10-04-A001 | ANCHOR | UPSTREAM | OTHER | SOW-032 | ACTIVE | `_CONTEXT.md` Scope Coverage |
-| DEP-10-04-A002..A009 | ANCHOR | UPSTREAM | OTHER | REQ-10-04-01..REQ-10-04-08 | ACTIVE | `Specification.md` Requirements |
-| DEP-10-04-E001..E007 | EXECUTION | UPSTREAM | CONSTRAINT | AB-00-01/02/03/04/06/07/08 deliverables | ACTIVE | `_CONTEXT.md` Architecture Basis Injection |
-| DAG-002-E0571..E0574 | EXECUTION | UPSTREAM | OTHER | Prior inferred DAG targets | RETIRED | Not re-extracted from assigned docs |
+## Candidate / Non-Gating Handoff Notes
+- None.
 
 ## Run Notes
-
-- `SOURCE_DOCS=AUTO`; scanned assigned deliverable source documents: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_CONTEXT.md`, `_REFERENCES.md`, existing `Dependencies.csv`, and existing `_DEPENDENCIES.md`.
-- `ANCHOR_DOC=AUTO`; primary anchor signals came from `_CONTEXT.md`, `Datasheet.md`, and `Specification.md`.
-- `EXECUTION_DOC_ORDER=AUTO`; explicit execution constraints came from `_CONTEXT.md` Architecture Basis Injection.
-- `DECOMPOSITION_PATH=/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; decomposition was available and used only to validate identifiers and canonical labels.
-- Current enum validation accepts only `ANCHOR_TYPE=IMPLEMENTS_NODE|TRACES_TO_REQUIREMENT|NOT_APPLICABLE`, `DEPENDENCY_TYPE=PREREQUISITE|INTERFACE|HANDOVER|CONSTRAINT|ENABLES|OTHER`, `EXPLICITNESS=EXPLICIT|IMPLICIT`, and `ORIGIN=DECLARED|EXTRACTED`; historical aggregate-DAG values were normalized.
-- [WARNING] Four prior aggregate-DAG rows were not explicit in assigned deliverable source documents under conservative strictness and were marked `RETIRED` rather than deleted.
-
-## Lifecycle Summary
-
-| Status | Count |
-|---|---:|
-| ACTIVE | 16 |
-| RETIRED | 4 |
-
-| SatisfactionStatus | Count |
-|---|---:|
-| NOT_APPLICABLE | 9 |
-| SATISFIED | 7 |
-| TBD | 4 |
-
-## Downstream Handoff Notes
-
-For RECONCILIATION: ACTIVE rows now reflect only evidence available inside the assigned deliverable folder plus decomposition validation. The retired `DAG-002-E0571..E0574` rows may still be valid aggregate sequencing edges, but they need reconciliation or a declared/approved source because this conservative local refresh could not re-extract them from the assigned DEL-10-04 source documents.
+- TaskSkill: dependency-extract; MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for anchor/target resolution.
+- Anchor doc: `_CONTEXT.md`; execution docs reviewed as needed: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, existing `Dependencies.csv`, and prior `_DEPENDENCIES.md`.
+- PKG-00 architecture-basis rows were reviewed read-only where cited; supported rows were preserved and no PKG-00 files were changed.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields.
+- Candidate/non-gating ideas require explicit human graph approval plus graph revalidation before promotion.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
 ## Run History
+- 2026-06-16: Dependency semantic refresh for PKG-10 shard; rows added=0, rows retired=0, rows changed=0; PKG-00 rows 7 reviewed / 0 changed; validation passed.
 
-- 2026-05-10 23:12 MDT — TP-DAG-004 dependency-extract refresh; mode UPDATE; strictness CONSERVATIVE; consumer context RECONCILIATION; decomposition available; ACTIVE rows: 16; RETIRED rows: 4; warnings: 1.
+## Lifecycle Summary
+- ACTIVE rows: 16
+- RETIRED rows: 4
+- Closure-state breakdown: NOT_APPLICABLE=9; SATISFIED=7; TBD=4
+
+## Validation Result
+- PASS: `python3 tools/validation/validate_dependencies_schema.py Dependencies.csv` returned VALID for this deliverable.
+
+## Downstream Handoff Notes
+- This file is a deliverable-local derivative dependency register index for reconciliation; it is not aggregate graph authority.
+- Later DAG fan-in must consume accepted snapshots and preserve retired candidate dispositions unless human graph authority promotes them.

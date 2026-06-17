@@ -109,3 +109,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Recommendation recorded in `_REVIEW.md`: `MOVE_TO_CHECKING`.
 - Evidence basis: DEL-07-08 test evidence remained technically supported; parent PKG-07 validation recorded 11 pytest tests passed across the eight PKG-07 files, direct script checks passed for seven adjacent files, desktop npm tests passed, and viewport-editor cargo tests passed.
 - Caveat: this review did not edit `_STATUS.md` or make acceptance, release, professional, code-compliance, certification, sealing, authentication, or `ISSUED` claims.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

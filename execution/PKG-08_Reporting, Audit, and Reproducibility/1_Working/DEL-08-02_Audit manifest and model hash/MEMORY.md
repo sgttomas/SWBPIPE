@@ -158,3 +158,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-11_h5_rfc8785_rendering.md`.
   Lifecycle state unchanged (`CHECKING`); no review disposition, release,
   professional-approval, or code-compliance claim.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

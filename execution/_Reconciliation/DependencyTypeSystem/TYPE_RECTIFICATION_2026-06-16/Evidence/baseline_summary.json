@@ -1,0 +1,10 @@
+{
+  "local_files": 93,
+  "local_rows": 1289,
+  "local_drift_rows": 1045,
+  "local_files_with_drift": 30,
+  "historical_dag_files": 6,
+  "historical_dag_rows": 5276,
+  "historical_dag_drift_rows": 9775,
+  "historical_dag_files_with_drift": 6
+}

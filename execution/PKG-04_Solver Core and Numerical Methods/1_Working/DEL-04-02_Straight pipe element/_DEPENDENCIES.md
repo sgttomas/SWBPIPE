@@ -1,50 +1,66 @@
 # Dependencies: DEL-04-02 Straight pipe element
-
-## Generated Dependency Register
-
-- **Status:** TP_DAG_004_REFRESHED_CONSERVATIVE
+## Declared Upstream Dependencies
+- None recorded.
+## Declared Downstream Dependencies
+- None recorded.
+## Extracted Dependency Register
+- **Status:** SEMANTIC_REFRESHED_2026-06-16
+- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+- **Local Register:** `Dependencies.csv`
+- **Rows:** 10 total; 10 ACTIVE; 0 RETIRED.
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Schema Version:** v3.1
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 8 total; 8 ACTIVE; 0 CANDIDATE.
-- **Generated:** 2026-05-10
 
-## Refresh Basis
+| Class | Status | Count |
+|---|---|---:|
+| ANCHOR | ACTIVE | 2 |
+| EXECUTION | ACTIVE | 8 |
 
-- This refresh used the assigned deliverable folder plus `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- `Dependencies.csv` retains the prior row identifiers for reconciliation traceability.
-- No target deliverable folders, aggregate DAG files, source code, schemas, tests, status surfaces, or coordination artifacts were edited.
+## Active Dependency Summary
 
-## Active Upstream Edges
+| DependencyID | Class | Direction | Type | Target | Satisfaction |
+|---|---|---|---|---|---|
+| DEL-04-02-A001 | ANCHOR | UPSTREAM | OTHER | DEL-04-02 | NOT_APPLICABLE |
+| DEL-04-02-A002 | ANCHOR | UPSTREAM | OTHER | SOW-006 | NOT_APPLICABLE |
+| DAG-002-E0105 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | SATISFIED |
+| DAG-002-E0106 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | SATISFIED |
+| DAG-002-E0107 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | SATISFIED |
+| DAG-002-E0108 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | SATISFIED |
+| DAG-002-E0109 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | SATISFIED |
+| DAG-002-E0432 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | SATISFIED |
+| DAG-002-E0433 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-03-08 | SATISFIED |
+| DAG-002-E0434 | EXECUTION | UPSTREAM | INTERFACE | DEL-02-02 | SATISFIED |
 
-| DependencyID | DependencyType | Target | Status | Rationale |
-|---|---|---|---|---|
-| DAG-002-E0105 | ARCHITECTURE_BASIS | DEL-00-01 / AB-00-01 | ACTIVE | Sealed context lists AB-00-01 as applicable architecture basis. |
-| DAG-002-E0106 | ARCHITECTURE_BASIS | DEL-00-02 / AB-00-02 | ACTIVE | Sealed context lists AB-00-02 as applicable architecture basis. |
-| DAG-002-E0107 | ARCHITECTURE_BASIS | DEL-00-03 / AB-00-03 | ACTIVE | Sealed context lists AB-00-03 as applicable architecture basis. |
-| DAG-002-E0108 | ARCHITECTURE_BASIS | DEL-00-06 / AB-00-06 | ACTIVE | Sealed context lists AB-00-06 as applicable architecture basis. |
-| DAG-002-E0109 | ARCHITECTURE_BASIS | DEL-00-08 / AB-00-08 | ACTIVE | Sealed context lists AB-00-08 as applicable architecture basis. |
-| DAG-002-E0432 | SOLVER_PREDECESSOR | DEL-04-01 | ACTIVE | Straight pipe element must fit the 3D frame stiffness kernel boundary. |
-| DAG-002-E0433 | DOMAIN_MODEL | DEL-03-08 | ACTIVE | Section-property integration and weight hooks require governed section and mass-property inputs. |
-| DAG-002-E0434 | UNIT_CONTRACT | DEL-02-02 | ACTIVE | Stiffness, section-property integration, weight hooks, and force recovery require unit-aware checks. |
+## Run Notes
 
-## Conservative Rulings
+- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Brief: `execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-04_dependency_semantic_refresh.md`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for package, deliverable, SOW, OBJ, and AB basis confirmation.
+- Anchor document selection: `_CONTEXT.md` supplied explicit deliverable identity, package identity, and scope coverage.
+- Execution document selection: existing register rows were reviewed against local `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and cited PKG-00 architecture basis where applicable.
+- PKG-00 architecture-basis rows reviewed: 5 (DAG-002-E0105, DAG-002-E0106, DAG-002-E0107, DAG-002-E0108, DAG-002-E0109).
+- PKG-00 architecture-basis rows changed: 5 (DAG-002-E0105, DAG-002-E0106, DAG-002-E0107, DAG-002-E0108, DAG-002-E0109).
+- Rows added in this refresh run: 2 (DEL-04-02-A001, DEL-04-02-A002).
+- Rows changed in this refresh run: 5 (DAG-002-E0105, DAG-002-E0106, DAG-002-E0107, DAG-002-E0108, DAG-002-E0109).
+- Rows retired in this refresh run: 0 (none).
+- Warning: None
 
-- No new candidate or active rows were added for load-case application or downstream stress recovery. Local docs identify those as future interface concerns, but the assigned scope can expose hooks and recovered forces without requiring those downstream deliverables as gating predecessors.
-- No `AB-00-04` row was added. `Datasheet.md` and `Procedure.md` mention `AB-00-04`, but `_CONTEXT.md` lists only `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-06`, and `AB-00-08` for this sealed context, and `execution/_Decomposition/SOFTWARE_DECOMP.md` gives `AB-00-04` downstream reach that does not include `PKG-04`. This is surfaced for RECONCILIATION rather than silently promoted.
-- Satisfaction for inferred predecessor rows remains `UNKNOWN` because this bounded refresh did not read target deliverable evidence.
+## Downstream Handoff Notes
 
-## Authority Boundary
+- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
+- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
+- Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-- This local register is a dependency evidence surface for `DEL-04-02`; it is not an independent aggregate graph authority.
-- Architecture-basis rows remain sealed-context constraints and do not mark `PKG-00` or its deliverables as `ISSUED`.
-- Any future promotion of candidate edges, blocker computation, or cross-package sequencing change requires RECONCILIATION/CHANGE approval outside this bounded TASK run.
+## Lifecycle Summary
 
-## 2026-06-05 Blocker Closure Update
+| SatisfactionStatus | ACTIVE Rows |
+|---|---:|
+| NOT_APPLICABLE | 2 |
+| SATISFIED | 8 |
 
-- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
-- Dependency closure result: Rows `DAG-002-E0432`, `DAG-002-E0433`, and `DAG-002-E0434` were updated from `UNKNOWN` to `SATISFIED` using current DEL-04-01, DEL-03-08, and DEL-02-02 evidence plus straight-pipe boundary metadata.
-- Current active-row satisfaction counts after this update: `SATISFIED=8`, `PENDING=0`, `TBD=0`, `UNKNOWN=0`, `NOT_APPLICABLE=0`.
-- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.
+## Run History
+
+- 2026-06-16T0000-0600: dependency semantic refresh for `DEL-04-02`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 10 total rows, 10 ACTIVE, 0 RETIRED; warnings: None.

@@ -1,38 +1,55 @@
 # Dependencies: DEL-08-05 Report protected-content linter
 
-## TP-DAG-004 Dependency-Extract Refresh
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-- **Status:** REFRESHED_FOR_RECONCILIATION
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Canonicalized:** 2026-06-16
 - **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
-- **Generated:** 2026-05-10
+- **Classes:** ANCHOR=3; EXECUTION=10.
+- **Candidate rows moved to worklist:** 0.
 
-## Row Summary
+## Canonical Dependency Types
+- `CONSTRAINT`: 8
+- `INTERFACE`: 1
+- `OTHER`: 3
+- `PREREQUISITE`: 1
 
-| Class | Count | Notes |
-|---|---:|---|
-| ANCHOR | 3 | Local coverage anchors for `SOW-043`, `OBJ-002`, and `OBJ-007`; includes one `IMPLEMENTS_NODE` row. |
-| EXECUTION | 10 | Seven architecture-basis constraints, two governance predecessors, and one report-generator interface predecessor. |
+## Run Notes
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields.
+- Candidate rows remain non-gating in the candidate worklist and require explicit human approval plus graph revalidation before promotion.
+- PKG-00 architecture-basis rows reviewed: 7; changed: 0.
+- Anchor check: PASS; exactly one ACTIVE `IMPLEMENTS_NODE` row is present.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`.
+- Source documents used: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, and current `Dependencies.csv`.
+- Warnings: none.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-## Dependency Surface Notes
+| Class | ACTIVE | RETIRED |
+|---|---:|---:|
+| ANCHOR | 3 | 0 |
+| EXECUTION | 10 | 0 |
 
-- This refresh replaces the prior synchronized `DAG-002` mirror summary with a DEL-local dependency-extract evidence surface.
-- Architecture-basis rows remain context/evidence constraints only; they do not mark `PKG-00` deliverables as `ISSUED` and are not independent Type 2 dispatch authority.
-- Upstream target satisfaction for `DEL-01-02`, `DEL-01-04`, and `DEL-08-01` remains `PENDING` because this bounded worker did not inspect or modify target deliverables.
-- No candidate rows were promoted, no lifecycle state was changed, and no aggregate DAG, source, status, memory, code, schema, test, or coordination file was edited.
+## Run History
+- 2026-06-16 dependency semantic refresh: MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS; rows added 0, retired 0, changed 0; validation PASS.
 
-## Reconciliation Handoff
+## Lifecycle Summary
+- ACTIVE rows: 13.
+- RETIRED rows: 0.
+- Satisfaction status: SATISFIED=10; PENDING=3.
+- Closure state: dependency register valid for reconciliation handoff; no lifecycle issuance or implementation acceptance implied.
 
-- `Dependencies.csv` uses v3.1 required columns only.
-- Enum values were normalized to the local validator sets:
-  - `DependencyClass`: `ANCHOR`, `EXECUTION`
-  - `AnchorType`: `IMPLEMENTS_NODE`, `TRACES_TO_REQUIREMENT`, `NOT_APPLICABLE`
-  - `Direction`: `UPSTREAM`
-  - `DependencyType`: `OTHER`, `CONSTRAINT`, `PREREQUISITE`, `INTERFACE`
-  - `TargetType`: `REQUIREMENT`, `DELIVERABLE`
-  - `SatisfactionStatus`: `SATISFIED`, `PENDING`
-  - `Status`: `ACTIVE`
-- This local register is evidence for later RECONCILIATION. It does not approve `DAG-003` or change graph authority from approved `DAG-006`.
+## Downstream Handoff Notes
+- No candidate rows are present in the canonical register.
+- PKG-00 rows remain architecture-consistency trackers only; they are not substitutes for decomposition truth.

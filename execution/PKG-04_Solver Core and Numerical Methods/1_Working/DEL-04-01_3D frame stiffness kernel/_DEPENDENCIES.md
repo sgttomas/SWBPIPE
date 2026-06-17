@@ -1,37 +1,67 @@
 # Dependencies: DEL-04-01 3D frame stiffness kernel
-
-## Generated Dependency Register
-- **Status:** REFRESHED_TP_DAG_004
-- **Source Basis:** `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 plus local sealed context `_CONTEXT.md`
+## Declared Upstream Dependencies
+- None recorded.
+## Declared Downstream Dependencies
+- None recorded.
+## Extracted Dependency Register
+- **Status:** SEMANTIC_REFRESHED_2026-06-16
+- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - **Local Register:** `Dependencies.csv`
-- **Rows:** 8 total; 8 ACTIVE; 0 CANDIDATE.
-- **Generated:** 2026-05-03
-- **Refreshed:** 2026-05-10
+- **Rows:** 11 total; 11 ACTIVE; 0 RETIRED.
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
 
-## Refresh Summary
-- Edge set unchanged from the prior local register.
-- All rows remain `RegisterSchemaVersion=v3.1` and `Status=ACTIVE`.
-- SCA-001 architecture-basis rows remain satisfied context-injection evidence for AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
-- Inferred PKG-02 upstream rows remain unresolved as `SatisfactionStatus=TBD`; this refresh does not promote maturity or compute blockers.
-- No new SCA-002 design-engine dependency was added for DEL-04-01 because the frame stiffness kernel consumes solver-ready analytical contracts and the current decomposition does not make physical-design transformation a direct prerequisite for this deliverable.
+| Class | Status | Count |
+|---|---|---:|
+| ANCHOR | ACTIVE | 3 |
+| EXECUTION | ACTIVE | 8 |
 
-## Authority Boundary
-- Aggregate `DAG-002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a synchronized mirror/evidence surface, not an independent graph authority.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Active Dependency Summary
 
-## Validation Notes
-- Schema target: dependency register v3.1.
-- Enum validation target: `DependencyClass`, `AnchorType`, `Direction`, `DependencyType`, `TargetType`, `Explicitness`, `RequiredMaturity`, `ProposedMaturity`, `SatisfactionStatus`, `Confidence`, `Origin`, and `Status`.
-- Closeout result: schema and enum validation passed on 2026-05-10.
+| DependencyID | Class | Direction | Type | Target | Satisfaction |
+|---|---|---|---|---|---|
+| DEL-04-01-A001 | ANCHOR | UPSTREAM | OTHER | DEL-04-01 | NOT_APPLICABLE |
+| DEL-04-01-A002 | ANCHOR | UPSTREAM | OTHER | SOW-005 | NOT_APPLICABLE |
+| DEL-04-01-A003 | ANCHOR | UPSTREAM | OTHER | SOW-035 | NOT_APPLICABLE |
+| DAG-002-E0100 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | SATISFIED |
+| DAG-002-E0101 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | SATISFIED |
+| DAG-002-E0102 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | SATISFIED |
+| DAG-002-E0103 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | SATISFIED |
+| DAG-002-E0104 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | SATISFIED |
+| DAG-002-E0429 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-01 | SATISFIED |
+| DAG-002-E0430 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | SATISFIED |
+| DAG-002-E0431 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-03 | SATISFIED |
 
-## 2026-06-05 Blocker Closure Update
+## Run Notes
 
-- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
-- Dependency closure result: PKG-02 upstream rows `DAG-002-E0429`, `DAG-002-E0430`, and `DAG-002-E0431` were updated to `SATISFIED` from current frame-kernel boundary metadata, unit metadata, model-reference, and mechanics-boundary evidence.
-- Current active-row satisfaction counts after this update: `SATISFIED=8`, `PENDING=0`, `TBD=0`, `UNKNOWN=0`, `NOT_APPLICABLE=0`.
-- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.
+- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Brief: `execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-04_dependency_semantic_refresh.md`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for package, deliverable, SOW, OBJ, and AB basis confirmation.
+- Anchor document selection: `_CONTEXT.md` supplied explicit deliverable identity, package identity, and scope coverage.
+- Execution document selection: existing register rows were reviewed against local `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and cited PKG-00 architecture basis where applicable.
+- PKG-00 architecture-basis rows reviewed: 5 (DAG-002-E0100, DAG-002-E0101, DAG-002-E0102, DAG-002-E0103, DAG-002-E0104).
+- PKG-00 architecture-basis rows changed: 0 (none).
+- Rows added in this refresh run: 3 (DEL-04-01-A001, DEL-04-01-A002, DEL-04-01-A003).
+- Rows changed in this refresh run: 0 (none).
+- Rows retired in this refresh run: 0 (none).
+- Warning: None
+
+## Downstream Handoff Notes
+
+- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
+- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
+- Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Lifecycle Summary
+
+| SatisfactionStatus | ACTIVE Rows |
+|---|---:|
+| NOT_APPLICABLE | 3 |
+| SATISFIED | 8 |
+
+## Run History
+
+- 2026-06-16T0000-0600: dependency semantic refresh for `DEL-04-01`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 11 total rows, 11 ACTIVE, 0 RETIRED; warnings: None.

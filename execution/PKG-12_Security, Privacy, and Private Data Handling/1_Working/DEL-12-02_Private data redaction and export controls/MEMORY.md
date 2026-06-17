@@ -97,3 +97,7 @@ Durable context preserved after reconciliation review:
 - Six prerequisite dependency rows that were previously `TBD` are now marked `SATISFIED` for readiness evidence only, based on cited status/review/run-record evidence from DEL-12-05, DEL-12-01, DEL-08-01, DEL-08-04, DEL-06-04, and DEL-03-07.
 - Remaining deferrals stay explicit: runtime report/export integration, destructive quarantine movement, legal review workflow, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, runtime integration tests, and approval choices.
 - `_STATUS.md`, product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, and other deliverables were not edited by this alignment.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

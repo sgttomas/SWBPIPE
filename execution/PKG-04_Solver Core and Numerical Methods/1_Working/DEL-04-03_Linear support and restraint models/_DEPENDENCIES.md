@@ -1,52 +1,66 @@
 # Dependencies: DEL-04-03 Linear support and restraint models
-
+## Declared Upstream Dependencies
+- None recorded.
+## Declared Downstream Dependencies
+- None recorded.
 ## Extracted Dependency Register
-- **Status:** TP-DAG-004_REFRESHED
+- **Status:** SEMANTIC_REFRESHED_2026-06-16
+- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - **Local Register:** `Dependencies.csv`
-- **Register schema:** v3.1
-- **Rows:** 10 total; 10 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Generated/Refreshed:** 2026-05-10
-
-| Class | Direction | Type | Target | Status | Satisfaction |
-|---|---|---|---|---|---|
-| ANCHOR | UPSTREAM | OTHER | DEL-04-03 Linear support and restraint models | ACTIVE | SATISFIED |
-| ANCHOR | UPSTREAM | OTHER | SOW-011 Support and restraint model scope item | ACTIVE | SATISFIED |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-01 Architecture decision record baseline | ACTIVE | SATISFIED |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-02 Repository and module boundary architecture | ACTIVE | SATISFIED |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-03 Application service command-query-job model | ACTIVE | SATISFIED |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-06 Diagnostics, warning, and result-envelope contract | ACTIVE | SATISFIED |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-08 Layered software test and acceptance strategy | ACTIVE | SATISFIED |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 3D frame stiffness kernel | ACTIVE | TBD |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-01 Canonical domain model schema | ACTIVE | TBD |
-| EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 Unit system and dimensional-analysis core contract | ACTIVE | TBD |
-
-## Run Notes
+- **Rows:** 10 total; 10 ACTIVE; 0 RETIRED.
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
-- **ConsumerContext:** RECONCILIATION
-- **Scope:** DEL-04-03 / PKG-04 only.
-- **Decomposition path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Anchor doc:** `Datasheet.md`
-- **Execution docs reviewed:** `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, `_REFERENCES.md`
-- **Write scope used:** `Dependencies.csv`, `_DEPENDENCIES.md`, `_run_records/TASK_RUN_2026-05-10_2215_dependency-extract-refresh.md`
-- Added explicit parent and SOW trace anchors from the deliverable datasheet.
-- Preserved prior synchronized DAG-origin execution rows and normalized their enum fields to the current v3.1 validator set.
-- Legacy semantic labels are retained in `Notes` for reconciliation: `ARCHITECTURE_BASIS`, `SOLVER_PREDECESSOR`, `DOMAIN_MODEL`, `UNIT_CONTRACT`, `CONTEXT`, `DECOMPOSITION`, `INFERRED_DIRECT`, and `UNKNOWN`.
-- No source documents, status files, memory files, decomposition files, DAG files, code, schemas, or tests were edited.
+- **Consumer Context:** RECONCILIATION
 
-## Run History
-- 2026-04-30T10:15:41-0600 - dependency-extract created local v3.1 register and `_DEPENDENCIES.md`; seven ACTIVE rows reported in run record.
-- 2026-05-03 - local register synchronized from `DAG-002`; eight ACTIVE execution rows.
-- 2026-05-10T22:15:49-0600 - TP-DAG-004 refresh row executed in UPDATE / CONSERVATIVE / RECONCILIATION mode; ten ACTIVE rows; schema validation PASS; enum validation PASS.
+| Class | Status | Count |
+|---|---|---:|
+| ANCHOR | ACTIVE | 2 |
+| EXECUTION | ACTIVE | 8 |
 
-## Lifecycle Summary
-- **ACTIVE:** 10
-- **RETIRED:** 0
-- **Closure state:** 7 SATISFIED; 3 TBD.
-- **Tree anchor check:** PASS; exactly one ACTIVE `IMPLEMENTS_NODE` parent anchor.
-- **Evidence check:** PASS; every ACTIVE row includes `EvidenceFile` and `SourceRef`.
+## Active Dependency Summary
+
+| DependencyID | Class | Direction | Type | Target | Satisfaction |
+|---|---|---|---|---|---|
+| DEL-04-03-A001 | ANCHOR | UPSTREAM | OTHER | DEL-04-03 | SATISFIED |
+| DEL-04-03-A002 | ANCHOR | UPSTREAM | OTHER | SOW-011 | SATISFIED |
+| DAG-002-E0110 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | SATISFIED |
+| DAG-002-E0111 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | SATISFIED |
+| DAG-002-E0112 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | SATISFIED |
+| DAG-002-E0113 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | SATISFIED |
+| DAG-002-E0114 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | SATISFIED |
+| DAG-002-E0435 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | TBD |
+| DAG-002-E0436 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-01 | TBD |
+| DAG-002-E0437 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | TBD |
+
+## Run Notes
+
+- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Brief: `execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-04_dependency_semantic_refresh.md`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for package, deliverable, SOW, OBJ, and AB basis confirmation.
+- Anchor document selection: `Datasheet.md` supplied explicit deliverable identity, package identity, and scope coverage.
+- Execution document selection: existing register rows were reviewed against local `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and cited PKG-00 architecture basis where applicable.
+- PKG-00 architecture-basis rows reviewed: 5 (DAG-002-E0110, DAG-002-E0111, DAG-002-E0112, DAG-002-E0113, DAG-002-E0114).
+- PKG-00 architecture-basis rows changed: 5 (DAG-002-E0110, DAG-002-E0111, DAG-002-E0112, DAG-002-E0113, DAG-002-E0114).
+- Rows added in this refresh run: 0 (none).
+- Rows changed in this refresh run: 5 (DAG-002-E0110, DAG-002-E0111, DAG-002-E0112, DAG-002-E0113, DAG-002-E0114).
+- Rows retired in this refresh run: 0 (none).
+- Warning: None
 
 ## Downstream Handoff Notes
-- This register is a local dependency evidence surface for RECONCILIATION, not an independent sequencing authority.
-- Architecture-basis rows remain evidence of applicable SCA-001 dispatch constraints and do not mark `PKG-00` as `ISSUED`.
-- The three non-architecture execution prerequisites remain `TBD` satisfaction because this refresh did not read or adjudicate target deliverable maturity outside the assigned folder.
+
+- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
+- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
+- Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Lifecycle Summary
+
+| SatisfactionStatus | ACTIVE Rows |
+|---|---:|
+| SATISFIED | 7 |
+| TBD | 3 |
+
+## Run History
+
+- 2026-06-16T0000-0600: dependency semantic refresh for `DEL-04-03`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 10 total rows, 10 ACTIVE, 0 RETIRED; warnings: None.

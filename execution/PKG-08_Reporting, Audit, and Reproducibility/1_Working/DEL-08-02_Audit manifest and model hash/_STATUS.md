@@ -1,7 +1,7 @@
 # Status: DEL-08-02 Audit manifest and model hash
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-06
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

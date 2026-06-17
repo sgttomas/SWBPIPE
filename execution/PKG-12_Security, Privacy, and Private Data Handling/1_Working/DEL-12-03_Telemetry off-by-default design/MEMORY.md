@@ -143,3 +143,7 @@ Durable context preserved after reconciliation review:
 - Updated local dependency rows for DEL-12-05, DEL-01-02, DEL-01-04, and DEL-05-04 from `TBD` to `SATISFIED` only where target status/review/run-record evidence supports current readiness; this does not alter DAG authority or lifecycle state.
 - Preserved explicit deferrals for product config schema/storage, consent UI/CLI, endpoint/vendor/transport, event allowlist/schema, retention, support-bundle workflow, runtime telemetry integration, and human/security approval choices.
 - No `_STATUS.md`, product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, or other deliverables were edited.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

@@ -1,18 +1,19 @@
 # Dependencies: DEL-04-06 Solver diagnostics and singularity detection
-
+## Declared Upstream Dependencies
+- None recorded.
+## Declared Downstream Dependencies
+- None recorded.
 ## Extracted Dependency Register
-
-- **Status:** TP-DAG-004_REFRESHED
+- **Status:** SEMANTIC_REFRESHED_2026-06-16
 - **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
 - **Local Register:** `Dependencies.csv`
 - **Rows:** 12 total; 11 ACTIVE; 1 RETIRED.
-- **Generated:** 2026-05-10
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
 
 | Class | Status | Count |
-|---|---:|---:|
+|---|---|---:|
 | ANCHOR | ACTIVE | 3 |
 | EXECUTION | ACTIVE | 8 |
 | EXECUTION | RETIRED | 1 |
@@ -37,20 +38,29 @@
 
 | DependencyID | Prior Target | Reason |
 |---|---|---|
-| DAG-002-E0622 | DEL-04-04 | Retained non-destructively but retired because the DEL-04-06 sources make nonlinear active-set diagnostics conditional, not a conservative prerequisite for this diagnostic deliverable. |
+| DAG-002-E0622 | DEL-04-04 | Retained non-destructively from prior local register but retired during TP-DAG-004 conservative refresh because the accessible DEL-04-06 source documents keep nonlinear diagnostics conditional and separate from the nonlinear support solver implementation; not a gating dependency unless later RECONCILIATION plus CHANGE approval restores it.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=RETIRED |
 
 ## Run Notes
 
-- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`.
-- Used `execution/_Decomposition/SOFTWARE_DECOMP.md` as the decomposition path supplied by the brief.
-- Extraction evidence was restricted to the assigned DEL-04-06 folder and the supplied decomposition path.
-- Required governance/skill instructions were read. A prior completed TP-DAG-004 dependency refresh was consulted for output-format alignment only; no dependency evidence was extracted from it.
-- Anchor document selection: `_CONTEXT.md`, `Datasheet.md`, and `Specification.md` supplied explicit package/scope anchors.
-- Execution document selection: `_CONTEXT.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and `_SEMANTIC_LENSING.md` supplied conservative execution-edge evidence.
-- SCA-002 / decomposition revision 0.5 was reviewed; no new conservative execution dependency was added for DEL-04-06.
-- The five SCA-001 architecture-basis rows were retained and enum-normalized as `DependencyType=CONSTRAINT`.
-- The three active predecessor rows were retained and enum-normalized as `DependencyType=PREREQUISITE`.
-- The previous low-confidence candidate edge to `DEL-04-04` was not promoted; it is retained as `RETIRED` for reconciliation visibility.
+- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Brief: `execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-04_dependency_semantic_refresh.md`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for package, deliverable, SOW, OBJ, and AB basis confirmation.
+- Anchor document selection: `_CONTEXT.md` supplied explicit deliverable identity, package identity, and scope coverage.
+- Execution document selection: existing register rows were reviewed against local `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and cited PKG-00 architecture basis where applicable.
+- PKG-00 architecture-basis rows reviewed: 5 (DAG-002-E0125, DAG-002-E0126, DAG-002-E0127, DAG-002-E0128, DAG-002-E0129).
+- PKG-00 architecture-basis rows changed: 0 (none).
+- Rows added in this refresh run: 0 (none).
+- Rows changed in this refresh run: 0 (none).
+- Rows retired in this refresh run: 0 (none).
+- Warning: None
+
+## Downstream Handoff Notes
+
+- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
+- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
+- Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
 ## Lifecycle Summary
 
@@ -60,13 +70,6 @@
 | SATISFIED | 5 |
 | TBD | 3 |
 
-## Downstream Handoff Notes
-
-- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
-- Aggregate DAG and coordination surfaces may still be stale relative to `SOFTWARE_DECOMP.md` revision 0.7.
-- The retained predecessor rows have `SatisfactionStatus=TBD` because this local refresh did not inspect target deliverable maturity outside the allowed read boundary.
-- The retired `DEL-04-04` row should be reviewed by RECONCILIATION if nonlinear diagnostic sequencing is later formalized.
-
 ## Run History
 
-- 2026-05-10T22:16:16-0600: TP-DAG-004 refresh for `DEL-04-06`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 12 total rows, 11 ACTIVE, 1 RETIRED.
+- 2026-06-16T0000-0600: dependency semantic refresh for `DEL-04-06`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 12 total rows, 11 ACTIVE, 1 RETIRED; warnings: None.

@@ -1,7 +1,7 @@
 # Status: DEL-02-05 Project persistence and round-trip serialization
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-03
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 - 2026-04-30 - State updated to INITIALIZED (TASK+four-documents)

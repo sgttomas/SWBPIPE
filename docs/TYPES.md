@@ -83,6 +83,22 @@ human acceptance is an external hash-bound project record only.
 | `PROPOSAL` | Suggested design/development move requiring decision. |
 | `TBD` | Unknown or unwarranted; must be resolved before reliance. |
 
+## 5.1 Dependency-register vocabulary
+
+Current dependency registers use the canonical v3.1 core enum values defined by
+the shared Chirality dependency schema. For write-form rows, `DependencyType`
+is limited to `PREREQUISITE`, `INTERFACE`, `HANDOVER`, `CONSTRAINT`,
+`ENABLES`, and `OTHER`; `Status` is limited to `ACTIVE` and `RETIRED`.
+Candidate or non-gating graph questions are recorded in a candidate worklist or
+review packet, not as `Status=CANDIDATE`.
+
+Legacy values from `DAG-001` through `DAG-006`, including project-specific
+labels such as `ARCHITECTURE_BASIS`, `DOMAIN_MODEL`, `GUI_PREDECESSOR`,
+`RUNNER_CONTRACT`, `INFERRED_DIRECT`, `UNKNOWN`, and `AnchorType=DELIVERABLE`,
+are historical read-compatibility inputs only. New or refreshed dependency
+artifacts must emit canonical enum values and preserve any legacy label in
+notes or a non-core extension field.
+
 ## 6. Piping/software vocabulary
 
 |Canonical Term|Definition|Notes|

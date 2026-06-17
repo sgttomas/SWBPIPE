@@ -1,23 +1,79 @@
 # Dependencies: DEL-06-01 Rule-pack schema
 
-## Refreshed Dependency Register
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-- **Status:** TP_DAG_004_REFRESHED_CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Current Basis Read:** `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 plus assigned DEL-06-01 folder context/evidence
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`
-- **Rows:** 12 total; 12 ACTIVE; 0 CANDIDATE.
-- **Refreshed:** 2026-05-10
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 25 total; 25 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=13; EXECUTION=12.
+- **PKG-00 architecture-basis rows reviewed:** 7; changed by this refresh: 0.
+- **Rows added by this refresh:** 13.
+- **Rows retired by this refresh:** 0.
 
-## Refresh Result
+| DependencyID | Class | Direction | Type | TargetType | Target | Status |
+|---|---|---|---|---|---|---|
+| DEP-DEL-06-01-A001 | ANCHOR | UPSTREAM | OTHER | WBS_NODE | SOW-016 | ACTIVE |
+| DAG-002-E0155 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-01 | ACTIVE |
+| DAG-002-E0156 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-02 | ACTIVE |
+| DAG-002-E0157 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-03 | ACTIVE |
+| DAG-002-E0158 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-04 | ACTIVE |
+| DAG-002-E0159 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-06 | ACTIVE |
+| DAG-002-E0160 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-07 | ACTIVE |
+| DAG-002-E0161 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-08 | ACTIVE |
+| DAG-002-E0462 | EXECUTION | UPSTREAM | INTERFACE | DELIVERABLE | DEL-02-01 | ACTIVE |
+| DAG-002-E0463 | EXECUTION | UPSTREAM | INTERFACE | DELIVERABLE | DEL-02-02 | ACTIVE |
+| DAG-002-E0464 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-02-03 | ACTIVE |
+| DAG-002-E0465 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-01-02 | ACTIVE |
+| DAG-002-E0466 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-01-04 | ACTIVE |
+| DEP-DEL-06-01-A002 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-001 | ACTIVE |
+| DEP-DEL-06-01-A003 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-002 | ACTIVE |
+| DEP-DEL-06-01-A004 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-003 | ACTIVE |
+| DEP-DEL-06-01-A005 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-004 | ACTIVE |
+| DEP-DEL-06-01-A006 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-005 | ACTIVE |
+| DEP-DEL-06-01-A007 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-006 | ACTIVE |
+| DEP-DEL-06-01-A008 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-007 | ACTIVE |
+| DEP-DEL-06-01-A009 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-008 | ACTIVE |
+| DEP-DEL-06-01-A010 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-009 | ACTIVE |
+| DEP-DEL-06-01-A011 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-010 | ACTIVE |
+| DEP-DEL-06-01-A012 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-011 | ACTIVE |
+| DEP-DEL-06-01-A013 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | REQ-06-01-012 | ACTIVE |
 
-The prior 12-row DAG-002 dependency surface was retained. Revision 0.5 still supports the DEL-06-01 upstream architecture-basis, schema/unit/domain-model, protected-data, and professional-boundary dependencies. No conservative basis was found in the permitted read scope to add, remove, or downgrade a DEL-06-01 dependency row.
+## Canonical Dependency Types
+- `INTERFACE`: 2
+- `OTHER`: 13
+- `PREREQUISITE`: 10
 
-## Authority Boundary
+## Run Notes
+- Run controls: TaskSkill `dependency-extract`; MODE `UPDATE`; STRICTNESS `CONSERVATIVE`; CONSUMER_CONTEXT `RECONCILIATION`; ARCHITECTURE_BASIS_POLICY `PKG00_CONSISTENCY_TRACKERS`; ApplyEdits `true`.
+- Decomposition path: `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for scope/package/architecture-basis validation.
+- Anchor document selection: `Datasheet.md` and `_CONTEXT.md` for scope identity; `Specification.md` for local requirement trace anchors.
+- Execution document order: `Procedure.md`, `Guidance.md`, `_CONTEXT.md`, and relevant PKG-00 source excerpts for architecture-basis consistency.
+- PKG-00 / DEL-00-* rows are retained as architecture-consistency dependency trackers because `_CONTEXT.md` explicitly lists AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 for this sealed context.
+- Existing RETIRED rows were preserved; no rows were deleted.
+- Candidate/non-gating ideas were not emitted as `Status=CANDIDATE`.
+- Warnings: None.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-- This local register is a refreshed evidence surface for RECONCILIATION, not an independent graph authority.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
-- Satisfaction remains `UNKNOWN` for inferred non-architecture predecessors unless an approved coordination graph or owning lifecycle evidence establishes maturity.
+## Run History
+- 2026-06-16 23:59 - MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; decomposition=located; rows=25 total/25 ACTIVE/0 RETIRED; added=13; retired=0; PKG-00 reviewed=7 changed=0; warnings=none.
+
+## Lifecycle Summary
+- ACTIVE rows: 25
+- RETIRED rows: 0
+- SatisfactionStatus `NOT_APPLICABLE`: 13
+- SatisfactionStatus `SATISFIED`: 7
+- SatisfactionStatus `TBD`: 5
+
+## Downstream Handoff Notes
+- Register is refreshed for reconciliation consumption only; downstream graph authority remains governed by the active DAG/decomposition approval workflow.

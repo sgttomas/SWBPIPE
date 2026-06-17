@@ -373,3 +373,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Validation: Straight-pipe format check passed; locked crate tests passed with 33 unit tests and 0 doctests.
 - Residual boundaries: Sparse solver library, production tolerance policy, release thresholds, final result-envelope integration, and professional reliance remain explicit downstream or human-governed TBDs.
 - No release, professional approval, certification, sealing, authentication, code-compliance claim, protected standards data, or private data was introduced.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

@@ -86,3 +86,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Boundary unchanged: no schema, evaluator, rule-pack parser, private data,
   protected content, network/telemetry path, release-readiness claim, or
   professional/code-compliance claim changed.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

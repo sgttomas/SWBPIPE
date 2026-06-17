@@ -10,12 +10,13 @@
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
 - Read `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-12`.
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
+- Treat `execution/_DAG/DAG-007/` as the validated canonical dependency type-system rectification successor pending human approval. Do not treat it as current authority or update `_DAG/_LATEST.md` unless the human approval record is completed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
 
 ## Governing Imperatives
 
 1. `SOFTWARE_DECOMP` says what must be built and why.
-2. `DAG-006` says what depends on what, using approved active edges.
+2. `_DAG/_LATEST.md` names the approved DAG pointer. As of 2026-06-16 it still points to `DAG-006`; `DAG-007` is canonical and validated but pending human approval.
 3. Deliverable-local `_STATUS.md` files say the current lifecycle state for
    issuance and review gates. `CHECKING` means design authority is mature; it
    does not mean the application has absorbed that deliverable's scope.
@@ -43,11 +44,11 @@
    - read this prompt;
    - read `_COORDINATION.md`;
    - perform the baseline authority intake defined in `_COORDINATION.md`,
-     including the PRD yardstick sections, the completion plan, and the
-     decision register;
+     including the PRD yardstick sections, the completion plan, the `DAG-007`
+     pending-approval note, and the decision register;
    - add application-integration, execution, review, or issuance intake
      documents according to the selected tranche type;
-   - run `python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --format table --summary`;
+   - run `python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --format table --summary` until `_DAG/_LATEST.md` is human-approved to point elsewhere;
    - record `git status --short` before coordination-sensitive planning or
      execution.
 2. Use the Application Integration And Issuance Loop in `_COORDINATION.md` as
@@ -83,8 +84,9 @@
    `package.json`, `apps/desktop/package.json`, `apps/desktop/src/**`,
    `apps/desktop/src-tauri/**`, `apps/desktop/SMOKE.md`,
    `core/product_physics/**`, and `fixtures/product_preview/**` as needed.
-   Use `DAG-006` only to discover upstream/downstream deliverable context, then
-   inspect the relevant deliverable-local files directly.
+   Use the current approved DAG pointer only to discover upstream/downstream
+   deliverable context, then inspect the relevant deliverable-local files
+   directly.
 5. Inspect in detail any app, core implementation, fixture, test, or evidence
    files needed to decide what to do next.
 6. A working desktop application tranche preserves the boundary prohibitions:

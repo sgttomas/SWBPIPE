@@ -1,27 +1,49 @@
 # Dependencies: DEL-03-06 Expansion joint component model
 
-## Generated Dependency Register
-- **Status:** REFRESHED_TP_DAG_004
-- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 9 total; 9 ACTIVE; 0 CANDIDATE.
-- **Generated:** 2026-05-03
-- **Refreshed:** 2026-05-10
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-## Refresh Summary
-- Conservative dependency-extract review retained the existing nine active rows.
-- No new candidate rows were added for solver behavior, GUI editor behavior, import formats, persistence details, manufacturer catalogs, or hardware taxonomy because the deliverable evidence keeps those items downstream or `TBD`.
-- `Dependencies.csv` remains a canonicalized v3.1 local mirror/evidence surface for reconciliation, with row `LastSeen` values refreshed to 2026-05-10.
-- Legacy dependency-specific enum labels were normalized to the canonical dependency-extract enum set; original labels are preserved in row notes for reconciliation traceability.
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 12 total; 12 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=3; EXECUTION=9.
+- **Candidate rows moved to worklist:** 0.
+
+## Canonical Dependency Types
+- `CONSTRAINT`: 7
+- `OTHER`: 3
+- `PREREQUISITE`: 2
+
+## PKG-00 Architecture-Basis Review
+- **Rows reviewed:** 6
+- **Rows changed:** 0
+- **Disposition:** Supported PKG-00 consistency tracker rows retained as ACTIVE execution dependencies; PKG-00 files were read for basis context and not written.
 
 ## Run Notes
-- [WARNING] FLOATING_NODE: No ACTIVE parent anchor row with `DependencyClass=ANCHOR` and `AnchorType=IMPLEMENTS_NODE` is present in this DAG-synchronized local register.
+- TaskSkill: dependency-extract; MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+- Anchor doc: `_CONTEXT.md` plus `Datasheet.md`/decomposition where already cited by existing rows.
+- Execution docs: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Procedure.md`, and cited decomposition/register evidence already present in the register.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for PKG-03/SOW/OBJ support checks.
+- Rows added in this semantic refresh: 3.
+- Rows retired in this semantic refresh: 0.
+- Warnings: none.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-## Authority Boundary
-- Aggregate `DAG-002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a synchronized mirror/evidence surface, not an independent graph authority.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Run History
+- 2026-06-16: MODE=UPDATE; STRICTNESS=CONSERVATIVE; semantic refresh for PKG-03 shard; rows added=3; rows retired=0; PKG-00 rows reviewed=6; PKG-00 rows changed=0; warnings=none.
+
+## Lifecycle Summary
+- ACTIVE rows: 12
+- RETIRED rows: 0
+- SatisfactionStatus `SATISFIED`: 6
+- SatisfactionStatus `TBD`: 6

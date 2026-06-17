@@ -1,36 +1,68 @@
 # Dependencies: DEL-04-04 Nonlinear support active-set solver
-
-## Dependency Register
-
+## Declared Upstream Dependencies
+- None recorded.
+## Declared Downstream Dependencies
+- None recorded.
+## Extracted Dependency Register
+- **Status:** SEMANTIC_REFRESHED_2026-06-16
+- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+- **Local Register:** `Dependencies.csv`
+- **Rows:** 11 total; 11 ACTIVE; 0 RETIRED.
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
-- **Consumer context:** RECONCILIATION
-- **Register schema:** v3.1 with extension columns `EstimateImpactClass` and `ConsumerHint`
-- **Local register:** `Dependencies.csv`
-- **Rows:** 9 total; 9 ACTIVE; 0 RETIRED
-- **Last refreshed:** 2026-05-11 by TP-DAG-004 dependency-extract refresh
+- **Consumer Context:** RECONCILIATION
 
-## Refresh Summary
+| Class | Status | Count |
+|---|---|---:|
+| ANCHOR | ACTIVE | 2 |
+| EXECUTION | ACTIVE | 9 |
 
-This refresh replaces prior DAG-002-synchronized local rows with deliverable-local v3.1 enum-normalized dependency rows. It preserves the five explicit PKG-00 architecture-basis constraints from `_CONTEXT.md`, preserves the conservative solver-core upstream dependencies on DEL-04-01, DEL-04-03, and DEL-04-06, and adds one explicit domain constraint on DEL-02-02 for unit-aware and dimensionally checked nonlinear support quantities.
+## Active Dependency Summary
 
-## Active Upstream Dependencies
+| DependencyID | Class | Direction | Type | Target | Satisfaction |
+|---|---|---|---|---|---|
+| DEL-04-04-A001 | ANCHOR | UPSTREAM | OTHER | DEL-04-04 | NOT_APPLICABLE |
+| DEL-04-04-A002 | ANCHOR | UPSTREAM | OTHER | SOW-012 | NOT_APPLICABLE |
+| TP-DAG-004-DEL-04-04-E001 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | SATISFIED |
+| TP-DAG-004-DEL-04-04-E002 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | SATISFIED |
+| TP-DAG-004-DEL-04-04-E003 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | SATISFIED |
+| TP-DAG-004-DEL-04-04-E004 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | SATISFIED |
+| TP-DAG-004-DEL-04-04-E005 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | SATISFIED |
+| TP-DAG-004-DEL-04-04-E006 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-03 | PENDING |
+| TP-DAG-004-DEL-04-04-E007 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | PENDING |
+| TP-DAG-004-DEL-04-04-E008 | EXECUTION | UPSTREAM | INTERFACE | DEL-04-06 | PENDING |
+| TP-DAG-004-DEL-04-04-E009 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-02-02 | PENDING |
 
-| DependencyID | Type | Target | Basis | Satisfaction |
-|---|---|---|---|---|
-| TP-DAG-004-DEL-04-04-E001 | CONSTRAINT | DEL-00-01 Architecture decision record baseline | AB-00-01 context injection | SATISFIED |
-| TP-DAG-004-DEL-04-04-E002 | CONSTRAINT | DEL-00-02 Repository and module boundary architecture | AB-00-02 context injection | SATISFIED |
-| TP-DAG-004-DEL-04-04-E003 | INTERFACE | DEL-00-03 Application service command-query-job model | AB-00-03 result-envelope baseline | SATISFIED |
-| TP-DAG-004-DEL-04-04-E004 | INTERFACE | DEL-00-06 Diagnostics, warning, and result-envelope contract | convergence and active-set reporting | SATISFIED |
-| TP-DAG-004-DEL-04-04-E005 | CONSTRAINT | DEL-00-08 Layered software test and acceptance strategy | deterministic verification requirement | SATISFIED |
-| TP-DAG-004-DEL-04-04-E006 | PREREQUISITE | DEL-04-03 Linear support and restraint models | nonlinear supports extend support/restraint behavior | PENDING |
-| TP-DAG-004-DEL-04-04-E007 | PREREQUISITE | DEL-04-01 3D frame stiffness kernel | active-set iteration operates on frame mechanics | PENDING |
-| TP-DAG-004-DEL-04-04-E008 | INTERFACE | DEL-04-06 Solver diagnostics and singularity detection | nonconvergence and active-set diagnostics | PENDING |
-| TP-DAG-004-DEL-04-04-E009 | CONSTRAINT | DEL-02-02 Unit system and dimensional-analysis core contract | unit-bearing nonlinear support quantities | PENDING |
+## Run Notes
 
-## Authority Boundary
+- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Brief: `execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-04_dependency_semantic_refresh.md`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for package, deliverable, SOW, OBJ, and AB basis confirmation.
+- Anchor document selection: `_CONTEXT.md` supplied explicit deliverable identity, package identity, and scope coverage.
+- Execution document selection: existing register rows were reviewed against local `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and cited PKG-00 architecture basis where applicable.
+- PKG-00 architecture-basis rows reviewed: 5 (TP-DAG-004-DEL-04-04-E001, TP-DAG-004-DEL-04-04-E002, TP-DAG-004-DEL-04-04-E003, TP-DAG-004-DEL-04-04-E004, TP-DAG-004-DEL-04-04-E005).
+- PKG-00 architecture-basis rows changed: 2 (TP-DAG-004-DEL-04-04-E003, TP-DAG-004-DEL-04-04-E004).
+- Rows added in this refresh run: 2 (DEL-04-04-A001, DEL-04-04-A002).
+- Rows changed in this refresh run: 2 (TP-DAG-004-DEL-04-04-E003, TP-DAG-004-DEL-04-04-E004).
+- Rows retired in this refresh run: 0 (none).
+- Warning: None
 
-- This local register is a deliverable-local dependency evidence surface for RECONCILIATION.
-- It does not edit aggregate DAG files, coordination files, status files, source documents, schemas, tests, or code.
-- `PKG-00` architecture-basis rows remain context constraints only; they do not mark PKG-00 deliverables as `ISSUED`.
-- `PENDING` rows identify required upstream surfaces whose satisfaction was not adjudicated during this bounded refresh.
+## Downstream Handoff Notes
+
+- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
+- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
+- Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Lifecycle Summary
+
+| SatisfactionStatus | ACTIVE Rows |
+|---|---:|
+| NOT_APPLICABLE | 2 |
+| PENDING | 4 |
+| SATISFIED | 5 |
+
+## Run History
+
+- 2026-06-16T0000-0600: dependency semantic refresh for `DEL-04-04`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 11 total rows, 11 ACTIVE, 0 RETIRED; warnings: None.

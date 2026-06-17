@@ -1,7 +1,7 @@
 # Status: DEL-02-02 Unit system and dimensional-analysis core contract
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-12
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

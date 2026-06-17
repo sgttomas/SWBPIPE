@@ -42,6 +42,8 @@ Primary pointers:
 - `execution/_DAG/DAG-006/DAG_Audit.md`
 - `execution/_DAG/DAG-006/DependencyEdges.csv`
 - `execution/_DAG/DAG-006/DeliverableNodes.csv`
+- `execution/_DAG/DAG-007/` - canonical dependency type-system rectification
+  package, pending human approval before pointer promotion
 - `execution/PKG-*/1_Working/DEL-*/MEMORY.md`
 - `execution/PKG-*/1_Working/DEL-*/_STATUS.md`
 - `tools/coordination/list_deliverable_status.py`
@@ -130,8 +132,10 @@ slice:
 
 Read deliverable-local packets only when the selected app slice needs their
 authority, acceptance criteria, unresolved TBDs, review findings, or
-dependency context. Use `DAG-006` to discover those related deliverables, then
-inspect local artifacts directly.
+dependency context. Use the current approved DAG pointer to discover those
+related deliverables, then inspect local artifacts directly. As of 2026-06-16,
+`DAG-006` remains the approved pointer; `DAG-007` is the validated canonical
+rectification successor pending human approval.
 
 ## State Tracking Rules
 
@@ -140,20 +144,25 @@ Use two layers of state. Do not let handoff prose become substitute authority.
 Authoritative state:
 
 1. `execution/_Decomposition/SOFTWARE_DECOMP.md` says what must be built and why.
-2. `execution/_DAG/DAG-006/` says what depends on what, using approved active
-   edges only. Candidate rows remain non-gating unless explicitly promoted by a
-   later human gate and graph revalidation. SCCs are the primary diagnostic of
+2. `execution/_DAG/_LATEST.md` names the approved DAG pointer. As of
+   2026-06-16 it still points to `DAG-006`, an immutable historical snapshot
+   with legacy dependency enum values. `execution/_DAG/DAG-007/` is the
+   canonical type-system rectification successor: it preserves the approved
+   `DAG-006` active topology, excludes candidate rows from `DependencyEdges.csv`,
+   and remains pending human approval before pointer promotion. Current and
+   future dependency writes must use canonical v3.1 enum values only;
+   legacy-readable values are migration inputs, not emit-able current values.
+   Candidate rows remain non-gating worklist items unless explicitly promoted by
+   a later human gate and graph revalidation. SCCs are the primary diagnostic of
    undecided ordering: any edge that participates in a cycle is non-gating until
    the SCC is resolved by a recorded move (decompose / invert / merge / cut;
    cut/merge are human-gated). The active edge set is kept acyclic by
-   construction; cycles live only in the candidate layer pending resolution. A
-   new approved DAG version is event-driven by a decomposition revision / SCA —
-   not periodic — and is the occasion to re-run the closure audit
-   (`audit_dag.py`) and resolve any new SCC; a `DAG-007` re-derivation is not
-   warranted before that trigger. Canonical doctrine: the shared repo-root
-   `docs/CYCLE_DRIVEN_RESOLUTION.md`. This project's adoption, rollout, and
-   DAG-007 re-derivation trigger: `plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md`
-   (with its 2026-06-15 DAG-007 amendment).
+   construction; unresolved cycles live only in candidate worklists pending
+   resolution. Later approved DAG versions are event-driven by a decomposition
+   revision / SCA or another explicit governance rectification, not periodic.
+   Canonical doctrine: the shared repo-root `docs/CYCLE_DRIVEN_RESOLUTION.md`.
+   This project's adoption and rollout record:
+   `plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md`.
 3. Deliverable-local `_STATUS.md`, `MEMORY.md`, and `_run_records/**` carry
    lifecycle, working memory, and execution evidence inside each deliverable's
    ownership boundary.
@@ -209,7 +218,9 @@ opens it.
 
 Until all deliverables are `ISSUED`, ordinary development is app-centric:
 produce a working desktop application while using `CHECKING` deliverables,
-`DAG-006`, and the decomposition as mature design authority. `CHECKING`
+the current approved DAG pointer, and the decomposition as mature design
+authority. As of 2026-06-16, that pointer is still `DAG-006` pending human
+approval of `DAG-007`. `CHECKING`
 means design authority is mature; it does not mean the application has
 absorbed that deliverable's scope. The completion plan's FR map tracks
 absorption toward the PRD yardstick. Formal issuance remains a separate
@@ -280,13 +291,14 @@ bounded tranche.
 1. **Authority intake.** Read `{REPO_ROOT}/agents/AGENT_TASK.md`,
    `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`, `{WORKING_ROOT}/AGENTS.md`,
    the baseline governance documents above, current app intake surfaces needed
-   for the selected slice, `SOFTWARE_DECOMP`, and approved `DAG-006` graph
-   authority.
+   for the selected slice, `SOFTWARE_DECOMP`, and the current approved DAG
+   pointer. As of 2026-06-16, `_DAG/_LATEST.md` still points to `DAG-006`;
+   `DAG-007` is pending human approval.
 2. **Status and git discovery.** Run
    `python3 tools/coordination/list_deliverable_status.py --dag DAG-006 --format table --summary`
    or the same command with `--format csv` when machine-readable output is
-   needed. Record `git status --short` before coordination-sensitive planning
-   or execution.
+   needed, until `_DAG/_LATEST.md` is human-approved to point elsewhere. Record
+   `git status --short` before coordination-sensitive planning or execution.
 3. **Default candidate selection.** For ordinary development, select the
    highest-leverage application-integration tranche in this order:
    1. the earliest unblocked item on the completion plan's dependency spine
@@ -329,10 +341,10 @@ bounded tranche.
    select from `CHECKING` deliverables. `ISSUED` deliverables are not
    work-selection scope except through a human-approved change path.
 6. **Context selection.** Start from the app/code/test surfaces for app
-   integration work. Use `DAG-006/DependencyEdges.csv` and
-   `DAG-006/DeliverableNodes.csv` only to discover related deliverables whose
-   local artifacts need inspection. DAG rows do not replace local artifact
-   inspection.
+   integration work. Use the current approved DAG pointer only to discover
+   related deliverables whose local artifacts need inspection. As of
+   2026-06-16, that pointer is `DAG-006`; `DAG-007` is pending human approval.
+   DAG rows do not replace local artifact inspection.
 7. **Bounded execution.** After approval, dispatch canonical `TASK` workers or
    work locally inside a sealed tranche. Several workers may run concurrently
    only when file sets are disjoint and write scopes are explicit. App

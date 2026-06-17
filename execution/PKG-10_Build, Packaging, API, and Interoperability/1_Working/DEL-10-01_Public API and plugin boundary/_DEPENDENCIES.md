@@ -1,39 +1,53 @@
 # Dependencies: DEL-10-01 Public API and plugin boundary
 
-## Refresh Summary
-- **Status:** REFRESHED_TP_DAG_004
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **ConsumerContext:** RECONCILIATION
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
+
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`
-- **Rows:** 12 total; 12 ACTIVE; 0 CANDIDATE.
-- **Last refreshed:** 2026-05-16
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 14 total; 14 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=2; EXECUTION=12.
+- **Candidate/non-gating rows in register:** 0.
 
-## Active Rows
+## Canonical Dependency Types
+- `INTERFACE`: 4
+- `OTHER`: 2
+- `PREREQUISITE`: 8
 
-| Count | Dependency type | Target package(s) | Status |
-|---:|---|---|---|
-| 7 | `ARCHITECTURE_BASIS` | `PKG-00` | ACTIVE |
-| 1 | `SERVICE_API` | `PKG-02` | ACTIVE |
-| 1 | `SCHEMA_CONTRACT` | `PKG-02` | ACTIVE |
-| 1 | `UNIT_CONTRACT` | `PKG-02` | ACTIVE |
-| 1 | `DOMAIN_MODEL` | `PKG-02` | ACTIVE |
-| 1 | `INTERFACE` | `PKG-02` | ACTIVE |
+## Candidate / Non-Gating Handoff Notes
+- None.
 
-## Authority Boundary
-- This local register is dependency evidence for RECONCILIATION, not an independent graph authority.
-- `PKG-00` architecture-basis rows are preserved as SCA-001 injected context evidence; they do not mark `PKG-00` as `ISSUED`.
-- The refresh did not read or edit aggregate DAG, coordination, source, status, memory, code, schema, or test artifacts.
-- No new dependency row was added under conservative strictness because the assigned deliverable and decomposition did not justify an additional dependency beyond the existing active rows.
+## Run Notes
+- TaskSkill: dependency-extract; MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for anchor/target resolution.
+- Anchor doc: `_CONTEXT.md`; execution docs reviewed as needed: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, existing `Dependencies.csv`, and prior `_DEPENDENCIES.md`.
+- PKG-00 architecture-basis rows were reviewed read-only where cited; supported rows were preserved and no PKG-00 files were changed.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields.
+- Candidate/non-gating ideas require explicit human graph approval plus graph revalidation before promotion.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-## Validation Notes
-- Schema version retained as `v3.1`.
-- Required columns retained unchanged.
-- Canonical enums were checked for dependency class, anchor type, direction, dependency type, target type, explicitness, maturity, satisfaction status, confidence, origin, and row status.
-- Warnings: existing rows retain `UNKNOWN` satisfaction for inferred `PKG-02` predecessors because this bounded refresh did not read target deliverable status or maturity evidence.
+## Run History
+- 2026-06-16: Dependency semantic refresh for PKG-10 shard; rows added=2, rows retired=0, rows changed=0; PKG-00 rows 7 reviewed / 0 changed; validation passed.
 
-## DEV-001 Stage 2 Finding Resolution
+## Lifecycle Summary
+- ACTIVE rows: 14
+- RETIRED rows: 0
+- Closure-state breakdown: NOT_APPLICABLE=2; SATISFIED=8; TBD=4
 
-- Added package-local active row `DEV-001-STAGE2-DEL-10-01-PKG02-005` to explicitly name `DEL-02-05 Project persistence and round-trip serialization`.
-- Evidence is `Specification.md` requirement `DEL-10-01-REQ-14`, which requires the accepted canonical JSON/JCS-compatible hash basis for API manifests, jobs, model snapshots, results, and reproducibility records where JSON payload hashes are used, plus manifest hashes for non-JSON/binary assets.
-- This resolves the technical dependency-coverage gap identified by `PKG10-DEL1001-PKG02-W001` without changing aggregate DAG authority, lifecycle state, transport/API implementation scope, or human disposition.
+## Validation Result
+- PASS: `python3 tools/validation/validate_dependencies_schema.py Dependencies.csv` returned VALID for this deliverable.
+
+## Downstream Handoff Notes
+- This file is a deliverable-local derivative dependency register index for reconciliation; it is not aggregate graph authority.
+- Later DAG fan-in must consume accepted snapshots and preserve retired candidate dispositions unless human graph authority promotes them.

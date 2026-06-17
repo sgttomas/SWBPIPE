@@ -1,43 +1,50 @@
 # Dependencies: DEL-03-04 Branch connection component model fields
 
-## TP-DAG-004 Refresh
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-- **Refresh Status:** REFRESHED_TP_DAG_004_CONSERVATIVE
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Schema Version:** v3.1
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`
-- **Rows:** 9 total; 9 ACTIVE; 0 CANDIDATE; 0 removed.
-- **Generated:** 2026-05-10
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 12 total; 12 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=3; EXECUTION=9.
+- **Candidate rows moved to worklist:** 0.
 
-## Extracted Dependency Surface
+## Canonical Dependency Types
+- `CONSTRAINT`: 6
+- `INTERFACE`: 1
+- `OTHER`: 3
+- `PREREQUISITE`: 2
 
-| Dependency Class | Rows | Status |
-|---|---:|---|
-| ARCHITECTURE_BASIS | 6 | ACTIVE |
-| DOMAIN_MODEL | 1 | ACTIVE |
-| UNIT_CONTRACT | 1 | ACTIVE |
-| GOVERNANCE_PREDECESSOR | 1 | ACTIVE |
+## PKG-00 Architecture-Basis Review
+- **Rows reviewed:** 6
+- **Rows changed:** 6
+- **Disposition:** Supported PKG-00 consistency tracker rows retained as ACTIVE execution dependencies; PKG-00 files were read for basis context and not written.
 
-## Conservative Findings
+## Run Notes
+- TaskSkill: dependency-extract; MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+- Anchor doc: `_CONTEXT.md` plus `Datasheet.md`/decomposition where already cited by existing rows.
+- Execution docs: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Procedure.md`, and cited decomposition/register evidence already present in the register.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for PKG-03/SOW/OBJ support checks.
+- Rows added in this semantic refresh: 3.
+- Rows retired in this semantic refresh: 0.
+- Warnings: none.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-- The six SCA-001 architecture-basis rows remain explicit in `_CONTEXT.md`: AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
-- The direct domain-model predecessor remains `DEL-03-02` because branch connection fields extend the component library/schema surface.
-- The direct unit-contract predecessor remains `DEL-02-02` because branch geometry and reinforcement fields require unit-aware validation.
-- The direct governance predecessor remains `DEL-01-02` because branch SIF/flexibility data must not introduce protected standards or vendor data into the public project.
-- No new candidate rows were emitted under conservative strictness.
+## Run History
+- 2026-06-16: MODE=UPDATE; STRICTNESS=CONSERVATIVE; semantic refresh for PKG-03 shard; rows added=3; rows retired=0; PKG-00 rows reviewed=6; PKG-00 rows changed=6; warnings=none.
 
-## Authority Boundary
-
-- This local register is a deliverable-local dependency evidence surface for RECONCILIATION.
-- Aggregate DAG or coordination files remain outside this task's write scope and were not modified.
-- `PKG-00` architecture-basis rows are preserved as injected context evidence; `PKG-00` does not receive local dependency registers and is not marked `ISSUED` by this refresh.
-- Rows with `SatisfactionStatus=UNKNOWN` are retained as unresolved predecessor evidence, not as implementation approval.
-
-## Validation Closeout
-
-- CSV shape and required v3.1 header validated.
-- Enum fields validated for emitted values: `DependencyClass`, `AnchorType`, `Direction`, `DependencyType`, `TargetType`, `Explicitness`, `RequiredMaturity`, `ProposedMaturity`, `SatisfactionStatus`, `Confidence`, `Origin`, and `Status`.
-- Row count validated: 9 data rows.
-- No source docs, status, memory, code, schema, test, DAG, or coordination files were edited.
+## Lifecycle Summary
+- ACTIVE rows: 12
+- RETIRED rows: 0
+- SatisfactionStatus `SATISFIED`: 6
+- SatisfactionStatus `TBD`: 6

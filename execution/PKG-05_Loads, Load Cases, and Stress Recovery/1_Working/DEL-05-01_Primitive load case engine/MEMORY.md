@@ -546,3 +546,7 @@
 - A4 residuals remain combination basis editing, combination term
   creation/deletion, broader algebra authoring, Phase B unit picker/display
   retirement, and packaged-Tauri saved-project smoke over edited load data.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

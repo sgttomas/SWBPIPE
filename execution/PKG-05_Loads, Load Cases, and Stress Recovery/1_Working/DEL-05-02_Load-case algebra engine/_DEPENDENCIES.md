@@ -1,88 +1,75 @@
 # Dependencies: DEL-05-02 Load-case algebra engine
 
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` or ACTIVE proposal rows in current canonical registers.
+
+## Declared Upstream Dependencies
+- None declared outside the extracted register in this refresh.
+
+## Declared Downstream Dependencies
+- None declared outside the extracted register in this refresh.
+
 ## Extracted Dependency Register
-
-- **Status:** REFRESHED_TP_DAG_004
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Source of Truth:** deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md`
 - **Local Register:** `Dependencies.csv`
-- **Rows:** 19 total; 19 ACTIVE; 0 RETIRED.
-- **Generated:** 2026-05-10
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 19 total; 18 ACTIVE; 1 RETIRED.
+- **Classes:** ANCHOR=10, EXECUTION=9.
+- **Candidate rows moved to handoff/retired visibility this run:** 1.
 
-| Class | Anchor/Type | Direction | Target | Status | Satisfaction | Confidence |
-|---|---|---:|---|---|---|---|
-| ANCHOR | IMPLEMENTS_NODE | UPSTREAM | SOW-014 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-001 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-002 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-003 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-004 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-005 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-006 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-007 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-008 | ACTIVE | NOT_APPLICABLE | HIGH |
-| ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | REQ-05-02-009 | ACTIVE | NOT_APPLICABLE | HIGH |
-| EXECUTION | CONSTRAINT | UPSTREAM | DEL-00-01 | ACTIVE | SATISFIED | HIGH |
-| EXECUTION | CONSTRAINT | UPSTREAM | DEL-00-02 | ACTIVE | SATISFIED | HIGH |
-| EXECUTION | CONSTRAINT | UPSTREAM | DEL-00-03 | ACTIVE | SATISFIED | HIGH |
-| EXECUTION | CONSTRAINT | UPSTREAM | DEL-00-06 | ACTIVE | SATISFIED | HIGH |
-| EXECUTION | CONSTRAINT | UPSTREAM | DEL-00-08 | ACTIVE | SATISFIED | HIGH |
-| EXECUTION | PREREQUISITE | UPSTREAM | DEL-05-01 | ACTIVE | PENDING | HIGH |
-| EXECUTION | PREREQUISITE | UPSTREAM | DEL-02-02 | ACTIVE | SATISFIED | HIGH |
-| EXECUTION | INTERFACE | UPSTREAM | DEL-05-04 | ACTIVE | PENDING | HIGH |
-| EXECUTION | INTERFACE | UPSTREAM | DEL-06-02 | ACTIVE | TBD | LOW |
+| DependencyID | Class | Direction | Type | Target | Status | Evidence |
+|---|---|---|---|---|---|---|
+| `DEP-DEL-05-02-A001` | ANCHOR | UPSTREAM | OTHER | SOW-014 | ACTIVE | Datasheet.md / Identification / Scope items |
+| `DEP-DEL-05-02-A002` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-001 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A003` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-002 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A004` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-003 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A005` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-004 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A006` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-005 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A007` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-006 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A008` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-007 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A009` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-008 | ACTIVE | Specification.md / Requirements table |
+| `DEP-DEL-05-02-A010` | ANCHOR | UPSTREAM | OTHER | REQ-05-02-009 | ACTIVE | Specification.md / Requirements table |
+| `DAG-002-E0135` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0136` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0137` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0138` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0139` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0451` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-01 | ACTIVE | lib.rs / DEL-05-01 CHECKING status and load-case algebra validation |
+| `DAG-002-E0452` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | ACTIVE | README.md / Algebra result boundary metadata; QuantityUnitMetadata; canonical dimension tests |
+| `DAG-002-E0453` | EXECUTION | UPSTREAM | INTERFACE | DEL-05-04 | ACTIVE | analysis_status.schema.yaml / DEL-05-04 CHECKING status and analysis-status schema/API tests |
+| `DAG-002-E0616` | EXECUTION | UPSTREAM | INTERFACE | DEL-06-02 | RETIRED | PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md / Human ruling: DEL-06-02 evaluator interface non-gating for this review cycle |
+
+## Canonical Dependency Types
+- `CONSTRAINT`: 5
+- `INTERFACE`: 2
+- `OTHER`: 10
+- `PREREQUISITE`: 2
 
 ## Run Notes
-
-- Defaults applied: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Chosen anchor document: `Datasheet.md`; trace requirements extracted from `Specification.md`.
-- Execution documents used: `_CONTEXT.md`, `Datasheet.md`, `Guidance.md`, and `Specification.md`.
-- Decomposition path used: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Register refresh normalized graph-local dependency enums to v3.1 canonical values: architecture-basis rows became `DependencyType=CONSTRAINT`; load/unit predecessor rows became `PREREQUISITE`; status-semantics and possible evaluator reuse rows became `INTERFACE`.
-- `DAG-002-E0616` is retained as a non-gating `PROPOSAL` for RECONCILIATION because the expression grammar/library remains `TBD`.
-- 2026-05-16 DEV-001 Stage 2 local metadata alignment updated the DEL-02-02 unit predecessor to `SATISFIED` based on algebra boundary records requiring explicit unit metadata, accepted canonical dimensions, provenance references, and payload/hash refs.
-- No `[WARNING] FLOATING_NODE`: exactly one ACTIVE `IMPLEMENTS_NODE` anchor is present.
-- No `[WARNING] AMBIGUOUS_ANCHOR`: only one ACTIVE parent anchor is present.
-- No `[WARNING] MISSING_DECOMPOSITION`: the requested decomposition file was available.
-
-## Lifecycle Summary
-
-| Metric | Count |
-|---|---:|
-| ACTIVE rows | 19 |
-| RETIRED rows | 0 |
-| ANCHOR rows | 10 |
-| EXECUTION rows | 9 |
-| SATISFIED | 6 |
-| PENDING | 2 |
-| TBD | 1 |
-| NOT_APPLICABLE | 10 |
+- **TaskSkill:** `dependency-extract`
+- **MODE:** `UPDATE`
+- **STRICTNESS:** `CONSERVATIVE`
+- **CONSUMER_CONTEXT:** `RECONCILIATION`
+- **ARCHITECTURE_BASIS_POLICY:** `PKG00_CONSISTENCY_TRACKERS`
+- **Decomposition path:** `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for anchor/PKG-00 basis validation.
+- **Anchor doc selection:** `AUTO`; local datasheet/context/specification evidence used according to strongest explicit identifiers.
+- **Execution doc order:** `AUTO`; local `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, and cited upstream/downstream evidence reviewed as needed.
+- **PKG-00 tracker review:** 5 rows reviewed; 0 rows changed. Supported architecture-basis rows retained as upstream `CONSTRAINT` execution dependencies.
+- **Warnings:** [WARNING] Retired low-confidence non-gating DEL-06-02 evaluator-interface proposal from ACTIVE graph; preserved as reconciliation handoff note.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields where present.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
 ## Downstream Handoff Notes
-
-- Consumer context is `RECONCILIATION`; the register intentionally preserves the low-confidence DEL-06-02 evaluator interface as candidate evidence rather than promoting it to a gating predecessor.
-- Two pending execution dependencies (`DEL-05-01`, `DEL-05-04`) require cross-deliverable maturity review outside this bounded TASK worker. `DEL-02-02` unit metadata is technically satisfied for the PKG-05 algebra boundary only.
-- Architecture-basis constraints are marked `SATISFIED` because `_CONTEXT.md` explicitly injects AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08 as dispatchable context.
+- `DAG-002-E0616` is retained as a RETIRED row and reconciliation handoff only. It must not gate scheduling or execution unless a future human graph decision promotes evaluator-interface reuse after grammar/library selection.
 
 ## Run History
+- 2026-06-16: `dependency-extract` semantic refresh for PKG-05 shard; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; ACTIVE rows 18; RETIRED rows 1; warnings: [WARNING] Retired low-confidence non-gating DEL-06-02 evaluator-interface proposal from ACTIVE graph; preserved as reconciliation handoff note.
 
-| Timestamp | Mode | Strictness | Decomposition | Warnings | Active Rows | Notes |
-|---|---|---|---|---|---:|---|
-| 2026-04-30T10:23:35-0600 | UPDATE | CONSERVATIVE | execution/_Decomposition/SOFTWARE_DECOMP.md | none | 7 | Initial dependency-extract run created v3.1 register. |
-| 2026-05-03 | SYNC | N/A | execution/_DAG/DAG-006/DependencyEdges.csv | none | 8 + 1 candidate | Register synchronized from DAG-002 graph rows. |
-| 2026-05-10T22:27:35-0600 | UPDATE | CONSERVATIVE | execution/_Decomposition/SOFTWARE_DECOMP.md | none | 19 | TP-DAG-004 refresh normalized v3.1 enums, added explicit SOW/REQ anchors, and prepared RECONCILIATION handoff. |
-| 2026-05-16 | STAGE2_LOCAL_ALIGNMENT | CONSERVATIVE | accepted PKG-02 contract | none | 19 | Updated DEL-02-02 unit predecessor evidence and satisfaction for algebra boundary metadata only; no aggregate DAG or lifecycle action. |
-
-## Authority Boundary
-
-- This local register is an evidence surface for the assigned deliverable, not an independent project graph authority.
-- `CANDIDATE` is not a valid v3.1 `Status` enum; candidate semantics are preserved in `Notes` and `SatisfactionStatus=TBD`.
-- `PKG-00` architecture-basis rows remain injected context evidence and do not mark `PKG-00` deliverables as `ISSUED`.
-
-## 2026-06-05 Blocker Closure Update
-
-- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
-- Dependency closure result: Rows `DAG-002-E0451` and `DAG-002-E0453` were updated to `SATISFIED`; low-confidence future evaluator-interface row `DAG-002-E0616` was set to `NOT_APPLICABLE` for this review cycle by approved human ruling while preserving the future interface TBD in notes.
-- Current active-row satisfaction counts after this update: `SATISFIED=8`, `PENDING=0`, `TBD=0`, `UNKNOWN=0`, `NOT_APPLICABLE=11`.
-- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.
+## Lifecycle Summary
+- **ACTIVE rows:** 18
+- **RETIRED rows:** 1
+- **Satisfaction statuses:** NOT_APPLICABLE=10, SATISFIED=8, TBD=1
+- **Closure note:** Dependency semantic refresh closed locally after schema validation; lifecycle acceptance remains outside this task.

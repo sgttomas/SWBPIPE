@@ -103,3 +103,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Validation evidence for this refresh: `python3 tests/test_design_knowledge_schema.py` passed on 2026-06-06.
 - Deferred scope remains unchanged: GUI authoring behavior, constraint records/validation, physical-to-analytical transform consumption, runtime persistence/API integration, and public example/fixture policy closure remain downstream or `TBD`.
 - No schema/test edits, lifecycle transition, DAG/coordination edit, review-disposition change, blocker-queue update, commit, release claim, or professional/code-compliance claim was made.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

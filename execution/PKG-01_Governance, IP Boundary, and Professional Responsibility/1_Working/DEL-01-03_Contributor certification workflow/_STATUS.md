@@ -1,7 +1,7 @@
 # Status: DEL-01-03 Contributor certification workflow
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-04
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

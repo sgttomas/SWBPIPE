@@ -96,3 +96,7 @@ Durable context after approved WORKING_ITEMS tranche:
   (same helpers as `tests/test_invented_example_models.py`).
 - Validation: full root pytest 358 passed. Primary record: DEL-06-01
   `WORKING_ITEMS_RUN_2026-06-12_TP-C2-SCHEMA-001.md`.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

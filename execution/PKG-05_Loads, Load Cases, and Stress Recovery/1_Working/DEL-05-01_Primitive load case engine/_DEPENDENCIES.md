@@ -1,54 +1,68 @@
 # Dependencies: DEL-05-01 Primitive load case engine
 
-## Extracted Dependency Register
-- **Status:** REFRESHED_TP_DAG_004
-- **Schema:** Dependencies.csv v3.1
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 12 total; 8 ACTIVE; 4 RETIRED.
-- **Active Classes:** 2 ANCHOR; 6 EXECUTION.
-- **Generated:** 2026-05-10
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` or ACTIVE proposal rows in current canonical registers.
 
-| DependencyID | Class | Direction | Type | Target | Status | Confidence |
+## Declared Upstream Dependencies
+- None declared outside the extracted register in this refresh.
+
+## Declared Downstream Dependencies
+- None declared outside the extracted register in this refresh.
+
+## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 12 total; 8 ACTIVE; 4 RETIRED.
+- **Classes:** ANCHOR=2, EXECUTION=10.
+- **Candidate rows moved to handoff/retired visibility this run:** 0.
+
+| DependencyID | Class | Direction | Type | Target | Status | Evidence |
 |---|---|---|---|---|---|---|
-| TP-DAG-004-DEL-05-01-A001 | ANCHOR | UPSTREAM | OTHER | SOW-013 | ACTIVE | HIGH |
-| TP-DAG-004-DEL-05-01-A002 | ANCHOR | UPSTREAM | OTHER | OBJ-003 | ACTIVE | HIGH |
-| DAG-002-E0130 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | ACTIVE | HIGH |
-| DAG-002-E0131 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | ACTIVE | HIGH |
-| DAG-002-E0132 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | ACTIVE | HIGH |
-| DAG-002-E0133 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | ACTIVE | HIGH |
-| DAG-002-E0134 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | ACTIVE | HIGH |
-| TP-DAG-004-DEL-05-01-E001 | EXECUTION | DOWNSTREAM | INTERFACE | DEL-05-02 | ACTIVE | HIGH |
-| DAG-002-E0446 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-01 | RETIRED | MEDIUM |
-| DAG-002-E0447 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | RETIRED | MEDIUM |
-| DAG-002-E0448 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | RETIRED | MEDIUM |
-| DAG-002-E0449 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-03 | RETIRED | MEDIUM |
+| `TP-DAG-004-DEL-05-01-A001` | ANCHOR | UPSTREAM | OTHER | SOW-013 | ACTIVE | _CONTEXT.md / Scope Coverage |
+| `TP-DAG-004-DEL-05-01-A002` | ANCHOR | UPSTREAM | OTHER | OBJ-003 | ACTIVE | _CONTEXT.md / Objective Support |
+| `DAG-002-E0130` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0131` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0132` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0133` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0134` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `TP-DAG-004-DEL-05-01-E001` | EXECUTION | DOWNSTREAM | INTERFACE | DEL-05-02 | ACTIVE | Specification.md / Requirements / REQ-05-01-007 |
+| `DAG-002-E0446` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-01 | RETIRED | Deliverables.csv / Retired during TP-DAG-004 refresh; prior DAG inference not directly evidenced in assigned DEL-05-01 sources |
+| `DAG-002-E0447` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | RETIRED | Deliverables.csv / Retired during TP-DAG-004 refresh; prior DAG inference not directly evidenced in assigned DEL-05-01 sources |
+| `DAG-002-E0448` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | RETIRED | Deliverables.csv / Retired during TP-DAG-004 refresh; prior DAG inference not directly evidenced in assigned DEL-05-01 sources |
+| `DAG-002-E0449` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-03 | RETIRED | Deliverables.csv / Retired during TP-DAG-004 refresh; prior DAG inference not directly evidenced in assigned DEL-05-01 sources |
+
+## Canonical Dependency Types
+- `CONSTRAINT`: 5
+- `INTERFACE`: 1
+- `OTHER`: 2
+- `PREREQUISITE`: 4
 
 ## Run Notes
-- Runtime overrides: `SCOPE=DEL-05-01`; `RUN_ROOT=/Users/ryan/ai-env/projects/chirality-piping/execution`; `DECOMPOSITION_PATH=/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; `MODE=UPDATE`; `STRICTNESS=CONSERVATIVE`; `CONSUMER_CONTEXT=RECONCILIATION`.
-- Source document selection used defaults: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Chosen anchor evidence: `_CONTEXT.md`, validated against `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Chosen execution evidence: `_CONTEXT.md`, `Specification.md`, `Datasheet.md`, `Guidance.md`, and `Procedure.md`.
-- Existing DAG-synchronized rows were normalized to v3.1 canonical enums: `DependencyType` now uses `CONSTRAINT`, `INTERFACE`, or `PREREQUISITE`; `Origin` now uses `EXTRACTED`; `Explicitness` now uses `EXPLICIT` or `IMPLICIT`; unknown closure state now uses `TBD`.
-- Four prior inferred predecessor rows were retained non-destructively and marked `RETIRED` because conservative local extraction did not find explicit DEL-02-01, DEL-02-02, DEL-04-01, or DEL-04-03 references in assigned DEL-05-01 source documents.
-- Parent anchor check passed: exactly one ACTIVE `IMPLEMENTS_NODE` row.
-- No `[WARNING] MISSING_DECOMPOSITION`: decomposition path was supplied and readable.
-
-## Run History
-- 2026-04-30 10:26 - Initial dependency-extract run produced 6 ACTIVE rows under the earlier setup basis.
-- 2026-05-03 - Local register was synchronized from DAG-002 with 9 ACTIVE rows.
-- 2026-05-10 22:26 - TP-DAG-004 dependency-extract refresh, UPDATE, CONSERVATIVE, RECONCILIATION context; produced 12 rows: 8 ACTIVE and 4 RETIRED.
-
-## Lifecycle Summary
-- ACTIVE rows: 8
-- RETIRED rows: 4
-- Closure states: 7 SATISFIED; 1 PENDING; 4 TBD.
-- Required maturity: all rows retain `SEMANTIC_READY`.
-- Proposed maturity: all rows retain `SEMANTIC_READY`.
+- **TaskSkill:** `dependency-extract`
+- **MODE:** `UPDATE`
+- **STRICTNESS:** `CONSERVATIVE`
+- **CONSUMER_CONTEXT:** `RECONCILIATION`
+- **ARCHITECTURE_BASIS_POLICY:** `PKG00_CONSISTENCY_TRACKERS`
+- **Decomposition path:** `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for anchor/PKG-00 basis validation.
+- **Anchor doc selection:** `AUTO`; local datasheet/context/specification evidence used according to strongest explicit identifiers.
+- **Execution doc order:** `AUTO`; local `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, and cited upstream/downstream evidence reviewed as needed.
+- **PKG-00 tracker review:** 5 rows reviewed; 0 rows changed. Supported architecture-basis rows retained as upstream `CONSTRAINT` execution dependencies.
+- **Warnings:** [WARNING] None. Four unsupported prior DAG-inference rows remain RETIRED from the existing refreshed register.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields where present.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
 ## Downstream Handoff Notes
-- For RECONCILIATION: inspect the four retired predecessor edges against the aggregate DAG. They may still be valid as coordination-level or inferred schedule edges, but they are not supported as conservative local dependency-extract rows from the DEL-05-01 assigned source set.
-- For RECONCILIATION: the active DEL-05-02 downstream interface is explicit in `Specification.md` REQ-05-01-007 and should be reconciled with PKG-05 package sequencing.
-- This local register remains an evidence surface for DEL-05-01, not an aggregate graph authority.
+- Retired upstream predecessor hypotheses (`DAG-002-E0446` through `DAG-002-E0449`) remain visible as historical unsupported extracted rows and should not gate execution without renewed evidence.
+
+## Run History
+- 2026-06-16: `dependency-extract` semantic refresh for PKG-05 shard; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; ACTIVE rows 8; RETIRED rows 4; warnings: [WARNING] None. Four unsupported prior DAG-inference rows remain RETIRED from the existing refreshed register.
+
+## Lifecycle Summary
+- **ACTIVE rows:** 8
+- **RETIRED rows:** 4
+- **Satisfaction statuses:** PENDING=1, SATISFIED=7, TBD=4
+- **Closure note:** Dependency semantic refresh closed locally after schema validation; lifecycle acceptance remains outside this task.

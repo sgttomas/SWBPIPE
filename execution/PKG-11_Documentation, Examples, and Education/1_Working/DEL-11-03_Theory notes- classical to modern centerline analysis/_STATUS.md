@@ -1,7 +1,7 @@
 # Status: DEL-11-03 Theory notes: classical to modern centerline analysis
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-07
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 

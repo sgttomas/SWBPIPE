@@ -111,3 +111,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Evidence considered: schema root fields and JSON Schema 2020-12 declaration; operation/change enums; `OperationContractStatus`; `OperationModelBasis`; `OperationPrecondition`; validation, diagnostic, diff-preview, provenance, unit, quantity, reference, and professional-boundary definitions; invented fixture coverage; accepted model-state hash binding; focused tests for schema structure and adjacent validation-preview behavior.
 - Residual TBDs preserved: exact persistence granularity, broader hash partitioning beyond current model-state hash hooks, future operation granularity beyond current enums/fixtures, DEL-16-02 validation/diff-preview behavior, DEL-16-03 acceptance/audit behavior and human dispositions, and DEL-16-04 agent rationale/professional-boundary workflow behavior.
 - Boundary controls preserved: no edits to `_STATUS.md`, `_REVIEW.md`, `Review_Findings.csv`, `Dependencies.csv`, `_DEPENDENCIES.md`, schemas, fixtures, core code, or tests; no lifecycle transition, release assertion, legal conclusion, professional approval, certification, sealing, authentication, approval, or code-compliance claim.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

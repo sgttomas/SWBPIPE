@@ -2,11 +2,13 @@
 
 > **Canonical doctrine relocated (2026-06-15).** The project-neutral doctrine now
 > lives at the shared **`docs/CYCLE_DRIVEN_RESOLUTION.md`** (adopted `DEC-040`).
-> This file is retained as **chirality-piping's adoption, rollout, and DAG-007
-> re-derivation record**: the surface-by-surface rollout (§3), the worked example
-> (§4), the §7 / `DEC-040` ruling, and the 2026-06-15 DAG-007 trigger amendment
-> are piping-specific and stay here. For the reusable principle itself, read the
-> shared doctrine.
+> This file is retained as **chirality-piping's adoption, rollout, and historical
+> graph-rederivation record**: the surface-by-surface rollout (§3), the worked
+> example (§4), the §7 / `DEC-040` ruling, and the 2026-06-15 DAG-007 trigger
+> amendment are piping-specific and stay here. The `DAG-007` identifier was later
+> consumed by the 2026-06-16 dependency type-system rectification; Phase D graph
+> rederivation now targets `DAG-008` or a later successor. For the reusable
+> principle itself, read the shared doctrine.
 
 **Date:** 2026-06-13 (adopted `DEC-040`, 2026-06-15)
 **Epistemic status:** Adopted, non-governing record (originally a PROPOSAL
@@ -285,11 +287,12 @@ cut/merge reuse the `SCA-` id space, no new namespace (**D-CDR-4**); a standalon
 skill/procedure is deferred, a `docs/` procedure preferred if ever (**D-CDR-5**).
 **Applied this sitting:** `docs/PLAN.md` dependency-epistemics subsection;
 `_COORDINATION.md` State-Tracking DAG bullet (+ the re-derivation trigger);
-completion-plan Phase D DAG-007 trigger note; `agents/AGENT_WORKING_ITEMS.md`
+completion-plan Phase D graph-trigger note; `agents/AGENT_WORKING_ITEMS.md`
 (Conflict-transparency invariant extended to structural cycles + a Phase 3
 companion); `agents/AGENT_TASK.md` (an epistemic-controls SCC bullet); and the
 `D-CDR` register row. **Deferred to the next decomposition revision / SCA (the
-DAG-007 trigger, §Amendment 2026-06-15):** the loop step-4 SCC-resolution branch
+DAG-007 trigger, §Amendment 2026-06-15; superseded for the `DAG-007` identifier
+by the 2026-06-16 dependency type-system rectification):** the loop step-4 SCC-resolution branch
 (§3.2b), per-session open-SCCs surfacing (§3.2c), the register SCC-row convention
 (§3.3), the `audit_dag.py` backlog/edge-lister flags (§3.7), and the standalone
 skill/procedure (§3.6) — deferred on §5 proportionality (0 active SCCs; the
@@ -311,7 +314,14 @@ graph matches its rev-0.7 basis), not on authority.
 
 ---
 
-## Amendment 2026-06-15 — DAG re-derivation (DAG-007): not warranted now; same trigger as this doctrine
+## Amendment 2026-06-15 — DAG re-derivation timing, superseded for the DAG-007 identifier
+
+**Supersession note (2026-06-16):** The timing assessment below was correct for
+ordinary graph-topology rederivation on 2026-06-15. It is superseded for the
+`DAG-007` identifier by the dependency type-system rectification, which created
+`execution/_DAG/DAG-007/` as a canonical successor preserving `DAG-006` active
+topology and pending human approval. The next decomposition/SCA-driven graph
+refresh should use `DAG-008` or a later successor.
 
 **Author:** `WORKING_ITEMS`. **Status:** PROPOSAL (non-governing), consistent with
 the parent plan. Records a 2026-06-15 assessment of whether a new dependency-graph

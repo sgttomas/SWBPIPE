@@ -1,7 +1,7 @@
 # Status: DEL-12-01 Local-first storage and private data paths
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-07
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 

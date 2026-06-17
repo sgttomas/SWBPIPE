@@ -171,3 +171,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
   private libraries stay local-only, never committed/transmitted/bundled.
 - Remaining C3: rule-pack ↔ library reference wiring (its own slice); then C4
   end-to-end rule checks on authored models consuming imported libraries.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

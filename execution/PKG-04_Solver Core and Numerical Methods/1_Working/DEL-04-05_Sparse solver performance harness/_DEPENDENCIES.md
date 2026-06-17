@@ -1,70 +1,66 @@
 # Dependencies: DEL-04-05 Sparse solver performance harness
-
-## Generated Dependency Register
-- **Status:** TP-DAG-004_REFRESHED_DAG002_MIRROR
+## Declared Upstream Dependencies
+- None recorded.
+## Declared Downstream Dependencies
+- None recorded.
+## Extracted Dependency Register
+- **Status:** SEMANTIC_REFRESHED_2026-06-16
+- **Source of Truth:** Deliverable-local evidence plus `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+- **Local Register:** `Dependencies.csv`
+- **Rows:** 9 total; 9 ACTIVE; 0 RETIRED.
 - **Mode:** UPDATE
 - **Strictness:** CONSERVATIVE
 - **Consumer Context:** RECONCILIATION
-- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv` remains the approved coordination mirror source.
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 7 total; 7 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Refreshed:** 2026-05-10
 
-## Extracted Dependency Register
+| Class | Status | Count |
+|---|---|---:|
+| ANCHOR | ACTIVE | 2 |
+| EXECUTION | ACTIVE | 7 |
 
-| DependencyID | Class | Direction | Type | Target | Status | Satisfaction |
-|---|---|---|---|---|---|---|
-| DAG-002-E0120 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 Architecture decision record baseline | ACTIVE | SATISFIED |
-| DAG-002-E0121 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 Repository and module boundary architecture | ACTIVE | SATISFIED |
-| DAG-002-E0122 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 Application service command-query-job model | ACTIVE | SATISFIED |
-| DAG-002-E0123 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 Diagnostics, warning, and result-envelope contract | ACTIVE | SATISFIED |
-| DAG-002-E0124 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 Layered software test and acceptance strategy | ACTIVE | SATISFIED |
-| DAG-002-E0444 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 3D frame stiffness kernel | ACTIVE | TBD |
-| DAG-002-E0445 | EXECUTION | UPSTREAM | INTERFACE | DEL-04-06 Solver diagnostics and singularity detection | ACTIVE | TBD |
+## Active Dependency Summary
+
+| DependencyID | Class | Direction | Type | Target | Satisfaction |
+|---|---|---|---|---|---|
+| DEL-04-05-A001 | ANCHOR | UPSTREAM | OTHER | DEL-04-05 | NOT_APPLICABLE |
+| DEL-04-05-A002 | ANCHOR | UPSTREAM | OTHER | SOW-035 | NOT_APPLICABLE |
+| DAG-002-E0120 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | SATISFIED |
+| DAG-002-E0121 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | SATISFIED |
+| DAG-002-E0122 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | SATISFIED |
+| DAG-002-E0123 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | SATISFIED |
+| DAG-002-E0124 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | SATISFIED |
+| DAG-002-E0444 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | TBD |
+| DAG-002-E0445 | EXECUTION | UPSTREAM | INTERFACE | DEL-04-06 | TBD |
 
 ## Run Notes
 
-- **Chosen anchor doc:** `Datasheet.md`.
-- **Chosen execution docs:** `Specification.md`, `Procedure.md`, `Guidance.md`, `_CONTEXT.md`, `_REFERENCES.md`.
-- **Decomposition path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- **Dispatch row:** TP-DAG-004 row for `DEL-04-05`, `PackageID=PKG-04`, `Mode=UPDATE`, `Strictness=CONSERVATIVE`, `ConsumerContext=RECONCILIATION`.
-- Existing `Dependencies.csv` rows were treated as prior evidence from the approved `DAG-002` mirror. No aggregate DAG authority, lifecycle state, source document, status, memory, code, schema, test, or coordination artifact was changed.
-- Source review confirms local evidence for SOW-035, OBJ-003, OBJ-008, five SCA-001 architecture-basis constraints, the solver-kernel predecessor, and the diagnostics/result-envelope predecessor.
-- Conservative refresh preserved 7 ACTIVE mirror rows, updated `LastSeen` to 2026-05-10, and normalized non-canonical mirror enum values (`AnchorType`, `DependencyType`, `Explicitness`, `Origin`, `SatisfactionStatus`) to v3.1 write-form enums.
-- Original mirror origin semantics were `CONTEXT` for SCA-001 architecture-basis rows and `DECOMPOSITION` for inferred solver predecessor rows; v3.1 write form records these as `Origin=EXTRACTED`.
-- No protected standards content, private project data, engineering default values, benchmark thresholds, certification claims, or code-compliance claims were introduced.
-- `[WARNING] FLOATING_NODE`: no ACTIVE `DependencyClass=ANCHOR` / `AnchorType=IMPLEMENTS_NODE` row is present because this local register is preserving the `DAG-002` execution-edge mirror for reconciliation.
-
-## Run History
-
-| Timestamp | Mode | Strictness | Consumer | Rows | Validation | Notes |
-|---|---|---|---|---:|---|---|
-| 2026-04-30 10:15 | UPDATE | CONSERVATIVE | NONE | 5 | PASS | Original dependency-extract run emitted local anchor/objective/execution setup rows. |
-| 2026-05-03 | SYNC | N/A | DAG-002 | 7 | PASS | Local register synchronized from approved `DAG-006` mirror. |
-| 2026-05-10 22:16 | UPDATE | CONSERVATIVE | RECONCILIATION | 7 | PASS | TP-DAG-004 refresh preserved active mirror rows, updated run notes/history, and kept candidate/lifecycle authority unchanged. |
-
-## Lifecycle Summary
-
-| Status | Count |
-|---|---:|
-| ACTIVE | 7 |
-| RETIRED | 0 |
-| CANDIDATE | 0 |
-
-| SatisfactionStatus | Count |
-|---|---:|
-| SATISFIED | 5 |
-| TBD | 2 |
-
-## Authority Boundary
-
-- Aggregate `DAG-002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a synchronized mirror/evidence surface, not an independent graph authority.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+- Applied `TaskSkill=dependency-extract` in `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Brief: `execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-04_dependency_semantic_refresh.md`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for package, deliverable, SOW, OBJ, and AB basis confirmation.
+- Anchor document selection: `_CONTEXT.md` supplied explicit deliverable identity, package identity, and scope coverage.
+- Execution document selection: existing register rows were reviewed against local `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, and cited PKG-00 architecture basis where applicable.
+- PKG-00 architecture-basis rows reviewed: 5 (DAG-002-E0120, DAG-002-E0121, DAG-002-E0122, DAG-002-E0123, DAG-002-E0124).
+- PKG-00 architecture-basis rows changed: 0 (none).
+- Rows added in this refresh run: 2 (DEL-04-05-A001, DEL-04-05-A002).
+- Rows changed in this refresh run: 0 (none).
+- Rows retired in this refresh run: 0 (none).
+- Warning: None
 
 ## Downstream Handoff Notes
 
-- RECONCILIATION should treat this row as a refreshed `DAG002_MIRROR` surface with 7 ACTIVE execution rows and no candidate promotions.
-- The two non-architecture predecessor rows remain `SatisfactionStatus=TBD` because local refresh did not verify implementation maturity of `DEL-04-01` or `DEL-04-06`.
-- The missing parent-anchor warning is a local skill-integrity note, not a graph-change request.
+- This deliverable-local register is reconciliation evidence, not aggregate DAG authority.
+- `DAG-007` remains a canonical type-system rectification successor pending human approval; this refresh does not update `_DAG/_LATEST.md`.
+- Candidate/non-gating relationships remain outside `Status=CANDIDATE`; promotion requires explicit graph approval and revalidation.
+- Validation: PASS (`python3 tools/validation/validate_dependencies_schema.py Dependencies.csv`).
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Lifecycle Summary
+
+| SatisfactionStatus | ACTIVE Rows |
+|---|---:|
+| NOT_APPLICABLE | 2 |
+| SATISFIED | 5 |
+| TBD | 2 |
+
+## Run History
+
+- 2026-06-16T0000-0600: dependency semantic refresh for `DEL-04-05`; mode UPDATE; strictness CONSERVATIVE; consumer RECONCILIATION; 9 total rows, 9 ACTIVE, 0 RETIRED; warnings: None.

@@ -71,3 +71,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Preserved deferred `TBD` status for localization, full geometric conflict solving, owner criteria/rules, GUI presentation, physical-to-analytical transformation, runtime integration, release readiness, and human acceptance.
 - Removed stale missing workflow and handoff-state reference entries; added current references to `_COORDINATION.md`, `NEXT_INSTANCE_PROMPT.md`, project `AGENTS.md`, `agents/AGENT_TASK.md`, DEL-13-03 evidence files, and current DEL-13-02 upstream refresh evidence.
 - Run evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1133.md`; no lifecycle, review, dependency, schema, core, or test files were intentionally edited by this refresh.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

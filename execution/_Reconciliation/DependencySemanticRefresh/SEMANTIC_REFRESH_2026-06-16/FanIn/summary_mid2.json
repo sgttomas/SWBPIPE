@@ -1,0 +1,8 @@
+{
+  "dependency_registers": 93,
+  "rows": 1385,
+  "active": 1331,
+  "retired": 54,
+  "candidate_status_rows": 0,
+  "active_del00_target_rows": 514
+}

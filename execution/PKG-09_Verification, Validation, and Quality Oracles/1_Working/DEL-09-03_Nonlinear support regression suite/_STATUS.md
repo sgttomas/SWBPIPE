@@ -1,7 +1,7 @@
 # Status: DEL-09-03 Nonlinear support regression suite
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-06
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 

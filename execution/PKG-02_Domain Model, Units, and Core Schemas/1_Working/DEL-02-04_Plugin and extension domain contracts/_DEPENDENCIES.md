@@ -1,72 +1,45 @@
 # Dependencies: DEL-02-04 Plugin and extension domain contracts
 
-## Generated Dependency Register
-- **Status:** REFRESHED_TP_DAG_004
-- **Schema:** Dependencies.csv v3.1
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 12 total; 9 ACTIVE; 3 RETIRED.
-- **Generated:** 2026-05-10
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-## Authority Boundary
-- Aggregate DAG artifacts remain outside this deliverable-local write scope.
-- This local register is an evidence-first dependency surface for reconciliation, not an independent project graph authority.
-- Retired rows are preserved for auditability and are not deleted.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Declared Upstream Dependencies
+- None recorded.
 
-## Declared Dependencies
-
-No human-owned declared dependency list was present in the prior `_DEPENDENCIES.md`.
+## Declared Downstream Dependencies
+- None recorded.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 12 total; 9 ACTIVE; 3 RETIRED.
+- **Classes:** ANCHOR=2; EXECUTION=10.
+- **Candidate rows moved to worklist:** 0.
+- **PKG-00 architecture-basis trackers:** 7 reviewed; 7 retained ACTIVE; 0 changed during final audit pass.
+- **Retired rows retained non-destructively:** `DAG-002-E0395`, `DAG-002-E0396`, `DAG-002-E0397`.
 
-| DependencyID | Class | Status | Direction | Type | Target | Statement |
-|---|---|---:|---|---|---|---|
-| DEP-02-04-A001 | ANCHOR | ACTIVE | UPSTREAM | OTHER | SOW-038 | DEL-02-04 implements scope item SOW-038 for plugin and extension domain contracts. |
-| DEP-02-04-A002 | ANCHOR | ACTIVE | UPSTREAM | OTHER | OBJ-009 | DEL-02-04 traces to objective OBJ-009 for interoperability and extensibility while preserving governance boundaries. |
-| DAG-002-E0038 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-01 | DEL-02-04 uses SCA-001 architecture basis AB-00-01 from DEL-00-01 before product-development execution. |
-| DAG-002-E0039 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-02 | DEL-02-04 uses SCA-001 architecture basis AB-00-02 from DEL-00-02 before product-development execution. |
-| DAG-002-E0040 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-03 | DEL-02-04 uses SCA-001 architecture basis AB-00-03 from DEL-00-03 before product-development execution. |
-| DAG-002-E0041 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-04 | DEL-02-04 uses SCA-001 architecture basis AB-00-04 from DEL-00-04 before product-development execution. |
-| DAG-002-E0042 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-06 | DEL-02-04 uses SCA-001 architecture basis AB-00-06 from DEL-00-06 before product-development execution. |
-| DAG-002-E0043 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-07 | DEL-02-04 uses SCA-001 architecture basis AB-00-07 from DEL-00-07 before product-development execution. |
-| DAG-002-E0044 | EXECUTION | ACTIVE | UPSTREAM | PREREQUISITE | DEL-00-08 | DEL-02-04 uses SCA-001 architecture basis AB-00-08 from DEL-00-08 before product-development execution. |
-| DAG-002-E0395 | EXECUTION | RETIRED | UPSTREAM | PREREQUISITE | DEL-02-01 | Current Procedure evidence says the document kit does not add the assumed DEL-02-01 dependency. |
-| DAG-002-E0396 | EXECUTION | RETIRED | UPSTREAM | PREREQUISITE | DEL-02-02 | Current Procedure evidence says the document kit does not add the assumed DEL-02-02 dependency. |
-| DAG-002-E0397 | EXECUTION | RETIRED | UPSTREAM | PREREQUISITE | DEL-02-03 | Conservative refresh found no explicit DEL-02-03 execution prerequisite in the source kit. |
+## Canonical Dependency Types
+- `OTHER`: 2
+- `PREREQUISITE`: 10
 
 ## Run Notes
-
-- Defaults used: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Anchor document selected: `Datasheet.md`.
-- Execution documents scanned: `_CONTEXT.md`, `Procedure.md`, `Specification.md`, `Guidance.md`, `_REFERENCES.md`, prior `_DEPENDENCIES.md`, and existing `Dependencies.csv`.
-- Decomposition path used: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; status: found and used for SOW/OBJ/deliverable label validation.
-- Parent anchor check: exactly one ACTIVE `IMPLEMENTS_NODE` anchor found.
-- Warnings: Earlier dependency-refresh evidence recorded stale decomposition-basis wording; this authority-refresh pass records `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and `DAG-006` as current authority.
-- Validation tool warning: `tools/validation/validate_id_format.sh` rejects canonical active decomposition IDs such as `DEL-02-04` because it expects the legacy pattern `DEL-[0-9]{3}-[0-9]{2}`. Canonical IDs were preserved; no source IDs were rewritten.
-- Failed-input notes: none.
+- TaskSkill: `dependency-extract`; MODE=`UPDATE`; STRICTNESS=`CONSERVATIVE`; CONSUMER_CONTEXT=`RECONCILIATION`; ARCHITECTURE_BASIS_POLICY=`PKG00_CONSISTENCY_TRACKERS`; ApplyEdits=`true`.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md` (present; anchor validation not degraded).
+- Source docs reviewed: `Datasheet.md`, `_CONTEXT.md`, `Guidance.md`, `Procedure.md`, `Specification.md`, `_REFERENCES.md`.
+- PKG-00 evidence reviewed for architecture trackers: `_CONTEXT.md` architecture-basis injection plus PKG-00 deliverable source excerpts for AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
+- Core enum fields conform to the canonical Chirality dependency model. Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields.
+- Parent anchor check: exactly one ACTIVE `IMPLEMENTS_NODE`; no FLOATING_NODE or AMBIGUOUS_ANCHOR warning.
+- Retired-row disposition: the current source kit supports future possible coordination with DEL-02-01/02/03 but does not establish those rows as active execution prerequisites under conservative refresh.
+- Candidate rows remain non-gating in the candidate worklist and require explicit human approval plus graph revalidation before promotion.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
 ## Run History
-
-- 2026-05-10 21:49 MDT — MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; decomposition found at `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; ACTIVE counts: ANCHOR=2, EXECUTION=7; RETIRED counts: EXECUTION=3; warnings: reference revision wording conflict and legacy ID-format validator mismatch.
+- 2026-06-16: dependency semantic refresh under sealed PKG-02 shard brief. Rows added=0; rows newly retired=0; retained retired rows=3; rows changed since HEAD=12 (LastSeen/notes/evidence normalization); PKG-00 rows reviewed=7, changed in final pass=0; validation PASS.
 
 ## Lifecycle Summary
-
-| Class | ACTIVE | RETIRED |
-|---|---:|---:|
-| ANCHOR | 2 | 0 |
-| EXECUTION | 7 | 3 |
-| TOTAL | 9 | 3 |
-
-| SatisfactionStatus | ACTIVE | RETIRED |
-|---|---:|---:|
-| NOT_APPLICABLE | 2 | 0 |
-| SATISFIED | 7 | 0 |
-| TBD | 0 | 3 |
-
-## Downstream Handoff Notes
-
-- For RECONCILIATION: the refreshed local surface differs from the prior DAG-002 mirror by adding explicit Tree anchors and retiring three direct PKG-02 predecessor rows that are not supported as current execution dependencies by the DEL-02-04 source kit under conservative extraction.
-- Reconciliation should compare retired rows `DAG-002-E0395`, `DAG-002-E0396`, and `DAG-002-E0397` against aggregate DAG authority before changing any sequencing artifact.
+- ACTIVE: 9
+- RETIRED: 3
+- SatisfactionStatus: SATISFIED=7; TBD=3; NOT_APPLICABLE=2; other=0.

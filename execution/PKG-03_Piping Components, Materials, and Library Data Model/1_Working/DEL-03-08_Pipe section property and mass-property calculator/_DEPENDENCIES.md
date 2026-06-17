@@ -1,48 +1,50 @@
 # Dependencies: DEL-03-08 Pipe section property and mass-property calculator
 
-## Generated Dependency Register
-- **Status:** TP-DAG-004_REFRESHED
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
+
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`
-- **Schema:** v3.1, 29 required columns, 0 extension columns
-- **Rows:** 9 total; 9 ACTIVE; 0 CANDIDATE
-- **Generated:** 2026-05-11
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 14 total; 14 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=5; EXECUTION=9.
+- **Candidate rows moved to worklist:** 0.
 
-## Authority Boundary
-- Aggregate `DAG-002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a synchronized mirror and evidence surface, not an independent graph authority.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Canonical Dependency Types
+- `CONSTRAINT`: 6
+- `INTERFACE`: 1
+- `OTHER`: 5
+- `PREREQUISITE`: 2
 
-## Preserved Active Upstream Edges
-
-| DependencyID | Target | Type | Status | Refresh disposition |
-|---|---|---|---|---|
-| DAG-002-E0094 | DEL-00-01 Architecture decision record baseline | ARCHITECTURE_BASIS | ACTIVE | Preserved from `_CONTEXT.md` AB-00-01 injection. |
-| DAG-002-E0095 | DEL-00-02 Repository and module boundary architecture | ARCHITECTURE_BASIS | ACTIVE | Preserved from `_CONTEXT.md` AB-00-02 injection; reinforced by calculator/solver boundary requirements. |
-| DAG-002-E0096 | DEL-00-04 Persistence and schema versioning architecture | ARCHITECTURE_BASIS | ACTIVE | Preserved from `_CONTEXT.md` AB-00-04 injection; relevant to provenance-preserving schema hooks. |
-| DAG-002-E0097 | DEL-00-06 Diagnostics, warning, and result-envelope contract | ARCHITECTURE_BASIS | ACTIVE | Preserved from `_CONTEXT.md` AB-00-06 injection; Procedure keeps exact diagnostics as `TBD`. |
-| DAG-002-E0098 | DEL-00-07 API boundary and adapter contract map | ARCHITECTURE_BASIS | ACTIVE | Preserved from `_CONTEXT.md` AB-00-07 injection; relevant to unit/provenance validation boundaries. |
-| DAG-002-E0099 | DEL-00-08 Layered software test and acceptance strategy | ARCHITECTURE_BASIS | ACTIVE | Preserved from `_CONTEXT.md` AB-00-08 injection; reinforced by local verification expectations. |
-| DAG-002-E0426 | DEL-03-01 Material library schema with provenance | DOMAIN_MODEL | ACTIVE | Preserved; Specification requires library-sourced material/provenance carry-through. |
-| DAG-002-E0427 | DEL-03-02 Pipe section and component library schema | DOMAIN_MODEL | ACTIVE | Preserved; Procedure identifies section/component schema as a required input for hooks. |
-| DAG-002-E0428 | DEL-02-02 Unit system and dimensional-analysis core contract | UNIT_CONTRACT | ACTIVE | Preserved; Specification requires unit-aware and dimensionally checked calculations. |
+## PKG-00 Architecture-Basis Review
+- **Rows reviewed:** 6
+- **Rows changed:** 6
+- **Disposition:** Supported PKG-00 consistency tracker rows retained as ACTIVE execution dependencies; PKG-00 files were read for basis context and not written.
 
 ## Run Notes
-- Applied defaults: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=_CONTEXT.md`, `EXECUTION_DOC_ORDER=Specification.md, Procedure.md, Guidance.md, Datasheet.md`.
-- Decomposition path: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- The refresh found no conservative basis for adding new dependencies beyond the nine active DAG-002 rows already mirrored here.
-- No `RESET_EXTRACTED` behavior was applied; prior active edge IDs were retained.
-- Satisfaction for the three non-architecture upstream contract edges remains `UNKNOWN` because target deliverable maturity and content were outside this bounded read scope.
-- No protected dimensional tables, material tables, proprietary data, or code-compliance content were introduced.
+- TaskSkill: dependency-extract; MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+- Anchor doc: `_CONTEXT.md` plus `Datasheet.md`/decomposition where already cited by existing rows.
+- Execution docs: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Procedure.md`, and cited decomposition/register evidence already present in the register.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for PKG-03/SOW/OBJ support checks.
+- Rows added in this semantic refresh: 5.
+- Rows retired in this semantic refresh: 0.
+- Warnings: none.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-## Downstream Handoff Notes
-- RECONCILIATION should treat `DEL-03-08` as blocked on unit-system, schema-hook, provenance, and diagnostic contract resolution before implementation.
-- Open dependency-facing TBDs are: unit API/dimensions/tolerances, schema field ownership for inputs/outputs, diagnostic codes/classes for invalid geometry or missing provenance, and synthetic fixture policy.
-- The local evidence supports existing `DEL-02-02`, `DEL-03-01`, `DEL-03-02`, and `DEL-00-06` edges; it does not establish a new validation-suite dependency under conservative strictness.
+## Run History
+- 2026-06-16: MODE=UPDATE; STRICTNESS=CONSERVATIVE; semantic refresh for PKG-03 shard; rows added=5; rows retired=0; PKG-00 rows reviewed=6; PKG-00 rows changed=6; warnings=none.
 
 ## Lifecycle Summary
-- 2026-05-03: Local register synchronized from DAG-002.
-- 2026-05-11: TP-DAG-004 dependency-extract refresh completed in UPDATE mode for RECONCILIATION consumer context.
+- ACTIVE rows: 14
+- RETIRED rows: 0
+- SatisfactionStatus `SATISFIED`: 6
+- SatisfactionStatus `TBD`: 8

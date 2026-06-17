@@ -44,3 +44,7 @@
 - Refreshed active dependency authority wording so DAG-006 is current graph authority and historical DAG-005/DEV-001 wording is provenance only.
 - Narrowed the review warning to remaining Phase A/historical-context wording; adapter target-support and runtime-loader TBDs remain non-blocking for CHECKING.
 - Boundary exclusions preserved: no DAG artifact edit, candidate promotion, DEV-001 evidence edit, runtime loader, public endpoint, compatibility claim, release claim, code-compliance claim, solver-validation claim, professional-acceptance claim, or external-validation claim.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

@@ -1,115 +1,80 @@
 # Dependencies: DEL-13-02 Constraint entity and provenance model
 
-## Generated Dependency Register
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-- **Status:** TP-DAG-004_LOCAL_REFRESH
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Prior Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
-- **Approved graph authority:** `execution/_DAG/DAG-006/`
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 18 total; 18 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Refreshed:** 2026-05-11
+## Declared Upstream Dependencies
+- None recorded.
 
-## Authority Boundary
-
-- Aggregate `DAG-002` remains the approved sequencing and blocker-computation authority within its approval boundary.
-- `DAG-003` remains preliminary and was not read as approval authority, promoted, or modified by this run.
-- This local register is a refreshed deliverable-local evidence surface for later RECONCILIATION, not an independent graph approval.
-- Candidate rows remain non-gating until later RECONCILIATION plus CHANGE approval. No candidate rows were introduced for DEL-13-02 in this run.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Declared Downstream Dependencies
+- None recorded.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Canonicalized:** 2026-06-16
+- **Rows:** 18 total; 18 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=5; EXECUTION=13.
+- **Candidate rows moved to worklist:** 0.
 
-| Count | Meaning |
-|---:|---|
-| 12 | Preserved active DAG-002 mirror execution rows |
-| 5 | Added active local anchor rows from explicit DEL-13-02 identifiers |
-| 1 | Added active downstream handoff row supported by local source text and approved DAG-006 inverse evidence |
-| 0 | Retired rows |
-| 0 | Candidate rows |
+### Compact Active Register
 
-| DependencyID | Class | Anchor/Type | Direction | Target | Status | Origin |
-|---|---|---|---|---|---|---|
-| DAG-002-E0646 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-01 Architecture decision record baseline | ACTIVE | CONTEXT |
-| DAG-002-E0647 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-02 Repository and module boundary architecture | ACTIVE | CONTEXT |
-| DAG-002-E0648 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-03 Application service command-query-job model | ACTIVE | CONTEXT |
-| DAG-002-E0649 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-04 Persistence and schema versioning architecture | ACTIVE | CONTEXT |
-| DAG-002-E0650 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-06 Diagnostics, warning, and result-envelope contract | ACTIVE | CONTEXT |
-| DAG-002-E0651 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-07 API boundary and adapter contract map | ACTIVE | CONTEXT |
-| DAG-002-E0652 | EXECUTION | ARCHITECTURE_BASIS | UPSTREAM | DEL-00-08 Layered software test and acceptance strategy | ACTIVE | CONTEXT |
-| DAG-002-E0762 | EXECUTION | DOMAIN_MODEL | UPSTREAM | DEL-13-01 Design knowledge schema and provenance model | ACTIVE | GRAPH_REVIEW |
-| DAG-002-E0763 | EXECUTION | DOMAIN_MODEL | UPSTREAM | DEL-02-01 Canonical domain model schema | ACTIVE | GRAPH_REVIEW |
-| DAG-002-E0764 | EXECUTION | UNIT_CONTRACT | UPSTREAM | DEL-02-02 Unit system and dimensional-analysis core contract | ACTIVE | GRAPH_REVIEW |
-| DAG-002-E0765 | EXECUTION | PERSISTENCE_CONTRACT | UPSTREAM | DEL-02-05 Project persistence and round-trip serialization | ACTIVE | GRAPH_REVIEW |
-| DAG-002-E0766 | EXECUTION | GOVERNANCE_PREDECESSOR | UPSTREAM | DEL-01-04 Professional responsibility and product-claims policy | ACTIVE | GRAPH_REVIEW |
-| DEP-013-02-001 | ANCHOR | IMPLEMENTS_NODE | UPSTREAM | PKG-13 Physical Design Knowledge and Constraint Engine | ACTIVE | EXTRACTED |
-| DEP-013-02-002 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | SOW-068 | ACTIVE | EXTRACTED |
-| DEP-013-02-003 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | SOW-067 | ACTIVE | EXTRACTED |
-| DEP-013-02-004 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OBJ-014 | ACTIVE | EXTRACTED |
-| DEP-013-02-005 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OBJ-018 | ACTIVE | EXTRACTED |
-| DEP-013-02-006 | EXECUTION | HANDOVER | DOWNSTREAM | DEL-13-03 Constraint validation engine | ACTIVE | EXTRACTED |
+| DependencyID | Class | Direction | Type | Target | Evidence |
+|---|---|---|---|---|---|
+| DAG-002-E0646 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-01 Architecture decision record baseline | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0647 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-02 Repository and module boundary architecture | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0648 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-03 Application service command-query-job model | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0649 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-04 Persistence and schema versioning architecture | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0650 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-06 Diagnostics, warning, and result-envelope contract | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0651 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-07 API boundary and adapter contract map | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0652 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-08 Layered software test and acceptance strategy | `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001 architecture-basis injection |
+| DAG-002-E0762 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-13-01 Design knowledge schema and provenance model | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` DAG2-RD-002 |
+| DAG-002-E0763 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-01 Canonical domain model schema | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` DAG2-RD-002 |
+| DAG-002-E0764 | EXECUTION | UPSTREAM | INTERFACE | DEL-02-02 Unit system and dimensional-analysis core contract | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` DAG2-RD-002 |
+| DAG-002-E0765 | EXECUTION | UPSTREAM | INTERFACE | DEL-02-05 Project persistence and round-trip serialization | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` DAG2-RD-002 |
+| DAG-002-E0766 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-01-04 Professional responsibility and product-claims policy | `execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md` DAG2-RD-002 |
+| DEP-013-02-001 | ANCHOR | UPSTREAM | OTHER | PKG-13 Physical Design Knowledge and Constraint Engine | `Datasheet.md` Identification |
+| DEP-013-02-002 | ANCHOR | UPSTREAM | OTHER | SOW-068 Constraint validation scope | `Datasheet.md` Scope coverage |
+| DEP-013-02-003 | ANCHOR | UPSTREAM | OTHER | SOW-067 User-supplied design knowledge | `Datasheet.md` Scope coverage |
+| DEP-013-02-004 | ANCHOR | UPSTREAM | OTHER | OBJ-014 Schema-backed design model objective | `Datasheet.md` Objective support |
+| DEP-013-02-005 | ANCHOR | UPSTREAM | OTHER | OBJ-018 Professional and IP boundary objective | `Datasheet.md` Objective support |
+| DEP-013-02-006 | EXECUTION | DOWNSTREAM | HANDOVER | DEL-13-03 Constraint validation engine | `Guidance.md` Principles / Separate schema from validation engine |
+
+## Canonical Dependency Types
+- `HANDOVER`: 1
+- `INTERFACE`: 2
+- `OTHER`: 5
+- `PREREQUISITE`: 10
 
 ## Run Notes
-
-- Defaults used: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Chosen anchor source: `Datasheet.md`.
-- Chosen execution sources: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, and approved local-mirror rows from `execution/_DAG/DAG-002`.
-- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`; anchor identifiers were validated against the decomposition/register content available in the repo.
-- Approved graph authority consulted: `execution/_DAG/DAG-006`; `DAG-003` was treated as preliminary and was not approved, promoted, or used as authority.
-- Existing DAG-002 execution rows were preserved unchanged because they remain the approved graph-authority mirror evidence for this deliverable.
-- Added one `IMPLEMENTS_NODE` anchor to `PKG-13` and four `TRACES_TO_REQUIREMENT` anchors to `SOW-068`, `SOW-067`, `OBJ-014`, and `OBJ-018`.
-- Added one downstream handoff to `DEL-13-03` because local guidance explicitly assigns deterministic validation behavior to DEL-13-03 and approved DAG-002 already contains the inverse dependency `DAG-002-E0768`.
-- No candidate row was introduced. The possible downstream consumer `DEL-13-04` remains represented only in approved DAG-006 inverse evidence because the local DEL-13-02 source text was less direct than the DEL-13-03 handoff.
-- [WARNING] ENUM_TOOL_SCOPE: `tools/validation/validate_enum.py` does not include approved DAG-002 local mirror values such as `ARCHITECTURE_BASIS`, `DOMAIN_MODEL`, `UNIT_CONTRACT`, `PERSISTENCE_CONTRACT`, `GOVERNANCE_PREDECESSOR`, `CONTEXT`, `GRAPH_REVIEW`, `INFERRED_DIRECT`, `UNKNOWN`, or `CANDIDATE`. Those prior rows were preserved under DAG-002 authority; newly extracted rows use canonical enum values accepted by the tool where applicable.
-- [WARNING] ID_FORMAT_TOOL_SCOPE: `tools/validation/validate_id_format.sh` expects legacy three-digit package/deliverable IDs and rejects current decomposition IDs such as `PKG-13`, `DEL-13-02`, `SOW-068`, and `OBJ-014`. Canonical current IDs were preserved.
-- No protected standards content, private data, engineering default values, implementation schema claims, or professional approval/code-compliance claims were added.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields.
+- Candidate rows remain non-gating in the candidate worklist and require explicit human approval plus graph revalidation before promotion.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+- Defaults applied: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`; anchor validation resolved PKG-13, SOW-067, SOW-068, OBJ-014, and OBJ-018.
+- PKG-00 rows reviewed: 7; PKG-00 rows changed in `Dependencies.csv`: 7; retained as architecture-consistency trackers.
+- Warnings: none.
 
 ## Run History
 
-- 2026-05-03: Local dependency register synchronized from approved `DAG-006` mirror; 12 ACTIVE execution rows.
-- 2026-05-11: TP-DAG-004 dependency surface refresh for RECONCILIATION. Mode `UPDATE`, strictness `CONSERVATIVE`, decomposition located, DAG-002 authority preserved, 18 ACTIVE rows total: 13 EXECUTION and 5 ANCHOR.
+| Timestamp | Mode | Strictness | Decomposition | Warnings | ACTIVE Rows |
+|---|---|---|---|---|---:|
+| 2026-06-16 | UPDATE | CONSERVATIVE | `execution/_Decomposition/SOFTWARE_DECOMP.md` | None | 18 |
 
 ## Lifecycle Summary
 
-| Status | Count |
-|---|---:|
-| ACTIVE | 18 |
-| RETIRED | 0 |
-| CANDIDATE | 0 |
-
-| DependencyClass | Count |
-|---|---:|
-| EXECUTION | 13 |
-| ANCHOR | 5 |
-
-| DependencyType | Count |
-|---|---:|
-| ARCHITECTURE_BASIS | 7 |
-| DOMAIN_MODEL | 2 |
-| UNIT_CONTRACT | 1 |
-| PERSISTENCE_CONTRACT | 1 |
-| GOVERNANCE_PREDECESSOR | 1 |
-| OTHER | 5 |
-| HANDOVER | 1 |
-
-| SatisfactionStatus | Count |
-|---|---:|
-| SATISFIED | 7 |
-| UNKNOWN | 5 |
-| NOT_APPLICABLE | 5 |
-| TBD | 1 |
-
-| Origin | Count |
-|---|---:|
-| CONTEXT | 7 |
-| GRAPH_REVIEW | 5 |
-| EXTRACTED | 6 |
+| Lifecycle Field | Breakdown |
+|---|---|
+| Status | ACTIVE: 18; RETIRED: 0 |
+| DependencyClass | ANCHOR: 5; EXECUTION: 13 |
+| Direction | UPSTREAM: 17; DOWNSTREAM: 1 |
+| SatisfactionStatus | SATISFIED: 7; TBD: 6; NOT_APPLICABLE: 5 |
+| Origin | EXTRACTED: 18 |
 
 ## Downstream Handoff Notes
 
-- RECONCILIATION should treat the five `DEP-013-02-00*` anchor rows as local traceability anchors, not DAG sequencing edges.
-- RECONCILIATION should treat `DEP-013-02-006` as local source-supported downstream handoff evidence aligned with approved DAG-002 inverse edge `DAG-002-E0768`.
-- RECONCILIATION should use approved `DAG-006` as current graph authority; retained `DAG-002-*` rows remain local historical evidence only.
-- The preserved DAG-002 mirror rows contain project-specific dependency types, origins, and satisfaction values that exceed the current narrow enum validator; this is a tooling/schema-alignment warning, not a request to rewrite approved DAG-002 evidence locally.
+- For RECONCILIATION, treat the downstream handover to DEL-13-03 as context for validation-engine consumption, not as lifecycle closure.
+- No candidate rows, retired rows, or PKG-00 mutations were introduced.

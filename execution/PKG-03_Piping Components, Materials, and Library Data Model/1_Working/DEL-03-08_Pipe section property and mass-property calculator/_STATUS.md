@@ -1,7 +1,7 @@
 # Status: DEL-03-08 Pipe section property and mass-property calculator
 
-**Current State:** CHECKING
-**Last Updated:** 2026-06-05
+**Current State:** IN_PROGRESS
+**Last Updated:** 2026-06-17
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)

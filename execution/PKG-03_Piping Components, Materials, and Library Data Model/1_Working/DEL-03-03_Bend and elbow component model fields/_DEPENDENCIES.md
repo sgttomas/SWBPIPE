@@ -1,28 +1,49 @@
 # Dependencies: DEL-03-03 Bend and elbow component model fields
 
-## TP-DAG-004 Refresh
-- **Status:** REFRESHED_FOR_RECONCILIATION
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
+
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
 - **Rows:** 11 total; 11 ACTIVE; 0 RETIRED.
-- **Refreshed:** 2026-05-10
-- **Run Record:** `_run_records/TASK_RUN_2026-05-10_2155_dependency-extract.md`
+- **Classes:** ANCHOR=2; EXECUTION=9.
+- **Candidate rows moved to worklist:** 0.
 
-## Authority Boundary
-- This local register is an evidence surface for reconciliation, not an aggregate DAG authority.
-- No aggregate DAG, lifecycle, status, source, memory, code, schema, test, or coordination file was edited.
-- `PKG-00` architecture-basis rows are preserved as injected context evidence; `PKG-00` does not receive local dependency registers.
-- Conservative predecessor rows are retained only where supported by assigned context, local deliverable evidence, contract invariants, or `execution/_Decomposition/SOFTWARE_DECOMP.md`.
+## Canonical Dependency Types
+- `CONSTRAINT`: 6
+- `OTHER`: 2
+- `PREREQUISITE`: 3
 
-## Refresh Notes
-- Added/restored one enum-valid `IMPLEMENTS_NODE` anchor for `SOW-007`.
-- Preserved the objective trace to `OBJ-004`.
-- Normalized six SCA-001 architecture-basis edges to v3.1 enum values using `CONSTRAINT`, `NOT_APPLICABLE`, `EXPLICIT`, and `EXTRACTED`.
-- Retained three conservative upstream prerequisites: `DEL-03-02`, `DEL-02-02`, and `DEL-01-02`.
-- Left prerequisite satisfaction as `TBD` where this bounded worker did not inspect target deliverable folders.
+## PKG-00 Architecture-Basis Review
+- **Rows reviewed:** 6
+- **Rows changed:** 0
+- **Disposition:** Supported PKG-00 consistency tracker rows retained as ACTIVE execution dependencies; PKG-00 files were read for basis context and not written.
 
-## Validation Closeout
-- `python3 tools/validation/validate_dependencies_schema.py <Dependencies.csv>`: PASS.
-- Enum validation using `tools/validation/validate_enum.py`: PASS for `DependencyClass`, `AnchorType`, `Direction`, `DependencyType`, `TargetType`, `Explicitness`, `SatisfactionStatus`, `Confidence`, `Origin`, and `Status` across all rows.
+## Run Notes
+- TaskSkill: dependency-extract; MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+- Anchor doc: `_CONTEXT.md` plus `Datasheet.md`/decomposition where already cited by existing rows.
+- Execution docs: `_CONTEXT.md`, `Datasheet.md`, `Specification.md`, `Procedure.md`, and cited decomposition/register evidence already present in the register.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for PKG-03/SOW/OBJ support checks.
+- Rows added in this semantic refresh: 0.
+- Rows retired in this semantic refresh: 0.
+- Warnings: none.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Run History
+- 2026-06-16: MODE=UPDATE; STRICTNESS=CONSERVATIVE; semantic refresh for PKG-03 shard; rows added=0; rows retired=0; PKG-00 rows reviewed=6; PKG-00 rows changed=0; warnings=none.
+
+## Lifecycle Summary
+- ACTIVE rows: 11
+- RETIRED rows: 0
+- SatisfactionStatus `SATISFIED`: 8
+- SatisfactionStatus `TBD`: 3

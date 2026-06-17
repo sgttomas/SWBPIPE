@@ -1,84 +1,60 @@
 # Dependencies: DEL-14-05 Comparison mapping, tolerance, and export contracts
 
-## Generated Dependency Register
-- **Status:** TP-DAG-004_REFRESHED_FROM_APPROVED_DAG002_PLUS_EXPLICIT_ANCHORS
-- **Source of Truth:** `execution/_DAG/DAG-006/DependencyEdges.csv`
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 13 total; 13 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Generated:** 2026-05-03
-- **Refreshed:** 2026-05-11 by dependency-extract TASK, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`.
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-## Authority Boundary
-- Aggregate `APPROVED_DAG002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a refreshed evidence surface, not an independent graph authority.
-- `DAG-003` was not approved, promoted, or used as graph authority during this refresh.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Declared Upstream Dependencies
+- None recorded outside the local canonical register.
+
+## Declared Downstream Dependencies
+- None recorded outside the local canonical register.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=2; EXECUTION=11.
+- **PKG-00 architecture-basis trackers:** 7 reviewed; 0 changed; all retained ACTIVE as supported consistency trackers.
+- **Candidate rows moved to worklist:** 0.
 
-| DependencyID | Class | Direction | Type | Target | Status | Evidence |
-|---|---|---|---|---|---|---|
-| DEL-14-05-A001 | ANCHOR | UPSTREAM | OTHER | SOW-073 Deterministic comparison scope item | ACTIVE | `Datasheet.md#Identification` |
-| DEL-14-05-A002 | ANCHOR | UPSTREAM | OTHER | OBJ-016 Model states analysis runs and deterministic comparisons objective | ACTIVE | `Datasheet.md#Identification` |
-| DAG-002-E0695 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-01 Architecture decision record baseline | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0696 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-02 Repository and module boundary architecture | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0697 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-03 Application service command-query-job model | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0698 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-04 Persistence and schema versioning architecture | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0699 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-06 Diagnostics, warning, and result-envelope contract | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0700 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-07 API boundary and adapter contract map | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0701 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-08 Layered software test and acceptance strategy | ACTIVE | `_CONTEXT.md#Architecture-Basis-Injection` |
-| DAG-002-E0788 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-14-01 Immutable model state records | ACTIVE | `Procedure.md#Prerequisites` |
-| DAG-002-E0789 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-14-02 Analysis run records | ACTIVE | `Procedure.md#Prerequisites` |
-| DAG-002-E0790 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-08-04 Result export format | ACTIVE | `Specification.md#Requirements` |
-| DAG-002-E0791 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 Unit system and dimensional-analysis core contract | ACTIVE | `Specification.md#Requirements` |
+| DependencyID | Class | Direction | Type | TargetPackage | Target | Status |
+|---|---|---:|---|---|---|---|
+| `DEL-14-05-A001` | ANCHOR | UPSTREAM | OTHER | - | SOW-073 | ACTIVE |
+| `DEL-14-05-A002` | ANCHOR | UPSTREAM | OTHER | - | OBJ-016 | ACTIVE |
+| `DAG-002-E0695` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-01 | ACTIVE |
+| `DAG-002-E0696` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-02 | ACTIVE |
+| `DAG-002-E0697` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-03 | ACTIVE |
+| `DAG-002-E0698` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-04 | ACTIVE |
+| `DAG-002-E0699` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-06 | ACTIVE |
+| `DAG-002-E0700` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-07 | ACTIVE |
+| `DAG-002-E0701` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-08 | ACTIVE |
+| `DAG-002-E0788` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-14 | DEL-14-01 | ACTIVE |
+| `DAG-002-E0789` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-14 | DEL-14-02 | ACTIVE |
+| `DAG-002-E0790` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-08 | DEL-08-04 | ACTIVE |
+| `DAG-002-E0791` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-02 | DEL-02-02 | ACTIVE |
+
+## Canonical Dependency Types
+- `OTHER`: 2
+- `PREREQUISITE`: 11
 
 ## Run Notes
-- **ScopePath:** `execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts`
-- **Decomposition path:** `execution/_Decomposition/SOFTWARE_DECOMP.md`; status: located and used for `SOW-073`, `OBJ-016`, `PKG-14`, and `DEL-14-05` label confirmation.
-- **Prior graph evidence:** `execution/_DAG/DAG-002`; status: read-only evidence for preserved mirror rows. Current graph authority is `execution/_DAG/DAG-006/`.
-- **Preliminary graph:** `execution/_DAG/DAG-003`; status: intentionally not used for approval or promotion.
-- **Anchor doc:** `Datasheet.md`; explicit identifiers found for `DEL-14-05`, `PKG-14`, `SOW-073`, and `OBJ-016`.
-- **Execution docs:** `_CONTEXT.md`, `Procedure.md`, `Specification.md`, `Guidance.md`, `_REFERENCES.md`.
-- **Preservation rule:** all 11 existing DAG-002 mirror rows were preserved as ACTIVE.
-- **Normalization:** local-only enum fields were normalized for dependency-extract validation: aggregate-DAG dependency labels were retained in `Notes` while `DependencyType` became `PREREQUISITE`, `AnchorType` became `NOT_APPLICABLE`, inferred explicitness became `IMPLICIT`, graph/context origins became `DECLARED`, and unknown satisfaction became `TBD`.
-- **Conservative additions:** added only two explicit ANCHOR rows from deliverable/decomposition evidence; no downstream consumer rows were activated to avoid introducing local active cycles or duplicate graph-direction interpretations.
-- **Warnings:** no `FLOATING_NODE` warning after adding `DEL-14-05-A001`; no `AMBIGUOUS_ANCHOR`; no `MISSING_DECOMPOSITION`.
-- **Open source gaps:** tolerance defaults, exact mapping workflow authority, unmatched classification enum values, CSV columns, JSON property names, and report-section layout remain `TBD` per existing DEL-14-05 source documents.
+- Defaults applied: `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `SOURCE_DOCS=AUTO`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`; anchor validation and target labels were checked against revision 0.7 excerpts for PKG-14, SOW-071 through SOW-073, and OBJ-016.
+- Source docs reviewed: `Datasheet.md`, `_CONTEXT.md`, `Guidance.md`, `Procedure.md`, `Specification.md`, `_REFERENCES.md` plus the existing `Dependencies.csv` and `_DEPENDENCIES.md`.
+- PKG-00 rows were checked against local `_CONTEXT.md` Applicable Basis IDs and PKG-00 downstream-use notes; no PKG-00 files were written.
+- Core enum fields conform to canonical v3.1 write-form enums. Legacy project-specific labels remain preserved in `Notes` as `legacy_*` fields where present.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Warnings
+None.
 
 ## Run History
-
-| Timestamp | Mode | Strictness | Consumer | Decomposition | Active Rows | Warnings |
-|---|---|---|---|---|---:|---|
-| 2026-05-03 | SYNCHRONIZE | n/a | DAG-002 mirror | `execution/_DAG/DAG-006/DependencyEdges.csv` | 11 | Local mirror only; no anchors. |
-| 2026-05-11 | UPDATE | CONSERVATIVE | RECONCILIATION | `execution/_Decomposition/SOFTWARE_DECOMP.md` | 13 | None blocking; DAG-003 not promoted. |
+- 2026-06-16: `dependency-extract` semantic refresh for reconciliation; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; warnings: none; ACTIVE rows: 13; RETIRED rows: 0.
 
 ## Lifecycle Summary
-
-| Status | Count |
-|---|---:|
-| ACTIVE | 13 |
-| RETIRED | 0 |
-| CANDIDATE | 0 |
-
-| Class | Count |
-|---|---:|
-| ANCHOR | 2 |
-| EXECUTION | 11 |
-
-| Type | Count |
-|---|---:|
-| OTHER | 2 |
-| PREREQUISITE | 11 |
-
-| SatisfactionStatus | Count |
-|---|---:|
-| SATISFIED | 9 |
-| TBD | 4 |
-
-## Downstream Handoff Notes
-- For RECONCILIATION, treat this register as a normalized local evidence surface over the approved DAG-002 mirror, not as approval of DAG-003.
-- The seven PKG-00 rows remain architecture-basis context evidence and should not be interpreted as direct product implementation dispatch authority.
-- The four non-architecture upstream execution dependencies remain active prerequisites: `DEL-14-01`, `DEL-14-02`, `DEL-08-04`, and `DEL-02-02`.
-- Known DAG-002 consumers of DEL-14-05 include `DEL-14-03`, `DEL-14-04`, `DEL-15-02`, `DEL-15-03`, `DEL-16-02`, `DEL-07-08`, and `DEL-08-06`; no local downstream rows were added during this conservative refresh.
-- No blocker requires human ruling before reconciliation, but unresolved contract details remain `TBD` and should not be promoted into default tolerance values or export field claims.
+- Extraction lifecycle: 13 ACTIVE; 0 RETIRED.
+- Closure status by `SatisfactionStatus`: SATISFIED=9; TBD=4.
+- Closure note: register is schema-valid and evidence-reviewed for dependency semantics only; downstream graph authority remains with approved/accepted graph workflows.

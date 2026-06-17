@@ -1,86 +1,69 @@
 # Dependencies: DEL-05-05 Concentrated and distributed user load application
 
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` or ACTIVE proposal rows in current canonical registers.
+
+## Declared Upstream Dependencies
+- None declared outside the extracted register in this refresh.
+
+## Declared Downstream Dependencies
+- None declared outside the extracted register in this refresh.
+
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=4, EXECUTION=9.
+- **Candidate rows moved to handoff/retired visibility this run:** 0.
 
-- **Status:** REFRESHED_FOR_RECONCILIATION
-- **Register schema:** v3.1
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer context:** RECONCILIATION
-- **Decomposition path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Local register:** `Dependencies.csv`
-- **Rows:** 13 total; 13 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Classes:** 4 ANCHOR; 9 EXECUTION.
-- **Generated:** 2026-05-10
+| DependencyID | Class | Direction | Type | Target | Status | Evidence |
+|---|---|---|---|---|---|---|
+| `DEL-05-05-A001` | ANCHOR | UPSTREAM | OTHER | SOW-052 | ACTIVE | Datasheet.md / Identification / Scope Items |
+| `DEL-05-05-A002` | ANCHOR | UPSTREAM | OTHER | SOW-013 | ACTIVE | Guidance.md / Considerations |
+| `DEL-05-05-A003` | ANCHOR | UPSTREAM | OTHER | OBJ-003 | ACTIVE | Datasheet.md / Identification / Objectives |
+| `DEL-05-05-A004` | ANCHOR | UPSTREAM | OTHER | OBJ-012 | ACTIVE | Datasheet.md / Identification / Objectives |
+| `DAG-002-E0150` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0151` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | ACTIVE | _CONTEXT.md / Architecture Basis Injection / Applicable Basis IDs |
+| `DAG-002-E0152` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | ACTIVE | Procedure.md / Steps / Step 5 |
+| `DAG-002-E0153` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | ACTIVE | Specification.md / Requirements / DEL-05-05-R6 |
+| `DAG-002-E0154` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | ACTIVE | Specification.md / Requirements / DEL-05-05-R5 |
+| `DAG-002-E0459` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-01 | ACTIVE | lib.rs / DEL-05-01 CHECKING status and user-load primitive axial-effect bridge validation |
+| `DAG-002-E0460` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | ACTIVE | lib.rs / DEL-04-01 CHECKING status and user-load frame DOF validation |
+| `DAG-002-E0461` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | ACTIVE | README.md / User-load model-load boundary records; recovery-hook result records; explicit ForcePerLength TBD metadata test |
+| `DEL-05-05-E001` | EXECUTION | DOWNSTREAM | INTERFACE | DEL-05-03 | ACTIVE | Procedure.md / Steps / Step 7 |
 
-| DependencyID | Class | Direction | Type | Target | Status | Satisfaction |
-|---|---|---:|---|---|---|---|
-| DEL-05-05-A001 | ANCHOR | UPSTREAM | OTHER | SOW-052 | ACTIVE | SATISFIED |
-| DEL-05-05-A002 | ANCHOR | UPSTREAM | OTHER | SOW-013 | ACTIVE | SATISFIED |
-| DEL-05-05-A003 | ANCHOR | UPSTREAM | OTHER | OBJ-003 | ACTIVE | SATISFIED |
-| DEL-05-05-A004 | ANCHOR | UPSTREAM | OTHER | OBJ-012 | ACTIVE | SATISFIED |
-| DAG-002-E0150 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | ACTIVE | SATISFIED |
-| DAG-002-E0151 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | ACTIVE | SATISFIED |
-| DAG-002-E0152 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-03 | ACTIVE | SATISFIED |
-| DAG-002-E0153 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-06 | ACTIVE | SATISFIED |
-| DAG-002-E0154 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | ACTIVE | SATISFIED |
-| DAG-002-E0459 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-01 | ACTIVE | TBD |
-| DAG-002-E0460 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-01 | ACTIVE | TBD |
-| DAG-002-E0461 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | ACTIVE | SATISFIED |
-| DEL-05-05-E001 | EXECUTION | DOWNSTREAM | INTERFACE | DEL-05-03 | ACTIVE | TBD |
+## Canonical Dependency Types
+- `CONSTRAINT`: 5
+- `INTERFACE`: 1
+- `OTHER`: 4
+- `PREREQUISITE`: 3
 
 ## Run Notes
-
-- Defaults applied: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Anchor document chosen: `Datasheet.md`; supplemental anchor evidence from `Guidance.md`.
-- Execution documents used: `_CONTEXT.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
-- Existing `Dependencies.csv` rows were treated as prior DAG-002 mirror evidence, then refreshed against local source evidence.
-- Prior DAG-002 dependency IDs were preserved where the refreshed local evidence matched the same target and dependency intent.
-- v3.1 enum normalization changed prior mirror-only `DependencyType` values such as `ARCHITECTURE_BASIS`, `LOAD_STRESS_PREDECESSOR`, `SOLVER_PREDECESSOR`, and `UNIT_CONTRACT` into canonical `CONSTRAINT` or `PREREQUISITE` values.
-- v3.1 enum normalization changed prior noncanonical `Origin` values to `EXTRACTED` and prior unresolved `SatisfactionStatus=UNKNOWN` values to `TBD`.
-- Parent anchor check: PASS. Exactly one ACTIVE `ANCHOR` row uses `AnchorType=IMPLEMENTS_NODE`, with target `SOW-052`.
-- `[WARNING] NONE`: No floating node, ambiguous anchor, missing decomposition, protected-content, or professional-claim issue was detected.
-- No candidate rows were promoted. The downstream `DEL-05-03` interface is included as local evidence for later reconciliation because `Procedure.md` explicitly names downstream stress recovery.
-- Reporting is mentioned in local evidence but was not converted into a separate downstream reporting edge under conservative strictness because the target deliverable is not named locally.
-- 2026-05-16 DEV-001 Stage 2 local metadata alignment updated DAG-002-E0461 to `SATISFIED` based on user-load boundary records requiring explicit unit metadata, accepted canonical dimensions, provenance references, and payload/hash refs.
-
-## Lifecycle Summary
-
-| Status | Rows |
-|---|---:|
-| ACTIVE | 13 |
-| RETIRED | 0 |
-| CANDIDATE | 0 |
-
-| SatisfactionStatus | Rows |
-|---|---:|
-| SATISFIED | 10 |
-| TBD | 3 |
+- **TaskSkill:** `dependency-extract`
+- **MODE:** `UPDATE`
+- **STRICTNESS:** `CONSERVATIVE`
+- **CONSUMER_CONTEXT:** `RECONCILIATION`
+- **ARCHITECTURE_BASIS_POLICY:** `PKG00_CONSISTENCY_TRACKERS`
+- **Decomposition path:** `execution/_Decomposition/SOFTWARE_DECOMP.md` located and used for anchor/PKG-00 basis validation.
+- **Anchor doc selection:** `AUTO`; local datasheet/context/specification evidence used according to strongest explicit identifiers.
+- **Execution doc order:** `AUTO`; local `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, and cited upstream/downstream evidence reviewed as needed.
+- **PKG-00 tracker review:** 5 rows reviewed; 0 rows changed. Supported architecture-basis rows retained as upstream `CONSTRAINT` execution dependencies.
+- **Warnings:** None.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields where present.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
 ## Downstream Handoff Notes
-
-- Consumer context is `RECONCILIATION`; this register is a local evidence surface, not aggregate graph authority.
-- Architecture-basis edges remain constraints inherited from sealed context and do not mark `PKG-00` deliverables as issued.
-- Upstream product-development prerequisites requiring later graph reconciliation: `DEL-04-01` and `DEL-05-01`. `DEL-02-02` unit metadata is technically satisfied for the PKG-05 user-load boundary only.
-- Downstream interface requiring later graph reconciliation: `DEL-05-03`.
-- Conservative unresolved item: local evidence refers to downstream reporting, but no reporting deliverable target was resolved from assigned-folder evidence alone.
-
-## Authority Boundary
-
-- Aggregate `DAG-002` remains the approved sequencing and blocker-computation authority until a later refreshed graph is approved.
-- This local register is refreshed evidence for reconciliation and does not approve `DAG-003`, promote candidates, change lifecycle state, or authorize product implementation.
-- Status files, schemas, aggregate DAG files, and coordination artifacts were outside write scope. PKG-05 user-load source code was edited separately within the allowed finding-resolution scope.
+- No candidate or non-gating proposal rows identified during this semantic refresh.
 
 ## Run History
+- 2026-06-16: `dependency-extract` semantic refresh for PKG-05 shard; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; ACTIVE rows 13; RETIRED rows 0; warnings: None.
 
-- 2026-04-30: Initial `dependency-extract` run produced v3.1 dependency artifacts.
-- 2026-05-03: Local register was synchronized from approved `DAG-006` mirror; 8 ACTIVE rows.
-- 2026-05-10: TP-DAG-004 refresh for `RECONCILIATION`; mode `UPDATE`, strictness `CONSERVATIVE`, decomposition path `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; 13 ACTIVE rows, 4 ANCHOR, 9 EXECUTION; warnings: none.
-- 2026-05-16: DEV-001 Stage 2 package-local alignment updated DEL-02-02 unit predecessor evidence and satisfaction for user-load boundary metadata only; no aggregate DAG or lifecycle action.
-
-## 2026-06-05 Blocker Closure Update
-
-- Human ruling packet: `execution/_Reconciliation/Reviews/PKG05_BLOCKER_CLOSURE_RULING_PACKET_2026-06-05_2120.md`.
-- Dependency closure result: Rows `DAG-002-E0459` and `DAG-002-E0460` were updated to `SATISFIED` using DEL-05-01 and DEL-04-01 current evidence. Downstream row `DEL-05-05-E001` remains visible and non-blocking.
-- Current active-row satisfaction counts after this update: `SATISFIED=12`, `PENDING=0`, `TBD=1`, `UNKNOWN=0`, `NOT_APPLICABLE=0`.
-- Authority boundary: this is deliverable-local evidence only; aggregate DAG authority, candidate promotion, release, professional approval, certification, sealing, authentication, and code-compliance claims are unchanged.
+## Lifecycle Summary
+- **ACTIVE rows:** 13
+- **RETIRED rows:** 0
+- **Satisfaction statuses:** SATISFIED=12, TBD=1
+- **Closure note:** Dependency semantic refresh closed locally after schema validation; lifecycle acceptance remains outside this task.

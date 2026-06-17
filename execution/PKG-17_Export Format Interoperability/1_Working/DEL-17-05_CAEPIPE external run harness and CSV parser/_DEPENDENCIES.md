@@ -2,8 +2,8 @@
 
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
-- **Graph Authority:** `execution/_DAG/DAG-006/`.
-- **Authority Boundary:** `DAG-006` is the approved active graph authority.
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
 ## Declared Upstream Dependencies
 - `DEL-17-04`
@@ -12,54 +12,63 @@
 - No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005 extraction wording is superseded by DAG-006 active graph authority.
 
 ## Extracted Dependency Register
-- **Register:** `Dependencies.csv`
-- **Schema:** v3.1
-- **Generated/Refreshed:** 2026-05-18 12:26 America/Edmonton
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** NONE
-- **ACTIVE rows:** 12
-- **RETIRED rows:** 0
-- **Declared rows preserved:** 1
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 19 total; 19 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=8, EXECUTION=11.
+- **PKG-00 architecture-basis tracker rows:** 7 ACTIVE; reviewed under `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- **Candidate rows moved to worklist:** 0.
 
-| DependencyID | Class | Direction | Type | TargetType | Target | Origin | Status |
-|---|---|---|---|---|---|---|---|
-| DEP-017-05-001 | ANCHOR | UPSTREAM | OTHER | WBS_NODE | PKG-17 Export Format Interoperability | EXTRACTED | ACTIVE |
-| DEP-017-05-002 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | SOW-030 | EXTRACTED | ACTIVE |
-| DEP-017-05-003 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | SOW-046 | EXTRACTED | ACTIVE |
-| DEP-017-05-004 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | SOW-075 | EXTRACTED | ACTIVE |
-| DEP-017-05-005 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | OBJ-007 | EXTRACTED | ACTIVE |
-| DEP-017-05-006 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | OBJ-009 | EXTRACTED | ACTIVE |
-| DEP-017-05-007 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | OBJ-017 | EXTRACTED | ACTIVE |
-| DEP-017-05-008 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | OBJ-018 | EXTRACTED | ACTIVE |
-| DEP-017-05-009 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-17-04 | DECLARED | ACTIVE |
-| DEP-017-05-010 | EXECUTION | UPSTREAM | INTERFACE | DELIVERABLE | DEL-17-01 | EXTRACTED | ACTIVE |
-| DEP-017-05-011 | EXECUTION | UPSTREAM | INTERFACE | DELIVERABLE | DEL-17-02 | EXTRACTED | ACTIVE |
-| DEP-017-05-012 | EXECUTION | UPSTREAM | CONSTRAINT | EXTERNAL | CAEPIPE-EXECUTABLE | EXTRACTED | ACTIVE |
+| DependencyID | Class | Direction | Type | TargetType | Target | Origin |
+|---|---:|---:|---:|---:|---|---:|
+| `DEP-017-05-001` | ANCHOR | UPSTREAM | OTHER | WBS_NODE | `PKG-17` | EXTRACTED |
+| `DEP-017-05-002` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `SOW-030` | EXTRACTED |
+| `DEP-017-05-003` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `SOW-046` | EXTRACTED |
+| `DEP-017-05-004` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `SOW-075` | EXTRACTED |
+| `DEP-017-05-005` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `OBJ-007` | EXTRACTED |
+| `DEP-017-05-006` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `OBJ-009` | EXTRACTED |
+| `DEP-017-05-007` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `OBJ-017` | EXTRACTED |
+| `DEP-017-05-008` | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | `OBJ-018` | EXTRACTED |
+| `DEP-017-05-009` | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | `DEL-17-04` | DECLARED |
+| `DEP-017-05-010` | EXECUTION | UPSTREAM | INTERFACE | DELIVERABLE | `DEL-17-01` | EXTRACTED |
+| `DEP-017-05-011` | EXECUTION | UPSTREAM | INTERFACE | DELIVERABLE | `DEL-17-02` | EXTRACTED |
+| `DEP-017-05-012` | EXECUTION | UPSTREAM | CONSTRAINT | EXTERNAL | `CAEPIPE-EXECUTABLE` | EXTRACTED |
+| `DEL-17-05-AB-01` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-01` | EXTRACTED |
+| `DEL-17-05-AB-02` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-02` | EXTRACTED |
+| `DEL-17-05-AB-03` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-03` | EXTRACTED |
+| `DEL-17-05-AB-04` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-04` | EXTRACTED |
+| `DEL-17-05-AB-06` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-06` | EXTRACTED |
+| `DEL-17-05-AB-07` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-07` | EXTRACTED |
+| `DEL-17-05-AB-08` | EXECUTION | UPSTREAM | CONSTRAINT | DELIVERABLE | `DEL-00-08` | EXTRACTED |
+
+## Canonical Dependency Types
+- `CONSTRAINT`: 8
+- `INTERFACE`: 2
+- `OTHER`: 8
+- `PREREQUISITE`: 1
 
 ## Run Notes
-- Applied runtime overrides: `SCOPE=DEL-17-05`, `RUN_ROOT=/Users/ryan/ai-env/projects/chirality-piping/execution`, `DECOMPOSITION_PATH=/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`, `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=NONE`.
-- Source document selection used the skill defaults: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Chosen anchor document: `Datasheet.md` because it contains explicit deliverable identity, package, scope items, objectives, and upstream dependency fields.
-- Chosen execution document order: `Specification.md`, `Procedure.md`, `Guidance.md`, `Datasheet.md`, `_DEPENDENCIES.md`, `_REFERENCES.md`.
-- Decomposition path resolved and used for package, deliverable, scope-item, and objective label checks: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Existing declared upstream dependency `DEL-17-04` was preserved as `Origin=DECLARED` and not duplicated as a separate extracted row.
-- Required maturity and satisfaction status for execution dependencies remain `TBD` where the four documents keep invocation profile, accepted MBF profile/writer tranche, parser coverage, or target behavior unresolved.
-- No downstream dependencies were materialized because no explicit downstream consumer edge was stated in the DEL-17-05 source documents.
-- No `[WARNING] FLOATING_NODE`: exactly one ACTIVE `IMPLEMENTS_NODE` parent anchor is present.
+- Mode: UPDATE; strictness: CONSERVATIVE; consumer context: RECONCILIATION.
+- Decomposition path: `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; status: located and used for PKG-17 scope/objective/package anchors.
+- Anchor doc selection: `AUTO`; primary anchor evidence used `_CONTEXT.md`, `Datasheet.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
+- Execution doc order: `AUTO`; local `Specification.md`, `Procedure.md`, `Guidance.md`, `_REFERENCES.md`, and cited PKG-00 architecture-basis files were reviewed as needed.
+- PKG-00 policy: supported `DEL-00-*` architecture-consistency tracker rows are retained as upstream execution constraints and do not replace decomposition truth.
+- Rows added in this semantic refresh: 7; rows retired: 0; semantic rows changed: 0.
+- Core enum fields conform to the canonical Chirality dependency model; no `Status=CANDIDATE` rows were emitted.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+- Warnings: none.
 
-## Notes
-- Candidate rows, if any, remain non-gating until explicit promotion and graph revalidation.
-- Dependencies do not authorize implementation, lifecycle promotion, release claims, or professional claims by themselves.
+## Downstream Handoff Notes
+- Later graph fan-in may consume these rows only as deliverable-local dependency evidence; DAG authority remains governed by the active coordination workflow.
+- PKG-00 tracker rows are derivative architecture-consistency reminders and must not be treated as substitutes for accepted PKG-00 decomposition truth.
 
 ## Run History
-- 2026-05-18 12:26 America/Edmonton — `dependency-extract` UPDATE / CONSERVATIVE / CONSUMER_CONTEXT=NONE. Decomposition path resolved. Warnings: none. ACTIVE rows: 12 total; 8 ANCHOR; 4 EXECUTION; 1 DECLARED; 11 EXTRACTED.
+- 2026-06-16 2357: dependency semantic refresh, MODE=UPDATE, STRICTNESS=CONSERVATIVE, CONSUMER_CONTEXT=RECONCILIATION; validation result: PASS; warnings: none; ACTIVE rows=19; RETIRED rows=0.
 
 ## Lifecycle Summary
-- ACTIVE: 12
+- ACTIVE: 19
 - RETIRED: 0
-- By dependency class: ANCHOR 8, EXECUTION 4
-- By origin: DECLARED 1, EXTRACTED 11
-- Closure state breakdown:
-  - NOT_APPLICABLE: 8
-  - TBD: 4
+- SatisfactionStatus `NOT_APPLICABLE`: 8
+- SatisfactionStatus `PENDING`: 7
+- SatisfactionStatus `TBD`: 4

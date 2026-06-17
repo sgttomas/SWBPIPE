@@ -104,3 +104,7 @@ Durable context preserved after reconciliation review:
 - Updated six local dependency rows from `TBD` to `SATISFIED` for readiness evidence only using DEL-12-01/02/03 readiness records and DEL-03-07, DEL-06-04, and DEL-12-05 status/review/run-record evidence.
 - Preserved explicit deferrals for exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, runtime integration, legal/security/professional claims, and approval choices.
 - `_STATUS.md`, product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, and other deliverables were not edited by this alignment run.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

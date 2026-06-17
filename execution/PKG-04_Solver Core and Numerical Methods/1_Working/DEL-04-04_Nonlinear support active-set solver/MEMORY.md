@@ -114,3 +114,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Verification passed: `cargo fmt --manifest-path core/solver/nonlinear_supports/Cargo.toml --check`; `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml --locked` (16 tests).
 - Boundaries preserved: no global nonlinear solve integration, production tolerance policy, sparse-solver selection, lifecycle edit, DAG edit, dependency-register edit, review-disposition edit, protected standards data, rule/code check, or professional/compliance claim.
 - Remaining `TBD`: global nonlinear solve integration, final result-envelope integration, accepted production residual/tolerance policy, sparse-solver integration, canonical calculation unit basis/conversions, final support coordinate convention, final constraint strategy, and human disposition for existing review findings.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

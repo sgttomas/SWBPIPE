@@ -1,77 +1,71 @@
 # Dependencies: DEL-07-06 Accessibility and usability baseline
 
-## Declared Dependency Lists
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-No deliverable-local declared dependency list was present before this refresh. Existing DAG-synchronized rows were preserved non-destructively in `Dependencies.csv` and normalized to v3.1 enums.
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 16 total; 10 ACTIVE; 6 RETIRED.
+- **Classes:** ANCHOR=3; EXECUTION=13.
+- **Parent anchors:** 1 ACTIVE `IMPLEMENTS_NODE` row(s).
+- **Rows added this run:** 1
+- **Rows retired this run:** 0
+- **Rows changed this run:** 1
+- **PKG-00 rows reviewed/changed:** 7/0
 
-- **Register schema:** Dependencies.csv v3.1
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer context:** RECONCILIATION
-- **Rows:** 15 total; 9 ACTIVE; 6 RETIRED
-- **ACTIVE classes:** 2 ANCHOR; 7 EXECUTION
-- **RETIRED classes:** 0 ANCHOR; 6 EXECUTION
+| DependencyID | Class | Direction | Type | TargetType | Target | Status |
+|---|---|---|---|---|---|---|
+| DEP-07-06-A001 | ANCHOR | UPSTREAM | OTHER | WBS_NODE | PKG-07 | ACTIVE |
+| DEP-07-06-A002 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | OBJ-006 | ACTIVE |
+| DEP-07-06-A003 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | SOW-036 | ACTIVE |
+| DAG-002-E0225 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-01 | ACTIVE |
+| DAG-002-E0226 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-02 | ACTIVE |
+| DAG-002-E0227 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-03 | ACTIVE |
+| DAG-002-E0228 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-05 | ACTIVE |
+| DAG-002-E0229 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-06 | ACTIVE |
+| DAG-002-E0230 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-07 | ACTIVE |
+| DAG-002-E0231 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-08 | ACTIVE |
+| DAG-002-E0506 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-07-01 | RETIRED |
+| DAG-002-E0507 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-07-02 | RETIRED |
+| DAG-002-E0508 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-07-03 | RETIRED |
+| DAG-002-E0509 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-07-04 | RETIRED |
+| DAG-002-E0510 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-07-05 | RETIRED |
+| DAG-002-E0511 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-07-07 | RETIRED |
 
-| DependencyID | Class | Direction | Type | Target | Status | Satisfaction |
-|---|---|---:|---|---|---|---|
-| DEP-07-06-A001 | ANCHOR | UPSTREAM | OTHER | SOW-036 | ACTIVE | NOT_APPLICABLE |
-| DEP-07-06-A002 | ANCHOR | UPSTREAM | OTHER | OBJ-006 | ACTIVE | NOT_APPLICABLE |
-| DAG-002-E0225 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-01 | ACTIVE | SATISFIED |
-| DAG-002-E0226 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-02 | ACTIVE | SATISFIED |
-| DAG-002-E0227 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-03 | ACTIVE | SATISFIED |
-| DAG-002-E0228 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-05 | ACTIVE | SATISFIED |
-| DAG-002-E0229 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-06 | ACTIVE | SATISFIED |
-| DAG-002-E0230 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-07 | ACTIVE | SATISFIED |
-| DAG-002-E0231 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-08 | ACTIVE | SATISFIED |
-| DAG-002-E0506 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-07-01 | RETIRED | TBD |
-| DAG-002-E0507 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-07-02 | RETIRED | TBD |
-| DAG-002-E0508 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-07-03 | RETIRED | TBD |
-| DAG-002-E0509 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-07-04 | RETIRED | TBD |
-| DAG-002-E0510 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-07-05 | RETIRED | TBD |
-| DAG-002-E0511 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-07-07 | RETIRED | TBD |
+## Canonical Dependency Types
+- `OTHER`: 3
+- `PREREQUISITE`: 13
 
 ## Run Notes
+- Mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; architecture-basis policy `PKG00_CONSISTENCY_TRACKERS`.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`.
+- Anchor document: `_CONTEXT.md`; execution documents reviewed as needed: `Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, existing `Dependencies.csv`, and `_DEPENDENCIES.md`.
+- PKG-00 architecture-basis rows were reviewed against `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01`, `DEL-00-02`, `DEL-00-03`, `DEL-00-05`, `DEL-00-06`, `DEL-00-07`, and `DEL-00-08` source documents; supported rows were retained.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields where previously present.
+- Candidate rows remain non-gating in the candidate worklist and require explicit human approval plus graph revalidation before promotion.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-- **Run timestamp:** 2026-05-10 22:44 MDT
-- **Deliverable:** DEL-07-06 / PKG-07
-- **Run root:** `/Users/ryan/ai-env/projects/chirality-piping/execution`
-- **Decomposition path:** `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Decomposition status:** located and used for SOW-036, OBJ-006, PKG-07, DEL-07-06, and architecture-basis validation.
-- **Source docs:** AUTO.
-- **Anchor doc:** `Datasheet.md`.
-- **Execution doc order:** `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`.
-- **Defaults applied:** `DOC_ROLE_MAP=DEFAULT`; `MODE=UPDATE`; `STRICTNESS=CONSERVATIVE`; `CONSUMER_CONTEXT=RECONCILIATION`.
-- **Normalization:** Legacy/non-v3.1 local DAG mirror values were normalized: `AnchorType=DELIVERABLE` to `NOT_APPLICABLE`, `DependencyType=ARCHITECTURE_BASIS` and `GUI_PREDECESSOR` to `PREREQUISITE`, `Explicitness=INFERRED_DIRECT` to `IMPLICIT`, and `Origin=CONTEXT`/`DECOMPOSITION` to `EXTRACTED`.
-- **Conservative retirement:** GUI predecessor mirror rows `DAG-002-E0506` through `DAG-002-E0511` were retained but marked `RETIRED` because the scoped DEL-07-06 source pass mentions covered GUI surfaces but does not explicitly state those deliverables are local execution prerequisites.
-- **Warnings:** none. One ACTIVE parent anchor (`IMPLEMENTS_NODE`) is present; decomposition was available.
-- **ID-format validator note:** `tools/validation/validate_id_format.sh` rejected two-digit project IDs such as `DEL-07-06` and `PKG-07` because the helper expects three-digit forms (`DEL-000-00`, `PKG-000`). This appears to be helper/schema drift; values match the active decomposition.
-
-## Lifecycle Summary
-
-| Status | Rows |
-|---|---:|
-| ACTIVE | 9 |
-| RETIRED | 6 |
-
-| SatisfactionStatus | ACTIVE rows | RETIRED rows |
-|---|---:|---:|
-| SATISFIED | 7 | 0 |
-| NOT_APPLICABLE | 2 | 0 |
-| TBD | 0 | 6 |
-
-## Downstream Handoff Notes
-
-For RECONCILIATION, treat the ACTIVE local surface as:
-
-- one parent anchor to `SOW-036`;
-- one objective trace to `OBJ-006`;
-- seven explicit upstream architecture-basis prerequisites from `_CONTEXT.md`.
-
-Do not treat the six retired GUI predecessor mirror rows as active blockers from this deliverable-local refresh. They remain in the register for non-destructive history and can be reconciled against aggregate DAG authority by a Type 1 workflow.
+## Warnings
+- None.
 
 ## Run History
+- 2026-06-16: dependency semantic refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; rows 16 total, 10 ACTIVE, 6 RETIRED; warnings 0.
 
-- 2026-05-10 22:44 MDT - TP-DAG-004 dependency-extract refresh for DEL-07-06. Mode UPDATE; Strictness CONSERVATIVE; ConsumerContext RECONCILIATION; decomposition located; 15 rows total, 9 ACTIVE, 6 RETIRED; warnings: none; validation: schema/enums pass, ID helper drift noted.
-- 2026-05-03 - Prior local register synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`; 13 ACTIVE rows; local register treated as mirror/evidence surface rather than graph authority.
+## Lifecycle Summary
+- ACTIVE rows: 10
+- RETIRED rows: 6
+- Satisfaction status counts: {'NOT_APPLICABLE': 3, 'SATISFIED': 7, 'TBD': 6}
+
+## Downstream Handoff Notes
+- Consume this register as a deliverable-local semantic refresh shard only. It is not graph authority and does not update `_DAG/_LATEST.md`.

@@ -1,77 +1,72 @@
 # Dependencies: DEL-07-03 Material, component, and rule-pack editors
 
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
+
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 17 total; 17 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=3; EXECUTION=14.
+- **Parent anchors:** 1 ACTIVE `IMPLEMENTS_NODE` row(s).
+- **Rows added this run:** 2
+- **Rows retired this run:** 0
+- **Rows changed this run:** 1
+- **PKG-00 rows reviewed/changed:** 7/0
 
-- **Status:** REFRESHED_FOR_RECONCILIATION
-- **Register schema:** `v3.1`
-- **Mode:** `UPDATE`
-- **Strictness:** `CONSERVATIVE`
-- **Consumer context:** `RECONCILIATION`
-- **Source of current rows:** dependency-extract refresh using DEL-07-03 local source documents plus `execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Prior evidence:** existing `DAG-002` mirror row IDs and target structure preserved where matchable
-- **Local register:** `Dependencies.csv`
-- **Rows:** 15 total; 15 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Generated:** 2026-05-10
-
-| DependencyID | Class | Direction | Type | Target | Status | Satisfaction |
+| DependencyID | Class | Direction | Type | TargetType | Target | Status |
 |---|---|---|---|---|---|---|
-| DEP-DEL-07-03-001 | ANCHOR | UPSTREAM | OTHER | SOW-021 | ACTIVE | SATISFIED |
-| DAG-002-E0204 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-01 | ACTIVE | SATISFIED |
-| DAG-002-E0205 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-02 | ACTIVE | SATISFIED |
-| DAG-002-E0206 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-03 | ACTIVE | SATISFIED |
-| DAG-002-E0207 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-05 | ACTIVE | SATISFIED |
-| DAG-002-E0208 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-06 | ACTIVE | SATISFIED |
-| DAG-002-E0209 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-07 | ACTIVE | SATISFIED |
-| DAG-002-E0210 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-00-08 | ACTIVE | SATISFIED |
-| DAG-002-E0489 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-03-01 | ACTIVE | PENDING |
-| DAG-002-E0490 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-03-02 | ACTIVE | PENDING |
-| DAG-002-E0491 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-03-07 | ACTIVE | PENDING |
-| DAG-002-E0492 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-06-01 | ACTIVE | PENDING |
-| DAG-002-E0493 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-06-04 | ACTIVE | PENDING |
-| DAG-002-E0494 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-12-01 | ACTIVE | PENDING |
-| DEV-001-STAGE2-DEL-07-03-PKG02-001 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-02-02 | ACTIVE | SATISFIED |
+| DEP-DEL-07-03-001 | ANCHOR | UPSTREAM | OTHER | WBS_NODE | PKG-07 | ACTIVE |
+| DEP-DEL-07-03-002 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | SOW-021 | ACTIVE |
+| DEP-DEL-07-03-003 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | OBJ-006 | ACTIVE |
+| DAG-002-E0204 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-01 | ACTIVE |
+| DAG-002-E0205 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-02 | ACTIVE |
+| DAG-002-E0206 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-03 | ACTIVE |
+| DAG-002-E0207 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-05 | ACTIVE |
+| DAG-002-E0208 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-06 | ACTIVE |
+| DAG-002-E0209 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-07 | ACTIVE |
+| DAG-002-E0210 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-08 | ACTIVE |
+| DAG-002-E0489 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-03-01 | ACTIVE |
+| DAG-002-E0490 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-03-02 | ACTIVE |
+| DAG-002-E0491 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-03-07 | ACTIVE |
+| DAG-002-E0492 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-06-01 | ACTIVE |
+| DAG-002-E0493 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-06-04 | ACTIVE |
+| DAG-002-E0494 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-12-01 | ACTIVE |
+| DEV-001-STAGE2-DEL-07-03-PKG02-001 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-02-02 | ACTIVE |
 
-## DEV-001 Stage 2 Addendum
-
-- Added direct package-local PKG-02 compatibility dependency `DEV-001-STAGE2-DEL-07-03-PKG02-001` to `DEL-02-02`.
-- Evidence: `core/gui/editors/engine.py` now emits `unit_contract` and per-field `unit_metadata`; `tests/test_gui_editors_contract.py` covers canonical dimension metadata and blocking missing-unit diagnostics.
-- This is local technical evidence for PKG-07 review closure only. It does not edit aggregate DAG files, candidate rows, lifecycle state, or human disposition.
+## Canonical Dependency Types
+- `OTHER`: 3
+- `PREREQUISITE`: 14
 
 ## Run Notes
+- Mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; architecture-basis policy `PKG00_CONSISTENCY_TRACKERS`.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`.
+- Anchor document: `_CONTEXT.md`; execution documents reviewed as needed: `Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, existing `Dependencies.csv`, and `_DEPENDENCIES.md`.
+- PKG-00 architecture-basis rows were reviewed against `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01`, `DEL-00-02`, `DEL-00-03`, `DEL-00-05`, `DEL-00-06`, `DEL-00-07`, and `DEL-00-08` source documents; supported rows were retained.
+- Core enum fields conform to the canonical Chirality dependency model.
+- Legacy project-specific labels are preserved in `Notes` as `legacy_*` fields where previously present.
+- Candidate rows remain non-gating in the candidate worklist and require explicit human approval plus graph revalidation before promotion.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-- Default source discovery used `Specification.md` as the anchor-capable source and `Procedure.md`, `Guidance.md`, `Datasheet.md`, `_CONTEXT.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`, and `_REFERENCES.md` as deliverable-local execution/evidence inputs.
-- Decomposition path was explicitly supplied as `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Parent anchor check: PASS. One ACTIVE `DependencyClass=ANCHOR` / `AnchorType=IMPLEMENTS_NODE` row exists for `SOW-021`.
-- Existing local `DAG-002` mirror execution rows were treated as prior evidence, not aggregate graph authority. Matchable row IDs were preserved for reconciliation traceability.
-- Write-form enum normalization was applied for the refreshed register: prior mirror-specific values such as `ARCHITECTURE_BASIS`, `DOMAIN_MODEL`, `GOVERNANCE_PREDECESSOR`, `RULE_PACK_PREDECESSOR`, `SECURITY_PREDECESSOR`, `CONTEXT`, `DECOMPOSITION`, `INFERRED_DIRECT`, and `UNKNOWN` satisfaction were converted to canonical v3.1 enum values while preserving the prior classification in `Notes`.
-- No candidate rows were promoted. No downstream graph authority was changed.
-- No protected standards content, private data, engineering defaults, code-compliance claims, certification claims, sealing claims, approval claims, or professional acceptance claims were introduced.
+## Warnings
+- None.
 
 ## Run History
-
-| Timestamp | Mode | Strictness | Consumer context | Decomposition | Result |
-|---|---|---|---|---|---|
-| 2026-04-30 10:44 | UPDATE | CONSERVATIVE | NONE | execution/_Decomposition/SOFTWARE_DECOMP.md | Prior dependency-extract run reported 14 ACTIVE rows with warning for legacy ID validator mismatch. |
-| 2026-05-03 | DAG-002 mirror sync | N/A | COORDINATION | execution/_DAG/DAG-006/DependencyEdges.csv | Local register synchronized to 13 ACTIVE DAG-002 execution mirror rows, no anchor row. |
-| 2026-05-10 22:44 | UPDATE | CONSERVATIVE | RECONCILIATION | execution/_Decomposition/SOFTWARE_DECOMP.md | Refreshed local dependency-extract surface: 14 ACTIVE rows, 1 parent anchor, 13 execution prerequisites, canonical enum write form. |
-| 2026-05-16 | DEV-001 Stage 2 | BOUNDED | PKG-07 TASK | accepted PKG-02 contract | Added 1 ACTIVE package-local DEL-02-02 compatibility row with code/test evidence. |
+- 2026-06-16: dependency semantic refresh; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; rows 17 total, 17 ACTIVE, 0 RETIRED; warnings 0.
 
 ## Lifecycle Summary
-
-| Status | Count |
-|---|---:|
-| ACTIVE | 15 |
-| RETIRED | 0 |
-| CANDIDATE | 0 |
-
-| SatisfactionStatus | Count |
-|---|---:|
-| SATISFIED | 9 |
-| PENDING | 6 |
+- ACTIVE rows: 17
+- RETIRED rows: 0
+- Satisfaction status counts: {'NOT_APPLICABLE': 3, 'PENDING': 6, 'SATISFIED': 8}
 
 ## Downstream Handoff Notes
-
-- Consumer context is `RECONCILIATION`; this file is evidence for later graph reconciliation, not an approval record.
-- Reconciliation should compare the added parent anchor `DEP-DEL-07-03-001` against aggregate DAG surfaces, which intentionally do not use local anchor rows as execution edges.
-- Reconciliation should preserve the distinction between the canonical v3.1 enum write form in this local register and the more specific historical DAG-002 mirror classifications recorded in `Notes`.
-- The six non-architecture upstream execution prerequisites remain `PENDING` until the downstream graph authority confirms maturity/closure; this TASK did not inspect other deliverable folders.
+- Consume this register as a deliverable-local semantic refresh shard only. It is not graph authority and does not update `_DAG/_LATEST.md`.

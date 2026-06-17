@@ -496,3 +496,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Preserved deferred `TBD` status for final transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries.
 - Removed stale missing reference entries for `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` and `execution/_Coordination/NEXT_INSTANCE_STATE.md`; added current references to `_COORDINATION.md`, `NEXT_INSTANCE_PROMPT.md`, project `AGENTS.md`, `/Users/ryan/ai-env/projects/chirality/agents/AGENT_TASK.md`, upstream DEL-13-02/DEL-13-03 refresh evidence, and transform/adapter/test files.
 - Run evidence is recorded in `_run_records/TASK_RUN_2026-06-07_1138.md`; no lifecycle, review, dependency, schema, core, test, fixture, DAG, or coordination files were intentionally edited by this refresh.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

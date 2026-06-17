@@ -86,3 +86,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Current established behavior for this slice: deterministic rationale records; decision-support-only rationale posture; no accepted operation record creation; no accepted-model-state mutation; no user-acceptance bypass; visible `TBD_VISIBLE` diagnostics for missing audit context, validation context, source metadata, actor metadata, rationale text, and timestamp; unresolved assumption preservation; and blocking diagnostics for prohibited authority claims in rationale text and copied operation/audit/validation/source/actor/reference context.
 - Residual TBDs preserved: standalone rationale schema, final rationale persistence path, UI/agent workflow presentation, broader application-service behavior outside this slice, broader UI/API/report guard coverage, dependency-version decisions, and human review dispositions.
 - Boundary controls preserved: no lifecycle transition, no hidden model mutation, no autonomous engineering acceptance, no protected/private payload introduction, and no professional approval, certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

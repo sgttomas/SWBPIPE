@@ -1,74 +1,60 @@
 # Dependencies: DEL-14-01 Immutable model state records
 
-## Generated Dependency Register
-- **Status:** TP-DAG-004_REFRESHED_FOR_RECONCILIATION
-- **Approved graph authority used:** `execution/_DAG/DAG-006/`
-- **Source of Truth Boundary:** DAG-006 remains the approved graph authority; DAG-003 was not approved, promoted, or used as authority.
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 13 total; 13 ACTIVE; 0 RETIRED; 0 CANDIDATE.
-- **Last refreshed:** 2026-05-11
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-## Authority Boundary
-- Aggregate `APPROVED_DAG002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a refreshed evidence surface for reconciliation, not an independent graph approval.
-- Existing DAG-002 mirror rows were preserved by `DependencyID` and evidence, with legacy/custom enum values normalized to canonical v3.1 values for local validation.
-- No `DAG-003` row was approved or promoted in this refresh.
-- `PKG-00` architecture-basis rows remain context evidence; `PKG-00` does not receive local dependency registers.
+## Declared Upstream Dependencies
+- None recorded outside the local canonical register.
+
+## Declared Downstream Dependencies
+- None recorded outside the local canonical register.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refresh:** 2026-06-16
+- **Rows:** 13 total; 13 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=2; EXECUTION=11.
+- **PKG-00 architecture-basis trackers:** 7 reviewed; 0 changed; all retained ACTIVE as supported consistency trackers.
+- **Candidate rows moved to worklist:** 0.
 
-| DependencyID | Class | AnchorType | Direction | Type | Target | Status | Origin |
-|---|---|---|---|---|---|---|---|
-| DEL-14-01-A001 | ANCHOR | IMPLEMENTS_NODE | UPSTREAM | OTHER | SOW-071 | ACTIVE | EXTRACTED |
-| DEL-14-01-A002 | ANCHOR | TRACES_TO_REQUIREMENT | UPSTREAM | OTHER | OBJ-016 | ACTIVE | EXTRACTED |
-| DAG-002-E0667 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-01 | ACTIVE | DECLARED |
-| DAG-002-E0668 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-02 | ACTIVE | DECLARED |
-| DAG-002-E0669 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-03 | ACTIVE | DECLARED |
-| DAG-002-E0670 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-04 | ACTIVE | DECLARED |
-| DAG-002-E0671 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-06 | ACTIVE | DECLARED |
-| DAG-002-E0672 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-07 | ACTIVE | DECLARED |
-| DAG-002-E0673 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-00-08 | ACTIVE | DECLARED |
-| DAG-002-E0779 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-02-01 | ACTIVE | DECLARED |
-| DAG-002-E0780 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-02-05 | ACTIVE | DECLARED |
-| DAG-002-E0781 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-08-02 | ACTIVE | DECLARED |
-| DAG-002-E0782 | EXECUTION | NOT_APPLICABLE | UPSTREAM | PREREQUISITE | DEL-05-04 | ACTIVE | DECLARED |
+| DependencyID | Class | Direction | Type | TargetPackage | Target | Status |
+|---|---|---:|---|---|---|---|
+| `DEL-14-01-A001` | ANCHOR | UPSTREAM | OTHER | PKG-14 | SOW-071 | ACTIVE |
+| `DEL-14-01-A002` | ANCHOR | UPSTREAM | OTHER | - | OBJ-016 | ACTIVE |
+| `DAG-002-E0667` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-01 | ACTIVE |
+| `DAG-002-E0668` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-02 | ACTIVE |
+| `DAG-002-E0669` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-03 | ACTIVE |
+| `DAG-002-E0670` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-04 | ACTIVE |
+| `DAG-002-E0671` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-06 | ACTIVE |
+| `DAG-002-E0672` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-07 | ACTIVE |
+| `DAG-002-E0673` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-00 | DEL-00-08 | ACTIVE |
+| `DAG-002-E0779` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-02 | DEL-02-01 | ACTIVE |
+| `DAG-002-E0780` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-02 | DEL-02-05 | ACTIVE |
+| `DAG-002-E0781` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-08 | DEL-08-02 | ACTIVE |
+| `DAG-002-E0782` | EXECUTION | UPSTREAM | PREREQUISITE | PKG-05 | DEL-05-04 | ACTIVE |
+
+## Canonical Dependency Types
+- `OTHER`: 2
+- `PREREQUISITE`: 11
 
 ## Run Notes
-- Mode: `UPDATE`.
-- Strictness: `CONSERVATIVE`.
-- Consumer context: `RECONCILIATION`.
-- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
-- Approved graph authority: `execution/_DAG/DAG-006/DependencyEdges.csv` and `execution/_DAG/DAG-006/APPROVAL_RECORD.md`.
-- Anchor source documents: `_CONTEXT.md`, `Datasheet.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Execution source documents: existing `Dependencies.csv` DAG-002 mirror, `Procedure.md`, `Specification.md`, `Guidance.md`, and `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md`.
-- Preserved 11 DAG-002 mirror rows by `DependencyID`; updated `LastSeen` to 2026-05-11.
-- Added 2 explicit ANCHOR rows: one parent anchor to `SOW-071` and one objective trace to `OBJ-016`.
-- Normalized legacy DAG-002 execution row fields for v3.1 validation: `AnchorType=DELIVERABLE` became `NOT_APPLICABLE`; custom `DependencyType` values became `PREREQUISITE`; `Origin=CONTEXT/GRAPH_REVIEW` became `DECLARED`; `Explicitness=INFERRED_DIRECT` became `IMPLICIT`; `SatisfactionStatus=UNKNOWN` became `TBD`.
-- No downstream consumer rows were added for DEL-14-02, DEL-14-03, DEL-14-05, DEL-07-08, DEL-08-06, DEL-15-01, DEL-15-04, or DEL-16-03 because those are already represented as approved DAG-006 upstream dependencies in those consumer deliverables; adding inverse active rows here would be a reconciliation risk.
-- [WARNING] ENUM_NORMALIZATION: Custom DAG-002 edge semantics were preserved in `Notes`, but local enum fields were normalized to the current validator vocabulary.
-- No `[WARNING] FLOATING_NODE`: one ACTIVE `IMPLEMENTS_NODE` anchor is present.
-- No `[WARNING] AMBIGUOUS_ANCHOR`: exactly one ACTIVE `IMPLEMENTS_NODE` anchor is present.
+- Defaults applied: `MODE=UPDATE`, `STRICTNESS=CONSERVATIVE`, `CONSUMER_CONTEXT=RECONCILIATION`, `SOURCE_DOCS=AUTO`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`, `ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS`.
+- Decomposition path used: `execution/_Decomposition/SOFTWARE_DECOMP.md`; anchor validation and target labels were checked against revision 0.7 excerpts for PKG-14, SOW-071 through SOW-073, and OBJ-016.
+- Source docs reviewed: `Datasheet.md`, `_CONTEXT.md`, `Guidance.md`, `Procedure.md`, `Specification.md`, `_REFERENCES.md` plus the existing `Dependencies.csv` and `_DEPENDENCIES.md`.
+- PKG-00 rows were checked against local `_CONTEXT.md` Applicable Basis IDs and PKG-00 downstream-use notes; no PKG-00 files were written.
+- Core enum fields conform to canonical v3.1 write-form enums. Legacy project-specific labels remain preserved in `Notes` as `legacy_*` fields where present.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Warnings
+None.
 
 ## Run History
-- 2026-05-03: Local register synchronized from approved DAG-006 mirror; 11 ACTIVE rows.
-- 2026-05-11: TP-DAG-004 dependency surface refresh for `CONSUMER_CONTEXT=RECONCILIATION`; mode `UPDATE`; strictness `CONSERVATIVE`; DAG-002 authority preserved; 13 ACTIVE rows; 0 RETIRED; warnings: `ENUM_NORMALIZATION`.
+- 2026-06-16: `dependency-extract` semantic refresh for reconciliation; mode `UPDATE`; strictness `CONSERVATIVE`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; warnings: none; ACTIVE rows: 13; RETIRED rows: 0.
 
 ## Lifecycle Summary
-
-| Breakdown | Count |
-|---|---:|
-| ACTIVE | 13 |
-| RETIRED | 0 |
-| CANDIDATE | 0 |
-| ANCHOR | 2 |
-| EXECUTION | 11 |
-| OTHER | 2 |
-| PREREQUISITE | 11 |
-| SATISFIED | 7 |
-| TBD | 4 |
-| NOT_APPLICABLE | 2 |
-
-## Downstream Handoff Notes
-- For RECONCILIATION: treat `DAG-002-*` rows as preserved approved-graph evidence with canonicalized local enum fields, not as new edge proposals.
-- For RECONCILIATION: `DEL-14-01-A001` and `DEL-14-01-A002` are Tree/trace anchors only and should not be used as execution sequencing edges.
-- Later graph reconciliation should compare these refreshed rows against DAG-002 and any preliminary DAG-003 candidate material without silently promoting candidates or inverse downstream edges.
+- Extraction lifecycle: 13 ACTIVE; 0 RETIRED.
+- Closure status by `SatisfactionStatus`: NOT_APPLICABLE=2; SATISFIED=7; TBD=4.
+- Closure note: register is schema-valid and evidence-reviewed for dependency semantics only; downstream graph authority remains with approved/accepted graph workflows.

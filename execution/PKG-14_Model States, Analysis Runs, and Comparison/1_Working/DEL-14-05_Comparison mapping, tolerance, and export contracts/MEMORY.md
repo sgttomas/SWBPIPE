@@ -70,3 +70,7 @@ Durable context preserved after reconciliation review:
 - No-silent-tolerance evidence was confirmed: both comparison schemas contain zero `default` keys, and `tests/test_comparison_contracts.py` asserts no schema defaults plus the numeric tolerance status guard.
 - Deliverable-local consistency scan using conservative defaults found no missing core files, no missing four-doc kit files, no identity mismatches, and no candidate unsourced numerics. The `TBD`/`ASSUMPTION` markers are intentional deferred decisions for governed tolerance values, final mapping workflow authority, exact CSV/JSON/report-section layout, downstream engine/export integration, source-safe examples, and dependency satisfaction evidence.
 - `_STATUS.md` was set to `CHECKING` for this bounded transition only. No release, professional-approval, certification, sealing, authentication, or code-compliance claim was made.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

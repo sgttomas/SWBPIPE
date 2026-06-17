@@ -1,34 +1,71 @@
 # Dependencies: DEL-06-03 Required-input completeness checker
 
-## Extracted Dependency Register
-- **Status:** TP-DAG-004_REFRESHED
-- **Consumer Context:** RECONCILIATION
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Base Register:** Synchronized from `execution/_DAG/DAG-006/DependencyEdges.csv`
-- **Refresh Basis:** Assigned deliverable folder plus `execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 10 total; 10 ACTIVE; 0 CANDIDATE.
-- **Last Refreshed:** 2026-05-10
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-## Authority Boundary
-- Aggregate `DAG-002` remains the sequencing and blocker-computation authority within its approval boundary.
-- This local register is a synchronized mirror/evidence surface, not an independent graph authority.
-- `CANDIDATE` rows remain non-gating until later RECONCILIATION plus CHANGE approval.
-- `PKG-00` architecture-basis rows are preserved here as injected context evidence; `PKG-00` does not receive local dependency registers.
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
+
+## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Semantic refreshed:** 2026-06-16
+- **Rows:** 18 total; 18 ACTIVE; 0 RETIRED.
+- **Classes:** ANCHOR=8; EXECUTION=10.
+- **PKG-00 architecture-basis rows reviewed:** 7; changed by this refresh: 0.
+- **Rows added by this refresh:** 8.
+- **Rows retired by this refresh:** 0.
+
+| DependencyID | Class | Direction | Type | TargetType | Target | Status |
+|---|---|---|---|---|---|---|
+| DEP-DEL-06-03-A001 | ANCHOR | UPSTREAM | OTHER | WBS_NODE | SOW-004 | ACTIVE |
+| DAG-002-E0169 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-01 | ACTIVE |
+| DAG-002-E0170 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-02 | ACTIVE |
+| DAG-002-E0171 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-03 | ACTIVE |
+| DAG-002-E0172 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-04 | ACTIVE |
+| DAG-002-E0173 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-06 | ACTIVE |
+| DAG-002-E0174 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-07 | ACTIVE |
+| DAG-002-E0175 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-00-08 | ACTIVE |
+| DAG-002-E0469 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-06-01 | ACTIVE |
+| DAG-002-E0470 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-02-03 | ACTIVE |
+| DAG-002-E0471 | EXECUTION | UPSTREAM | PREREQUISITE | DELIVERABLE | DEL-05-04 | ACTIVE |
+| DEP-DEL-06-03-A002 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-001 | ACTIVE |
+| DEP-DEL-06-03-A003 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-002 | ACTIVE |
+| DEP-DEL-06-03-A004 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-003 | ACTIVE |
+| DEP-DEL-06-03-A005 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-004 | ACTIVE |
+| DEP-DEL-06-03-A006 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-005 | ACTIVE |
+| DEP-DEL-06-03-A007 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-006 | ACTIVE |
+| DEP-DEL-06-03-A008 | ANCHOR | UPSTREAM | OTHER | REQUIREMENT | R-DEL-06-03-007 | ACTIVE |
+
+## Canonical Dependency Types
+- `OTHER`: 8
+- `PREREQUISITE`: 10
 
 ## Run Notes
-- Read boundary followed: governing docs, dependency-extract skill, assigned deliverable folder, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Write boundary followed: `Dependencies.csv`, `_DEPENDENCIES.md`, and this run's `_run_records/TASK_RUN_*.md` only.
-- No new conservative dependency was added from SOFTWARE_DECOMP revision 0.5/SCA-002 because DEL-06-03 remains scoped to SOW-004 and the assigned DEL-06-03 source documents do not state a direct execution dependency on PKG-13 through PKG-16.
-- Existing architecture-basis rows for AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 were retained.
-- Existing direct execution rows for DEL-06-01, DEL-02-03, and DEL-05-04 were retained.
+- Run controls: TaskSkill `dependency-extract`; MODE `UPDATE`; STRICTNESS `CONSERVATIVE`; CONSUMER_CONTEXT `RECONCILIATION`; ARCHITECTURE_BASIS_POLICY `PKG00_CONSISTENCY_TRACKERS`; ApplyEdits `true`.
+- Decomposition path: `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for scope/package/architecture-basis validation.
+- Anchor document selection: `Datasheet.md` and `_CONTEXT.md` for scope identity; `Specification.md` for local requirement trace anchors.
+- Execution document order: `Procedure.md`, `Guidance.md`, `_CONTEXT.md`, and relevant PKG-00 source excerpts for architecture-basis consistency.
+- PKG-00 / DEL-00-* rows are retained as architecture-consistency dependency trackers because `_CONTEXT.md` explicitly lists AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 for this sealed context.
+- Existing RETIRED rows were preserved; no rows were deleted.
+- Candidate/non-gating ideas were not emitted as `Status=CANDIDATE`.
+- Warnings: None.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
+
+## Run History
+- 2026-06-16 23:59 - MODE=UPDATE; STRICTNESS=CONSERVATIVE; CONSUMER_CONTEXT=RECONCILIATION; decomposition=located; rows=18 total/18 ACTIVE/0 RETIRED; added=8; retired=0; PKG-00 reviewed=7 changed=0; warnings=none.
 
 ## Lifecycle Summary
-- ACTIVE: 10
-- RETIRED: 0
-- Satisfaction: 7 SATISFIED, 3 UNKNOWN
+- ACTIVE rows: 18
+- RETIRED rows: 0
+- SatisfactionStatus `NOT_APPLICABLE`: 8
+- SatisfactionStatus `SATISFIED`: 7
+- SatisfactionStatus `TBD`: 3
 
 ## Downstream Handoff Notes
-- For RECONCILIATION, treat all rows as local evidence refreshed on 2026-05-10, not as a new project-level DAG approval.
-- The three UNKNOWN direct execution rows remain reconciliation targets: DEL-06-01 rule-pack schema, DEL-02-03 code-neutral analysis boundary model, and DEL-05-04 analysis status semantics.
+- Register is refreshed for reconciliation consumption only; downstream graph authority remains governed by the active DAG/decomposition approval workflow.

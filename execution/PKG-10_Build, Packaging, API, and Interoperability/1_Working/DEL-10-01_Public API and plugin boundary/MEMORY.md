@@ -163,3 +163,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Updated `docs/architecture/plugin_boundary.md` and `tests/test_api_boundary_contract.py` to mirror those concepts and preserve the deny-by-default, no-direct-SQL, no protected/private content, no professional/code-compliance claim boundaries.
 - Public transport protocol, concrete endpoint syntax, plugin runtime/loading/signing/isolation, permission grant persistence, code-generation tooling, concrete writer behavior, external-tool invocation, and target field coverage remain `TBD`.
 - No lifecycle state, DAG/coordination authority, dependency register, review disposition, blocker queue, PKG-08 artifact, commit, release claim, professional approval, certification, sealing, authentication, or code-compliance claim was changed or made by this addendum.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.

@@ -1,71 +1,78 @@
 # Dependencies: DEL-09-02 Stress recovery benchmark suite
 
-## Generated Dependency Register
-- **Status:** REFRESHED_TP_DAG_004
-- **Mode:** UPDATE
-- **Strictness:** CONSERVATIVE
-- **Consumer Context:** RECONCILIATION
-- **Source of Truth:** deliverable-local extraction from assigned source documents plus `execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Local Register:** `Dependencies.csv`
-- **Rows:** 11 total; 10 ACTIVE; 1 RETIRED.
-- **Generated:** 2026-05-10
+## Coordination Mode
+- **Mode:** FULL_GRAPH
+- **Graph Authority:** `execution/_DAG/DAG-006/` is the approved legacy graph pending `DAG-007` canonical approval.
+- **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
-## Authority Boundary
-- Aggregate DAG files remain outside this bounded TASK write scope.
-- This local register is evidence for downstream RECONCILIATION, not a project-level sequencing authority.
-- Retired rows are preserved for reconciliation visibility and are not deleted.
-- No source, status, memory, code, schema, test, DAG, or coordination files were edited.
+## Declared Upstream Dependencies
+- None recorded.
+
+## Declared Downstream Dependencies
+- None recorded.
 
 ## Extracted Dependency Register
+- **Local Register:** `Dependencies.csv`
+- **Register schema version:** `v3.1`
+- **Refresh run:** dependency semantic refresh, 2026-06-16
+- **Rows:** 11 total; 10 ACTIVE; 1 RETIRED.
+- **Classes:** ANCHOR=3; EXECUTION=8.
+- **Candidate rows moved to worklist:** 0.
 
-| DependencyID | Class | Direction | Type | Target | Status | Confidence |
-|---|---|---:|---|---|---|---|
-| DEL-09-02-A001 | ANCHOR | UPSTREAM | OTHER | DEL-09-02 Stress recovery benchmark suite | ACTIVE | HIGH |
-| DEL-09-02-A002 | ANCHOR | UPSTREAM | OTHER | SOW-026 Verification benchmarks regression tests and numerical quality checks | ACTIVE | HIGH |
-| DEL-09-02-A003 | ANCHOR | UPSTREAM | OTHER | OBJ-008 Verification validation regression testing and release gates | ACTIVE | HIGH |
-| DAG-002-E0278 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 Architecture decision record baseline | ACTIVE | HIGH |
-| DAG-002-E0279 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 Repository and module boundary architecture | ACTIVE | HIGH |
-| DAG-002-E0280 | EXECUTION | UPSTREAM | INTERFACE | DEL-00-06 Diagnostics, warning, and result-envelope contract | ACTIVE | HIGH |
-| DAG-002-E0281 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 Layered software test and acceptance strategy | ACTIVE | HIGH |
-| DAG-002-E0537 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-03 Fundamental stress recovery module | ACTIVE | MEDIUM |
-| DAG-002-E0538 | EXECUTION | UPSTREAM | INTERFACE | DEL-03-08 Pipe section property and mass-property calculator | ACTIVE | MEDIUM |
-| DAG-002-E0539 | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-02 Straight pipe element | RETIRED | LOW |
-| DAG-002-E0540 | EXECUTION | UPSTREAM | CONSTRAINT | DEL-01-02 Copyright and protected-data boundary policy | ACTIVE | HIGH |
+| DependencyID | Class | Direction | Type | Target | Status | Evidence |
+|---|---|---|---|---|---|---|
+| `DEL-09-02-A001` | ANCHOR | UPSTREAM | OTHER | DEL-09-02 | ACTIVE | Datasheet.md / Identification |
+| `DEL-09-02-A002` | ANCHOR | UPSTREAM | OTHER | SOW-026 | ACTIVE | Datasheet.md / Identification |
+| `DEL-09-02-A003` | ANCHOR | UPSTREAM | OTHER | OBJ-008 | ACTIVE | Datasheet.md / Identification |
+| `DAG-002-E0278` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-01 | ACTIVE | _CONTEXT.md / Architecture Basis Injection |
+| `DAG-002-E0279` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-02 | ACTIVE | _CONTEXT.md / Architecture Basis Injection |
+| `DAG-002-E0280` | EXECUTION | UPSTREAM | INTERFACE | DEL-00-06 | ACTIVE | _CONTEXT.md / Architecture Basis Injection |
+| `DAG-002-E0281` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-00-08 | ACTIVE | _CONTEXT.md / Architecture Basis Injection |
+| `DAG-002-E0537` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-05-03 | ACTIVE | Procedure.md / Prerequisites |
+| `DAG-002-E0538` | EXECUTION | UPSTREAM | INTERFACE | DEL-03-08 | ACTIVE | Specification.md / Scope / Requirements |
+| `DAG-002-E0539` | EXECUTION | UPSTREAM | PREREQUISITE | DEL-04-02 | RETIRED | Deliverables.csv / location TBD |
+| `DAG-002-E0540` | EXECUTION | UPSTREAM | CONSTRAINT | DEL-01-02 | ACTIVE | Procedure.md / Prerequisites |
+
+## Canonical Dependency Types
+- `CONSTRAINT`: 4
+- `INTERFACE`: 2
+- `OTHER`: 3
+- `PREREQUISITE`: 2
+
+## PKG-00 Architecture-Basis Review
+- **Rows reviewed:** 4
+- **Rows changed:** 0
+- Reviewed `DAG-002-E0278` -> `DEL-00-01` (Architecture decision record baseline): retained as supported by `_CONTEXT.md` architecture-basis injection and SOFTWARE_DECOMP AB rows; no PKG-00 files changed.
+- Reviewed `DAG-002-E0279` -> `DEL-00-02` (Repository and module boundary architecture): retained as supported by `_CONTEXT.md` architecture-basis injection and SOFTWARE_DECOMP AB rows; no PKG-00 files changed.
+- Reviewed `DAG-002-E0280` -> `DEL-00-06` (Diagnostics, warning, and result-envelope contract): retained as supported by `_CONTEXT.md` architecture-basis injection and SOFTWARE_DECOMP AB rows; no PKG-00 files changed.
+- Reviewed `DAG-002-E0281` -> `DEL-00-08` (Layered software test and acceptance strategy): retained as supported by `_CONTEXT.md` architecture-basis injection and SOFTWARE_DECOMP AB rows; no PKG-00 files changed.
+
+## Retired Row Disposition
+- `DAG-002-E0539` remains RETIRED: Prior inferred edge claimed DEL-09-02 consumes straight-pipe element force recovery, but current sealed source docs do not state this dependency directly.
 
 ## Run Notes
+- TaskSkill: `dependency-extract`; MODE: `UPDATE`; STRICTNESS: `CONSERVATIVE`; CONSUMER_CONTEXT: `RECONCILIATION`; ARCHITECTURE_BASIS_POLICY: `PKG00_CONSISTENCY_TRACKERS`.
+- Decomposition path: `execution/_Decomposition/SOFTWARE_DECOMP.md`; located and used for anchor/target validation.
+- Source document selection: `AUTO`; anchor document: `Datasheet.md`; execution documents reviewed from local `Specification.md`, `Procedure.md`, `Guidance.md`, `_CONTEXT.md`, and `_REFERENCES.md` as needed.
+- Core enum fields conform to the canonical Chirality dependency model. No legacy core enum values or `Status=CANDIDATE` values are emitted.
+- PKG-00 / DEL-00-* rows were treated as valid architecture-consistency dependency trackers when supported; no PKG-00 files were edited.
+- This dependency refresh does not authorize implementation, lifecycle promotion, release claims, professional approval, certification, sealing, authentication, or code-compliance claims.
 
-- Defaults recorded: `SOURCE_DOCS=AUTO`, `DOC_ROLE_MAP=DEFAULT`, `ANCHOR_DOC=AUTO`, `EXECUTION_DOC_ORDER=AUTO`.
-- Anchor document selected: `Datasheet.md`.
-- Execution documents read: `_CONTEXT.md`, `Specification.md`, `Procedure.md`, `Guidance.md`, `_REFERENCES.md`, existing `Dependencies.csv`, existing `_DEPENDENCIES.md`.
-- Decomposition path used: `/Users/ryan/ai-env/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md`.
-- Decomposition status: found; revision `0.5`; target IDs validated by text lookup.
-- Existing DAG mirror IDs were preserved where the refreshed row matched the same dependency.
-- Canonical enum normalization applied: execution `AnchorType=NOT_APPLICABLE`; execution `DependencyType` limited to `PREREQUISITE`, `INTERFACE`, `CONSTRAINT`, or `OTHER`; `Origin=EXTRACTED`.
-- Warning `CONSERVATIVE_RETIREMENT`: prior inferred row `DAG-002-E0539` was marked `RETIRED` because current assigned source documents do not directly state a straight-pipe-element prerequisite.
-- Warning `ID_FORMAT_VALIDATOR_MISMATCH`: local ID validator expects three-digit package/deliverable/scope/objective formats, while this project uses two-digit IDs such as `DEL-09-02`, `PKG-09`, `SOW-026`, and `OBJ-008`; schema and enum validation still passed.
-- Warning `OBJECTIVE_TRACE_TARGETTYPE`: `OBJ-008` is represented as `TargetType=REQUIREMENT` because v3.1 trace anchors do not define a separate objective target type.
-
-## Lifecycle Summary
-
-| Status | Count |
-|---|---:|
-| ACTIVE | 10 |
-| RETIRED | 1 |
-| Total | 11 |
-
-| SatisfactionStatus | Count |
-|---|---:|
-| SATISFIED | 7 |
-| PENDING | 3 |
-| TBD | 1 |
+## Warnings
+- None.
 
 ## Downstream Handoff Notes
-
-- RECONCILIATION should review the conservative retirement of `DAG-002-E0539` against aggregate DAG expectations before treating the straight-pipe-element predecessor as removed from sequencing logic.
-- RECONCILIATION should decide whether objective anchors need a future `TARGET_TYPE=OBJECTIVE` enum or should remain encoded as requirement trace anchors.
-- Architecture-basis rows remain local context evidence only; they do not change PKG-00 lifecycle status.
+- Consumer context is `RECONCILIATION`; downstream aggregation may consume ACTIVE rows as canonical local register evidence.
+- Candidate/non-gating ideas require explicit human approval plus graph revalidation before promotion.
+- RETIRED rows are preserved for provenance and must not be treated as active gating dependencies.
 
 ## Run History
+- 2026-06-16 0000 America/Edmonton: semantic refresh from sealed brief `/Users/ryan/ai-env/projects/chirality/projects/chirality-piping/execution/_Reconciliation/DependencySemanticRefresh/SEMANTIC_REFRESH_2026-06-16/WorkerBriefs/PKG-09_dependency_semantic_refresh.md`; ACTIVE rows=10; RETIRED rows=1; PKG-00 rows reviewed=4; warnings=0.
 
-- 2026-04-30 / 2026-05-03: prior local register synchronized from `DAG-002` aggregate dependency edges; 8 ACTIVE rows.
-- 2026-05-10 23:05 MDT: `TP-DAG-004 dependency-extract refresh`; mode `UPDATE`; strictness `CONSERVATIVE`; consumer context `RECONCILIATION`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md` found at revision `0.5`; warnings: `CONSERVATIVE_RETIREMENT`, `ID_FORMAT_VALIDATOR_MISMATCH`, `OBJECTIVE_TRACE_TARGETTYPE`; counts: 10 ACTIVE, 1 RETIRED.
+## Lifecycle Summary
+- ACTIVE rows: 10
+- RETIRED rows: 1
+- Closure-state breakdown:
+- `PENDING`: 3
+- `SATISFIED`: 7
+- `TBD`: 1
