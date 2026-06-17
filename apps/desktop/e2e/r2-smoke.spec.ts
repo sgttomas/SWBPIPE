@@ -407,6 +407,15 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
     "conversion=false"
   );
+  const headlessRunner = page.getByLabel("Headless runner envelope");
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText(
+    "unit-system:dec-018-si-dual-display"
+  );
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=737");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText(
+    "conversion=false"
+  );
   const handoffPackage = page.getByLabel("Handoff package");
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=737");
   await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");

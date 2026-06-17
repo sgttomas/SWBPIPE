@@ -339,3 +339,21 @@ Durable TASK evidence:
   protected standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001 supporting result-handoff unit evidence
+
+- Supporting role for DEL-10-05 headless-runner tranche: the desktop runner
+  envelope now preserves result-export unit intent at the result-handoff
+  boundary through `result.unit_system_disclosure` and
+  `result.unit_preservation_witnesses[]`.
+- The witness rows mirror the result-export preservation posture: finite
+  mechanics result values keep their source value, unit, and inferred
+  dimension with `conversion_performed=false`.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no result schema change, result-export runtime behavior,
+  public transport commitment, trace-chain ownership change, protected
+  standards content, private payload, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

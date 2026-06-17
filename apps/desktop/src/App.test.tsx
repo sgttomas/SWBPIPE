@@ -210,6 +210,15 @@ describe("OpenPipeStress desktop preview", () => {
       "schema_first_headless_runner_contract"
     );
     expect(within(headlessRunner).getByTestId("headless-runner-interface").textContent).toContain("cli=TBD");
+    expect(within(headlessRunner).getByTestId("headless-runner-units").textContent).toContain(
+      "results=none"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-units").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-unit-witnesses").textContent).toContain(
+      "count=0"
+    );
     expect(within(headlessRunner).getByTestId("headless-runner-runtime-tbds").textContent).toContain(
       "network=TBD"
     );
@@ -241,6 +250,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(headlessPacket.request.privacy.local_only).toBe(true);
     expect(headlessPacket.request.privacy.telemetry_allowed).toBe(false);
     expect(headlessPacket.result.job.state).toBe("TBD");
+    expect(headlessPacket.result.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(headlessPacket.result.unit_system_disclosure.result_units).toEqual([]);
+    expect(headlessPacket.result.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(headlessPacket.result.unit_preservation_witnesses).toEqual([]);
     expect(headlessPacket.result.analysis_status).toContain("MODEL_INCOMPLETE");
     expect(headlessPacket.result.analysis_status).toContain("HUMAN_REVIEW_REQUIRED");
     expect(headlessPacket.result.result_envelope_ref.compatibility).toBe("schema_first_json_result_envelope");
@@ -5183,6 +5198,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(headlessRunner).getByTestId("headless-runner-result-handoff").textContent).toContain(
       "checksums=2"
     );
+    expect(within(headlessRunner).getByTestId("headless-runner-units").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-unit-witnesses").textContent).toContain(
+      "count=737"
+    );
+    expect(within(headlessRunner).getByTestId("headless-runner-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
     const headlessHref = within(headlessRunner).getByTestId("headless-runner-export-link").getAttribute("href") ?? "";
     const headlessPacket = JSON.parse(decodeURIComponent(headlessHref.split(",", 2)[1]));
     expect(headlessPacket.deliverable_id).toBe("DEL-10-05");
@@ -5207,6 +5231,26 @@ describe("OpenPipeStress desktop preview", () => {
     expect(headlessPacket.result.result_refs).toHaveLength(737);
     expect(headlessPacket.result.audit_manifest_ref.ref_id).toBe("audit-manifest:run:preview-linear-static-001:preview");
     expect(headlessPacket.result.checksums).toHaveLength(2);
+    expect(headlessPacket.result.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(headlessPacket.result.unit_system_disclosure.model_units.length).toBe("m");
+    expect(headlessPacket.result.unit_system_disclosure.result_units).toContain("MPa");
+    expect(headlessPacket.result.unit_system_disclosure.result_units).toContain("mm");
+    expect(headlessPacket.result.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(headlessPacket.result.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(headlessPacket.result.unit_witness_policy).toBe(
+      "preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row"
+    );
+    expect(headlessPacket.result.unit_preservation_witnesses).toHaveLength(737);
+    const headlessUnitWitness = headlessPacket.result.unit_preservation_witnesses.find(
+      (item: { source_result_ref: { ref_id: string } }) => item.source_result_ref.ref_id === "result:force:pipe-P-120:axial"
+    );
+    expect(headlessUnitWitness.source_quantity.unit).toBe("N");
+    expect(headlessUnitWitness.source_quantity.dimension).toBe("force");
+    expect(headlessUnitWitness.target_quantity.unit).toBe("N");
+    expect(headlessUnitWitness.target_quantity.dimension).toBe("force");
+    expect(headlessUnitWitness.conversion_performed).toBe(false);
     expect(headlessPacket.result.diagnostics).toHaveLength(7);
     expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
     expect(headlessPacket.result.professional_boundary.software_makes_compliance_claim).toBe(false);

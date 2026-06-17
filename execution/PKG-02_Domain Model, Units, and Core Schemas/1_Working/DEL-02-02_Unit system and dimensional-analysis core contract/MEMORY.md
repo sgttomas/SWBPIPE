@@ -814,3 +814,21 @@ Boundary note:
   section values, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-10-05 headless-runner tranche: the desktop runner
+  result-handoff envelope now records DEC-018 unit-system disclosure and
+  per-result source value/unit/dimension preservation witnesses with
+  `conversion_performed=false`.
+- The evidence confirms the runner preview does not perform export-time unit
+  conversion and does not silently drop unit metadata when handing off result
+  references and audit metadata.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, final CLI/process/network policy,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

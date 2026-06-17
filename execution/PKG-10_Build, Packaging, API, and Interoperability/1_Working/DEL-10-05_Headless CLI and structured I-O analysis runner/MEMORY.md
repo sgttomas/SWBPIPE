@@ -301,3 +301,29 @@ or code-compliance decisions.
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001 headless runner unit witnesses
+
+- Primary role for the Phase B-tail headless-runner unit-evidence tranche:
+  the desktop Headless Runner envelope now emits
+  `result.unit_system_disclosure`, `result.unit_witness_policy`, and
+  `result.unit_preservation_witnesses[]` for the schema-first local
+  result-handoff preview.
+- The runner result disclosure records DEC-018, entered-unit storage
+  convention, source model units, result units, and
+  `conversion_performed=false`. Each finite mechanics result row receives a
+  preservation witness carrying source and target value/unit/dimension
+  metadata by reference.
+- Visible evidence added to the desktop panel:
+  `headless-runner-units` and `headless-runner-unit-witnesses`; the invented
+  preview fixture reports 737 witnesses after mechanics preview and zero
+  witnesses in the pre-run state.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no final CLI syntax, package script,
+  process/network/filesystem policy, public transport, CI/release matrix,
+  runtime process launcher, schema contract change, unit conversion API,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

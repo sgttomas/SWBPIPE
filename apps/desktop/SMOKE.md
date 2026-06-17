@@ -6512,6 +6512,9 @@ notes:
   - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
   - `npm run build --workspace apps/desktop` passed with the existing Vite
     large-chunk warning.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
 - Evidence: DEL-15-01 primary run record
   `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001.md`;
   DEL-02-02 and DEL-17-03 supporting run records with the same id; completion
@@ -6522,3 +6525,37 @@ notes:
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-200 headless runner unit witnesses - PASSED (`TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail headless-runner/unit-evidence slice while C5.7
+  remains human-execution gated. The desktop Headless Runner envelope now
+  emits explicit DEC-018 unit-system disclosure and per-result
+  unit-preservation witnesses for the schema-first local result-handoff
+  preview.
+- Packet contract: `result.unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, entered-unit storage convention,
+  source model units, result units, and `conversion_performed=false`.
+  `result.unit_witness_policy` is
+  `preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row`,
+  and `result.unit_preservation_witnesses[]` preserves finite result-row
+  value, unit, and inferred dimension metadata by reference.
+- UI check: `data-testid="headless-runner-units"` displays the DEC-018
+  disclosure and `data-testid="headless-runner-unit-witnesses"` displays
+  `count=737` with `conversion=false` for the invented preview fixture after
+  mechanics preview. The pre-run preview path keeps `result_units=[]`,
+  `conversion=false`, and zero witnesses explicit.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-10-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001.md`;
+  DEL-02-02 and DEL-08-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: headless-runner result-handoff unit metadata only. No final CLI
+  syntax, package script, process/network/filesystem policy, public transport,
+  CI/release matrix, runtime process launcher, schema contract change, unit
+  conversion API, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

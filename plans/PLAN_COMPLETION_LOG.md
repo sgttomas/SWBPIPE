@@ -14,6 +14,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail headless runner unit witnesses (`TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001`)
+
+Landed one bounded Phase B-tail headless-runner/unit-evidence slice while C5.7
+remains human-execution gated. The desktop Headless Runner envelope now emits
+explicit DEC-018 unit-system disclosure and per-result unit-preservation
+witnesses for the schema-first local result-handoff preview.
+
+The runner result records `unit-system:dec-018-si-dual-display`,
+entered-unit storage convention, source model units, result units, and
+`conversion_performed=false`. Each finite result row gets a preservation
+witness for source value, unit, and inferred result dimension. The visible UI
+shows `headless-runner-units` and `headless-runner-unit-witnesses` with
+`count=737` and `conversion=false` for the invented preview fixture after
+mechanics preview; the pre-run preview state remains explicit with zero
+witnesses and no result units.
+
+The tranche preserves the headless-runner TBD boundary. It does not choose
+final CLI syntax, package scripts, process/network/filesystem policy, public
+transport, CI/release matrix, runtime process launching, or a schema/public
+runtime contract beyond the existing desktop preview JSON.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-200; DEL-10-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001.md`;
+DEL-02-02 and DEL-08-04 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2 Playwright smoke passed
+2/2; full desktop Vitest passed 18/18 files and 397/397 tests; desktop
+production build passed with the existing Vite large-chunk warning.
+
+Boundary: headless-runner result-handoff unit metadata only. No final CLI
+syntax, package script, process/network/filesystem policy, public transport,
+CI/release matrix, runtime process launcher, schema contract change, unit
+conversion API, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail handoff package unit witnesses (`TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001`)
 
 Landed one bounded Phase B-tail handoff/unit-evidence slice while C5.7 remains
