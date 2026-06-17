@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail component-library field unit helper (`TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001`)
+
+Landed one bounded Phase B-tail app unit-entry slice while C5.7 remains
+human-execution gated. The Private Library Manager now exposes a component
+field unit helper for component-library drafts. The helper drafts one private
+`fields[]` quantity with explicit magnitude, unit, and dimension metadata
+before the existing local-only import validation/store actions run.
+
+Browser preview remains honest: it does not synthesize a fallback catalog and
+keeps the stored `N/m` unit as the single explicit option with the
+desktop-only unit-catalog diagnostic. In Tauri/desktop mode, the helper uses
+the reviewed DEC-018 unit catalog and filters `linear_stiffness` options to
+compatible force-per-length units, including `N/m` and `lbf/in`, while
+excluding incompatible length units.
+
+The drafted component field is private-only:
+`public_repository_value_policy=private_user_supplied_only`,
+`value_status=private_user_supplied`, and
+`dimension=linear_stiffness`. It does not introduce component mechanics,
+public component values, SIF/flexibility tables, or validation/storage policy
+changes.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-195; DEL-07-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused LibraryManagerPanel Vitest passed 11/11; full desktop
+Vitest passed 18/18 files and 393/393 tests; desktop production build passed
+with the existing Vite large-chunk warning; focused Playwright library-manager
+smoke passed 2/2.
+
+Boundary: component-library draft authoring only. No component mechanics,
+code-specific SIF/flexibility data, public component catalog, validation rule,
+local-store policy, protected standards content, private payload,
+network/telemetry path, lifecycle transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-17 - B-tail comparison mixed-unit tolerance corpus (`TP-UNITS-BTAIL-COMPTOLCORPUS-001`)
 
 Landed one bounded Phase B-tail DEC-026 corpus slice while C5.7 remains

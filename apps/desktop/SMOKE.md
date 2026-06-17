@@ -6337,3 +6337,39 @@ notes:
   protected standards content, private project payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-195 component library field unit helper - PASSED (`TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains
+  human-execution gated. The Private Library Manager now exposes a component
+  field unit helper for component-library drafts, so a user can add one
+  private component `fields[]` quantity with explicit magnitude, unit, and
+  dimension metadata before running the existing local-only import validation.
+- Unit behavior: browser preview does not synthesize a catalog and keeps the
+  stored `N/m` field unit as a single explicit option with the
+  desktop-only catalog diagnostic. In Tauri/desktop mode, the helper uses the
+  DEC-018 unit catalog and filters `linear_stiffness` options to compatible
+  force-per-length units such as `N/m` and `lbf/in`, excluding length units.
+- Draft payload: applying the helper writes a private `component_records[0]`
+  field with `field_kind=linear_stiffness`,
+  `public_repository_value_policy=private_user_supplied_only`, and
+  `value={magnitude, unit, dimension=linear_stiffness,
+  value_status=private_user_supplied}`. Validation and storage are unchanged
+  and still route through the desktop-only local library backend.
+- Validation:
+  - `npm test --workspace apps/desktop -- LibraryManagerPanel.test.tsx`
+    passed 11/11 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 393/393 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "library manager loads"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-07-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: component-library draft authoring only. No component mechanics,
+  code-specific SIF/flexibility data, public component catalog, library
+  validation rule, local-store policy, protected standards content, private
+  project payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -726,3 +726,20 @@ Boundary note:
   policy, protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03 component-library authoring tranche: the
+  Private Library Manager now uses the DEC-018 unit catalog to filter a
+  component-field draft selector by canonical dimension, with
+  `linear_stiffness` mapped to accepted force-per-length units.
+- Browser preview remains no-fallback: stored `N/m` metadata stays visible as
+  model metadata and the route records the desktop-only catalog diagnostic.
+- Validation passed: focused `LibraryManagerPanel` Vitest 11/11, full desktop
+  Vitest 393/393, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, component mechanics, public
+  component values, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

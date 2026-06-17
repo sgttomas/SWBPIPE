@@ -229,3 +229,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001 component library field unit helper
+
+- Added a Private Library Manager component-field unit helper for
+  component-library import drafts. It writes one private component
+  `fields[]` quantity into the JSON draft with explicit magnitude, unit,
+  `dimension=linear_stiffness`, and private-only provenance/status metadata.
+- Desktop/Tauri route consumes the reviewed DEC-018 unit catalog and filters
+  the `linear_stiffness` unit selector to compatible force-per-length units;
+  browser preview keeps the stored unit visible and records that no fallback
+  catalog is synthesized.
+- Validation passed: focused `LibraryManagerPanel` Vitest 11/11, full desktop
+  Vitest 393/393, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001.md`;
+  supporting DEL-02-02 run record; SMOKE TP-MAC-195; completion log entry.
+- Boundary unchanged: draft authoring only; no component mechanics, public
+  component values, validation/storage rule change, protected standards
+  content, private project payload, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim.

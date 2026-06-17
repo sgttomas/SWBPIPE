@@ -15,6 +15,13 @@ import {
   type LibraryKind,
   type LocalLibraryIndexEntry
 } from "../../services/libraryImportService";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  unitEntryMatchesDimension,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
 
 // Private Library Manager (PRD §13 / §14.6 / §14.1 "Library manager"). Phase C3
 // GUI slice (TP-C3-LIBGUI-001), replicating the C2 Rule-Pack Manager pattern:
@@ -58,7 +65,31 @@ type DraftState = {
   origin: string;
 };
 
+type ComponentFieldDraft = {
+  fieldKind: keyof typeof COMPONENT_FIELD_SPECS;
+  magnitude: string;
+  unit: string;
+};
+
 type LibraryR3JourneyEvent = "library_template_loaded" | "library_validate_requested" | "library_save_requested";
+
+const COMPONENT_FIELD_SPECS = {
+  linear_stiffness: {
+    dimension: "linear_stiffness",
+    defaultUnit: "N/m",
+    label: "Linear stiffness"
+  },
+  bend_radius: {
+    dimension: "length",
+    defaultUnit: "m",
+    label: "Bend radius"
+  },
+  weight: {
+    dimension: "force",
+    defaultUnit: "N",
+    label: "Weight"
+  }
+} as const;
 
 export function LibraryManagerPanel({
   model,
@@ -76,6 +107,12 @@ export function LibraryManagerPanel({
   const [listStatus, setListStatus] = useState<string>("Local library list not refreshed yet.");
   const [entries, setEntries] = useState<LocalLibraryIndexEntry[]>([]);
   const [validation, setValidation] = useState<LibraryImportValidation | null>(null);
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  const [componentFieldDraft, setComponentFieldDraft] = useState<ComponentFieldDraft>({
+    fieldKind: "linear_stiffness",
+    magnitude: "0",
+    unit: COMPONENT_FIELD_SPECS.linear_stiffness.defaultUnit
+  });
   // In-request busy guard: while a backend command is awaiting, the draft
   // textarea, the kind/visibility selectors, and every action are disabled so
   // an async response that calls setDraft (open) cannot clobber a mid-request
@@ -84,6 +121,12 @@ export function LibraryManagerPanel({
 
   const projectId = model?.project.id ?? null;
   const draftReason = !draft ? NO_DRAFT_REASON : inFlight ? BUSY_REASON : undefined;
+  const componentSpec = COMPONENT_FIELD_SPECS[componentFieldDraft.fieldKind];
+  const componentUnitBasis = describeUnitBasis(
+    unitCatalogRoute,
+    componentFieldDraft.unit,
+    componentSpec.dimension
+  );
 
   // The stored-library list is project-scoped. When the active project changes
   // (open/create/switch), the previously-listed libraries belong to the old
@@ -94,6 +137,24 @@ export function LibraryManagerPanel({
     setEntries([]);
     setListStatus("Local library list not refreshed for this project yet.");
   }, [projectId]);
+
+  useEffect(() => {
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => {
+        if (active) setUnitCatalogRoute(route);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: `UNIT-CATALOG-ERROR: ${String(error)}`
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Backend (Tauri) commands can reject in desktop mode. Browser preview never
   // reaches them (the services short-circuit to an explicit unavailable route),
@@ -137,6 +198,38 @@ export function LibraryManagerPanel({
     setDraft(null);
     setValidation(null);
     setActionStatus("Import document discarded from session memory; the local store was not touched.");
+  }
+
+  function handleComponentFieldKindChange(fieldKind: ComponentFieldDraft["fieldKind"]) {
+    setComponentFieldDraft((current) => ({
+      ...current,
+      fieldKind,
+      unit: COMPONENT_FIELD_SPECS[fieldKind].defaultUnit
+    }));
+  }
+
+  function handleApplyComponentFieldDraft() {
+    const document = parseDraft();
+    if (!document) return;
+    const magnitude = Number(componentFieldDraft.magnitude);
+    if (!Number.isFinite(magnitude)) {
+      setActionStatus("COMPONENT-FIELD-DRAFT-INVALID: field magnitude must be finite.");
+      return;
+    }
+    const nextDocument = applyComponentFieldDraft(document, {
+      ...componentFieldDraft,
+      magnitude: String(magnitude)
+    });
+    setDraft({
+      text: JSON.stringify(nextDocument, null, 2),
+      origin: `${draft?.origin ?? "session"}:component_field_unit_helper`
+    });
+    setValidation(null);
+    setActionStatus(
+      `Component field draft updated: field_kind=${componentFieldDraft.fieldKind}; ` +
+        `dimension=${componentSpec.dimension}; unit=${componentFieldDraft.unit}; ` +
+        "private_user_supplied only."
+    );
   }
 
   async function handleRefreshList() {
@@ -339,6 +432,75 @@ export function LibraryManagerPanel({
         </button>
       </div>
 
+      {libraryKind === "component" && draft ? (
+        <div className="report-list" data-testid="component-field-unit-helper">
+          <strong>Component field unit helper</strong>
+          <small data-testid="component-field-unit-boundary">
+            Drafts one private component field with explicit unit metadata. This helper writes only
+            the import JSON draft; validation and storage still run through the local-only import
+            backend.
+          </small>
+          <label htmlFor="component-field-kind-select">Field kind</label>
+          <select
+            id="component-field-kind-select"
+            data-testid="component-field-kind"
+            value={componentFieldDraft.fieldKind}
+            disabled={inFlight}
+            onChange={(event) => handleComponentFieldKindChange(event.target.value as ComponentFieldDraft["fieldKind"])}
+          >
+            {Object.entries(COMPONENT_FIELD_SPECS).map(([value, spec]) => (
+              <option key={value} value={value}>
+                {spec.label}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="component-field-value-input">Magnitude</label>
+          <input
+            id="component-field-value-input"
+            data-testid="component-field-value"
+            type="number"
+            value={componentFieldDraft.magnitude}
+            disabled={inFlight}
+            onChange={(event) =>
+              setComponentFieldDraft((current) => ({ ...current, magnitude: event.target.value }))
+            }
+          />
+          <label htmlFor="component-field-unit-select">Unit</label>
+          <select
+            id="component-field-unit-select"
+            data-testid="component-field-unit"
+            value={componentFieldDraft.unit}
+            disabled={inFlight}
+            onChange={(event) =>
+              setComponentFieldDraft((current) => ({ ...current, unit: event.target.value }))
+            }
+          >
+            {componentUnitOptions(
+              unitCatalogRoute,
+              componentSpec.dimension,
+              componentFieldDraft.unit
+            ).map((option) => (
+              <option key={option.symbol} value={option.symbol}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <small data-testid="component-field-unit-basis">
+            dimension={componentSpec.dimension}; {componentUnitBasis.label}; {componentUnitBasis.detail}
+          </small>
+          <div className="report-actions">
+            <button
+              type="button"
+              data-testid="component-field-apply-draft"
+              disabled={inFlight}
+              onClick={handleApplyComponentFieldDraft}
+            >
+              Apply field to draft
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="report-list" data-testid="library-list">
         <small data-testid="library-list-status">{listStatus}</small>
         {entries.map((entry) => (
@@ -490,4 +652,115 @@ function LibraryFinding({ finding }: { finding: LibraryImportFinding }) {
       <small>Remediation: {finding.remediation}</small>
     </article>
   );
+}
+
+function componentUnitOptions(
+  route: UnitCatalogRoute | null,
+  dimensionId: string,
+  fallbackSymbol: string
+): { symbol: string; label: string }[] {
+  const fallbackBasis = describeUnitBasis(route, fallbackSymbol, dimensionId);
+  const fallback = { symbol: fallbackBasis.symbol, label: fallbackBasis.label };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const basis = describeUnitBasis(route, entry.symbol, dimensionId);
+      return { symbol: entry.symbol, label: basis.label };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) options.unshift(fallback);
+  return options.length ? options : [fallback];
+}
+
+function applyComponentFieldDraft(
+  document: Record<string, unknown>,
+  draft: ComponentFieldDraft
+): Record<string, unknown> {
+  const spec = COMPONENT_FIELD_SPECS[draft.fieldKind];
+  const provenance = componentDraftProvenance(document);
+  const componentRecords = Array.isArray(document.component_records)
+    ? [...document.component_records]
+    : [];
+  const firstRecord =
+    typeof componentRecords[0] === "object" && componentRecords[0] !== null && !Array.isArray(componentRecords[0])
+      ? { ...(componentRecords[0] as Record<string, unknown>) }
+      : defaultComponentRecord(provenance);
+
+  const fieldId = `field:${draft.fieldKind}:user_draft`;
+  const fields = Array.isArray(firstRecord.fields) ? [...firstRecord.fields] : [];
+  const fieldSlot = {
+    field_id: fieldId,
+    field_kind: draft.fieldKind,
+    value_status: "private_user_supplied",
+    public_repository_value_policy: "private_user_supplied_only",
+    required_for: "library_import",
+    value: {
+      magnitude: Number(draft.magnitude),
+      unit: draft.unit,
+      dimension: spec.dimension,
+      value_status: "private_user_supplied",
+      provenance
+    },
+    provenance,
+    review_status: "pending"
+  };
+  const existingIndex = fields.findIndex(
+    (field) =>
+      typeof field === "object" &&
+      field !== null &&
+      !Array.isArray(field) &&
+      (field as Record<string, unknown>).field_id === fieldId
+  );
+  if (existingIndex >= 0) fields[existingIndex] = fieldSlot;
+  else fields.push(fieldSlot);
+
+  firstRecord.fields = fields;
+  componentRecords[0] = firstRecord;
+  return {
+    ...document,
+    component_records: componentRecords
+  };
+}
+
+function componentDraftProvenance(document: Record<string, unknown>): Record<string, unknown> {
+  const library =
+    typeof document.component_library === "object" &&
+    document.component_library !== null &&
+    !Array.isArray(document.component_library)
+      ? (document.component_library as Record<string, unknown>)
+      : {};
+  const provenance =
+    typeof library.provenance === "object" &&
+    library.provenance !== null &&
+    !Array.isArray(library.provenance)
+      ? (library.provenance as Record<string, unknown>)
+      : {};
+  return {
+    source_name: String(provenance.source_name ?? "Invented local component field draft"),
+    source_location: String(provenance.source_location ?? "user-authored private draft"),
+    source_license: String(provenance.source_license ?? "private user basis"),
+    contributor: String(provenance.contributor ?? "OpenPipeStress user"),
+    contributor_certification: String(
+      provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
+    ),
+    redistribution_status: "private_only",
+    review_status: "pending"
+  };
+}
+
+function defaultComponentRecord(provenance: Record<string, unknown>): Record<string, unknown> {
+  return {
+    component_id: "component:invented.local_draft",
+    name: "Invented private component draft",
+    component_type: "other",
+    privacy_class: "private_user_supplied",
+    redistribution_status: "private_only",
+    fields: [],
+    completeness: [],
+    provenance,
+    review_status: "pending"
+  };
 }

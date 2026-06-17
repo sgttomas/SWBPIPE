@@ -886,6 +886,25 @@ test("library manager loads an invented private sample and reports the desktop-o
   await page.getByTestId("library-load-template").click();
   const componentText = await page.getByTestId("library-draft-json").inputValue();
   expect(JSON.parse(componentText).component_library).toBeTruthy();
+  await expect(page.getByTestId("component-field-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("component-field-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("component-field-unit")).toHaveValue("N/m");
+  await page.getByTestId("component-field-value").fill("12.5");
+  await page.getByTestId("component-field-apply-draft").click();
+  const componentFieldText = await page.getByTestId("library-draft-json").inputValue();
+  const componentFieldDraft = JSON.parse(componentFieldText);
+  expect(componentFieldDraft.component_records[0].fields[0]).toMatchObject({
+    field_kind: "linear_stiffness",
+    public_repository_value_policy: "private_user_supplied_only",
+    value: {
+      magnitude: 12.5,
+      unit: "N/m",
+      dimension: "linear_stiffness",
+      value_status: "private_user_supplied"
+    }
+  });
 
   // Validate routes to the desktop-only seam in browser preview: the
   // validate/save/store backend runs in the Tauri runtime only. Accept/store

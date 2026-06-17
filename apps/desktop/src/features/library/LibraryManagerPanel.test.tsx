@@ -11,6 +11,7 @@ import {
   type LibraryImportValidation,
   type LocalLibrarySaveResult
 } from "../../services/libraryImportService";
+import type { UnitCatalog } from "../../services/unitCatalogService";
 import type { PreviewModel } from "../../types";
 
 // Phase C3 GUI slice (TP-C3-LIBGUI-001). jsdom has no Tauri runtime, so the
@@ -23,6 +24,57 @@ import type { PreviewModel } from "../../types";
 const modelStub = {
   project: { id: "project:invented-library-test", name: "Invented Library Test Project" }
 } as unknown as PreviewModel;
+
+const unitCatalogFixture: UnitCatalog = {
+  schema_version: "0.1.0",
+  catalog_id: "unit-system:dec-018-si-dual-display",
+  decision_basis: "DEC-018",
+  calculation_basis: "si_canonical",
+  storage_convention: "entered_units_preserved",
+  entry_count: 3,
+  entries: [
+    {
+      unit_id: "unit:newton_per_meter",
+      symbol: "N/m",
+      dimension_id: "force_per_length",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 N/m, SI canonical linear-stiffness basis",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pound_force_per_inch",
+      symbol: "lbf/in",
+      dimension_id: "force_per_length",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "175.12683524647636 N/m per lbf/in",
+      offset_representation: null,
+      provenance: "conventional_public_constant",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:meter",
+      symbol: "m",
+      dimension_id: "length",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 m/m, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    }
+  ],
+  boundary: {
+    source: "core/units open_pipe_stress_units catalog",
+    protected_content_included: false,
+    private_project_data_included: false,
+    professional_approval_claimed: false,
+    code_compliance_claimed: false
+  }
+};
 
 const blockedValidation: LibraryImportValidation = {
   document_kind: "openpipestress.library_import.validation",
@@ -165,12 +217,87 @@ describe("LibraryManagerPanel (browser preview seam)", () => {
     expect(note).toContain("DEC-036");
     expect(note).toContain("never a legal");
   });
+
+  it("drafts component field units without synthesizing a browser catalog", async () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.change(screen.getByTestId("library-kind-select"), { target: { value: "component" } });
+    fireEvent.click(screen.getByTestId("library-load-template"));
+
+    expect(screen.getByTestId("component-field-unit-helper")).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByTestId("component-field-unit-basis").textContent).toContain(
+        "browser preview mode does not synthesize a fallback catalog"
+      )
+    );
+    expect((screen.getByTestId("component-field-unit") as HTMLSelectElement).value).toBe("N/m");
+
+    fireEvent.change(screen.getByTestId("component-field-value"), { target: { value: "12.5" } });
+    fireEvent.click(screen.getByTestId("component-field-apply-draft"));
+
+    const document = JSON.parse(
+      (screen.getByTestId("library-draft-json") as HTMLTextAreaElement).value
+    ) as Record<string, unknown>;
+    const records = document.component_records as Array<Record<string, unknown>>;
+    const field = (records[0].fields as Array<Record<string, unknown>>)[0];
+    expect(field.field_kind).toBe("linear_stiffness");
+    expect(field.public_repository_value_policy).toBe("private_user_supplied_only");
+    const value = field.value as Record<string, unknown>;
+    expect(value).toMatchObject({
+      magnitude: 12.5,
+      unit: "N/m",
+      dimension: "linear_stiffness",
+      value_status: "private_user_supplied"
+    });
+    expect(screen.getByTestId("library-action-status").textContent).toContain(
+      "Component field draft updated"
+    );
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("LibraryManagerPanel (desktop backend, mocked invoke)", () => {
+  it("filters component field unit choices through the DEC-018 desktop catalog", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture);
+      return Promise.reject(new Error(`unexpected command ${command}`));
+    });
+
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.change(screen.getByTestId("library-kind-select"), { target: { value: "component" } });
+    fireEvent.click(screen.getByTestId("library-load-template"));
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    const unitSelect = screen.getByTestId("component-field-unit") as HTMLSelectElement;
+    await waitFor(() =>
+      expect(Array.from(unitSelect.options).map((option) => option.value)).toContain("lbf/in")
+    );
+    expect(Array.from(unitSelect.options).map((option) => option.value)).not.toContain("m");
+
+    fireEvent.change(unitSelect, { target: { value: "lbf/in" } });
+    fireEvent.change(screen.getByTestId("component-field-value"), { target: { value: "8" } });
+    fireEvent.click(screen.getByTestId("component-field-apply-draft"));
+
+    const document = JSON.parse(
+      (screen.getByTestId("library-draft-json") as HTMLTextAreaElement).value
+    ) as Record<string, unknown>;
+    const records = document.component_records as Array<Record<string, unknown>>;
+    const field = (records[0].fields as Array<Record<string, unknown>>)[0];
+    const value = field.value as Record<string, unknown>;
+    expect(value.unit).toBe("lbf/in");
+    expect(value.dimension).toBe("linear_stiffness");
+    expect(screen.getByTestId("component-field-unit-basis").textContent).toContain(
+      "unit:pound_force_per_inch"
+    );
+  });
+
   it("splits validation findings along the PRD §13.5 blocking-vs-advisory axis", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue(blockedValidation);
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture);
+      if (command === "validate_library_import") return Promise.resolve(blockedValidation);
+      return Promise.reject(new Error(`unexpected command ${command}`));
+    });
 
     render(<LibraryManagerPanel model={modelStub} />);
     fireEvent.click(screen.getByTestId("library-load-template"));
@@ -207,6 +334,7 @@ describe("LibraryManagerPanel (desktop backend, mocked invoke)", () => {
       message: "Import not stored: validation findings block this library."
     };
     invokeMock.mockImplementation((command: string) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture);
       if (command === "save_local_library") return Promise.resolve(refused);
       if (command === "list_local_libraries") return Promise.resolve([]);
       return Promise.reject(new Error(`unexpected command ${command}`));
