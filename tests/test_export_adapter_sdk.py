@@ -117,11 +117,29 @@ def test_builder_is_deterministic_and_preserves_package_members():
         "target_registry",
         "adapter_contract",
         "validation_checklist",
+        "unit_policy_evidence",
         "validation_report",
         "diagnostics",
     }
     assert all(SHA256_PATTERN.match(item["value"]) for item in first["manifest"]["checksums"])
     assert not [item for item in first["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_unit_policy_evidence_records_dec018_without_conversion_or_target_claim():
+    package = build_from_source()
+    evidence = package["unit_policy_evidence"]
+
+    assert evidence["unit_system_ref"]["ref"] == "unit-system:dec-018-si-dual-display"
+    assert evidence["storage_convention"] == "entered_units_preserved"
+    assert evidence["adapter_scope"] == "adapter_admission_metadata_only"
+    assert evidence["conversion_policy"] == "no_adapter_sdk_conversion_performed"
+    assert evidence["conversion_performed"] is False
+    assert evidence["conversion_scope"] == []
+    assert evidence["witness_count"] == len(package["target_registry"])
+    assert evidence["target_refs"][0]["ref"] == package["target_registry"][0]["target_id"]
+    assert {item["ref"] for item in evidence["decision_basis_refs"]} == {"DEC-018", "DEL-02-02"}
+    assert evidence["protected_content_included"] is False
+    assert evidence["private_payload_included"] is False
 
 
 def test_target_registry_records_non_gating_candidate_and_checklist_categories():
@@ -223,6 +241,7 @@ def test_no_prohibited_professional_or_target_claim_language():
 if __name__ == "__main__":
     test_fixture_and_builder_validate_against_schema()
     test_builder_is_deterministic_and_preserves_package_members()
+    test_unit_policy_evidence_records_dec018_without_conversion_or_target_claim()
     test_target_registry_records_non_gating_candidate_and_checklist_categories()
     test_runtime_grants_are_denied_by_default()
     test_negative_cases_block_grants_missing_source_basis_and_missing_policies()

@@ -426,6 +426,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "conversion=false"
   );
+  const exportAdapterSdk = page.getByLabel("Export adapter SDK");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("conversion=false");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("witnesses=5");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText(
+    "candidate_targets_without_claiming_target_writer_conversion"
+  );
 
   // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
   // node intent through the structured-operation seam in a real browser and

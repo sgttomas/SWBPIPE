@@ -109,6 +109,7 @@ def build_export_adapter_sdk_package(
     sdk_id: str,
     target_registry: list[Mapping[str, Any]],
     adapter_contract: Mapping[str, Any] | None = None,
+    unit_policy_evidence: Mapping[str, Any] | None = None,
     validation_checklist: list[Mapping[str, Any]] | None = None,
     requested_runtime_grants: list[Mapping[str, Any]] | None = None,
     diagnostics: list[Mapping[str, Any]] | None = None,
@@ -125,6 +126,11 @@ def build_export_adapter_sdk_package(
     normalized_grants = _runtime_grants(requested_runtime_grants or [], provenance_record)
     contract = _adapter_contract(adapter_contract, normalized_grants, notes, provenance_record)
     registry = _target_registry(target_registry, provenance_record)
+    unit_evidence = _unit_policy_evidence(
+        unit_policy_evidence,
+        target_registry=registry,
+        provenance=provenance_record,
+    )
     checklist = _validation_checklist(validation_checklist, registry, provenance_record)
     normalized_diagnostics = _stable(
         [deepcopy(dict(item)) for item in diagnostics or []]
@@ -157,6 +163,11 @@ def build_export_adapter_sdk_package(
             checklist,
             _ref("ExportAdapterSdkMember", f"{sdk_id}:validation_checklist"),
             "export_adapter_sdk_validation_checklist",
+        ),
+        "unit_policy_evidence": _checksum(
+            unit_evidence,
+            _ref("ExportAdapterSdkMember", f"{sdk_id}:unit_policy_evidence"),
+            "export_adapter_sdk_unit_policy_evidence",
         ),
         "validation_report": _checksum(
             validation_report,
@@ -201,6 +212,7 @@ def build_export_adapter_sdk_package(
         "target_registry": registry,
         "runtime_grants": normalized_grants,
         "validation_checklist": checklist,
+        "unit_policy_evidence": unit_evidence,
         "manifest": manifest,
         "validation_report": validation_report,
         "diagnostics": normalized_diagnostics,
@@ -586,6 +598,51 @@ def _validation_checklist(
     return sorted(normalized, key=lambda item: item["check_id"])
 
 
+def _unit_policy_evidence(
+    value: Mapping[str, Any] | None,
+    *,
+    target_registry: list[Mapping[str, Any]],
+    provenance: Mapping[str, Any],
+) -> dict[str, Any]:
+    record = dict(value or {})
+    return {
+        "evidence_id": str(record.get("evidence_id", "unit-policy-evidence:export-adapter-sdk")),
+        "unit_system_ref": deepcopy(
+            dict(record.get("unit_system_ref", _ref("UnitSystem", "unit-system:dec-018-si-dual-display")))
+        ),
+        "storage_convention": str(record.get("storage_convention", "entered_units_preserved")),
+        "adapter_scope": str(record.get("adapter_scope", "adapter_admission_metadata_only")),
+        "model_units": _string_record(record.get("model_units", {})),
+        "result_units": sorted(str(item) for item in _list(record.get("result_units", [])) if str(item)),
+        "target_export_units": _string_record(record.get("target_export_units", {})),
+        "unit_policy": str(record.get("unit_policy", "explicit_unit_policy_required_per_target")),
+        "conversion_policy": str(record.get("conversion_policy", "no_adapter_sdk_conversion_performed")),
+        "conversion_performed": bool(record.get("conversion_performed", False)),
+        "conversion_scope": sorted(str(item) for item in _list(record.get("conversion_scope", []))),
+        "witness_policy": str(
+            record.get(
+                "witness_policy",
+                "record_unit_policy_for_candidate_targets_without_claiming_target_writer_conversion",
+            )
+        ),
+        "witness_count": int(record.get("witness_count", len(target_registry))),
+        "target_refs": deepcopy(
+            list(
+                record.get(
+                    "target_refs",
+                    [deepcopy(dict(item["target_ref"])) for item in target_registry],
+                )
+            )
+        ),
+        "decision_basis_refs": deepcopy(
+            list(record.get("decision_basis_refs", [_ref("Decision", "DEC-018"), _ref("Deliverable", "DEL-02-02")]))
+        ),
+        "protected_content_included": False,
+        "private_payload_included": False,
+        "provenance": deepcopy(dict(record.get("provenance", provenance))),
+    }
+
+
 def _check(category: str, description: str, affected_refs: list[Mapping[str, Any]]) -> dict[str, Any]:
     return {
         "check_id": f"check:{category}",
@@ -619,6 +676,7 @@ def _package_members(sdk_id: str, checksums: Mapping[str, Mapping[str, Any]]) ->
         ("target_registry", "target_registry", "target_registry.json"),
         ("adapter_contract", "adapter_contract", "adapter_contract.json"),
         ("validation_checklist", "validation_checklist", "validation_checklist.json"),
+        ("unit_policy_evidence", "unit_policy_evidence", "unit_policy_evidence.json"),
         ("validation_report", "validation_report", "validation_report.json"),
         ("diagnostics", "diagnostics", "diagnostics.json"),
     ]
@@ -693,6 +751,12 @@ def _ref_pairs(refs: Any) -> set[tuple[str, str]]:
         if isinstance(item, Mapping):
             pairs.add((str(item.get("object_type", "")), str(item.get("ref", ""))))
     return pairs
+
+
+def _string_record(value: Any) -> dict[str, str]:
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(key): str(value[key]) for key in sorted(value) if str(value[key])}
 
 
 def _stable(items: list[Mapping[str, Any]]) -> list[dict[str, Any]]:

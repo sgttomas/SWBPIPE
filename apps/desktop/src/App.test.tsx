@@ -798,6 +798,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-validation").textContent).toContain(
       "loss_report=true"
     );
+    expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-units").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-units").textContent).toContain(
+      "witnesses=5"
+    );
     expect(within(exportAdapterSdk).getByTestId("export-adapter-sdk-permissions").textContent).toContain(
       "filesystem=false"
     );
@@ -863,6 +869,21 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportAdapterSdkPacket.validation_report.validation_status).toBe("boundary_checked");
     expect(exportAdapterSdkPacket.validation_report.checks.loss_report_required).toBe(true);
     expect(exportAdapterSdkPacket.validation_report.checks.no_support_or_compatibility_claims).toBe(true);
+    expect(exportAdapterSdkPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(exportAdapterSdkPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(exportAdapterSdkPacket.unit_policy_evidence.conversion_policy).toBe("no_adapter_sdk_conversion_performed");
+    expect(exportAdapterSdkPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(exportAdapterSdkPacket.unit_policy_evidence.witness_count).toBe(5);
+    expect(exportAdapterSdkPacket.unit_policy_evidence.target_refs).toHaveLength(5);
+    expect(exportAdapterSdkPacket.unit_policy_evidence.decision_basis_refs.map((item: { ref: string }) => item.ref)).toEqual([
+      "DEC-018",
+      "DEL-02-02"
+    ]);
+    expect(exportAdapterSdkPacket.manifest.package_members.map((item: { role: string }) => item.role)).toContain(
+      "unit_policy_evidence"
+    );
     expect(exportAdapterSdkPacket.diagnostics).toHaveLength(0);
     expect(exportAdapterSdkPacket.private_payload_included).toBe(false);
     expect(exportAdapterSdkPacket.protected_content_included).toBe(false);

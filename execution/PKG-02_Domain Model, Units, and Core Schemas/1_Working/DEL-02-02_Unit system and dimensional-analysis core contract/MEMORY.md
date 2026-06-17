@@ -743,3 +743,21 @@ Boundary note:
   component values, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERSDKUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-17-09 export-adapter SDK tranche: adapter admission
+  packages now have explicit unit-policy evidence carrying DEC-018 basis,
+  entered-unit storage convention, source/result/target unit disclosure, and
+  `conversion_performed=false`.
+- The evidence is metadata for candidate target admission only; it does not
+  introduce a unit conversion API, target writer, runtime loader, compatibility
+  claim, or target support claim.
+- Validation passed: focused export-adapter SDK Python test; App Vitest 55/55;
+  full desktop Vitest 393/393; desktop production build; focused R2 Playwright
+  smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target-specific writer, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

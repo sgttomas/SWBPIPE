@@ -14,6 +14,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail export adapter SDK unit policy evidence (`TP-UNITS-BTAIL-ADAPTERSDKUNITS-001`)
+
+Landed one bounded Phase B-tail target-format/unit-evidence slice while C5.7
+remains human-execution gated. The DEL-17-09 export adapter SDK admission
+package now carries a structured `unit_policy_evidence` member and
+`unit_policy_evidence.json` manifest entry.
+
+The evidence records the DEC-018 unit-system reference, entered-units-preserved
+storage convention, source/result/target unit disclosure, explicit no-conversion
+policy, `conversion_performed=false`, target refs, and a witness policy for
+candidate targets that does not claim target-writer conversion, target support,
+compatibility, release readiness, or professional reliance.
+
+Desktop preview now shows the adapter-SDK unit evidence line and exports the
+same packet member. Browser evidence covers both desktop and compact viewport
+variants through the R2 smoke.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-196; DEL-17-09 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERSDKUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused export-adapter SDK Python test passed; focused App Vitest
+passed 55/55; full desktop Vitest passed 18/18 files and 393/393 tests; desktop
+production build passed with the existing Vite large-chunk warning; focused R2
+Playwright smoke passed 2/2.
+
+Boundary: adapter-admission metadata only. No runtime loader, public endpoint,
+target-specific writer, conversion API, target support or compatibility claim,
+external execution, protected standards content, private payload, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail component-library field unit helper (`TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001`)
 
 Landed one bounded Phase B-tail app unit-entry slice while C5.7 remains

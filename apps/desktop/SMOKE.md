@@ -6373,3 +6373,36 @@ notes:
   project payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-196 export adapter SDK unit policy evidence - PASSED (`TP-UNITS-BTAIL-ADAPTERSDKUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-17-09 export adapter SDK admission
+  package now includes a structured `unit_policy_evidence` payload and a
+  `unit_policy_evidence.json` manifest member.
+- Unit behavior: the package records `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, source/result/target unit disclosure,
+  `conversion_policy=no_adapter_sdk_conversion_performed`,
+  `conversion_performed=false`, target refs, and a witness policy for candidate
+  targets without claiming target-writer conversion.
+- UI check: `data-testid="export-adapter-sdk-units"` displays
+  `conversion=false`, `witnesses=5`, and the candidate-target no-claim witness
+  policy in the desktop preview; the downloaded registry JSON carries the same
+  `unit_policy_evidence` fields.
+- Validation:
+  - `python3 tests/test_export_adapter_sdk.py` passed.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 393/393 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-17-09 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERSDKUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: adapter-admission metadata only. No runtime loader, public endpoint,
+  target-specific writer, conversion API, target support claim, compatibility
+  claim, external execution, protected standards content, private project
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
