@@ -6193,6 +6193,33 @@ describe("OpenPipeStress desktop preview", () => {
     expect(handoffPacket.model_state_ref.ref).toBe("state:project:invented-loop-01:preview");
     expect(handoffPacket.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
     expect(handoffPacket.units_manifest.length).toBe("m");
+    expect(within(handoff).getByTestId("handoff-units").textContent).toContain("source=angle=rad");
+    expect(within(handoff).getByTestId("handoff-units").textContent).toContain("length=m");
+    expect(within(handoff).getByTestId("handoff-units").textContent).toContain("results=MPa");
+    expect(within(handoff).getByTestId("handoff-units").textContent).toContain("conversion=false");
+    expect(within(handoff).getByTestId("handoff-unit-witnesses").textContent).toContain("count=737");
+    expect(within(handoff).getByTestId("handoff-unit-witnesses").textContent).toContain("conversion=false");
+    expect(handoffPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(handoffPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(handoffPacket.unit_system_disclosure.result_units).toContain("MPa");
+    expect(handoffPacket.unit_system_disclosure.result_units).toContain("mm");
+    expect(handoffPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(handoffPacket.unit_system_disclosure.protected_content_included).toBe(false);
+    expect(handoffPacket.unit_witness_policy).toBe(
+      "preserve_source_result_value_unit_and_dimension_per_handoff_result_ref"
+    );
+    expect(handoffPacket.unit_preservation_witnesses).toHaveLength(737);
+    const handoffStressWitness = handoffPacket.unit_preservation_witnesses.find(
+      (item: { source_ref: { ref: string } }) =>
+        item.source_ref.ref === "result:stress:pipe-P-120:end-j:torsional-shear"
+    );
+    expect(handoffStressWitness).toBeTruthy();
+    expect(handoffStressWitness.source_quantity.unit).toBe("MPa");
+    expect(handoffStressWitness.source_quantity.dimension).toBe("stress");
+    expect(handoffStressWitness.target_quantity.unit).toBe("MPa");
+    expect(handoffStressWitness.conversion_performed).toBe(false);
     expect(handoffPacket.stable_id_map.entity_ref_count).toBe(19);
     expect(handoffPacket.stable_id_map.entity_refs).toContain("material:invented-carbon-steel");
     expect(handoffPacket.stable_id_map.result_ref_count).toBe(737);

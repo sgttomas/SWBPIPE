@@ -6487,3 +6487,38 @@ notes:
   private project payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-199 handoff package unit witnesses - PASSED (`TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail handoff/unit-evidence slice while C5.7 remains
+  human-execution gated. The desktop Handoff Package panel now emits explicit
+  DEC-018 unit-system disclosure and per-result unit-preservation witnesses in
+  the local review handoff package.
+- Packet contract: `unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, entered-unit storage convention,
+  source model units, result units, target handoff units, and
+  `conversion_performed=false`. `unit_witness_policy` is
+  `preserve_source_result_value_unit_and_dimension_per_handoff_result_ref`,
+  and `unit_preservation_witnesses[]` preserves finite result-row value, unit,
+  and dimension metadata by reference.
+- UI check: `data-testid="handoff-units"` displays the source/result unit
+  disclosure and `data-testid="handoff-unit-witnesses"` displays `count=737`
+  with `conversion=false` for the invented preview fixture after mechanics
+  preview.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-15-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001.md`;
+  DEL-02-02 and DEL-17-03 supporting run records with the same id; completion
+  log entry.
+- Boundary: handoff unit metadata only. No target-specific mapping, external
+  prover execution, downstream compatibility claim, D-21 scope promotion,
+  schema contract change, unit conversion API, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail handoff package unit witnesses (`TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001`)
+
+Landed one bounded Phase B-tail handoff/unit-evidence slice while C5.7 remains
+human-execution gated. The desktop Handoff Package panel now emits explicit
+DEC-018 unit-system disclosure and per-result unit-preservation witnesses in
+the local review handoff package.
+
+The package records `unit-system:dec-018-si-dual-display`, entered-unit storage
+convention, source model units, result units, target handoff units, and
+`conversion_performed=false`. Each finite result row gets a preservation
+witness for source value, unit, and inferred result dimension. The visible UI
+shows `handoff-units` and `handoff-unit-witnesses` with `count=737` and
+`conversion=false` for the invented preview fixture.
+
+The target profile remains `native_open_json_preview` and
+`stable_ids_only_not_target_specific`; target field coverage remains `TBD` and
+external validation remains user-controlled. The tranche does not promote D-21,
+assert target compatibility, or add an external prover execution path.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-199; DEL-15-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001.md`;
+DEL-02-02 and DEL-17-03 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2 Playwright smoke passed
+2/2; full desktop Vitest passed 18/18 files and 397/397 tests; desktop
+production build passed with the existing Vite large-chunk warning.
+
+Boundary: handoff unit metadata only. No target-specific mapping, external
+prover execution, downstream compatibility claim, D-21 scope promotion, schema
+contract change, unit conversion API, protected standards content, private
+payload, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail section-library quantity unit helper (`TP-UNITS-BTAIL-SECLIBQTYUNITS-001`)
 
 Landed one bounded Phase B-tail app unit-entry slice while C5.7 remains

@@ -1,5 +1,26 @@
 # MEMORY - DEL-15-01 Canonical handoff package schema and manifest
 
+## 2026-06-17 - TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001 handoff unit witnesses
+
+- Added primary Phase B-tail unit evidence for the desktop handoff package:
+  `unit_system_disclosure`, `unit_witness_policy`, and
+  `unit_preservation_witnesses[]` now preserve source result
+  value/unit/dimension metadata into the local review handoff package with
+  `conversion_performed=false`.
+- Visible evidence is exposed through `handoff-units` and
+  `handoff-unit-witnesses`; the preview target remains
+  `native_open_json_preview` and `stable_ids_only_not_target_specific`.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001.md`;
+  SMOKE TP-MAC-199; completion log entry; supporting DEL-02-02 and DEL-17-03
+  run records.
+- Validation passed: focused App Vitest 55/55; focused R2 Playwright smoke
+  2/2; full desktop Vitest 397/397; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary unchanged: no target-specific mapping, external prover execution,
+  downstream compatibility claim, D-21 scope promotion, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-07 - Human-approved CHECKING transition
 
 - Human approved moving DEL-15-01 to `CHECKING` after `REV_PKG-15_2026-06-07_1340` recommended `RECOMMEND_ADVANCE_TO_CHECKING`.

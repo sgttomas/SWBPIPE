@@ -407,6 +407,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
     "conversion=false"
   );
+  const handoffPackage = page.getByLabel("Handoff package");
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=737");
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");
   const reviewGeometryExport = page.getByLabel("Review geometry export");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=54");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(

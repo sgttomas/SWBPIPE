@@ -9,6 +9,35 @@ import type {
   PreviewModel,
   SelectedReviewTarget
 } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
+
+type HandoffUnitPreservationWitness = {
+  witness_id: string;
+  source_ref: {
+    object_type: string;
+    ref: string;
+  };
+  source_field_path: string;
+  source_quantity: {
+    value: number;
+    unit: string;
+    dimension: string;
+  };
+  target_field_path: string;
+  target_quantity: {
+    value: number;
+    unit: string;
+    dimension: string;
+  };
+  target_quantity_policy: "referenced_result_value_unit_and_dimension_preserved";
+  export_unit_policy: "preserve_source_result_unit_and_dimension";
+  conversion_performed: false;
+  unit_system_ref: {
+    object_type: string;
+    ref: string;
+  };
+  provenance: ReturnType<typeof previewProvenance>;
+};
 
 export function HandoffPanel({
   model,
@@ -81,6 +110,18 @@ export function HandoffPanel({
               testId="handoff-stable-ids"
             />
             <HandoffLine
+              label="Units"
+              value={unitDisclosureSummary(handoffPackage.unit_system_disclosure)}
+              testId="handoff-units"
+            />
+            <HandoffLine
+              label="Unit witnesses"
+              value={`count=${handoffPackage.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=${String(
+                handoffPackage.unit_preservation_witnesses.some((item) => item.conversion_performed)
+              )}`}
+              testId="handoff-unit-witnesses"
+            />
+            <HandoffLine
               label="Loss report"
               value={handoffPackage.loss_report.unsupported_behavior_refs.join("; ")}
               testId="handoff-loss-report"
@@ -149,6 +190,16 @@ function buildHandoffPackage({
     ],
     loss_report_status: "preview_loss_report_not_target_verified"
   };
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: model.project.units,
+    conversionPolicy: "handoff_package_preserves_source_result_value_unit_and_dimension_by_reference",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/handoff/HandoffPanel.tsx"
+  });
+  const unitPreservationWitnesses = handoffUnitPreservationWitnesses(result);
 
   return {
     schema_version: "0.1.0",
@@ -164,6 +215,9 @@ function buildHandoffPackage({
       ref: run.run_id
     },
     units_manifest: model.project.units,
+    unit_system_disclosure: unitSystemDisclosure,
+    unit_witness_policy: "preserve_source_result_value_unit_and_dimension_per_handoff_result_ref",
+    unit_preservation_witnesses: unitPreservationWitnesses,
     stable_id_map: {
       id_basis: "model entity IDs and computed result IDs from the invented preview model",
       entity_ref_count: entityRefs.length,
@@ -239,6 +293,46 @@ function stableEntityRefs(model: PreviewModel): string[] {
   ].sort();
 }
 
+function handoffUnitPreservationWitnesses(result: MechanicsResult): HandoffUnitPreservationWitness[] {
+  return result.results
+    .filter((item) => typeof item.value === "number" && Number.isFinite(item.value) && Boolean(item.unit))
+    .map((item) => {
+      const dimension = resultDimension(item.kind);
+      return {
+        witness_id: `handoff-unit:${safeRefToken(item.id)}`,
+        source_ref: reference("ResultRow", item.id),
+        source_field_path: `mechanics_result.results[${item.id}].value`,
+        source_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_field_path: "handoff_package.unit_preservation_witnesses[]",
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_quantity_policy: "referenced_result_value_unit_and_dimension_preserved",
+        export_unit_policy: "preserve_source_result_unit_and_dimension",
+        conversion_performed: false,
+        unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+        provenance: previewProvenance()
+      };
+    });
+}
+
+function resultDimension(kind: string): string {
+  if (kind.includes("displacement")) return "displacement";
+  if (kind.includes("rotation")) return "rotation";
+  if (kind.includes("force")) return "force";
+  if (kind.includes("moment")) return "moment";
+  if (kind.includes("reaction")) return "force";
+  if (kind.includes("stress")) return "stress";
+  if (kind.includes("ratio")) return "dimensionless";
+  return "TBD";
+}
+
 function selectedResultRefs(result: MechanicsResult): string[] {
   return [
     result.summary.max_displacement?.result_ref,
@@ -246,6 +340,24 @@ function selectedResultRefs(result: MechanicsResult): string[] {
     result.results.find((item) => item.id === "result:force:pipe-P-120:axial")?.id,
     result.results.find((item) => item.id === "result:stress:pipe-P-120:end-j:torsional-shear")?.id
   ].filter((value): value is string => Boolean(value));
+}
+
+function reference(objectType: string, ref: string) {
+  return { object_type: objectType, ref };
+}
+
+function previewProvenance() {
+  return {
+    source_name: "OpenPipeStress technical preview handoff package",
+    source_location: "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+    source_license: "project-governed",
+    contributor: "OpenPipeStress app integration tranche",
+    contributor_certification:
+      "Invented preview result unit metadata only; no protected standards or private payloads.",
+    redistribution_status: "public_permissive",
+    review_status: "desktop_preview",
+    privacy_classification: "public_metadata"
+  };
 }
 
 function handoffBoundary(handoffPackage: ReturnType<typeof buildHandoffPackage>): string {

@@ -1,5 +1,22 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-15-01 handoff tranche: the desktop handoff package
+  now carries DEC-018 unit-system disclosure and per-result
+  value/unit/dimension preservation witnesses.
+- Witnesses keep `conversion_performed=false` and cite the accepted
+  `unit-system:dec-018-si-dual-display` basis; they do not introduce a unit
+  conversion API or target-format support claim.
+- Validation passed: focused App Vitest 55/55; focused R2 Playwright smoke
+  2/2; full desktop Vitest 397/397; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001 local FEA unit witnesses
 
 - WORKING_ITEMS added explicit source result value/unit witnesses to the
