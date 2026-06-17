@@ -709,3 +709,20 @@ Boundary note:
   tolerance policy, solver behavior, protected standards content, private
   data, lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPTOLCORPUS-001 supporting unit evidence
+
+- Supporting role for DEL-14-04/DEL-14-05 comparison tranche: analysis-run
+  comparison now has focused mixed-unit evidence for caller-supplied
+  conversion factors and DEC-026-style relative+absolute tolerance pairs.
+- The corpus covers stress normalization from `kPa` to `Pa`, force
+  normalization from `lbf` to `N`, absolute near-zero floor behavior, and
+  blocking diagnostics when a required conversion path is omitted.
+- Validation passed: `python3 tests/test_analysis_run_comparison.py`;
+  `python3 tests/test_comparison_contracts.py`; adjacent comparison pytest
+  subset passed 23/23; full Python suite passed 360/360; `git diff --check`.
+- Boundary preserved: no DEC-018 catalog constant change, unit conversion API
+  defaulting, hidden conversion path, release threshold, solver convergence
+  policy, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

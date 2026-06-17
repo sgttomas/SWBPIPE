@@ -91,3 +91,25 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPTOLCORPUS-001 mixed-unit tolerance corpus
+
+- Added DEC-026-style relative+absolute tolerance pair classification support
+  to `core/comparison/analysis_run/engine.py` when a caller-supplied governed
+  tolerance profile provides both pair values.
+- Preserved the existing scalar tolerance path for older fixtures and kept
+  missing conversion factors as blocking `ARC-UNIT-CONVERSION-UNSUPPORTED`
+  diagnostics.
+- Added `tests/test_analysis_run_comparison.py` corpus coverage for mixed
+  stress units (`kPa` to `Pa`) and near-zero force units (`lbf` to `N`),
+  proving relative allowance and absolute-floor behavior without adding any
+  default tolerance.
+- Validation passed: `python3 tests/test_analysis_run_comparison.py`;
+  `python3 tests/test_comparison_contracts.py`;
+  `python3 -m pytest tests/test_analysis_run_comparison.py tests/test_comparison_contracts.py tests/test_design_authoring_comparison_workspace.py tests/test_state_comparison_handoff_report_sections.py -q`
+  (23/23); `python3 -m pytest -q tests` (360/360); `git diff --check`.
+- Boundary preserved: governed-profile comparison evidence only. No default
+  tolerance, release threshold, solver convergence policy, external
+  validation decision, protected standards content, private payload, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

@@ -126,6 +126,40 @@ def tolerance_profile(value=0.25):
     }
 
 
+def dec026_pair_tolerance_profile():
+    return {
+        "tolerance_profile": {
+            "profile_id": "TP-dec026-mixed-unit-corpus",
+            "rules": [
+                {
+                    "rule_id": "TR-dec026-stress-relative-absolute",
+                    "result_family": "stress",
+                    "dimension_id": "stress",
+                    "unit_ref": ref("Unit", "Pa"),
+                    "tolerance_value": "externally_governed_reference_required",
+                    "relative_tolerance_value": 1.0e-3,
+                    "absolute_tolerance_value": 10.0,
+                    "tolerance_pair_policy": "relative_plus_absolute_floor",
+                    "tolerance_value_status": "externally_governed",
+                    "normalization_basis": "unit_conversion_required",
+                },
+                {
+                    "rule_id": "TR-dec026-force-absolute-floor",
+                    "result_family": "force",
+                    "dimension_id": "force",
+                    "unit_ref": ref("Unit", "N"),
+                    "tolerance_value": "externally_governed_reference_required",
+                    "relative_tolerance_value": 1.0e-9,
+                    "absolute_tolerance_value": 0.05,
+                    "tolerance_pair_policy": "relative_plus_absolute_floor",
+                    "tolerance_value_status": "externally_governed",
+                    "normalization_basis": "unit_conversion_required",
+                },
+            ],
+        }
+    }
+
+
 def fixture_inputs():
     left_run = {"analysis_run": run_record("RUN-left", "MS-left", "RES-left")}
     right_run = {"analysis_run": run_record("RUN-right", "MS-right", "RES-right")}
@@ -198,6 +232,77 @@ def test_unit_normalized_delta_and_classification_keep_raw_evidence_separate():
         "audit_mode",
         "iterations",
         "new_flag",
+    }
+
+
+def test_dec026_mixed_unit_relative_absolute_tolerance_corpus():
+    inputs = fixture_inputs()
+    inputs["left_results"] = result_envelope(
+        "RES-left",
+        "RUN-left",
+        [
+            quantity_result("left:stress:E1", "stress", "E1", 1000.0, "kPa", "stress"),
+            quantity_result("left:force:E1", "force", "E1", 0.0, "N", "force"),
+        ],
+    )
+    inputs["right_results"] = result_envelope(
+        "RES-right",
+        "RUN-right",
+        [
+            quantity_result("right:stress:E1", "stress", "E1", 1000500.0, "Pa", "stress"),
+            quantity_result("right:force:E1", "force", "E1", 0.01, "lbf", "force"),
+        ],
+    )
+    inputs["mappings"] = [
+        mapping(
+            "MAP-force-E1",
+            "left:force:E1",
+            "right:force:E1",
+            normalized_unit="N",
+        ),
+        mapping(
+            "MAP-stress-E1",
+            "left:stress:E1",
+            "right:stress:E1",
+            normalized_unit="Pa",
+        ),
+    ]
+    inputs["tolerance_profile"] = dec026_pair_tolerance_profile()
+    inputs["unit_conversions"] = {
+        ("kPa", "Pa", "stress"): 1000.0,
+        ("lbf", "N", "force"): 4.4482216152605,
+    }
+
+    output = comparison_dict(compare_analysis_runs(**inputs))
+    deltas = {item["mapping_id"]: item for item in output["result_deltas"]}
+
+    assert output["diagnostics"] == []
+    assert set(deltas) == {"MAP-force-E1", "MAP-stress-E1"}
+    assert deltas["MAP-stress-E1"]["left_normalized_magnitude"] == 1_000_000.0
+    assert deltas["MAP-stress-E1"]["right_normalized_magnitude"] == 1_000_500.0
+    assert deltas["MAP-stress-E1"]["absolute_normalized_delta"] == 500.0
+    assert deltas["MAP-stress-E1"]["classification"] == "within_tolerance_profile"
+    assert deltas["MAP-stress-E1"]["classification_basis"] == (
+        "caller_supplied_relative_absolute_tolerance_rule"
+    )
+    assert deltas["MAP-stress-E1"]["tolerance_rule_id"] == (
+        "TR-dec026-stress-relative-absolute"
+    )
+    assert deltas["MAP-force-E1"]["right_magnitude"] == 0.01
+    assert round(deltas["MAP-force-E1"]["right_normalized_magnitude"], 12) == round(
+        0.044482216152605,
+        12,
+    )
+    assert deltas["MAP-force-E1"]["classification"] == "within_tolerance_profile"
+    assert deltas["MAP-force-E1"]["tolerance_rule_id"] == "TR-dec026-force-absolute-floor"
+
+    missing_conversion_inputs = deepcopy(inputs)
+    missing_conversion_inputs["unit_conversions"] = {("kPa", "Pa", "stress"): 1000.0}
+    missing_output = comparison_dict(compare_analysis_runs(**missing_conversion_inputs))
+
+    assert [item["mapping_id"] for item in missing_output["result_deltas"]] == ["MAP-stress-E1"]
+    assert {item["code"] for item in missing_output["diagnostics"]} == {
+        "ARC-UNIT-CONVERSION-UNSUPPORTED"
     }
 
 
@@ -319,6 +424,7 @@ def test_output_does_not_emit_prohibited_professional_claims():
 if __name__ == "__main__":
     test_comparison_is_deterministic_and_preserves_context()
     test_unit_normalized_delta_and_classification_keep_raw_evidence_separate()
+    test_dec026_mixed_unit_relative_absolute_tolerance_corpus()
     test_incompatible_or_missing_unit_metadata_produces_diagnostics_not_deltas()
     test_missing_mapping_and_result_data_are_explicit_findings()
     test_carried_run_diagnostics_are_preserved_as_review_evidence()

@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail comparison mixed-unit tolerance corpus (`TP-UNITS-BTAIL-COMPTOLCORPUS-001`)
+
+Landed one bounded Phase B-tail DEC-026 corpus slice while C5.7 remains
+human-execution gated. The analysis-run comparison engine now recognizes
+caller-supplied relative+absolute tolerance pairs when a governed profile
+supplies both values, while retaining the existing scalar tolerance path for
+older fixtures.
+
+The comparison tolerance schema now defines optional
+`relative_tolerance_value`, `absolute_tolerance_value`, and
+`tolerance_pair_policy=relative_plus_absolute_floor` on tolerance rules. The
+numeric pair path is still structurally limited to externally governed or
+project-specific review status values and does not add defaults.
+
+Corpus evidence covers mixed stress and force units: stress normalized from
+`kPa` to `Pa` is classified by the relative allowance, near-zero force
+normalized from `lbf` to `N` is classified by the absolute floor, and removing
+the required conversion blocks with `ARC-UNIT-CONVERSION-UNSUPPORTED`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-194; DEL-14-04 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPTOLCORPUS-001.md`;
+DEL-14-05 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused analysis-run comparison and comparison-contract scripts
+passed; adjacent pytest subset passed 23/23; full Python suite passed 360/360;
+`git diff --check` passed.
+
+Boundary: governed-profile comparison evidence only. No default tolerance,
+release threshold, solver convergence policy, external validation decision,
+protected standards content, private payload, network/telemetry path,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail result export unit witnesses (`TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001`)
 
 Landed one bounded Phase B-tail target-format/unit-witness slice while C5.7

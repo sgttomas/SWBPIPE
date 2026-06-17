@@ -74,3 +74,22 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPTOLCORPUS-001 tolerance-pair contract support
+
+- Extended `schemas/comparison_tolerance.schema.json` with optional
+  `relative_tolerance_value`, `absolute_tolerance_value`, and
+  `tolerance_pair_policy` fields on tolerance rules.
+- Numeric pair values are guarded by the same externally governed /
+  project-specific-review-required status constraint as numeric scalar
+  tolerance values. No default numeric tolerance value was introduced.
+- `tests/test_comparison_contracts.py` now asserts the optional pair fields,
+  nonnegative numeric shape, externally governed placeholder vocabulary, and
+  numeric status guard.
+- Validation passed: `python3 tests/test_comparison_contracts.py`; adjacent
+  comparison pytest subset passed 23/23; full Python suite passed 360/360;
+  `git diff --check`.
+- Boundary preserved: contract support for governed tolerance profiles only.
+  No default tolerance, external validation decision, release threshold,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

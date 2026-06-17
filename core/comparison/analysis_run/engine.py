@@ -337,6 +337,8 @@ def _compare_mapping(
     tolerance_rule = tolerance_rules.get((family, left_dimension))
     classification, basis = _classify_delta(
         abs(right_normalized - left_normalized),
+        left_normalized,
+        right_normalized,
         tolerance_profile,
         tolerance_rule,
         normalized_unit,
@@ -419,6 +421,8 @@ def _tolerance_rules(
 
 def _classify_delta(
     absolute_delta: float,
+    left_normalized: float,
+    right_normalized: float,
     tolerance_profile: Mapping[str, Any] | None,
     tolerance_rule: Mapping[str, Any] | None,
     normalized_unit: str,
@@ -427,12 +431,26 @@ def _classify_delta(
         return "not_classified", "no_tolerance_profile_supplied"
     if tolerance_rule is None:
         return "not_classified", "no_matching_tolerance_rule"
-    tolerance_value = _numeric(tolerance_rule.get("tolerance_value"))
-    if tolerance_value is None:
-        return "not_classified", "tolerance_value_not_numeric"
     rule_unit = _unit_ref_value(tolerance_rule.get("unit_ref"))
     if rule_unit and rule_unit != normalized_unit:
         return "not_classified", "tolerance_rule_unit_not_normalized_unit"
+    relative_value = _numeric(tolerance_rule.get("relative_tolerance_value"))
+    absolute_value = _numeric(tolerance_rule.get("absolute_tolerance_value"))
+    if relative_value is not None and absolute_value is not None:
+        reference = max(abs(left_normalized), abs(right_normalized))
+        allowed_delta = max(absolute_value, relative_value * reference)
+        if absolute_delta <= allowed_delta:
+            return (
+                "within_tolerance_profile",
+                "caller_supplied_relative_absolute_tolerance_rule",
+            )
+        return (
+            "exceeds_tolerance_profile",
+            "caller_supplied_relative_absolute_tolerance_rule",
+        )
+    tolerance_value = _numeric(tolerance_rule.get("tolerance_value"))
+    if tolerance_value is None:
+        return "not_classified", "tolerance_value_not_numeric"
     if absolute_delta <= tolerance_value:
         return "within_tolerance_profile", "caller_supplied_tolerance_rule"
     return "exceeds_tolerance_profile", "caller_supplied_tolerance_rule"

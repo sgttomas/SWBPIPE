@@ -6303,3 +6303,37 @@ notes:
   ownership change, protected standards content, private project payload,
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-194 comparison mixed-unit tolerance corpus - PASSED (`TP-UNITS-BTAIL-COMPTOLCORPUS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail DEC-026 corpus slice while C5.7 remains
+  human-execution gated. The analysis-run comparison engine now recognizes
+  caller-supplied relative+absolute tolerance pairs when a governed profile
+  supplies both values, while keeping the existing scalar tolerance path for
+  older fixtures.
+- Contract: `schemas/comparison_tolerance.schema.json` now defines optional
+  `relative_tolerance_value`, `absolute_tolerance_value`, and
+  `tolerance_pair_policy=relative_plus_absolute_floor` on tolerance rules.
+  Numeric pair values are still restricted to externally governed or
+  project-specific review status paths. No schema default value was added.
+- Corpus evidence: `tests/test_analysis_run_comparison.py` covers a
+  DEC-026-style mixed-unit profile with stress normalized from `kPa` to `Pa`
+  and force normalized from `lbf` to `N`; the stress case is classified by the
+  relative allowance, and the near-zero force case is classified by the
+  absolute floor. Removing a required conversion still blocks with
+  `ARC-UNIT-CONVERSION-UNSUPPORTED`.
+- Validation:
+  - `python3 tests/test_analysis_run_comparison.py` passed.
+  - `python3 tests/test_comparison_contracts.py` passed.
+  - `python3 -m pytest tests/test_analysis_run_comparison.py tests/test_comparison_contracts.py tests/test_design_authoring_comparison_workspace.py tests/test_state_comparison_handoff_report_sections.py -q` passed 23/23 tests.
+  - `python3 -m pytest -q tests` passed 360/360 tests.
+  - `git diff --check` passed.
+- Evidence: DEL-14-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPTOLCORPUS-001.md`;
+  DEL-14-05 and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: governed-profile comparison evidence only. No default tolerance,
+  release threshold, solver convergence policy, external validation decision,
+  protected standards content, private project payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
