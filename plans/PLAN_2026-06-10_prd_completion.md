@@ -1,5 +1,7 @@
 # OpenPipeStress — PRD Completion Plan
 
+> **SUPERSEDED 2026-06-17 by [PLAN_2026-06-17_prd_completion.md](PLAN_2026-06-17_prd_completion.md).** This plan is archived and is no longer the active tactical selection instrument; the active-plan pointers in [docs/PLAN.md](../docs/PLAN.md) §7, [execution/_Coordination/_COORDINATION.md](../execution/_Coordination/_COORDINATION.md), and [execution/_Coordination/NEXT_INSTANCE_PROMPT.md](../execution/_Coordination/NEXT_INSTANCE_PROMPT.md) now point to the successor. It is retained for its inline R2/R3 build-out history (Phases A, B, C, C5.1–C5.5); landed detail also lives, compressed, in [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). Do not select tranches from this file.
+
 **Date:** 2026-06-10
 **Epistemic status:** PROPOSAL (non-governing). This plan proposes a route from the current technical preview to the product defined in [docs/PRD.md](../docs/PRD.md). It does not change any lifecycle state, promote any deliverable, or create any release, professional, certification, or code-compliance claim. Every work item below is a *candidate tranche* to be proposed, approved, executed, and evidenced through the Application Integration And Issuance Loop in [execution/_Coordination/_COORDINATION.md](../execution/_Coordination/_COORDINATION.md). Humans decide all gates.
 

@@ -1,0 +1,274 @@
+# OpenPipeStress — PRD Completion Plan
+
+**Date:** 2026-06-17
+
+**Supersedes:** [PLAN_2026-06-10_prd_completion.md](PLAN_2026-06-10_prd_completion.md). That plan carried the full inline detail of the R2/R3 build-out (Phases A, B, C, and C5.1–C5.5); its landed detail is retained there and, compressed, in [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). This successor re-baselines at the current state (R3 exit readiness) and details the remaining arc toward PRD completion. The 2026-06-10 plan is archived (see its superseded banner); this is the active tactical selection instrument.
+
+**Epistemic status:** PROPOSAL (non-governing). This plan proposes a route from the current state to the product defined in [docs/PRD.md](../docs/PRD.md). It does not change any lifecycle state, promote any deliverable, or create any release, professional, certification, sealing, authentication, or code-compliance claim. Every work item is a *candidate tranche* to be proposed, approved, executed, and evidenced through the Application Integration And Issuance Loop in [execution/_Coordination/_COORDINATION.md](../execution/_Coordination/_COORDINATION.md). Humans decide all gates.
+
+**Strategic layer:** this plan is the *tactical* selection instrument. The durable strategic framing it implements — the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks — lives in [docs/PLAN.md](../docs/PLAN.md). When the two disagree, correct the surface that is wrong; the authorities (PRD, CONTRACT, DAG, `_COORDINATION.md`) win over both.
+
+**Baseline:** [plans/ASSESSMENT_2026-06-12_project_state.md](ASSESSMENT_2026-06-12_project_state.md), advanced by the landed tranches in [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). Latest recorded green surfaces (2026-06-16, `TP-UNITS-B2-RULECHECKRUNUNITS-001`): desktop Vitest 389/389, desktop Playwright 10/10, src-tauri Rust suite green, the five-surface `DEC-025` evidence sweep passing; full Rust/pytest surfaces green per the 2026-06-12 assessment.
+
+**Plan maintenance:** this plan is a selection instrument, not a history. When an item lands, compress its row to one line — `LANDED <date> (<tranche id>)`, residual hand-offs, and pointers to the run record and [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md) — and move the narrative detail to that log. Partially-landed items keep their remaining scope in the row and push landed detail to the log. Decision rows carry at most state, a `DEC`/`D-xx` pointer, and a one-clause outcome.
+
+---
+
+## 0. Re-baseline note — what changed since the 2026-06-10 plan
+
+The 2026-06-10 plan opened at R2 (GUI MVP) with R3 work blocked behind a stage gate. Since then:
+
+- **R2 closed and the stage advanced to R3** (`DEC-035`, 2026-06-12), carrying two named blocking residuals to the R3 exit review: **F-4** (a completed human packaged-GUI journey, SMOKE TP-MAC-141) and the **A3 authoring-journey usability** finding.
+- **Phase A (R2 GUI MVP)** landed in full — apply-operation seam, persistence/migration, viewport+inspector authoring, load-case manager, solve-from-edited-model, results visualization, report rendering, from-blank authoring, the from-scratch entity create/delete set, and the R2 exit rehearsal.
+- **Phase B (units)** — the `core/units` catalog/conversion crate (B1) landed; unit-aware I/O (B2/B3) is substantially landed across schema, app entry, solver-boundary normalization, reports, and export conversion witnesses, with a tail remaining (see the Phase B row in §3).
+- **Phase C (R3 implementation spine)** landed — C1 expression grammar freeze, C2 rule-pack editor GUI, C3 private-library management GUI, C4 end-to-end rule checks (the R3 exit criterion is GUI-true).
+- **Phase C5.1–C5.5** landed — plan revision, UX failure baseline, guided-workbench shell, A12 authoring-journey redesign, R3 rule-pack/library guided flow.
+
+**Where this plan picks up:** the remaining R3 work is **C5.6 → C5.7 → C5.8** (packaged journey successor kit → human packaged pass → R3 exit evidence package), plus the Phase B unit-I/O tail where it does not displace C5. Beyond R3, the bulk of the product remains: **R4** (piping components and nonlinear supports) and **R5** (engineering beta and release machinery) are largely unbuilt above the schema/contract layer, and governance closure (Phase F) is human-paced throughout. Per the human horizon ruling (2026-06-17), this plan also scopes — **contingent on a human-gated PRD scope-change (`D-21`)** — the v0.2 milestones **R6** (design-knowledge and handoff beta) and **R7** (agent-assisted design); see the Extended Horizon in §3.
+
+---
+
+## 1. Definition of "complete per the PRD"
+
+The PRD-completion definition (the two binding surfaces — PRD §22 release milestones and §10 functional requirements — plus the human-gated governance closures the PRD/CONTRACT require for any release claim) and the **current milestone position** live in the strategic roadmap doc [docs/PLAN.md](../docs/PLAN.md) §1–§2. This plan consumes that definition and turns it into selectable tranches (§3); the decision register (§2) tracks the governance closures.
+
+**Terminus.** The current authority `docs/PRD.md` §22 defines milestones **R0–R5 only; R5 (Engineering Beta) is the terminal milestone** ("External engineers can reproduce validation examples"; "Public repository contains no known protected standards data"). The plan's *governing* completion arc therefore ends at R5 (Phases A–F below).
+
+**Extended horizon (contingent).** The superseded scope draft [docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md](../docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md) §24 renumbers milestones to R0–R7 and adds **R6 (Design Knowledge and Handoff Beta)** and **R7 (Agent-Assisted Design and Candidate Generation)**. That surface is already decomposed (PKG-13/14/15/16/17 plus DEL-07-08 and DEL-08-06) but unbuilt, and `docs/PRD.md` on disk is still v0.1. Treating R6/R7 as planned work requires promoting the v0.2 milestone set to authority through the governed scope-change path — a human decision (`D-21`), not an inline edit. Phases G/H/I below scope that horizon and are explicitly gated on `D-21`.
+
+**Milestone crosswalk (v0.1 ↔ v0.2).** The v0.2 renumber is *not* a clean +1 shift — v0.2 inserts a net-new R3 (States, Runs, and Generic Comparison) before rule packs, pushing later milestones down, and v0.1's terminal R5 (Engineering Beta) has no 1:1 v0.2 successor (its governance/validation content distributes across the v0.2 R5/R6 exit criteria and PKG-01/09/12).
+
+| This plan's phase | v0.1 PRD (current authority) | v0.2 draft (contingent on `D-21`) | Owning packages |
+|---|---|---|---|
+| C5 (closing) | R3 Rule-Pack and Private Libraries | R4 | PKG-06, PKG-03 (private libs) |
+| D | R4 Piping Components and Nonlinear Supports | R5 | PKG-03, PKG-04, PKG-08, PKG-09 |
+| E | R5 Engineering Beta | — (distributed) | PKG-09, PKG-10, PKG-12, PKG-08, PKG-01 |
+| G | — (net-new in v0.2) | R3 States, Runs, and Generic Comparison | PKG-14, DEL-07-08, DEL-08-06 |
+| H | — | R6 Design Knowledge and Handoff Beta | PKG-13, PKG-15, PKG-17 |
+| I | — | R7 Agent-Assisted Design | PKG-16 |
+
+---
+
+## 2. Critical-path human decisions (Decision Register)
+
+These are decisions only a human project authority can make. Each blocks specific phases; sequencing them early is the cheapest acceleration available. Proposed mechanism: one bounded *decision-preparation tranche* per item that assembles options + evidence into a decision packet (`execution/_Coordination/_DECISIONS/D-XX_<slug>.md`), then a recorded human acceptance (`DEC`/`SCA` entry in [SOFTWARE_DECOMP.md](../execution/_Decomposition/SOFTWARE_DECOMP.md) §12). The live tracking surface is [execution/_Coordination/_DECISIONS/_REGISTER.md](../execution/_Coordination/_DECISIONS/_REGISTER.md).
+
+### 2.1 Carried decisions — already RULED (no further action unless reopened)
+
+| ID | Decision | Ruling |
+|---|---|---|
+| D-01 | Unit catalog acceptance | RULED `DEC-018` (SI-canonical + dual display) |
+| D-02 / D-02b | Rule-pack expression grammar freeze / writable text syntax | RULED `DEC-022` (frozen typed AST) / `DEC-037` (defer writable text; read-only AST→text only, no parser) |
+| D-03 | Sparse solver / model-scale strategy | RULED `DEC-023` (in-repo skyline/profile direct solver; first slice landed) |
+| D-04 | Numerical tolerance + coverage thresholds | RULED `DEC-024`+`DEC-026` (class-tiered relative+absolute tolerance pairs; coverage recorded-not-blocking). **Note:** the *solver convergence* tolerance is a distinct open item — see `D-19` |
+| D-05 | CI provider + hosted workflow location | RULED `DEC-025` (five-surface local sweep is the commit-bound merge gate; hosted CI deferred to `D-05b`) |
+| D-07 | Maintainer quorum + release authority; contributor legal mechanism | RULED `DEC-027` (sole-maintainer authority; external contributions closed; `D-07b` gates future intake) |
+| D-08 | Model-document schema migration policy | RULED `DEC-019` (per-document semver transform chain) |
+| D-09 | Native package physical container format | RULED `DEC-028` (multi-member archive per PKG-17 manifests) |
+| D-10 / D-10b | Report rendering target / PDF emitter | RULED `DEC-021` (hash-bound single-file HTML) / `D-10b` PDF emitter NOT_PREPARED (Phase E) |
+| D-13 | Operation-seam engine unification | RULED `DEC-020` |
+| D-14 | R2→R3 stage advancement | RULED `DEC-035` (advance to R3 with F-4 + A3 usability as named blocking residuals) |
+| D-CDR | Cycle-driven resolution doctrine | RULED `DEC-040` |
+
+### 2.2 Carried decisions — NOT_PREPARED (still open)
+
+| ID | Decision | Blocks | Proposed timing |
+|---|---|---|---|
+| D-06 | Release matrix, installer formats, signing/notarization, publication targets (RGAP-003/006) | Phase E packaging (E5) | At E5 lead-up |
+| D-10b | Hash-bound deterministic PDF emitter for the full report package (deferred from `DEC-021`) | Phase E full report package (E3) | At E3 lead-up |
+| D-11 | Issuance waves for the `CHECKING` deliverables | Phase F governance closure | Human-paced; wave alignment in §3 Phase F |
+| D-12 | Disposition of FR-024 (dynamics) and FR-025 (local FEA export) — implement post-beta or record explicit deferral | Final PRD-completeness claim | At the R5 gate |
+| D-04b | Coverage tooling selection and any numeric-floor promotion (deferred from `DEC-024`) | Coverage telemetry in evidence sweeps (E8) | At E8 lead-up |
+| D-05b | Public sanitized-export repo CI activation (deferred from `DEC-025`; prepare with D-06) | Phase E hosted continuous evidence (E5) | With D-06 |
+| D-07b | Contributor intake mechanism if/when external contributions open (deferred from `DEC-027`) | Opening external contribution intake; R5 IP contribution process (E6) | At E6, only if intake opens |
+
+### 2.3 New decisions surfaced by this plan's research
+
+These were surfaced by the R4/R5/R6 scope research (2026-06-17). They are recorded here as candidate decision-prep items; agents prepare packets labeled `PROPOSAL`, humans rule. Recommended dispositions are advisory only.
+
+| ID | Decision | Blocks | Notes / recommended disposition |
+|---|---|---|---|
+| D-15 | **Spring-hanger scope.** Is the R4 "spring hangers" deliverable satisfied by the existing generic `spring` support type (DEL-04-03, `linear_supports::Spring`), or does it require a new constant-effort / variable-rate hanger behavior (preload, travel range, hot/cold load) with its own schema slots? No deliverable currently owns the latter. | Phase D, D5 | Recommend: scope a minimal constant-effort + variable-rate hanger model as a DEL-04-03 extension; confirm whether new schema slots vs. `support.properties` map fields suffice |
+| D-16 | **Global nonlinear solve ownership & method.** Which deliverable owns the *assembled* iterative loop wrapping the active-set classifier — DEL-04-04 (classifier crate, which explicitly "does not assemble or solve the global nonlinear system") or a frame-assembly integration tranche in DEL-04-01? And the iteration-control method (active-set with convergence/relaxation). | Phase D, D6 | Recommend: a new integration tranche bridging DEL-04-04 ↔ DEL-04-01; classifier stays the per-iteration state oracle |
+| D-17 | **Sparse-solver live-path adoption timing.** Bind `core/solver/sparse_direct` (RCM + skyline + LDLᵀ, parity-tested) into the live `frame_kernel`/`product_physics` solve path within R4, or defer to R5/post-R4? R4 exit does not name sparse, but PRD §20 scale and DEL-04-01-REQ-006 imply it. | Phase D, D7; PRD §20 scale | Recommend: bind in R4 alongside the nonlinear loop (assembled solves stress the dense path); profile-direct assembly is the follow-on (DEL-04-05) |
+| D-18 | **Component macro-element realization.** Are bend/branch/EJ realized as solver macro-elements (bend flexibility element, EJ stiffness element) or as data + user-flexibility multipliers applied in stress recovery? `ComponentMechanicsInterface.solver_consumption` permits both (`mechanics_geometry_only` vs `mechanics_geometry_and_user_flexibility`). | Phase D, D1–D4 | Recommend: user-flexibility-multiplier path first (lower risk, code-neutral), macro-elements only where a multiplier cannot express the behavior (e.g. EJ stiffness) |
+| D-19 | **Release convergence tolerance policy.** Close the `TolerancePolicyTbd` solver diagnostic: the *solver convergence* tolerance (residual/iteration criteria) under DEC-026/D-04, distinct from the analytic *verification* seed (1.0e-9) already wired. R4 exit "validation cases converge" depends on it. | Phase D, D6/D9; R4 exit; RGAP-004 | Recommend: extend the DEC-026 class-tiered policy to a governed convergence tolerance + iteration cap with the nonconvergence taxonomy already in `core/solver/diagnostics` |
+| D-20 | **Release-artifact protected-content scan ownership & procedure (RGAP-005).** Assign an owner and a recorded procedure for the release-time artifact scan + legal/protected-data release gate. Test surfaces exist (`core/reporting/protected_content_linter`, `tests/security/`, DEL-08-05) but no release-artifact scan record exists. | Phase E, E7; R5 exit "no known protected standards data" | Recommend: DEL-08-05 owns the scanner; a new release-gate procedure records the scan disposition + human legal acceptance |
+| D-21 | **PRD scope-change to the v0.2 milestone set** (adopt R6/R7 + the inserted v0.2 R3 States/Comparison). Promote [OpenPipeStress_PRD_v0.2.md](../docs/_ScopeChange/OpenPipeStress_PRD_v0.2.md) (or its delta) to authority via the governed `SCOPE_CHANGE` path; this also adopts the v0.2 FR renumber (FR-MOD/KNOW/GUI/SOL/RULE/CMP/HAND/AGENT/REP) — a traceability-breaking change requiring an FR crosswalk. | Extended Horizon (Phases G/H/I) | Human-gated SCA. Recommend: prepare the scope-change packet only when R4/R5 are near exit, so the governing arc is not destabilized mid-flight |
+
+---
+
+## 3. Phase plan
+
+Phases are ordered by dependency, not strictly by execution. Each numbered item is sized to be one or a small series of bounded tranches (`TP-*` convention). Evidence expectations per tranche follow the coordination loop: `npm test`/`build --workspace apps/desktop`, applicable `cargo test` and `pytest` surfaces, the five-surface `DEC-025` sweep before push, and smoke/UI evidence (Playwright-spec extension default) when behavior changes.
+
+### Landed foundation (compressed — full detail in the completion log and the superseded plan)
+
+| Phase | Scope | Status |
+|---|---|---|
+| **A — R2 GUI MVP** | Apply-operation seam, persistence/migration (`DEC-019`), viewport+inspector authoring, load-case manager, solve-from-edited-model, results visualization, report rendering (`DEC-021`), from-blank authoring, from-scratch entity create/delete set, R2 exit rehearsal | **LANDED** (A1–A12). R2 exit chain verified ([VERIFICATION_2026-06-12_r2_exit_chain.md](VERIFICATION_2026-06-12_r2_exit_chain.md)); stage advanced R2→R3 (`DEC-035`) |
+| **C (C1–C4) — R3 implementation spine** | Expression grammar freeze (`DEC-022`, grammar v1.0.0), rule-pack editor GUI, private-library management GUI, end-to-end rule checks (the R3 exit criterion is GUI-true); `acceptability_relation` + `solver_result_ref` ratified (`DEC-039`); `library_value_ref` ratified (`DEC-038`) | **LANDED** (C1–C4) |
+| **C5 (C5.1–C5.5) — guided-workbench redesign** | Plan revision, UX failure baseline, guided-workbench shell, A12 authoring-journey redesign, R3 rule-pack/library guided flow | **LANDED** (SMOKE TP-MAC-183..187) |
+| **Hardening (H1, H4, H5)** | Canonical-hash unification, evidence-posture amendments, RFC 8785 number rendering | **LANDED** |
+
+### Phase C5 (remaining) — R3 exit readiness and authoring-usability closure
+
+**Objective:** close the two `DEC-035` R3-exit blockers before any R3 exit review — a completed human packaged-GUI journey (F-4) and the A3 authoring-journey usability finding. C5 is a plan/evidence/app-UX program, not a release, lifecycle issuance, professional, certification, or code-compliance gate.
+
+| # | Tranche scope |
+|---|---|
+| C5.6 | **Packaged journey successor kit** (`TP-R3UX-PACKAGEKIT-001`, target SMOKE TP-MAC-188): build a fresh `.app`, boot-check it, and add a TP-MAC-141 successor checklist covering both the A12 authoring journey and the R3 rule-pack/library journey; record commit, command, bundle path, and boundaries. Prepares human execution; does not close F-4. **This is the next ordinary tranche.** |
+| C5.7 | **Human packaged pass recording** (`TP-R3UX-HUMANPASS-001`, target SMOKE TP-MAC-189): human runs the packaged successor checklist; record pass/fail by step. Pass closes F-4 and the A3 authoring-usability finding; fail records the next bounded repair. If the structured rule composer is criticized, re-present `D-02b` per `DEC-037` |
+| C5.8 | **R3 exit evidence package** (`TP-R3VERIFY-001`, target SMOKE TP-MAC-190): assemble `plans/VERIFICATION_<date>_r3_exit_chain.md` with automated evidence, packaged human-pass evidence, C1–C4 references, and C5 usability closure — for human R3 exit review only. R3 exit review (and any R3→R4 stage advancement) is human-gated; agents propose with evidence |
+
+### Phase B (tail) — unit-aware I/O remainder
+
+**Objective:** finish FR-002 coverage. Runs alongside C5 only when it does not block or displace C5.
+
+| # | Tranche scope |
+|---|---|
+| B-tail | Broader app unit entry/pickers beyond the landed surfaces (material/section/node-coordinate/viewport-draft/primitive-load/inspector/rule-pack/run-check), and the remaining target-format conversion witnesses outside the PCF/CAEPIPE/stress-neutral/review-geometry/native-JSON boundaries already covered. Plus the D-04/`DEC-026` mixed-unit tolerance corpus outside the boundaries named in the superseded plan's B3 row. Each slice is a small bounded tranche |
+
+### Phase D — R4: piping components and nonlinear supports (solver depth)
+
+**Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.
+
+**Current state (from research, 2026-06-17):** the linear `frame_kernel` (dense, validated) and a per-iteration active-set **classifier** (`core/solver/nonlinear_supports`: one-way/gap/lift-off/friction) exist, as does the nonconvergence diagnostics taxonomy (`core/solver/diagnostics`) and the parity-tested `sparse_direct` crate. Component families (bend/branch/rigid/EJ) exist as `schemas/component.schema.yaml` slots with full provenance. The gaps: **no assembled global nonlinear solve loop**; **sparse not bound to the live solve path**; **no spring-hanger constant-effort/variable-rate behavior** (only a generic `spring` support); **no component-provenance report renderer**; **solver convergence tolerance still `TolerancePolicyTbd`**. PKG-03/PKG-04 design docs are setup-stage; the implemented crates are newer than those docs.
+
+**Dependency-graph note:** Phase D adds new component/solver deliverable scope and the assembled nonlinear-solve seam. That decomposition revision / SCA is a graph-rederivation trigger (re-run `dependency-extract` → AGGREGATION → `audit_dag.py` → human `APPROVAL_RECORD`), expected to produce `DAG-008` or a later successor under the cycle-driven resolution doctrine. `_DAG/_LATEST.md` stays on `DAG-006` until the pending `DAG-007` type-system rectification is human-approved.
+
+| # | Tranche scope | Decision gate |
+|---|---|---|
+| D1 | **Bend element** (FR-017; DEL-03-03): curved-pipe behavior via user-entered flexibility factors and SIFs applied to element stiffness and stress recovery; radius/angle/orientation geometry in model + viewport; `BEND_GEOMETRY_INCOMPLETE` completeness diagnostic surfaced | `D-18` (macro-element vs multiplier) |
+| D2 | **Branch connection objects** (FR-018; DEL-03-04): geometry + reinforcement + user-entered header/branch SIFs and local flexibility modifiers for stress recovery; branch-assembly path | `D-18` |
+| D3 | **Rigid / semi-rigid components** (FR-019; DEL-03-05): valves/flanges/reducers as rigid or semi-rigid elements with user-entered dimensions/weights/COG/source notes (rigid elements exist in the kernel; this is mostly data model + mapping + provenance + `RIGID_COMPONENT_*` diagnostics) | — |
+| D4 | **Expansion joints** (FR-020; DEL-03-06): element with user-entered linear/rotational stiffness set, effective pressure area, movement limits, manufacturer provenance; pressure-thrust handling; `EXPANSION_JOINT_*` diagnostics | `D-18` (EJ likely needs a stiffness macro-element) |
+| D5 | **Spring hangers** (DEL-04-03): variable-rate and constant-effort hanger supports with user-entered properties (preload, travel, hot/cold load). Scope and schema shape gated by `D-15` | `D-15` |
+| D6 | **Assembled nonlinear iterative solve** (FR-021; DEL-04-04 ↔ DEL-04-01): wrap the existing active-set classifier in a global iteration loop (gaps, one-way, lift-off, friction) with convergence criteria mapped to the existing nonconvergence diagnostics taxonomy and a governed convergence tolerance. **The product hinge of R4.** | `D-16` (ownership/method), `D-19` (tolerance) |
+| D7 | **Sparse-solver live-path adoption** (DEL-04-01, DEL-04-05): bind `sparse_direct` into the live `frame_kernel`/`product_physics` solve path (currently dense); profile-direct assembly and a performance harness for PRD §20 scale. The crate (RCM/skyline/LDLᵀ) already LANDED (`TP-D03-SPARSE-001`); this is the adoption + perf slice | `D-17` (timing) |
+| D8 | **Component provenance in reports** (DEL-08-03 section + DEL-08-01 renderer): surface component source/provenance fields (and missing-provenance warnings, per the no-silent-omission rule) in the rendered report. Satisfies the R4-exit half "component provenance appears in reports" | — (depends on DEL-08-01 maturity) |
+| D9 | **R4 validation set** (DEL-09-03): nonlinear convergence benchmarks with hand-calc/witness evidence — the existing lift-off/gap/friction hand-calcs and the `open_pipe_stress_nonlinear_benchmarks` crate validate the *classifier*; R4 exit needs *converged global-solve* cases plus the §16.2 branch-assembly benchmark; component provenance flowing into rendered reports. Produces the R4 exit evidence package | `D-19` (tolerance) |
+
+**Phase exit evidence:** scripted end-to-end R4 demonstration on an invented model with components and nonlinear supports; nonlinear validation cases converge under the governed tolerance; component provenance appears in the rendered report; all suites green; derivative verification snapshot (a `VERIFICATION_<date>_r4_exit_chain.md` successor) for human R4 exit review. Stage advancement R3→R4 and R4→R5 are human-ruled coordination updates.
+
+### Phase E — R5: engineering beta and release machinery
+
+**Objective:** PRD §22.6 exit criteria verbatim — "External engineers can reproduce validation examples" and "Public repository contains no known protected standards data." Resolves RGAP-002..007. Deliverables: validation manual, full report package, IP contribution process, public issue templates, private-data redaction workflow, signed releases.
+
+| # | Tranche scope | Decision / gap |
+|---|---|---|
+| E1 | **Headless runner CLI** (DEL-10-05, RGAP-006): `core/runner/headless` is today a Rust **library with no binary/CLI**. Add the binary + CLI surface + process policy for schema-driven solve/validate-input/export/run-benchmark/run-regression operations, so validation examples are reproducible without the GUI. Resolve the DEL-10-05 CLI-name/structured-I/O-schema/process-launch TBDs | DEL-10-05 TBDs (CLI syntax, I/O schema, process policy) |
+| E2 | **Validation manual** (DEL-09-04, PRD §16.5): assemble per-case purpose / input model / hand-calc or independent reference / expected / software result / tolerance / pass-fail / solver version from the benchmark witnesses; reproduction instructions exercised via E1. Final public-benchmark tolerances ride the convergence policy | `D-19` / RGAP-004 (release thresholds) |
+| E3 | **Full report package + PDF emitter** (PKG-08; DEL-08-01/02/03/04/06): assemble the hash-bound single-file HTML report + audit manifest + warnings/provenance section + result export + state/comparison/handoff sections into the §22.6 "full report package"; add the deferred hash-bound deterministic PDF emitter | `D-10b` (PDF emitter) |
+| E4 | **Private-data redaction + export controls** (DEL-12-02, PRD §17.3/§18.3): redaction of private rule/material/component values from bug reports and shared examples; clear warnings before exporting private data; checksums; private-by-default. Test surface `tests/security/test_redaction_export_controls.py` exists | — |
+| E5 | **CI + release implementation** (DEL-10-04, RGAP-003): provider workflows mapped to the provider-neutral phases in [BUILD_AND_RELEASE.md](../docs/BUILD_AND_RELEASE.md) §7; release matrix, installer formats, signing/notarization/attestation/publication; public sanitized-export CI activation; signed releases | `D-06` (matrix/signing), `D-05b` (public-export CI) |
+| E6 | **Community / IP surface** (DEL-01-02/03, DEL-11-05, PRD §17): **public issue templates** (`.github/ISSUE_TEMPLATE/` does not yet exist — a §22.6 deliverable gap); contributor certification flow (CONTRIBUTING + `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist); IP contribution process per `DEC-027` (external contributions closed; `D-07b` gates any future intake); §17.5 pre-release legal review | `D-07b` (only if intake opens) |
+| E7 | **Release-artifact protected-content scan** (DEL-08-05 + RGAP-005): a recorded release-time artifact scan + legal/protected-data release gate evidence, satisfying the §22.6 exit "no known protected standards data." Scanner surfaces exist (`protected_content_linter`, `tests/security/`); the *release-time scan record* does not | `D-20` (owner/procedure) |
+| E8 | **Release-quality gate records** (DEL-09-05, [RELEASE_QUALITY_GATES.md](../docs/RELEASE_QUALITY_GATES.md), RGAP-004/007): gate outcomes per the Solver/Rule-engine/GUI/Report-template/Mixed gate families with thresholds from D-04; coverage tooling per `D-04b`; release labels restricted to maturity/evidence vocabulary with **no reliance/compliance language** (RGAP-007; the release-label vocabulary PB-TBD-003 stays human-gated) | `D-04b` (coverage), PB-TBD-003 (label vocabulary, human) |
+
+**Phase exit evidence:** external-reproducibility demonstration via E1/E2 on a clean environment; recorded release-artifact protected-content scan (E7) with human legal acceptance; signed-release evidence; release-quality gate records. R5 exit review is human-gated, and at the R5 gate `D-12` dispositions FR-024 (dynamics) and FR-025 (local FEA export) — implement post-beta or record an explicit deferral (silence is not a disposition).
+
+### Phase F — Governance closure (parallel, human-paced)
+
+Not a code phase; scheduled so it never becomes the surprise blocker:
+
+- **F1 — Issuance waves (`D-11`).** Prepare candidate review packets for the `CHECKING` deliverables in waves aligned to phase completions (suggested: PKG-02/03/05/06 solver-side after Phase D evidence; PKG-04 after D6/D7; PKG-07/08/13–16 app-side after C5/Phase D; PKG-09/10/12 after Phase E). Agents prepare packets; only humans change lifecycle state. `DEL-01-01` is the sole currently `ISSUED` deliverable.
+- **F2 — Authority records.** Maintainer roster/quorum, contributor legal mechanism, release-label vocabulary (`DEC-027` ruled; `D-07b` gates future intake; PB-TBD-003 release-label vocabulary still human).
+- **F3 — Register / DAG hygiene.** Keep SOFTWARE_DECOMP, registers, and the DAG synchronized as tranches land. Promote `DAG-007` (type-system rectification) when human-approved; trigger the next DAG re-derivation on the Phase D decomposition revision. Any scope evolution (e.g. `D-12` deferral, `D-21` scope-change) gets a recorded SCA/DEC entry, not silent drift.
+
+### Extended Horizon — v0.2 R6/R7 (contingent on `D-21` PRD scope-change)
+
+**These phases are not part of the governing v0.1 PRD completion arc.** They become planned work only when the human project authority promotes the v0.2 milestone set via the governed scope-change path (`D-21`). They are scoped here because the human horizon ruling (2026-06-17) directed it and because the surface is already decomposed (defined-but-unbuilt) — so the engineering is *adoption + build*, not net-new decomposition. Adopting `D-21` also pulls in the v0.2-inserted **R3 (States, Runs, and Generic Comparison)** as a prerequisite for handoff, captured as Phase G.
+
+| # | Phase / scope | Owning packages | Maturity |
+|---|---|---|---|
+| **G** | **States, runs, and generic comparison** (v0.2 R3, prerequisite). Immutable model state records, analysis run records, model-state and analysis-run comparison engines, comparison mapping/tolerance/export contracts; the design-authoring & comparison **workspace GUI** (DEL-07-08); state/comparison/handoff **report sections** (DEL-08-06). Handoff (Phase H) depends on model states/hashes from here | PKG-14 (DEL-14-01..05), DEL-07-08, DEL-08-06 | Schemas/contracts defined; unbuilt |
+| **H** | **R6 — Design knowledge and handoff beta.** Design-knowledge schema/entry (endpoints, line data, routing corridors, support zones, equipment interfaces), constraint entity + validation engine, physical→analytical transform contract; the **canonical handoff package** schema + manifest (model hash, units, entity IDs, library/rule refs, warnings, unresolved assumptions), target-mapping + unsupported-behavior contract, downstream export workflow, external-prover boundary metadata; the PKG-17 **wire formats** (native JSON, CAEPIPE MBF, conservative PCF, stress-neutral CSV/JSON, GLB review geometry) — several already shipped as R2 export panels. Exit (v0.2 §24): user produces a schema-compliant handoff package; external reviewers reproduce validation examples. New FR families FR-KNOW-*, FR-HAND-* | PKG-13, PKG-15, PKG-17 | Contracts defined; DEL-17-01 vendor (CAEPIPE) questions gate target-specific MBF claims |
+| **I** | **R7 — Agent-assisted design and candidate generation.** Structured operation proposal schema (DEL-16-01 — **the operation seam already exists from R2**), operation validation + diff preview (DEL-16-02 — exists), user acceptance + operation audit trail (DEL-16-03), agent rationale + professional-boundary controls (DEL-16-04, the FR-AGENT-005 hard gate: agent output can never claim engineering acceptance/certification/code-compliance); route/support **candidate generation** (FR-KNOW-005, "Could" — the **thinnest, no dedicated deliverable owns the generator**). Exit (v0.2 §24): agents propose schema-valid operations; user accept/reject; accepted operations auditable and reversible | PKG-16 (DEL-16-01..04) | Operation plumbing largely built (R2); candidate generation underspecified |
+
+**Extended-horizon dependencies & boundary:** R6/R7 cannot precede a working Phase G (states/comparison) and Phase D (components). The professional-boundary invariant (FR-AGENT-005, DEL-16-04) and the handoff non-authority boundary (DEL-15-04) are hard gates — agent output and handoff packages never assert certification/approval/code-compliance. If `D-21` is declined, this horizon is recorded as an explicit out-of-scope note and the plan terminates at R5.
+
+### Hardening lane (cross-phase; select when it blocks or de-risks current-stage work)
+
+| # | Item | Notes |
+|---|---|---|
+| H2 | **F-5b — DEC-019 evaluation unification.** Relocate the model-document migration evaluation out of the Tauri-only crate into a wasm-compilable crate, export through the wasm channel, replace `projectService.ts` `evaluateModelDocumentLocal`, add cross-engine parity tests. Includes the stale `"0.1.0"` version literals in `ProjectValidationPanel`/`ExportReviewPanel`/`ReportPanel` and the migrated-bytes hash-integrity edge | Failure mode today is conservative (over-refusal in preview memory); pair with the next persistence-adjacent tranche |
+| H3 | **Unit-test backfill and factoring** for `LoadCaseManagerPanel`, `PipeViewport`, `PropertyInspector` | Seam-plan §9.4 roll-forward |
+
+H1, H4, H5 landed (see the superseded plan and the completion log).
+
+---
+
+## 4. FR-by-FR completion map
+
+Current status as of 2026-06-17; "Closes in" names the phase item that brings the FR to its acceptance criteria. The v0.2 scope-change (`D-21`) would re-express these as namespaced FR families — see the crosswalk note below.
+
+| FR | Priority | Current status | Closes in |
+|---|---|---|---|
+| FR-001 create/open/save/version projects | Must | Largely met (editable, versioned, migration-governed documents per `DEC-019`); residuals: compatibility-window ruling, explicit migrate operation, file-container semantics | `D-09`; A2 residuals |
+| FR-002 unit systems + conversions | Must | Substantially met (B1 `core/units` crate; B2/B3 unit-aware I/O across schema/app/solver/reports/exports landed); tail in §3 Phase B | Phase B-tail |
+| FR-003 3D node/element modeling | Must | Partially met (inspector + viewport selection + form-based node/straight-pipe creation + canvas node drafting + endpoint picking); broader canvas gestures and component/element authoring pending | A3 (broader); Phase D (components) |
+| FR-004 six DOF per node | Must | Met (frame kernel) | — |
+| FR-005 pipe section properties | Must | Met for straight pipe | — |
+| FR-006 user-defined materials | Must | Data model + GUI creation landed (A10); private-library import GUI landed (C3) | — (re-verify) |
+| FR-007 basic load cases | Must | Engine met; GUI manager met across primitive creation, edits, combination authoring, basis/subtraction/range; residual packaged-smoke over edited load data | A4 residual |
+| FR-008 linear static solve | Must | Met (dense; benchmarks green) | — (thresholds D-04; sparse adoption D7) |
+| FR-009 element force/moment recovery | Must | Met (linear) | — |
+| FR-010 fundamental stress recovery | Must | Met (axial/bending/torsion/pressure) | — |
+| FR-011 rule-pack schema | Must | **Met** (grammar v1.0.0 frozen, C1; `DEC-022`) | — |
+| FR-012 block incomplete code checks | Must | **Met** (engine + C4 GUI run-checks surface blocked-on-missing-inputs end-to-end) | — |
+| FR-013 graphical 3D modeler | Must | Partially met (selection→tree/inspector, inline validation, node/pipe creation, canvas drafting, endpoint picking, undo/redo); broader gestures pending | A3 |
+| FR-014 model tree + property editor | Must | Partially met (entity-bound edits + selection binding + validate-only feedback); full editor UX pending | A3 |
+| FR-015 results visualization | Must | Met for tables + deformed shape + six-DOF directional deformation; governing-ratio views pending ratio rows | A6 residual |
+| FR-016 calculation reports | Must | Met (deterministic hash-bound HTML render, A7); full report package + PDF in R5 | E3 (format/PDF: `D-10b`) |
+| FR-017 bend objects | Should | Schema only | D1 |
+| FR-018 branch objects | Should | Schema only | D2 |
+| FR-019 valves/flanges/reducers | Should | Schema only (rigid elements exist) | D3 |
+| FR-020 expansion joints | Should | Schema only | D4 |
+| FR-021 nonlinear restraints | Should | Active-set classifier only; **no global iteration** | D6 |
+| FR-022 private libraries | Should | **Met** (private-library management GUI + provenance + private-path handling, C3; rule-pack↔library reference round-trip) | — |
+| FR-023 import/export open formats | Could | Largely implemented (PKG-17: native JSON, MBF, PCF, neutral CSV/JSON, GLB; export panels) | Residual GUI round-trip in A/E; disposition with the handoff work (Phase H) or `D-12` |
+| FR-024 dynamic analysis modules | Could | Not implemented | `D-12` disposition at R5 gate (post-beta or explicit deferral) |
+| FR-025 local FEA export | Could | Not implemented (distinct from the Phase H handoff package; DEL-10-03 guidance only) | `D-12` disposition at R5 gate |
+
+**v0.2 FR-family crosswalk note (`D-21`).** If the v0.2 scope-change is adopted, the flat FR-001..025 numbering is replaced by namespaced families (FR-MOD/KNOW/GUI/SOL/RULE/CMP/HAND/AGENT/REP). The registers already trace to the v0.2 FRs and SOW-064..076; FR-023 becomes the narrow ancestor of the FR-HAND-* handoff family; FR-024 (dynamics) is de-emphasized in v0.2 (not on the milestone path); FR-025 survives as the distinct local-FEA sub-model export (DEL-10-03). Any plan revision adopting `D-21` must add the full crosswalk.
+
+---
+
+## 5. Sequencing, parallelism, and rough scale
+
+**Immediate spine:** **C5.6 → C5.7 → C5.8** is the load-bearing chain for R3 exit (the Phase B unit-I/O tail runs alongside only when it does not displace C5). R3 exit review and the R3→R4 stage advancement are human-gated.
+
+**Phase D:** component crate-side work (D1–D5) can start in parallel lanes; the macro-element-vs-multiplier decision (`D-18`) shapes D1–D4 and should be prepared early. D6 (assembled nonlinear solve) is the R4 hinge and gates on `D-16` + `D-19`; D7 (sparse adoption) pairs naturally with D6 (`D-17`). D8 (provenance in reports) depends on DEL-08-01 maturity. D9 (validation) is drafted alongside D6, not at phase end.
+
+**Phase E:** E1 (headless CLI) and E2 (validation manual) can begin once Phase D validation cases exist in draft; E5 (CI/release) gates on `D-06`/`D-05b`; E7 (protected-content scan) gates on `D-20`. Phase F is human-paced throughout.
+
+**Extended horizon:** Phases G/H/I are entirely gated on `D-21`; within them, Phase G (states/comparison) precedes Phase H (handoff), and Phase I (agent) reuses the existing operation seam — its net-new work is candidate generation.
+
+**Rough relative scale** (tranche-count order of magnitude, not calendar estimates; observed granularity historically ran ~2× finer than first-pass sizing, so read toward the high ends): C5 remainder ~3; Phase B-tail ~3–6; Phase D ~9–16 (largest of the governing arc); Phase E ~8–14; Phase F human-paced. Extended horizon (if `D-21` adopted): Phase G ~6–10, Phase H ~10–16, Phase I ~5–9. No calendar dates are proposed — the project runs on bounded, evidenced tranches.
+
+---
+
+## 6. Invariant guardrails carried through every phase
+
+- **Status vocabulary:** software emits only `MODEL_INCOMPLETE` / `MECHANICS_SOLVED` / `RULE_INPUTS_INCOMPLETE` / `USER_RULE_CHECKED` / `USER_RULE_FAILED` / `HUMAN_REVIEW_REQUIRED`; `HUMAN_APPROVED_FOR_PROJECT` stays external and hash-bound. No phase introduces compliance/reliance language.
+- **Code-neutral boundary:** no populated code tables, no protected standards constants or copied formulas; all component factors (SIFs, flexibility factors, stiffnesses) are user-entered. Phase D component work, the C3 import paths, and the E7 release scan are the enforcement points.
+- **No silent defaults:** unknown values are explicit `TBD`, surfaced not guessed; missing provenance is itself reportable (D8).
+- **Local-first, private-by-default:** no cloud, daemon, network, telemetry, or repository-default private-data writes; user-created models stay in local project storage and are never committed; bundled examples are invented.
+- **Provenance:** every new authoring surface (Phase D components, Phase H design knowledge/handoff, Phase I agent operations) captures the source/provenance fields already present in the schemas.
+- **Human authority:** lifecycle changes, thresholds, release claims, stage advancement, and issuance happen only at the `D-xx` decision gates and Phase F waves. Agent output and handoff packages never assert certification/approval/code-compliance (Phase I FR-AGENT-005; Phase H DEL-15-04).
+
+---
+
+## 7. Top risks to this plan
+
+Roadmap-level risks and their mitigations live in [docs/PLAN.md](../docs/PLAN.md) §6. Plan-specific risks:
+
+| Risk | Mitigation |
+|---|---|
+| R3 exit stalls on the human packaged journey (F-4) | C5.6 prepares a clean successor kit so the human pass (C5.7) is a single bounded action; a fail records the next bounded repair, not an open-ended loop |
+| Phase D under-scoped — the assembled nonlinear solve (D6) is the genuine R4 hinge and is unbuilt | Prepare `D-16`/`D-19` early; draft D9 validation cases alongside D6; reuse the existing classifier + diagnostics taxonomy rather than rebuilding |
+| Spring hangers (D5) have no owning deliverable for constant-effort/variable-rate behavior | `D-15` resolves scope before D5 selection; default to a bounded DEL-04-03 extension |
+| Release-machinery decisions (`D-06`/`D-05b`/`D-20`) deferred until they block R5 | The decision register makes them explicit mid-plan items with RGAP traceability, not end-loaded surprises |
+| Extended-horizon scope (R6/R7) destabilizes the governing arc if adopted mid-flight | `D-21` is sequenced for the R4/R5 lead-up; until ruled, Phases G/H/I are non-selectable and carry no spine weight |
+| Scope drift via app tranches crossing deliverable boundaries | Coordination-loop rule retained: tranches name the app-owned slice and allowed write targets; register hygiene in Phase F3 |

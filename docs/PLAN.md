@@ -34,7 +34,7 @@ This document does not restate the authorities below; it routes to them.
 | Public/private data and protected-content boundary | [IP_AND_DATA_BOUNDARY.md](IP_AND_DATA_BOUNDARY.md), [PROFESSIONAL_BOUNDARY.md](PROFESSIONAL_BOUNDARY.md) |
 | What depends on what | [execution/_Decomposition/SOFTWARE_DECOMP.md](../execution/_Decomposition/SOFTWARE_DECOMP.md), approved [DAG-006](../execution/_DAG/DAG-006/) until the canonical [DAG-007](../execution/_DAG/DAG-007/) rectification package receives human approval |
 | How work executes; the current target-stage standard | [execution/_Coordination/_COORDINATION.md](../execution/_Coordination/_COORDINATION.md) ("Working Desktop Application Standard") — **authoritative for the stage gate** |
-| Tactical tranche selection | the active [plans/PLAN_2026-06-10_prd_completion.md](../plans/PLAN_2026-06-10_prd_completion.md) |
+| Tactical tranche selection | the active [plans/PLAN_2026-06-17_prd_completion.md](../plans/PLAN_2026-06-17_prd_completion.md) |
 | Human decision preparation and rulings | [execution/_Coordination/_DECISIONS/_REGISTER.md](../execution/_Coordination/_DECISIONS/_REGISTER.md) |
 
 ## 1. Definition of "complete per the PRD"
@@ -57,6 +57,14 @@ PRD and CONTRACT make prerequisites for any release claim (unit catalog
 acceptance, thresholds, CI/release authority, issuance of deliverables). These
 are scheduled as decisions, not assumed — see the decision register and the
 completion plan §2.
+
+**Extended horizon (contingent).** The active completion plan additionally
+scopes — contingent on a human-gated PRD scope-change (`D-21`) — the superseded
+v0.2 milestones R6 (Design Knowledge and Handoff Beta) and R7 (Agent-Assisted
+Design). Until that scope-change is ruled, **R5 remains the terminal milestone
+of the current PRD authority** and R6/R7 carry no roadmap weight; the
+decomposition already carries that surface (PKG-13/14/15/16/17, DEL-07-08,
+DEL-08-06) as defined-but-unbuilt scope.
 
 ## 2. Current milestone position
 
@@ -178,7 +186,7 @@ names them and routes:
 ## 7. Tranche selection
 
 This map does not select tranches. The active completion plan
-[plans/PLAN_2026-06-10_prd_completion.md](../plans/PLAN_2026-06-10_prd_completion.md)
+[plans/PLAN_2026-06-17_prd_completion.md](../plans/PLAN_2026-06-17_prd_completion.md)
 holds the phase tables, dependency spine, FR completion map, and decision
 register that drive tranche selection under the `_COORDINATION.md` loop. When a
 successor completion plan is accepted, update the pointer here and in

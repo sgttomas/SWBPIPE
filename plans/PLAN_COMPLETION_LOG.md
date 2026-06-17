@@ -1,7 +1,8 @@
 # Plan Completion Log
 
 Archive ledger for landed items from the active completion plan (currently
-[PLAN_2026-06-10_prd_completion.md](PLAN_2026-06-10_prd_completion.md), plus
+[PLAN_2026-06-17_prd_completion.md](PLAN_2026-06-17_prd_completion.md), which
+supersedes [PLAN_2026-06-10_prd_completion.md](PLAN_2026-06-10_prd_completion.md); plus
 the accepted hardening-lane plan
 [PLAN_2026-06-11_operation_seam_unification.md](PLAN_2026-06-11_operation_seam_unification.md)). When
 a plan item lands, its row in the plan is compressed to one line and the full

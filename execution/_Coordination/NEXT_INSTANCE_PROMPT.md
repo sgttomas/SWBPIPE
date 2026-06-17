@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-12`.
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-21`.
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the validated canonical dependency type-system rectification successor pending human approval. Do not treat it as current authority or update `_DAG/_LATEST.md` unless the human approval record is completed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -29,7 +29,7 @@
    default, local-status discovery, DAG-guided context selection, bounded
    workers, fan-in, validation, evidence records, and project-local
    `AGENTS.md` closeout routing for completed validated tranches.
-6. Human decisions (`D-01..D-12` and any newly discovered human-gated `TBD`)
+6. Human decisions (`D-01..D-21` and any newly discovered human-gated `TBD`)
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
    proceed only on unblocked work.

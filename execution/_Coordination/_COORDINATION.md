@@ -27,7 +27,7 @@ Primary pointers:
 - `docs/BUILD_AND_RELEASE.md`
 - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
 - `docs/_Registers/*.csv`
-- `plans/PLAN_2026-06-10_prd_completion.md`
+- `plans/PLAN_2026-06-17_prd_completion.md`
 - `execution/_Coordination/_DECISIONS/_REGISTER.md`
 - `package.json`
 - `apps/desktop/package.json`
@@ -74,10 +74,11 @@ Baseline intake for every new session:
   map, and roadmap-level risks. It routes to the authorities (this record is
   authoritative for the current target stage) and to the completion plan for
   tranche selection; it is strategic orientation, not a work queue.
-- `plans/PLAN_2026-06-10_prd_completion.md` — the current completion plan
-  (non-governing `PROPOSAL`) — for phase ordering, the dependency spine, the
-  FR completion map, and the human decision register `D-01..D-12`. Update
-  this pointer when a successor plan is accepted.
+- `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan
+  (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase
+  ordering, the dependency spine, the FR completion map, and the human
+  decision register `D-01..D-21`. Update this pointer when a successor plan
+  is accepted.
 - `execution/_Coordination/_DECISIONS/_REGISTER.md` for decision-packet
   preparation status and rulings pending with the human project authority.
 - `execution/_Coordination/_COORDINATION.md`,
@@ -175,7 +176,7 @@ Authoritative state:
    replace decomposition truth, DAG authority, deliverable lifecycle state, or
    human review gates, but they are now the primary ordinary development
    surface for producing a working desktop application.
-6. The completion plan (`plans/PLAN_2026-06-10_prd_completion.md`) and the
+6. The completion plan (`plans/PLAN_2026-06-17_prd_completion.md`) and the
    decision register (`execution/_Coordination/_DECISIONS/_REGISTER.md`) are
    non-governing guidance surfaces: they order tranche selection toward the
    PRD yardstick and track human decision preparation. They do not replace
