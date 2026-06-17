@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail CAEPIPE external parser unit witnesses (`TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001`)
+
+Landed one bounded Phase B-tail CAEPIPE external parser/unit-evidence slice
+while C5.7 remains human-execution gated. The desktop CAEPIPE External Harness
+panel now emits explicit DEC-018 unit-system disclosure and per-parser-row
+unit-preservation witnesses for the invented public CSV parser fixture.
+
+The parser package records `unit-system:dec-018-si-dual-display`, target units
+for node displacements and element forces, and `conversion_performed=false`.
+Each parsed CSV row gets a preservation witness for source value, unit, and
+inferred row dimension. The visible UI shows `caepipe-external-units` and
+`caepipe-external-unit-witnesses` with `count=3` and `conversion=false`.
+
+The tranche preserves the parser-only external harness boundary. It does not
+attempt external CAEPIPE execution, require an executable, license, or path,
+assert CAEPIPE compatibility, validate solver behavior, or make professional
+or code-compliance claims.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-201; DEL-17-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001.md`;
+DEL-02-02 and DEL-08-04 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2 Playwright smoke passed
+2/2; full desktop Vitest passed 18/18 files and 397/397 tests; desktop
+production build passed with the existing Vite large-chunk warning; `git diff
+--check` passed.
+
+Boundary: CAEPIPE external parser unit metadata only. No external CAEPIPE
+execution, executable/license/path requirement, target compatibility claim,
+solver validation claim, schema contract change, unit conversion API,
+protected standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail headless runner unit witnesses (`TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001`)
 
 Landed one bounded Phase B-tail headless-runner/unit-evidence slice while C5.7

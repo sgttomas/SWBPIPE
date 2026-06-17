@@ -402,6 +402,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
     "target_length=mm"
   );
+  const caepipeExternalHarness = page.getByLabel("CAEPIPE external harness");
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
+    "unit-system:dec-018-si-dual-display"
+  );
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
+    "count=3"
+  );
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
+    "conversion=false"
+  );
   const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=737");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(

@@ -747,6 +747,18 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(caepipeExternal).getByTestId("caepipe-external-parser").textContent).toContain(
       "correlation=canonical_id_map"
     );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-units").textContent).toContain(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-units").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-unit-witnesses").textContent).toContain(
+      "count=3"
+    );
+    expect(within(caepipeExternal).getByTestId("caepipe-external-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(caepipeExternal).getByTestId("caepipe-external-boundary").textContent).toContain(
       "compatibility=false"
     );
@@ -772,6 +784,24 @@ describe("OpenPipeStress desktop preview", () => {
     expect(caepipeExternalPacket.command_profile.profile_id).toBe("TBD-17-05-invocation-profile");
     expect(caepipeExternalPacket.execution_result.attempted).toBe(false);
     expect(caepipeExternalPacket.parser_coverage).toHaveLength(2);
+    expect(caepipeExternalPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(caepipeExternalPacket.unit_system_disclosure.target_export_units.node_displacements).toBe("m");
+    expect(caepipeExternalPacket.unit_system_disclosure.target_export_units.element_forces).toBe("N");
+    expect(caepipeExternalPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(caepipeExternalPacket.unit_witness_policy).toBe(
+      "preserve_parser_csv_row_value_unit_and_dimension_per_row"
+    );
+    expect(caepipeExternalPacket.unit_preservation_witnesses).toHaveLength(3);
+    const caepipeExternalForceWitness = caepipeExternalPacket.unit_preservation_witnesses.find(
+      (item: { source_row_ref: { ref: string } }) => item.source_row_ref.ref === "csv-row:4"
+    );
+    expect(caepipeExternalForceWitness.source_quantity.unit).toBe("N");
+    expect(caepipeExternalForceWitness.source_quantity.dimension).toBe("force");
+    expect(caepipeExternalForceWitness.target_quantity.values.axial).toBe(12.5);
+    expect(caepipeExternalForceWitness.target_quantity.unit).toBe("N");
+    expect(caepipeExternalForceWitness.conversion_performed).toBe(false);
     expect(caepipeExternalPacket.parsed_csv.row_count).toBe(3);
     expect(
       caepipeExternalPacket.parsed_csv.rows.map((row: { correlation_status: string }) => row.correlation_status)
@@ -781,6 +811,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(caepipeExternalPacket.validation_report.validation_status).toBe("boundary_checked");
     expect(caepipeExternalPacket.validation_report.checks.map((item: { check_id: string }) => item.check_id)).toContain(
       "external_execution_not_attempted"
+    );
+    expect(caepipeExternalPacket.validation_report.checks.map((item: { check_id: string }) => item.check_id)).toContain(
+      "unit_preservation_witness_per_parser_row"
     );
     expect(caepipeExternalPacket.diagnostics).toHaveLength(0);
     expect(caepipeExternalPacket.private_payload_included).toBe(false);

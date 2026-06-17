@@ -357,3 +357,22 @@ Durable TASK evidence:
   standards content, private payload, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001 supporting export evidence
+
+- Supporting role for DEL-17-05 CAEPIPE external parser tranche: the desktop
+  parser package now exposes result-like row preservation evidence through
+  `unit_system_disclosure`, `unit_witness_policy`, and
+  `unit_preservation_witnesses[]`.
+- The witnesses preserve parser row values, units, and dimensions with
+  `conversion_performed=false`, aligning the parser-only external harness
+  package with the result-export unit-preservation posture without changing
+  the result schema.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no result schema change, result-export runtime behavior,
+  public transport commitment, trace-chain ownership change, protected
+  standards content, private payload, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

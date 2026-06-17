@@ -49,3 +49,22 @@
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001 CAEPIPE parser unit witnesses
+
+- Primary role for the bounded Phase B-tail CAEPIPE external parser unit
+  witness tranche. The desktop CAEPIPE External Harness panel now emits
+  DEC-018 unit-system disclosure and one unit-preservation witness per parsed
+  invented CSV row.
+- The parser package preserves row value, unit, and inferred dimension with
+  `conversion_performed=false`; visible UI evidence shows the DEC-018
+  disclosure and `count=3` witnesses.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no external CAEPIPE execution, executable/license/path
+  requirement, target compatibility claim, solver validation claim, schema
+  contract change, unit conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
