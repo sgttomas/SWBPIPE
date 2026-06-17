@@ -14,6 +14,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail material-library property unit helper (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`)
+
+Landed one bounded Phase B-tail app unit-entry slice while C5.7 remains
+human-execution gated. The Private Library Manager now exposes a material
+property unit helper for material-library drafts. The helper drafts one private
+`properties[]` quantity with explicit magnitude, schema-native unit ref,
+dimension id, unit-required flag, and missing-unit behavior before the existing
+local-only import validation/store actions run.
+
+Browser preview remains honest: it does not synthesize a fallback catalog and
+keeps the schema-native default unit ref for the selected property as the
+single explicit option with the desktop-only unit-catalog diagnostic. In
+Tauri/desktop mode, the helper uses the reviewed DEC-018 unit catalog and
+filters material-property options by compatible dimensions, including
+stress-compatible `Pa`/`MPa` for `elastic_modulus` while excluding incompatible
+length units.
+
+The drafted material property is private-only:
+`value_status=private_user_supplied`, `required_for=mechanics_solve`,
+`quantity_kind=unit_bearing`, `unit_required=true`, and
+`missing_unit_behavior=diagnostic_blocking`. It does not introduce public
+material values, engineering allowables, validation/storage policy changes, or
+catalog/schema enum changes.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-197; DEL-07-03 and DEL-03-01 primary
+run records
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MATLIBFIELDUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused LibraryManagerPanel Vitest passed 13/13; full desktop
+Vitest passed 18/18 files and 395/395 tests; desktop production build passed
+with the existing Vite large-chunk warning; focused Playwright library-manager
+smoke passed 2/2.
+
+Boundary: material-library draft authoring only. No material engineering
+allowables, public material values, validation rule, local-store policy,
+schema enum change, DEC-018 catalog constant change, protected standards
+content, private payload, network/telemetry path, lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail export adapter SDK unit policy evidence (`TP-UNITS-BTAIL-ADAPTERSDKUNITS-001`)
 
 Landed one bounded Phase B-tail target-format/unit-evidence slice while C5.7

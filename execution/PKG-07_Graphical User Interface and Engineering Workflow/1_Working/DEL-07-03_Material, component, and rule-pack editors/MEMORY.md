@@ -249,3 +249,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   component values, validation/storage rule change, protected standards
   content, private project payload, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-17 - TP-UNITS-BTAIL-MATLIBFIELDUNITS-001 material library property unit helper
+
+- Added a Private Library Manager material-property unit helper for
+  material-library import drafts. It writes one private material
+  `properties[]` quantity into the JSON draft with explicit magnitude,
+  schema-native `unit_ref`, `dimension_id`, unit-required flag, and
+  diagnostic-blocking missing-unit behavior.
+- Desktop/Tauri route consumes the reviewed DEC-018 unit catalog and filters
+  material-property unit choices by compatible dimensions; browser preview
+  keeps the selected default unit ref visible and records that no fallback
+  catalog is synthesized.
+- Validation passed: focused `LibraryManagerPanel` Vitest 13/13, full desktop
+  Vitest 395/395, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MATLIBFIELDUNITS-001.md`;
+  corresponding DEL-03-01 primary and DEL-02-02 supporting run records;
+  SMOKE TP-MAC-197; completion log entry.
+- Boundary unchanged: draft authoring only; no material engineering
+  allowables, public material values, validation/storage rule change, schema
+  enum change, protected standards content, private project payload,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim.

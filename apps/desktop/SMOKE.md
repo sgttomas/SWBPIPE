@@ -6406,3 +6406,43 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains
+  human-execution gated. The Private Library Manager now exposes a material
+  property unit helper for material-library drafts, so a user can add one
+  private material `properties[]` quantity with explicit magnitude, unit ref,
+  dimension id, and missing-unit policy before running the existing local-only
+  import validation.
+- Unit behavior: browser preview does not synthesize a catalog and keeps the
+  schema-native default unit ref for each property kind as a single explicit
+  option with the desktop-only catalog diagnostic. In Tauri/desktop mode, the
+  helper uses the DEC-018 unit catalog and filters material-property choices by
+  compatible dimensions; for example, `elastic_modulus` offers `Pa`/`MPa` and
+  excludes length units.
+- Draft payload: applying the helper writes a private
+  `material_records[0].properties[]` entry with
+  `property_kind=elastic_modulus`, `value_status=private_user_supplied`,
+  `required_for=mechanics_solve`, and
+  `value={magnitude, unit_ref, dimension_id=stress,
+  quantity_kind=unit_bearing, unit_required=true,
+  missing_unit_behavior=diagnostic_blocking}`. Validation and storage are
+  unchanged and still route through the desktop-only local library backend.
+- Validation:
+  - `npm test --workspace apps/desktop -- LibraryManagerPanel.test.tsx`
+    passed 13/13 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 395/395 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "library manager loads"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-07-03 and DEL-03-01 primary run records
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MATLIBFIELDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: material-library draft authoring only. No material engineering
+  allowables, public material values, validation/storage rule change, schema
+  enum change, DEC-018 catalog constant change, protected standards content,
+  private project payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

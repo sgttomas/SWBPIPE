@@ -885,6 +885,31 @@ test("library manager loads an invented private sample and reports the desktop-o
   expect(material.material_library.provenance.redistribution_status).toBe("private_only");
   expect(material.material_records).toEqual([]);
   await expect(page.getByTestId("library-action-status")).toContainText("private_user_data");
+  await expect(page.getByTestId("material-property-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("material-property-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("material-property-unit")).toHaveValue(
+    "unit:kilogram_per_cubic_meter"
+  );
+  await page.getByTestId("material-property-kind").selectOption("elastic_modulus");
+  await expect(page.getByTestId("material-property-unit")).toHaveValue("unit:pascal");
+  await page.getByTestId("material-property-value").fill("210000000000");
+  await page.getByTestId("material-property-apply-draft").click();
+  const materialPropertyText = await page.getByTestId("library-draft-json").inputValue();
+  const materialPropertyDraft = JSON.parse(materialPropertyText);
+  expect(materialPropertyDraft.material_records[0].properties[0]).toMatchObject({
+    property_kind: "elastic_modulus",
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 210000000000,
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      unit_ref: { ref_type: "Unit", ref_id: "unit:pascal" }
+    }
+  });
 
   // Switching the kind selector and reloading yields the matching library
   // family shape — the component library here.

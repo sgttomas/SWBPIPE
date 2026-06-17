@@ -31,7 +31,7 @@ const unitCatalogFixture: UnitCatalog = {
   decision_basis: "DEC-018",
   calculation_basis: "si_canonical",
   storage_convention: "entered_units_preserved",
-  entry_count: 3,
+  entry_count: 7,
   entries: [
     {
       unit_id: "unit:newton_per_meter",
@@ -53,6 +53,50 @@ const unitCatalogFixture: UnitCatalog = {
       factor_representation: "175.12683524647636 N/m per lbf/in",
       offset_representation: null,
       provenance: "conventional_public_constant",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:pascal",
+      symbol: "Pa",
+      dimension_id: "pressure",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 Pa/Pa, SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:megapascal",
+      symbol: "MPa",
+      dimension_id: "pressure",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "1000000 Pa/MPa, exact SI prefix definition",
+      offset_representation: null,
+      provenance: "exact_public_definition",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:kilogram_per_cubic_meter",
+      symbol: "kg/m^3",
+      dimension_id: "density",
+      canonical: true,
+      transform_kind: "identity",
+      factor_representation: "1 (kg/m^3)/(kg/m^3), SI canonical identity",
+      offset_representation: null,
+      provenance: "si_canonical",
+      review_status: "accepted"
+    },
+    {
+      unit_id: "unit:per_degree_celsius",
+      symbol: "1/degC",
+      dimension_id: "thermal_expansion_coefficient",
+      canonical: false,
+      transform_kind: "multiplicative",
+      factor_representation: "1 (1/degC)/(1/K), exact Celsius interval definition",
+      offset_representation: null,
+      provenance: "exact_public_definition",
       review_status: "accepted"
     },
     {
@@ -253,9 +297,94 @@ describe("LibraryManagerPanel (browser preview seam)", () => {
     );
     expect(invokeMock).not.toHaveBeenCalled();
   });
+
+  it("drafts material property units without synthesizing a browser catalog", async () => {
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+
+    expect(screen.getByTestId("material-property-unit-helper")).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByTestId("material-property-unit-basis").textContent).toContain(
+        "browser preview mode does not synthesize a fallback catalog"
+      )
+    );
+    expect((screen.getByTestId("material-property-unit") as HTMLSelectElement).value).toBe(
+      "unit:kilogram_per_cubic_meter"
+    );
+
+    fireEvent.change(screen.getByTestId("material-property-kind"), {
+      target: { value: "elastic_modulus" }
+    });
+    expect((screen.getByTestId("material-property-unit") as HTMLSelectElement).value).toBe(
+      "unit:pascal"
+    );
+    fireEvent.change(screen.getByTestId("material-property-value"), {
+      target: { value: "210000000000" }
+    });
+    fireEvent.click(screen.getByTestId("material-property-apply-draft"));
+
+    const document = JSON.parse(
+      (screen.getByTestId("library-draft-json") as HTMLTextAreaElement).value
+    ) as Record<string, unknown>;
+    const records = document.material_records as Array<Record<string, unknown>>;
+    const property = (records[0].properties as Array<Record<string, unknown>>)[0];
+    expect(property).toMatchObject({
+      property_kind: "elastic_modulus",
+      value_status: "private_user_supplied",
+      required_for: "mechanics_solve"
+    });
+    const value = property.value as Record<string, unknown>;
+    expect(value).toMatchObject({
+      magnitude: 210000000000,
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking"
+    });
+    expect(value.unit_ref).toMatchObject({ ref_type: "Unit", ref_id: "unit:pascal" });
+    expect(screen.getByTestId("library-action-status").textContent).toContain(
+      "Material property draft updated"
+    );
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("LibraryManagerPanel (desktop backend, mocked invoke)", () => {
+  it("filters material property unit choices through the DEC-018 desktop catalog", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture);
+      return Promise.reject(new Error(`unexpected command ${command}`));
+    });
+
+    render(<LibraryManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("library-load-template"));
+
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
+    fireEvent.change(screen.getByTestId("material-property-kind"), {
+      target: { value: "elastic_modulus" }
+    });
+    const unitSelect = screen.getByTestId("material-property-unit") as HTMLSelectElement;
+    await waitFor(() =>
+      expect(Array.from(unitSelect.options).map((option) => option.value)).toContain("unit:megapascal")
+    );
+    expect(Array.from(unitSelect.options).map((option) => option.value)).not.toContain("unit:meter");
+
+    fireEvent.change(unitSelect, { target: { value: "unit:megapascal" } });
+    fireEvent.change(screen.getByTestId("material-property-value"), { target: { value: "210000" } });
+    fireEvent.click(screen.getByTestId("material-property-apply-draft"));
+
+    const document = JSON.parse(
+      (screen.getByTestId("library-draft-json") as HTMLTextAreaElement).value
+    ) as Record<string, unknown>;
+    const records = document.material_records as Array<Record<string, unknown>>;
+    const property = (records[0].properties as Array<Record<string, unknown>>)[0];
+    const value = property.value as Record<string, unknown>;
+    expect(value.unit_ref).toMatchObject({ ref_type: "Unit", ref_id: "unit:megapascal" });
+    expect(value.dimension_id).toBe("stress");
+    expect(screen.getByTestId("material-property-unit-basis").textContent).toContain("unit:megapascal");
+  });
+
   it("filters component field unit choices through the DEC-018 desktop catalog", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation((command: string) => {

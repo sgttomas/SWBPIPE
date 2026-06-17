@@ -761,3 +761,21 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-MATLIBFIELDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03/DEL-03-01 material-library authoring tranche:
+  the Private Library Manager now uses the DEC-018 unit catalog to filter a
+  material-property draft selector by compatible dimension while writing the
+  schema-native `unit_ref` and `dimension_id` payload.
+- Browser preview remains no-fallback: the selected property default unit ref
+  stays visible as model metadata and the route records the desktop-only
+  catalog diagnostic.
+- Validation passed: focused `LibraryManagerPanel` Vitest 13/13, full desktop
+  Vitest 395/395, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, material engineering allowables,
+  public material values, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

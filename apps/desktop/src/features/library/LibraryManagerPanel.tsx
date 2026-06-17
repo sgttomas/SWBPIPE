@@ -71,7 +71,38 @@ type ComponentFieldDraft = {
   unit: string;
 };
 
+type MaterialPropertyDraft = {
+  propertyKind: keyof typeof MATERIAL_PROPERTY_SPECS;
+  magnitude: string;
+  unit: string;
+  unitRefId: string;
+};
+
 type LibraryR3JourneyEvent = "library_template_loaded" | "library_validate_requested" | "library_save_requested";
+
+const MATERIAL_PROPERTY_SPECS = {
+  density: {
+    dimension: "density",
+    defaultUnit: "kg/m^3",
+    defaultUnitRefId: "unit:kilogram_per_cubic_meter",
+    label: "Density",
+    requiredFor: "mechanics_solve"
+  },
+  elastic_modulus: {
+    dimension: "stress",
+    defaultUnit: "Pa",
+    defaultUnitRefId: "unit:pascal",
+    label: "Elastic modulus",
+    requiredFor: "mechanics_solve"
+  },
+  thermal_expansion_coefficient: {
+    dimension: "thermal_expansion_coefficient",
+    defaultUnit: "1/degC",
+    defaultUnitRefId: "unit:per_degree_celsius",
+    label: "Thermal expansion coefficient",
+    requiredFor: "mechanics_solve"
+  }
+} as const;
 
 const COMPONENT_FIELD_SPECS = {
   linear_stiffness: {
@@ -113,6 +144,12 @@ export function LibraryManagerPanel({
     magnitude: "0",
     unit: COMPONENT_FIELD_SPECS.linear_stiffness.defaultUnit
   });
+  const [materialPropertyDraft, setMaterialPropertyDraft] = useState<MaterialPropertyDraft>({
+    propertyKind: "density",
+    magnitude: "0",
+    unit: MATERIAL_PROPERTY_SPECS.density.defaultUnit,
+    unitRefId: MATERIAL_PROPERTY_SPECS.density.defaultUnitRefId
+  });
   // In-request busy guard: while a backend command is awaiting, the draft
   // textarea, the kind/visibility selectors, and every action are disabled so
   // an async response that calls setDraft (open) cannot clobber a mid-request
@@ -126,6 +163,12 @@ export function LibraryManagerPanel({
     unitCatalogRoute,
     componentFieldDraft.unit,
     componentSpec.dimension
+  );
+  const materialSpec = MATERIAL_PROPERTY_SPECS[materialPropertyDraft.propertyKind];
+  const materialUnitBasis = describeUnitBasis(
+    unitCatalogRoute,
+    materialPropertyDraft.unit,
+    materialSpec.dimension
   );
 
   // The stored-library list is project-scoped. When the active project changes
@@ -208,6 +251,26 @@ export function LibraryManagerPanel({
     }));
   }
 
+  function handleMaterialPropertyKindChange(propertyKind: MaterialPropertyDraft["propertyKind"]) {
+    setMaterialPropertyDraft((current) => ({
+      ...current,
+      propertyKind,
+      unit: MATERIAL_PROPERTY_SPECS[propertyKind].defaultUnit,
+      unitRefId: MATERIAL_PROPERTY_SPECS[propertyKind].defaultUnitRefId
+    }));
+  }
+
+  function handleMaterialUnitChange(unitRefId: string) {
+    const option = materialUnitOptions(unitCatalogRoute, materialSpec, materialPropertyDraft).find(
+      (item) => item.unitRefId === unitRefId
+    );
+    setMaterialPropertyDraft((current) => ({
+      ...current,
+      unitRefId,
+      unit: option?.symbol ?? current.unit
+    }));
+  }
+
   function handleApplyComponentFieldDraft() {
     const document = parseDraft();
     if (!document) return;
@@ -228,6 +291,30 @@ export function LibraryManagerPanel({
     setActionStatus(
       `Component field draft updated: field_kind=${componentFieldDraft.fieldKind}; ` +
         `dimension=${componentSpec.dimension}; unit=${componentFieldDraft.unit}; ` +
+        "private_user_supplied only."
+    );
+  }
+
+  function handleApplyMaterialPropertyDraft() {
+    const document = parseDraft();
+    if (!document) return;
+    const magnitude = Number(materialPropertyDraft.magnitude);
+    if (!Number.isFinite(magnitude)) {
+      setActionStatus("MATERIAL-PROPERTY-DRAFT-INVALID: property magnitude must be finite.");
+      return;
+    }
+    const nextDocument = applyMaterialPropertyDraft(document, {
+      ...materialPropertyDraft,
+      magnitude: String(magnitude)
+    });
+    setDraft({
+      text: JSON.stringify(nextDocument, null, 2),
+      origin: `${draft?.origin ?? "session"}:material_property_unit_helper`
+    });
+    setValidation(null);
+    setActionStatus(
+      `Material property draft updated: property_kind=${materialPropertyDraft.propertyKind}; ` +
+        `dimension=${materialSpec.dimension}; unit=${materialPropertyDraft.unit}; ` +
         "private_user_supplied only."
     );
   }
@@ -431,6 +518,71 @@ export function LibraryManagerPanel({
           Refresh local list
         </button>
       </div>
+
+      {libraryKind === "material" && draft ? (
+        <div className="report-list" data-testid="material-property-unit-helper">
+          <strong>Material property unit helper</strong>
+          <small data-testid="material-property-unit-boundary">
+            Drafts one private material property with explicit unit metadata. This helper writes
+            only the import JSON draft; validation and storage still run through the local-only
+            import backend.
+          </small>
+          <label htmlFor="material-property-kind-select">Property kind</label>
+          <select
+            id="material-property-kind-select"
+            data-testid="material-property-kind"
+            value={materialPropertyDraft.propertyKind}
+            disabled={inFlight}
+            onChange={(event) =>
+              handleMaterialPropertyKindChange(event.target.value as MaterialPropertyDraft["propertyKind"])
+            }
+          >
+            {Object.entries(MATERIAL_PROPERTY_SPECS).map(([value, spec]) => (
+              <option key={value} value={value}>
+                {spec.label}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="material-property-value-input">Magnitude</label>
+          <input
+            id="material-property-value-input"
+            data-testid="material-property-value"
+            type="number"
+            value={materialPropertyDraft.magnitude}
+            disabled={inFlight}
+            onChange={(event) =>
+              setMaterialPropertyDraft((current) => ({ ...current, magnitude: event.target.value }))
+            }
+          />
+          <label htmlFor="material-property-unit-select">Unit</label>
+          <select
+            id="material-property-unit-select"
+            data-testid="material-property-unit"
+            value={materialPropertyDraft.unitRefId}
+            disabled={inFlight}
+            onChange={(event) => handleMaterialUnitChange(event.target.value)}
+          >
+            {materialUnitOptions(unitCatalogRoute, materialSpec, materialPropertyDraft).map((option) => (
+              <option key={option.unitRefId} value={option.unitRefId}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <small data-testid="material-property-unit-basis">
+            dimension={materialSpec.dimension}; {materialUnitBasis.label}; {materialUnitBasis.detail}
+          </small>
+          <div className="report-actions">
+            <button
+              type="button"
+              data-testid="material-property-apply-draft"
+              disabled={inFlight}
+              onClick={handleApplyMaterialPropertyDraft}
+            >
+              Apply property to draft
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {libraryKind === "component" && draft ? (
         <div className="report-list" data-testid="component-field-unit-helper">
@@ -675,6 +827,86 @@ function componentUnitOptions(
   return options.length ? options : [fallback];
 }
 
+function materialUnitOptions(
+  route: UnitCatalogRoute | null,
+  spec: (typeof MATERIAL_PROPERTY_SPECS)[keyof typeof MATERIAL_PROPERTY_SPECS],
+  draft: MaterialPropertyDraft
+): { unitRefId: string; symbol: string; label: string }[] {
+  const fallbackBasis = describeUnitBasis(route, spec.defaultUnit, spec.dimension);
+  const fallback = {
+    unitRefId: spec.defaultUnitRefId,
+    symbol: fallbackBasis.symbol,
+    label: fallbackBasis.label
+  };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, spec.dimension))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const basis = describeUnitBasis(route, entry.symbol, spec.dimension);
+      return { unitRefId: entry.unit_id, symbol: entry.symbol, label: basis.label };
+    });
+
+  if (!options.some((option) => option.unitRefId === draft.unitRefId)) {
+    options.unshift({ unitRefId: draft.unitRefId, symbol: draft.unit, label: `${draft.unit}, stored metadata` });
+  }
+  if (!options.some((option) => option.unitRefId === fallback.unitRefId)) options.unshift(fallback);
+  return options.length ? options : [fallback];
+}
+
+function applyMaterialPropertyDraft(
+  document: Record<string, unknown>,
+  draft: MaterialPropertyDraft
+): Record<string, unknown> {
+  const spec = MATERIAL_PROPERTY_SPECS[draft.propertyKind];
+  const provenance = materialDraftProvenance(document);
+  const materialRecords = Array.isArray(document.material_records) ? [...document.material_records] : [];
+  const firstRecord =
+    typeof materialRecords[0] === "object" && materialRecords[0] !== null && !Array.isArray(materialRecords[0])
+      ? { ...(materialRecords[0] as Record<string, unknown>) }
+      : defaultMaterialRecord(provenance);
+
+  const propertyId = `property:${draft.propertyKind}:user_draft`;
+  const properties = Array.isArray(firstRecord.properties) ? [...firstRecord.properties] : [];
+  const propertySlot = {
+    property_id: propertyId,
+    property_kind: draft.propertyKind,
+    value_status: "private_user_supplied",
+    required_for: spec.requiredFor,
+    value: {
+      magnitude: Number(draft.magnitude),
+      unit_ref: {
+        ref_type: "Unit",
+        ref_id: draft.unitRefId
+      },
+      dimension_id: spec.dimension,
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      provenance
+    },
+    provenance,
+    review_status: "pending"
+  };
+  const existingIndex = properties.findIndex(
+    (property) =>
+      typeof property === "object" &&
+      property !== null &&
+      !Array.isArray(property) &&
+      (property as Record<string, unknown>).property_id === propertyId
+  );
+  if (existingIndex >= 0) properties[existingIndex] = propertySlot;
+  else properties.push(propertySlot);
+
+  firstRecord.properties = properties;
+  materialRecords[0] = firstRecord;
+  return {
+    ...document,
+    material_records: materialRecords
+  };
+}
+
 function applyComponentFieldDraft(
   document: Record<string, unknown>,
   draft: ComponentFieldDraft
@@ -725,6 +957,32 @@ function applyComponentFieldDraft(
   };
 }
 
+function materialDraftProvenance(document: Record<string, unknown>): Record<string, unknown> {
+  const library =
+    typeof document.material_library === "object" &&
+    document.material_library !== null &&
+    !Array.isArray(document.material_library)
+      ? (document.material_library as Record<string, unknown>)
+      : {};
+  const provenance =
+    typeof library.provenance === "object" &&
+    library.provenance !== null &&
+    !Array.isArray(library.provenance)
+      ? (library.provenance as Record<string, unknown>)
+      : {};
+  return {
+    source_name: String(provenance.source_name ?? "Invented local material property draft"),
+    source_location: String(provenance.source_location ?? "user-authored private draft"),
+    source_license: String(provenance.source_license ?? "private user basis"),
+    contributor: String(provenance.contributor ?? "OpenPipeStress user"),
+    contributor_certification: String(
+      provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
+    ),
+    redistribution_status: "private_only",
+    review_status: "pending"
+  };
+}
+
 function componentDraftProvenance(document: Record<string, unknown>): Record<string, unknown> {
   const library =
     typeof document.component_library === "object" &&
@@ -747,6 +1005,21 @@ function componentDraftProvenance(document: Record<string, unknown>): Record<str
       provenance.contributor_certification ?? "invented non-engineering draft; not for project reliance"
     ),
     redistribution_status: "private_only",
+    review_status: "pending"
+  };
+}
+
+function defaultMaterialRecord(provenance: Record<string, unknown>): Record<string, unknown> {
+  return {
+    material_id: "material:invented.local_draft",
+    name: "Invented private material draft",
+    material_family: "generic_user_defined",
+    privacy_class: "private_user_supplied",
+    redistribution_status: "private_only",
+    properties: [],
+    allowables: [],
+    completeness: [],
+    provenance,
     review_status: "pending"
   };
 }
