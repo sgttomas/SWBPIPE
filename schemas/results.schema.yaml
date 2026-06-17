@@ -203,6 +203,86 @@
         }
       }
     },
+    "UnitPreservationQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "#/$defs/DimensionId"
+        }
+      }
+    },
+    "UnitPreservationWitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional result-envelope witness proving an exported result row preserves its source value, unit, and dimension without conversion. This is local unit I/O evidence only and does not create a cross-boundary trace chain.",
+      "required": [
+        "witness_id",
+        "source_result_ref",
+        "source_field_path",
+        "source_quantity",
+        "target_result_ref",
+        "target_field_path",
+        "target_quantity",
+        "target_quantity_policy",
+        "export_unit_policy",
+        "conversion_performed",
+        "unit_system_ref",
+        "provenance"
+      ],
+      "properties": {
+        "witness_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_quantity": {
+          "$ref": "#/$defs/UnitPreservationQuantity"
+        },
+        "target_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_quantity": {
+          "$ref": "#/$defs/UnitPreservationQuantity"
+        },
+        "target_quantity_policy": {
+          "const": "exported_result_row_preserves_source_value_unit_and_dimension"
+        },
+        "export_unit_policy": {
+          "const": "preserve_source_result_unit_and_dimension"
+        },
+        "conversion_performed": {
+          "const": false
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
     "DimensionId": {
       "type": "string",
       "enum": [
@@ -640,6 +720,15 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/ResultSet"
+          }
+        },
+        "unit_witness_policy": {
+          "const": "preserve_source_result_value_unit_and_dimension_per_exported_result_row"
+        },
+        "unit_preservation_witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnitPreservationWitness"
           }
         },
         "diagnostics": {

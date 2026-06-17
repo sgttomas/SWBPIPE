@@ -315,3 +315,27 @@ Durable TASK evidence:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001 result export unit witnesses
+
+- Added optional result-envelope unit preservation vocabulary to
+  `schemas/results.schema.yaml`: `unit_witness_policy`,
+  `unit_preservation_witnesses[]`, `UnitPreservationWitness`, and
+  `UnitPreservationQuantity`.
+- Updated the desktop result export preview so every exported result row in
+  the invented mechanics fixture carries a deterministic witness preserving
+  source value, unit, and dimension into the exported row with
+  `conversion_performed=false`.
+- Added visible result-export panel evidence
+  `data-testid="result-export-unit-witnesses"` showing `count=737` and
+  `conversion=false` after mechanics preview.
+- Validation passed: `python3 tests/test_results_schema.py`;
+  `npm --prefix apps/desktop test -- App.test.tsx` (55/55);
+  `npm test --workspace apps/desktop` (18/18 files, 391/391 tests);
+  `npm run build --workspace apps/desktop` (existing Vite large-chunk
+  warning); `git diff --check`.
+- Boundary preserved: result-envelope unit metadata only. No unit conversion,
+  solver behavior, public transport commitment, trace-chain ownership change,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

@@ -6268,3 +6268,38 @@ notes:
   standards content, private project payload, network/telemetry path,
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-193 result export unit witnesses - PASSED (`TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-witness slice while C5.7
+  remains human-execution gated. The schema-first result export preview now
+  emits a deterministic unit-preservation witness for each exported result
+  row in the invented mechanics fixture.
+- Packet contract: `result_envelope.unit_witness_policy` is
+  `preserve_source_result_value_unit_and_dimension_per_exported_result_row`,
+  and `result_envelope.unit_preservation_witnesses[]` records source result
+  ref, source field path, source value/unit/dimension, target result row path,
+  target value/unit/dimension, unit-system ref, and
+  `conversion_performed=false`.
+- UI check: `data-testid="result-export-unit-witnesses"` displays
+  `count=737` and `conversion=false` for the invented preview fixture after
+  mechanics preview.
+- Schema: `schemas/results.schema.yaml` now defines optional
+  `UnitPreservationWitness` and `UnitPreservationQuantity` vocabulary for
+  result-envelope unit preservation without changing existing accepted
+  fixtures or trace-chain ownership.
+- Validation:
+  - `python3 tests/test_results_schema.py` passed.
+  - `npm --prefix apps/desktop test -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 391/391 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-08-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: result-envelope unit metadata only. No unit conversion,
+  tolerance policy, solver behavior, public transport commitment, trace-chain
+  ownership change, protected standards content, private project payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

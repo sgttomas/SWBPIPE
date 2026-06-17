@@ -4954,6 +4954,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(resultExport).getByTestId("result-export-units").textContent).toContain("explicit units");
     expect(within(resultExport).getByTestId("result-export-units").textContent).toContain("length");
     expect(within(resultExport).getByTestId("result-export-units").textContent).toContain("stress");
+    expect(within(resultExport).getByTestId("result-export-unit-witnesses").textContent).toContain("count=737");
+    expect(within(resultExport).getByTestId("result-export-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(resultExport).getByTestId("result-export-reproducibility").textContent).toContain(
       "deterministic_ordering=true"
     );
@@ -4983,6 +4987,19 @@ describe("OpenPipeStress desktop preview", () => {
     expect(resultExportPacket.result_envelope.result_sets[0].values[0].result_id).toBeTruthy();
     expect(resultExportPacket.result_envelope.result_sets[0].values[0].unit).toBeTruthy();
     expect(resultExportPacket.result_envelope.result_sets[0].values[0].dimension).toBeTruthy();
+    expect(resultExportPacket.result_envelope.unit_witness_policy).toBe(
+      "preserve_source_result_value_unit_and_dimension_per_exported_result_row"
+    );
+    expect(resultExportPacket.result_envelope.unit_preservation_witnesses).toHaveLength(737);
+    const resultExportUnitWitness = resultExportPacket.result_envelope.unit_preservation_witnesses.find(
+      (item: { witness_id: string }) => item.witness_id === "result-export-unit:result:force:pipe-P-120:axial"
+    );
+    expect(resultExportUnitWitness.source_quantity).toEqual({ value: 0, unit: "N", dimension: "force" });
+    expect(resultExportUnitWitness.target_quantity).toEqual({ value: 0, unit: "N", dimension: "force" });
+    expect(resultExportUnitWitness.target_quantity_policy).toBe(
+      "exported_result_row_preserves_source_value_unit_and_dimension"
+    );
+    expect(resultExportUnitWitness.conversion_performed).toBe(false);
     expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(7);
     expect(resultExportPacket.result_envelope.reproducibility.deterministic_ordering).toBe(true);
     expect(resultExportPacket.result_envelope.reproducibility.run_hashes).toHaveLength(2);

@@ -127,7 +127,7 @@ Phases are ordered by dependency, not strictly by execution. Each numbered item 
 
 | # | Tranche scope |
 |---|---|
-| B-tail | **PARTIAL 2026-06-17** (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, SMOKE TP-MAC-191; `TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`, SMOKE TP-MAC-192): support creation now accepts explicit linear-stiffness unit/value entry through the Property Inspector and operation applier; local FEA handoff transfer-basis refs now carry source value/unit/dimension preservation witnesses with `conversion_performed=false`. Remaining: broader app unit entry/pickers beyond the landed surfaces, remaining target-format conversion witnesses outside already-covered boundaries, and the D-04/`DEC-026` mixed-unit tolerance corpus |
+| B-tail | **PARTIAL 2026-06-17** (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, SMOKE TP-MAC-191; `TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`, SMOKE TP-MAC-192; `TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001`, SMOKE TP-MAC-193): support creation now accepts explicit linear-stiffness unit/value entry through the Property Inspector and operation applier; local FEA handoff transfer-basis refs and schema-first result-export rows now carry source value/unit/dimension preservation witnesses with `conversion_performed=false`. Remaining: broader app unit entry/pickers beyond the landed surfaces, remaining target-format conversion witnesses outside already-covered boundaries, and the D-04/`DEC-026` mixed-unit tolerance corpus |
 
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 

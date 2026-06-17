@@ -14,6 +14,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail result export unit witnesses (`TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001`)
+
+Landed one bounded Phase B-tail target-format/unit-witness slice while C5.7
+remains human-execution gated. The schema-first result export preview now
+emits `unit_witness_policy` plus `unit_preservation_witnesses[]` for every
+exported result row in the invented mechanics fixture. Each witness records
+source result ref, source field path, source value/unit/dimension, target
+result row path, target value/unit/dimension, unit-system ref, and
+`conversion_performed=false`.
+
+The strict result-export schema now defines optional `UnitPreservationWitness`
+and `UnitPreservationQuantity` vocabulary under `ResultEnvelope`, without
+changing existing accepted fixtures or reopening cross-deliverable trace-chain
+ownership. The desktop panel displays the witness count and no-conversion
+policy for the invented preview fixture.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-193; DEL-08-04 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: result schema check passed; focused App Vitest passed 55/55; full
+desktop Vitest passed 18/18 files and 391/391 tests; desktop production build
+passed with the existing Vite large-chunk warning; `git diff --check` passed.
+
+Boundary: result-envelope unit metadata only. No unit conversion, tolerance
+policy, solver behavior, public transport commitment, trace-chain ownership
+change, protected standards content, private payload, network/telemetry path,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail local FEA handoff unit witnesses (`TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`)
 
 Landed one bounded Phase B-tail target-format/unit-witness slice while C5.7

@@ -66,6 +66,8 @@ REQUIRED_DEFS = {
     "ResultTraceLink",
     "RulePackRef",
     "SolverVersion",
+    "UnitPreservationQuantity",
+    "UnitPreservationWitness",
 }
 
 REQUIRED_FAMILIES = {
@@ -250,6 +252,45 @@ def main():
         "source_trace_link_reference",
         "TBD",
     } <= set(defs["ResultTraceLink"]["properties"]["trace_type"]["enum"])
+    assert (
+        defs["ResultEnvelope"]["properties"]["unit_witness_policy"]["const"]
+        == "preserve_source_result_value_unit_and_dimension_per_exported_result_row"
+    )
+    assert (
+        defs["ResultEnvelope"]["properties"]["unit_preservation_witnesses"]["items"][
+            "$ref"
+        ]
+        == "#/$defs/UnitPreservationWitness"
+    )
+    assert {
+        "witness_id",
+        "source_result_ref",
+        "source_field_path",
+        "source_quantity",
+        "target_result_ref",
+        "target_field_path",
+        "target_quantity",
+        "target_quantity_policy",
+        "export_unit_policy",
+        "conversion_performed",
+        "unit_system_ref",
+        "provenance",
+    } <= required_at(schema, "UnitPreservationWitness")
+    witness = defs["UnitPreservationWitness"]["properties"]
+    assert (
+        witness["target_quantity_policy"]["const"]
+        == "exported_result_row_preserves_source_value_unit_and_dimension"
+    )
+    assert (
+        witness["export_unit_policy"]["const"]
+        == "preserve_source_result_unit_and_dimension"
+    )
+    assert witness["conversion_performed"]["const"] is False
+    assert {
+        "value",
+        "unit",
+        "dimension",
+    } <= required_at(schema, "UnitPreservationQuantity")
     assert {
         "component",
         "coordinate_system",
