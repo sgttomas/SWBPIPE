@@ -1,5 +1,25 @@
 # MEMORY - DEL-10-03 Local FEA handoff data contract
 
+## 2026-06-17 - TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001 local FEA unit witnesses
+
+- WORKING_ITEMS added local FEA handoff `unit_witness_policy` and
+  `unit_preservation_witnesses` fields for transfer-basis result refs.
+- Witnesses are limited to displacement, force, and moment refs already emitted
+  by `transfer_basis`; they record source value/unit/dimension and target
+  transfer path with `conversion_performed=false`.
+- `schemas/local_fea_handoff.schema.yaml` and
+  `tests/test_local_fea_handoff_contract.py` now cover the strict witness
+  shape.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-192.
+- Validation passed: local FEA schema pytest, focused local FEA/App Vitest
+  58/58, full desktop Vitest 391/391, and desktop production build.
+- Boundary unchanged: no mesh, external solver, concrete target format,
+  adapter runtime, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-03 DEV-001 revision 0.5 Tranche A implementation
 
 Implemented within the authorized write scope from

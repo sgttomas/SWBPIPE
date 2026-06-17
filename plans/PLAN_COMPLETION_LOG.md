@@ -14,6 +14,33 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail local FEA handoff unit witnesses (`TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`)
+
+Landed one bounded Phase B-tail target-format/unit-witness slice while C5.7
+remains human-execution gated. The local FEA handoff package now emits
+`unit_witness_policy` plus `unit_preservation_witnesses[]` for transfer-basis
+displacement, force, and moment result refs. Each witness records source result
+ref, source field path, source value/unit/dimension, target transfer-basis
+path, unit-system ref, and `conversion_performed=false`.
+
+The strict local FEA handoff schema now defines `UnitPreservationWitness` and
+`UnitPreservationQuantity`, and the desktop panel displays the witness count
+and no-conversion policy for the invented preview fixture.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-192; DEL-10-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: local FEA schema pytest passed; focused local FEA/App Vitest
+passed 58/58; full desktop Vitest passed 18/18 files and 391/391 tests;
+desktop production build passed with the existing Vite large-chunk warning.
+
+Boundary: target-neutral handoff metadata only. No mesh, external solver,
+concrete local FEA exchange format, target solver adapter, protected standards
+content, private payload, network/telemetry path, lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail support linear-stiffness unit authoring (`TP-UNITS-BTAIL-SUPPORTUNITS-001`)
 
 Landed one bounded Phase B-tail unit I/O slice while C5.7 remains

@@ -5231,6 +5231,10 @@ describe("OpenPipeStress desktop preview", () => {
       "method=result_reference_only"
     );
     expect(within(localFea).getByTestId("local-fea-transfer").textContent).toContain("loads=3");
+    expect(within(localFea).getByTestId("local-fea-unit-witnesses").textContent).toContain("count=3");
+    expect(within(localFea).getByTestId("local-fea-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(localFea).getByTestId("local-fea-unsupported").textContent).toContain(
       "mesh_generation_not_performed"
     );
@@ -5263,6 +5267,20 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(localFeaPacket.handoff_package.units_manifest.dimension_basis).toBe("schemas/units.schema.yaml");
     expect(localFeaPacket.handoff_package.transfer_basis.transfer_method_label).toBe("result_reference_only");
+    expect(localFeaPacket.handoff_package.unit_witness_policy).toBe(
+      "preserve_source_result_units_for_referenced_transfer_results"
+    );
+    expect(localFeaPacket.handoff_package.unit_preservation_witnesses).toHaveLength(3);
+    const localFeaForceWitness = localFeaPacket.handoff_package.unit_preservation_witnesses.find(
+      (item: { source_result_ref: { locator: string } }) =>
+        item.source_result_ref.locator === "result:force:pipe-P-120:axial"
+    );
+    expect(localFeaForceWitness.source_quantity).toEqual({ value: 0, unit: "N", dimension: "force" });
+    expect(localFeaForceWitness.target_field_path).toBe("handoff_package.transfer_basis.force_result_refs[]");
+    expect(localFeaForceWitness.target_quantity_policy).toBe(
+      "referenced_result_value_and_unit_preserved_by_source_ref"
+    );
+    expect(localFeaForceWitness.conversion_performed).toBe(false);
     expect(localFeaPacket.handoff_package.guidance_assessment.labels).toContain("human_review_required");
     expect(localFeaPacket.handoff_package.guidance_assessment.labels).toContain(
       "global_to_local_transfer_inputs_incomplete"

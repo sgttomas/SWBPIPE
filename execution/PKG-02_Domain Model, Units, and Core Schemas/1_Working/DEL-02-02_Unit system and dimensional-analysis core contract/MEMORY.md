@@ -1,5 +1,23 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001 local FEA unit witnesses
+
+- WORKING_ITEMS added explicit source result value/unit witnesses to the
+  target-neutral local FEA handoff package for transfer-basis displacement,
+  force, and moment refs.
+- The witnesses preserve source units by reference and set
+  `conversion_performed=false`; no new unit catalog constant, hidden
+  conversion default, tolerance policy, or canonical-basis decision was added.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-192.
+- Validation passed: local FEA schema pytest, focused local FEA/App Vitest
+  58/58, full desktop Vitest 391/391, and desktop production build.
+- Boundary unchanged: no protected standards content, private data,
+  target-specific solver format, external solver invocation, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-SUPPORTUNITS-001 support stiffness unit contract
 
 - WORKING_ITEMS extended the structured operation applier support-create path

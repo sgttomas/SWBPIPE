@@ -16,6 +16,24 @@ type LocalFeaChecksum = {
   value: string;
 };
 
+type LocalFeaUnitPreservationWitness = {
+  witness_id: string;
+  source_result_ref: LocalFeaReference;
+  source_field_path: string;
+  source_quantity: {
+    value: number;
+    unit: string;
+    dimension: string;
+  };
+  target_result_ref: LocalFeaReference;
+  target_field_path: string;
+  target_quantity_policy: "referenced_result_value_and_unit_preserved_by_source_ref";
+  export_unit_policy: "preserve_source_result_unit_and_dimension";
+  conversion_performed: false;
+  unit_system_ref: LocalFeaReference;
+  provenance: ReturnType<typeof previewProvenance>;
+};
+
 const LOCAL_FEA_HANDOFF_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_local_fea_package_hash";
 const CREATED_AT = "2026-06-08T00:00:00Z";
@@ -77,6 +95,11 @@ export function LocalFeaHandoffPanel({
               testId="local-fea-transfer"
             />
             <LocalFeaLine
+              label="Unit witnesses"
+              value={`count=${packet.handoff_package.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
+              testId="local-fea-unit-witnesses"
+            />
+            <LocalFeaLine
               label="Unsupported"
               value={packet.handoff_package.unsupported_behavior_flags.map((item) => item.behavior_label).join("; ")}
               testId="local-fea-unsupported"
@@ -124,6 +147,7 @@ function buildLocalFeaHandoffPacket({
   const selected = selectedLocalRegion(model, result);
   const selectedResults = selectedResultRefs(result);
   const diagnostics = localFeaDiagnostics(selected);
+  const unitPreservationWitnesses = localFeaUnitPreservationWitnesses(model, result, selectedResults);
   const resultHash = run.hashes.find((item) => item.payload_scope === "result_envelope");
   const modelRef = reference("model", run.model_state_ref.ref);
   const resultEnvelopeRef = reference("result_envelope", `result-envelope:${result.run_id}`);
@@ -186,6 +210,8 @@ function buildLocalFeaHandoffPacket({
         transfer_method_label: "result_reference_only",
         limitations: diagnostics.map((item) => reference("diagnostic", item.code))
       },
+      unit_witness_policy: "preserve_source_result_units_for_referenced_transfer_results",
+      unit_preservation_witnesses: unitPreservationWitnesses,
       guidance_assessment: {
         assessment_id: `local-fea-assessment:${safeRefToken(result.run_id)}`,
         labels: [
@@ -321,6 +347,57 @@ function selectedResultRefs(result: MechanicsResult): string[] {
   ];
   const available = new Set(result.results.map((item) => item.id));
   return unique(preferred.filter((id): id is string => Boolean(id)).filter((id) => available.has(id))).sort();
+}
+
+function localFeaUnitPreservationWitnesses(
+  model: PreviewModel,
+  result: MechanicsResult,
+  selectedResults: string[]
+): LocalFeaUnitPreservationWitness[] {
+  const rowsById = new Map(result.results.map((item) => [item.id, item]));
+  return selectedResults
+    .map((id) => rowsById.get(id))
+    .filter((item): item is MechanicsResult["results"][number] => Boolean(item && transferListName(item.id)))
+    .map((item) => {
+      const dimension = resultDimension(item);
+      return {
+        witness_id: `local-fea-unit:${safeRefToken(item.id)}:source-ref`,
+        source_result_ref: reference("result_envelope", item.id),
+        source_field_path: `results.${item.id}.value`,
+        source_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_result_ref: reference("result_envelope", item.id),
+        target_field_path: `handoff_package.transfer_basis.${transferListName(item.id)}[]`,
+        target_quantity_policy: "referenced_result_value_and_unit_preserved_by_source_ref",
+        export_unit_policy: "preserve_source_result_unit_and_dimension",
+        conversion_performed: false,
+        unit_system_ref: reference("unit_system", `${model.project.id}:units`),
+        provenance: previewProvenance()
+      };
+    });
+}
+
+function transferListName(resultId: string): string | null {
+  if (resultId.includes(":disp:")) return "displacement_result_refs";
+  if (resultId.includes(":force:")) return "force_result_refs";
+  if (resultId.includes(":moment:")) return "moment_result_refs";
+  return null;
+}
+
+function resultDimension(item: MechanicsResult["results"][number]): string {
+  const kind = item.kind.toLowerCase();
+  const id = item.id.toLowerCase();
+  if (kind.includes("displacement") || id.includes("disp")) return "length";
+  if (kind.includes("reaction") || kind.includes("force") || id.includes("reaction") || id.includes("force")) {
+    return "force";
+  }
+  if (kind.includes("moment") || id.includes("moment")) return "moment";
+  if (kind.includes("stress") || id.includes("stress")) return "stress";
+  if (kind.includes("rotation") || id.includes("rotation")) return "angle";
+  return "TBD";
 }
 
 function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>) {

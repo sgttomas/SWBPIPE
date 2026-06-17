@@ -352,6 +352,8 @@
         "units_manifest",
         "entity_ids",
         "transfer_basis",
+        "unit_witness_policy",
+        "unit_preservation_witnesses",
         "guidance_assessment",
         "assumptions",
         "unsupported_behavior_flags",
@@ -387,6 +389,15 @@
         },
         "transfer_basis": {
           "$ref": "#/$defs/TransferBasis"
+        },
+        "unit_witness_policy": {
+          "const": "preserve_source_result_units_for_referenced_transfer_results"
+        },
+        "unit_preservation_witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnitPreservationWitness"
+          }
         },
         "guidance_assessment": {
           "$ref": "#/$defs/GuidanceAssessment"
@@ -797,6 +808,94 @@
           "items": {
             "$ref": "#/$defs/Reference"
           }
+        }
+      }
+    },
+    "UnitPreservationWitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "witness_id",
+        "source_result_ref",
+        "source_field_path",
+        "source_quantity",
+        "target_result_ref",
+        "target_field_path",
+        "target_quantity_policy",
+        "export_unit_policy",
+        "conversion_performed",
+        "unit_system_ref",
+        "provenance"
+      ],
+      "properties": {
+        "witness_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_quantity": {
+          "$ref": "#/$defs/UnitPreservationQuantity"
+        },
+        "target_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_field_path": {
+          "type": "string",
+          "enum": [
+            "handoff_package.transfer_basis.displacement_result_refs[]",
+            "handoff_package.transfer_basis.force_result_refs[]",
+            "handoff_package.transfer_basis.moment_result_refs[]"
+          ]
+        },
+        "target_quantity_policy": {
+          "const": "referenced_result_value_and_unit_preserved_by_source_ref"
+        },
+        "export_unit_policy": {
+          "const": "preserve_source_result_unit_and_dimension"
+        },
+        "conversion_performed": {
+          "const": false
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "UnitPreservationQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "type": "string",
+          "enum": [
+            "length",
+            "force",
+            "moment",
+            "stress",
+            "angle",
+            "dimensionless",
+            "TBD"
+          ]
         }
       }
     },

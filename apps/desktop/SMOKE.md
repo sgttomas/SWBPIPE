@@ -6238,3 +6238,33 @@ notes:
   persistence semantics, solver/release tolerance policy, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-192 local FEA handoff unit witnesses - PASSED (`TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-witness slice while C5.7
+  remains human-execution gated. The local FEA handoff package now emits
+  source value/unit/dimension preservation witnesses for transfer-basis
+  displacement, force, and moment result refs.
+- Packet contract: `handoff_package.unit_witness_policy` is
+  `preserve_source_result_units_for_referenced_transfer_results`, and
+  `handoff_package.unit_preservation_witnesses[]` records source result ref,
+  source field path, source quantity, target transfer-basis path,
+  unit-system ref, and `conversion_performed=false`.
+- UI check: `data-testid="local-fea-unit-witnesses"` displays
+  `count=3`, `policy=preserve_source_result_units`, and `conversion=false`
+  for the invented preview fixture after mechanics preview.
+- Schema: `schemas/local_fea_handoff.schema.yaml` now strictly defines
+  `UnitPreservationWitness` and `UnitPreservationQuantity`.
+- Validation:
+  - `python3 -m pytest tests/test_local_fea_handoff_contract.py` passed.
+  - `npm run -w apps/desktop test -- --run src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx src/App.test.tsx` passed 58/58 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 391/391 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite large-chunk warning.
+- Evidence: DEL-10-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: target-neutral handoff metadata only. No mesh, external solver,
+  concrete local FEA exchange format, target solver adapter, protected
+  standards content, private project payload, network/telemetry path,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
