@@ -45,7 +45,17 @@ export type PreviewModel = {
     y_reference?: Vec3;
     provenance: string;
   }>;
-  supports: Array<{ id: string; label: string; node: string; restraints: string[]; provenance: string }>;
+  supports: Array<{
+    id: string;
+    label: string;
+    node: string;
+    restraints: string[];
+    properties?: {
+      linear_stiffness?: { value: number; unit: string };
+      [key: string]: { value: number; unit: string } | undefined;
+    };
+    provenance: string;
+  }>;
   components: Array<{ id: string; label: string; kind: string; node: string; provenance: string }>;
   load_cases: Array<{
     id: string;

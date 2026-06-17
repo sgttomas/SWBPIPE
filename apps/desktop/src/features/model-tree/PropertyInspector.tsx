@@ -43,6 +43,7 @@ export function PropertyInspector({
   const selectedSupport = selection.type === "support" ? model.supports.find((support) => support.id === selection.id) : null;
   const lengthBasis = describeUnitBasis(unitCatalogRoute, sectionDraft.lengthUnit, "length");
   const stressBasis = describeUnitBasis(unitCatalogRoute, materialDraft.stressUnit, "stress");
+  const supportStiffnessBasis = describeUnitBasis(unitCatalogRoute, supportDraft.linearStiffnessUnit, "linear_stiffness");
   const thermalExpansionBasis = describeUnitBasis(
     unitCatalogRoute,
     materialDraft.thermalExpansionUnit,
@@ -50,6 +51,11 @@ export function PropertyInspector({
   );
   const lengthUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
   const stressUnitOptions = unitOptions(unitCatalogRoute, "stress", stressUnit(model));
+  const supportStiffnessUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "linear_stiffness",
+    linearStiffnessUnit(model)
+  );
   const thermalExpansionUnitOptions = unitOptions(
     unitCatalogRoute,
     "thermal_expansion_coefficient",
@@ -203,7 +209,7 @@ export function PropertyInspector({
           </div>
         ))}
       </dl>
-      <UnitCatalogPanel route={unitCatalogRoute} bases={[lengthBasis, stressBasis, thermalExpansionBasis]} />
+      <UnitCatalogPanel route={unitCatalogRoute} bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]} />
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
         <h3>Review-only edit intent</h3>
         {operationIntent ? (
@@ -532,6 +538,31 @@ export function PropertyInspector({
             ))}
           </div>
           <label>
+            <span>Linear stiffness unit</span>
+            <select
+              aria-label="New support linear stiffness unit"
+              data-testid="create-support-stiffness-unit"
+              onChange={(event) => updateSupportDraft("linearStiffnessUnit", event.target.value)}
+              value={supportDraft.linearStiffnessUnit}
+            >
+              {supportStiffnessUnitOptions.map((option) => (
+                <option key={option.symbol} value={option.symbol}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Linear stiffness ({supportStiffnessBasis.label})</span>
+            <input
+              aria-label="New support linear stiffness"
+              data-testid="create-support-stiffness"
+              inputMode="decimal"
+              onChange={(event) => updateSupportDraft("linearStiffness", event.target.value)}
+              value={supportDraft.linearStiffness}
+            />
+          </label>
+          <label>
             <span>Provenance</span>
             <input
               aria-label="New support provenance"
@@ -667,6 +698,8 @@ type SupportDraft = {
   label: string;
   node: string;
   restraints: string[];
+  linearStiffnessUnit: string;
+  linearStiffness: string;
   provenance: string;
 };
 
@@ -1251,13 +1284,19 @@ function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): E
 
 function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): EditorOperationIntent {
   const supportId = draft.id.trim();
-  const payload = {
+  const stiffnessProvided = draft.linearStiffness.trim() !== "";
+  const payload: Record<string, unknown> = {
     id: supportId,
     label: draft.label.trim(),
     node: draft.node.trim(),
     restraints: draft.restraints,
     provenance: draft.provenance.trim()
   };
+  if (stiffnessProvided) {
+    payload.properties = {
+      linear_stiffness: { value: Number(draft.linearStiffness), unit: draft.linearStiffnessUnit }
+    };
+  }
   return {
     operation_id: `op:create-support-${safeToken(supportId)}`,
     operation_kind: "create",
@@ -1279,9 +1318,11 @@ function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): Edi
       field_path: "supports",
       before: "not_present",
       after: JSON.stringify(payload),
-      unit: "none",
-      dimension: "dimensionless",
-      source_note: "explicit user-entered support node and restraint tokens"
+      unit: stiffnessProvided ? draft.linearStiffnessUnit : "none",
+      dimension: stiffnessProvided ? "linear_stiffness" : "dimensionless",
+      source_note: stiffnessProvided
+        ? "explicit user-entered support node, restraint tokens, and linear stiffness; entered unit preserved"
+        : "explicit user-entered support node and restraint tokens"
     },
     validation: {
       schema_validation: "not_run",
@@ -1544,6 +1585,8 @@ function defaultSupportDraftWithReserved(
     label: `Support ${shortEntityToken(id)}`,
     node,
     restraints: ["UX", "UY", "UZ"],
+    linearStiffnessUnit: linearStiffnessUnit(model),
+    linearStiffness: "",
     provenance: "user_entered_local_preview"
   };
 }
@@ -1617,11 +1660,13 @@ function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolea
 }
 
 function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean {
+  const stiffnessProvided = draft.linearStiffness.trim() !== "";
   return (
     Boolean(draft.id.trim() && draft.label.trim() && draft.node.trim() && draft.provenance.trim()) &&
     model.nodes.some((node) => node.id === draft.node.trim()) &&
     draft.restraints.length > 0 &&
     draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
+    (!stiffnessProvided || (draft.linearStiffnessUnit !== "TBD" && isPositiveInput(draft.linearStiffness))) &&
     !model.supports.some((support) => support.id === draft.id.trim())
   );
 }
@@ -1637,6 +1682,14 @@ function stressUnit(model: PreviewModel): string {
 function thermalExpansionUnit(model: PreviewModel): string {
   const temperature = model.project.units.temperature;
   return temperature ? `1/${temperature}` : "TBD";
+}
+
+function linearStiffnessUnit(model: PreviewModel): string {
+  const direct = model.project.units.linear_stiffness;
+  if (direct) return direct;
+  const force = model.project.units.force;
+  const length = model.project.units.length;
+  return force && length ? `${force}/${length}` : "TBD";
 }
 
 function isFiniteInput(value: string): boolean {

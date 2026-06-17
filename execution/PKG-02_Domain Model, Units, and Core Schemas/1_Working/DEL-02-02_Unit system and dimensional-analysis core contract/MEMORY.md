@@ -1,5 +1,25 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-SUPPORTUNITS-001 support stiffness unit contract
+
+- WORKING_ITEMS extended the structured operation applier support-create path
+  to accept either the existing dimensionless restraint payload or a positive
+  DEC-018-compatible `linear_stiffness` quantity.
+- The change reuses the existing operation-applier quantity validation helpers
+  and preserves entered units; it does not add a unit constant, schema enum,
+  tolerance policy, or hidden conversion default.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-191.
+- Validation passed: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check`, `cargo test
+  --manifest-path core/model_operations/operation_applier/Cargo.toml`, focused
+  App Vitest, full desktop Vitest 390/390, and desktop build.
+- Boundary unchanged: no protected standards content, private data,
+  network/telemetry path, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Session 2026-04-30 - DEV-001 Bounded Execution
 
 Human gate:

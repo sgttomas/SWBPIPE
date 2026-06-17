@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail support linear-stiffness unit authoring (`TP-UNITS-BTAIL-SUPPORTUNITS-001`)
+
+Landed one bounded Phase B-tail unit I/O slice while C5.7 remains
+human-execution gated. The Property Inspector support creation panel now has a
+linear-stiffness unit selector and value input. When left blank, support
+creation keeps the existing dimensionless restraint-only payload. When filled,
+the queued `create_support` operation includes
+`properties.linear_stiffness: {value, unit}` with
+`dimension=linear_stiffness` and preserves the entered unit through local
+session apply.
+
+The Rust operation applier now accepts support creation in two explicit modes:
+dimensionless support restraint creation, or positive DEC-018-compatible
+linear stiffness creation. Invalid stiffness metadata blocks with explicit
+diagnostics rather than falling back. The selected support details panel shows
+the preserved stiffness value/unit after apply.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-191; DEL-07-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`; DEL-02-02
+supporting run record with the same id.
+
+Validation: `npm run -w apps/desktop build:wasm`; `cargo fmt --manifest-path
+core/model_operations/operation_applier/Cargo.toml --check`; `cargo test
+--manifest-path core/model_operations/operation_applier/Cargo.toml`; focused
+`npm run -w apps/desktop test -- --run src/App.test.tsx` passed 55/55; full
+desktop Vitest passed 18/18 files and 390/390 tests; desktop production build
+passed with the existing Vite large-chunk warning.
+
+Boundary: app-integration and operation-contract support for explicit
+user-entered support stiffness only. No protected content, private data,
+network/telemetry path, persistence semantics, release tolerance policy,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - C5 packaged A12 + R3 successor journey kit (`TP-R3UX-PACKAGEKIT-001`)
 
 Prepared the C5.6 packaged journey successor kit for human execution. A fresh

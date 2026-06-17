@@ -1,5 +1,22 @@
 # DEL-07-02 Memory
 
+## 2026-06-17 - TP-UNITS-BTAIL-SUPPORTUNITS-001 support stiffness unit authoring
+
+- WORKING_ITEMS added support creation linear-stiffness unit/value controls to
+  the Property Inspector and preserves the entered `{value, unit}` in the
+  queued `create_support` operation payload.
+- Applied support rows now display the preserved linear-stiffness value/unit in
+  the selected support properties readback.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-191.
+- Validation passed: operation-applier cargo suite, focused App Vitest, full
+  desktop Vitest 390/390, desktop build, and Rust formatting check.
+- Boundary unchanged: local preview authoring only; no protected content,
+  private data, network/telemetry path, lifecycle state transition,
+  professional approval, release-readiness, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented a deterministic model-tree/property-inspector contract slice under

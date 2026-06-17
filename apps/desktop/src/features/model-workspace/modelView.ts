@@ -76,12 +76,17 @@ export function selectedProperties(model: PreviewModel, selection: EntityRef): A
   }
   const support = model.supports.find((item) => item.id === selection.id);
   if (support) {
-    return [
+    const rows: Array<[string, string]> = [
       ["ID", support.id],
       ["Node", support.node],
-      ["Restraints", support.restraints.join(", ")],
-      ["Provenance", support.provenance]
+      ["Restraints", support.restraints.join(", ")]
     ];
+    const linearStiffness = support.properties?.linear_stiffness;
+    if (linearStiffness) {
+      rows.push(["Linear stiffness", `${linearStiffness.value} ${linearStiffness.unit}`]);
+    }
+    rows.push(["Provenance", support.provenance]);
+    return rows;
   }
   const component = model.components.find((item) => item.id === selection.id);
   if (component) {

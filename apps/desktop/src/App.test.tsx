@@ -6812,8 +6812,19 @@ describe("OpenPipeStress desktop preview", () => {
       target: { value: "node:N-100" }
     });
     fireEvent.click(within(createSupportPanel).getByTestId("create-support-restraint-RX"));
+    expect(within(createSupportPanel).getByTestId("create-support-stiffness-unit")).toHaveValue("N/m");
+    expect(within(createSupportPanel).getByText("Linear stiffness (N/m, model metadata)")).toBeInTheDocument();
+    fireEvent.change(within(createSupportPanel).getByTestId("create-support-stiffness"), {
+      target: { value: "12500" }
+    });
     expect(within(createSupportPanel).getByTestId("queue-create-support-intent")).not.toBeDisabled();
     expect(within(createSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("create_support");
+    expect(within(createSupportPanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "\"linear_stiffness\":{\"value\":12500,\"unit\":\"N/m\"}"
+    );
+    expect(within(createSupportPanel).getByTestId("editor-operation-preview").textContent).toContain(
+      "linear_stiffness; unit=N/m"
+    );
 
     fireEvent.click(within(createSupportPanel).getByTestId("queue-create-support-intent"));
     const applyPanel = screen.getByTestId("operation-apply-panel");
@@ -6831,6 +6842,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(createdSupportRow).toHaveClass("active");
     expect(screen.getByLabelText("Property inspector").textContent).toContain("node:N-100");
     expect(screen.getByLabelText("Property inspector").textContent).toContain("UX, UY, UZ, RX");
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("12500 N/m");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");

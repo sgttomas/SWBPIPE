@@ -6207,3 +6207,34 @@ notes:
   never committed by default. This kit prepares human execution only and makes
   no lifecycle, release-readiness, professional approval, certification,
   sealing, authentication, or code-compliance claim.
+
+## TP-MAC-191 support linear-stiffness unit authoring - PASSED (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail support unit I/O slice while C5.7 remains
+  human-execution gated. The Property Inspector support creation panel now
+  exposes a linear-stiffness unit selector and value field. Blank stiffness
+  preserves the prior dimensionless support-create behavior; entered stiffness
+  queues `properties.linear_stiffness` with `{value, unit}` and
+  `dimension=linear_stiffness`.
+- Apply path: `core/model_operations/operation_applier` accepts support
+  creation with either dimensionless restraint metadata or a positive
+  DEC-018-compatible `linear_stiffness` quantity. The browser-mode WASM engine
+  was regenerated with `npm run -w apps/desktop build:wasm` before UI
+  validation.
+- Readback: selected support properties display the preserved
+  `Linear stiffness` value/unit after the local session apply route accepts the
+  structured operation.
+- Validation:
+  - `cargo fmt --manifest-path core/model_operations/operation_applier/Cargo.toml --check` passed.
+  - `cargo test --manifest-path core/model_operations/operation_applier/Cargo.toml` passed 61 unit tests plus canonical-hash and contract-corpus tests.
+  - `npm run -w apps/desktop test -- --run src/App.test.tsx` passed 55/55 tests after WASM regeneration.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 390/390 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite large-chunk warning.
+- Evidence: DEL-07-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`; DEL-02-02
+  supporting run record with the same id; completion log entry.
+- Boundary: invented/local preview operation authoring only. No protected
+  standards content, private project data, network/telemetry path, durable
+  persistence semantics, solver/release tolerance policy, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

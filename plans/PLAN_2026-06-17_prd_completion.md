@@ -127,7 +127,7 @@ Phases are ordered by dependency, not strictly by execution. Each numbered item 
 
 | # | Tranche scope |
 |---|---|
-| B-tail | Broader app unit entry/pickers beyond the landed surfaces (material/section/node-coordinate/viewport-draft/primitive-load/inspector/rule-pack/run-check), and the remaining target-format conversion witnesses outside the PCF/CAEPIPE/stress-neutral/review-geometry/native-JSON boundaries already covered. Plus the D-04/`DEC-026` mixed-unit tolerance corpus outside the boundaries named in the superseded plan's B3 row. Each slice is a small bounded tranche |
+| B-tail | **PARTIAL 2026-06-17** (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, SMOKE TP-MAC-191): support creation now accepts explicit linear-stiffness unit/value entry through the Property Inspector and operation applier. Remaining: broader app unit entry/pickers beyond the landed surfaces, target-format conversion witnesses outside already-covered boundaries, and the D-04/`DEC-026` mixed-unit tolerance corpus |
 
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
