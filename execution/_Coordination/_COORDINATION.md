@@ -318,7 +318,7 @@ bounded tranche.
    hardening work ahead of an unblocked current-stage plan item without
    recording why in the tranche proposal.
 4. **Decision escalation.** When the next plan item is blocked by a human
-   decision (`D-01..D-12` in the completion plan, or any newly discovered
+   decision (`D-01..D-21` in the completion plan, or any newly discovered
    human-gated TBD):
    - if no decision packet exists, the tranche is a decision-preparation
      tranche: assemble options, evidence, impacts, and a recommendation
