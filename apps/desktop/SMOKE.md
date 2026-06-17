@@ -6113,3 +6113,97 @@ notes:
   certification, sealing, authentication, or code-compliance claim. F-4 and the
   authoring-usability finding remain open until packaged human successor
   journey evidence is recorded.
+
+## TP-MAC-188 packaged A12 + R3 successor journey kit - PREPARED manual checklist, human execution pending (`TP-R3UX-PACKAGEKIT-001`, 2026-06-17)
+
+**Status: PREPARED, not performed.** This is the C5.6 successor kit to
+TP-MAC-141. It builds a fresh packaged `.app`, boot-checks the bundle, and
+defines the human-run checklist for C5.7. This section does not close F-4, the
+A3 authoring-usability finding, R3 exit review, lifecycle issuance, release
+readiness, professional approval, certification, sealing, authentication, or
+code-compliance. Only a later recorded human packaged pass/fail entry can close
+or redirect those findings.
+
+### Binary provenance
+
+- Built from commit `c013b49b8` with:
+  - `npm ci` at the workspace root because this fresh worktree had no
+    `node_modules`;
+  - `cd apps/desktop && npm run tauri -- build --bundles app`.
+- Build evidence: WASM engine generation succeeded, Vite production build
+  succeeded with the existing chunk-size warning, Tauri release build finished
+  in 1m16s, and Tauri produced one macOS app bundle.
+- Bundle path:
+  `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+- Bundle size: `12M`.
+- Boot check: launched the bundled executable for 8 seconds, observed process
+  `openpipestress-desktop` plus WebKit GPU, Networking, and WebContent child
+  processes, recorded `stdout_bytes=0` and `stderr_bytes=0`, then terminated
+  the process cleanly.
+- Validation after evidence edits: `npm test --workspace apps/desktop` passed
+  18 files / 390 tests.
+
+### Human successor checklist for C5.7
+
+Run this checklist against the bundle path above or a freshly rebuilt bundle
+from the then-current reviewed code state. Record pass/fail by step in the
+human execution record below.
+
+1. Launch the `.app`. Expect the technical preview shell, the guided
+   workbench, local project status with `network=false` and `telemetry=false`,
+   and no release/professional/code-compliance claim.
+2. Open the A12 guided authoring tab. Expect the A12 checklist, next-action
+   panel, current queue status, and inline `Apply queued` affordance.
+3. Click `New blank`. Expect a blank local model document without fixture
+   entities or external file copies.
+4. Follow the A12 guided steps to create the two nodes, material, section,
+   straight pipe, support, load case, primitive load, and combination using the
+   invented rehearsal values from
+   `fixtures/product_preview/r2_from_blank_rehearsal.json`.
+5. Use the guided inline apply action or the Operation Apply receipt surface
+   after queued creation steps. Expect applied receipts to remain local and
+   `professional_approval=false`.
+6. Run mechanics preview. Expect completion with `MECHANICS_SOLVED` and
+   result rows visible in the results surface.
+7. Render the report. Expect a report preview and a canonical HTML SHA-256.
+   Record the hash below.
+8. Save locally, list local projects, reopen the saved project, and re-run
+   mechanics preview. Expect the authored model and solve behavior to survive
+   the local save/reopen path.
+9. Switch to the R3 guided rule-pack/private-library tab. Expect the R3 guide,
+   progress status, and next-action panel.
+10. Load the invented private library template, validate it, and request local
+    save. Expect the guide to record the visible action without committing
+    private user data to the repository.
+11. Create the private non-code rule-pack draft, validate it, calculate its
+    checksum, and request local save. The structured composer remains the
+    source of truth; writable expression text parsing is still deferred by
+    `DEC-037`.
+12. Run the R3 rule-check path after mechanics solve. Expect the GUI to show
+    missing-input blockers when required values are absent. Pass/fail must stay
+    blocked until the checker has complete user-supplied inputs; no software
+    code-compliance status may appear.
+13. Quit. Confirm no network, daemon, telemetry, repository-default private
+    data write, protected standards content, release-readiness claim,
+    professional approval, certification, sealing, authentication, or
+    code-compliance claim occurred.
+
+### Human execution record (fill in during C5.7)
+
+```
+performed: NO (prepared package kit only; F-4 and A3 authoring-usability
+  finding remain open until a human completes or fails this successor journey)
+date:
+performed_by:
+binary commit:
+bundle path:
+outcome (PASS / FAIL per step, with any deviations):
+report sha256:
+notes:
+```
+
+- Boundary review: invented preview and rehearsal data only; user-created
+  models and private libraries/rule packs stay in local app storage and are
+  never committed by default. This kit prepares human execution only and makes
+  no lifecycle, release-readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claim.

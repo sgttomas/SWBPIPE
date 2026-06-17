@@ -143,6 +143,24 @@ No lifecycle state change; no release-readiness, professional approval,
 accessibility certification, sealing, authentication, or code-compliance
 claim.
 
+## 2026-06-17 - TP-R3UX-PACKAGEKIT-001 Packaged Successor Kit
+
+Prepared C5.6 for the R3 exit-readiness path. A fresh macOS `.app` was built
+from commit `c013b49b8` with
+`cd apps/desktop && npm run tauri -- build --bundles app` after installing
+workspace dependencies with `npm ci` in the fresh worktree. The bundle path is
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`;
+boot probe launched the bundled executable for 8 seconds, observed WebKit child
+processes, recorded zero stdout/stderr bytes, and terminated cleanly.
+
+Appended SMOKE TP-MAC-188 as the prepared C5.7 human successor checklist
+covering the A12 guided authoring journey and the R3 private-library/rule-pack
+guided journey. This records package readiness only. F-4 and the A3
+authoring-usability finding remain open until the human packaged pass/fail is
+recorded. Post-evidence desktop Vitest passed 18 files / 390 tests. No
+lifecycle, release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim was made.
+
 ## 2026-06-16 - TP-APP-R3-A3-JOURNEYPATH-001 Authoring Journey Status Rail
 
 Executed a bounded A3 usability follow-up for the R3 blocking residual carried
@@ -306,7 +324,7 @@ introduced.
 
 F-4 and the authoring-usability finding remain open pending packaged human
 successor journey evidence. Next unblocked C5 tranche is
-`TP-R3UX-PACKAGEKIT-001` / target TP-MAC-188.
+`TP-R3UX-HUMANPASS-001` / target TP-MAC-189.
 
 ## 2026-06-17 - Lifecycle Housekeeping
 

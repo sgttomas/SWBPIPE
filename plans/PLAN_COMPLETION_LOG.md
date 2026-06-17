@@ -14,6 +14,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - C5 packaged A12 + R3 successor journey kit (`TP-R3UX-PACKAGEKIT-001`)
+
+Prepared the C5.6 packaged journey successor kit for human execution. A fresh
+macOS `.app` bundle was built from commit `c013b49b8` using
+`cd apps/desktop && npm run tauri -- build --bundles app` after `npm ci` in
+the fresh worktree. The build regenerated the WASM operation engine, completed
+the Vite production build with the existing chunk-size warning, compiled the
+Tauri release app, and produced
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`
+at 12M.
+
+Boot evidence: the bundled executable launched for 8 seconds, stayed alive as
+`openpipestress-desktop`, spawned WebKit GPU, Networking, and WebContent
+processes, wrote zero bytes to stdout/stderr, and terminated cleanly.
+Post-evidence desktop Vitest passed **18/18 files, 390/390 tests**.
+
+SMOKE TP-MAC-188 now contains the prepared C5.7 human checklist covering both
+the A12 guided authoring journey and the R3 private-library/rule-pack guided
+journey. The checklist explicitly preserves the R3 missing-input blocker:
+pass/fail stays blocked until required user inputs are complete, and no
+software code-compliance status may appear.
+
+Evidence: DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-R3UX-PACKAGEKIT-001.md`; SMOKE TP-MAC-188.
+
+Boundary: package/evidence/checklist preparation only. This does not close
+F-4 or the A3 authoring-usability finding; those require the C5.7 human
+packaged pass/fail record. No protected content, private project data,
+network/telemetry posture change, lifecycle state change, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim.
+
 ## 2026-06-16 — B2/B3 rule-check run-time unit binding controls (`TP-UNITS-B2-RULECHECKRUNUNITS-001`)
 
 Adds catalog-aware unit controls to the C4 run-check panel for runtime

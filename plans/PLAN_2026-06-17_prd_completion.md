@@ -117,7 +117,7 @@ Phases are ordered by dependency, not strictly by execution. Each numbered item 
 
 | # | Tranche scope |
 |---|---|
-| C5.6 | **Packaged journey successor kit** (`TP-R3UX-PACKAGEKIT-001`, target SMOKE TP-MAC-188): build a fresh `.app`, boot-check it, and add a TP-MAC-141 successor checklist covering both the A12 authoring journey and the R3 rule-pack/library journey; record commit, command, bundle path, and boundaries. Prepares human execution; does not close F-4. **This is the next ordinary tranche.** |
+| C5.6 | **LANDED 2026-06-17** (`TP-R3UX-PACKAGEKIT-001`, SMOKE TP-MAC-188): fresh `.app` built and boot-checked; successor A12 + R3 packaged human checklist prepared. Evidence: `DEL-07-06 .../WORKING_ITEMS_RUN_2026-06-17_TP-R3UX-PACKAGEKIT-001.md`; log: [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). F-4 and the A3 authoring-usability finding remain open until C5.7 human pass/fail is recorded |
 | C5.7 | **Human packaged pass recording** (`TP-R3UX-HUMANPASS-001`, target SMOKE TP-MAC-189): human runs the packaged successor checklist; record pass/fail by step. Pass closes F-4 and the A3 authoring-usability finding; fail records the next bounded repair. If the structured rule composer is criticized, re-present `D-02b` per `DEC-037` |
 | C5.8 | **R3 exit evidence package** (`TP-R3VERIFY-001`, target SMOKE TP-MAC-190): assemble `plans/VERIFICATION_<date>_r3_exit_chain.md` with automated evidence, packaged human-pass evidence, C1–C4 references, and C5 usability closure — for human R3 exit review only. R3 exit review (and any R3→R4 stage advancement) is human-gated; agents propose with evidence |
 
