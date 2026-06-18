@@ -9109,3 +9109,34 @@ notes:
   standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-270 export-review report-lint unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Report Content Lint packet already
+  exposes public-surface unit-policy evidence; this tranche classifies
+  `report_protected_content_lint` as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `report_protected_content_lint` in the unit-evidence-required matrix. The
+  row records
+  `unit_policy_ref=unit-policy-evidence:report-lint-public-surfaces`,
+  `unit_evidence_required=true`, `unit_policy_target_count=44`,
+  `conversion_witness_target_count=2`, `default_units_inferred=false`, and
+  `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=26/27`; the proposal path reports 27/27 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  DEL-08-05 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No report-linter
+  protected-content semantics, legal clearance, redaction certification,
+  release authorization, runtime redaction rule, target writer,
+  manifest-level unit conversion, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

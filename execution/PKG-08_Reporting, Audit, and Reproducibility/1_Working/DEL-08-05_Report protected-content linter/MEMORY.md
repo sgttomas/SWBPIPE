@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-05 Report Protected-Content Linter
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 supporting report-lint evidence
+
+- Supporting role for Phase B-tail Export Safety Review matrix cleanup:
+  Export Review now references the existing
+  `unit-policy-evidence:report-lint-public-surfaces` packet evidence when it
+  classifies `report_protected_content_lint` as unit-evidence-required.
+- Report Content Lint remains an inventory source with 44 unit-policy targets,
+  two conversion-witness targets, `lint_performs_conversion=false`,
+  `lint_asserts_target_format_compatibility=false`, and
+  `clean_scan_is_clearance=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-270; completion log entry; primary DEL-12-02
+  run record and supporting DEL-02-02 run record.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction certification, target-format compatibility assertion,
+  target writer, manifest-level unit conversion, protected standards content,
+  private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 primary report-lint inventory evidence
 
 - Primary role for Phase B-tail Report Content Lint inventory: the report

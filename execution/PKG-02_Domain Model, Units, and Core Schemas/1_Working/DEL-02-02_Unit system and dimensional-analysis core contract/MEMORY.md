@@ -1,5 +1,27 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Export Review now classifies the
+  `report_protected_content_lint` export row as unit-evidence-required because
+  Report Content Lint already exports public-surface DEC-018 unit-policy
+  inventory evidence.
+- The Export Review matrix now reports solved queued-intent coverage
+  `covered=26/27`; proposal-path coverage is 27/27 once
+  `agent_proposal_review` is available.
+- The report-lint export row records 44 unit-policy targets, two
+  conversion-witness targets, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-270; completion log entry; primary DEL-12-02
+  run record and supporting DEL-08-05 run record.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, report-lint target inventory, lint
+  semantics, target writer, private payload, protected standards content,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Report Content Lint now classifies the

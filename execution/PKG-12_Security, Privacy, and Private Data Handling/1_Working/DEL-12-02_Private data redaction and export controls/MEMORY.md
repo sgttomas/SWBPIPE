@@ -9,6 +9,29 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 primary export-review matrix cleanup
+
+- Primary role for Phase B-tail Export Safety Review matrix cleanup: Export
+  Review now classifies `report_protected_content_lint` as
+  unit-evidence-required because the Report Content Lint packet already
+  exposes `unit-policy-evidence:report-lint-public-surfaces`.
+- Solved queued-intent Export Review coverage is now `covered=26/27`, with
+  `agent_proposal_review` still pending until a proposal exists. The proposal
+  path reports 27/27 unit-evidence rows present.
+- The report-lint export row records `unit_evidence_required=true`,
+  `unit_policy_target_count=44`, `conversion_witness_target_count=2`,
+  `default_units_inferred=false`, and `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-270; completion log entry; supporting
+  DEL-08-05 and DEL-02-02 run records.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction certification, release authorization, runtime redaction
+  rule, target writer, manifest-level unit conversion, protected standards
+  content, private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 Implemented revision 0.5 Tranche A slice for private data redaction and export
 controls.
 

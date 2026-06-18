@@ -153,6 +153,7 @@ const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
   "export_adapter_sdk_registry",
   "native_json_package",
   "report_packet",
+  "report_protected_content_lint",
   "handoff_package",
   "operation_review_ledger"
 ]);
@@ -1061,6 +1062,15 @@ function buildExportReviewManifest({
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy-evidence:report-lint-public-surfaces",
+      unit_policy: "lint_targets_include_public_unit_policy_and_conversion_witness_surfaces",
+      unit_policy_target_count: 44,
+      conversion_witness_target_count: 2,
+      lint_performs_conversion: false,
+      lint_asserts_target_format_compatibility: false,
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "heuristic_public_surface_lint_review_evidence_only",
       private_payload_included: false,
       protected_content_included: false,
