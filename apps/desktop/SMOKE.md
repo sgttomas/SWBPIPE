@@ -9140,3 +9140,30 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-271 export-review non-unit boundary classification - PASSED (`TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. This tranche records explicit non-unit-bearing
+  reasons for `telemetry_boundary_review` and `build_package_readiness`.
+- App behavior: `ExportReviewPanel` now carries
+  `unit_boundary_classification=not_unit_bearing_metadata_or_boundary_review`
+  and per-row `unit_boundary_reason` values for the telemetry and build
+  readiness rows. The matrix asserts
+  `not_unit_bearing_export_ids=["telemetry_boundary_review","build_package_readiness"]`.
+  Unit evidence counts remain `covered=26/27` in the solved queued-intent path
+  and 27/27 in the proposal path once `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  DEL-12-03, DEL-10-04, and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory classification only. No telemetry runtime
+  behavior, network behavior, payload construction, build script, CI provider,
+  release matrix, signing, packaging, target writer, manifest-level unit
+  conversion, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

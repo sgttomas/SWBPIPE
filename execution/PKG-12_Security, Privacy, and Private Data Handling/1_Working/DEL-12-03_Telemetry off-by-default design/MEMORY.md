@@ -1,5 +1,22 @@
 # Memory: DEL-12-03 Telemetry off-by-default design
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting export-review classification
+
+- Supporting role for Export Safety Review matrix cleanup: the
+  `telemetry_boundary_review` export row is explicitly classified as
+  non-unit-bearing metadata because it records disabled/default-off telemetry
+  policy state without quantities, units, dimensions, payload construction, or
+  target conversion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-271; completion log entry; primary DEL-12-02
+  run record and supporting DEL-10-04/DEL-02-02 run records.
+- Boundary preserved: no telemetry runtime behavior, endpoint, vendor,
+  payload construction, network transport, telemetry persistence, private
+  payload, protected standards content, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## Current Session
 
 2026-05-02 - Implemented from sealed dispatch brief

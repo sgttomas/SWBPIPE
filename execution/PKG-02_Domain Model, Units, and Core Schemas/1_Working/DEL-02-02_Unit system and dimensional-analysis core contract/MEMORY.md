@@ -1,5 +1,23 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Export Review now records explicit
+  non-unit-bearing classifications for `telemetry_boundary_review` and
+  `build_package_readiness`, so every export row is either unit-evidence
+  required or intentionally not applicable.
+- Unit evidence counts remain unchanged at solved queued-intent
+  `covered=26/27`; proposal-path coverage remains 27/27.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-271; completion log entry; primary DEL-12-02
+  run record and supporting DEL-12-03/DEL-10-04 run records.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, target writer, telemetry runtime behavior,
+  build/release implementation, private payload, protected standards content,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Export Review now classifies the

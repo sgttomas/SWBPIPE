@@ -9,6 +9,27 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 primary export-review matrix cleanup
+
+- Primary role for Phase B-tail Export Safety Review matrix cleanup: Export
+  Review now records explicit non-unit-bearing reasons for
+  `telemetry_boundary_review` and `build_package_readiness`.
+- The unit-evidence-required set is unchanged. Solved queued-intent Export
+  Review coverage remains `covered=26/27`; proposal-path coverage remains
+  27/27 once `agent_proposal_review` is available.
+- The unit matrix now asserts
+  `not_unit_bearing_export_ids=["telemetry_boundary_review","build_package_readiness"]`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-271; completion log entry; supporting
+  DEL-12-03, DEL-10-04, and DEL-02-02 run records.
+- Boundary preserved: no telemetry runtime behavior, network behavior, build
+  script, CI provider, release matrix, signing, packaging, target writer,
+  manifest-level unit conversion, protected standards content, private
+  payload, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 primary export-review matrix cleanup
 
 - Primary role for Phase B-tail Export Safety Review matrix cleanup: Export

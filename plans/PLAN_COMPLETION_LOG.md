@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail export-review non-unit boundary classification (`TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001`)
+
+Landed one bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+remains human-execution gated. The two remaining non-unit-bearing Export
+Review rows now carry explicit reasons instead of relying only on the generic
+fallback label.
+
+Export Safety Review now records `telemetry_boundary_review` and
+`build_package_readiness` as
+`not_unit_bearing_metadata_or_boundary_review`; the unit-evidence-required set
+is unchanged. Solved queued-intent coverage remains `covered=26/27`;
+proposal-path coverage remains 27/27 once `agent_proposal_review` is
+available.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-271; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+DEL-12-03, DEL-10-04, and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App workspace-render test passed 1/1. Full App, full
+desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded in
+closeout artifacts for this tranche.
+
+Boundary: export-review inventory classification only. No telemetry runtime
+behavior, network behavior, payload construction, build script, CI provider,
+release matrix, signing, packaging, target writer, manifest-level unit
+conversion, protected standards content, private payload, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail export-review report-lint unit evidence (`TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix

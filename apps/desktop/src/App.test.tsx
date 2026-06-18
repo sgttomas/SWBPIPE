@@ -4324,6 +4324,29 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("not_unit_bearing_metadata_or_boundary_review");
     expect(
       reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "telemetry_boundary_review"
+      ).unit_boundary_reason
+    ).toBe(
+      "telemetry_boundary_review_records_disabled_policy_metadata_only_without_quantities_units_dimensions_or_target_conversion"
+    );
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "build_package_readiness"
+      ).unit_evidence_status
+    ).toBe("not_unit_bearing_metadata_or_boundary_review");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "build_package_readiness"
+      ).unit_boundary_reason
+    ).toBe(
+      "build_package_readiness_records_script_shell_and_release_decision_metadata_only_without_quantities_units_dimensions_or_target_conversion"
+    );
+    expect(reviewManifest.unit_policy_summary.not_unit_bearing_export_ids).toEqual([
+      "telemetry_boundary_review",
+      "build_package_readiness"
+    ]);
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
         (item: { export_id: string }) => item.export_id === "external_prover_boundary_metadata"
       ).unit_evidence_status
     ).toBe("covered_by_target_panel_or_export_packet");
@@ -4407,6 +4430,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(telemetryExport.endpoint_initialized).toBe(false);
     expect(telemetryExport.vendor_initialized).toBe(false);
     expect(telemetryExport.telemetry_persistence_initialized).toBe(false);
+    expect(telemetryExport.unit_evidence_required).toBe(false);
+    expect(telemetryExport.unit_boundary_classification).toBe("not_unit_bearing_metadata_or_boundary_review");
+    expect(telemetryExport.unit_boundary_reason).toBe(
+      "telemetry_boundary_review_records_disabled_policy_metadata_only_without_quantities_units_dimensions_or_target_conversion"
+    );
+    expect(telemetryExport.default_units_inferred).toBe(false);
+    expect(telemetryExport.conversion_performed).toBe(false);
     expect(telemetryExport.security_certification_claim).toBe(false);
     const secretPrivateExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "secret_private_library_boundary_review"
@@ -4579,6 +4609,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(buildReadinessExport.signing_status).toBe("TBD");
     expect(buildReadinessExport.release_publication_authorized).toBe(false);
     expect(buildReadinessExport.installer_or_binary_generated).toBe(false);
+    expect(buildReadinessExport.unit_evidence_required).toBe(false);
+    expect(buildReadinessExport.unit_boundary_classification).toBe("not_unit_bearing_metadata_or_boundary_review");
+    expect(buildReadinessExport.unit_boundary_reason).toBe(
+      "build_package_readiness_records_script_shell_and_release_decision_metadata_only_without_quantities_units_dimensions_or_target_conversion"
+    );
+    expect(buildReadinessExport.default_units_inferred).toBe(false);
+    expect(buildReadinessExport.conversion_performed).toBe(false);
     const validationEvidenceExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "validation_release_evidence_review"
     );

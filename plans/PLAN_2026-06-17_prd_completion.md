@@ -562,6 +562,16 @@ This records report-lint unit-evidence inventory without changing lint
 semantics, legal clearance, redaction certification, target writers,
 manifest-level unit conversion, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001`
+(SMOKE TP-MAC-271) landed on 2026-06-18. Export Safety Review now records
+explicit non-unit-bearing reasons for `telemetry_boundary_review` and
+`build_package_readiness`; the unit-evidence-required set is unchanged.
+Solved queued-intent coverage remains `covered=26/27`; proposal-path coverage
+remains 27/27 once `agent_proposal_review` is available. This records
+non-unit boundary classification without changing telemetry behavior,
+build/release implementation, target writers, manifest-level unit conversion,
+or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

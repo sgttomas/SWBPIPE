@@ -303,6 +303,12 @@ function buildExportReviewManifest({
       no_bypass_surfaces: ["plugins", "adapters", "import_export", "reports", "private_libraries", "cli_runner"],
       open_decision_count: 6,
       security_certification_claim: false,
+      unit_evidence_required: false,
+      unit_boundary_classification: "not_unit_bearing_metadata_or_boundary_review",
+      unit_boundary_reason:
+        "telemetry_boundary_review_records_disabled_policy_metadata_only_without_quantities_units_dimensions_or_target_conversion",
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "telemetry_metadata_only_no_payload_no_network",
       private_payload_included: false,
       protected_content_included: false,
@@ -634,6 +640,12 @@ function buildExportReviewManifest({
       publishing_status: "TBD",
       release_publication_authorized: false,
       installer_or_binary_generated: false,
+      unit_evidence_required: false,
+      unit_boundary_classification: "not_unit_bearing_metadata_or_boundary_review",
+      unit_boundary_reason:
+        "build_package_readiness_records_script_shell_and_release_decision_metadata_only_without_quantities_units_dimensions_or_target_conversion",
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "local_build_metadata_only_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
@@ -1168,7 +1180,13 @@ function buildExportReviewUnitPolicySummary({
 }: {
   model: PreviewModel;
   result: MechanicsResult | null;
-  exports: Array<{ export_id: string; document_kind: string; readiness: string }>;
+  exports: Array<{
+    export_id: string;
+    document_kind: string;
+    readiness: string;
+    unit_boundary_classification?: string;
+    unit_boundary_reason?: string;
+  }>;
 }) {
   const disclosure = buildExportUnitSystemDisclosure({
     model,
@@ -1190,7 +1208,10 @@ function buildExportReviewUnitPolicySummary({
         ? item.readiness === "available"
           ? "covered_by_target_panel_or_export_packet"
           : "pending_source_export_packet"
-        : "not_unit_bearing_metadata_or_boundary_review",
+        : item.unit_boundary_classification ?? "not_unit_bearing_metadata_or_boundary_review",
+      unit_boundary_reason: unitEvidenceRequired
+        ? "unit_bearing_export_record_requires_target_panel_or_export_packet_evidence"
+        : item.unit_boundary_reason ?? "metadata_boundary_review_no_unit_bearing_payload",
       conversion_policy: unitEvidenceRequired
         ? "source_units_preserved_or_target_panel_discloses_conversion_policy"
         : "not_applicable",
