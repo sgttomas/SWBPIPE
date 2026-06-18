@@ -7253,3 +7253,36 @@ notes:
   dimension enum, protected standards content, private payload, lifecycle
   state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-221 accessibility-baseline unit-visibility evidence - PASSED (`TP-UNITS-BTAIL-A11YUNITVISIBILITY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail/C5 usability-support slice while C5.7 remains
+  human-execution gated. The Accessibility Baseline panel and export packet
+  now expose explicit unit-visibility evidence for unit-bearing review
+  surfaces without selecting a final accessibility target.
+- Unit behavior: `unit_visibility_evidence` records DEC-018/DEL-02-02/
+  DEL-07-05/DEL-07-06 basis refs, sorted project units, unit-bearing review
+  surfaces that keep unit labels visible, no color-only unit signaling, no
+  inferred/default units, and `conversion_performed=false`.
+- UI check: `data-testid="accessibility-baseline-unit-visibility"` reports
+  the unit-visibility policy, model unit signature, result-row visibility
+  basis, and no-conversion posture. The focused App test checks the rendered
+  line and exported JSON packet; the focused Playwright from-blank journey
+  checks the same row in desktop and compact browser projects.
+- Validation:
+  - `npm test --workspace apps/desktop -- --run src/App.test.tsx` passed
+    1/1 file and 56/56 tests.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop -- e2e/r2-smoke.spec.ts -g "R2 from-blank GUI journey authors the A12 rehearsal script"`
+    passed 2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-06 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-A11YUNITVISIBILITY-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: accessibility-baseline review metadata only. No final
+  accessibility conformance target, desktop accessibility-tree audit claim,
+  solver behavior, rule-check behavior, unit conversion API, DEC-018 catalog
+  constant, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

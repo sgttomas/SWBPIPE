@@ -1330,6 +1330,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(accessibilityBaseline).getByTestId("accessibility-baseline-workflow").textContent).toContain(
       "keyboard=4"
     );
+    expect(within(accessibilityBaseline).getByTestId("accessibility-baseline-unit-visibility").textContent).toContain(
+      "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces"
+    );
+    expect(within(accessibilityBaseline).getByTestId("accessibility-baseline-unit-visibility").textContent).toContain(
+      "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC"
+    );
+    expect(within(accessibilityBaseline).getByTestId("accessibility-baseline-unit-visibility").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(accessibilityBaseline).getByTestId("accessibility-baseline-open-target").textContent).toContain(
       "gui=TBD"
     );
@@ -1359,6 +1368,17 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(accessibilityPacket.reviewed_categories).toContain("keyboard_path");
     expect(accessibilityPacket.reviewed_categories).toContain("warning_visibility");
+    expect(accessibilityPacket.reviewed_categories).toContain("unit_visibility");
+    expect(accessibilityPacket.unit_visibility_evidence.evidence_id).toBe(
+      "unit-visibility-evidence:accessibility-baseline-preview"
+    );
+    expect(accessibilityPacket.unit_visibility_evidence.policy_refs).toContain("DEC-018");
+    expect(accessibilityPacket.unit_visibility_evidence.policy_refs).toContain("DEL-02-02");
+    expect(accessibilityPacket.unit_visibility_evidence.model_units.length).toBe("m");
+    expect(accessibilityPacket.unit_visibility_evidence.default_units_inferred).toBe(false);
+    expect(accessibilityPacket.unit_visibility_evidence.color_only_unit_signaling).toBe(false);
+    expect(accessibilityPacket.unit_visibility_evidence.conversion_performed).toBe(false);
+    expect(accessibilityPacket.review_policy.preserves_unit_labels).toBe(true);
     expect(accessibilityPacket.review_policy.color_only_status_signaling_allowed).toBe(false);
     expect(accessibilityPacket.review_policy.software_makes_accessibility_conformance_claim).toBe(false);
     expect(accessibilityPacket.open_decisions.accessibility_conformance_target).toBe("TBD");

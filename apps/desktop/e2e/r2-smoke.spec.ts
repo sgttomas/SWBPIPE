@@ -719,6 +719,11 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "manual=unit_and_schema_verification"
   );
   await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
+  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText(
+    "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces"
+  );
+  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText("length=m");
+  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText("conversion=false");
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");

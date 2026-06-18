@@ -14,6 +14,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail accessibility-baseline unit-visibility evidence (`TP-UNITS-BTAIL-A11YUNITVISIBILITY-001`)
+
+Landed one bounded Phase B-tail/C5 usability-support slice while C5.7 remains
+human-execution gated. The DEL-07-06 Accessibility Baseline panel and exported
+packet now record explicit unit-visibility evidence for unit-bearing review
+surfaces.
+
+The tranche adds `unit_visibility_evidence` with DEC-018/DEL-02-02/
+DEL-07-05/DEL-07-06 basis refs, sorted project units, a review-surface unit
+label visibility policy, no color-only unit signaling,
+`default_units_inferred=false`, and `conversion_performed=false`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-221; DEL-07-06 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-A11YUNITVISIBILITY-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 file and 56/56 tests; focused R2
+Playwright from-blank journey smoke passed 2/2; full desktop Vitest passed
+18/18 files and 399/399 tests; desktop production build passed with the
+existing Vite large-chunk warning. DEC-025 sweep evidence is recorded
+separately at closeout, not as a lifecycle, release, professional,
+certification, sealing, authentication, or code-compliance claim.
+
+Boundary: no final accessibility conformance target, desktop
+accessibility-tree audit claim, solver behavior, rule-check behavior,
+unit-conversion API, DEC-018 catalog constant, protected standards content,
+private payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail missing-data unit-input policy visibility (`TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001`)
 
 Landed one bounded Phase B-tail missing-data/unit-policy slice while C5.7

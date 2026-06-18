@@ -1,5 +1,23 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-A11YUNITVISIBILITY-001 supporting unit evidence
+
+- Supporting role for DEL-07-06 accessibility-baseline tranche: the desktop
+  Accessibility Baseline packet now records DEC-018 unit-visibility evidence
+  for unit-bearing review surfaces.
+- The packet preserves visible unit labels, records
+  `default_units_inferred=false`, `color_only_unit_signaling=false`, and
+  `conversion_performed=false`; it does not introduce a unit conversion API or
+  alter the DEC-018 catalog.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001 supporting unit evidence
 
 - Supporting role for DEL-07-04 missing-data tranche: the desktop Missing

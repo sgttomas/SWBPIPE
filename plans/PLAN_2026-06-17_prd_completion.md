@@ -153,6 +153,12 @@ missing inputs, including DEC-018/DEL-02-02 refs, sorted project units, no
 inferred/default units, no auto-filled missing units, and
 `conversion_performed=false`.
 
+Latest B-tail update: `TP-UNITS-BTAIL-A11YUNITVISIBILITY-001`
+(SMOKE TP-MAC-221) landed on 2026-06-17. The Accessibility Baseline panel and
+packet now expose unit-visibility evidence for unit-bearing review surfaces,
+including DEC-018/DEL-02-02/DEL-07-05/DEL-07-06 refs, sorted project units,
+no color-only unit signaling, and `conversion_performed=false`.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.
