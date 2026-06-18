@@ -140,8 +140,10 @@ describe("RuleCheckRunPanel", () => {
     expect(screen.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeInTheDocument();
     expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
     expect(screen.getByTestId("rule-check-slot-unit-demo_limit_slot")).toHaveValue("ratio");
-    expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
-      "demo_unit, model metadata"
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
+        "demo_unit, model metadata"
+      )
     );
     // The solved result row is offered as a binding option.
     expect(
