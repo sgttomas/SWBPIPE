@@ -410,6 +410,15 @@ the existing load-case/primitive-load/combination unit-validation context
 without changing load-case schemas, operation validation/application, linter
 semantics, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001`
+(SMOKE TP-MAC-257) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Property Inspector public edit/create/delete operation
+unit-validation surface (`property-inspector-unit-validation-surface`),
+raising public unit-policy targets to 40 while keeping target-format
+conversion witnesses at two. This records the existing Property Inspector
+unit-validation context without changing editor behavior, operation
+validation/application, linter semantics, or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

@@ -1,5 +1,28 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the
+  Property Inspector as a unit-policy surface because it already exposes
+  edit/create/delete operation unit-validation statuses.
+- The report-lint visible summary and JSON moved to 40 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-257; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-02/DEL-16-02 run records.
+- Validation passed: focused App Vitest workspace-render; focused Property
+  Inspector create-intent App tests 4/4; focused R2 Playwright smoke 2/2;
+  full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, operation schema or behavior,
+  report-linter protected-content semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Report Content Lint now classifies the Load

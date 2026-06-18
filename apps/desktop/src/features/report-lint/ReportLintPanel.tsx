@@ -263,6 +263,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "load-case and primitive-load operation unit-validation surfaces"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+    "property-inspector-unit-validation-surface",
+    "none",
+    "property inspector edit, create, and delete operation unit-validation surfaces"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
     "operation-diff-unit-witnesses",
     "none",
@@ -594,6 +600,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Load case manager template records load-case, primitive-load, and combination operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-property-inspector-template",
+      "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Property inspector template records edit, material, section, support, node-delete, pipe-delete, and support-delete operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-operation-diff-template",

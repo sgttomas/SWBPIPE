@@ -1,5 +1,28 @@
 # DEL-07-02 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-02: Report Content Lint now inventories the
+  existing Property Inspector operation unit-validation surface through
+  `property-inspector-unit-validation-surface`.
+- The lint packet now includes
+  `apps/desktop/src/features/model-tree/PropertyInspector.tsx` and
+  `target:desktop-property-inspector-template`; public unit-policy targets
+  increase from 39 to 40 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-257; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-16-02/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render; focused Property
+  Inspector create-intent App tests 4/4; focused R2 Playwright smoke 2/2;
+  full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no GUI behavior, editor-intent construction, operation
+  validation/application, unit conversion behavior, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-SUPPORTUNITS-001 support stiffness unit authoring
 
 - WORKING_ITEMS added support creation linear-stiffness unit/value controls to
