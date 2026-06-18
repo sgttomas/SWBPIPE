@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail solve-job report-lint unit inventory (`TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Solve execution panel already exposes
+visible and exported DEC-018 solve-job unit-policy evidence; this tranche
+makes that public unit-policy surface discoverable through the Report Content
+Lint public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/solve/SolvePanel.tsx`, target
+`target:desktop-solve-job-template`, and target ref
+`solve-job-unit-policy`. Unit-policy target count increases from 26 to 27,
+while target-format conversion-witness target count remains two. The lint
+still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-244; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001.md`;
+DEL-07-07 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render and local project
+round-trip selected tests passed 1/1 each; focused Playwright R2 smoke passed
+2/2 configured project tests; full desktop Vitest passed 18/18 files and
+399/399 tests. Desktop production build passed with the existing Vite
+large-chunk warning. Single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Solve execution solve-job
+unit-policy evidence only. No solve execution behavior, analysis-run hash
+generation, cancellation/progress semantics, backend job behavior,
+report-linter protected-content semantics, legal clearance, redaction
+controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-18 - B-tail operation-ledger report-lint unit inventory (`TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while
