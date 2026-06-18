@@ -304,6 +304,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "solve job audit unit-policy evidence"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+    "diagnostic-unit-context",
+    "none",
+    "diagnostic detail linked-result unit context"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
     "rule-check-unit-binding-policy",
     "none",
@@ -612,6 +618,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Solve job template records local solve execution audit metadata, model and result unit-policy evidence, cancellation and progress metadata, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-diagnostics-template",
+      "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Diagnostics template records selected diagnostic source, affected refs, linked result unit context, review explanation, professional boundary, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-rule-check-run-template",

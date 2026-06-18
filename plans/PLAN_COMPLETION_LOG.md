@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail diagnostic report-lint unit inventory (`TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Diagnostics panel already exposes
+linked result unit context for selected diagnostics; this tranche makes that
+public unit-policy surface discoverable through the Report Content Lint
+public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx`, target
+`target:desktop-diagnostics-template`, and target ref
+`diagnostic-unit-context`. Unit-policy target count increases from 34 to 35,
+while target-format conversion-witness target count remains two. The lint
+still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-252; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001.md`;
+DEL-07-07 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render, diagnostic detail, and local
+project round-trip selected tests passed 1/1 each; focused Playwright R2 smoke
+passed 2/2 configured project tests and focused diagnostic Playwright passed
+2/2. Full desktop Vitest passed 18/18 files and 399/399 tests. Desktop
+production build passed with the existing Vite large-chunk warning.
+Single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Diagnostics linked-result unit
+context only. No diagnostic schema, diagnostic interpretation behavior,
+solver behavior, result values, report-linter protected-content semantics,
+legal clearance, redaction controls, target writer compatibility,
+unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+protected standards content, private payload, lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail run-rule-check report-lint unit inventory (`TP-UNITS-BTAIL-RULECHECKLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while

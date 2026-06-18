@@ -1,5 +1,30 @@
 # DEL-07-07 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-07: Report Content Lint now inventories the
+  existing Diagnostics public unit-context surface,
+  `diagnostic-unit-context`.
+- The lint packet now includes
+  `apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx` and
+  `target:desktop-diagnostics-template`; public unit-policy targets increase
+  from 34 to 35 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-252; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-02-02 run record.
+- Validation passed: focused App Vitest workspace-render, diagnostic detail,
+  and local project round-trip tests; focused Playwright R2 smoke 2/2;
+  focused diagnostic Playwright 2/2; full desktop Vitest 399/399;
+  single-worker R2/R3 Playwright smoke 18/18; and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no diagnostic schema, diagnostic interpretation
+  behavior, solver behavior, result values, unit-conversion API, DEC-018
+  catalog constant, schema dimension enum, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001 supporting solve-execution evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report
