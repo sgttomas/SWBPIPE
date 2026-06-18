@@ -10,7 +10,7 @@ import {
   renderCalculationReport,
   type RenderReportRoute
 } from "../../services/reportRenderService";
-import { buildRenderableReportInput } from "./renderableReportInput";
+import { buildRenderableReportInput, buildUnitDisplaySummary } from "./renderableReportInput";
 
 // DEC-021 (A7): rendered FR-016 calculation report. The Rust renderer crate
 // composes, gates, and hashes the document; this panel only requests a
@@ -37,6 +37,16 @@ export function RenderedReportPanel({
 
   const canRender = Boolean(result && analysisRun) && !rendering;
   const outcome = route?.route === "tauri_renderer" ? route.outcome : null;
+  const unitBasis = result ? buildUnitDisplaySummary(model, result) : null;
+  const unitBasisText = unitBasis
+    ? [
+        `unit_system=${DEC018_UNIT_SYSTEM_REF}`,
+        `model=${formatModelUnits(unitBasis.model_units)}`,
+        `results=${unitBasis.result_units.join(",") || "none"}`,
+        `conversion=${String(unitBasis.conversion_performed)}`,
+        "source=renderable_report_input"
+      ].join("; ")
+    : null;
 
   async function onRender() {
     if (!result || !analysisRun) return;
@@ -91,6 +101,11 @@ export function RenderedReportPanel({
           </span>
         ) : null}
       </div>
+      {unitBasisText ? (
+        <div className="report-list">
+          <span data-testid="rendered-report-unit-basis">{unitBasisText}</span>
+        </div>
+      ) : null}
       {renderError ? (
         <p data-testid="rendered-report-error">Render failed: {renderError}</p>
       ) : null}
@@ -158,5 +173,15 @@ export function RenderedReportPanel({
         </>
       ) : null}
     </section>
+  );
+}
+
+const DEC018_UNIT_SYSTEM_REF = "unit-system:dec-018-si-dual-display";
+
+function formatModelUnits(modelUnits: Record<string, string>): string {
+  return (
+    Object.entries(modelUnits)
+      .map(([dimension, unit]) => `${dimension}=${unit}`)
+      .join(",") || "none"
   );
 }

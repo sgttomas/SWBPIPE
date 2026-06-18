@@ -451,6 +451,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
+    "unit_system=unit-system:dec-018-si-dual-display"
+  );
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
   const reportLint = page.getByLabel("Report content lint");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=17");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
@@ -807,6 +813,12 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   );
   await openWorkspaceSection(page, "report");
   await expect(page.getByTestId("rendered-report-render")).toBeEnabled();
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
+    "unit_system=unit-system:dec-018-si-dual-display"
+  );
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("length=m");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=none");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
   await page.getByTestId("rendered-report-render").click();
   await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
 });

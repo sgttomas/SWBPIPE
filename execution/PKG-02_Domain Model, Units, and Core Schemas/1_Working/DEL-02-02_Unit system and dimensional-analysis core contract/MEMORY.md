@@ -1445,3 +1445,26 @@ Boundary note:
   compatibility, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-01 rendered-report unit-basis tranche: the
+  Rendered Report panel now exposes the render-input unit basis before the
+  desktop-only renderer route is invoked.
+- `data-testid="rendered-report-unit-basis"` reports the DEC-018 unit-system
+  reference, sorted model units, solved result units or `results=none`,
+  `conversion=false`, and `source=renderable_report_input`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-232; completion log entry; primary DEL-08-01
+  run record.
+- Validation passed: focused rendered-report Vitest 8/8 tests, focused
+  Playwright 2/2 Chromium desktop tests, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, renderer command, report schema,
+  canonical hash behavior, save/print gate, report-time conversion, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

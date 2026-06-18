@@ -223,6 +223,13 @@ conversion-witness surfaces, `lint_conversion=false`, and explicit no target
 compatibility assertion without changing linter semantics or legal/redaction
 clearance policy.
 
+Latest B-tail update: `TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001`
+(SMOKE TP-MAC-232) landed on 2026-06-17. The Rendered Report panel now exposes
+the render-input unit basis before invoking the desktop-only renderer route:
+DEC-018 unit-system ref, sorted model units, solved result units or
+`results=none`, and `conversion=false` without changing the renderer command,
+report schema, canonical hash behavior, or report-time conversion policy.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

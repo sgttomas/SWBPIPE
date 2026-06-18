@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail rendered-report unit basis visibility (`TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001`)
+
+Landed one bounded Phase B-tail Rendered Report unit-basis visibility slice
+while C5.7 remains human-execution gated. The DEL-08-01 Rendered Report panel
+now exposes the render-input unit basis before invoking the desktop-only
+renderer route.
+
+The tranche adds `rendered-report-unit-basis` to the panel. The row reports
+the DEC-018 unit-system reference, sorted model units, solved result units or
+`results=none`, `conversion=false`, and `source=renderable_report_input`.
+It mirrors the existing `buildRenderableReportInput` unit display summary;
+the Rust renderer, report schema, canonical hash behavior, save/print gate,
+and report-time conversion policy are unchanged.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-232; DEL-08-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused rendered-report Vitest passed 8/8 tests; focused
+Playwright passed 2/2 Chromium desktop tests; `git diff --check` passed; full
+desktop Vitest passed 18/18 files and 399/399 tests; desktop production build
+passed with the existing Vite large-chunk warning; single-worker R2/R3
+Playwright smoke passed 18/18 tests.
+
+Boundary: no renderer command, report schema, canonical hash behavior,
+save/print gate, report-time conversion, unit-conversion API, DEC-018 catalog
+constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail report-lint unit policy inventory (`TP-UNITS-BTAIL-REPORTLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint unit-policy inventory

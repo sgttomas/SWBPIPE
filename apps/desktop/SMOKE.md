@@ -7644,3 +7644,41 @@ notes:
   dimension enum, protected standards content, private payload, lifecycle
   state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-232 rendered-report unit basis visibility - PASSED (`TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Rendered Report unit-basis visibility slice
+  while C5.7 remains human-execution gated. The Rendered Report panel now
+  exposes the render-input unit basis before invoking the desktop-only
+  renderer route.
+- Unit behavior: `data-testid="rendered-report-unit-basis"` reports
+  `unit_system=unit-system:dec-018-si-dual-display`, sorted model units,
+  solved result units or `results=none`, `conversion=false`, and
+  `source=renderable_report_input`. This mirrors the existing
+  `buildRenderableReportInput` unit display summary and does not change the
+  Rust renderer, report schema, or report-time conversion behavior.
+- UI check: the focused rendered-report Vitest verifies the visible row for
+  the component route. The focused R2 Playwright checks verify the row for
+  both solved preview results and the A12 from-blank browser-preview render
+  route.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/features/report/renderedReport.test.tsx`
+    passed 8/8 tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay|R2 from-blank GUI journey authors the A12 rehearsal script" --project=chromium-desktop`
+    passed 2/2 focused Chromium desktop tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Rendered Report panel UI evidence only. No renderer command,
+  report schema, canonical hash behavior, save/print gate, report-time
+  conversion, unit-conversion API, DEC-018 catalog constant, schema dimension
+  enum, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
