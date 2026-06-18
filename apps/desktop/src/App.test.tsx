@@ -181,6 +181,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("token=none_no_active_backend_job");
     expect(screen.getByTestId("solve-job-cancellation").textContent).toContain("success_claimed=false");
     expect(screen.getByTestId("solve-job-binding").textContent).toContain("not generated");
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain(
+      "model=angle=rad,force=N,length=m"
+    );
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain("results=none");
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain("rows=0");
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain("conversion=false");
     expect(screen.getByTestId("solve-job-boundary").textContent).toContain("private payload=false");
     expect(screen.getByTestId("cancel-mechanics-preview")).toBeDisabled();
     const solveJobHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
@@ -200,6 +206,23 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.cancellation.cancellation_scope).toBe("ui_request_record_only_no_backend_job");
     expect(solveJobPacket.cancellation.mutates_solver_process_directly).toBe(false);
     expect(solveJobPacket.cancellation.cancellation_success_claimed).toBe(false);
+    expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+    expect(solveJobPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(solveJobPacket.unit_policy_evidence.solve_job_unit_policy).toBe(
+      "solve_job_audit_records_model_and_result_units_without_conversion"
+    );
+    expect(solveJobPacket.unit_policy_evidence.model_units).toEqual({
+      angle: "rad",
+      force: "N",
+      length: "m",
+      pressure: "Pa",
+      stress: "MPa",
+      temperature: "degC"
+    });
+    expect(solveJobPacket.unit_policy_evidence.result_units).toEqual([]);
+    expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(0);
+    expect(solveJobPacket.unit_policy_evidence.analysis_run_ref.ref).toBe("not generated");
+    expect(solveJobPacket.unit_policy_evidence.conversion_performed).toBe(false);
     expect(solveJobPacket.private_payload_included).toBe(false);
     expect(solveJobPacket.protected_content_included).toBe(false);
     expect(solveJobPacket.release_or_professional_claim).toBe(false);
@@ -5481,6 +5504,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-binding").textContent).toContain("run:preview-linear-static-001");
     expect(screen.getByTestId("solve-job-binding").textContent).toContain("result rows=737");
     expect(screen.getByTestId("solve-job-binding").textContent).toContain("hashes=737");
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain(
+      "model=angle=rad,force=N,length=m"
+    );
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain("results=MPa,N,N*m,mm,rad");
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain("rows=737");
+    expect(screen.getByTestId("solve-job-unit-policy").textContent).toContain("conversion=false");
     expect(screen.getByTestId("solve-job-boundary").textContent).toContain("release/professional claim=false");
     const solveJobHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
     const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref.split(",", 2)[1]));
@@ -5523,6 +5552,29 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.result_hash_count).toBe(737);
     expect(solveJobPacket.hash_scopes).toContain("analysis_run_record");
     expect(solveJobPacket.hash_scopes).toContain("result_envelope");
+    expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+    expect(solveJobPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(solveJobPacket.unit_policy_evidence.model_units).toEqual({
+      angle: "rad",
+      force: "N",
+      length: "m",
+      pressure: "Pa",
+      stress: "MPa",
+      temperature: "degC"
+    });
+    expect(solveJobPacket.unit_policy_evidence.result_units).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
+    expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(737);
+    expect(solveJobPacket.unit_policy_evidence.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
+    expect(solveJobPacket.unit_policy_evidence.conversion_policy).toBe(
+      "solve_job_audit_preserves_source_units_no_conversion"
+    );
+    expect(solveJobPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(solveJobPacket.unit_policy_evidence.decision_basis_refs.map((item: { ref: string }) => item.ref)).toEqual([
+      "DEC-018",
+      "DEL-02-02",
+      "DEL-07-07",
+      "DEL-14-02"
+    ]);
     const resultExport = await screen.findByLabelText("Result export audit");
     expect(within(resultExport).getByTestId("result-export-summary").textContent).toContain("available");
     expect(within(resultExport).getByTestId("result-export-summary").textContent).toContain("rows=737");

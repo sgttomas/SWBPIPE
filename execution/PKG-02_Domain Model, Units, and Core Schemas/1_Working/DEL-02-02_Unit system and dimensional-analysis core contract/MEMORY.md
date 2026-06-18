@@ -1468,3 +1468,28 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SOLVEJOBUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-07 solve-job unit-policy tranche: the Solve
+  execution panel and solve-job JSON now expose the model/result unit basis
+  for the solve-job audit record.
+- `data-testid="solve-job-unit-policy"` reports sorted model units, solved
+  result units or `results=none`, result row count, and `conversion=false`.
+  The exported solve-job packet records `unit_policy_evidence` with DEC-018
+  unit-system reference, DEL-02-02/DEL-07-07 basis refs, storage convention,
+  result units, analysis-run ref, and no-conversion policy.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-233; completion log entry; primary
+  DEL-07-07 run record.
+- Validation passed: focused App Vitest not-started and solved-state tests,
+  focused Playwright R2 solve smoke 2/2, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, solve execution behavior, solver backend
+  seam, result values, analysis-run hashes, cancellation behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

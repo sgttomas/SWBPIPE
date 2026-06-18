@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail solve-job unit policy visibility (`TP-UNITS-BTAIL-SOLVEJOBUNITS-001`)
+
+Landed one bounded Phase B-tail Solve Job unit-policy visibility slice while
+C5.7 remains human-execution gated. The DEL-07-07 Solve execution panel now
+exposes the model/result unit basis in the solve-job audit row and downloaded
+solve-job JSON.
+
+The tranche adds `solve-job-unit-policy` to the Solve panel and
+`unit_policy_evidence` to the solve-job audit packet. The row and packet
+report sorted model units, solved result units or `results=none`, result row
+count, DEC-018 and DEL-02-02/DEL-07-07 basis refs,
+`storage_convention=entered_units_preserved`, and `conversion=false`.
+Solve execution, solver backend behavior, analysis-run hashes, and result
+values are unchanged.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-233; DEL-07-07 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed the not-started and solved-state
+selected tests; focused Playwright passed 2/2 tests; `git diff --check`
+passed; full desktop Vitest passed 18/18 files and 399/399 tests; desktop
+production build passed with the existing Vite large-chunk warning;
+single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: no solve execution behavior, solver backend seam, result values,
+analysis-run hashes, cancellation behavior, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail rendered-report unit basis visibility (`TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001`)
 
 Landed one bounded Phase B-tail Rendered Report unit-basis visibility slice

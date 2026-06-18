@@ -241,3 +241,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SOLVEJOBUNITS-001 solve-job unit policy evidence
+
+- Primary role for DEL-07-07 solve-job unit-policy visibility tranche: the
+  Solve execution panel now exposes model/result unit basis in the solve-job
+  audit row and downloaded JSON packet.
+- `data-testid="solve-job-unit-policy"` reports sorted model units, solved
+  result units or `results=none`, result row count, and `conversion=false`.
+  The solve-job JSON records `unit_policy_evidence` with DEC-018 unit-system
+  ref, DEL-02-02/DEL-07-07 basis refs, storage convention, analysis-run ref,
+  result units, and no-conversion policy.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-233; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: focused App Vitest not-started and solved-state tests,
+  focused Playwright R2 solve smoke 2/2, `git diff --check`, full desktop
+  Vitest 399/399, single-worker R2/R3 Playwright smoke 18/18, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no solve execution behavior, solver backend seam,
+  result values, analysis-run hashes, cancellation behavior, DEC-018 catalog
+  constant, schema dimension enum, unit-conversion API, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

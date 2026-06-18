@@ -371,6 +371,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=737");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=33.211157 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
@@ -808,6 +812,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
     "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
   );

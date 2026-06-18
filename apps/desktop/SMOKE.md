@@ -7682,3 +7682,43 @@ notes:
   enum, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-233 solve-job unit policy visibility - PASSED (`TP-UNITS-BTAIL-SOLVEJOBUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Solve Job unit-policy visibility slice while
+  C5.7 remains human-execution gated. The Solve execution panel now exposes
+  model/result unit basis in the solve-job audit row and JSON packet.
+- Unit behavior: `data-testid="solve-job-unit-policy"` reports sorted model
+  units, solved result units or `results=none`, result row count, and
+  `conversion=false`. The downloaded solve-job JSON carries
+  `unit_policy_evidence` with DEC-018 and DEL-02-02/DEL-07-07 basis refs,
+  `storage_convention=entered_units_preserved`,
+  `solve_job_unit_policy=solve_job_audit_records_model_and_result_units_without_conversion`,
+  and `conversion_performed=false`.
+- UI check: focused App tests verify the row and packet fields before a run
+  and after the preview mechanics run. The focused R2 Playwright journey
+  verifies the solved row in browser smoke and the from-blank zero-result
+  path.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "computed mechanics diagnostics"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay"`
+    passed 2/2 focused Playwright tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-07-07 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Solve Job audit UI/export evidence only. No solve execution
+  behavior, solver backend seam, result values, analysis-run hashes,
+  cancellation behavior, unit-conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
