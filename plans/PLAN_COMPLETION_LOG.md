@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail export-review accessibility unit evidence (`TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001`)
+
+Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix
+slice while C5.7 remains human-execution gated. The Accessibility Baseline
+panel already exposes unit-visibility evidence for unit-bearing review
+surfaces; this tranche makes that existing evidence discoverable through the
+Export Safety Review matrix.
+
+Export Safety Review now classifies
+`accessibility_usability_baseline_review` as unit-evidence-required and
+covered by target-panel/export-packet evidence. Solved queued-intent coverage
+is now `covered=23/24`; proposal-path coverage is 24/24 once
+`agent_proposal_review` is available.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-267; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+DEL-07-06 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App workspace-render test passed 1/1. Full App, full
+desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded in
+closeout artifacts for this tranche.
+
+Boundary: export-review inventory evidence only. No accessibility finding
+count, conformance target selection, runtime accessibility evaluation, color
+signaling policy, target writer, manifest-level unit conversion, protected
+standards content, private payload, lifecycle transition, release-readiness
+claim, professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail export-review secret/private unit evidence (`TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001`)
 
 Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix

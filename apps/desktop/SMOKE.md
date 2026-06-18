@@ -9019,3 +9019,33 @@ notes:
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-267 export-review accessibility unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-07-06 Accessibility Baseline panel
+  already exposes unit-visibility evidence for unit-bearing review surfaces;
+  this tranche classifies `accessibility_usability_baseline_review` as
+  unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `accessibility_usability_baseline_review` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-visibility-evidence:accessibility-baseline-preview`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=23/24`; the proposal path reports 24/24 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+  DEL-07-06 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No accessibility finding
+  count, conformance target selection, runtime accessibility evaluation,
+  color signaling policy, target writer, manifest-level unit conversion,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

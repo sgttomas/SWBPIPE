@@ -519,6 +519,17 @@ inventory without including private unit payloads, changing secret/private
 payload handling, target writers, manifest-level unit conversion, or unit
 conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001`
+(SMOKE TP-MAC-267) landed on 2026-06-18. Export Safety Review now classifies
+`accessibility_usability_baseline_review` as unit-evidence-required because
+the DEL-07-06 Accessibility Baseline panel already exposes unit-visibility
+evidence for unit-bearing review surfaces. Solved queued-intent coverage is
+now `covered=23/24`; proposal-path coverage is 24/24 once
+`agent_proposal_review` is available. This records accessibility
+unit-evidence inventory without changing accessibility findings, target
+conformance posture, target writers, manifest-level unit conversion, or unit
+conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

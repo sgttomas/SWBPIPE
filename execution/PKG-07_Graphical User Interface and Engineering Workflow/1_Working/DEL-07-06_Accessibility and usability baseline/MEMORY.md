@@ -348,3 +348,24 @@ successor journey evidence. Next unblocked C5 tranche is
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-06: Export Safety Review now inventories
+  `accessibility_usability_baseline_review` as unit-evidence-required because
+  the Accessibility Baseline panel already exposes unit-visibility evidence.
+- The export row cites
+  `unit-visibility-evidence:accessibility-baseline-preview`, records no
+  inferred default units, and records `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-267; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no accessibility finding count, target conformance
+  selection, runtime accessibility evaluation, visible warning semantics,
+  color-only signaling policy, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
