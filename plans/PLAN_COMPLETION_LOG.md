@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail rule-check run binding unit policy visibility (`TP-UNITS-BTAIL-RULECHECKBINDUNITS-001`)
+
+Landed one bounded Phase B-tail run-rule-check binding unit-policy slice while
+C5.7 remains human-execution gated. The DEL-06-03 Run Rule Checks binding plan
+now exposes visible unit-binding policy evidence for runtime value, slot,
+solver-result, and private-library binding routes.
+
+The tranche adds `rule-check-unit-binding-policy` to the run-check binding
+plan. The browser demo-pack route reports `value_inputs=1`, `value_slots=1`,
+`solver_selectors=1`, `solver_result_refs=0`, `private_library_refs=0`,
+`catalog=browser_manual_text_no_fallback`, and `conversion=false`. The
+desktop-mode mocked test verifies the DEC-018 catalog route as
+`catalog=dec018_catalog(entries=4)`; a private-library input case verifies
+`private_library_refs=1` and `catalog=not_required`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-228; DEL-06-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULECHECKBINDUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused RuleCheckRunPanel Vitest passed 18/18 tests; focused
+Playwright passed 1/1 Chromium desktop test; full desktop Vitest passed 18/18
+files and 399/399 tests; desktop production build passed with the existing
+Vite large-chunk warning; single-worker R2/R3 Playwright smoke passed 18/18
+tests.
+
+Boundary: no rule-pack schema, expression grammar, parser/text syntax,
+backend completeness/evaluator behavior, rule-pack persistence, solver
+behavior, unit-conversion API, DEC-018 catalog constant, schema dimension
+enum, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail editor-contract unit contract visibility (`TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001`)
 
 Landed one bounded Phase B-tail editor-contract unit-contract slice while C5.7

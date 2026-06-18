@@ -1,5 +1,24 @@
 # MEMORY - DEL-06-03 Required-input Completeness Checker
 
+## 2026-06-17 - TP-UNITS-BTAIL-RULECHECKBINDUNITS-001 run-check binding unit visibility
+
+- The desktop Run Rule Checks binding plan now visibly reports unit-binding
+  policy evidence for runtime user value inputs, value slots, solver-result
+  references/selectors, and private-library references.
+- The browser demo-pack row records `value_inputs=1`, `value_slots=1`,
+  `solver_selectors=1`, `solver_result_refs=0`, `private_library_refs=0`,
+  `catalog=browser_manual_text_no_fallback`, and `conversion=false`.
+- Validation passed: focused RuleCheckRunPanel Vitest 18/18; focused
+  Chromium desktop Playwright smoke 1/1; full desktop Vitest 399/399; full
+  R2/R3 Playwright smoke 18/18; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no rule-pack schema, expression grammar,
+  parser/text syntax, backend completeness/evaluator behavior, rule-pack
+  persistence, solver behavior, unit conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## Implementation Summary
 
 2026-05-02: Added bounded Rust crate

@@ -1,5 +1,23 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-RULECHECKBINDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-06-03 run-check binding tranche: the desktop Run
+  Rule Checks binding plan now visibly reports unit-binding policy evidence
+  for runtime value, slot, solver-result, and private-library routes.
+- The row records browser manual stored-unit text without fallback catalog,
+  desktop DEC-018 catalog route in mocked desktop mode, and
+  `conversion=false`; it does not add unit conversion or inference behavior.
+- Validation passed: focused RuleCheckRunPanel Vitest 18/18; focused
+  Chromium desktop Playwright smoke 1/1; full desktop Vitest 399/399; full
+  R2/R3 Playwright smoke 18/18; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-07-03 editor-contract tranche: the desktop Editor

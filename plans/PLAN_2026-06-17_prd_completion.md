@@ -195,6 +195,12 @@ exposes the DEL-02-02 unit contract already carried in its exported packet:
 dimension schema ref, explicit-unit policy, and diagnostic-blocking behavior
 for missing units.
 
+Latest B-tail update: `TP-UNITS-BTAIL-RULECHECKBINDUNITS-001`
+(SMOKE TP-MAC-228) landed on 2026-06-17. The Run Rule Checks binding plan now
+exposes runtime unit-binding policy for value inputs, value slots,
+solver-result bindings, private-library references, catalog route, and
+`conversion=false` without changing rule evaluation or conversion behavior.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

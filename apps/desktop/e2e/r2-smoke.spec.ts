@@ -1164,6 +1164,15 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-unit-catalog-status")).toContainText(
     "stored manual text"
   );
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_inputs=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_slots=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_result_refs=0");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("private_library_refs=0");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText(
+    "catalog=browser_manual_text_no_fallback"
+  );
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("conversion=false");
   const packText = await page.getByTestId("rule-check-pack-json").inputValue();
   expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
 

@@ -7490,3 +7490,41 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-228 rule-check run binding unit policy visibility - PASSED (`TP-UNITS-BTAIL-RULECHECKBINDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail run-rule-check binding unit-policy slice while
+  C5.7 remains human-execution gated. The Run Rule Checks binding plan now
+  exposes a visible unit-binding policy summary for runtime value, slot,
+  solver-result, and private-library binding routes.
+- Unit behavior: `data-testid="rule-check-unit-binding-policy"` reports
+  `value_inputs=1`, `value_slots=1`, `solver_selectors=1`,
+  `solver_result_refs=0`, `private_library_refs=0`,
+  `catalog=browser_manual_text_no_fallback`, and `conversion=false` for the
+  browser demo-pack route. Desktop-mode Vitest also verifies
+  `catalog=dec018_catalog(entries=4)`.
+- UI check: the focused RuleCheckRunPanel test verifies browser/manual-text,
+  desktop DEC-018 catalog, and private-library-reference cases. The focused
+  R2 Playwright run-check journey checks the same visible row in a real
+  browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- RuleCheckRunPanel.test.tsx`
+    passed 18/18 tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-06-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULECHECKBINDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: run-check binding-plan UI evidence only. No rule-pack schema,
+  expression grammar, parser/text syntax, backend completeness/evaluator
+  behavior, rule-pack persistence, solver behavior, unit conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
