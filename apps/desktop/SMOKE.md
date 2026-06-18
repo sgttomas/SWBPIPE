@@ -7926,3 +7926,42 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-239 result-export report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Result Export panel already exposes
+  schema-first local JSON result envelopes with explicit result units and
+  per-result unit preservation witnesses; the report-lint public inventory
+  now records that public unit-witness surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/result-export/ResultExportPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `result-export-unit-witnesses` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=22`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001.md`;
+  DEL-08-04 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Result Export unit-witness
+  evidence only. No result-export packet semantics, result envelope schema,
+  mechanics result generation, export-review manifest semantics,
+  report-linter protected-content semantics, legal clearance, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

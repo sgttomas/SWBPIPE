@@ -137,6 +137,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
           "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
+          "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
@@ -241,6 +242,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "validation-evidence-units",
     "none",
     "validation evidence unit-policy visibility"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+    "result-export-unit-witnesses",
+    "none",
+    "result export envelope unit preservation witnesses"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -465,6 +472,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Validation evidence template records DEL-09-04 and DEL-09-05 manual sections, evidence areas, local readiness profiles, release-gate families, unresolved TBD decisions, browser tool execution false, private payload false, protected payload false, and no release authorization, certification, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-result-export-template",
+      "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Result export template records schema-first local JSON result envelopes, explicit result units, unit preservation witnesses, private payload false, protected payload false, and no release, target compatibility, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-local-fea-handoff-template",
