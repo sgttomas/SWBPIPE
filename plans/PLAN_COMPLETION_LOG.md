@@ -14,6 +14,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail project-storage unit policy evidence (`TP-UNITS-BTAIL-STORAGEUNITS-001`)
+
+Landed one bounded Phase B-tail Project Storage Audit unit-policy evidence
+slice while C5.7 remains human-execution gated. The DEL-02-05 Project Storage
+Audit panel now exposes structured unit-policy evidence for existing local
+project unit round-trip metadata.
+
+The tranche adds `unit_policy_evidence` to the local storage audit packet and
+extends `project-storage-unit-round-trip` to report sorted model units and
+`conversion=false` alongside the existing round-trip status, checked-ref
+count, and signature. The packet records DEC-018 and DEL-02-02/DEL-02-05
+basis refs, entered-unit preservation, and a no-conversion policy. The Report
+Content Lint inventory now includes the Project Storage Audit unit-policy
+surface, increasing unit-policy targets from 17 to 18 while keeping target
+conversion witnesses at two.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-234; DEL-02-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+DEL-02-02 and DEL-08-05 supporting run records with the same id.
+
+Validation: focused App Vitest passed the initial storage, local
+create/save/open round-trip, and solved report-lint selected tests; focused
+Playwright passed 2/2 Chromium desktop tests; `git diff --check` passed; full
+desktop Vitest passed 18/18 files and 399/399 tests; desktop production build
+passed with the existing Vite large-chunk warning; single-worker R2/R3
+Playwright smoke passed 18/18 tests.
+
+Boundary: no local persistence semantics, migration policy, project-envelope
+schema, model hash canonicalization, report-linter protected-content
+semantics, unit-conversion API, DEC-018 catalog constant, schema dimension
+enum, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail solve-job unit policy visibility (`TP-UNITS-BTAIL-SOLVEJOBUNITS-001`)
 
 Landed one bounded Phase B-tail Solve Job unit-policy visibility slice while

@@ -238,6 +238,15 @@ DEC-018/DEL-02-02 basis refs, and `conversion=false` without changing solve
 execution, analysis-run hashes, cancellation behavior, or unit conversion
 policy.
 
+Latest B-tail update: `TP-UNITS-BTAIL-STORAGEUNITS-001`
+(SMOKE TP-MAC-234) landed on 2026-06-18. The Project Storage Audit panel and
+local storage JSON now expose structured unit-policy evidence for local
+project unit round-trip metadata: sorted model units, persisted round-trip
+status/signature, DEC-018/DEL-02-02 basis refs, and `conversion=false`. The
+Report Content Lint inventory now includes this public unit-policy surface
+(`unit_targets=18`) without changing persistence semantics, migration policy,
+hash canonicalization, or linter protected-content semantics.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

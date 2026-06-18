@@ -398,3 +398,33 @@ Boundaries preserved:
   standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-STORAGEUNITS-001 project-storage unit policy evidence
+
+- Primary role for DEL-02-05 Project Storage Audit unit-policy tranche: the
+  storage audit packet now carries structured `unit_policy_evidence` for the
+  existing local project unit round-trip metadata.
+- `data-testid="project-storage-unit-round-trip"` now reports sorted model
+  units and `conversion=false` alongside the existing round-trip status,
+  checked-ref count, and signature.
+- The local storage JSON records DEC-018 unit-system reference, DEL-02-02 and
+  DEL-02-05 basis refs, entered-unit preservation, round-trip status,
+  checked-ref count/signature, and no-conversion policy.
+- The Report Content Lint inventory now includes the Project Storage Audit
+  unit-policy surface, increasing unit-policy targets from 17 to 18 while
+  leaving target-format conversion-witness count at two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-234; completion log entry; supporting
+  DEL-02-02 and DEL-08-05 run records.
+- Validation passed: focused App Vitest initial storage, local
+  create/save/open round-trip, and solved report-lint tests; focused
+  Playwright 2/2 Chromium desktop tests; `git diff --check`; full desktop
+  Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no local persistence semantics, migration policy,
+  project-envelope schema, model hash canonicalization, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

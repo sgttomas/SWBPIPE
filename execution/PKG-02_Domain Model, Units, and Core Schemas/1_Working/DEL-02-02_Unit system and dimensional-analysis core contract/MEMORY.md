@@ -1493,3 +1493,31 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-STORAGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-05 project-storage unit-policy tranche: the
+  Project Storage Audit panel and local storage JSON now expose structured
+  unit-policy evidence for local project unit round-trip metadata.
+- The visible `project-storage-unit-round-trip` row now includes sorted model
+  units and `conversion=false`; the packet records DEC-018 unit-system
+  reference, entered-unit preservation, round-trip status/signature, and
+  no-conversion policy.
+- The Report Content Lint public unit-policy inventory now includes the
+  storage audit surface, increasing unit-policy target count to 18.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-234; completion log entry; primary
+  DEL-02-05 run record and supporting DEL-08-05 run record.
+- Validation passed: focused App Vitest initial storage, local
+  create/save/open round-trip, and solved report-lint tests; focused
+  Playwright 2/2 Chromium desktop tests; full desktop Vitest 399/399;
+  single-worker R2/R3 Playwright smoke 18/18; `git diff --check`; and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, local persistence semantics, migration
+  policy, project-envelope schema, model hash canonicalization,
+  report-linter protected-content semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

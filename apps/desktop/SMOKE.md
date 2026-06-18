@@ -7722,3 +7722,48 @@ notes:
   schema dimension enum, protected standards content, private payload,
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-234 project-storage unit policy evidence - PASSED (`TP-UNITS-BTAIL-STORAGEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Project Storage Audit unit-policy evidence
+  slice while C5.7 remains human-execution gated. The Project Storage Audit
+  packet now exposes structured unit-policy evidence for the existing local
+  project unit round-trip metadata.
+- Unit behavior: `data-testid="project-storage-unit-round-trip"` now reports
+  sorted model units and `conversion=false` alongside the existing round-trip
+  status, checked-ref count, and signature. The downloaded local storage JSON
+  carries `unit_policy_evidence` with DEC-018 and DEL-02-02/DEL-02-05 basis
+  refs, `storage_convention=entered_units_preserved`,
+  `storage_unit_policy=local_project_storage_audit_records_unit_round_trip_status_without_conversion`,
+  and `conversion_performed=false`.
+- Report-lint inventory: the Report Content Lint public unit-policy inventory
+  now includes the Project Storage Audit surface, increasing
+  `unit_targets` from 17 to 18 while keeping `conversion_witness_targets=2`
+  and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "computed mechanics diagnostics"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay|R2 from-blank GUI journey authors the A12 rehearsal script" --project=chromium-desktop`
+    passed 2/2 focused Playwright tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-02-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  DEL-02-02 and DEL-08-05 supporting run records with the same id; completion
+  log entry.
+- Boundary: Project Storage Audit UI/export evidence and report-lint
+  inventory only. No local persistence semantics, migration policy,
+  project-envelope schema, model hash canonicalization, report-linter
+  protected-content semantics, unit-conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

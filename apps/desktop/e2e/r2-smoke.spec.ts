@@ -462,7 +462,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=MPa,N,N*m,mm,rad");
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
   const reportLint = page.getByLabel("Report content lint");
-  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=17");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=18");
   await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
     "conversion_witness_targets=2"
   );
@@ -470,7 +470,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
   expect(lintHref).toBeTruthy();
   const lintPacket = JSON.parse(decodeURIComponent(lintHref!.split(",", 2)[1]));
-  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(17);
+  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(18);
   expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
   expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
   expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
@@ -788,6 +788,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "status=unit_metadata_preserved_in_local_project_envelope"
   );
   await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("project.units.length=m");
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("conversion=false");
   await expect(page.getByTestId("project-validation-unit-round-trip")).toContainText(
     "status=unit_metadata_preserved_in_local_project_envelope"
   );

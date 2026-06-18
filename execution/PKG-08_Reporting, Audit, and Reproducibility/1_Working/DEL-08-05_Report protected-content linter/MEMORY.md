@@ -170,3 +170,28 @@ code-compliance decisions.
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-STORAGEUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-02-05 project-storage unit-policy tranche: the
+  Report Content Lint public unit-policy inventory now includes
+  `apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx`.
+- `data-testid="report-lint-unit-policy"` now reports 18 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The exported lint packet includes the storage-audit target ref with
+  `unit_policy_surface_id=project-storage-unit-round-trip`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-234; completion log entry; primary
+  DEL-02-05 run record and supporting DEL-02-02 run record.
+- Validation passed: focused App Vitest initial storage, local
+  create/save/open round-trip, and solved report-lint tests; focused
+  Playwright 2/2 Chromium desktop tests; full desktop Vitest 399/399;
+  single-worker R2/R3 Playwright smoke 18/18; `git diff --check`; and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
