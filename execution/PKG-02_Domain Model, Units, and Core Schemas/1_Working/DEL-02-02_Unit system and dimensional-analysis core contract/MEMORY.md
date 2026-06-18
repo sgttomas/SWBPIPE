@@ -1,5 +1,24 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-OPAPPLYUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-16-02 Apply Operations tranche: the desktop Apply
+  Operations panel now visibly reports unit-policy evidence for queued
+  operation intents, outcome validation statuses, and applied receipts.
+- The row records queued unit-bearing and dimensionless intent counts,
+  operation outcome unit-validation statuses, `receipt_units=not_serialized`,
+  and `conversion=false`; it does not add unit conversion or inference
+  behavior.
+- Validation passed: focused App Vitest 1/1 selected test; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation-applier semantics change,
+  receipt schema change, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-RULECHECKBINDUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-06-03 run-check binding tranche: the desktop Run

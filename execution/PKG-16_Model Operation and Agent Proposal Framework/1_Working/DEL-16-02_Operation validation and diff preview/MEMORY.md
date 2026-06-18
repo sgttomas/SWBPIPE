@@ -1,5 +1,23 @@
 # MEMORY - DEL-16-02 Operation validation and diff preview
 
+## 2026-06-17 - TP-UNITS-BTAIL-OPAPPLYUNITS-001
+
+- The desktop Apply Operations panel now exposes a visible unit-policy summary
+  for queued intents, operation outcomes, and applied receipts.
+- The summary records queued unit-bearing/dimensionless counts, outcome
+  unit-validation statuses, applied receipt count, `receipt_units=not_serialized`,
+  and `conversion=false`; it does not change operation validation, apply
+  semantics, receipt schema, or solver behavior.
+- Validation passed: focused App Vitest 1/1 selected test; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation-applier semantics, backend validation,
+  receipt schema, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-06 Implementation Notes
 
 - Implemented `core/model_operations/validation_preview/engine.py` as a

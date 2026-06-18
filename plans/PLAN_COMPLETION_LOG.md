@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail operation apply unit policy visibility (`TP-UNITS-BTAIL-OPAPPLYUNITS-001`)
+
+Landed one bounded Phase B-tail Apply Operations unit-policy visibility slice
+while C5.7 remains human-execution gated. The DEL-16-02 Apply Operations panel
+now exposes how queued intents, operation outcomes, and applied receipts carry
+unit-policy evidence at the final user-apply surface.
+
+The tranche adds `operation-apply-unit-policy` to the Apply Operations panel.
+Before applying the load-magnitude edit, the browser route reports
+`queued_unit_bearing=1`, `queued_dimensionless=0`,
+`outcome_unit_validations=none`, `applied_receipts=0`,
+`receipt_units=not_serialized`, and `conversion=false`. After applying through
+the local WASM route, it reports `queued_unit_bearing=0`,
+`outcome_unit_validations=passed`, `applied_receipts=1`,
+`receipt_units=not_serialized`, and `conversion=false`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-229; DEL-16-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPAPPLYUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 selected test; focused Playwright
+passed 1/1 Chromium desktop test; `git diff --check` passed; full desktop
+Vitest passed 18/18 files and 399/399 tests; desktop production build passed
+with the existing Vite large-chunk warning; single-worker R2/R3 Playwright
+smoke passed 18/18 tests.
+
+Boundary: no operation-applier semantics, backend validation, receipt schema,
+solver behavior, unit-conversion API, DEC-018 catalog constant, schema
+dimension enum, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail rule-check run binding unit policy visibility (`TP-UNITS-BTAIL-RULECHECKBINDUNITS-001`)
 
 Landed one bounded Phase B-tail run-rule-check binding unit-policy slice while

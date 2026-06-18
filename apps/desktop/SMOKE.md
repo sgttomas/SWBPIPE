@@ -7528,3 +7528,44 @@ notes:
   content, private payload, lifecycle state transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-229 operation apply unit policy visibility - PASSED (`TP-UNITS-BTAIL-OPAPPLYUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Apply Operations unit-policy visibility slice
+  while C5.7 remains human-execution gated. The Apply Operations panel now
+  exposes a visible summary of queued unit-bearing intents, dimensionless
+  intents, operation outcome unit-validation statuses, applied receipt count,
+  receipt unit-serialization policy, and conversion posture.
+- Unit behavior: `data-testid="operation-apply-unit-policy"` reports
+  `queued_unit_bearing=1`, `queued_dimensionless=0`,
+  `outcome_unit_validations=none`, `applied_receipts=0`,
+  `receipt_units=not_serialized`, and `conversion=false` before applying the
+  queued load-magnitude edit. After applying through the local WASM route it
+  reports `queued_unit_bearing=0`, `outcome_unit_validations=passed`,
+  `applied_receipts=1`, `receipt_units=not_serialized`, and
+  `conversion=false`.
+- UI check: the focused App test verifies the manager-panel queue/apply path.
+  The focused R2 Playwright journey checks the same visible row in a real
+  browser and confirms the applied operation route remains
+  `local_wasm_engine`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "queues and applies a load-case primitive magnitude through the manager panel"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-16-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPAPPLYUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Apply Operations UI/review evidence only. No operation-applier
+  semantics, backend validation, receipt schema, solver behavior,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

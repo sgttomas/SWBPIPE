@@ -2363,6 +2363,24 @@ describe("OpenPipeStress desktop preview", () => {
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
     expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "queued_unit_bearing=1"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "queued_dimensionless=0"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "outcome_unit_validations=none"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "applied_receipts=0"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "receipt_units=not_serialized"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
       "primitive_loads.2.magnitude.value"
     );
@@ -2379,6 +2397,21 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
       "persistence=session_state_only_not_yet_saved"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "queued_unit_bearing=0"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "outcome_unit_validations=passed"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "applied_receipts=1"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "receipt_units=not_serialized"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
+      "conversion=false"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");

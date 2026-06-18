@@ -528,11 +528,23 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=1");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_dimensionless=0");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=0");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("receipt_units=not_serialized");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("conversion=false");
   await page.getByTestId("apply-intent-editor-intent-1").click();
   await expect(applyPanel.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText(
     "route=local_wasm_engine"
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=0");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText(
+    "outcome_unit_validations=passed"
+  );
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=1");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("receipt_units=not_serialized");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 
   // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
