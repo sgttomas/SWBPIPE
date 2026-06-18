@@ -8923,3 +8923,39 @@ notes:
   content, private payload, lifecycle state transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-264 export-review missing-data unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-07-04 Missing Data Blocking panel
+  already exposes explicit unit-input policy evidence; this tranche classifies
+  the `missing_data_warning_blocking_review` export row as
+  unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `missing_data_warning_blocking_review` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-input-policy-evidence:missing-data-warning-blocking-review`,
+  `unit_evidence_required=true`, and `conversion_performed=false`. Solved
+  queued-intent Export Review reports `covered=20/21`; the proposal path
+  reports 21/21 once `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  DEL-07-04 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No missing-data blocking
+  behavior, remediation flow, accepted model mutation, rule-check execution,
+  runtime redaction rule, target writer, manifest-level unit conversion,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

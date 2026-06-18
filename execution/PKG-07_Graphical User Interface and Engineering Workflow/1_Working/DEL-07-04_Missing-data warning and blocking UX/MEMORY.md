@@ -123,3 +123,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   accepted model mutation, rule-check execution, lifecycle state,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-04: Export Safety Review now classifies
+  `missing_data_warning_blocking_review` as unit-evidence-required and covered
+  by the existing Missing Data Blocking target-panel/export-packet unit-input
+  evidence.
+- The DEL-07-04 warning packet remains explicit about unit-bearing missing
+  inputs requiring explicit units, no default-unit inference, no auto-filled
+  missing units, and `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-264; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no missing-data blocking behavior, remediation flow,
+  accepted model mutation, rule-check execution, assistive-text behavior,
+  color-only signaling policy, target writer, manifest-level unit conversion,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

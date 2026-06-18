@@ -2154,3 +2154,27 @@ Boundary note:
   policy, private payload, protected content, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `missing_data_warning_blocking_review` as unit-evidence-required because the
+  DEL-07-04 Missing Data Blocking panel already exposes unit-input policy
+  evidence.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=20/21`, and proposal-path evidence reports 21/21 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-264; primary DEL-12-02 run record and
+  supporting DEL-07-04 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, missing-data unit policy,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

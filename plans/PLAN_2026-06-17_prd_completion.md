@@ -487,6 +487,17 @@ metadata semantics, external solver/prover invocation, target parsers,
 commercial-result ingestion, target writers, redaction behavior,
 manifest-level unit conversion, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001`
+(SMOKE TP-MAC-264) landed on 2026-06-18. Export Safety Review now classifies
+`missing_data_warning_blocking_review` as unit-evidence-required because the
+DEL-07-04 Missing Data Blocking panel already exposes explicit unit-input
+policy evidence. Solved queued-intent coverage is now `covered=20/21`;
+proposal-path coverage is 21/21 once `agent_proposal_review` is available.
+This records missing-data unit-evidence inventory without changing
+missing-data warning semantics, remediation behavior, accepted model mutation,
+rule-check execution, target writers, manifest-level unit conversion, or unit
+conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

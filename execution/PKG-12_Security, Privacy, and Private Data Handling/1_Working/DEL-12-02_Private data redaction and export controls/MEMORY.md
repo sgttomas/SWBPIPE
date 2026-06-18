@@ -236,3 +236,29 @@ Durable context preserved after reconciliation review:
   content, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `missing_data_warning_blocking_review` as unit-evidence-required because the
+  Missing Data Blocking packet already carries explicit unit-input policy
+  evidence.
+- The missing-data export row records
+  `unit_policy_ref=unit-input-policy-evidence:missing-data-warning-blocking-review`,
+  `unit_evidence_required=true`, and `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=20/21`; proposal
+  path evidence reports 21/21 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-264; active plan and completion log entries;
+  supporting DEL-07-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, missing-data
+  warning semantics, remediation behavior, accepted model mutation, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
