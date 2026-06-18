@@ -376,3 +376,21 @@ Durable TASK evidence:
   standards content, private payload, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001 supporting result/export evidence
+
+- Supporting role for DEL-12-02 export-review tranche: the desktop Export
+  Safety Review manifest now inventories unit-bearing result/export records,
+  including result envelope, stress-neutral package, native JSON package,
+  report packet, handoff package, and target-format preview packets.
+- The manifest records the inventory as review metadata only through
+  `unit_policy_summary` and `unit_evidence_matrix`; it does not perform
+  export-time unit conversion or alter the underlying result/export packets.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no result schema change, result-export runtime behavior,
+  public transport commitment, trace-chain ownership change, protected
+  standards content, private payload, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

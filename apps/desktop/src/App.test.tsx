@@ -3491,6 +3491,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-boundary").textContent).toContain(
       "no release or professional claim"
     );
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=14/14");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
     );
@@ -3639,6 +3644,42 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.summary.export_count).toBe(27);
     expect(reviewManifest.summary.available_count).toBe(27);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
+    expect(reviewManifest.unit_policy_summary.evidence_id).toBe("unit-policy-evidence:export-review-manifest");
+    expect(reviewManifest.unit_policy_summary.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+    expect(reviewManifest.unit_policy_summary.conversion_policy).toBe(
+      "export_review_manifest_inventory_only_no_target_conversion"
+    );
+    expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
+    expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(27);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(14);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(14);
+    expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
+    expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
+      "result_envelope",
+      "stress_neutral_csv_json_package",
+      "headless_runner_envelope",
+      "adapter_framework_envelope",
+      "local_fea_handoff_package",
+      "review_geometry_export",
+      "conservative_pcf_export",
+      "caepipe_mbf_export",
+      "caepipe_external_run_evidence",
+      "export_adapter_sdk_registry",
+      "native_json_package",
+      "report_packet",
+      "handoff_package",
+      "operation_review_ledger"
+    ]);
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "result_envelope"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "telemetry_boundary_review"
+      ).unit_evidence_status
+    ).toBe("not_unit_bearing_metadata_or_boundary_review");
     expect(reviewManifest.exports.map((item: { export_id: string }) => item.export_id)).toEqual([
       "project_storage_audit",
       "project_validation_preflight",

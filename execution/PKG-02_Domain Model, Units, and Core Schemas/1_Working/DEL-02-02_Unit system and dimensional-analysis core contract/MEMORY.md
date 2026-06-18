@@ -883,3 +883,22 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-12-02 export-review tranche: the desktop Export
+  Safety Review manifest now inventories DEC-018 unit evidence across local
+  export records through `unit_policy_summary` and `unit_evidence_matrix`.
+- The evidence uses `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, and
+  `conversion_policy=export_review_manifest_inventory_only_no_target_conversion`
+  with `conversion_performed=false`; the manifest itself performs no target
+  conversion.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target-specific writer, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

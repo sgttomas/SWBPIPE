@@ -6441,6 +6441,40 @@ notes:
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
 
+## TP-MAC-204 export review unit policy inventory - PASSED (`TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail export-review/unit-evidence inventory slice
+  while C5.7 remains human-execution gated. The DEL-12-02 Export Safety Review
+  manifest now carries top-level `unit_policy_summary` evidence for local
+  export records.
+- Unit behavior: the manifest records `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`,
+  `conversion_policy=export_review_manifest_inventory_only_no_target_conversion`,
+  `conversion_performed=false`, and a 27-row `unit_evidence_matrix`.
+  Fourteen unit-bearing export records are inventoried as covered when their
+  source export packet is available; metadata-only review records are marked
+  `not_unit_bearing_metadata_or_boundary_review`.
+- UI check: `data-testid="export-review-units"` displays
+  `unit-system:dec-018-si-dual-display`, `covered=14/14`, and
+  `conversion=false` after the mechanics preview; the downloaded review JSON
+  carries the same unit-policy summary and matrix.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001.md`;
+  DEL-02-02 and DEL-08-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: export-review metadata inventory only. No target-specific writer,
+  conversion API, public transport commitment, runtime redaction rule change,
+  protected standards content, private project payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
 
 - Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains

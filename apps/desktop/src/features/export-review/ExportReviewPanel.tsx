@@ -1,4 +1,5 @@
 import { Download, ShieldCheck } from "lucide-react";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -89,6 +90,11 @@ export function ExportReviewPanel({
           testId="export-review-state-binding"
         />
         <ReviewLine label="Boundary" value={exportBoundary(manifest)} testId="export-review-boundary" />
+        <ReviewLine
+          label="Units"
+          value={`${manifest.unit_policy_summary.unit_system_ref.ref}; covered=${manifest.unit_policy_summary.summary.unit_evidence_present_count}/${manifest.unit_policy_summary.summary.unit_evidence_required_count}; ${unitDisclosureSummary(manifest.unit_policy_summary)}`}
+          testId="export-review-units"
+        />
         <div className="operation-record-list" data-testid="export-review-records">
           {manifest.exports.map((item) => (
             <article
@@ -121,6 +127,23 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
     </div>
   );
 }
+
+const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
+  "result_envelope",
+  "stress_neutral_csv_json_package",
+  "headless_runner_envelope",
+  "adapter_framework_envelope",
+  "local_fea_handoff_package",
+  "review_geometry_export",
+  "conservative_pcf_export",
+  "caepipe_mbf_export",
+  "caepipe_external_run_evidence",
+  "export_adapter_sdk_registry",
+  "native_json_package",
+  "report_packet",
+  "handoff_package",
+  "operation_review_ledger"
+]);
 
 function buildExportReviewManifest({
   model,
@@ -984,6 +1007,7 @@ function buildExportReviewManifest({
     }
   ];
   const availableCount = exports.filter((item) => item.readiness === "available").length;
+  const unitPolicySummary = buildExportReviewUnitPolicySummary({ model, result, exports });
 
   return {
     schema_version: "0.1.0",
@@ -1016,6 +1040,7 @@ function buildExportReviewManifest({
       diagnostics_reviewed: diagnostics.length,
       operation_record_count: operationRecordCount
     },
+    unit_policy_summary: unitPolicySummary,
     data_boundary: model.data_boundary,
     unresolved_tbd: [
       "durable redaction profile persistence",
@@ -1026,6 +1051,66 @@ function buildExportReviewManifest({
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function buildExportReviewUnitPolicySummary({
+  model,
+  result,
+  exports
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  exports: Array<{ export_id: string; document_kind: string; readiness: string }>;
+}) {
+  const disclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: {},
+    conversionPolicy: "export_review_manifest_inventory_only_no_target_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/export-review/ExportReviewPanel.tsx"
+  });
+  const unitEvidenceMatrix = exports.map((item) => {
+    const unitEvidenceRequired = UNIT_EVIDENCE_REQUIRED_EXPORT_IDS.has(item.export_id);
+    return {
+      export_id: item.export_id,
+      document_kind: item.document_kind,
+      readiness: item.readiness,
+      unit_evidence_required: unitEvidenceRequired,
+      unit_evidence_status: unitEvidenceRequired
+        ? item.readiness === "available"
+          ? "covered_by_target_panel_or_export_packet"
+          : "pending_source_export_packet"
+        : "not_unit_bearing_metadata_or_boundary_review",
+      conversion_policy: unitEvidenceRequired
+        ? "source_units_preserved_or_target_panel_discloses_conversion_policy"
+        : "not_applicable",
+      conversion_performed_by_export_review_manifest: false
+    };
+  });
+  const requiredRows = unitEvidenceMatrix.filter((item) => item.unit_evidence_required);
+  const presentRows = requiredRows.filter((item) => item.unit_evidence_status === "covered_by_target_panel_or_export_packet");
+
+  return {
+    ...disclosure,
+    evidence_id: "unit-policy-evidence:export-review-manifest",
+    review_scope: "export_review_manifest_unit_evidence_inventory",
+    unit_review_policy:
+      "inventory_unit_bearing_export_records_and_require_target_panels_or_export_packets_to_carry_DEC_018_unit_evidence",
+    unit_evidence_matrix: unitEvidenceMatrix,
+    covered_export_ids: presentRows.map((item) => item.export_id),
+    not_unit_bearing_export_ids: unitEvidenceMatrix
+      .filter((item) => !item.unit_evidence_required)
+      .map((item) => item.export_id),
+    summary: {
+      reviewed_export_count: exports.length,
+      unit_evidence_required_count: requiredRows.length,
+      unit_evidence_present_count: presentRows.length,
+      conversion_performed_count: unitEvidenceMatrix.filter((item) => item.conversion_performed_by_export_review_manifest)
+        .length
+    }
   };
 }
 

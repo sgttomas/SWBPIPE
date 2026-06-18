@@ -14,6 +14,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail export review unit policy inventory (`TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001`)
+
+Landed one bounded Phase B-tail export-review/unit-evidence inventory slice
+while C5.7 remains human-execution gated. The desktop Export Safety Review
+manifest now emits a top-level DEC-018 `unit_policy_summary` for its local
+export records.
+
+The manifest records `unit-system:dec-018-si-dual-display`,
+`entered_units_preserved`,
+`conversion_policy=export_review_manifest_inventory_only_no_target_conversion`,
+and `conversion_performed=false`. A 27-row `unit_evidence_matrix` separates
+unit-bearing export records from metadata-only storage/security/readiness
+reviews. After mechanics preview, fourteen unit-bearing records are covered
+and the visible UI shows `export-review-units` with `covered=14/14`.
+
+The tranche preserves the export-review boundary. It does not add a
+target-specific writer, perform manifest-level unit conversion, alter runtime
+redaction behavior, create public transport, or make release/professional/code
+claims.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-204; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001.md`;
+DEL-02-02 and DEL-08-04 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2 Playwright smoke
+passed 2/2; full desktop Vitest passed 18/18 files and 397/397 tests; desktop
+production build passed with the existing Vite large-chunk warning.
+
+Boundary: export-review metadata inventory only. No DEC-018 catalog constant
+change, schema dimension enum change, unit conversion API change,
+target-specific writer, public transport commitment, runtime redaction rule
+change, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail adapter framework unit policy evidence (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001`)
 
 Landed one bounded Phase B-tail adapter-framework/unit-evidence slice while

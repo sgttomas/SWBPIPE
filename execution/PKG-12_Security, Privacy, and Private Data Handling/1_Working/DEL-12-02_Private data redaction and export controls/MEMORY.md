@@ -101,3 +101,20 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001 primary export-review unit inventory
+
+- Primary role for the bounded B-tail tranche: the desktop Export Safety
+  Review manifest now carries a top-level DEC-018 `unit_policy_summary` and
+  27-row `unit_evidence_matrix`.
+- The matrix records which local export records are unit-bearing and covered
+  by target panel/export packet evidence, while storage/security/readiness
+  review records remain `not_unit_bearing_metadata_or_boundary_review`.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no runtime redaction rule change, public transport
+  commitment, target-specific writer, protected standards content, private
+  payload, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
