@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail rule-pack unit policy evidence (`TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001`)
+
+Landed one bounded Phase B-tail rule-pack editor/unit-policy slice while C5.7
+remains human-execution gated. The Rule-Pack Manager now shows visible unit
+policy and unit-dimension validation status for declaration `quantity_intent`
+unit refs and expression literal/table unit refs.
+
+Browser preview preserves the existing manual stored-unit text entry route and
+records `catalog_route=browser_preview_manual_entry` with `conversion=false`.
+Desktop/Tauri catalog routes continue using the reviewed DEC-018 selectors and
+can record accepted dimension matches or explicit mismatch/unreviewed/loading
+statuses.
+
+The tranche preserves the rule-pack editor boundary. It does not change the
+rule-pack schema, evaluator normalization, parser/text syntax, backend
+validation/persistence behavior, or DEC-018 catalog constants.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-207; DEL-07-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+DEL-02-02, DEL-06-01, and DEL-06-02 supporting run records with the same id.
+
+Validation: focused rule-pack/unit Vitest passed 67/67; focused R2/R3
+Playwright smoke file passed 14/14; full desktop Vitest passed 18/18 files and
+398/398 tests; desktop production build passed with the existing Vite
+large-chunk warning.
+
+Boundary: rule-pack editor unit-policy metadata only. No DEC-018 catalog
+constant change, schema dimension enum change, rule-pack schema change,
+evaluator normalization change, parser/text-syntax change, backend
+validation/persistence behavior change, protected standards content, private
+value payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-17 - B-tail property-inspector unit validation evidence (`TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001`)
 
 Landed one bounded Phase B-tail Property Inspector/unit-validation slice while

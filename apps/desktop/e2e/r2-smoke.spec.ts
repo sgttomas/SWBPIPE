@@ -733,6 +733,12 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest; this e2e assertion protects the no-fallback/manual-entry route.
   await page.getByTestId("rule-pack-input-dimension").last().selectOption("stress");
   await page.getByTestId("rule-pack-input-unit").last().fill("MPa");
+  await expect(page.getByTestId("rule-pack-declarations-unit-policy")).toContainText(
+    "catalog_route=browser_preview_manual_entry"
+  );
+  await expect(page.getByTestId("rule-pack-declarations-unit-policy")).toContainText(
+    "required_input:user_required_input_2=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
   const declText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(declText).required_inputs).toHaveLength(2);
   expect(JSON.parse(declText).required_inputs[1].quantity_intent).toMatchObject({
@@ -749,6 +755,12 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest covers the desktop catalog-selector path.
   await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-literal-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "catalog_route=browser_preview_manual_entry"
+  );
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "expression.right.quantity=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
 	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("<=");
 	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("MPa [stress]");
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
@@ -768,6 +780,9 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-table-argument-unit").fill("degC");
   await page.getByTestId("rule-pack-table-result-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-table-result-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "expression.table.result=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
   await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
   await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
     "interpolate(user_table_1, user_required_input_1)"

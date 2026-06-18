@@ -6545,6 +6545,40 @@ notes:
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
 
+## TP-MAC-207 rule-pack unit policy evidence - PASSED (`TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail rule-pack editor/unit-policy slice while C5.7
+  remains human-execution gated. The Rule-Pack Manager now shows visible unit
+  policy and unit-dimension validation status for declaration `quantity_intent`
+  unit refs and expression literal/table unit refs.
+- Unit behavior: browser preview keeps the existing manual stored-unit text
+  route and explicitly reports `catalog_route=browser_preview_manual_entry`
+  with `conversion=false`. Desktop/Tauri catalog routes continue using the
+  reviewed DEC-018 catalog selectors and can report accepted dimension matches
+  or explicit mismatch/unreviewed/loading statuses.
+- UI check: `data-testid="rule-pack-declarations-unit-policy"` summarizes
+  required-input and value-slot unit refs. `data-testid="rule-pack-expression-unit-policy"`
+  summarizes literal and table unit refs in the active formula. The R2/R3
+  Playwright smoke checks required-input, literal, and table result statuses.
+- Validation:
+  - `npm test --workspace apps/desktop -- unitCatalogService.test.ts DeclarationsEditor.test.tsx ExpressionComposer.test.tsx RulePackManagerPanel.test.tsx` passed 67/67 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+  DEL-02-02, DEL-06-01, and DEL-06-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: rule-pack editor unit-policy metadata only. No DEC-018 catalog
+  constant change, schema dimension enum change, rule-pack schema change,
+  evaluator normalization change, parser/text-syntax change, backend
+  validation/persistence behavior change, protected standards content,
+  private value payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
 
 - Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains

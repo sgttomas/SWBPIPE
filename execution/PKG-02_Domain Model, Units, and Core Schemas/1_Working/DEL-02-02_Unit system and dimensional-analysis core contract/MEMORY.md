@@ -938,3 +938,24 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 supporting unit evidence
+
+- Supporting role for DEL-07-03 rule-pack editor tranche: rule-pack
+  declaration and expression unit refs now expose explicit unit-dimension
+  validation status instead of leaving the route/policy implicit.
+- Browser preview records declared model metadata because the reviewed
+  DEC-018 catalog is exposed only through the desktop backend route;
+  desktop/Tauri catalog routes can record accepted DEC-018 dimension matches,
+  mismatches, unreviewed statuses, or loading/catalog-unavailable statuses.
+- The shared helper is status/reporting only. It preserves stored unit refs and
+  records `conversion=false`; it does not introduce a conversion API or hidden
+  normalization path.
+- Validation passed: focused rule-pack/unit Vitest 67/67, focused R2/R3
+  Playwright smoke file 14/14, full desktop Vitest 398/398, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver/evaluator behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

@@ -291,3 +291,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 supporting evaluator evidence
+
+- Added supporting evidence for the DEL-07-03 rule-pack expression authoring
+  surface's visible unit policy summary over existing expression AST unit refs:
+  literal quantities and table argument/result unit metadata.
+- The evaluator contract is unchanged. The summary preserves stored unit refs,
+  records `conversion=false`, and reports browser/catalog validation status
+  before runtime without changing normalization, exact-unit matching, blocking
+  findings, grammar, parser, or run-check execution behavior.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-207; completion log
+  entry.
+- Validation passed: focused rule-pack/unit Vitest 67/67, focused R2/R3
+  Playwright smoke file 14/14, full desktop Vitest 398/398, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary unchanged: no evaluator normalization, grammar, schema, parser,
+  writable expression text syntax, backend validation/persistence behavior,
+  protected content, private data, release-readiness claim, or professional/
+  code-compliance claim changed.

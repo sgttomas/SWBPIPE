@@ -3,6 +3,7 @@ import {
   acceptedUnits,
   describeUnitBasis,
   loadUnitCatalog,
+  unitDimensionValidationStatus,
   unitEntryMatchesDimension,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
@@ -1137,7 +1138,15 @@ export function ExpressionComposer({
   const activeFormula = formulas.find((formula) => formula.id === activeFormulaId) ?? null;
 
   useEffect(() => {
-    if (!hasTauriInternals()) return undefined;
+    if (!hasTauriInternals()) {
+      setUnitCatalogRoute({
+        route: "unavailable_browser_preview",
+        diagnostic:
+          "UNIT-CATALOG-DESKTOP-ONLY: browser preview preserves stored expression unit_ref text " +
+          "and does not synthesize a DEC-018 fallback catalog."
+      });
+      return undefined;
+    }
     let active = true;
     loadUnitCatalog()
       .then((route) => {
@@ -1192,6 +1201,9 @@ export function ExpressionComposer({
           </label>
           {activeFormula ? (
             <>
+              <small className="rule-pack-node-readonly" data-testid="rule-pack-expression-unit-policy">
+                {expressionUnitPolicySummary(unitCatalogRoute, activeFormula.expression)}
+              </small>
               <div
                 className="operation-record"
                 data-testid="rule-pack-expression-text-preview"
@@ -1219,4 +1231,89 @@ export function ExpressionComposer({
       )}
     </div>
   );
+}
+
+function expressionUnitPolicySummary(route: UnitCatalogRoute | null, expression: AstNode): string {
+  const refs = collectExpressionUnitRefs(expression);
+  return [
+    "unit_policy=stored_unit_refs_preserved",
+    `catalog_route=${unitCatalogRouteStatus(route)}`,
+    "conversion=false",
+    `expression_refs=${refs.length ? refs.map((ref) => expressionUnitRefStatus(route, ref)).join(",") : "none"}`
+  ].join("; ");
+}
+
+type ExpressionUnitRef = {
+  ref: string;
+  dimension: string;
+  unit: string;
+};
+
+function collectExpressionUnitRefs(node: AstNode, path = "expression"): ExpressionUnitRef[] {
+  const kind = nodeKind(node);
+  const refs: ExpressionUnitRef[] = [];
+  if (kind === "literal") {
+    const quantity = quantityOf(node);
+    refs.push({
+      ref: `${path}.quantity`,
+      dimension: asString(quantity.dimension) ?? "TBD",
+      unit: asString(quantity.unit_ref) ?? "TBD"
+    });
+  }
+  if (isTableNode(node)) {
+    const table = tableOf(node);
+    refs.push({
+      ref: `${path}.table.argument`,
+      dimension: asString(table.argument_dimension) ?? "TBD",
+      unit: asString(table.argument_unit_ref) ?? "TBD"
+    });
+    refs.push({
+      ref: `${path}.table.result`,
+      dimension: asString(table.result_dimension) ?? "TBD",
+      unit: asString(table.result_unit_ref) ?? "TBD"
+    });
+  }
+
+  switch (kind) {
+    case "unary":
+      return [...refs, ...collectExpressionUnitRefs(childNode(node, "operand"), `${path}.operand`)];
+    case "binary":
+    case "compare":
+    case "logical":
+      return [
+        ...refs,
+        ...collectExpressionUnitRefs(childNode(node, "left"), `${path}.left`),
+        ...collectExpressionUnitRefs(childNode(node, "right"), `${path}.right`)
+      ];
+    case "select":
+      return [
+        ...refs,
+        ...collectExpressionUnitRefs(childNode(node, "condition"), `${path}.condition`),
+        ...collectExpressionUnitRefs(childNode(node, "then"), `${path}.then`),
+        ...collectExpressionUnitRefs(childNode(node, "else"), `${path}.else`)
+      ];
+    case "aggregate":
+      return [
+        ...refs,
+        ...operandsOf(node).flatMap((operand, index) =>
+          collectExpressionUnitRefs(operand, `${path}.operands.${index}`)
+        )
+      ];
+    case "interpolate":
+    case "lookup":
+      return [...refs, ...collectExpressionUnitRefs(childNode(node, "argument"), `${path}.argument`)];
+    default:
+      return refs;
+  }
+}
+
+function expressionUnitRefStatus(route: UnitCatalogRoute | null, ref: ExpressionUnitRef): string {
+  const status = unitDimensionValidationStatus(route, ref.unit, ref.dimension);
+  return `${ref.ref}=${status}(unit=${ref.unit};dimension=${ref.dimension})`;
+}
+
+function unitCatalogRouteStatus(route: UnitCatalogRoute | null): string {
+  if (!route) return "loading";
+  if (route.route === "unavailable_browser_preview") return "browser_preview_manual_entry";
+  return "tauri_dec018_catalog";
 }

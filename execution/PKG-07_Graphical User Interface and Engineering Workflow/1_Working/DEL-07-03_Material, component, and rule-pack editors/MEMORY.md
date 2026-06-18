@@ -294,3 +294,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
   protected standards content, private project payload, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 rule-pack unit policy evidence
+
+- Added visible stored-unit policy and unit-dimension validation summaries to
+  the rule-pack declaration and expression authoring surfaces.
+- `DeclarationsEditor` now reports required-input and value-slot
+  `quantity_intent` unit refs against the available unit-catalog route.
+  `ExpressionComposer` now reports literal quantity and table argument/result
+  unit refs through the same helper.
+- Browser preview remains manual-entry only and records declared metadata
+  because the reviewed DEC-018 catalog is desktop/Tauri-only; desktop catalog
+  routes can report accepted DEC-018 matches, mismatches, or review/loading
+  statuses without rewriting stored refs.
+- Validation passed: focused rule-pack/unit Vitest 67/67, focused R2/R3
+  Playwright smoke file 14/14, full desktop Vitest 398/398, and desktop
+  production build with the existing Vite large-chunk warning.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+  supporting DEL-02-02, DEL-06-01, and DEL-06-02 run records; SMOKE
+  TP-MAC-207; completion log entry.
+- Boundary unchanged: no DEC-018 catalog constant, schema enum,
+  `rule_pack.schema` contract, evaluator normalization, parser/text syntax,
+  backend validation/persistence behavior, protected standards content,
+  private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
