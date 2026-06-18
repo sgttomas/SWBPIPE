@@ -54,6 +54,13 @@ export function ReportLintPanel({
           testId="report-lint-clean-scan"
         />
         <LintLine
+          label="Unit policy"
+          value={`unit_targets=${packet.unit_policy_evidence.unit_policy_target_count}; conversion_witness_targets=${packet.unit_policy_evidence.conversion_witness_target_count}; lint_conversion=${String(
+            packet.unit_policy_evidence.lint_performs_conversion
+          )}; source=public_surface_inventory`}
+          testId="report-lint-unit-policy"
+        />
+        <LintLine
           label="Boundary"
           value={`legal=${String(packet.linter_status.legal_clearance)}; professional=${String(
             packet.linter_status.professional_approval
@@ -89,6 +96,7 @@ function buildReportLintPacket({
 }) {
   const targets = lintTargets({ model, result, analysisRun });
   const findings = lintFindings(targets);
+  const unitPolicyEvidence = buildUnitPolicyEvidence(targets);
 
   return {
     schema_version: "0.1.0",
@@ -107,6 +115,7 @@ function buildReportLintPacket({
       redaction_export_controls: "TBD",
       educational_example_dependency: "DAG-001-E0621_RETAINED_CANDIDATE_NON_GATING"
     },
+    unit_policy_evidence: unitPolicyEvidence,
     lint_run: {
       run_id: `lint:report-preview:${safeFileToken(result?.run_id ?? "not-run")}`,
       configuration: {
@@ -153,6 +162,164 @@ function buildReportLintPacket({
       },
       provenance: previewProvenance()
     }
+  };
+}
+
+const UNIT_POLICY_SURFACE_MARKERS = [
+  unitPolicySurface(
+    "apps/desktop/src/features/report/ReportPanel.tsx",
+    "report-unit-system",
+    "none",
+    "report packet unit-system disclosure"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+    "export-review-unit-policy",
+    "none",
+    "export safety review unit-policy inventory"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
+    "secret-private-unit-policy",
+    "none",
+    "secret/private-library metadata unit policy"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+    "editor-contract-unit-contract",
+    "none",
+    "editor contract unit-bearing operation rule"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "viewport-operation-unit-validation",
+    "none",
+    "viewport structured-operation unit validation"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+    "missing-data-unit-policy",
+    "none",
+    "missing-data remediation unit-input policy"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
+    "accessibility-baseline-unit-visibility",
+    "none",
+    "accessibility baseline unit-visibility inventory"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+    "design-workspace-units",
+    "none",
+    "design workspace result/comparison unit disclosure"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
+    "validation-evidence-units",
+    "none",
+    "validation evidence unit-policy visibility"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+    "local-fea-unit-witnesses",
+    "none",
+    "local FEA handoff unit witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+    "external-prover-units",
+    "none",
+    "external-prover metadata unit policy"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+    "review-geometry-unit-witnesses",
+    "none",
+    "review geometry export unit witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+    "pcf-export-units",
+    "pcf-export-conversion-witnesses",
+    "PCF target-format conversion witness visibility"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+    "caepipe-mbf-units",
+    "caepipe-mbf-conversion-witnesses",
+    "CAEPIPE MBF target-format conversion witness visibility"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+    "caepipe-external-units",
+    "none",
+    "CAEPIPE external harness parser unit witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
+    "export-adapter-sdk-units",
+    "none",
+    "export adapter SDK unit-policy evidence"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "stress-neutral-unit-witnesses",
+    "none",
+    "stress-neutral export unit witnesses"
+  )
+] as const;
+
+function unitPolicySurface(
+  sourcePath: string,
+  unitPolicySurfaceId: string,
+  conversionWitnessSurfaceId: string,
+  evidenceBasis: string
+) {
+  return {
+    source_path: sourcePath,
+    unit_policy_surface_id: unitPolicySurfaceId,
+    conversion_witness_surface_id: conversionWitnessSurfaceId,
+    evidence_basis: evidenceBasis
+  };
+}
+
+function buildUnitPolicyEvidence(targets: LintTargetDraft[]) {
+  const targetByPath = new Map(targets.map((item) => [item.path, item]));
+  const targetRefs = UNIT_POLICY_SURFACE_MARKERS.flatMap((marker) => {
+    const matchedTarget = targetByPath.get(marker.source_path);
+    if (!matchedTarget) return [];
+    return [
+      {
+        target_ref: reference("LintTarget", matchedTarget.target_id),
+        source_path: marker.source_path,
+        unit_policy_surface_id: marker.unit_policy_surface_id,
+        conversion_witness_surface_id: marker.conversion_witness_surface_id,
+        evidence_basis: marker.evidence_basis
+      }
+    ];
+  });
+  const conversionWitnessTargetCount = targetRefs.filter(
+    (item) => item.conversion_witness_surface_id !== "none"
+  ).length;
+
+  return {
+    evidence_id: "unit-policy-evidence:report-lint-public-surfaces",
+    evidence_kind: "public_surface_unit_policy_inventory",
+    unit_policy: "lint_targets_include_public_unit_policy_and_conversion_witness_surfaces",
+    scanned_target_count: targets.length,
+    unit_policy_target_count: targetRefs.length,
+    conversion_witness_target_count: conversionWitnessTargetCount,
+    lint_performs_conversion: false,
+    lint_asserts_target_format_compatibility: false,
+    target_conversion_claims_are_linted_only: true,
+    source: "ReportLintPanel explicit public-surface inventory",
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-08-05")
+    ],
+    target_refs: targetRefs
   };
 }
 

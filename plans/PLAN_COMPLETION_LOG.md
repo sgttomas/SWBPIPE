@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail report-lint unit policy inventory (`TP-UNITS-BTAIL-REPORTLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint unit-policy inventory
+slice while C5.7 remains human-execution gated. The DEL-08-05 report linter
+now exposes how its explicit public report/export target list intersects with
+unit-policy and target-format conversion-witness surfaces.
+
+The tranche adds `report-lint-unit-policy` to the Report Content Lint panel
+and `unit_policy_evidence` to the downloaded lint JSON. The row and packet
+report 17 public unit-policy targets, two target-format conversion-witness
+surfaces, `lint_conversion=false`, and no target compatibility assertion by
+the linter. This records inventory evidence only; the underlying
+protected-content heuristic and redaction/legal boundaries are unchanged.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-231; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-REPORTLINTUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 selected test; focused Playwright
+passed 1/1 Chromium desktop test; `git diff --check` passed; full desktop
+Vitest passed 18/18 files and 399/399 tests; desktop production build passed
+with the existing Vite large-chunk warning; single-worker R2/R3 Playwright
+smoke passed 18/18 tests.
+
+Boundary: no linter protected-content semantics, legal clearance, redaction
+controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail operation ledger unit policy visibility (`TP-UNITS-BTAIL-OPLEDGERUNITS-001`)
 
 Landed one bounded Phase B-tail Operation Review Ledger unit-policy visibility

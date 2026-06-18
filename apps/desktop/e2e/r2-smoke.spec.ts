@@ -451,6 +451,19 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);
+  const reportLint = page.getByLabel("Report content lint");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=17");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
+    "conversion_witness_targets=2"
+  );
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("lint_conversion=false");
+  const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
+  expect(lintHref).toBeTruthy();
+  const lintPacket = JSON.parse(decodeURIComponent(lintHref!.split(",", 2)[1]));
+  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(17);
+  expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
+  expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
+  expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
   const pcfExport = page.getByLabel("Conservative PCF export");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(

@@ -143,3 +143,30 @@ code-compliance decisions.
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-REPORTLINTUNITS-001 report-lint unit policy inventory
+
+- Primary role for Phase B-tail Report Content Lint unit-policy inventory:
+  the desktop report linter now exposes visible and exported inventory
+  evidence for public report/export lint targets that carry unit-policy or
+  target-format conversion-witness surfaces.
+- `data-testid="report-lint-unit-policy"` reports 17 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The lint JSON exports `unit_policy_evidence` with
+  `evidence_kind=public_surface_unit_policy_inventory`,
+  `lint_performs_conversion=false`, and
+  `lint_asserts_target_format_compatibility=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-REPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-231; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright 1/1 Chromium desktop test, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

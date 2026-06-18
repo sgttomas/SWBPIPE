@@ -1420,3 +1420,28 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-REPORTLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint unit-policy inventory tranche:
+  the Report Content Lint panel now records which explicit public
+  report/export lint targets carry unit-policy or target-format
+  conversion-witness evidence.
+- `data-testid="report-lint-unit-policy"` reports 17 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The exported lint packet records `unit_policy_evidence` with
+  `lint_performs_conversion=false` and no target compatibility assertion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-REPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-231; completion log entry; primary
+  DEL-08-05 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright 1/1 Chromium desktop test, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer
+  compatibility, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

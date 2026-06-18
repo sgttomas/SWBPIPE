@@ -215,6 +215,14 @@ unit-bearing/dimensionless change counts, unit-validation statuses,
 ledger receipt-unit boundary, and `conversion=false` without changing
 acceptance semantics or durable audit persistence.
 
+Latest B-tail update: `TP-UNITS-BTAIL-REPORTLINTUNITS-001`
+(SMOKE TP-MAC-231) landed on 2026-06-17. The Report Content Lint panel now
+exposes visible and exported unit-policy inventory evidence for public
+report/export surfaces: 17 unit-policy targets, two target-format
+conversion-witness surfaces, `lint_conversion=false`, and explicit no target
+compatibility assertion without changing linter semantics or legal/redaction
+clearance policy.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

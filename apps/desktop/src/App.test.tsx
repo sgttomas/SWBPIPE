@@ -1497,6 +1497,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
       "clearance=false"
     );
+    expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
+      "unit_targets=17"
+    );
+    expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
+      "conversion_witness_targets=2"
+    );
+    expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
+      "lint_conversion=false"
+    );
     expect(within(reportLint).getByTestId("report-lint-boundary").textContent).toContain("legal=false");
     expect(within(reportLint).getByTestId("report-lint-boundary").textContent).toContain(
       "professional=false"
@@ -1511,6 +1520,23 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.linter_status.legal_clearance).toBe(false);
     expect(lintPacket.linter_status.professional_approval).toBe(false);
     expect(lintPacket.linter_status.ci_release_policy).toBe("TBD");
+    expect(lintPacket.unit_policy_evidence.evidence_kind).toBe("public_surface_unit_policy_inventory");
+    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(17);
+    expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
+    expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
+    expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
+    expect(lintPacket.unit_policy_evidence.target_refs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source_path: "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+          conversion_witness_surface_id: "pcf-export-conversion-witnesses"
+        }),
+        expect.objectContaining({
+          source_path: "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+          conversion_witness_surface_id: "caepipe-mbf-conversion-witnesses"
+        })
+      ])
+    );
     expect(lintPacket.lint_run.configuration.private_surface_default).toBe(
       "skip_unless_explicitly_authorized"
     );
