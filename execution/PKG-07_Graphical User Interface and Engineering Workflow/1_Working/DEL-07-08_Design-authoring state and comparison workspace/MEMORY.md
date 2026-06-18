@@ -135,3 +135,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   protected standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-08: Export Safety Review now inventories
+  `design_authoring_comparison_workspace` as unit-evidence-required because
+  the design-workspace packet already carries
+  `unit-policy-evidence:design-workspace-preview`.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=24/25`, and proposal-path evidence reports 25/25 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-268; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no design-workspace composition behavior, model
+  mutation, comparison delta math, tolerance profile, operation application,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -530,6 +530,17 @@ unit-evidence inventory without changing accessibility findings, target
 conformance posture, target writers, manifest-level unit conversion, or unit
 conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001`
+(SMOKE TP-MAC-268) landed on 2026-06-18. Export Safety Review now classifies
+`design_authoring_comparison_workspace` as unit-evidence-required because the
+DEL-07-08 Design Workspace packet already exposes DEC-018/DEC-026 unit-policy
+evidence for model, result, analysis-run, and comparison context. Solved
+queued-intent coverage is now `covered=24/25`; proposal-path coverage is
+25/25 once `agent_proposal_review` is available. This records design-workspace
+unit-evidence inventory without changing design-workspace composition,
+comparison delta math, tolerance profile, operation application, target
+writers, manifest-level unit conversion, or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

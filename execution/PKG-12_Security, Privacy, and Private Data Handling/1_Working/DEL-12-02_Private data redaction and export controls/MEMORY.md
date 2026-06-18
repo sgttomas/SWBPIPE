@@ -341,3 +341,30 @@ Durable context preserved after reconciliation review:
   evaluation, color signaling policy, protected content, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `design_authoring_comparison_workspace` as unit-evidence-required because
+  the DEL-07-08 Design Workspace packet already carries
+  `unit_policy_evidence` for model, result, analysis-run, and comparison
+  context.
+- The design-workspace export row records
+  `unit_policy_ref=unit-policy-evidence:design-workspace-preview`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=24/25`; proposal
+  path evidence reports 25/25 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-268; active plan and completion log entries;
+  supporting DEL-07-08 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, design-workspace
+  behavior, comparison delta math, tolerance profile, operation application,
+  accepted model-state mutation, protected content, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
