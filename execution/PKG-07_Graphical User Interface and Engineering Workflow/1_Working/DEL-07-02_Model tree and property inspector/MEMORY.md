@@ -1,5 +1,45 @@
 # DEL-07-02 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-02: Report Content Lint now inventories the
+  existing Property Inspector operation unit-validation surface through
+  `property-inspector-unit-validation-surface`.
+- The lint packet now includes
+  `apps/desktop/src/features/model-tree/PropertyInspector.tsx` and
+  `target:desktop-property-inspector-template`; public unit-policy targets
+  increase from 39 to 40 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-257; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-16-02/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render; focused Property
+  Inspector create-intent App tests 4/4; focused R2 Playwright smoke 2/2;
+  full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no GUI behavior, editor-intent construction, operation
+  validation/application, unit conversion behavior, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SUPPORTUNITS-001 support stiffness unit authoring
+
+- WORKING_ITEMS added support creation linear-stiffness unit/value controls to
+  the Property Inspector and preserves the entered `{value, unit}` in the
+  queued `create_support` operation payload.
+- Applied support rows now display the preserved linear-stiffness value/unit in
+  the selected support properties readback.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-191.
+- Validation passed: operation-applier cargo suite, focused App Vitest, full
+  desktop Vitest 390/390, desktop build, and Rust formatting check.
+- Boundary unchanged: local preview authoring only; no protected content,
+  private data, network/telemetry path, lifecycle state transition,
+  professional approval, release-readiness, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented a deterministic model-tree/property-inspector contract slice under
@@ -755,3 +795,92 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001 property inspector unit validation evidence
+
+- Primary role for a bounded Phase B-tail Property Inspector/unit-validation
+  slice while C5.7 remains human-execution gated.
+- Unit-bearing Property Inspector modify intents and explicit create-section,
+  create-material, and create-support intents now record unit-dimension
+  validation status instead of `unit_validation=not_run`.
+- Browser preview records model-metadata declaration because the reviewed
+  DEC-018 catalog is exposed only through the desktop backend command;
+  desktop/Tauri routes can record accepted DEC-018 dimension matches or
+  explicit mismatch/unreviewed/loading statuses.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-206; completion log entry.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 397/397 tests, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver behavior, operation
+  application semantics, accepted model-state mutation, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 delete-intent unit validation evidence
+
+- Primary role for a bounded Phase B-tail Property Inspector/delete-intent
+  unit-validation slice while C5.7 remains human-execution gated.
+- Explicit support, node, and pipe delete intent previews now record
+  `unit_validation=not_required_dimensionless` instead of leaving
+  `unit_validation=not_run`.
+- Delete intents do not introduce new unit-bearing numeric quantities; schema
+  and reference checks remain in the existing validate/apply path.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-216; completion log entry.
+- Validation passed: focused App Vitest 56/56. Broader validation is recorded
+  in the tranche run record and closeout sweep artifact.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, delete operation behavior,
+  reference validation, operation application semantics, accepted model-state
+  mutation, solver behavior, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001 supporting GUI evidence
+
+- Supporting role for DEL-05-02 Load Cases manager tranche: non-unit-bearing
+  load-case and combination operation previews now render
+  `unit_validation=not_required_dimensionless` beside their existing
+  `unit=none`, `dimensionless`, direct-mutation, and professional-boundary
+  markers.
+- Primitive load magnitude create/edit previews remain unit-bearing and keep
+  the existing unit/dimension validation helper.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-217; completion log entry.
+- Validation passed: focused manager App Vitest 18/18, full desktop Vitest
+  399/399, focused R2/R3 Playwright 14/14, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no GUI behavior changed beyond preview metadata
+  rendering; no operation application, accepted model-state mutation, durable
+  persistence, unit conversion, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+## 2026-06-18 - TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-02: Report Content Lint now inventories the
+  existing Load Case Manager operation unit-validation surface through
+  `load-manager-unit-validation-surface`.
+- The lint packet now includes
+  `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx` and
+  `target:desktop-load-case-manager-template`; public unit-policy targets
+  increase from 38 to 39 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-256; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-05-01/DEL-05-02/DEL-16-02/DEL-02-02
+  run records.
+- Validation passed: focused App Vitest workspace-render; focused load/unit
+  App tests 26/26; focused R2 Playwright smoke 2/2; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; `git diff --check`;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no GUI behavior, load-case editing, operation
+  validation/application, unit conversion behavior, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

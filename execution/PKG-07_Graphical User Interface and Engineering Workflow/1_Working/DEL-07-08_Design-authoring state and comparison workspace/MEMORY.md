@@ -113,3 +113,48 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001 primary evidence
+
+- Primary role for design workspace/unit-evidence tranche: the desktop
+  design-authoring workspace packet now carries `unit_policy_evidence` for
+  the composed model, result, analysis-run, and comparison context, and the
+  workspace panel exposes the policy in `design-workspace-units`.
+- The packet records DEC-018 unit-system identity, entered-unit preservation,
+  sorted model units, result units when a run exists, comparison units when a
+  comparison exists, the embedded comparison unit-policy evidence ref,
+  `conversion_performed=false`, and DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis
+  refs.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no model mutation, comparison delta math, tolerance
+  profile, default tolerance, solver behavior, external validation decision,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-08: Export Safety Review now inventories
+  `design_authoring_comparison_workspace` as unit-evidence-required because
+  the design-workspace packet already carries
+  `unit-policy-evidence:design-workspace-preview`.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=24/25`, and proposal-path evidence reports 25/25 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-268; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no design-workspace composition behavior, model
+  mutation, comparison delta math, tolerance profile, operation application,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

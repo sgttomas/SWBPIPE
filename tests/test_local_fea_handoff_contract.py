@@ -36,6 +36,8 @@ REQUIRED_DEFS = {
     "Reproducibility",
     "SourceRefs",
     "TransferBasis",
+    "UnitPreservationQuantity",
+    "UnitPreservationWitness",
     "UnitsManifest",
     "UnsupportedBehaviorFlag",
 }
@@ -141,6 +143,8 @@ def main():
         "units_manifest",
         "entity_ids",
         "transfer_basis",
+        "unit_witness_policy",
+        "unit_preservation_witnesses",
         "guidance_assessment",
         "assumptions",
         "unsupported_behavior_flags",
@@ -154,6 +158,12 @@ def main():
     package = defs["HandoffPackage"]["properties"]
     assert package["source_refs"]["$ref"] == "#/$defs/SourceRefs"
     assert package["reproducibility"]["$ref"] == "#/$defs/Reproducibility"
+    assert package["unit_witness_policy"]["const"] == (
+        "preserve_source_result_units_for_referenced_transfer_results"
+    )
+    assert package["unit_preservation_witnesses"]["items"]["$ref"] == (
+        "#/$defs/UnitPreservationWitness"
+    )
 
     source_required = required_at(schema, "SourceRefs")
     assert {
@@ -209,6 +219,38 @@ def main():
         "user_reviewed_interpolation_reference",
         "TBD",
     } <= set(defs["TransferBasis"]["properties"]["transfer_method_label"]["enum"])
+
+    witness_required = required_at(schema, "UnitPreservationWitness")
+    assert {
+        "source_result_ref",
+        "source_quantity",
+        "target_result_ref",
+        "target_field_path",
+        "target_quantity_policy",
+        "export_unit_policy",
+        "conversion_performed",
+        "unit_system_ref",
+        "provenance",
+    } <= witness_required
+    witness = defs["UnitPreservationWitness"]["properties"]
+    assert witness["target_quantity_policy"]["const"] == (
+        "referenced_result_value_and_unit_preserved_by_source_ref"
+    )
+    assert witness["export_unit_policy"]["const"] == (
+        "preserve_source_result_unit_and_dimension"
+    )
+    assert witness["conversion_performed"]["const"] is False
+    assert {
+        "handoff_package.transfer_basis.displacement_result_refs[]",
+        "handoff_package.transfer_basis.force_result_refs[]",
+        "handoff_package.transfer_basis.moment_result_refs[]",
+    } <= set(witness["target_field_path"]["enum"])
+
+    quantity_required = required_at(schema, "UnitPreservationQuantity")
+    assert {"value", "unit", "dimension"} <= quantity_required
+    assert {"length", "force", "moment", "stress", "angle", "TBD"} <= set(
+        defs["UnitPreservationQuantity"]["properties"]["dimension"]["enum"]
+    )
 
     assessment_required = required_at(schema, "GuidanceAssessment")
     assert {

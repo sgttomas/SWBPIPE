@@ -1,5 +1,53 @@
 # DEL-07-07 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-07: Report Content Lint now inventories the
+  existing Diagnostics public unit-context surface,
+  `diagnostic-unit-context`.
+- The lint packet now includes
+  `apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx` and
+  `target:desktop-diagnostics-template`; public unit-policy targets increase
+  from 34 to 35 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-252; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-02-02 run record.
+- Validation passed: focused App Vitest workspace-render, diagnostic detail,
+  and local project round-trip tests; focused Playwright R2 smoke 2/2;
+  focused diagnostic Playwright 2/2; full desktop Vitest 399/399;
+  single-worker R2/R3 Playwright smoke 18/18; and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no diagnostic schema, diagnostic interpretation
+  behavior, solver behavior, result values, unit-conversion API, DEC-018
+  catalog constant, schema dimension enum, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001 supporting solve-execution evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Solve execution unit-policy surface.
+- The lint inventory records `solve-job-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=27`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Solve
+  execution panel continues to expose solve-job audit unit evidence without
+  changing execution, analysis-run hash, cancellation, progress, or backend
+  job behavior.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no solve execution behavior, analysis-run hash
+  generation, cancellation/progress semantics, backend job behavior,
+  report-linter protected-content semantics, legal clearance, redaction
+  controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented deterministic solve-execution UX contract records under
@@ -217,3 +265,52 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DIAGNOSTICUNITS-001 diagnostic unit context evidence
+
+- WORKING_ITEMS Phase B-tail tranche exposed explicit unit context for
+  selected diagnostic linked results in the desktop Diagnostic Detail panel.
+- Diagnostic linked-result interpretation records now carry first-class
+  `unit` and `unit_source` fields sourced from the result envelope, and
+  `data-testid="diagnostic-unit-context"` renders linked result count, units,
+  `source=result_envelope`, and `conversion=false`.
+- For `HIGH_DISPLACEMENT_REVIEW`, the selected node-level diagnostic links
+  21 result rows for `node:N-140` with units `mm,rad`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-224; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright diagnostic smoke 2/2, full desktop Vitest 399/399, R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no diagnostic schema, solver behavior, result value,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SOLVEJOBUNITS-001 solve-job unit policy evidence
+
+- Primary role for DEL-07-07 solve-job unit-policy visibility tranche: the
+  Solve execution panel now exposes model/result unit basis in the solve-job
+  audit row and downloaded JSON packet.
+- `data-testid="solve-job-unit-policy"` reports sorted model units, solved
+  result units or `results=none`, result row count, and `conversion=false`.
+  The solve-job JSON records `unit_policy_evidence` with DEC-018 unit-system
+  ref, DEL-02-02/DEL-07-07 basis refs, storage convention, analysis-run ref,
+  result units, and no-conversion policy.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-233; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: focused App Vitest not-started and solved-state tests,
+  focused Playwright R2 solve smoke 2/2, `git diff --check`, full desktop
+  Vitest 399/399, single-worker R2/R3 Playwright smoke 18/18, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no solve execution behavior, solver backend seam,
+  result values, analysis-run hashes, cancellation behavior, DEC-018 catalog
+  constant, schema dimension enum, unit-conversion API, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

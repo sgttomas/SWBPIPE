@@ -426,6 +426,26 @@ def test_tolerance_schema_contract():
         tolerance_value["oneOf"][1]["enum"]
     )
     assert {
+        "relative_tolerance_value",
+        "absolute_tolerance_value",
+        "tolerance_pair_policy",
+    } <= set(defs["ToleranceRule"]["properties"])
+    relative_value = defs["ToleranceRule"]["properties"]["relative_tolerance_value"]
+    absolute_value = defs["ToleranceRule"]["properties"]["absolute_tolerance_value"]
+    assert relative_value["oneOf"][0]["minimum"] == 0
+    assert absolute_value["oneOf"][0]["minimum"] == 0
+    assert {
+        "relative_plus_absolute_floor",
+        "single_absolute_delta",
+        "TBD",
+    } <= set(defs["ToleranceRule"]["properties"]["tolerance_pair_policy"]["enum"])
+    assert {"TBD", "externally_governed_reference_required"} <= set(
+        relative_value["oneOf"][1]["enum"]
+    )
+    assert {"TBD", "externally_governed_reference_required"} <= set(
+        absolute_value["oneOf"][1]["enum"]
+    )
+    assert {
         "externally_governed",
         "project_specific_review_required",
         "not_defined",
@@ -433,10 +453,22 @@ def test_tolerance_schema_contract():
     } <= set(defs["ToleranceRule"]["properties"]["tolerance_value_status"]["enum"])
     numeric_guard = defs["ToleranceRule"]["allOf"][0]
     assert numeric_guard["if"]["properties"]["tolerance_value"]["type"] == "number"
+    pair_guard = defs["ToleranceRule"]["allOf"][1]
+    assert {
+        "relative_tolerance_value",
+        "absolute_tolerance_value",
+    } == {
+        item["required"][0]
+        for item in pair_guard["if"]["anyOf"]
+    }
     assert {
         "externally_governed",
         "project_specific_review_required",
     } == set(numeric_guard["then"]["properties"]["tolerance_value_status"]["enum"])
+    assert {
+        "externally_governed",
+        "project_specific_review_required",
+    } == set(pair_guard["then"]["properties"]["tolerance_value_status"]["enum"])
     assert {
         "same_unit_required",
         "unit_conversion_required",

@@ -9,6 +9,61 @@ package_id: PKG-16
 
 # DEL-16-03 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 Report Content Lint inventory tranche: the
+  desktop report-lint public-surface inventory now includes the Apply
+  Operations unit-policy evidence surface (`operation-apply-unit-policy`).
+- This records the existing queued-operation and applied-receipt unit-policy
+  context without changing operation application, acceptance semantics,
+  durable audit persistence, receipt schema, operation validation, or
+  operation-ledger packet semantics.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no operation application, acceptance semantics, durable
+  audit persistence, receipt schema, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 Report Content Lint inventory tranche: the
+  desktop report-lint public-surface inventory now includes the Operation
+  Review Ledger unit-policy evidence surface
+  (`operation-ledger-unit-policy`).
+- This records the existing review-only operation ledger unit-policy evidence
+  without changing operation application, acceptance semantics, durable audit
+  persistence, receipt schema, or operation-ledger packet semantics.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest rerun 399/399 after an order-sensitive
+  Operation Ledger status mismatch was confirmed passing in isolation,
+  desktop production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPLEDGERUNITS-001
+
+- The desktop Operation Review Ledger now exposes a visible and exported
+  unit-policy summary for queued GUI operation intents and agent proposal
+  review records.
+- The summary records unit-bearing/dimensionless change counts, unit
+  validation statuses, `receipt_units=not_serialized_in_review_ledger`, and
+  `conversion=false`; it does not change operation application, acceptance
+  semantics, durable audit persistence, receipt schema, or solver behavior.
+- Validation passed: focused App Vitest 3/3 selected tests; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation application, acceptance semantics, durable
+  audit persistence, receipt schema, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 Implemented a narrow deterministic operation audit trail module at
 `core/model_operations/audit_trail/`.
 
@@ -621,3 +676,42 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001 supporting audit evidence
+
+- Supporting role for DEL-16-02 operation diff tranche: queued-operation
+  review evidence now carries DEC-018 disclosure and per-unit-bearing-diff-row
+  unit-preservation witnesses before any user acceptance or application.
+- The evidence confirms operation review rows preserve entered unit and
+  dimension metadata while remaining held for user acceptance and
+  `accepted_model_state_mutated=false`.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no operation application, accepted model-state mutation,
+  durable acceptance persistence, operation schema change, protected standards
+  content, private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting audit evidence
+
+- Supporting role for DEL-16-03: proposal review records now preserve explicit
+  metadata-only unit validation status in the operation ledger while remaining
+  held for user acceptance.
+- The ledger still records `accepted_model_state_mutated=false`,
+  `unit_bearing_changes=0`, and `conversion=false`; the added status is
+  `not_required_metadata_review_only`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-02/DEL-08-05/DEL-12-02/DEL-08-04/DEL-02-02 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no user acceptance semantics, operation application,
+  durable acceptance authority, model mutation, unit conversion, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

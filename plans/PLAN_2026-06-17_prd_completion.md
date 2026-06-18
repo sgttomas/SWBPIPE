@@ -117,7 +117,7 @@ Phases are ordered by dependency, not strictly by execution. Each numbered item 
 
 | # | Tranche scope |
 |---|---|
-| C5.6 | **Packaged journey successor kit** (`TP-R3UX-PACKAGEKIT-001`, target SMOKE TP-MAC-188): build a fresh `.app`, boot-check it, and add a TP-MAC-141 successor checklist covering both the A12 authoring journey and the R3 rule-pack/library journey; record commit, command, bundle path, and boundaries. Prepares human execution; does not close F-4. **This is the next ordinary tranche.** |
+| C5.6 | **LANDED 2026-06-17** (`TP-R3UX-PACKAGEKIT-001`, SMOKE TP-MAC-188): fresh `.app` built and boot-checked; successor A12 + R3 packaged human checklist prepared. Evidence: `DEL-07-06 .../WORKING_ITEMS_RUN_2026-06-17_TP-R3UX-PACKAGEKIT-001.md`; log: [PLAN_COMPLETION_LOG.md](PLAN_COMPLETION_LOG.md). F-4 and the A3 authoring-usability finding remain open until C5.7 human pass/fail is recorded |
 | C5.7 | **Human packaged pass recording** (`TP-R3UX-HUMANPASS-001`, target SMOKE TP-MAC-189): human runs the packaged successor checklist; record pass/fail by step. Pass closes F-4 and the A3 authoring-usability finding; fail records the next bounded repair. If the structured rule composer is criticized, re-present `D-02b` per `DEC-037` |
 | C5.8 | **R3 exit evidence package** (`TP-R3VERIFY-001`, target SMOKE TP-MAC-190): assemble `plans/VERIFICATION_<date>_r3_exit_chain.md` with automated evidence, packaged human-pass evidence, C1–C4 references, and C5 usability closure — for human R3 exit review only. R3 exit review (and any R3→R4 stage advancement) is human-gated; agents propose with evidence |
 
@@ -127,9 +127,452 @@ Phases are ordered by dependency, not strictly by execution. Each numbered item 
 
 | # | Tranche scope |
 |---|---|
-| B-tail | Broader app unit entry/pickers beyond the landed surfaces (material/section/node-coordinate/viewport-draft/primitive-load/inspector/rule-pack/run-check), and the remaining target-format conversion witnesses outside the PCF/CAEPIPE/stress-neutral/review-geometry/native-JSON boundaries already covered. Plus the D-04/`DEC-026` mixed-unit tolerance corpus outside the boundaries named in the superseded plan's B3 row. Each slice is a small bounded tranche |
+| B-tail | **PARTIAL 2026-06-17** (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, SMOKE TP-MAC-191; `TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`, SMOKE TP-MAC-192; `TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001`, SMOKE TP-MAC-193; `TP-UNITS-BTAIL-COMPTOLCORPUS-001`, SMOKE TP-MAC-194; `TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001`, SMOKE TP-MAC-195; `TP-UNITS-BTAIL-ADAPTERSDKUNITS-001`, SMOKE TP-MAC-196; `TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, SMOKE TP-MAC-197; `TP-UNITS-BTAIL-SECLIBQTYUNITS-001`, SMOKE TP-MAC-198; `TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001`, SMOKE TP-MAC-199; `TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001`, SMOKE TP-MAC-200; `TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001`, SMOKE TP-MAC-201; `TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001`, SMOKE TP-MAC-202; `TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001`, SMOKE TP-MAC-203; `TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001`, SMOKE TP-MAC-204; `TP-UNITS-BTAIL-LOADCASEUNITVALID-001`, SMOKE TP-MAC-205; `TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001`, SMOKE TP-MAC-206; `TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001`, SMOKE TP-MAC-207; `TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001`, SMOKE TP-MAC-208; `TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001`, SMOKE TP-MAC-209; `TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001`, SMOKE TP-MAC-210; `TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001`, SMOKE TP-MAC-211; `TP-UNITS-BTAIL-COMPARISONGUIUNITS-001`, SMOKE TP-MAC-212; `TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001`, SMOKE TP-MAC-213; `TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001`, SMOKE TP-MAC-214; `TP-UNITS-BTAIL-RESULTVIEWUNITS-001`, SMOKE TP-MAC-215; `TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001`, SMOKE TP-MAC-216): support creation now accepts explicit linear-stiffness unit/value entry through the Property Inspector and operation applier; local FEA handoff transfer-basis refs, schema-first result-export rows, local review handoff packages, the headless-runner result-handoff envelope, CAEPIPE external parser rows, operation diff preview rows, external-prover metadata packets, comparison workspace packets, the design-authoring workspace packet, the Project Validation Preflight packet, the Results viewer, and support/node/pipe delete intent previews now carry source value/unit, unit-policy preservation, or explicit non-unit-bearing unit-validation witnesses with `conversion_performed=false` where applicable; analysis-run comparison now has DEC-026-style mixed-unit relative+absolute tolerance corpus evidence with no default tolerance, and the GUI comparison packet now records equal-explicit-unit matching policy without changing delta math or tolerance classification; component-library, material-library, and section-library drafts now have private unit helpers with DEC-018-filtered desktop choices; export-adapter SDK admission packages, the format-neutral adapter-framework preview, the external-prover boundary metadata preview, and the Export Safety Review manifest now carry DEC-018 unit-policy evidence without target-writer conversion or support claims; load-case primitive create/edit/delete, Property Inspector unit-bearing edit/create intents and non-unit-bearing delete intents, and explicit viewport node/straight-pipe geometry intents now record unit-dimension validation status instead of `unit_validation=not_run` for covered quantities/operations; rule-pack declaration and expression unit refs now show stored-unit policy and unit-dimension validation evidence while preserving browser manual entry and desktop DEC-018 selectors; the PCF export panel now visibly reports the existing conversion-witness count/scope/target unit in browser smoke. Remaining: broader app unit entry/pickers beyond the covered viewport/property/load/rule/library surfaces and remaining target-format conversion witnesses outside already-covered boundaries |
 
-### Phase D — R4: piping components and nonlinear supports (solver depth)
+Latest B-tail update: `TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001`
+(SMOKE TP-MAC-217) landed on 2026-06-17. Non-unit-bearing Load Cases manager
+load-case and combination operation previews now record
+`unit_validation=not_required_dimensionless`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`
+(SMOKE TP-MAC-218) landed on 2026-06-17. The reference-only viewport
+component-symbol placeholder now records
+`unit_validation=not_required_dimensionless`; generic node/pipe-run
+placeholders were later covered by `TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`
+(SMOKE TP-MAC-219) landed on 2026-06-17. The Validation Evidence panel and
+packet now expose DEC-018 project-unit context, unit-bearing record count, the
+`unit_and_schema_verification` manual section, and
+`conversion_performed=false` without adding release thresholds.
+
+Latest B-tail update: `TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001`
+(SMOKE TP-MAC-220) landed on 2026-06-17. The Missing Data Blocking panel and
+warning packet now expose explicit unit-input policy evidence for unit-bearing
+missing inputs, including DEC-018/DEL-02-02 refs, sorted project units, no
+inferred/default units, no auto-filled missing units, and
+`conversion_performed=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-A11YUNITVISIBILITY-001`
+(SMOKE TP-MAC-221) landed on 2026-06-17. The Accessibility Baseline panel and
+packet now expose unit-visibility evidence for unit-bearing review surfaces,
+including DEC-018/DEL-02-02/DEL-07-05/DEL-07-06 refs, sorted project units,
+no color-only unit signaling, and `conversion_performed=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RUNAUDITUNITS-001`
+(SMOKE TP-MAC-222) landed on 2026-06-17. The Run Audit panel now exposes
+unit traceability for solved analysis runs, including sorted model units,
+result row unit symbols, row count, `source=result_envelope`, and
+`conversion=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-KNOWLEDGEUNITS-001`
+(SMOKE TP-MAC-223) landed on 2026-06-17. The Design Knowledge panel now
+exposes computed-result unit context for result-derived knowledge records,
+including unit-bearing ref count, result unit symbols,
+`source=computed_preview_result`, and `conversion=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-DIAGNOSTICUNITS-001`
+(SMOKE TP-MAC-224) landed on 2026-06-17. The Diagnostic Detail panel now
+exposes linked-result unit context for selected diagnostics, including linked
+result count, first-class result unit symbols, `source=result_envelope`, and
+`conversion=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`
+(SMOKE TP-MAC-225) landed on 2026-06-17. Generic viewport `create_node` and
+`connect_pipe_run` gesture placeholders now record length unit-dimension
+validation status while preserving review-only service-validation/no-mutation
+behavior; component-symbol remains `not_required_dimensionless`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001`
+(SMOKE TP-MAC-226) landed on 2026-06-17. The Secret & Private Libraries panel
+now exposes metadata-only unit policy for unit-bearing private material/rule
+references: explicit unit metadata required at use, no private unit payload in
+the preview packet, and `conversion=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001`
+(SMOKE TP-MAC-227) landed on 2026-06-17. The Editor Contract review panel now
+exposes the DEL-02-02 unit contract already carried in its exported packet:
+dimension schema ref, explicit-unit policy, and diagnostic-blocking behavior
+for missing units.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RULECHECKBINDUNITS-001`
+(SMOKE TP-MAC-228) landed on 2026-06-17. The Run Rule Checks binding plan now
+exposes runtime unit-binding policy for value inputs, value slots,
+solver-result bindings, private-library references, catalog route, and
+`conversion=false` without changing rule evaluation or conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-OPAPPLYUNITS-001`
+(SMOKE TP-MAC-229) landed on 2026-06-17. The Apply Operations panel now
+exposes queued unit-bearing/dimensionless intent counts, outcome
+unit-validation statuses, applied receipt count, receipt unit-serialization
+policy, and `conversion=false` without changing apply semantics or receipt
+schema.
+
+Latest B-tail update: `TP-UNITS-BTAIL-OPLEDGERUNITS-001`
+(SMOKE TP-MAC-230) landed on 2026-06-17. The Operation Review Ledger now
+exposes visible and exported unit-policy evidence for review records:
+unit-bearing/dimensionless change counts, unit-validation statuses,
+ledger receipt-unit boundary, and `conversion=false` without changing
+acceptance semantics or durable audit persistence.
+
+Latest B-tail update: `TP-UNITS-BTAIL-REPORTLINTUNITS-001`
+(SMOKE TP-MAC-231) landed on 2026-06-17. The Report Content Lint panel now
+exposes visible and exported unit-policy inventory evidence for public
+report/export surfaces: 17 unit-policy targets, two target-format
+conversion-witness surfaces, `lint_conversion=false`, and explicit no target
+compatibility assertion without changing linter semantics or legal/redaction
+clearance policy.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001`
+(SMOKE TP-MAC-232) landed on 2026-06-17. The Rendered Report panel now exposes
+the render-input unit basis before invoking the desktop-only renderer route:
+DEC-018 unit-system ref, sorted model units, solved result units or
+`results=none`, and `conversion=false` without changing the renderer command,
+report schema, canonical hash behavior, or report-time conversion policy.
+
+Latest B-tail update: `TP-UNITS-BTAIL-SOLVEJOBUNITS-001`
+(SMOKE TP-MAC-233) landed on 2026-06-17. The Solve execution panel and
+solve-job JSON now expose unit-policy evidence for the job audit: sorted model
+units, solved result units or `results=none`, result row count,
+DEC-018/DEL-02-02 basis refs, and `conversion=false` without changing solve
+execution, analysis-run hashes, cancellation behavior, or unit conversion
+policy.
+
+Latest B-tail update: `TP-UNITS-BTAIL-STORAGEUNITS-001`
+(SMOKE TP-MAC-234) landed on 2026-06-18. The Project Storage Audit panel and
+local storage JSON now expose structured unit-policy evidence for local
+project unit round-trip metadata: sorted model units, persisted round-trip
+status/signature, DEC-018/DEL-02-02 basis refs, and `conversion=false`. The
+Report Content Lint inventory now includes this public unit-policy surface
+(`unit_targets=18`) without changing persistence semantics, migration policy,
+hash canonicalization, or linter protected-content semantics.
+
+Latest B-tail update: `TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001`
+(SMOKE TP-MAC-235) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Native JSON Package public unit-preservation surface
+(`native-package-unit-witnesses`), raising public unit-policy targets to 19
+while keeping target-format conversion witnesses at two. This records the
+existing native package project/model/result unit witnesses without changing
+the native JSON packet, package hashing, target compatibility posture, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001`
+(SMOKE TP-MAC-236) landed on 2026-06-18. The Export Safety Review
+`unit_evidence_matrix` now treats the Project Storage Audit and Project
+Validation Preflight records as unit-evidence-required because both packets
+carry DEC-018 unit-policy evidence, raising the export-review unit coverage
+line from `covered=14/14` to `covered=16/16` without changing persistence,
+preflight, redaction, transport, target-writer, or conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001`
+(SMOKE TP-MAC-237) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Project Validation Preflight public unit-policy surface
+(`project-validation-unit-policy`), raising public unit-policy targets to 20
+while keeping target-format conversion witnesses at two. This records the
+existing Project Validation Preflight DEC-018 unit evidence without changing
+preflight semantics, persistence behavior, linter semantics, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001`
+(SMOKE TP-MAC-238) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Operation Diff Preview public unit-witness surface
+(`operation-diff-unit-witnesses`), raising public unit-policy targets to 21
+while keeping target-format conversion witnesses at two. This records the
+existing diff-preview DEC-018 unit witness evidence without changing
+diff-preview semantics, operation validation/application behavior, linter
+semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001`
+(SMOKE TP-MAC-239) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Result Export public unit-witness surface
+(`result-export-unit-witnesses`), raising public unit-policy targets to 22
+while keeping target-format conversion witnesses at two. This records the
+existing result-envelope unit preservation witnesses without changing
+result-export semantics, result envelope schema, linter semantics, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-HANDOFFLINTUNITS-001`
+(SMOKE TP-MAC-240) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Handoff Package public unit-witness surface
+(`handoff-unit-witnesses`), raising public unit-policy targets to 23 while
+keeping target-format conversion witnesses at two. This records the existing
+handoff package result-unit preservation witnesses without changing handoff
+packet semantics, handoff schema, target mapping, linter semantics, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001`
+(SMOKE TP-MAC-241) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Headless Runner public unit-witness surface
+(`headless-runner-unit-witnesses`), raising public unit-policy targets to 24
+while keeping target-format conversion witnesses at two. This records the
+existing headless runner result-handoff unit preservation witnesses without
+changing headless-runner packet semantics, schema/runtime policy, final CLI
+syntax, linter semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001`
+(SMOKE TP-MAC-242) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Adapter Framework public unit-policy surface
+(`adapter-framework-units`), raising public unit-policy targets to 25 while
+keeping target-format conversion witnesses at two. This records the existing
+format-neutral adapter framework unit-policy evidence without changing
+adapter-framework packet semantics, concrete external formats, public
+transport, plugin/runtime policy, linter semantics, or unit conversion
+behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001`
+(SMOKE TP-MAC-247) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Apply Operations public unit-policy surface
+(`operation-apply-unit-policy`), raising public unit-policy targets to 30
+while keeping target-format conversion witnesses at two. This records the
+existing queued-operation and receipt unit-policy context without changing
+operation application, acceptance semantics, receipt schema, linter semantics,
+or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001`
+(SMOKE TP-MAC-248) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Results Viewer public result-unit policy surface
+(`result-unit-policy`), raising public unit-policy targets to 31 while keeping
+target-format conversion witnesses at two. This records the existing solved
+results unit-policy context without changing result math, filtering,
+pagination, selected-result interpretation, solver behavior, linter
+semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001`
+(SMOKE TP-MAC-249) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Rendered Report public unit-basis surface
+(`rendered-report-unit-basis`), raising public unit-policy targets to 32 while
+keeping target-format conversion witnesses at two. This records the existing
+renderable-report unit-basis context without changing renderer routing,
+canonical hash policy, export gates, report content, linter semantics, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-COMPARISONLINTUNITS-001`
+(SMOKE TP-MAC-250) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Comparison Workspace public unit-matching policy surface
+(`comparison-unit-policy`), raising public unit-policy targets to 33 while
+keeping target-format conversion witnesses at two. This records the existing
+equal-explicit-unit matching context without changing comparison delta math,
+result mapping, tolerance profiles, solver behavior, linter semantics, or
+unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RULECHECKLINTUNITS-001`
+(SMOKE TP-MAC-251) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Run Rule Checks public unit-binding policy surface
+(`rule-check-unit-binding-policy`), raising public unit-policy targets to 34
+while keeping target-format conversion witnesses at two. This records the
+existing runtime value-binding unit policy context without changing rule-pack
+schema, expression grammar, backend completeness/evaluator behavior, linter
+semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001`
+(SMOKE TP-MAC-252) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Diagnostics public linked-result unit context surface
+(`diagnostic-unit-context`), raising public unit-policy targets to 35 while
+keeping target-format conversion witnesses at two. This records the existing
+diagnostic detail result-unit context without changing diagnostic schema,
+interpretation behavior, solver behavior, linter semantics, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001`
+(SMOKE TP-MAC-253) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Rule Pack Declarations public unit-reference policy surface
+(`rule-pack-declarations-unit-policy`), raising public unit-policy targets to
+36 while keeping target-format conversion witnesses at two. This records the
+existing declaration required-input/value-slot unit policy context without
+changing rule-pack schema, expression grammar, parser/text syntax, backend
+validation, linter semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001`
+(SMOKE TP-MAC-254) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Rule Pack Expression Composer public unit-reference policy
+surface (`rule-pack-expression-unit-policy`), raising public unit-policy
+targets to 37 while keeping target-format conversion witnesses at two. This
+records the existing structured-AST expression unit policy context without
+changing rule-pack schema, expression grammar, writable text parser/syntax,
+backend validation, evaluator behavior, linter semantics, or unit conversion
+behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-LIBRARYLINTUNITS-001`
+(SMOKE TP-MAC-255) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Library Manager public material/section/component draft
+unit-helper surface (`library-unit-helper-surfaces`), raising public
+unit-policy targets to 38 while keeping target-format conversion witnesses at
+two. This records the existing library unit-helper context without changing
+library schemas, library import storage, private-library payload handling,
+linter semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001`
+(SMOKE TP-MAC-256) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Load Case Manager public operation unit-validation surface
+(`load-manager-unit-validation-surface`), raising public unit-policy targets
+to 39 while keeping target-format conversion witnesses at two. This records
+the existing load-case/primitive-load/combination unit-validation context
+without changing load-case schemas, operation validation/application, linter
+semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001`
+(SMOKE TP-MAC-257) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Property Inspector public edit/create/delete operation
+unit-validation surface (`property-inspector-unit-validation-surface`),
+raising public unit-policy targets to 40 while keeping target-format
+conversion witnesses at two. This records the existing Property Inspector
+unit-validation context without changing editor behavior, operation
+validation/application, linter semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001`
+(SMOKE TP-MAC-258) landed on 2026-06-18. The Rule-Check Completeness panel
+now displays and exports explicit rule-input unit-policy evidence, including
+DEC-018 basis, model units, unit-bearing record count, `RULE_UNIT_MISMATCH`,
+and `conversion_performed=false`. The Report Content Lint inventory now
+includes `RuleCheckPanel.tsx` as
+`rule-completeness-unit-policy`, raising public unit-policy targets to 41
+while keeping target-format conversion witnesses at two. This records
+required-input unit evidence without changing evaluator semantics,
+required-input completeness behavior, analysis status semantics, linter
+semantics, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001`
+(SMOKE TP-MAC-259) landed on 2026-06-18. The Export Safety Review manifest now
+includes `rule_completeness_review` as an available metadata-only local export
+row and marks it unit-evidence-required, raising export rows to 28 and
+unit-evidence coverage to `covered=17/17`; the Report packet persistence
+export inventory now expects 28 rows. This records the Rule-Check
+Completeness unit-evidence export without changing rule-completeness
+semantics, redaction behavior, target writers, manifest-level unit conversion,
+public transport posture, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001`
+(SMOKE TP-MAC-260) landed on 2026-06-18. The Agent Proposal panel now exposes
+metadata-only unit policy for review-only proposal operations
+(`unit_validation=not_required_metadata_review_only`, `conversion=false`);
+Report Content Lint now inventories `agent-proposal-unit-policy`, raising
+public unit-policy targets to 42; and Export Safety Review / Report packet
+persistence now include `agent_proposal_review`, raising export rows to 29.
+The proposal row is pending until a proposal exists, then available with 18/18
+unit-evidence rows present, without changing proposal application, accepted
+model-state mutation, redaction behavior, target writers, or unit conversion.
+
+Latest B-tail update: `TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001`
+(SMOKE TP-MAC-261) landed on 2026-06-18. The Security Threat Model panel now
+exposes explicit unit-check no-bypass evidence for unit-bearing export and
+handoff workflows (`unit_checks=true`, `conversion=false`,
+`certification=false`); Report Content Lint now inventories
+`security-threat-model-unit-policy`, raising public unit-policy targets to 43;
+and Export Safety Review marks `security_threat_model_review` as
+unit-evidence-required, raising solved queued-intent coverage to
+`covered=18/19` and proposal-path coverage to 19/19 when the proposal row is
+available. This records security unit-policy inventory evidence without
+changing threat semantics, telemetry authorization, redaction behavior, target
+writers, manifest-level unit conversion, security certification posture, or
+unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-FIXTURELINTUNITS-001`
+(SMOKE TP-MAC-262) landed on 2026-06-18. Report Content Lint now inventories
+the invented product-preview fixture bundle (`fixtures/product_preview`) as
+`product-preview-fixture-unit-policy`, raising public unit-policy targets to
+44 while keeping target-format conversion witnesses at two. The fixture lint
+target text records explicit model quantities, rule-pack unit refs,
+mechanics-result units, and the active model unit system without changing any
+fixture payloads, report-linter protected-content semantics, target writers,
+or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001`
+(SMOKE TP-MAC-263) landed on 2026-06-18. Export Safety Review now classifies
+`external_prover_boundary_metadata` as unit-evidence-required because the
+DEL-15-04 external-prover boundary panel already exposes DEC-018 unit-policy
+evidence. Solved queued-intent coverage is now `covered=19/20`; proposal-path
+coverage is 20/20 once `agent_proposal_review` is available. This records
+external-prover unit-evidence inventory without changing external-prover
+metadata semantics, external solver/prover invocation, target parsers,
+commercial-result ingestion, target writers, redaction behavior,
+manifest-level unit conversion, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001`
+(SMOKE TP-MAC-264) landed on 2026-06-18. Export Safety Review now classifies
+`missing_data_warning_blocking_review` as unit-evidence-required because the
+DEL-07-04 Missing Data Blocking panel already exposes explicit unit-input
+policy evidence. Solved queued-intent coverage is now `covered=20/21`;
+proposal-path coverage is 21/21 once `agent_proposal_review` is available.
+This records missing-data unit-evidence inventory without changing
+missing-data warning semantics, remediation behavior, accepted model mutation,
+rule-check execution, target writers, manifest-level unit conversion, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001`
+(SMOKE TP-MAC-265) landed on 2026-06-18. Export Safety Review now classifies
+`editor_contract_review` as unit-evidence-required because the DEL-07-03
+Editor Contract panel already exposes the DEL-02-02 unit contract. Solved
+queued-intent coverage is now `covered=21/22`; proposal-path coverage is
+22/22 once `agent_proposal_review` is available. This records editor-contract
+unit-evidence inventory without changing editor validation behavior, durable
+mutation, private reference handling, target writers, manifest-level unit
+conversion, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001`
+(SMOKE TP-MAC-266) landed on 2026-06-18. Export Safety Review now classifies
+`secret_private_library_boundary_review` as unit-evidence-required because
+the DEL-12-04 Secret and Private Libraries panel already exposes
+metadata-only unit policy evidence. Solved queued-intent coverage is now
+`covered=22/23`; proposal-path coverage is 23/23 once
+`agent_proposal_review` is available. This records secret/private unit-evidence
+inventory without including private unit payloads, changing secret/private
+payload handling, target writers, manifest-level unit conversion, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001`
+(SMOKE TP-MAC-267) landed on 2026-06-18. Export Safety Review now classifies
+`accessibility_usability_baseline_review` as unit-evidence-required because
+the DEL-07-06 Accessibility Baseline panel already exposes unit-visibility
+evidence for unit-bearing review surfaces. Solved queued-intent coverage is
+now `covered=23/24`; proposal-path coverage is 24/24 once
+`agent_proposal_review` is available. This records accessibility
+unit-evidence inventory without changing accessibility findings, target
+conformance posture, target writers, manifest-level unit conversion, or unit
+conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001`
+(SMOKE TP-MAC-268) landed on 2026-06-18. Export Safety Review now classifies
+`design_authoring_comparison_workspace` as unit-evidence-required because the
+DEL-07-08 Design Workspace packet already exposes DEC-018/DEC-026 unit-policy
+evidence for model, result, analysis-run, and comparison context. Solved
+queued-intent coverage is now `covered=24/25`; proposal-path coverage is
+25/25 once `agent_proposal_review` is available. This records design-workspace
+unit-evidence inventory without changing design-workspace composition,
+comparison delta math, tolerance profile, operation application, target
+writers, manifest-level unit conversion, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001`
+(SMOKE TP-MAC-269) landed on 2026-06-18. Export Safety Review now classifies
+`validation_release_evidence_review` as unit-evidence-required because the
+Validation Evidence packet already exposes DEC-018 unit-policy evidence for
+project unit context, unit-bearing record count, and the validation manual
+unit/schema section. Solved queued-intent coverage is now `covered=25/26`;
+proposal-path coverage is 26/26 once `agent_proposal_review` is available.
+This records validation-evidence unit-evidence inventory without changing
+validation manual content, release thresholds, release authorization, target
+writers, manifest-level unit conversion, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001`
+(SMOKE TP-MAC-270) landed on 2026-06-18. Export Safety Review now classifies
+`report_protected_content_lint` as unit-evidence-required because the Report
+Content Lint packet already exposes public-surface DEC-018 unit-policy
+inventory evidence. Solved queued-intent coverage is now `covered=26/27`;
+proposal-path coverage is 27/27 once `agent_proposal_review` is available.
+This records report-lint unit-evidence inventory without changing lint
+semantics, legal clearance, redaction certification, target writers,
+manifest-level unit conversion, or unit conversion behavior.
+
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001`
+(SMOKE TP-MAC-271) landed on 2026-06-18. Export Safety Review now records
+explicit non-unit-bearing reasons for `telemetry_boundary_review` and
+`build_package_readiness`; the unit-evidence-required set is unchanged.
+Solved queued-intent coverage remains `covered=26/27`; proposal-path coverage
+remains 27/27 once `agent_proposal_review` is available. This records
+non-unit boundary classification without changing telemetry behavior,
+build/release implementation, target writers, manifest-level unit conversion,
+or unit conversion behavior.
+
+### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.
 

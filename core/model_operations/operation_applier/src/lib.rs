@@ -2418,24 +2418,16 @@ fn resolve_create_support(
     check_before("not_present", before, target_ref, field_path, checker);
 
     checker.unit_state = "passed";
-    if unit != "none" {
+    let support_create_is_dimensionless = unit == "none" && dimension == "dimensionless";
+    let support_create_has_stiffness_unit = dimension == "linear_stiffness"
+        && unit_symbol_matches_dimension(unit, Dimension::LinearStiffness);
+    if !support_create_is_dimensionless && !support_create_has_stiffness_unit {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
             "blocking",
-            format!("Intent unit `{unit}` does not match stored unit `none` for support creation."),
-            "Create support records with unit `none`; stiffness support authoring is a later bounded tranche.",
-            vec![target_ref.to_string()],
-        );
-        return None;
-    }
-    if dimension != "dimensionless" {
-        checker.unit_state = "blocked";
-        checker.push(
-            "OP-UNIT-DIMENSION-UNKNOWN",
-            "blocking",
-            format!("Create-support dimension `{dimension}` must be `dimensionless`."),
-            "Emit support creation intents with dimensionless metadata.",
+            format!("Intent unit `{unit}` and dimension `{dimension}` do not match dimensionless support creation or accepted DEC-018 linear stiffness entry."),
+            "Create bare support records with unit `none`, or include a positive linear_stiffness quantity with an accepted DEC-018 stiffness unit.",
             vec![target_ref.to_string()],
         );
         return None;
@@ -2513,6 +2505,63 @@ fn resolve_create_support(
         );
         return None;
     };
+    if record.get("properties").is_some() && !record.get("properties").is_some_and(Value::is_object)
+    {
+        checker.push(
+            "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+            "blocking",
+            "Create-support properties payload must be an object when supplied.".to_string(),
+            "Refresh the support creation intent from explicit user-entered support fields.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    let stiffness_present = value_in_object(record, &["properties", "linear_stiffness"]).is_some();
+    let linear_stiffness = if stiffness_present {
+        match dimensioned_quantity(
+            record,
+            &["properties", "linear_stiffness"],
+            Dimension::LinearStiffness,
+            true,
+        ) {
+            Some(quantity) => Some(quantity),
+            None => {
+                checker.unit_state = "blocked";
+                checker.push(
+                    "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+                    "blocking",
+                    "Create-support linear_stiffness must be a positive quantity with an accepted DEC-018 stiffness unit.".to_string(),
+                    "Select an accepted linear stiffness unit and enter a positive stiffness value.",
+                    vec![target_ref.to_string()],
+                );
+                return None;
+            }
+        }
+    } else {
+        None
+    };
+    if linear_stiffness.is_some() && !support_create_has_stiffness_unit {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-MISMATCH",
+            "blocking",
+            "Create-support payload includes linear_stiffness but the intent metadata is not dimension `linear_stiffness` with its entered unit.".to_string(),
+            "Refresh the support creation intent from the support stiffness controls.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
+    if linear_stiffness.is_none() && !support_create_is_dimensionless {
+        checker.unit_state = "blocked";
+        checker.push(
+            "OP-UNIT-DIMENSION-MISMATCH",
+            "blocking",
+            "Create-support intent declares stiffness metadata but the payload has no linear_stiffness quantity.".to_string(),
+            "Either enter support stiffness or create the support as dimensionless restraint data.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
     let restraints = normalize_restraint_tokens(
         raw_restraints
             .iter()
@@ -2545,13 +2594,19 @@ fn resolve_create_support(
     }
     checker.reference_state = "passed";
 
-    Some(serde_json::json!({
+    let mut support = serde_json::json!({
         "id": id,
         "label": label,
         "node": node,
         "restraints": restraints,
         "provenance": provenance,
-    }))
+    });
+    if let Some(quantity) = linear_stiffness {
+        support["properties"] = serde_json::json!({
+            "linear_stiffness": { "value": quantity.value, "unit": quantity.unit }
+        });
+    }
+    Some(support)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -6732,6 +6787,47 @@ mod tests {
                 .len(),
             2
         );
+        assert_eq!(applied["supports"][1], payload);
+    }
+
+    #[test]
+    fn explicit_create_support_preserves_entered_linear_stiffness_unit() {
+        let model = sample_model();
+        let payload = json!({
+            "id": "support:S-2",
+            "label": "New spring support",
+            "node": "node:N-2",
+            "restraints": ["UY"],
+            "properties": {
+                "linear_stiffness": { "value": 12500.0, "unit": "N/m" }
+            },
+            "provenance": "user_entered_local_preview"
+        });
+        let mut intent = modify_intent(
+            "Support",
+            "support:S-2",
+            "create_support",
+            "supports",
+            "not_present",
+            &serde_json::to_string(&payload).expect("payload json"),
+            "N/m",
+            "linear_stiffness",
+        );
+        intent["operation_kind"] = json!("create");
+
+        let outcome = apply_operation(&model, &intent, None);
+
+        assert!(
+            outcome.diagnostics.is_empty(),
+            "unexpected diagnostics: {:?}",
+            outcome.diagnostics
+        );
+        assert_eq!(
+            outcome.validation.application_status,
+            "applied_to_session_model"
+        );
+        assert_eq!(outcome.validation.unit_validation, "passed");
+        let applied = outcome.applied_model.expect("applied model");
         assert_eq!(applied["supports"][1], payload);
     }
 

@@ -1,5 +1,48 @@
 # MEMORY - DEL-10-02 Import/export adapter framework
 
+## 2026-06-18 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Adapter Framework unit-policy
+  surface.
+- The lint inventory records `adapter-framework-units` as an existing
+  unit-policy surface and reports `unit_targets=25`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Adapter
+  Framework preview continues to record format-neutral unit-validation policy
+  without claiming target-writer conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest rerun 399/399 after an isolated
+  transient DeclarationsEditor timing failure was confirmed passing, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no adapter-framework packet semantics, schema, concrete
+  external format list, public transport, plugin runtime, permission
+  persistence, package scripts, CI/release matrix, unit conversion API,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001 adapter framework unit evidence
+
+- Primary role for bounded Phase B-tail adapter-framework/unit-evidence
+  tranche: the desktop Adapter Framework preview now exports structured
+  `unit_policy_evidence` with DEC-018 basis, entered-unit preservation,
+  source/result unit disclosure, and `conversion_performed=false`.
+- The visible UI row `adapter-framework-units` displays the framework-level
+  unit validation policy and witness count without claiming target-writer
+  conversion, target support, external runtime behavior, or compatibility.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-203; `plans/PLAN_COMPLETION_LOG.md`.
+- Validation passed: adapter framework contract test; focused App Vitest
+  55/55; focused R2 Playwright smoke 2/2; full desktop Vitest 397/397;
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no concrete external format, target-specific writer,
+  unit conversion API, runtime loader, public endpoint, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 Implemented within the sealed write scope from
 `execution/_Coordination/DEV-001_DISPATCH_DEL-10-02.md`.
 

@@ -1,4 +1,5 @@
 import { Download, FileSearch } from "lucide-react";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
 export function ExternalProverBoundaryPanel({
@@ -64,6 +65,11 @@ export function ExternalProverBoundaryPanel({
           testId="external-prover-run-boundary"
         />
         <ExternalProverLine
+          label="Unit policy"
+          value={`${unitDisclosureSummary(packet.unit_policy_evidence)}; policy=${packet.unit_policy_evidence.external_prover_unit_policy}; witnesses=${packet.unit_policy_evidence.witness_count}`}
+          testId="external-prover-unit-policy"
+        />
+        <ExternalProverLine
           label="Authority boundary"
           value={authorityBoundary(packet)}
           testId="external-prover-authority-boundary"
@@ -111,6 +117,24 @@ function buildExternalProverBoundaryPacket({
   const checksumRefs = run ? run.hashes.map(checksumFromRunHash) : [tbdChecksum(model.project.id, "metadata_context")];
   const provenance = previewProvenance();
   const boundary = professionalBoundary();
+  const unitPolicyEvidence = {
+    ...buildExportUnitSystemDisclosure({
+      model,
+      result,
+      targetExportUnits: {},
+      conversionPolicy: "external_prover_metadata_records_units_without_target_conversion",
+      conversionPerformed: false,
+      conversionScope: [],
+      sourceLocation: "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx"
+    }),
+    evidence_id: "unit-policy-evidence:external-prover-preview",
+    external_prover_scope: "metadata_only_external_review_context",
+    external_prover_unit_policy: "record_units_for_external_reviewer_without_invoking_target_solver",
+    witness_policy: "record_external_prover_unit_policy_without_claiming_target_writer_conversion",
+    witness_count: 1,
+    external_ref: externalRef,
+    analysis_run_ref: run ? reference("AnalysisRun", run.run_id) : reference("AnalysisRun", "analysis-run:TBD")
+  };
 
   return {
     schema_version: "0.1.0",
@@ -185,6 +209,7 @@ function buildExternalProverBoundaryPacket({
     immutable_model_state_refs: [
       metadataLink("model-state:desktop-preview", "model_state", modelStateRef, checksumRefs, "hash_bound_state_context")
     ],
+    unit_policy_evidence: unitPolicyEvidence,
     assumptions: [
       {
         assumption_id: "assumption:external-context-review",

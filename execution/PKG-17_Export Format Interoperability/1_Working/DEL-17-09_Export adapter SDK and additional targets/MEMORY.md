@@ -48,3 +48,19 @@
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERSDKUNITS-001 adapter SDK unit evidence
+
+- Added a structured `unit_policy_evidence` member to DEL-17-09 export adapter
+  SDK admission packages and to the desktop preview packet.
+- The evidence records DEC-018 unit-system basis, entered-unit storage
+  convention, source/result/target unit disclosure, target refs,
+  `conversion_performed=false`, and a candidate-target witness policy that does
+  not claim target-writer conversion.
+- The manifest now lists `unit_policy_evidence.json`; schema, fixture, focused
+  Python test, App Vitest, full desktop Vitest, desktop build, and focused R2
+  Playwright smoke were updated/passed.
+- Boundary exclusions preserved: no runtime loader, public endpoint,
+  target-specific writer, target support claim, compatibility claim, release
+  claim, code-compliance claim, external execution, solver-validation claim, or
+  professional-reliance claim changed.

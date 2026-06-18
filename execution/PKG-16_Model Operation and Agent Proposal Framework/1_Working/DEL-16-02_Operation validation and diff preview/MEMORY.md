@@ -1,5 +1,87 @@
 # MEMORY - DEL-16-02 Operation validation and diff preview
 
+## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-16-02: Report Content Lint now inventories the
+  existing Property Inspector operation unit-validation previews through
+  `property-inspector-unit-validation-surface`.
+- The lint packet now includes
+  `apps/desktop/src/features/model-tree/PropertyInspector.tsx`; public
+  unit-policy targets increase from 39 to 40 while conversion-witness targets
+  remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-257; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-02/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render; focused Property
+  Inspector create-intent App tests 4/4; focused R2 Playwright smoke 2/2;
+  full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no operation validation, operation application, diff
+  preview, unit conversion behavior, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting validation evidence
+
+- Supporting role for DEL-16-02: proposal validation now includes explicit
+  metadata-only unit status
+  `unit_validation=not_required_metadata_review_only`.
+- The proposal-path App test confirms the status propagates into operation
+  ledger unit-policy evidence while unit-bearing change count remains zero and
+  conversion remains false.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-03/DEL-08-05/DEL-12-02/DEL-08-04/DEL-02-02 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no operation validation rule, diff-preview behavior,
+  operation application, accepted model-state mutation, unit conversion,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Operation Diff Preview unit-witness
+  surface.
+- The lint inventory records `operation-diff-unit-witnesses` and reports
+  `unit_targets=21`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The diff-preview packet itself continues to
+  preserve declared operation change units and dimensions without conversion.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  selected tests, focused Chromium desktop R2 smoke, full desktop Vitest
+  399/399, desktop production build with the existing Vite large-chunk
+  warning, and single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no operation validation, diff preview, operation
+  application, accepted-state mutation, operation audit persistence,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPAPPLYUNITS-001
+
+- The desktop Apply Operations panel now exposes a visible unit-policy summary
+  for queued intents, operation outcomes, and applied receipts.
+- The summary records queued unit-bearing/dimensionless counts, outcome
+  unit-validation statuses, applied receipt count, `receipt_units=not_serialized`,
+  and `conversion=false`; it does not change operation validation, apply
+  semantics, receipt schema, or solver behavior.
+- Validation passed: focused App Vitest 1/1 selected test; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation-applier semantics, backend validation,
+  receipt schema, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-06 Implementation Notes
 
 - Implemented `core/model_operations/validation_preview/engine.py` as a
@@ -741,3 +823,125 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001 operation diff unit witnesses
+
+- Primary role for the bounded Phase B-tail operation diff unit witness
+  tranche. The desktop Operation Diff Preview packet now emits DEC-018
+  unit-system disclosure and one unit-preservation witness per unit-bearing
+  local diff row.
+- The diff packet preserves before/after value text, unit, and dimension with
+  `conversion_performed=false`; visible UI evidence shows the DEC-018
+  disclosure and `count=1` witness for the focused material-modulus edit
+  fixture.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`. Playwright was
+  not extended with a witness-specific assertion because the broad R2 smoke
+  does not retain a queued diff row without altering later flow; an attempted
+  queue-and-clear path hung and was removed.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable acceptance persistence, unit
+  conversion API, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-07-02 Property Inspector tranche: unit-bearing
+  editor modify and create intents now carry a pre-application
+  unit-dimension validation status in the existing `validation.unit_validation`
+  field.
+- This is operation-intent metadata only. It makes the review preview more
+  explicit before validate/apply, but it does not change the operation applier,
+  diff generation, durable persistence, or accepted model-state mutation
+  semantics.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 397/397, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable acceptance persistence, unit
+  conversion API, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-05-02/DEL-07-02 Load Cases manager tranche:
+  non-unit-bearing load-case and combination operation intents now record
+  pre-application unit validation as `not_required_dimensionless`.
+- This is operation-intent metadata only. It makes preview/diff input clearer
+  while keeping schema validation, constraint validation, diff generation,
+  operation application, durable persistence, and audit receipt semantics
+  unchanged.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-217; completion log entry.
+- Validation passed: focused manager App Vitest 18/18, full desktop Vitest
+  399/399, focused R2/R3 Playwright 14/14, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable persistence, unit conversion API,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-07-01 viewport tranche: the reference-only
+  `insert_component_symbol` placeholder intent now records pre-application
+  unit validation as `not_required_dimensionless`.
+- This is operation-intent metadata only. Generic node and pipe-run gesture
+  placeholders remain `not_run`; explicit node/pipe authoring paths remain
+  covered by length unit-validation evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-218; completion log entry.
+- Validation passed: focused App Vitest 1/1 and focused R2/R3 Playwright
+  smoke 16/16; full desktop Vitest 399/399; desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable persistence, unit conversion API,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-07-02 Property Inspector tranche: explicit support,
+  node, and pipe delete intents now record pre-application unit validation as
+  `not_required_dimensionless`.
+- This is operation-intent metadata only. It makes the delete preview more
+  explicit before validate/apply, while keeping schema/reference validation,
+  diff generation, operation application, durable persistence, and accepted
+  model-state mutation semantics unchanged.
+- Validation evidence is recorded in the DEL-07-02 primary run record and this
+  deliverable's supporting run record. DEC-025 sweep evidence is recorded in
+  closeout artifacts.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable acceptance persistence, unit
+  conversion API, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+## 2026-06-18 - TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-16-02: Report Content Lint now inventories the
+  existing Load Case Manager operation unit-validation previews through
+  `load-manager-unit-validation-surface`.
+- The lint packet now includes
+  `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx`; public
+  unit-policy targets increase from 38 to 39 while conversion-witness targets
+  remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-256; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-02/DEL-05-01/DEL-05-02/DEL-02-02
+  run records.
+- Validation passed: focused App Vitest workspace-render; focused load/unit
+  App tests 26/26; focused R2 Playwright smoke 2/2; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; `git diff --check`;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no operation validation, operation application, diff
+  preview, unit conversion behavior, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

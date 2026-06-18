@@ -28,6 +28,7 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
   ratio: 0,
   other: 0
 };
+const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
 export function ResultsPanel({
   result,
@@ -94,6 +95,7 @@ export function ResultsPanel({
             familyFilter={familyFilter}
             filterText={filterText}
             filteredCount={filteredResults.length}
+            result={result}
             totalCount={result.results.length}
             page={page}
             pageSize={pageSize}
@@ -171,6 +173,7 @@ function ResultControls({
   familyFilter,
   filterText,
   filteredCount,
+  result,
   totalCount,
   page,
   pageSize,
@@ -184,6 +187,7 @@ function ResultControls({
   familyFilter: ResultFamilyFilter;
   filterText: string;
   filteredCount: number;
+  result: MechanicsResult;
   totalCount: number;
   page: ResultPage;
   pageSize: number;
@@ -196,9 +200,17 @@ function ResultControls({
   const visibleFamilyOptions = RESULT_FAMILY_OPTIONS.filter(
     (option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0
   );
+  const unitPolicy = buildResultUnitPolicy(result);
 
   return (
     <section className="result-controls" aria-label="Result filtering" data-testid="result-controls">
+      <div className="report-line" data-testid="result-unit-policy">
+        <span>Result unit policy</span>
+        <strong>
+          units={unitPolicy.result_units.join(",")}; rows={unitPolicy.result_row_count};
+          storage={unitPolicy.storage_convention}; conversion={String(unitPolicy.conversion_performed)}
+        </strong>
+      </div>
       <div className="result-family-row" role="group" aria-label="Result family filter">
         {visibleFamilyOptions.map((option) => {
           const count = option.id === "all" ? familyCounts.total : familyCounts[option.id as ResultFamily];
@@ -288,6 +300,33 @@ function ResultControls({
       </div>
     </section>
   );
+}
+
+function buildResultUnitPolicy(result: MechanicsResult) {
+  const resultUnits = [...new Set(result.results.map((item) => item.unit))].sort(compareResultUnits);
+
+  return {
+    evidence_id: "unit-policy-evidence:result-view-preview",
+    unit_system_ref: "unit-system:dec-018-si-dual-display",
+    source_result_ref: result.run_id,
+    storage_convention: "entered_units_preserved",
+    result_units: resultUnits,
+    result_row_count: result.results.length,
+    conversion_policy: "result_view_preserves_result_row_units_without_conversion",
+    conversion_performed: false,
+    decision_basis_refs: ["DEC-018", "DEL-02-02", "DEL-07-05"],
+    private_payload_included: false,
+    protected_content_included: false
+  };
+}
+
+function compareResultUnits(left: string, right: string) {
+  const leftIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(left);
+  const rightIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(right);
+  if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
+  if (leftIndex >= 0) return -1;
+  if (rightIndex >= 0) return 1;
+  return left.localeCompare(right);
 }
 
 function ResultDetail({ interpretation }: { interpretation: ResultInterpretation | null }) {

@@ -355,13 +355,19 @@ describe("ExpressionComposer component", () => {
     });
   });
 
-  it("keeps browser-preview literal unit refs as manual text fields", () => {
+  it("keeps browser-preview literal unit refs as manual text fields", async () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     fireEvent.change(screen.getAllByTestId("rule-pack-node-type")[0], { target: { value: "literal" } });
 
     const unitField = screen.getByTestId("rule-pack-literal-unit") as HTMLInputElement;
     expect(unitField.tagName).toBe("INPUT");
+    fireEvent.change(screen.getByTestId("rule-pack-literal-dimension"), { target: { value: "stress" } });
     fireEvent.change(unitField, { target: { value: "MPa" } });
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+        "expression.quantity=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+      )
+    );
     expect(invokeMock).not.toHaveBeenCalled();
     expect(harnessExpression()).toMatchObject({
       node: "literal",
@@ -478,9 +484,18 @@ describe("ExpressionComposer component", () => {
     await waitFor(() => expect(resultUnit.value).toBe("legacy_stress_unit"));
     expect(screen.getByText("legacy_temperature_unit, catalog mismatch")).toBeTruthy();
     expect(screen.getByText("legacy_stress_unit, catalog mismatch")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+      "expression.table.argument=dec018_catalog_dimension_mismatch(unit=legacy_temperature_unit;dimension=temperature)"
+    );
+    expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+      "expression.table.result=dec018_catalog_dimension_mismatch(unit=legacy_stress_unit;dimension=stress)"
+    );
 
     fireEvent.change(argumentUnit, { target: { value: "degC" } });
     fireEvent.change(resultUnit, { target: { value: "Pa" } });
+    expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+      "expression.table.result=dec018_catalog_dimension_match(unit=Pa;dimension=stress)"
+    );
     const table = harnessExpression().table as Record<string, unknown>;
     expect(table).toMatchObject({
       argument_dimension: "temperature",

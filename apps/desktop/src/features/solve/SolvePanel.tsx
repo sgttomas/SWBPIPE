@@ -53,6 +53,7 @@ export function SolvePanel({
         <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
         <SolveLine label="Cancellation" value={cancellationSummary(packet)} testId="solve-job-cancellation" />
         <SolveLine label="Result binding" value={resultBinding(packet)} testId="solve-job-binding" />
+        <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
         <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
       </div>
       <button className="primary-action" data-testid="run-mechanics-preview" onClick={onRun} disabled={running} type="button">
@@ -200,11 +201,12 @@ function buildSolveJobPacket({
   const run = analysisRun?.analysis_run;
   const resultRowCount = result?.results.length ?? 0;
   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
+  const unitPolicyEvidence = buildSolveJobUnitPolicyEvidence({ model, result, analysisRun });
   return {
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.solve_job_audit",
     export_scope: "local_browser_download_preview",
-    deliverable_refs: ["DEL-07-07", "DEL-14-02", "DEL-04-06"],
+    deliverable_refs: ["DEL-07-07", "DEL-14-02", "DEL-04-06", "DEL-02-02"],
     scope_items: ["SOW-055", "SOW-072", "SOW-053"],
     objectives: ["OBJ-006", "OBJ-007", "OBJ-016"],
     project_ref: model.project.id,
@@ -246,6 +248,7 @@ function buildSolveJobPacket({
     result_hash_count: resultHashCount,
     hash_scopes: run?.hashes.map((item) => item.payload_scope) ?? [],
     input_manifest_refs: run?.reproducibility.input_manifest_refs ?? [],
+    unit_policy_evidence: unitPolicyEvidence,
     events: solveJob.events,
     diagnostics: diagnosticsFor(model, result),
     error_message: solveJob.error_message,
@@ -254,6 +257,38 @@ function buildSolveJobPacket({
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function buildSolveJobUnitPolicyEvidence({
+  model,
+  result,
+  analysisRun
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+}) {
+  return {
+    evidence_id: "unit-policy-evidence:solve-job-audit",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    storage_convention: "entered_units_preserved",
+    solve_job_unit_policy: "solve_job_audit_records_model_and_result_units_without_conversion",
+    model_units: sortedStringRecord(model.project.units),
+    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)),
+    result_row_count: result?.results.length ?? 0,
+    analysis_run_ref: analysisRun?.analysis_run
+      ? reference("AnalysisRun", analysisRun.analysis_run.run_id)
+      : reference("AnalysisRun", "not generated"),
+    conversion_policy: "solve_job_audit_preserves_source_units_no_conversion",
+    conversion_performed: false,
+    source: "apps/desktop/src/features/solve/SolvePanel.tsx",
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-07-07"),
+      reference("Deliverable", "DEL-14-02")
+    ]
   };
 }
 
@@ -283,6 +318,17 @@ function resultBinding(packet: ReturnType<typeof buildSolveJobPacket>): string {
   return `${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}; result rows=${packet.summary.result_row_count}; hashes=${packet.result_hash_count}`;
 }
 
+function unitPolicySummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
+  const evidence = packet.unit_policy_evidence;
+  const resultUnits = evidence.result_units.length > 0 ? evidence.result_units.join(",") : "none";
+  return [
+    `model=${formatUnitRecord(evidence.model_units)}`,
+    `results=${resultUnits}`,
+    `rows=${evidence.result_row_count}`,
+    `conversion=${String(evidence.conversion_performed)}`
+  ].join("; ");
+}
+
 function boundarySummary(packet: ReturnType<typeof buildSolveJobPacket>): string {
   return [
     `private payload=${String(packet.private_payload_included)}`,
@@ -301,6 +347,24 @@ function professionalBoundary() {
     software_makes_approval_claim: false,
     software_makes_authentication_claim: false
   };
+}
+
+function reference(objectType: string, ref: string) {
+  return { object_type: objectType, ref };
+}
+
+function sortedStringRecord(values: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(values).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort();
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  return Object.entries(units)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(",");
 }
 
 function jsonDataHref(payload: unknown): string {

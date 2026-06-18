@@ -126,7 +126,9 @@ export function ProjectStorageAuditPanel({
           label="Unit round-trip"
           value={`status=${packet.summary.unit_round_trip_status}; checked_refs=${
             packet.summary.unit_round_trip_checked_ref_count
-          }; signature=${packet.summary.unit_round_trip_signature}`}
+          }; signature=${packet.summary.unit_round_trip_signature}; model=${formatUnitRecord(
+            packet.unit_policy_evidence.model_units
+          )}; conversion=${String(packet.unit_policy_evidence.conversion_performed)}`}
           testId="project-storage-unit-round-trip"
         />
         <StorageLine
@@ -179,6 +181,7 @@ function buildProjectStorageAuditPacket({
     ...editorIntents.map((intent) => intent.validation.application_status),
     ...(proposal ? [proposal.validation.application_status] : [])
   ]);
+  const unitPolicyEvidence = buildProjectStorageUnitPolicyEvidence({ model, projectSummary });
 
   return {
     schema_version: "0.1.0",
@@ -222,6 +225,7 @@ function buildProjectStorageAuditPacket({
     project_summary: projectSummary,
     project_index: projectIndex ?? [],
     project_index_refs: (projectIndex ?? []).map((entry) => entry.project_id),
+    unit_policy_evidence: unitPolicyEvidence,
     project_message: projectMessage,
     editor_intent_refs: editorIntents.map((intent) => intent.operation_id),
     proposal_refs: proposal ? [proposal.proposal_id] : [],
@@ -245,6 +249,33 @@ function buildProjectStorageAuditPacket({
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function buildProjectStorageUnitPolicyEvidence({
+  model,
+  projectSummary
+}: {
+  model: PreviewModel;
+  projectSummary: LocalProjectSummary | null;
+}) {
+  return {
+    evidence_id: "unit-policy-evidence:project-storage-audit",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    storage_convention: "entered_units_preserved",
+    storage_unit_policy: "local_project_storage_audit_records_unit_round_trip_status_without_conversion",
+    model_units: sortedStringRecord(model.project.units),
+    unit_round_trip_status: projectSummary?.unit_round_trip_status ?? "not_persisted_this_session",
+    unit_round_trip_checked_ref_count: projectSummary?.unit_round_trip_checked_ref_count ?? 0,
+    unit_round_trip_signature: projectSummary?.unit_round_trip_signature ?? "not_persisted",
+    conversion_policy: "project_storage_audit_reports_persistence_unit_metadata_no_conversion",
+    conversion_performed: false,
+    source: "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-02-05")
+    ]
   };
 }
 
@@ -286,6 +317,20 @@ function professionalBoundary() {
     software_makes_approval_claim: false,
     software_makes_authentication_claim: false
   };
+}
+
+function reference(objectType: string, ref: string) {
+  return { object_type: objectType, ref };
+}
+
+function sortedStringRecord(values: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(values).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  return Object.entries(units)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(",");
 }
 
 function unique(values: string[]): string[] {

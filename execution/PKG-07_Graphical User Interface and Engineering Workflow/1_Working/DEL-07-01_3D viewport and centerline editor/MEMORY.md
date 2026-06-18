@@ -348,3 +348,75 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001 viewport geometry unit-validation evidence
+
+- WORKING_ITEMS app-integration tranche threaded the existing DEC-018
+  unit-catalog route in `PipeViewport` into explicit viewport geometry
+  operation intents.
+- Explicit create-node and connect-pipe queued intents now record
+  `length=<unit-dimension-validation-status>` in
+  `validation.unit_validation` instead of `not_run`; browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`.
+- Generic one-click viewport gesture placeholders were later covered by
+  TP-MAC-225.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-209. Focused validation passed:
+  `npm test --workspace apps/desktop -- App.test.tsx` (55/55) and
+  `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` (14/14).
+  Full desktop validation passed: `npm test --workspace apps/desktop`
+  (18/18 files, 398/398 tests) and `npm run build --workspace apps/desktop`
+  with the existing Vite large-chunk warning.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, unit
+  conversion API, or DAG authority changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001 viewport component-symbol unit-validation evidence
+
+- WORKING_ITEMS app-integration tranche classified the reference-only
+  viewport `insert_component_symbol` placeholder as
+  `unit_validation=not_required_dimensionless`.
+- Generic `create_node` and `connect_pipe_run` placeholder gestures were
+  later covered by TP-MAC-225; explicit create-node and connect-pipe authoring
+  paths already carry length unit-validation evidence.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-218. Focused validation passed:
+  `npm test --workspace apps/desktop -- src/App.test.tsx -t "viewport editor intents"`
+  (1/1) and `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts`
+  (16/16). Full desktop validation passed: `npm test --workspace apps/desktop`
+  (18/18 files, 399/399 tests) and `npm run build --workspace apps/desktop`
+  with the existing Vite large-chunk warning.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, unit
+  conversion API, operation application behavior, or DAG authority changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001 viewport placeholder unit-validation evidence
+
+- WORKING_ITEMS Phase B-tail tranche threaded the existing viewport unit
+  route and model default length unit into generic one-click viewport gesture
+  placeholders.
+- Generic `create_node` and `connect_pipe_run` placeholders now record
+  `unit=m`, `dimension=length`, and `unit_validation=length=<status>`
+  instead of `unit_validation=not_run`. Browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`.
+- The placeholders remain review-only `pending_service_validation` intents;
+  they still do not mutate accepted model state and still require structured
+  application-service validation before durable model changes.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-225; supporting DEL-02-02 run record
+  and completion log entry are present.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright placeholder smoke 2/2, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no accepted model-state mutation, operation-applier
+  validation semantics, solver behavior, component schema, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

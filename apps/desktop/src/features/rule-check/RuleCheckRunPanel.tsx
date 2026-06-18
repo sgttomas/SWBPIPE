@@ -146,6 +146,29 @@ function UnitBindingControl({
   );
 }
 
+function ruleCheckUnitBindingPolicySummary(plan: RuleCheckBindingPlan, route: UnitCatalogRoute | null): string {
+  const authoredSolverResultRefCount = plan.solverInputs.filter((input) => input.solver_result_ref).length;
+  const solverSelectorCount = plan.solverInputs.length - authoredSolverResultRefCount;
+  const libraryRefCount = plan.libraryInputs.filter((input) => input.library_value_ref).length;
+  const hasRuntimeUnitBindings = plan.valueInputs.length > 0 || plan.valueSlots.length > 0;
+  const catalogRoute = !hasRuntimeUnitBindings
+    ? "not_required"
+    : route?.route === "tauri_unit_catalog"
+      ? `dec018_catalog(entries=${route.catalog.entry_count})`
+      : route
+        ? "browser_manual_text_no_fallback"
+        : "loading";
+  return [
+    `value_inputs=${plan.valueInputs.length}`,
+    `value_slots=${plan.valueSlots.length}`,
+    `solver_selectors=${solverSelectorCount}`,
+    `solver_result_refs=${authoredSolverResultRefCount}`,
+    `private_library_refs=${libraryRefCount}`,
+    `catalog=${catalogRoute}`,
+    "conversion=false"
+  ].join("; ");
+}
+
 // --- Library reference resolution preview (Phase C3, TP-C3-LIBREFPICKER-001) --
 // A private_library_value input's library_value_ref is authored in the pack
 // (DeclarationsEditor) and resolved backend-side at run time. This preview is
@@ -670,6 +693,9 @@ export function RuleCheckRunPanel({
               : unitCatalogRoute?.route === "tauri_unit_catalog"
                 ? `DEC-018 unit catalog loaded for run-check value bindings; entries=${unitCatalogRoute.catalog.entry_count}`
                 : "browser preview keeps run-check unit refs as stored manual text; no fallback catalog synthesized"}
+          </small>
+          <small data-testid="rule-check-unit-binding-policy">
+            {ruleCheckUnitBindingPolicySummary(plan, unitCatalogRoute)}
           </small>
 
           {plan.solverInputs.map((input) => {

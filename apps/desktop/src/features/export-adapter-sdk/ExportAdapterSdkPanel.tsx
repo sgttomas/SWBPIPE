@@ -1,4 +1,5 @@
 import { Download, Puzzle } from "lucide-react";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
@@ -93,6 +94,11 @@ export function ExportAdapterSdkPanel({
           testId="export-adapter-sdk-validation"
         />
         <ExportAdapterSdkLine
+          label="Units"
+          value={`${unitDisclosureSummary(packet.unit_policy_evidence)}; witnesses=${packet.unit_policy_evidence.witness_count}; policy=${packet.unit_policy_evidence.witness_policy}`}
+          testId="export-adapter-sdk-units"
+        />
+        <ExportAdapterSdkLine
           label="Permissions"
           value={`taxonomy=${packet.sdk_contract.runtime_model.permission_taxonomy}; filesystem=${String(packet.sdk_contract.deny_by_default_controls.filesystem_access_granted)}; network=${String(packet.sdk_contract.deny_by_default_controls.network_access_granted)}; process=${String(packet.sdk_contract.deny_by_default_controls.process_access_granted)}; private_data=${String(packet.sdk_contract.deny_by_default_controls.private_data_access_granted)}`}
           testId="export-adapter-sdk-permissions"
@@ -136,6 +142,23 @@ function buildExportAdapterSdkPacket({
   const targets = exportAdapterTargets();
   const diagnostics = exportAdapterDiagnostics(targets);
   const validationStatus = diagnostics.some((item) => item.severity === "blocking") ? "blocked" : "boundary_checked";
+  const unitPolicyEvidence = {
+    ...buildExportUnitSystemDisclosure({
+      model,
+      result,
+      targetExportUnits: {},
+      conversionPolicy: "no_adapter_sdk_conversion_performed",
+      conversionPerformed: false,
+      conversionScope: [],
+      sourceLocation: "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx"
+    }),
+    evidence_id: "unit-policy-evidence:export-adapter-sdk-preview",
+    adapter_scope: "adapter_admission_metadata_only",
+    unit_policy: "explicit_unit_policy_required_per_target",
+    witness_policy: "record_unit_policy_for_candidate_targets_without_claiming_target_writer_conversion",
+    witness_count: targets.length,
+    target_refs: targets.map((item) => reference("ExportTarget", item.target_id))
+  };
 
   return {
     schema_version: EXPORT_ADAPTER_SDK_VERSION,
@@ -221,12 +244,14 @@ function buildExportAdapterSdkPacket({
       result_ref: result ? reference("MechanicsResult", result.run_id) : reference("MechanicsResult", "not generated"),
       source_model_hash_status: "TBD_browser_preview_does_not_emit_canonical_model_hash"
     },
+    unit_policy_evidence: unitPolicyEvidence,
     manifest: {
       manifest_id: `export-adapter-sdk:${safeFileToken(model.project.id)}:manifest`,
       package_members: [
         member("registry", "target_registry.json", "json", targets.length),
         member("sdk_contract", "sdk_contract.json", "json", 1),
         member("adapter_template", "adapter_template.json", "json", 1),
+        member("unit_policy_evidence", "unit_policy_evidence.json", "json", 1),
         member("validation_report", "validation_report.json", "json", 1),
         member("diagnostics", "diagnostics.json", "json", diagnostics.length)
       ]

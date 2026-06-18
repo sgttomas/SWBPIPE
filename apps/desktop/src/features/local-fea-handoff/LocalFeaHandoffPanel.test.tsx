@@ -50,7 +50,10 @@ function inventedModel(): PreviewModel {
   } as unknown as PreviewModel;
 }
 
-function inventedResult(summary: MechanicsResult["summary"]): MechanicsResult {
+function inventedResult(
+  summary: MechanicsResult["summary"],
+  results: MechanicsResult["results"] = []
+): MechanicsResult {
   return {
     schema_version: "0.1.0",
     document_kind: "openpipestress.product_preview.mechanics_result",
@@ -58,7 +61,7 @@ function inventedResult(summary: MechanicsResult["summary"]): MechanicsResult {
     model_ref: "project:rider-test",
     status: { mechanics: "MECHANICS_SOLVED", rule_check: "not_performed", professional_acceptance: "not_provided" },
     summary,
-    results: [],
+    results,
     diagnostics: []
   } as unknown as MechanicsResult;
 }
@@ -139,5 +142,77 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
     expect(packet).not.toContain("LOCAL-FEA-RESULT-SUMMARY-REF-MISSING");
     expect(packet).not.toContain("pipe:P-120");
     expect(packet).not.toContain("node:N-140");
+  });
+
+  it("witnesses source value and unit preservation for referenced transfer results", () => {
+    render(
+      <LocalFeaHandoffPanel
+        model={inventedModel()}
+        result={inventedResult(
+          {
+            max_displacement: { value: 4, unit: "mm", location_ref: "node:N-2", result_ref: "result:disp:node-N-2" },
+            max_open_formula_stress: { value: 12.5, unit: "MPa", location_ref: "pipe:P-1", result_ref: "result:stress:pipe-P-1" }
+          },
+          [
+            {
+              id: "result:disp:node-N-2",
+              kind: "displacement_magnitude",
+              value: 4,
+              unit: "mm",
+              entity_ref: "node:N-2"
+            },
+            {
+              id: "result:force:pipe-P-120:axial",
+              kind: "element_local_axial_force",
+              value: 25,
+              unit: "N",
+              entity_ref: "pipe:P-1"
+            },
+            {
+              id: "result:moment:pipe-P-120:torsion",
+              kind: "element_local_torsional_moment",
+              value: 11,
+              unit: "N*m",
+              entity_ref: "pipe:P-1"
+            },
+            {
+              id: "result:stress:pipe-P-1",
+              kind: "open_formula_stress",
+              value: 12.5,
+              unit: "MPa",
+              entity_ref: "pipe:P-1"
+            }
+          ]
+        )}
+        analysisRun={inventedAnalysisRun()}
+      />
+    );
+
+    const panel = screen.getByTestId("local-fea-panel");
+    expect(within(panel).getByTestId("local-fea-unit-witnesses").textContent).toContain("count=3");
+    expect(within(panel).getByTestId("local-fea-unit-witnesses").textContent).toContain("conversion=false");
+
+    const packet = JSON.parse(exportedPacket());
+    expect(packet.handoff_package.unit_witness_policy).toBe(
+      "preserve_source_result_units_for_referenced_transfer_results"
+    );
+    expect(packet.handoff_package.unit_preservation_witnesses).toHaveLength(3);
+    expect(
+      packet.handoff_package.unit_preservation_witnesses.map(
+        (item: { target_field_path: string }) => item.target_field_path
+      )
+    ).toEqual([
+      "handoff_package.transfer_basis.displacement_result_refs[]",
+      "handoff_package.transfer_basis.force_result_refs[]",
+      "handoff_package.transfer_basis.moment_result_refs[]"
+    ]);
+
+    const forceWitness = packet.handoff_package.unit_preservation_witnesses.find(
+      (item: { source_result_ref: { locator: string } }) =>
+        item.source_result_ref.locator === "result:force:pipe-P-120:axial"
+    );
+    expect(forceWitness.source_quantity).toEqual({ value: 25, unit: "N", dimension: "force" });
+    expect(forceWitness.target_quantity_policy).toBe("referenced_result_value_and_unit_preserved_by_source_ref");
+    expect(forceWitness.conversion_performed).toBe(false);
   });
 });

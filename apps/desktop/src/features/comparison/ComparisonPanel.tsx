@@ -32,6 +32,11 @@ export function ComparisonPanel({
               testId="comparison-tolerance-status"
             />
             <ComparisonFact
+              label="Units"
+              value={comparisonUnitPolicy(comparison)}
+              testId="comparison-unit-policy"
+            />
+            <ComparisonFact
               label="Boundary"
               value={comparisonBoundary(comparison)}
               testId="comparison-boundary"
@@ -118,6 +123,17 @@ function comparisonBoundary(comparison: PreviewComparison): string {
     return "review-only comparison; no compliance, certification, sealing, authentication, or approval claim";
   }
   return "comparison boundary requires attention";
+}
+
+function comparisonUnitPolicy(comparison: PreviewComparison): string {
+  const policy = comparison.unit_policy_evidence;
+  const units = policy.matched_result_units.length > 0 ? policy.matched_result_units.join(",") : "none";
+  return [
+    `units=${units}`,
+    `matching=equal_explicit_units`,
+    `conversion=${String(policy.conversion_performed)}`,
+    `tolerance=${policy.tolerance_status}`
+  ].join("; ");
 }
 
 function formatNumber(value: number): string {

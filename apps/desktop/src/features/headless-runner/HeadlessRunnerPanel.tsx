@@ -1,5 +1,6 @@
 import { Download, Terminal } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel, SolveJobAuditState } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 export function HeadlessRunnerPanel({
   model,
@@ -54,6 +55,20 @@ export function HeadlessRunnerPanel({
           testId="headless-runner-result-handoff"
         />
         <RunnerLine
+          label="Units"
+          value={`${packet.result.unit_system_disclosure.unit_system_ref.ref}; ${unitDisclosureSummary(
+            packet.result.unit_system_disclosure
+          )}`}
+          testId="headless-runner-units"
+        />
+        <RunnerLine
+          label="Unit witnesses"
+          value={`count=${packet.result.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=${String(
+            packet.result.unit_preservation_witnesses.some((item) => item.conversion_performed)
+          )}`}
+          testId="headless-runner-unit-witnesses"
+        />
+        <RunnerLine
           label="Runtime TBDs"
           value={`process=${packet.tbd_decisions.process_invocation}; network=${packet.tbd_decisions.network_access}; filesystem=${packet.tbd_decisions.filesystem_mutation_policy}`}
           testId="headless-runner-runtime-tbds"
@@ -101,6 +116,16 @@ function buildHeadlessRunnerPacket({
   const resultRefs = run?.result_refs.map((item) => objectReference(item.result_ref)) ?? [
     reference("ResultSet", "result-set:not-generated")
   ];
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: {},
+    conversionPolicy: "headless_runner_result_handoff_preserves_result_envelope_units_no_runner_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx"
+  });
+  const unitPreservationWitnesses = headlessUnitPreservationWitnesses(model, result);
   const checksums = run?.hashes.map(checksumRef) ?? [
     {
       algorithm: "TBD",
@@ -177,6 +202,9 @@ function buildHeadlessRunnerPacket({
       result_refs: resultRefs,
       audit_manifest_ref: reference("AuditManifest", run ? `audit-manifest:${run.run_id}:preview` : "audit-manifest:not-generated"),
       checksums,
+      unit_system_disclosure: unitSystemDisclosure,
+      unit_witness_policy: "preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row",
+      unit_preservation_witnesses: unitPreservationWitnesses,
       diagnostics,
       privacy: privacyContext(),
       provenance: previewProvenance(),
@@ -219,6 +247,67 @@ function runnerDiagnosticClass(item: Diagnostic): string {
   if (item.code.includes("UNIT")) return "UNIT_WARNING";
   if (item.severity === "blocking" || item.severity === "error") return "RUNNER_BLOCKING";
   return "ASSUMPTION_WARNING";
+}
+
+function headlessUnitPreservationWitnesses(model: PreviewModel, result: MechanicsResult | null) {
+  return (result?.results ?? [])
+    .filter((item) => Number.isFinite(item.value))
+    .slice()
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .map((item) => {
+      const family = resultFamily(item);
+      const dimension = resultDimension(family, item.kind);
+      return {
+        witness_id: `headless-runner-unit:${safeFileToken(item.id)}`,
+        source_result_ref: reference("result_value", item.id),
+        source_field_path: `mechanics_result.results[${item.id}].value`,
+        source_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_result_ref: reference("RunnerResultValue", `headless-result:${safeFileToken(item.id)}`),
+        target_field_path: `result.unit_preservation_witnesses[${item.id}].target_quantity`,
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_quantity_policy: "headless_runner_handoff_preserves_source_value_unit_and_dimension",
+        export_unit_policy: "preserve_source_result_unit_and_dimension",
+        conversion_performed: false,
+        unit_system_ref: reference("UnitSystem", `${model.project.id}:units`),
+        decision_basis_refs: [
+          reference("Decision", "DEC-018"),
+          reference("Deliverable", "DEL-02-02"),
+          reference("Deliverable", "DEL-08-04"),
+          reference("Deliverable", "DEL-10-05")
+        ],
+        provenance: previewProvenance()
+      };
+    });
+}
+
+function resultFamily(item: MechanicsResult["results"][number]): string {
+  const kind = item.kind.toLowerCase();
+  const id = item.id.toLowerCase();
+  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
+  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
+  if (kind.includes("force") || id.includes("force")) return "force";
+  if (kind.includes("moment") || id.includes("moment")) return "moment";
+  if (kind.includes("stress") || id.includes("stress")) return "stress";
+  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
+  return "ratio";
+}
+
+function resultDimension(family: string, kind: string): string {
+  if (family === "displacement") return "length";
+  if (family === "reaction" || family === "force") return "force";
+  if (family === "moment") return "moment";
+  if (family === "stress") return "stress";
+  if (family === "ratio") return "dimensionless";
+  if (kind.toLowerCase().includes("rotation")) return "angle";
+  return "TBD";
 }
 
 function jobState(

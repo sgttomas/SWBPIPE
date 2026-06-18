@@ -19,6 +19,7 @@ type SecretPrivateReference = {
   checksum: string | null;
   checksum_status: string;
   value_descriptor: string;
+  unit_metadata_status: string;
   contains_payload: false;
   secret_material_present: false;
   concrete_path_present: false;
@@ -91,6 +92,11 @@ export function SecretPrivateLibraryPanel({
           testId="secret-private-library-secrets"
         />
         <SecretLine
+          label="Unit policy"
+          value={`unit_refs=${packet.unit_policy.private_unit_reference_count}; required=${String(packet.unit_policy.explicit_unit_metadata_required)}; payload=${String(packet.unit_policy.unit_payload_included)}; conversion=${String(packet.unit_policy.conversion_performed)}`}
+          testId="secret-private-library-unit-policy"
+        />
+        <SecretLine
           label="No-bypass"
           value={`direct_sql=${String(packet.summary.direct_sql_access)}; storage_bypass=${String(packet.summary.storage_bypass_requested)}; network=${String(packet.summary.cloud_or_network_reference)}; telemetry=${String(packet.no_bypass_controls.telemetry_allowed)}`}
           testId="secret-private-library-no-bypass"
@@ -130,6 +136,7 @@ function buildSecretPrivateLibraryPacket({
   const publicReportDecisions = guardDecisions(references, "public_report", "include_metadata_only");
   const publicFixtureDecisions = guardDecisions(references, "public_fixture", "block_release");
   const localPrivateDecisions = guardDecisions(references, "local_private", "include_metadata_only");
+  const unitPolicy = secretPrivateUnitPolicy(references);
 
   return {
     schema_version: "0.1.0",
@@ -175,6 +182,7 @@ function buildSecretPrivateLibraryPacket({
       protected_content_included: false,
       release_or_professional_claim: false
     },
+    unit_policy: unitPolicy,
     registry_records: references,
     guard_contexts: {
       public_report: guardContext("public_report", publicReportDecisions),
@@ -235,6 +243,7 @@ function secretPrivateReferences(model: PreviewModel): SecretPrivateReference[] 
       checksum: `sha256:metadata-only-${safeFileToken(model.project.id)}`,
       checksumStatus: "metadata_reference_only",
       valueDescriptor: "metadata-only private_material_library reference; version=TBD",
+      unitMetadataStatus: "private_unit_bearing_values_withheld_explicit_unit_metadata_required_at_use",
       unresolvedTbd: ["version", "storage_root", "permission_grant_persistence"]
     }),
     reference({
@@ -250,6 +259,7 @@ function secretPrivateReferences(model: PreviewModel): SecretPrivateReference[] 
       checksum: null,
       checksumStatus: "TBD",
       valueDescriptor: "metadata-only private_rule_pack reference; version=TBD",
+      unitMetadataStatus: "private_rule_inputs_withheld_explicit_unit_metadata_required_at_use",
       unresolvedTbd: ["checksum", "version", "rule_input_values"]
     }),
     reference({
@@ -265,6 +275,7 @@ function secretPrivateReferences(model: PreviewModel): SecretPrivateReference[] 
       checksum: null,
       checksumStatus: "not_applicable",
       valueDescriptor: "symbolic path class only: USER_PRIVATE_LIBRARY_ROOT",
+      unitMetadataStatus: "not_unit_bearing_path_metadata_only",
       unresolvedTbd: ["exact_storage_root"]
     }),
     reference({
@@ -280,6 +291,7 @@ function secretPrivateReferences(model: PreviewModel): SecretPrivateReference[] 
       checksum: null,
       checksumStatus: "not_applicable",
       valueDescriptor: "secret descriptor=local import credential reference; placeholder_key_id=TBD",
+      unitMetadataStatus: "not_unit_bearing_secret_metadata_only",
       unresolvedTbd: ["exact_secret_provider", "key_lifecycle", "permission_grant_persistence"]
     })
   ];
@@ -298,6 +310,7 @@ function reference({
   checksum,
   checksumStatus,
   valueDescriptor,
+  unitMetadataStatus,
   unresolvedTbd
 }: {
   referenceId: string;
@@ -312,6 +325,7 @@ function reference({
   checksum: string | null;
   checksumStatus: string;
   valueDescriptor: string;
+  unitMetadataStatus: string;
   unresolvedTbd: string[];
 }): SecretPrivateReference {
   return {
@@ -327,6 +341,7 @@ function reference({
     checksum,
     checksum_status: checksumStatus,
     value_descriptor: valueDescriptor,
+    unit_metadata_status: unitMetadataStatus,
     contains_payload: false,
     secret_material_present: false,
     concrete_path_present: false,
@@ -335,6 +350,27 @@ function reference({
     direct_sql_access: false,
     storage_bypass_requested: false,
     unresolved_tbd: unresolvedTbd
+  };
+}
+
+function secretPrivateUnitPolicy(references: SecretPrivateReference[]) {
+  const privateUnitReferences = references.filter(
+    (item) => item.record_kind === "private_material_library" || item.record_kind === "private_component_library" || item.record_kind === "private_rule_pack"
+  );
+  return {
+    evidence_id: "unit-policy:secret-private-library-metadata-only-preview",
+    decision_basis_refs: ["DEC-018", "DEL-02-02", "DEL-12-04"],
+    policy: "private_library_unit_bearing_values_are_metadata_only_until_user_import_or_rule_binding",
+    private_unit_reference_count: privateUnitReferences.length,
+    explicit_unit_metadata_required: true,
+    unit_payload_included: false,
+    conversion_performed: false,
+    repository_default_private_write: false,
+    unit_metadata_statuses: privateUnitReferences.map((item) => ({
+      reference_id: item.reference_id,
+      record_kind: item.record_kind,
+      unit_metadata_status: item.unit_metadata_status
+    }))
   };
 }
 

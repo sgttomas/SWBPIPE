@@ -1,4 +1,5 @@
 import { Download, FileJson } from "lucide-react";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
 export function AdapterFrameworkPanel({
@@ -50,6 +51,11 @@ export function AdapterFrameworkPanel({
           testId="adapter-framework-validation"
         />
         <AdapterLine
+          label="Units"
+          value={`${unitDisclosureSummary(packet.unit_policy_evidence)}; policy=${packet.unit_policy_evidence.framework_unit_policy}; witnesses=${packet.unit_policy_evidence.witness_count}`}
+          testId="adapter-framework-units"
+        />
+        <AdapterLine
           label="No bypass"
           value={noBypassSummary(packet.adapter_declaration.no_bypass_controls)}
           testId="adapter-framework-no-bypass"
@@ -93,6 +99,23 @@ function buildAdapterFrameworkPacket({
 }) {
   const run = analysisRun?.analysis_run;
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])].map(adapterDiagnostic);
+  const unitPolicyEvidence = {
+    ...buildExportUnitSystemDisclosure({
+      model,
+      result,
+      targetExportUnits: {},
+      conversionPolicy: "adapter_framework_declares_unit_validation_no_format_conversion",
+      conversionPerformed: false,
+      conversionScope: [],
+      sourceLocation: "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx"
+    }),
+    evidence_id: "unit-policy-evidence:adapter-framework-preview",
+    framework_scope: "format_neutral_adapter_contract_metadata_only",
+    framework_unit_policy: "unit_validation_required_before_adapter_payload_exchange",
+    witness_policy: "record_framework_unit_policy_without_claiming_target_writer_conversion",
+    witness_count: 1,
+    adapter_ref: reference("adapter", "ops.adapter.desktop_preview")
+  };
 
   return {
     schema_version: "0.1.0",
@@ -133,6 +156,7 @@ function buildAdapterFrameworkPacket({
       export_review: "required_before_shared_payload",
       human_review_required: true
     },
+    unit_policy_evidence: unitPolicyEvidence,
     operation_result: {
       operation_id: `adapter-operation:desktop-preview:${safeFileToken(result?.run_id ?? "not-run")}`,
       operation_class: "export",

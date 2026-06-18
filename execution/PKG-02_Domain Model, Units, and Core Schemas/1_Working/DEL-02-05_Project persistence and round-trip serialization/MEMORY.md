@@ -377,3 +377,102 @@ Boundaries preserved:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001 primary evidence
+
+- Primary role for project validation/unit-evidence tranche: the Project
+  Validation Preflight packet now carries `unit_policy_evidence` for the
+  existing unit round-trip metadata check, and the panel exposes the policy in
+  `project-validation-unit-policy`.
+- The packet records DEC-018 unit-system identity, entered-unit preservation,
+  sorted model units, the model unit-bearing record count, persisted
+  round-trip status/signature when a local project snapshot exists,
+  `conversion_performed=false`, and DEC-018/DEL-02-02/DEL-02-05 basis refs.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no persistence semantics, migration policy, hash
+  canonicalization, schema versioning, unit conversion API, protected
+  standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-STORAGEUNITS-001 project-storage unit policy evidence
+
+- Primary role for DEL-02-05 Project Storage Audit unit-policy tranche: the
+  storage audit packet now carries structured `unit_policy_evidence` for the
+  existing local project unit round-trip metadata.
+- `data-testid="project-storage-unit-round-trip"` now reports sorted model
+  units and `conversion=false` alongside the existing round-trip status,
+  checked-ref count, and signature.
+- The local storage JSON records DEC-018 unit-system reference, DEL-02-02 and
+  DEL-02-05 basis refs, entered-unit preservation, round-trip status,
+  checked-ref count/signature, and no-conversion policy.
+- The Report Content Lint inventory now includes the Project Storage Audit
+  unit-policy surface, increasing unit-policy targets from 17 to 18 while
+  leaving target-format conversion-witness count at two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-234; completion log entry; supporting
+  DEL-02-02 and DEL-08-05 run records.
+- Validation passed: focused App Vitest initial storage, local
+  create/save/open round-trip, and solved report-lint tests; focused
+  Playwright 2/2 Chromium desktop tests; `git diff --check`; full desktop
+  Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no local persistence semantics, migration policy,
+  project-envelope schema, model hash canonicalization, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 supporting export-review matrix evidence
+
+- Supporting role for DEL-02-05: the Export Safety Review manifest now
+  consumes the existing Project Storage Audit and Project Validation Preflight
+  unit-policy packet contracts as unit-bearing export evidence.
+- `project_storage_audit` and `project_validation_preflight` now appear in the
+  export-review covered unit-evidence set, raising the manifest coverage line
+  to `covered=16/16`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-236; completion log entry; primary
+  DEL-12-02 run record and supporting DEL-02-02 run record.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open tests, full desktop Vitest 399/399, single-worker R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no project persistence semantics, local storage
+  behavior, validation-preflight semantics, migration policy,
+  project-envelope schema, model hash canonicalization, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-02-05: the Report Content Lint public-surface
+  inventory now consumes the existing Project Validation Preflight
+  unit-policy evidence.
+- `ProjectValidationPanel.tsx` is now an explicit lint target and the lint
+  packet includes `unit_policy_surface_id=project-validation-unit-policy`,
+  raising the unit-policy target count to 20.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-237; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-02-02 run record.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  tests, focused Playwright 1/1 Chromium desktop test, full desktop Vitest
+  399/399, single-worker R2/R3 Playwright smoke 18/18, and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no project persistence semantics, validation-preflight
+  semantics, migration policy, project-envelope schema, model hash
+  canonicalization, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, report-linter protected-content semantics, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

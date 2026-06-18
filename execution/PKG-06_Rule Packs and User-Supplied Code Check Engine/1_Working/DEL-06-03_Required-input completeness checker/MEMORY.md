@@ -1,5 +1,48 @@
 # MEMORY - DEL-06-03 Required-input Completeness Checker
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULECHECKLINTUNITS-001 supporting run-check evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Run Rule Checks unit-binding policy
+  surface.
+- The lint inventory records `rule-check-unit-binding-policy` as an existing
+  unit-policy surface and reports `unit_targets=34`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Run Rule
+  Checks panel continues to expose runtime value inputs, value slots,
+  solver-result selectors/references, private-library reference counts,
+  catalog route, and `conversion=false`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused RuleCheckRunPanel Vitest 18/18, focused
+  R2/run-check Playwright smoke 4/4 configured project tests, full desktop
+  Vitest 18/18 files and 399/399 tests, desktop production build with the
+  existing Vite large-chunk warning, and single-worker R2/R3 Playwright smoke
+  18/18.
+- Boundary preserved: no rule-pack schema, expression grammar,
+  parser/text-syntax, backend completeness/evaluator behavior, rule-pack
+  persistence, solver behavior, unit conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULECHECKBINDUNITS-001 run-check binding unit visibility
+
+- The desktop Run Rule Checks binding plan now visibly reports unit-binding
+  policy evidence for runtime user value inputs, value slots, solver-result
+  references/selectors, and private-library references.
+- The browser demo-pack row records `value_inputs=1`, `value_slots=1`,
+  `solver_selectors=1`, `solver_result_refs=0`, `private_library_refs=0`,
+  `catalog=browser_manual_text_no_fallback`, and `conversion=false`.
+- Validation passed: focused RuleCheckRunPanel Vitest 18/18; focused
+  Chromium desktop Playwright smoke 1/1; full desktop Vitest 399/399; full
+  R2/R3 Playwright smoke 18/18; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no rule-pack schema, expression grammar,
+  parser/text syntax, backend completeness/evaluator behavior, rule-pack
+  persistence, solver behavior, unit conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## Implementation Summary
 
 2026-05-02: Added bounded Rust crate
@@ -115,3 +158,30 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the Rule-Check
+  Completeness review packet now records explicit rule-input unit policy,
+  DEC-018 unit-system basis, model units, unit-bearing record count,
+  `RULE_UNIT_MISMATCH`, and `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  primary DEL-08-05 run record; `apps/desktop/SMOKE.md` TP-MAC-258.
+- Boundary preserved: no completeness-checker semantics, rule evaluator,
+  private rule-pack handling, blocking logic, protected content, private data,
+  lifecycle state, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting export-review inventory evidence
+
+- Supporting role for DEL-12-02 Export Safety Review matrix cleanup: the
+  export manifest now includes `rule_completeness_review` as an available
+  local export row and marks it unit-evidence-required.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  primary DEL-12-02 run record; `apps/desktop/SMOKE.md` TP-MAC-259.
+- Boundary preserved: no required-input checker logic, rule evaluator
+  behavior, missing-input blocking behavior, private rule-pack handling,
+  lifecycle state, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

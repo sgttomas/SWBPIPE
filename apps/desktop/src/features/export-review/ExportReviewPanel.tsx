@@ -1,4 +1,5 @@
 import { Download, ShieldCheck } from "lucide-react";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -89,6 +90,11 @@ export function ExportReviewPanel({
           testId="export-review-state-binding"
         />
         <ReviewLine label="Boundary" value={exportBoundary(manifest)} testId="export-review-boundary" />
+        <ReviewLine
+          label="Units"
+          value={`${manifest.unit_policy_summary.unit_system_ref.ref}; covered=${manifest.unit_policy_summary.summary.unit_evidence_present_count}/${manifest.unit_policy_summary.summary.unit_evidence_required_count}; ${unitDisclosureSummary(manifest.unit_policy_summary)}`}
+          testId="export-review-units"
+        />
         <div className="operation-record-list" data-testid="export-review-records">
           {manifest.exports.map((item) => (
             <article
@@ -121,6 +127,36 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
     </div>
   );
 }
+
+const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
+  "project_storage_audit",
+  "project_validation_preflight",
+  "secret_private_library_boundary_review",
+  "security_threat_model_review",
+  "editor_contract_review",
+  "agent_proposal_review",
+  "missing_data_warning_blocking_review",
+  "rule_completeness_review",
+  "accessibility_usability_baseline_review",
+  "design_authoring_comparison_workspace",
+  "validation_release_evidence_review",
+  "result_envelope",
+  "stress_neutral_csv_json_package",
+  "headless_runner_envelope",
+  "adapter_framework_envelope",
+  "local_fea_handoff_package",
+  "external_prover_boundary_metadata",
+  "review_geometry_export",
+  "conservative_pcf_export",
+  "caepipe_mbf_export",
+  "caepipe_external_run_evidence",
+  "export_adapter_sdk_registry",
+  "native_json_package",
+  "report_packet",
+  "report_protected_content_lint",
+  "handoff_package",
+  "operation_review_ledger"
+]);
 
 function buildExportReviewManifest({
   model,
@@ -157,6 +193,7 @@ function buildExportReviewManifest({
   const securityThreatModelReady = true;
   const editorContractReady = true;
   const missingDataReviewReady = true;
+  const agentProposalReviewReady = Boolean(proposal);
   const accessibilityBaselineReady = true;
   const designWorkspaceReady = true;
   const buildReadinessReady = true;
@@ -266,6 +303,12 @@ function buildExportReviewManifest({
       no_bypass_surfaces: ["plugins", "adapters", "import_export", "reports", "private_libraries", "cli_runner"],
       open_decision_count: 6,
       security_certification_claim: false,
+      unit_evidence_required: false,
+      unit_boundary_classification: "not_unit_bearing_metadata_or_boundary_review",
+      unit_boundary_reason:
+        "telemetry_boundary_review_records_disabled_policy_metadata_only_without_quantities_units_dimensions_or_target_conversion",
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "telemetry_metadata_only_no_payload_no_network",
       private_payload_included: false,
       protected_content_included: false,
@@ -305,6 +348,12 @@ function buildExportReviewManifest({
       secret_material_present: false,
       concrete_path_present: false,
       metadata_only: true,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy:secret-private-library-metadata-only-preview",
+      unit_policy: "private_library_unit_bearing_values_are_metadata_only_until_user_import_or_rule_binding",
+      explicit_unit_metadata_required: true,
+      unit_payload_included: false,
+      conversion_performed: false,
       security_certification_claim: false,
       redaction_action: "secret_private_library_metadata_only_no_payload_no_secret_values",
       private_payload_included: false,
@@ -340,6 +389,11 @@ function buildExportReviewManifest({
       storage_bypass_requested: false,
       plugin_manifest_grants_runtime_access: false,
       no_bypass_controls_present: true,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy-evidence:security-threat-model-no-bypass",
+      unit_policy:
+        "security_threat_model_requires_unit_checks_no_bypass_for_unit_bearing_workflows",
+      conversion_performed: false,
       security_certification_claim: false,
       redaction_action: "threat_model_metadata_only_no_private_payload",
       private_payload_included: false,
@@ -370,6 +424,11 @@ function buildExportReviewManifest({
       private_library_payload_status: "reference_slots_only_no_private_payload",
       direct_model_mutation_allowed: false,
       accepted_model_state_mutated: false,
+      unit_evidence_required: true,
+      unit_policy_ref: "DEL-02-02:unit_bearing_values_require_explicit_unit_metadata",
+      unit_policy: "unit_bearing_values_require_explicit_unit_metadata",
+      missing_unit_behavior: "diagnostic_blocking",
+      conversion_performed: false,
       redaction_action: "editor_contract_metadata_only_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
@@ -402,6 +461,11 @@ function buildExportReviewManifest({
       mechanics_results_qualified_by_rule_inputs: Boolean(result && run),
       silent_defaults_used: false,
       auto_fill_missing_data: false,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-input-policy-evidence:missing-data-warning-blocking-review",
+      unit_policy:
+        "missing_unit_bearing_inputs_require_explicit_units_without_default_unit_inference",
+      conversion_performed: false,
       assistive_text_fields_available: true,
       color_only_signaling_allowed: false,
       redaction_action: "missing_data_warning_metadata_only_no_private_payload",
@@ -410,6 +474,54 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "DEL-07-04 desktop missing-data warning review; solve-required and rule-check-required data stay distinct, missing values are not auto-filled, and warning meaning is exported as text metadata."
+    },
+    {
+      export_id: "rule_completeness_review",
+      label: "Rule-check completeness review",
+      document_kind: "openpipestress.technical_preview.rule_completeness_review",
+      readiness: "available",
+      deliverable_refs: ["DEL-06-03", "DEL-07-04", "DEL-05-04", "DEL-08-03", "DEL-02-02"],
+      source_refs: [model.project.id, result?.run_id ?? "not generated"],
+      finding_count: diagnostics.length,
+      rule_check_status: result?.status.rule_check ?? model.analysis_status.rule_check,
+      mechanics_results_reviewable: Boolean(result),
+      unit_evidence_required: true,
+      redaction_action: "rule_completeness_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Rule completeness review records explicit rule-input unit policy and missing private/user rule data without conversion."
+    },
+    {
+      export_id: "agent_proposal_review",
+      label: "Agent proposal review",
+      document_kind: "openpipestress.technical_preview.agent_proposal_review",
+      readiness: agentProposalReviewReady ? "available" : "pending_agent_proposal",
+      deliverable_refs: ["DEL-16-01", "DEL-16-02", "DEL-16-03", "DEL-16-04", "DEL-07-08", "DEL-02-02"],
+      source_refs: [
+        model.project.id,
+        proposal?.proposal_id ?? "not generated",
+        selectedReviewTarget ? `${selectedReviewTarget.target_type}:${selectedReviewTarget.id}` : "no selected review target"
+      ],
+      proposal_ref: proposal?.proposal_id ?? "not generated",
+      proposal_operation_ref: proposal?.operation.operation_id ?? "not generated",
+      selected_review_target_ref: selectedReviewTarget
+        ? `${selectedReviewTarget.target_type}:${selectedReviewTarget.id}`
+        : "not selected",
+      validation_status: proposal?.validation.application_status ?? "not generated",
+      diff_preview_status: proposal?.validation.diff_preview_status ?? "not generated",
+      unit_validation_status: proposal?.validation.unit_validation ?? "not generated",
+      review_only: true,
+      user_acceptance_required: Boolean(proposal?.audit_boundary.requires_user_acceptance),
+      accepted_model_state_mutated: Boolean(proposal?.audit_boundary.mutates_accepted_model_state),
+      unit_evidence_required: true,
+      redaction_action: "agent_proposal_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Agent proposal review records metadata-only operation proposal unit-validation status without applying operations or converting units."
     },
     {
       export_id: "accessibility_usability_baseline_review",
@@ -439,6 +551,11 @@ function buildExportReviewManifest({
       desktop_runtime_evaluation: "not_performed",
       software_makes_accessibility_conformance_claim: false,
       color_only_status_signaling_allowed: false,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-visibility-evidence:accessibility-baseline-preview",
+      unit_visibility_policy: "unit_bearing_values_keep_visible_unit_labels_in_review_surfaces",
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "accessibility_baseline_metadata_only_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
@@ -484,6 +601,11 @@ function buildExportReviewManifest({
       core_analysis_run_count: 2,
       core_graphical_overlay_count: 5,
       core_operation_diff_review_row_count: 1,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy-evidence:design-workspace-preview",
+      unit_policy: "compose_model_result_and_comparison_units_without_conversion",
+      default_units_inferred: false,
+      conversion_performed: false,
       workspace_mutates_accepted_model_state: false,
       accepted_operation_requires_explicit_user_acceptance_record: true,
       redaction_action: "design_workspace_metadata_only_no_private_payload",
@@ -518,6 +640,12 @@ function buildExportReviewManifest({
       publishing_status: "TBD",
       release_publication_authorized: false,
       installer_or_binary_generated: false,
+      unit_evidence_required: false,
+      unit_boundary_classification: "not_unit_bearing_metadata_or_boundary_review",
+      unit_boundary_reason:
+        "build_package_readiness_records_script_shell_and_release_decision_metadata_only_without_quantities_units_dimensions_or_target_conversion",
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "local_build_metadata_only_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
@@ -560,6 +688,11 @@ function buildExportReviewManifest({
       gui_validation_evidence_policy: "TBD",
       browser_panel_runs_tool: false,
       dry_run_default: true,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy-evidence:validation-release-evidence-review",
+      unit_policy: "validation_evidence_records_project_unit_context_without_conversion_or_release_threshold_claim",
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "validation_release_evidence_metadata_only_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
@@ -941,6 +1074,15 @@ function buildExportReviewManifest({
       finding_count: 0,
       blocking_finding_count: 0,
       clean_scan_is_clearance: false,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy-evidence:report-lint-public-surfaces",
+      unit_policy: "lint_targets_include_public_unit_policy_and_conversion_witness_surfaces",
+      unit_policy_target_count: 44,
+      conversion_witness_target_count: 2,
+      lint_performs_conversion: false,
+      lint_asserts_target_format_compatibility: false,
+      default_units_inferred: false,
+      conversion_performed: false,
       redaction_action: "heuristic_public_surface_lint_review_evidence_only",
       private_payload_included: false,
       protected_content_included: false,
@@ -984,6 +1126,7 @@ function buildExportReviewManifest({
     }
   ];
   const availableCount = exports.filter((item) => item.readiness === "available").length;
+  const unitPolicySummary = buildExportReviewUnitPolicySummary({ model, result, exports });
 
   return {
     schema_version: "0.1.0",
@@ -1016,6 +1159,7 @@ function buildExportReviewManifest({
       diagnostics_reviewed: diagnostics.length,
       operation_record_count: operationRecordCount
     },
+    unit_policy_summary: unitPolicySummary,
     data_boundary: model.data_boundary,
     unresolved_tbd: [
       "durable redaction profile persistence",
@@ -1026,6 +1170,75 @@ function buildExportReviewManifest({
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function buildExportReviewUnitPolicySummary({
+  model,
+  result,
+  exports
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  exports: Array<{
+    export_id: string;
+    document_kind: string;
+    readiness: string;
+    unit_boundary_classification?: string;
+    unit_boundary_reason?: string;
+  }>;
+}) {
+  const disclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: {},
+    conversionPolicy: "export_review_manifest_inventory_only_no_target_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/export-review/ExportReviewPanel.tsx"
+  });
+  const unitEvidenceMatrix = exports.map((item) => {
+    const unitEvidenceRequired = UNIT_EVIDENCE_REQUIRED_EXPORT_IDS.has(item.export_id);
+    return {
+      export_id: item.export_id,
+      document_kind: item.document_kind,
+      readiness: item.readiness,
+      unit_evidence_required: unitEvidenceRequired,
+      unit_evidence_status: unitEvidenceRequired
+        ? item.readiness === "available"
+          ? "covered_by_target_panel_or_export_packet"
+          : "pending_source_export_packet"
+        : item.unit_boundary_classification ?? "not_unit_bearing_metadata_or_boundary_review",
+      unit_boundary_reason: unitEvidenceRequired
+        ? "unit_bearing_export_record_requires_target_panel_or_export_packet_evidence"
+        : item.unit_boundary_reason ?? "metadata_boundary_review_no_unit_bearing_payload",
+      conversion_policy: unitEvidenceRequired
+        ? "source_units_preserved_or_target_panel_discloses_conversion_policy"
+        : "not_applicable",
+      conversion_performed_by_export_review_manifest: false
+    };
+  });
+  const requiredRows = unitEvidenceMatrix.filter((item) => item.unit_evidence_required);
+  const presentRows = requiredRows.filter((item) => item.unit_evidence_status === "covered_by_target_panel_or_export_packet");
+
+  return {
+    ...disclosure,
+    evidence_id: "unit-policy-evidence:export-review-manifest",
+    review_scope: "export_review_manifest_unit_evidence_inventory",
+    unit_review_policy:
+      "inventory_unit_bearing_export_records_and_require_target_panels_or_export_packets_to_carry_DEC_018_unit_evidence",
+    unit_evidence_matrix: unitEvidenceMatrix,
+    covered_export_ids: presentRows.map((item) => item.export_id),
+    not_unit_bearing_export_ids: unitEvidenceMatrix
+      .filter((item) => !item.unit_evidence_required)
+      .map((item) => item.export_id),
+    summary: {
+      reviewed_export_count: exports.length,
+      unit_evidence_required_count: requiredRows.length,
+      unit_evidence_present_count: presentRows.length,
+      conversion_performed_count: unitEvidenceMatrix.filter((item) => item.conversion_performed_by_export_review_manifest)
+        .length
+    }
   };
 }
 

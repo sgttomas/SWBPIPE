@@ -9,6 +9,27 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-04
 
+## 2026-06-17 - TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001
+
+- App-integration B-tail addendum: the desktop Secret & Private Libraries
+  panel now exposes metadata-only unit policy for private material-library and
+  private rule-pack references.
+- The packet records `private_unit_reference_count=2`,
+  `explicit_unit_metadata_required=true`, `unit_payload_included=false`,
+  `conversion_performed=false`, and
+  `repository_default_private_write=false`; per-reference statuses preserve
+  that private values are withheld and unit metadata is required at import/use
+  time.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no private library payload read/write, credential
+  storage, storage-root finalization, unit conversion API, protected standards
+  content, private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 Implemented DEV-001 revision 0.5 Tranche M slice for secret and
 private-library reference handling.
 
@@ -108,3 +129,26 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-12-04: Export Safety Review now inventories
+  `secret_private_library_boundary_review` as unit-evidence-required because
+  the Secret and Private Libraries panel already exposes metadata-only unit
+  policy evidence.
+- The export row cites
+  `unit-policy:secret-private-library-metadata-only-preview`, requires
+  explicit unit metadata, keeps `unit_payload_included=false`, and records
+  `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-266; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no secret values, private-library payloads, concrete
+  private paths, encryption/key management, external secret-manager behavior,
+  cloud or network behavior, direct SQL access, storage-bypass behavior,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

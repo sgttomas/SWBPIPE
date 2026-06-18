@@ -4,7 +4,13 @@ import type { UnitCatalog } from "./unitCatalogService";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
-import { acceptedUnits, describeUnitBasis, loadUnitCatalog, unitCatalogEntryForSymbol } from "./unitCatalogService";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  unitCatalogEntryForSymbol,
+  unitDimensionValidationStatus
+} from "./unitCatalogService";
 
 const catalogFixture: UnitCatalog = {
   schema_version: "0.1.0",
@@ -156,5 +162,30 @@ describe("unitCatalogService", () => {
       source: "browser_preview_model_metadata",
       unit_id: null
     });
+  });
+
+  it("summarizes unit-dimension validation status for catalog and browser routes", () => {
+    const tauriRoute = { route: "tauri_unit_catalog" as const, catalog: catalogFixture };
+    const browserRoute = {
+      route: "unavailable_browser_preview" as const,
+      diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: browser preview does not synthesize a fallback catalog."
+    };
+
+    expect(unitDimensionValidationStatus(tauriRoute, "Pa", "stress")).toBe(
+      "dec018_catalog_dimension_match"
+    );
+    expect(unitDimensionValidationStatus(tauriRoute, "m", "stress")).toBe(
+      "dec018_catalog_dimension_mismatch"
+    );
+    expect(unitDimensionValidationStatus(browserRoute, "MPa", "stress")).toBe(
+      "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
+    expect(unitDimensionValidationStatus(null, "MPa", "stress")).toBe(
+      "catalog_loading_unit_dimension_declared"
+    );
+    expect(unitDimensionValidationStatus(tauriRoute, "TBD", "stress")).toBe("missing_unit_or_dimension");
+    expect(unitDimensionValidationStatus(tauriRoute, "none", "dimensionless")).toBe(
+      "not_required_dimensionless"
+    );
   });
 });

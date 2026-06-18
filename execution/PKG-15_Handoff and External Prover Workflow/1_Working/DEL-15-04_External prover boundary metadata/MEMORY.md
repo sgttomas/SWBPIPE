@@ -101,3 +101,51 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001 primary evidence
+
+- Primary role for external-prover metadata/unit-evidence tranche: the
+  desktop external-prover boundary metadata packet now carries
+  `unit_policy_evidence` for the metadata-only external review context.
+- The packet records DEC-018 unit system disclosure, entered-unit
+  preservation, source model units, result units when a run exists, no target
+  export units, and
+  `conversion_policy=external_prover_metadata_records_units_without_target_conversion`
+  with `conversion_performed=false`.
+- The visible `external-prover-unit-policy` row reports source/result unit
+  disclosure, `conversion=false`, external-prover unit policy, and witness
+  count; the exported JSON also records `analysis_run_ref` and the desktop
+  preview external reference.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no external solver/prover invocation, target parser,
+  commercial-result ingestion, target writer, conversion API, target
+  compatibility claim, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-15-04: Export Safety Review now classifies
+  `external_prover_boundary_metadata` as unit-evidence-required and covered by
+  the existing external-prover target-panel/export-packet unit evidence.
+- The DEL-15-04 packet remains metadata-only external review context with
+  `unit-policy-evidence:external-prover-preview`,
+  `conversion_performed=false`, no external solver/prover invocation, and no
+  commercial-result ingestion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-263; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no external solver/prover invocation, target parser,
+  commercial-result ingestion, software-created external validation record,
+  target writer, external acceptance state, manifest-level unit conversion,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

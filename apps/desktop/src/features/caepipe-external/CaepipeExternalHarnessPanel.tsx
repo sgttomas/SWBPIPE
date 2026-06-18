@@ -1,5 +1,6 @@
 import { Download, FileOutput } from "lucide-react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 type CaePipeExternalReference = {
   object_type: string;
@@ -88,6 +89,20 @@ export function CaepipeExternalHarnessPanel({
           testId="caepipe-external-parser"
         />
         <CaePipeExternalLine
+          label="Units"
+          value={`${packet.unit_system_disclosure.unit_system_ref.ref}; ${unitDisclosureSummary(
+            packet.unit_system_disclosure
+          )}`}
+          testId="caepipe-external-units"
+        />
+        <CaePipeExternalLine
+          label="Unit witnesses"
+          value={`count=${packet.unit_preservation_witnesses.length}; policy=preserve_parser_row_units; conversion=${String(
+            packet.unit_preservation_witnesses.some((item) => item.conversion_performed)
+          )}`}
+          testId="caepipe-external-unit-witnesses"
+        />
+        <CaePipeExternalLine
           label="Run directory"
           value={`working=${packet.run_directory.working_directory}; expected_csv=${packet.run_directory.expected_csv_path}; discovery=${packet.run_directory.output_discovery_status}`}
           testId="caepipe-external-run-directory"
@@ -131,6 +146,19 @@ function buildCaePipeExternalHarnessPacket({
   const mbfPackageRef = reference("CaePipeMbfExportPackage", `caepipe-mbf:desktop-preview-del-17-04:${safeFileToken(model.project.id)}`);
   const parsedCsv = parsedCsvPackage(model);
   const csvText = renderCsv(parsedCsv.rows);
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    result,
+    targetExportUnits: {
+      element_forces: "N",
+      node_displacements: "m"
+    },
+    conversionPolicy: "caepipe_external_parser_rows_preserve_declared_csv_units_no_external_run_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx"
+  });
+  const unitPreservationWitnesses = caepipeExternalUnitPreservationWitnesses(parsedCsv.rows);
   const diagnostics = caepipeExternalDiagnostics({ parsedCsv });
 
   return {
@@ -177,6 +205,9 @@ function buildCaePipeExternalHarnessPacket({
       skip_reason: "Parser-only desktop preview; external CAEPIPE execution was not attempted."
     },
     parser_coverage: parserCoverage(),
+    unit_system_disclosure: unitSystemDisclosure,
+    unit_witness_policy: "preserve_parser_csv_row_value_unit_and_dimension_per_row",
+    unit_preservation_witnesses: unitPreservationWitnesses,
     parsed_csv: parsedCsv,
     csv_text: csvText,
     validation_report: {
@@ -192,6 +223,8 @@ function buildCaePipeExternalHarnessPacket({
         check("mbf_package_bound_to_del_17_04", mbfPackageRef.ref.includes("del-17-04")),
         check("parser_rows_present", parsedCsv.row_count > 0),
         check("parser_rows_canonical_id_mapped", parsedCsv.rows.every((row) => row.correlation_status === "canonical_id_map")),
+        check("unit_preservation_witness_per_parser_row", unitPreservationWitnesses.length === parsedCsv.rows.length),
+        check("unit_preservation_witnesses_match_parser_rows", unitPreservationWitnesses.every((witness, index) => witnessMatchesParserRow(witness, parsedCsv.rows[index]))),
         check("no_professional_or_compatibility_claims", professionalBoundaryIsClear())
       ],
       human_review_required: true,
@@ -343,6 +376,59 @@ function caepipeExternalDiagnostics({ parsedCsv }: { parsedCsv: ReturnType<typeo
     ];
   }
   return [];
+}
+
+function caepipeExternalUnitPreservationWitnesses(rows: CaePipeExternalCsvRow[]) {
+  return rows.map((row) => ({
+    witness_id: `caepipe-external-unit:${safeFileToken(`${row.section}-${row.stable_id}-${row.row_number}`)}`,
+    source_csv_ref: row.source_csv_ref,
+    source_row_ref: reference("CaePipeExternalCsvRow", `csv-row:${row.row_number}`),
+    source_field_path: `parsed_csv.rows[${row.row_number}].values`,
+    source_quantity: {
+      values: row.values,
+      unit: row.unit,
+      dimension: parserRowDimension(row)
+    },
+    target_row_ref: reference("CaePipeExternalParserRow", `parser-row:${row.row_number}`),
+    target_field_path: `parsed_csv.rows[${row.row_number}]`,
+    target_quantity: {
+      values: row.values,
+      unit: row.unit,
+      dimension: parserRowDimension(row)
+    },
+    target_quantity_policy: "parser_row_preserves_declared_csv_value_unit_and_dimension",
+    export_unit_policy: "preserve_parser_csv_row_unit_and_dimension",
+    conversion_performed: false,
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-17-05")
+    ],
+    provenance: previewProvenance()
+  }));
+}
+
+function parserRowDimension(row: CaePipeExternalCsvRow): "length" | "force" {
+  return row.section === "NODE_DISPLACEMENTS" ? "length" : "force";
+}
+
+function witnessMatchesParserRow(
+  witness: ReturnType<typeof caepipeExternalUnitPreservationWitnesses>[number],
+  row: CaePipeExternalCsvRow | undefined
+): boolean {
+  return Boolean(
+    row &&
+      witness.source_csv_ref.ref === row.source_csv_ref.ref &&
+      witness.source_row_ref.ref === `csv-row:${row.row_number}` &&
+      witness.target_row_ref.ref === `parser-row:${row.row_number}` &&
+      witness.source_quantity.unit === row.unit &&
+      witness.target_quantity.unit === row.unit &&
+      witness.source_quantity.dimension === parserRowDimension(row) &&
+      witness.target_quantity.dimension === parserRowDimension(row) &&
+      JSON.stringify(witness.source_quantity.values) === JSON.stringify(row.values) &&
+      JSON.stringify(witness.target_quantity.values) === JSON.stringify(row.values) &&
+      witness.conversion_performed === false
+  );
 }
 
 function check(checkId: string, passed: boolean) {

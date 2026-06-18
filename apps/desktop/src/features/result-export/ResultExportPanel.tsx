@@ -51,6 +51,13 @@ export function ResultExportPanel({
               testId="result-export-units"
             />
             <ExportLine
+              label="Unit witnesses"
+              value={`count=${packet.result_envelope.unit_preservation_witnesses.length}; conversion=${String(
+                packet.result_envelope.unit_preservation_witnesses.some((item) => item.conversion_performed)
+              )}`}
+              testId="result-export-unit-witnesses"
+            />
+            <ExportLine
               label="Reproducibility"
               value={`deterministic_ordering=${String(packet.result_envelope.reproducibility.deterministic_ordering)}; run_hashes=${packet.result_envelope.reproducibility.run_hashes.length}`}
               testId="result-export-reproducibility"
@@ -131,6 +138,8 @@ function buildResultExportPacket({
           values
         }
       ],
+      unit_witness_policy: "preserve_source_result_value_unit_and_dimension_per_exported_result_row",
+      unit_preservation_witnesses: resultExportUnitPreservationWitnesses(model, values),
       diagnostics: [...model.diagnostics, ...result.diagnostics].map(resultExportDiagnostic),
       provenance: previewProvenance(),
       reproducibility: {
@@ -193,6 +202,34 @@ function quantityResult(item: MechanicsResult["results"][number]) {
     delete (output as Partial<typeof output>).metadata;
   }
   return output;
+}
+
+function resultExportUnitPreservationWitnesses(
+  model: PreviewModel,
+  values: ReturnType<typeof quantityResult>[]
+) {
+  return values.map((item) => ({
+    witness_id: `result-export-unit:${safeRefToken(item.result_id)}`,
+    source_result_ref: reference("result_value", item.result_id),
+    source_field_path: `result_envelope.result_sets[].values[${item.result_id}].magnitude`,
+    source_quantity: {
+      value: item.magnitude,
+      unit: item.unit,
+      dimension: item.dimension
+    },
+    target_result_ref: reference("result_value", item.result_id),
+    target_field_path: `result_envelope.result_sets[].values[${item.result_id}]`,
+    target_quantity: {
+      value: item.magnitude,
+      unit: item.unit,
+      dimension: item.dimension
+    },
+    target_quantity_policy: "exported_result_row_preserves_source_value_unit_and_dimension",
+    export_unit_policy: "preserve_source_result_unit_and_dimension",
+    conversion_performed: false,
+    unit_system_ref: reference("UnitSystem", `${model.project.id}:units`),
+    provenance: previewProvenance()
+  }));
 }
 
 function resultMetadata(item: MechanicsResult["results"][number]) {
@@ -323,4 +360,8 @@ function jsonDataHref(payload: unknown): string {
 
 function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+}
+
+function safeRefToken(value: string): string {
+  return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "ref";
 }

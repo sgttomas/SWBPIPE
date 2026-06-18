@@ -1,5 +1,24 @@
 # DEL-07-04 Memory
 
+## 2026-06-17 - TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001 unit-input policy visibility
+
+- WORKING_ITEMS added explicit unit-input policy evidence to the desktop
+  Missing Data Blocking panel and warning JSON packet.
+- The new review row and packet evidence cite DEC-018/DEL-02-02/DEL-07-04,
+  require explicit units for unit-bearing missing inputs, and keep
+  `default_units_inferred=false`, `auto_fill_missing_units=false`, and
+  `conversion_performed=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-220.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no solve behavior, rule-check behavior, lifecycle
+  transition, private/protected data, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented deterministic missing-data warning and blocking UX contract records
@@ -90,3 +109,40 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 supporting GUI evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the Rule-Check
+  Completeness GUI now displays `rule-check-unit-policy` with explicit
+  rule-input unit policy, model unit context, `RULE_UNIT_MISMATCH`, and
+  `conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  primary DEL-08-05 run record; `apps/desktop/SMOKE.md` TP-MAC-258.
+- Boundary preserved: no missing-data blocking behavior, remediation flow,
+  accepted model mutation, rule-check execution, lifecycle state,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-04: Export Safety Review now classifies
+  `missing_data_warning_blocking_review` as unit-evidence-required and covered
+  by the existing Missing Data Blocking target-panel/export-packet unit-input
+  evidence.
+- The DEL-07-04 warning packet remains explicit about unit-bearing missing
+  inputs requiring explicit units, no default-unit inference, no auto-filled
+  missing units, and `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-264; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no missing-data blocking behavior, remediation flow,
+  accepted model mutation, rule-check execution, assistive-text behavior,
+  color-only signaling policy, target writer, manifest-level unit conversion,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

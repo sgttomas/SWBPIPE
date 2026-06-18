@@ -1,5 +1,24 @@
 # DEL-07-06 Memory
 
+## 2026-06-17 - TP-UNITS-BTAIL-A11YUNITVISIBILITY-001 unit-visibility evidence
+
+- WORKING_ITEMS added explicit unit-visibility evidence to the desktop
+  Accessibility Baseline panel and JSON packet.
+- The new review row and packet evidence cite DEC-018/DEL-02-02/DEL-07-05/
+  DEL-07-06, keep unit labels visible for unit-bearing review surfaces, and
+  record `default_units_inferred=false`, `color_only_unit_signaling=false`,
+  and `conversion_performed=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-A11YUNITVISIBILITY-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-221.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no final accessibility conformance target, desktop
+  accessibility-tree audit claim, lifecycle transition, private/protected
+  data, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-09 Type 2 Implementation
 
 Implemented deterministic accessibility/usability baseline review records under
@@ -142,6 +161,24 @@ DEL-07-06-CF-001. Evidence: `_run_records/TASK_RUN_2026-06-12_1756.md`.
 No lifecycle state change; no release-readiness, professional approval,
 accessibility certification, sealing, authentication, or code-compliance
 claim.
+
+## 2026-06-17 - TP-R3UX-PACKAGEKIT-001 Packaged Successor Kit
+
+Prepared C5.6 for the R3 exit-readiness path. A fresh macOS `.app` was built
+from commit `c013b49b8` with
+`cd apps/desktop && npm run tauri -- build --bundles app` after installing
+workspace dependencies with `npm ci` in the fresh worktree. The bundle path is
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`;
+boot probe launched the bundled executable for 8 seconds, observed WebKit child
+processes, recorded zero stdout/stderr bytes, and terminated cleanly.
+
+Appended SMOKE TP-MAC-188 as the prepared C5.7 human successor checklist
+covering the A12 guided authoring journey and the R3 private-library/rule-pack
+guided journey. This records package readiness only. F-4 and the A3
+authoring-usability finding remain open until the human packaged pass/fail is
+recorded. Post-evidence desktop Vitest passed 18 files / 390 tests. No
+lifecycle, release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim was made.
 
 ## 2026-06-16 - TP-APP-R3-A3-JOURNEYPATH-001 Authoring Journey Status Rail
 
@@ -306,8 +343,29 @@ introduced.
 
 F-4 and the authoring-usability finding remain open pending packaged human
 successor journey evidence. Next unblocked C5 tranche is
-`TP-R3UX-PACKAGEKIT-001` / target TP-MAC-188.
+`TP-R3UX-HUMANPASS-001` / target TP-MAC-189.
 
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-06: Export Safety Review now inventories
+  `accessibility_usability_baseline_review` as unit-evidence-required because
+  the Accessibility Baseline panel already exposes unit-visibility evidence.
+- The export row cites
+  `unit-visibility-evidence:accessibility-baseline-preview`, records no
+  inferred default units, and records `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-267; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no accessibility finding count, target conformance
+  selection, runtime accessibility evaluation, visible warning semantics,
+  color-only signaling policy, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

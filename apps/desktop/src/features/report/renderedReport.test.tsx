@@ -286,6 +286,13 @@ describe("RenderedReportPanel", () => {
       />
     );
 
+    expect(screen.getByTestId("rendered-report-unit-basis")).toHaveTextContent(
+      "unit_system=unit-system:dec-018-si-dual-display"
+    );
+    expect(screen.getByTestId("rendered-report-unit-basis")).toHaveTextContent("model=force=N,length=m");
+    expect(screen.getByTestId("rendered-report-unit-basis")).toHaveTextContent("results=m");
+    expect(screen.getByTestId("rendered-report-unit-basis")).toHaveTextContent("conversion=false");
+
     fireEvent.click(screen.getByTestId("rendered-report-render"));
 
     await waitFor(() => {

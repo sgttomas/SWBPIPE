@@ -530,6 +530,42 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "required": [
+                  "relative_tolerance_value"
+                ],
+                "properties": {
+                  "relative_tolerance_value": {
+                    "type": "number"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "absolute_tolerance_value"
+                ],
+                "properties": {
+                  "absolute_tolerance_value": {
+                    "type": "number"
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "tolerance_value_status": {
+                "enum": [
+                  "externally_governed",
+                  "project_specific_review_required"
+                ]
+              }
+            }
+          }
         }
       ],
       "required": [
@@ -598,6 +634,44 @@
                 "externally_governed_reference_required"
               ]
             }
+          ]
+        },
+        "relative_tolerance_value": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "enum": [
+                "TBD",
+                "externally_governed_reference_required"
+              ]
+            }
+          ]
+        },
+        "absolute_tolerance_value": {
+          "oneOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "enum": [
+                "TBD",
+                "externally_governed_reference_required"
+              ]
+            }
+          ]
+        },
+        "tolerance_pair_policy": {
+          "type": "string",
+          "enum": [
+            "relative_plus_absolute_floor",
+            "single_absolute_delta",
+            "TBD"
           ]
         },
         "tolerance_value_status": {

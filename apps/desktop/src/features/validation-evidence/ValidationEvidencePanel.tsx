@@ -1,5 +1,5 @@
 import { ClipboardCheck, Download } from "lucide-react";
-import type { PreviewModel } from "../../types";
+import type { ObjectRef, PreviewModel } from "../../types";
 
 const MANUAL_SECTIONS = [
   "product_scope_and_limitations",
@@ -87,6 +87,11 @@ export function ValidationEvidencePanel({ model }: { model: PreviewModel }) {
           testId="validation-evidence-inventory"
         />
         <ValidationLine
+          label="Unit policy"
+          value={validationEvidenceUnitPolicySummary(packet.unit_policy_evidence)}
+          testId="validation-evidence-unit-policy"
+        />
+        <ValidationLine
           label="Release checks"
           value={`profiles=${packet.release_readiness_tool.profiles.join(", ")}; skeleton_checks=${packet.release_readiness_tool.skeleton_check_count}; dry_run_default=${String(
             packet.release_readiness_tool.dry_run_default
@@ -126,6 +131,8 @@ function ValidationLine({ label, value, testId }: { label: string; value: string
 }
 
 function buildValidationEvidencePacket(model: PreviewModel) {
+  const unitPolicyEvidence = buildValidationEvidenceUnitPolicy(model);
+
   return {
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.validation_release_evidence_review",
@@ -151,7 +158,8 @@ function buildValidationEvidencePacket(model: PreviewModel) {
       required_release_path_count: REQUIRED_RELEASE_PATHS.length,
       skeleton_check_count: 2,
       open_validation_decision_count: OPEN_VALIDATION_DECISIONS.length,
-      release_gate_family_count: RELEASE_GATE_FAMILIES.length
+      release_gate_family_count: RELEASE_GATE_FAMILIES.length,
+      unit_bearing_record_count: unitPolicyEvidence.unit_bearing_record_count
     },
     validation_manual: {
       manual_status: "draft_evidence_index",
@@ -171,6 +179,7 @@ function buildValidationEvidencePacket(model: PreviewModel) {
       validation_evidence_bundles: evidenceArea("TBD", "future evidence package location/format"),
       professional_boundary: evidenceArea("draft_policy_surface", "docs/PROFESSIONAL_BOUNDARY.md")
     },
+    unit_policy_evidence: unitPolicyEvidence,
     release_readiness_tool: {
       command: "python3 tools/release/check_release_readiness.py --profile skeleton",
       execute_command: "python3 tools/release/check_release_readiness.py --profile skeleton --execute",
@@ -208,6 +217,56 @@ function buildValidationEvidencePacket(model: PreviewModel) {
   };
 }
 
+type ValidationEvidenceUnitPolicyEvidence = {
+  evidence_id: string;
+  unit_system_ref: ObjectRef;
+  source_model_ref: ObjectRef;
+  storage_convention: "entered_units_preserved";
+  validation_evidence_unit_policy: string;
+  model_units: Record<string, string>;
+  unit_bearing_record_count: number;
+  unit_and_schema_manual_section: string;
+  conversion_policy: string;
+  conversion_performed: false;
+  release_gate_threshold_policy: "TBD";
+  decision_basis_refs: ObjectRef[];
+  protected_content_included: false;
+  private_payload_included: false;
+};
+
+function buildValidationEvidenceUnitPolicy(model: PreviewModel): ValidationEvidenceUnitPolicyEvidence {
+  return {
+    evidence_id: "unit-policy-evidence:validation-release-evidence-review",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    source_model_ref: reference("Model", model.project.id),
+    storage_convention: "entered_units_preserved",
+    validation_evidence_unit_policy:
+      "validation_evidence_records_project_unit_context_without_conversion_or_release_threshold_claim",
+    model_units: sortedStringRecord(model.project.units),
+    unit_bearing_record_count: countUnitBearingRecords(model),
+    unit_and_schema_manual_section: "unit_and_schema_verification",
+    conversion_policy: "validation_evidence_inventory_records_unit_context_without_conversion",
+    conversion_performed: false,
+    release_gate_threshold_policy: "TBD",
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-09-05")
+    ],
+    protected_content_included: false,
+    private_payload_included: false
+  };
+}
+
+function validationEvidenceUnitPolicySummary(evidence: ValidationEvidenceUnitPolicyEvidence): string {
+  return [
+    `model=${formatUnitRecord(evidence.model_units)}`,
+    `records=${evidence.unit_bearing_record_count}`,
+    `manual=${evidence.unit_and_schema_manual_section}`,
+    `conversion=${String(evidence.conversion_performed)}`
+  ].join("; ");
+}
+
 function evidenceArea(status: string, source: string) {
   return {
     status,
@@ -226,6 +285,47 @@ function professionalBoundary() {
     software_makes_approval_claim: false,
     software_makes_authentication_claim: false
   };
+}
+
+function countUnitBearingRecords(model: PreviewModel): number {
+  const pipeSectionQuantities = model.pipe_segments.flatMap((segment) => Object.values(segment.section));
+  const materialQuantities = (model.materials ?? []).flatMap((material) => [
+    material.elastic_modulus,
+    material.shear_modulus,
+    material.thermal_expansion_coefficient
+  ]);
+  const loadQuantities = model.load_cases.flatMap((loadCase) =>
+    (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
+  );
+  return [...pipeSectionQuantities, ...materialQuantities, ...loadQuantities].filter(hasUnit).length;
+}
+
+function hasUnit(value: unknown): value is { unit: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "unit" in value &&
+    typeof (value as { unit?: unknown }).unit === "string" &&
+    (value as { unit: string }).unit.length > 0
+  );
+}
+
+function sortedStringRecord(record: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([, value]) => typeof value === "string" && value.length > 0)
+      .sort(([left], [right]) => left.localeCompare(right))
+  );
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  const entries = Object.entries(units).sort(([left], [right]) => left.localeCompare(right));
+  if (entries.length === 0) return "none";
+  return entries.map(([key, value]) => `${key}=${value}`).join(",");
+}
+
+function reference(objectType: string, ref: string): ObjectRef {
+  return { object_type: objectType, ref };
 }
 
 function jsonDataHref(payload: unknown): string {

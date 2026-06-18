@@ -1,5 +1,27 @@
 # DEL-14-04 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-COMPARISONLINTUNITS-001 supporting comparison evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Comparison workspace unit-matching
+  policy surface.
+- The lint inventory records `comparison-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=33`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Comparison
+  workspace continues to report equal-explicit-unit matching over solved
+  result units `MPa,N,N*m,mm,rad`, `conversion=false`, and
+  `tolerance=not_tolerance_checked`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no comparison delta math, result mapping, tolerance
+  profile, default tolerance, solver behavior, unit conversion API, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Implementation Notes
 
 - Added a narrow diagnostic analysis-run comparison module at `core/comparison/analysis_run/engine.py`.
@@ -91,3 +113,67 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPTOLCORPUS-001 mixed-unit tolerance corpus
+
+- Added DEC-026-style relative+absolute tolerance pair classification support
+  to `core/comparison/analysis_run/engine.py` when a caller-supplied governed
+  tolerance profile provides both pair values.
+- Preserved the existing scalar tolerance path for older fixtures and kept
+  missing conversion factors as blocking `ARC-UNIT-CONVERSION-UNSUPPORTED`
+  diagnostics.
+- Added `tests/test_analysis_run_comparison.py` corpus coverage for mixed
+  stress units (`kPa` to `Pa`) and near-zero force units (`lbf` to `N`),
+  proving relative allowance and absolute-floor behavior without adding any
+  default tolerance.
+- Validation passed: `python3 tests/test_analysis_run_comparison.py`;
+  `python3 tests/test_comparison_contracts.py`;
+  `python3 -m pytest tests/test_analysis_run_comparison.py tests/test_comparison_contracts.py tests/test_design_authoring_comparison_workspace.py tests/test_state_comparison_handoff_report_sections.py -q`
+  (23/23); `python3 -m pytest -q tests` (360/360); `git diff --check`.
+- Boundary preserved: governed-profile comparison evidence only. No default
+  tolerance, release threshold, solver convergence policy, external
+  validation decision, protected standards content, private payload, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPARISONGUIUNITS-001 primary evidence
+
+- Primary role for comparison workspace/unit-evidence tranche: the desktop
+  preview comparison packet now carries `unit_policy_evidence` for mapped
+  result deltas, and the Comparison panel exposes the policy in
+  `comparison-unit-policy`.
+- The packet records that comparison deltas are produced only after stable
+  result references match and left/right result units are equal. It records
+  matched result units, unmatched row counts, DEC-018/DEC-026/DEL-14-05 basis
+  refs, `conversion_performed=false`, and `tolerance_profile_ref=TBD`.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no comparison delta math, tolerance profile, default
+  tolerance, solver convergence policy, external validation decision,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001 supporting comparison evidence
+
+- Supporting role for DEL-07-08 design workspace tranche: the desktop
+  design-authoring workspace packet now records the embedded DEL-14-04
+  comparison unit-policy evidence ref and comparison matched-unit set when a
+  comparison exists.
+- The design workspace evidence consumes the comparison packet's existing
+  equal-explicit-unit matching policy and matched units without changing
+  comparison delta math, tolerance classification, unmatched row accounting,
+  or solver behavior.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no comparison delta math, tolerance profile, default
+  tolerance, solver convergence policy, external validation decision,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

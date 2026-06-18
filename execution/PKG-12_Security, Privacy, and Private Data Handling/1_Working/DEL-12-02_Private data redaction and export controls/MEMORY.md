@@ -9,6 +9,50 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 primary export-review matrix cleanup
+
+- Primary role for Phase B-tail Export Safety Review matrix cleanup: Export
+  Review now records explicit non-unit-bearing reasons for
+  `telemetry_boundary_review` and `build_package_readiness`.
+- The unit-evidence-required set is unchanged. Solved queued-intent Export
+  Review coverage remains `covered=26/27`; proposal-path coverage remains
+  27/27 once `agent_proposal_review` is available.
+- The unit matrix now asserts
+  `not_unit_bearing_export_ids=["telemetry_boundary_review","build_package_readiness"]`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-271; completion log entry; supporting
+  DEL-12-03, DEL-10-04, and DEL-02-02 run records.
+- Boundary preserved: no telemetry runtime behavior, network behavior, build
+  script, CI provider, release matrix, signing, packaging, target writer,
+  manifest-level unit conversion, protected standards content, private
+  payload, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 primary export-review matrix cleanup
+
+- Primary role for Phase B-tail Export Safety Review matrix cleanup: Export
+  Review now classifies `report_protected_content_lint` as
+  unit-evidence-required because the Report Content Lint packet already
+  exposes `unit-policy-evidence:report-lint-public-surfaces`.
+- Solved queued-intent Export Review coverage is now `covered=26/27`, with
+  `agent_proposal_review` still pending until a proposal exists. The proposal
+  path reports 27/27 unit-evidence rows present.
+- The report-lint export row records `unit_evidence_required=true`,
+  `unit_policy_target_count=44`, `conversion_witness_target_count=2`,
+  `default_units_inferred=false`, and `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-270; completion log entry; supporting
+  DEL-08-05 and DEL-02-02 run records.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction certification, release authorization, runtime redaction
+  rule, target writer, manifest-level unit conversion, protected standards
+  content, private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 Implemented revision 0.5 Tranche A slice for private data redaction and export
 controls.
 
@@ -101,3 +145,296 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001 primary export-review unit inventory
+
+- Primary role for the bounded B-tail tranche: the desktop Export Safety
+  Review manifest now carries a top-level DEC-018 `unit_policy_summary` and
+  27-row `unit_evidence_matrix`.
+- The matrix records which local export records are unit-bearing and covered
+  by target panel/export packet evidence, while storage/security/readiness
+  review records remain `not_unit_bearing_metadata_or_boundary_review`.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no runtime redaction rule change, public transport
+  commitment, target-specific writer, protected standards content, private
+  payload, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: the desktop Export Safety
+  Review manifest now treats `project_storage_audit` and
+  `project_validation_preflight` as unit-evidence-required records because
+  both source packets already carry DEC-018 unit-policy evidence.
+- The visible `export-review-units` line and downloaded JSON now report
+  `covered=16/16`; both storage/preflight rows have
+  `unit_evidence_status=covered_by_target_panel_or_export_packet`.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open tests, full desktop Vitest 399/399, desktop production
+  build with the existing Vite large-chunk warning, and single-worker R2/R3
+  Playwright smoke 18/18.
+- Boundary preserved: no project persistence semantics,
+  validation-preflight semantics, runtime redaction rule, public transport
+  commitment, target-specific writer, manifest-level unit conversion,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 primary export-review inventory evidence
+
+- Primary role for Phase B-tail Export Safety Review matrix cleanup: the
+  manifest now includes `rule_completeness_review` as an available local
+  metadata-only export row and marks it unit-evidence-required because the
+  Rule-Check Completeness packet carries DEC-018 unit evidence.
+- Visible Export Review evidence now reports 28 of 28 local exports ready in
+  the solved queued-intent path and `covered=17/17`; the Report packet
+  persistence export inventory now expects 28 rows and reports 27 available
+  when the operation ledger is empty.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-259; active plan entry; supporting
+  DEL-06-03, DEL-08-03, DEL-08-04, and DEL-02-02 run records.
+- Validation passed: focused App Vitest queued-intent report packet and solved
+  diagnostics/report tests, full desktop Vitest 399/399, desktop production
+  build with the existing Vite large-chunk warning, focused R2 Playwright 2/2,
+  and single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, rule-completeness
+  semantics, protected standards content, private payload, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-12-02: the Export Safety Review manifest now
+  includes `agent_proposal_review` as a metadata-only local export row.
+- The row is pending until a proposal exists, then available with
+  `unit_validation_status=not_required_metadata_review_only`,
+  `review_only=true`, `user_acceptance_required=true`, and
+  `accepted_model_state_mutated=false`.
+- Export Review now has 29 rows. Solved queued-intent evidence reports
+  `covered=17/18`; proposal-path evidence reports 29/29 exports available and
+  18/18 unit-evidence rows present.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; active plan and completion log entries;
+  primary DEL-16-04 run record and supporting DEL-16-02/DEL-16-03/DEL-08-05/DEL-08-04/DEL-02-02
+  records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, proposal
+  application behavior, private payload, protected content, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001 supporting export-review evidence
+
+- Supporting role for DEL-12-02: Export Safety Review now treats
+  `security_threat_model_review` as unit-evidence-required because the
+  threat-model packet carries explicit unit-check no-bypass evidence.
+- The security threat-model export row records
+  `unit_policy_ref=unit-policy-evidence:security-threat-model-no-bypass`,
+  `unit_evidence_required=true`, and `conversion_performed=false`.
+- Solved queued-intent evidence now reports `covered=18/19`; proposal-path
+  evidence reports 19/19 unit-evidence rows present.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-261; active plan and completion log entries;
+  primary DEL-12-05 run record and supporting DEL-08-05/DEL-02-02 records.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2 after updating stale report-lint target-count assertions,
+  and full single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, telemetry
+  authorization, security certification claim, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `external_prover_boundary_metadata` as unit-evidence-required because the
+  external-prover boundary packet already carries DEC-018 unit-policy
+  evidence.
+- Solved queued-intent Export Review now reports `covered=19/20`; proposal
+  path evidence reports 20/20 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-263; active plan and completion log entries;
+  supporting DEL-15-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, external solver or
+  prover invocation, commercial-result ingestion, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `missing_data_warning_blocking_review` as unit-evidence-required because the
+  Missing Data Blocking packet already carries explicit unit-input policy
+  evidence.
+- The missing-data export row records
+  `unit_policy_ref=unit-input-policy-evidence:missing-data-warning-blocking-review`,
+  `unit_evidence_required=true`, and `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=20/21`; proposal
+  path evidence reports 21/21 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-264; active plan and completion log entries;
+  supporting DEL-07-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, missing-data
+  warning semantics, remediation behavior, accepted model mutation, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `editor_contract_review` as unit-evidence-required because the Editor
+  Contract packet already carries the DEL-02-02 unit contract.
+- The editor-contract export row records
+  `unit_policy_ref=DEL-02-02:unit_bearing_values_require_explicit_unit_metadata`,
+  `unit_evidence_required=true`, `missing_unit_behavior=diagnostic_blocking`,
+  and `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=21/22`; proposal
+  path evidence reports 22/22 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-265; active plan and completion log entries;
+  supporting DEL-07-03 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, editor validation
+  behavior, durable mutation, private reference handling, private payload,
+  protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `secret_private_library_boundary_review` as unit-evidence-required because
+  the DEL-12-04 Secret and Private Libraries panel already carries
+  metadata-only unit policy evidence for private material, component, and
+  rule references.
+- The secret/private-library export row records
+  `unit_policy_ref=unit-policy:secret-private-library-metadata-only-preview`,
+  `unit_evidence_required=true`, `explicit_unit_metadata_required=true`,
+  `unit_payload_included=false`, and `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=22/23`; proposal
+  path evidence reports 23/23 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-266; active plan and completion log entries;
+  supporting DEL-12-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, secret/private
+  payload handling, credential-value handling, encryption/key-management
+  decision, cloud or network behavior, external secret-manager behavior,
+  protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `accessibility_usability_baseline_review` as unit-evidence-required because
+  the DEL-07-06 Accessibility Baseline panel already carries unit-visibility
+  evidence for unit-bearing review surfaces.
+- The accessibility export row records
+  `unit_policy_ref=unit-visibility-evidence:accessibility-baseline-preview`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=23/24`; proposal
+  path evidence reports 24/24 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-267; active plan and completion log entries;
+  supporting DEL-07-06 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, accessibility
+  finding counts, target conformance posture, runtime accessibility
+  evaluation, color signaling policy, protected content, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `design_authoring_comparison_workspace` as unit-evidence-required because
+  the DEL-07-08 Design Workspace packet already carries
+  `unit_policy_evidence` for model, result, analysis-run, and comparison
+  context.
+- The design-workspace export row records
+  `unit_policy_ref=unit-policy-evidence:design-workspace-preview`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=24/25`; proposal
+  path evidence reports 25/25 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-268; active plan and completion log entries;
+  supporting DEL-07-08 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, design-workspace
+  behavior, comparison delta math, tolerance profile, operation application,
+  accepted model-state mutation, protected content, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `validation_release_evidence_review` as unit-evidence-required because the
+  Validation Evidence packet already carries `unit_policy_evidence` for
+  project unit context, unit-bearing record count, and the validation manual
+  unit/schema section.
+- The validation-evidence export row records
+  `unit_policy_ref=unit-policy-evidence:validation-release-evidence-review`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=25/26`; proposal
+  path evidence reports 26/26 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-269; active plan and completion log entries;
+  supporting DEL-09-04, DEL-09-05, and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, validation manual
+  content, release threshold, release authorization, protected content,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

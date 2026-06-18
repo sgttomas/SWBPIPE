@@ -45,7 +45,17 @@ export type PreviewModel = {
     y_reference?: Vec3;
     provenance: string;
   }>;
-  supports: Array<{ id: string; label: string; node: string; restraints: string[]; provenance: string }>;
+  supports: Array<{
+    id: string;
+    label: string;
+    node: string;
+    restraints: string[];
+    properties?: {
+      linear_stiffness?: { value: number; unit: string };
+      [key: string]: { value: number; unit: string } | undefined;
+    };
+    provenance: string;
+  }>;
   components: Array<{ id: string; label: string; kind: string; node: string; provenance: string }>;
   load_cases: Array<{
     id: string;
@@ -189,6 +199,8 @@ export type DiagnosticInterpretation = {
     kind: string;
     entity_ref: string;
     value_label: string;
+    unit: string;
+    unit_source: "result_envelope";
   }>;
   linked_knowledge: KnowledgeRecord[];
   review_explanation: string;
@@ -305,9 +317,28 @@ export type PreviewComparison = {
     tolerance_status: "not_tolerance_checked";
     tolerance_profile_ref: "TBD";
   };
+  unit_policy_evidence: ComparisonUnitPolicyEvidence;
   result_deltas: ComparisonDelta[];
   diagnostics: Diagnostic[];
   professional_boundary: Record<string, boolean>;
+};
+
+export type ComparisonUnitPolicyEvidence = {
+  evidence_id: string;
+  unit_system_ref: ObjectRef;
+  storage_convention: "entered_units_preserved";
+  comparison_unit_policy: string;
+  matching_policy: string;
+  matched_result_units: string[];
+  unmatched_left_result_count: number;
+  unmatched_right_result_count: number;
+  conversion_policy: string;
+  conversion_performed: false;
+  tolerance_profile_ref: "TBD";
+  tolerance_status: "not_tolerance_checked";
+  decision_basis_refs: ObjectRef[];
+  protected_content_included: false;
+  private_payload_included: false;
 };
 
 export type ComparisonParticipant = {
@@ -417,11 +448,11 @@ export type EditorOperationIntent = {
     source_note: string;
   };
   validation: {
-    schema_validation: "not_run";
-    constraint_validation: "not_run";
-    unit_validation: "not_run";
-    diff_preview_status: "not_generated";
-    application_status: "not_applied";
+    schema_validation: string;
+    constraint_validation: string;
+    unit_validation: string;
+    diff_preview_status: string;
+    application_status: string;
   };
   audit_boundary: {
     mutation_route: "structured_operations_only";

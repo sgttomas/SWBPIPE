@@ -140,9 +140,19 @@ describe("RuleCheckRunPanel", () => {
     expect(screen.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeInTheDocument();
     expect(screen.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
     expect(screen.getByTestId("rule-check-slot-unit-demo_limit_slot")).toHaveValue("ratio");
-    expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
-      "demo_unit, model metadata"
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
+        "demo_unit, model metadata"
+      )
     );
+    const policy = screen.getByTestId("rule-check-unit-binding-policy");
+    expect(policy.textContent).toContain("value_inputs=1");
+    expect(policy.textContent).toContain("value_slots=1");
+    expect(policy.textContent).toContain("solver_selectors=1");
+    expect(policy.textContent).toContain("solver_result_refs=0");
+    expect(policy.textContent).toContain("private_library_refs=0");
+    expect(policy.textContent).toContain("catalog=browser_manual_text_no_fallback");
+    expect(policy.textContent).toContain("conversion=false");
     // The solved result row is offered as a binding option.
     expect(
       screen.getByTestId("rule-check-solver-select-demo_actual_quantity").textContent
@@ -169,6 +179,10 @@ describe("RuleCheckRunPanel", () => {
     expect(screen.getByTestId("rule-check-value-unit-basis-demo_limit_quantity").textContent).toContain(
       "catalog mismatch"
     );
+    expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain(
+      "catalog=dec018_catalog(entries=4)"
+    );
+    expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain("conversion=false");
     expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog");
   });
 
@@ -207,6 +221,11 @@ describe("RuleCheckRunPanel", () => {
     expect(row.textContent).toContain("material:lib:steel");
     expect(row.textContent).toContain("allow:Sh");
     expect(row.textContent).toContain("never embedded in the rule pack");
+    expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain(
+      "private_library_refs=1"
+    );
+    expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain("catalog=not_required");
+    expect(screen.getByTestId("rule-check-unit-binding-policy").textContent).toContain("conversion=false");
   });
 
   it("surfaces an authored solver_result_ref as canonical and previews a resolving result row", async () => {

@@ -43,6 +43,9 @@ export function OperationApplyPanel({
         engine_route={engineStatus.route}; engine_state={engineStatus.state}
         {engineStatus.detail ? `; ${engineStatus.detail}` : ""}
       </small>
+      <small className="muted" data-testid="operation-apply-unit-policy">
+        {operationApplyUnitPolicySummary(queuedIntents, outcomes, appliedOperations)}
+      </small>
       <div className="operation-history-actions" aria-label="Session edit history">
         <button
           data-testid="undo-session-model-edit"
@@ -166,6 +169,30 @@ function OutcomeSummary({ outcome, testKey }: { outcome: OperationOutcome; testK
       ))}
     </div>
   );
+}
+
+function operationApplyUnitPolicySummary(
+  queuedIntents: EditorOperationIntent[],
+  outcomes: Record<string, OperationOutcome>,
+  appliedOperations: AppliedOperationReceipt[]
+) {
+  const queuedUnitBearing = queuedIntents.filter((intent) => intent.change.unit !== "none").length;
+  const queuedDimensionless = queuedIntents.length - queuedUnitBearing;
+  const unitValidationStatuses = Array.from(
+    new Set(
+      Object.values(outcomes)
+        .map((outcome) => outcome.validation.unit_validation)
+        .filter((status) => status.trim().length > 0)
+    )
+  ).sort();
+  return [
+    `queued_unit_bearing=${queuedUnitBearing}`,
+    `queued_dimensionless=${queuedDimensionless}`,
+    `outcome_unit_validations=${unitValidationStatuses.length > 0 ? unitValidationStatuses.join(",") : "none"}`,
+    `applied_receipts=${appliedOperations.length}`,
+    "receipt_units=not_serialized",
+    "conversion=false"
+  ].join("; ");
 }
 
 export function intentKey(intent: EditorOperationIntent): string {

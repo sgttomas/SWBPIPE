@@ -1,5 +1,26 @@
 # MEMORY - DEL-10-05 Headless CLI and structured I/O analysis runner
 
+## 2026-06-18 - TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Headless Runner unit-witness
+  surface.
+- The lint inventory records `headless-runner-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=24`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Headless
+  Runner result-handoff preview continues to preserve source result
+  value/unit/dimension rows without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 399/399, desktop production build with
+  the existing Vite large-chunk warning, and single-worker R2/R3 Playwright
+  smoke 18/18.
+- Boundary preserved: no headless-runner packet semantics, schema, final CLI
+  syntax, package scripts, process policy, network policy, filesystem
+  mutation policy, unit conversion API, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-02 Implementation From Sealed Dispatch Brief
 
 Implemented within the sealed write scope from
@@ -301,3 +322,29 @@ or code-compliance decisions.
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001 headless runner unit witnesses
+
+- Primary role for the Phase B-tail headless-runner unit-evidence tranche:
+  the desktop Headless Runner envelope now emits
+  `result.unit_system_disclosure`, `result.unit_witness_policy`, and
+  `result.unit_preservation_witnesses[]` for the schema-first local
+  result-handoff preview.
+- The runner result disclosure records DEC-018, entered-unit storage
+  convention, source model units, result units, and
+  `conversion_performed=false`. Each finite mechanics result row receives a
+  preservation witness carrying source and target value/unit/dimension
+  metadata by reference.
+- Visible evidence added to the desktop panel:
+  `headless-runner-units` and `headless-runner-unit-witnesses`; the invented
+  preview fixture reports 737 witnesses after mechanics preview and zero
+  witnesses in the pre-run state.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no final CLI syntax, package script,
+  process/network/filesystem policy, public transport, CI/release matrix,
+  runtime process launcher, schema contract change, unit conversion API,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

@@ -1,5 +1,30 @@
 # MEMORY - DEL-03-01 Material Library Schema With Provenance
 
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-03-01: Report Content Lint now inventories the
+  existing Library Manager unit-helper surfaces, including the material
+  property unit helper governed by material-library context.
+- The lint packet now includes
+  `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and
+  `library-unit-helper-surfaces`; public unit-policy targets increase from 37
+  to 38 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-03-02/DEL-02-02 run
+  records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no material schema, fixture value, public source/catalog
+  authority, material import storage, protected material table, proprietary
+  catalog data, unit conversion behavior, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-05-01 Bounded Product-Development Session
 
 Human gate:
@@ -179,3 +204,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-MATLIBFIELDUNITS-001 material library property unit evidence
+
+- Primary data-model role for DEL-07-03 app tranche: the Private Library
+  Manager now drafts schema-native material `properties[]` quantity payloads
+  with `unit_ref`, `dimension_id`, `quantity_kind=unit_bearing`,
+  `unit_required=true`, and
+  `missing_unit_behavior=diagnostic_blocking`.
+- The helper preserves the material library provenance/privacy boundary:
+  drafted values are `private_user_supplied`, validation/storage still use the
+  existing local-only import backend, and public material values or engineering
+  allowables are not introduced.
+- Validation passed: focused `LibraryManagerPanel` Vitest 13/13, full desktop
+  Vitest 395/395, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MATLIBFIELDUNITS-001.md`;
+  corresponding DEL-07-03 primary and DEL-02-02 supporting run records;
+  `apps/desktop/SMOKE.md` TP-MAC-197.
+- Boundary preserved: no schema enum change, public material source/catalog
+  authority, protected-content or redistribution review disposition,
+  lifecycle promotion, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

@@ -461,6 +461,8 @@ function reportPersistenceEvidence({
     security_threat_model_review: "available",
     editor_contract_review: "available",
     missing_data_warning_blocking_review: "available",
+    rule_completeness_review: "available",
+    agent_proposal_review: proposal ? "available" : "pending_agent_proposal",
     accessibility_usability_baseline_review: "available",
     design_authoring_comparison_workspace: "available",
     validation_release_evidence_review: "available",

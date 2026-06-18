@@ -1,5 +1,45 @@
 # MEMORY - DEL-13-01 Design Knowledge Schema and Provenance Model
 
+## 2026-06-18 - TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001 report-lint inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Design Knowledge computed-unit
+  context surface.
+- The lint inventory records `knowledge-unit-context` as an existing
+  unit-policy surface and reports `unit_targets=29`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Design
+  Knowledge panel continues to derive computed unit-bearing knowledge refs,
+  unit symbols, `source=computed_preview_result`, and `conversion=false` from
+  the solved result envelope.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no design-knowledge schema, provenance model, result
+  values, solver behavior, unit conversion API, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-KNOWLEDGEUNITS-001 computed-unit context evidence
+
+- Primary role for a bounded Phase B-tail review-surface evidence slice: the
+  desktop Design Knowledge panel now exposes a computed-unit context row when
+  mechanics results are present.
+- The row derives the count of computed unit-bearing knowledge result refs,
+  result unit symbols, `source=computed_preview_result`, and
+  `conversion=false` from the existing result envelope.
+- Validation passed: focused App Vitest 56/56; focused R2 Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-KNOWLEDGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-223.
+- Boundary preserved: no design-knowledge schema, result values, solver
+  behavior, unit conversion API, lifecycle state, review disposition,
+  protected/private data posture, release status, professional approval,
+  certification, sealing, authentication, or code-compliance posture changed.
+
 ## Implementation Summary
 
 2026-05-04: Added the schema-first design knowledge contract for DEV-001

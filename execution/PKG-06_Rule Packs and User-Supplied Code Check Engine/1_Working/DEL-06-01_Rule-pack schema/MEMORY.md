@@ -1,5 +1,28 @@
 # MEMORY - DEL-06-01 Rule-pack schema
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting schema evidence
+
+- Supporting role for DEL-06-01: Report Content Lint now inventories the
+  existing Rule Pack Declarations unit-reference policy surface.
+- The report-lint packet includes
+  `apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx`,
+  `target:desktop-rule-pack-declarations-template`, and
+  `rule-pack-declarations-unit-policy` as a public unit-policy target.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-253; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused RulePackManagerPanel/DeclarationsEditor Vitest
+  5/5; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no `rule_pack.schema.yaml` contract, schema version,
+  schema enum, evaluator behavior, parser/text syntax, backend validation,
+  persistence, protected standards content, private data, lifecycle state,
+  release readiness, professional approval, certification, sealing,
+  authentication, or code-compliance posture changed.
+
 ## Implementation Ledger
 
 2026-05-02:
@@ -158,3 +181,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 supporting schema evidence
+
+- Added supporting evidence for the DEL-07-03 rule-pack editor's visible unit
+  policy summaries over existing schema members:
+  `required_inputs[].quantity_intent`, `value_slots[].quantity_intent`,
+  literal expression quantities, and table argument/result unit refs.
+- The schema contract is unchanged. Stored rule-pack unit refs remain the
+  authored data; the UI reports whether the current route can validate those
+  refs against DEC-018 catalog metadata, without adding schema members,
+  parser/text syntax, checksum semantics, or backend persistence rules.
+- Evidence:
+  `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+  supporting run record in this deliverable; SMOKE TP-MAC-207; completion log
+  entry.
+- Validation passed: focused rule-pack/unit Vitest 67/67, focused R2/R3
+  Playwright smoke file 14/14, full desktop Vitest 398/398, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary unchanged: no `rule_pack.schema.yaml` contract, schema version,
+  schema enum, evaluator behavior, parser, writable expression text syntax,
+  protected content, private data, release-readiness claim, or professional/
+  code-compliance claim changed.

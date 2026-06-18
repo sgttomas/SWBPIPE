@@ -1,5 +1,43 @@
 # MEMORY: DEL-17-03
 
+## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 primary native package unit inventory coverage
+
+- Primary role for Phase B-tail Native JSON Package unit-inventory slice: the
+  existing desktop Native JSON package unit-preservation surface is now
+  discoverable in the Report Content Lint public unit-policy inventory.
+- The Native JSON package continues to expose six project unit declarations,
+  18 model quantity witnesses, 739 result quantity witnesses, and
+  `conversion=false`; this tranche adds the report-lint inventory target ref
+  `native-package-unit-witnesses` without changing the packet shape or
+  package hashing basis.
+- Validation passed after updating stale report-lint target-count assertions
+  and restoring one scenario-specific export-review lint count assertion:
+  focused App Vitest selected tests, full desktop Vitest 399/399, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no native JSON packet schema, package member set,
+  package hash basis, target writer, target compatibility posture,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001 supporting handoff unit evidence
+
+- Supporting role for DEL-15-01 handoff unit-evidence tranche: the desktop
+  handoff package target profile remains `native_open_json_preview` and
+  `stable_ids_only_not_target_specific`, while the package now carries explicit
+  source/result unit disclosure and per-result no-conversion witnesses.
+- The evidence preserves source result value/unit/dimension metadata by
+  reference and does not assert native-open target compatibility, target field
+  coverage, or external validation.
+- Validation passed: focused App Vitest 55/55; focused R2 Playwright smoke
+  2/2; full desktop Vitest 397/397; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no target writer, downstream adapter, schema promotion,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-05-18 - SCA-004 PREPARATION scaffold
 - Created minimum viable fileset from SOFTWARE_DECOMP revision 0.7.
 - Populated local context, dependencies placeholder, references, semantic placeholder, and status.

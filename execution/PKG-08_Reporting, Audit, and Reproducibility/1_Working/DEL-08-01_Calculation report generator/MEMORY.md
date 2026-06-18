@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-01 Calculation Report Generator
 
+## 2026-06-18 - TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Rendered Report unit-basis surface.
+- The lint inventory records `rendered-report-unit-basis` as an existing
+  unit-policy surface and reports `unit_targets=32`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Rendered
+  Report panel continues to expose `unit_system`, model-unit summary,
+  result-unit summary, `conversion=false`, and
+  `source=renderable_report_input`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no report renderer route, canonical hash policy,
+  export-gate policy, report content, print/PDF behavior, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Implementation Record
 
 2026-05-02:
@@ -209,3 +230,26 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001 rendered-report unit basis visibility
+
+- Primary role for Phase B-tail Rendered Report unit-basis visibility: the
+  desktop Rendered Report panel now exposes the render-input unit basis before
+  invoking the desktop-only renderer route.
+- `data-testid="rendered-report-unit-basis"` reports the DEC-018 unit-system
+  reference, sorted model units, solved result units or `results=none`,
+  `conversion=false`, and `source=renderable_report_input`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-232; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: focused rendered-report Vitest 8/8 tests, focused
+  Playwright 2/2 Chromium desktop tests, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no renderer command, report schema, canonical hash
+  behavior, save/print gate, report-time conversion, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -5,6 +5,7 @@ import {
   acceptedUnits,
   describeUnitBasis,
   loadUnitCatalog,
+  unitDimensionValidationStatus,
   unitEntryMatchesDimension,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
@@ -444,7 +445,15 @@ export function DeclarationsEditor({
   const slotIds = readValueSlotIds(document);
 
   useEffect(() => {
-    if (!hasTauriInternals()) return undefined;
+    if (!hasTauriInternals()) {
+      setUnitCatalogRoute({
+        route: "unavailable_browser_preview",
+        diagnostic:
+          "UNIT-CATALOG-DESKTOP-ONLY: browser preview preserves stored rule-pack unit_ref text " +
+          "and does not synthesize a DEC-018 fallback catalog."
+      });
+      return undefined;
+    }
     let active = true;
     loadUnitCatalog()
       .then((route) => {
@@ -576,6 +585,7 @@ export function DeclarationsEditor({
     rawInputs.length <= 1 ? "A rule pack needs at least one required input." : undefined;
   const slotRemoveReason =
     rawSlots.length <= 1 ? "A rule pack needs at least one value slot." : undefined;
+  const unitPolicySummary = declarationUnitPolicySummary(unitCatalogRoute, rawInputs, rawSlots);
 
   return (
     <div className="report-list rule-pack-declarations-editor" data-testid="rule-pack-declarations-editor">
@@ -585,6 +595,9 @@ export function DeclarationsEditor({
         check time) and user-supplied value slots (private allowables/limits). The expression
         composer&apos;s <code>variable_ref</code> picker binds to these ids. Values stay private; the
         software never fills in code or standards values.
+      </small>
+      <small className="rule-pack-node-readonly" data-testid="rule-pack-declarations-unit-policy">
+        {unitPolicySummary}
       </small>
 
       <div data-testid="rule-pack-required-inputs">
@@ -870,4 +883,42 @@ export function DeclarationsEditor({
       </div>
     </div>
   );
+}
+
+function declarationUnitPolicySummary(
+  route: UnitCatalogRoute | null,
+  rawInputs: unknown[],
+  rawSlots: unknown[]
+): string {
+  const inputStatuses = rawInputs.map((entry, index) => {
+    const record = asObject(entry) ?? {};
+    const quantity = asObject(record.quantity_intent) ?? {};
+    const id = asString(record.input_id) ?? `input_${index + 1}`;
+    return `required_input:${id}=${unitIntentValidationStatus(route, quantity)}`;
+  });
+  const slotStatuses = rawSlots.map((entry, index) => {
+    const record = asObject(entry) ?? {};
+    const quantity = asObject(record.quantity_intent) ?? {};
+    const id = asString(record.slot_id) ?? `slot_${index + 1}`;
+    return `value_slot:${id}=${unitIntentValidationStatus(route, quantity)}`;
+  });
+  return [
+    "unit_policy=stored_unit_refs_preserved",
+    `catalog_route=${unitCatalogRouteStatus(route)}`,
+    "conversion=false",
+    `required_inputs=${inputStatuses.length ? inputStatuses.join(",") : "none"}`,
+    `value_slots=${slotStatuses.length ? slotStatuses.join(",") : "none"}`
+  ].join("; ");
+}
+
+function unitIntentValidationStatus(route: UnitCatalogRoute | null, quantity: Record<string, unknown>): string {
+  const dimension = asString(quantity.dimension) ?? "TBD";
+  const unit = asString(quantity.unit_ref) ?? "TBD";
+  return `${unitDimensionValidationStatus(route, unit, dimension)}(unit=${unit};dimension=${dimension})`;
+}
+
+function unitCatalogRouteStatus(route: UnitCatalogRoute | null): string {
+  if (!route) return "loading";
+  if (route.route === "unavailable_browser_preview") return "browser_preview_manual_entry";
+  return "tauri_dec018_catalog";
 }

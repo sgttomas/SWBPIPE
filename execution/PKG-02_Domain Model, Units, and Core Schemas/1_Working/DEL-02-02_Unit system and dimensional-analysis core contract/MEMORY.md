@@ -1,5 +1,779 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Export Review now records explicit
+  non-unit-bearing classifications for `telemetry_boundary_review` and
+  `build_package_readiness`, so every export row is either unit-evidence
+  required or intentionally not applicable.
+- Unit evidence counts remain unchanged at solved queued-intent
+  `covered=26/27`; proposal-path coverage remains 27/27.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-271; completion log entry; primary DEL-12-02
+  run record and supporting DEL-12-03/DEL-10-04 run records.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, target writer, telemetry runtime behavior,
+  build/release implementation, private payload, protected standards content,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Export Review now classifies the
+  `report_protected_content_lint` export row as unit-evidence-required because
+  Report Content Lint already exports public-surface DEC-018 unit-policy
+  inventory evidence.
+- The Export Review matrix now reports solved queued-intent coverage
+  `covered=26/27`; proposal-path coverage is 27/27 once
+  `agent_proposal_review` is available.
+- The report-lint export row records 44 unit-policy targets, two
+  conversion-witness targets, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-270; completion log entry; primary DEL-12-02
+  run record and supporting DEL-08-05 run record.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, report-lint target inventory, lint
+  semantics, target writer, private payload, protected standards content,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the
+  Property Inspector as a unit-policy surface because it already exposes
+  edit/create/delete operation unit-validation statuses.
+- The report-lint visible summary and JSON moved to 40 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-257; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-02/DEL-16-02 run records.
+- Validation passed: focused App Vitest workspace-render; focused Property
+  Inspector create-intent App tests 4/4; focused R2 Playwright smoke 2/2;
+  full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, operation schema or behavior,
+  report-linter protected-content semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the Load
+  Case Manager as a unit-policy surface because it already exposes load-case,
+  primitive-load, and combination operation unit-validation statuses.
+- The report-lint visible summary and JSON moved to 39 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-256; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-02/DEL-05-01/DEL-05-02/DEL-16-02
+  run records.
+- Validation passed: focused App Vitest workspace-render; focused load/unit
+  App tests 26/26; focused R2 Playwright smoke 2/2; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; `git diff --check`;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, load-case schema or behavior, operation
+  validation/application, report-linter protected-content semantics, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the
+  Library Manager as a unit-policy surface because it already exposes material,
+  section, and component draft unit-helper surfaces.
+- The report-lint visible summary and JSON moved to 38 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-03-01/DEL-03-02 run
+  records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, library schema, library import storage,
+  private-library payload handling, report-linter protected-content semantics,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 supporting unit-contract evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the Rule-Check
+  Completeness panel and exported packet now cite DEC-018, preserve entered
+  model units, count unit-bearing model records, and state that missing
+  rule-input units block rule checks rather than being inferred or converted.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  primary DEL-08-05 run record; `apps/desktop/SMOKE.md` TP-MAC-258.
+- Boundary preserved: no DEC-018 catalog constant, unit conversion API, schema
+  dimension enum, solver units, stored model schema, lifecycle state,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting unit-evidence inventory
+
+- Supporting role for DEL-12-02 Export Safety Review matrix cleanup:
+  `rule_completeness_review` is now unit-evidence-required in the manifest
+  because it carries DEC-018 explicit rule-input unit-policy evidence. The
+  visible Export Review unit line now reports `covered=17/17`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  primary DEL-12-02 run record; `apps/desktop/SMOKE.md` TP-MAC-259.
+- Boundary preserved: no DEC-018 catalog constant, unit conversion API, schema
+  dimension enum, solver unit handling, stored model schema, lifecycle state,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the Rule
+  Pack Expression Composer as a unit-policy surface because it already exposes
+  stored expression AST unit-reference policy.
+- The report-lint visible summary and JSON moved to 37 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-254; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-06-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused ExpressionComposer/RulePackManagerPanel Vitest
+  6/6; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, rule-pack schema, expression grammar,
+  writable text parser/syntax, evaluator behavior, backend validation,
+  persistence, report-linter protected-content semantics, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the Rule
+  Pack Declarations editor as a unit-policy surface because it already exposes
+  stored unit-reference policy for required inputs and value slots.
+- The report-lint visible summary and JSON moved to 36 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-253; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-06-01 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused RulePackManagerPanel/DeclarationsEditor Vitest
+  5/5; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, rule-pack schema, expression grammar,
+  parser/text syntax, evaluator behavior, backend validation, persistence,
+  report-linter protected-content semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the
+  Diagnostics public panel as a unit-policy surface because its detail view
+  already exposes linked result unit context from the result envelope.
+- The report-lint visible summary and JSON moved to 35 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-252; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-07 run record.
+- Validation passed: focused App Vitest workspace-render, diagnostic detail,
+  and local project round-trip tests; focused Playwright R2 smoke 2/2;
+  focused diagnostic Playwright 2/2; full desktop Vitest 399/399;
+  single-worker R2/R3 Playwright smoke 18/18; and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, diagnostic schema, diagnostic
+  interpretation behavior, solver behavior, result values, report-linter
+  protected-content semantics, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULECHECKLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Run Rule Checks unit-binding policy
+  surface.
+- The lint inventory records `rule-check-unit-binding-policy` as an existing
+  unit-policy surface and reports `unit_targets=34`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Run Rule
+  Checks panel continues to preserve runtime binding units without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused RuleCheckRunPanel Vitest 18/18, focused
+  R2/run-check Playwright smoke 4/4 configured project tests, full desktop
+  Vitest 18/18 files and 399/399 tests, desktop production build with the
+  existing Vite large-chunk warning, and single-worker R2/R3 Playwright smoke
+  18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, rule-pack schema, expression
+  grammar, parser/text-syntax, backend completeness/evaluator behavior,
+  rule-pack persistence, solver behavior, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-COMPARISONLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Comparison workspace unit-matching
+  policy surface.
+- The lint inventory records `comparison-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=33`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Comparison
+  workspace continues to compare only rows with equal explicit result units
+  and reports `conversion=false`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, comparison delta math, result
+  mapping, tolerance profile, default tolerance, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Rendered Report unit-basis surface.
+- The lint inventory records `rendered-report-unit-basis` as an existing
+  unit-policy surface and reports `unit_targets=32`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Rendered
+  Report panel continues to derive model and result unit summaries from the
+  renderable-report input without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, report renderer route, canonical
+  hash policy, export-gate policy, report content, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Results viewer result-unit policy
+  surface.
+- The lint inventory records `result-unit-policy` as an existing unit-policy
+  surface and reports `unit_targets=31`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The Results viewer continues to expose solved
+  result units `MPa,N,N*m,mm,rad`, entered-unit preservation, and
+  `conversion=false`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, result math, result filtering,
+  pagination semantics, selected-result interpretation, solver behavior,
+  comparison delta math, tolerance profile, default tolerance, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Apply Operations unit-policy
+  surface.
+- The lint inventory records `operation-apply-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=30`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Apply
+  Operations panel continues to surface queued unit-bearing/dimensionless
+  operation counts, validation statuses, receipt unit-serialization policy,
+  and `conversion=false`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application, acceptance
+  semantics, durable audit persistence, receipt schema, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Design Knowledge computed-unit
+  context surface.
+- The lint inventory records `knowledge-unit-context` as an existing
+  unit-policy surface and reports `unit_targets=29`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Design
+  Knowledge panel continues to derive computed unit refs and unit symbols from
+  the solved result envelope without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, design-knowledge schema,
+  provenance model, solver behavior, result values, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Run Audit unit traceability surface.
+- The lint inventory records `run-audit-units` as an existing unit-policy
+  surface and reports `unit_targets=28`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The Run Audit panel continues to derive model and
+  result unit evidence from the solved analysis-run/result envelope context
+  without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, analysis-run schema, hash policy,
+  solver behavior, result values, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Solve execution unit-policy
+  surface.
+- The lint inventory records `solve-job-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=27`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The solve-job
+  audit continues to preserve model and result unit-policy evidence without
+  conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solve execution behavior,
+  analysis-run hash generation, cancellation/progress semantics, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Operation Review Ledger unit-policy
+  surface.
+- The lint inventory records `operation-ledger-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=26`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Operation
+  Review Ledger continues to preserve review-only operation unit-policy
+  evidence without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest rerun 399/399 after an order-sensitive
+  Operation Ledger status mismatch was confirmed passing in isolation,
+  desktop production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application, acceptance
+  semantics, durable audit persistence, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Adapter Framework unit-policy
+  surface.
+- The lint inventory records `adapter-framework-units` as an existing
+  unit-policy surface and reports `unit_targets=25`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Adapter
+  Framework preview continues to preserve entered/result unit metadata and
+  records no target-writer conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest rerun 399/399 after an isolated
+  transient DeclarationsEditor timing failure was confirmed passing, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, adapter-framework unit evidence
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Headless Runner unit-witness
+  surface.
+- The lint inventory records `headless-runner-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=24`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Headless
+  Runner continues to preserve source result value/unit/dimension rows
+  without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 399/399, desktop production build with
+  the existing Vite large-chunk warning, and single-worker R2/R3 Playwright
+  smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, headless-runner unit witness
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-HANDOFFLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Handoff Package unit-witness
+  surface.
+- The lint inventory records `handoff-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=23`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Handoff
+  Package continues to preserve source result value/unit/dimension rows
+  without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 399/399, desktop production build with
+  the existing Vite large-chunk warning, and single-worker R2/R3 Playwright
+  smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, handoff unit witness behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Result Export unit-witness surface.
+- The lint inventory records `result-export-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=22`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Result
+  Export envelope continues to preserve source result value/unit/dimension
+  rows without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 399/399, desktop production build with
+  the existing Vite large-chunk warning, and single-worker R2/R3 Playwright
+  smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, result-export unit witness
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Operation Diff Preview
+  unit-witness surface.
+- The lint inventory records `operation-diff-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=21`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The operation
+  diff preview continues to preserve declared change value/unit/dimension
+  rows without conversion.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  selected tests, focused Chromium desktop R2 smoke, full desktop Vitest
+  399/399, desktop production build with the existing Vite large-chunk
+  warning, and single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, diff-preview unit witness behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-17-03 native package tranche: the desktop Report
+  Content Lint inventory now includes the Native JSON Package
+  unit-preservation surface.
+- The lint inventory records `native-package-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=19`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The native
+  package itself continues to preserve source unit declarations and quantity
+  value/unit fields without conversion.
+- Validation passed after stale count assertions were updated and one
+  scenario-specific export-review lint count assertion was restored: focused
+  App Vitest selected tests, full desktop Vitest 399/399, desktop production
+  build with the existing Vite large-chunk warning, and single-worker R2/R3
+  Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, native package conversion behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPLEDGERUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-16-03 Operation Review Ledger tranche: the desktop
+  ledger now visibly reports unit-policy evidence for queued GUI operation
+  intents and agent proposal review records.
+- The row and exported packet record unit-bearing/dimensionless change
+  counts, operation unit-validation statuses,
+  `receipt_units=not_serialized_in_review_ledger`, and `conversion=false`;
+  they do not add unit conversion or inference behavior.
+- Validation passed: focused App Vitest 3/3 selected tests; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application change,
+  acceptance semantics change, durable audit persistence change, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPAPPLYUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-16-02 Apply Operations tranche: the desktop Apply
+  Operations panel now visibly reports unit-policy evidence for queued
+  operation intents, outcome validation statuses, and applied receipts.
+- The row records queued unit-bearing and dimensionless intent counts,
+  operation outcome unit-validation statuses, `receipt_units=not_serialized`,
+  and `conversion=false`; it does not add unit conversion or inference
+  behavior.
+- Validation passed: focused App Vitest 1/1 selected test; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation-applier semantics change,
+  receipt schema change, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULECHECKBINDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-06-03 run-check binding tranche: the desktop Run
+  Rule Checks binding plan now visibly reports unit-binding policy evidence
+  for runtime value, slot, solver-result, and private-library routes.
+- The row records browser manual stored-unit text without fallback catalog,
+  desktop DEC-018 catalog route in mocked desktop mode, and
+  `conversion=false`; it does not add unit conversion or inference behavior.
+- Validation passed: focused RuleCheckRunPanel Vitest 18/18; focused
+  Chromium desktop Playwright smoke 1/1; full desktop Vitest 399/399; full
+  R2/R3 Playwright smoke 18/18; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03 editor-contract tranche: the desktop Editor
+  Contract review panel now visibly reports the DEL-02-02 unit contract
+  already carried in its exported packet.
+- The row records the dimension schema ref, explicit unit-bearing metadata
+  policy, and missing-unit diagnostic-blocking behavior without adding unit
+  conversion or inference behavior.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001 supporting unit evidence
+
+- Supporting role for DEL-12-04 secret/private-library tranche: the desktop
+  Secret & Private Libraries panel now surfaces explicit unit-policy evidence
+  for metadata-only private material/rule references.
+- The packet records explicit unit metadata required at import/use time,
+  `unit_payload_included=false`, `conversion_performed=false`, and
+  `repository_default_private_write=false`; it does not infer/default private
+  units or read private values.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-KNOWLEDGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-13-01 design-knowledge tranche: the desktop Design
+  Knowledge panel now surfaces explicit unit context for computed
+  result-derived knowledge records.
+- The row reads result unit symbols from the existing result envelope, records
+  `source=computed_preview_result`, and keeps `conversion=false`; it does not
+  infer/default units or add conversion behavior.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RUNAUDITUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-14-02 run-audit tranche: the desktop Run Audit
+  panel now surfaces explicit unit traceability for solved analysis runs.
+- The audit row reads model unit declarations and result row units from
+  existing app envelopes, records `source=result_envelope`, and keeps
+  `conversion=false`; it does not infer/default units or add conversion
+  behavior.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-A11YUNITVISIBILITY-001 supporting unit evidence
+
+- Supporting role for DEL-07-06 accessibility-baseline tranche: the desktop
+  Accessibility Baseline packet now records DEC-018 unit-visibility evidence
+  for unit-bearing review surfaces.
+- The packet preserves visible unit labels, records
+  `default_units_inferred=false`, `color_only_unit_signaling=false`, and
+  `conversion_performed=false`; it does not introduce a unit conversion API or
+  alter the DEC-018 catalog.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001 supporting unit evidence
+
+- Supporting role for DEL-07-04 missing-data tranche: the desktop Missing
+  Data Blocking packet now records DEC-018 unit-input policy evidence for
+  unit-bearing missing inputs.
+- The packet preserves explicit-unit requirements and keeps
+  `default_units_inferred=false`, `auto_fill_missing_units=false`, and
+  `conversion_performed=false`; it does not introduce a unit conversion API or
+  alter the DEC-018 catalog.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-09-05 validation-evidence tranche: the desktop
+  Validation Evidence packet now records DEC-018 project-unit context and
+  no-conversion posture for the release-evidence inventory.
+- The packet preserves entered-unit metadata, counts 18 unit-bearing model
+  records in the invented preview fixture, and keeps
+  `conversion_performed=false`; it does not introduce a unit conversion API,
+  release-threshold decision, or release-readiness claim.
+- Validation passed: focused App Vitest 1/1; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-15-01 handoff tranche: the desktop handoff package
+  now carries DEC-018 unit-system disclosure and per-result
+  value/unit/dimension preservation witnesses.
+- Witnesses keep `conversion_performed=false` and cite the accepted
+  `unit-system:dec-018-si-dual-display` basis; they do not introduce a unit
+  conversion API or target-format support claim.
+- Validation passed: focused App Vitest 55/55; focused R2 Playwright smoke
+  2/2; full desktop Vitest 397/397; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001 local FEA unit witnesses
+
+- WORKING_ITEMS added explicit source result value/unit witnesses to the
+  target-neutral local FEA handoff package for transfer-basis displacement,
+  force, and moment refs.
+- The witnesses preserve source units by reference and set
+  `conversion_performed=false`; no new unit catalog constant, hidden
+  conversion default, tolerance policy, or canonical-basis decision was added.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-192.
+- Validation passed: local FEA schema pytest, focused local FEA/App Vitest
+  58/58, full desktop Vitest 391/391, and desktop production build.
+- Boundary unchanged: no protected standards content, private data,
+  target-specific solver format, external solver invocation, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SUPPORTUNITS-001 support stiffness unit contract
+
+- WORKING_ITEMS extended the structured operation applier support-create path
+  to accept either the existing dimensionless restraint payload or a positive
+  DEC-018-compatible `linear_stiffness` quantity.
+- The change reuses the existing operation-applier quantity validation helpers
+  and preserves entered units; it does not add a unit constant, schema enum,
+  tolerance policy, or hidden conversion default.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-191.
+- Validation passed: `cargo fmt --manifest-path
+  core/model_operations/operation_applier/Cargo.toml --check`, `cargo test
+  --manifest-path core/model_operations/operation_applier/Cargo.toml`, focused
+  App Vitest, full desktop Vitest 390/390, and desktop build.
+- Boundary unchanged: no protected standards content, private data,
+  network/telemetry path, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Session 2026-04-30 - DEV-001 Bounded Execution
 
 Human gate:
@@ -653,3 +1427,913 @@ Boundary note:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-08-04 result-export tranche: the schema-first
+  result envelope now has optional unit preservation witness vocabulary for
+  row-level value/unit/dimension preservation.
+- The desktop result export preview records one witness per exported result
+  row in the invented mechanics fixture, using the accepted DEC-018-style
+  unit-system reference and `conversion_performed=false`.
+- Validation passed: `python3 tests/test_results_schema.py`;
+  `npm --prefix apps/desktop test -- App.test.tsx` (55/55);
+  `npm test --workspace apps/desktop` (18/18 files, 391/391 tests);
+  `npm run build --workspace apps/desktop` (existing Vite large-chunk
+  warning); `git diff --check`.
+- Boundary preserved: no DEC-018 catalog constant change, unit conversion API,
+  tolerance policy, solver behavior, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPTOLCORPUS-001 supporting unit evidence
+
+- Supporting role for DEL-14-04/DEL-14-05 comparison tranche: analysis-run
+  comparison now has focused mixed-unit evidence for caller-supplied
+  conversion factors and DEC-026-style relative+absolute tolerance pairs.
+- The corpus covers stress normalization from `kPa` to `Pa`, force
+  normalization from `lbf` to `N`, absolute near-zero floor behavior, and
+  blocking diagnostics when a required conversion path is omitted.
+- Validation passed: `python3 tests/test_analysis_run_comparison.py`;
+  `python3 tests/test_comparison_contracts.py`; adjacent comparison pytest
+  subset passed 23/23; full Python suite passed 360/360; `git diff --check`.
+- Boundary preserved: no DEC-018 catalog constant change, unit conversion API
+  defaulting, hidden conversion path, release threshold, solver convergence
+  policy, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03 component-library authoring tranche: the
+  Private Library Manager now uses the DEC-018 unit catalog to filter a
+  component-field draft selector by canonical dimension, with
+  `linear_stiffness` mapped to accepted force-per-length units.
+- Browser preview remains no-fallback: stored `N/m` metadata stays visible as
+  model metadata and the route records the desktop-only catalog diagnostic.
+- Validation passed: focused `LibraryManagerPanel` Vitest 11/11, full desktop
+  Vitest 393/393, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, component mechanics, public
+  component values, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-10-02 adapter-framework tranche: the format-neutral
+  desktop adapter framework packet now records DEC-018 unit-policy evidence,
+  entered-unit storage convention, source/result unit disclosure, and
+  `conversion_performed=false`.
+- The evidence confirms the framework requires unit validation before adapter
+  payload exchange but does not perform target-format conversion or claim any
+  target writer support.
+- Validation passed: adapter framework contract test; App Vitest 55/55;
+  focused R2 Playwright smoke 2/2; full desktop Vitest 397/397; desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target-specific writer, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERSDKUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-17-09 export-adapter SDK tranche: adapter admission
+  packages now have explicit unit-policy evidence carrying DEC-018 basis,
+  entered-unit storage convention, source/result/target unit disclosure, and
+  `conversion_performed=false`.
+- The evidence is metadata for candidate target admission only; it does not
+  introduce a unit conversion API, target writer, runtime loader, compatibility
+  claim, or target support claim.
+- Validation passed: focused export-adapter SDK Python test; App Vitest 55/55;
+  full desktop Vitest 393/393; desktop production build; focused R2 Playwright
+  smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target-specific writer, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-MATLIBFIELDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03/DEL-03-01 material-library authoring tranche:
+  the Private Library Manager now uses the DEC-018 unit catalog to filter a
+  material-property draft selector by compatible dimension while writing the
+  schema-native `unit_ref` and `dimension_id` payload.
+- Browser preview remains no-fallback: the selected property default unit ref
+  stays visible as model metadata and the route records the desktop-only
+  catalog diagnostic.
+- Validation passed: focused `LibraryManagerPanel` Vitest 13/13, full desktop
+  Vitest 395/395, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, material engineering allowables,
+  public material values, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SECLIBQTYUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03/DEL-03-02 section-library authoring tranche:
+  the Private Library Manager now uses the DEC-018 unit catalog to filter a
+  section quantity draft selector by compatible dimension while writing
+  schema-native `{ magnitude, unit, dimension }` values.
+- Browser preview remains no-fallback: the selected section default unit stays
+  visible as model metadata and the route records the desktop-only catalog
+  diagnostic.
+- Validation passed: focused `LibraryManagerPanel` Vitest 15/15, full desktop
+  Vitest 397/397, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, section-property calculator, public
+  section values, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-10-05 headless-runner tranche: the desktop runner
+  result-handoff envelope now records DEC-018 unit-system disclosure and
+  per-result source value/unit/dimension preservation witnesses with
+  `conversion_performed=false`.
+- The evidence confirms the runner preview does not perform export-time unit
+  conversion and does not silently drop unit metadata when handing off result
+  references and audit metadata.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, final CLI/process/network policy,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-17-05 CAEPIPE external parser tranche: the desktop
+  parser package now records DEC-018 unit-system disclosure and per-parser-row
+  value/unit/dimension preservation witnesses with `conversion_performed=false`.
+- The evidence confirms the parser-only package preserves declared invented
+  CSV units at the row boundary and does not perform external-run conversion.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, external CAEPIPE execution,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-16-02/DEL-16-03 operation diff tranche: the desktop
+  Operation Diff Preview packet now records DEC-018 unit-system disclosure and
+  per-unit-bearing-diff-row value/unit/dimension preservation witnesses with
+  `conversion_performed=false`.
+- The evidence confirms local operation previews do not perform hidden unit
+  conversion and do not drop unit metadata before user acceptance.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-12-02 export-review tranche: the desktop Export
+  Safety Review manifest now inventories DEC-018 unit evidence across local
+  export records through `unit_policy_summary` and `unit_evidence_matrix`.
+- The evidence uses `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, and
+  `conversion_policy=export_review_manifest_inventory_only_no_target_conversion`
+  with `conversion_performed=false`; the manifest itself performs no target
+  conversion.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target-specific writer, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADCASEUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-05-01 load-case tranche: unit-bearing primitive-load
+  create and magnitude-edit intents now record unit-dimension validation
+  status instead of `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches or explicit
+  mismatch/unreviewed statuses.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, primitive-load engine behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-07-02 Property Inspector tranche: unit-bearing
+  Property Inspector modify and create intents now record unit-dimension
+  validation status instead of `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches or explicit
+  mismatch/unreviewed/loading statuses.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 397/397, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 supporting unit evidence
+
+- Supporting role for DEL-07-03 rule-pack editor tranche: rule-pack
+  declaration and expression unit refs now expose explicit unit-dimension
+  validation status instead of leaving the route/policy implicit.
+- Browser preview records declared model metadata because the reviewed
+  DEC-018 catalog is exposed only through the desktop backend route;
+  desktop/Tauri catalog routes can record accepted DEC-018 dimension matches,
+  mismatches, unreviewed statuses, or loading/catalog-unavailable statuses.
+- The shared helper is status/reporting only. It preserves stored unit refs and
+  records `conversion=false`; it does not introduce a conversion API or hidden
+  normalization path.
+- Validation passed: focused rule-pack/unit Vitest 67/67, focused R2/R3
+  Playwright smoke file 14/14, full desktop Vitest 398/398, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver/evaluator behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001 supporting unit evidence
+
+- Supporting role for DEL-17-07 PCF export tranche: the existing PCF
+  source-to-target millimeter conversion witnesses are now visible in the
+  desktop panel and checked by the R2/R3 Playwright smoke.
+- The tranche exposes existing evidence only. The PCF package still carries
+  `conversion_witnesses.json`; no DEC-018 catalog constant, unit conversion
+  API, target unit policy, or conversion formula changed.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 398/398, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target compatibility claim,
+  downstream import evidence, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-01 viewport tranche: explicit viewport
+  create-node and connect-pipe operation intents now record length
+  unit-dimension validation evidence instead of `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches, mismatches,
+  unreviewed statuses, or loading/catalog-unavailable statuses from the same
+  shared helper.
+- Generic one-click viewport gesture placeholders were later covered by
+  TP-MAC-225.
+- Validation passed: focused App Vitest 55/55 and focused R2/R3 Playwright
+  smoke file 14/14; full desktop Vitest 18/18 files and 398/398 tests; and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation-applier validation
+  semantics, solver behavior, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-05-01 primitive-load delete tranche:
+  primitive-load delete intents now record unit-dimension validation status
+  for the existing unit-bearing primitive quantity instead of
+  `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches, mismatches,
+  unreviewed statuses, or loading/catalog-unavailable statuses from the same
+  helper used by primitive create/edit.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-15-04 external-prover metadata tranche: the desktop
+  external-prover boundary metadata packet now carries explicit DEC-018
+  unit-policy evidence for the metadata-only external review context.
+- The packet uses the shared export unit disclosure helper to record
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, source
+  model units, result units when a run exists, empty target export units, and
+  `conversion_performed=false`.
+- The external-prover-specific policy records units for reviewer context
+  without invoking a target solver/prover or claiming target-writer conversion.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver/prover invocation, target
+  parser, commercial-result ingestion, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPARISONGUIUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-14-04 comparison workspace tranche: the desktop
+  comparison packet now records explicit unit-policy evidence for mapped
+  result deltas.
+- The packet records equal-explicit-unit matching, matched result units,
+  unmatched row counts, `conversion_performed=false`, and DEC-018/DEC-026/
+  DEL-14-05 basis refs. It preserves source result units and does not
+  introduce any conversion API or hidden normalization path.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, comparison delta math, default
+  tolerance, solver convergence policy, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-08 design workspace tranche: the desktop
+  design-authoring workspace packet now records explicit DEC-018 unit-policy
+  evidence for its composed model/result/analysis-run/comparison context.
+- The packet records `unit-system:dec-018-si-dual-display`, entered-unit
+  preservation, sorted model units, result units, comparison units, the
+  embedded comparison unit-policy evidence ref,
+  `conversion_performed=false`, and DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis
+  refs. It preserves source units and does not introduce a conversion API or
+  hidden normalization path.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, model mutation, comparison delta
+  math, default tolerance, solver behavior, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-05 project validation tranche: the Project
+  Validation Preflight packet now records explicit DEC-018 unit-policy
+  evidence for its existing unit round-trip metadata check.
+- The packet records `unit-system:dec-018-si-dual-display`, entered-unit
+  preservation, sorted model units, the model unit-bearing record count,
+  persisted round-trip status/signature when present, `conversion_performed=false`,
+  and DEC-018/DEL-02-02/DEL-02-05 basis refs. It preserves metadata-evidence
+  behavior and does not introduce a conversion API or hidden normalization.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, persistence semantics, migration
+  policy, hash canonicalization, schema versioning, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RESULTVIEWUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-05 results-viewer tranche: the desktop Results
+  viewer now visibly records the DEC-018 result-unit policy for the solved
+  preview result envelope before filtering and pagination.
+- The visible row records source result units `MPa,N,N*m,mm,rad`, 737 result
+  rows, entered-unit preservation, and `conversion_performed=false`. It
+  preserves source result units and does not introduce a conversion API or
+  hidden normalization path.
+- Validation evidence is recorded in the DEL-07-05 primary run record and
+  this deliverable's supporting run record. DEC-025 sweep evidence is
+  recorded in closeout artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, result math, result filtering,
+  pagination semantics, solver behavior, comparison delta math, default
+  tolerance, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-07-02 delete-intent tranche: support, node, and pipe
+  delete previews now explicitly classify unit validation as
+  `not_required_dimensionless`.
+- The tranche records that these delete operations do not introduce new
+  unit-bearing numeric quantities. It closes another `unit_validation=not_run`
+  audit gap without adding a conversion API or hidden normalization path.
+- Validation evidence is recorded in the DEL-07-02 primary run record and
+  this deliverable's supporting run record. DEC-025 sweep evidence is recorded
+  in closeout artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, delete behavior, reference
+  validation, operation application semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-05-02 Load Cases manager tranche: operations that
+  introduce no unit-bearing numeric quantity now explicitly classify unit
+  validation as `not_required_dimensionless`.
+- The tranche does not add or alter unit symbols, dimensions, conversion
+  factors, DEC-018 catalog constants, schema dimension enums, or hidden
+  normalization behavior.
+- Unit-bearing primitive load create/edit paths remain covered by existing
+  unit/dimension validation logic and were not changed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-217; completion log entry.
+- Validation passed: focused manager App Vitest 18/18, full desktop Vitest
+  399/399, focused R2/R3 Playwright 14/14, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, accepted model-state mutation, solver
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-07-01 viewport tranche: the reference-only
+  component-symbol placeholder introduces no unit-bearing numeric quantity and
+  now explicitly records `unit_validation=not_required_dimensionless`.
+- The tranche does not add or alter unit symbols, dimensions, conversion
+  factors, DEC-018 catalog constants, schema dimension enums, or hidden
+  normalization behavior.
+- Explicit viewport node and pipe authoring paths remain covered by existing
+  length unit-validation logic and were not changed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-218; completion log entry.
+- Validation passed: focused App Vitest 1/1 and focused R2/R3 Playwright
+  smoke 16/16; full desktop Vitest 399/399; desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, accepted model-state mutation, solver
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DIAGNOSTICUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-07 diagnostic review-surface tranche:
+  diagnostic linked-result interpretation records now carry first-class
+  `unit` and `unit_source` fields sourced from the result envelope.
+- The Diagnostic Detail panel exposes
+  `data-testid="diagnostic-unit-context"` with linked result count, result
+  units, `source=result_envelope`, and `conversion=false`.
+- For `HIGH_DISPLACEMENT_REVIEW`, the selected node-level diagnostic links
+  21 result rows for `node:N-140` with units `mm,rad`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-224; completion log entry; primary
+  DEL-07-07 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright diagnostic smoke 2/2, full desktop Vitest 399/399, R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, diagnostic schema, solver behavior,
+  result value, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-01 viewport placeholder tranche: generic
+  viewport `create_node` and `connect_pipe_run` placeholders now declare
+  length unit metadata and unit-validation status instead of
+  `unit_validation=not_run`.
+- Browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes use the same DEC-018 catalog helper as explicit
+  viewport geometry. No unit conversion path or hidden normalization behavior
+  was added.
+- The `insert_component_symbol` placeholder remains explicitly
+  non-unit-bearing with `unit_validation=not_required_dimensionless`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-225; completion log entry; primary
+  DEL-07-01 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright placeholder smoke 2/2, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, accepted model-state mutation,
+  operation-applier validation semantics, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-REPORTLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint unit-policy inventory tranche:
+  the Report Content Lint panel now records which explicit public
+  report/export lint targets carry unit-policy or target-format
+  conversion-witness evidence.
+- `data-testid="report-lint-unit-policy"` reports 17 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The exported lint packet records `unit_policy_evidence` with
+  `lint_performs_conversion=false` and no target compatibility assertion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-REPORTLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-231; completion log entry; primary
+  DEL-08-05 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright 1/1 Chromium desktop test, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer
+  compatibility, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-01 rendered-report unit-basis tranche: the
+  Rendered Report panel now exposes the render-input unit basis before the
+  desktop-only renderer route is invoked.
+- `data-testid="rendered-report-unit-basis"` reports the DEC-018 unit-system
+  reference, sorted model units, solved result units or `results=none`,
+  `conversion=false`, and `source=renderable_report_input`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-232; completion log entry; primary DEL-08-01
+  run record.
+- Validation passed: focused rendered-report Vitest 8/8 tests, focused
+  Playwright 2/2 Chromium desktop tests, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, renderer command, report schema,
+  canonical hash behavior, save/print gate, report-time conversion, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SOLVEJOBUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-07 solve-job unit-policy tranche: the Solve
+  execution panel and solve-job JSON now expose the model/result unit basis
+  for the solve-job audit record.
+- `data-testid="solve-job-unit-policy"` reports sorted model units, solved
+  result units or `results=none`, result row count, and `conversion=false`.
+  The exported solve-job packet records `unit_policy_evidence` with DEC-018
+  unit-system reference, DEL-02-02/DEL-07-07 basis refs, storage convention,
+  result units, analysis-run ref, and no-conversion policy.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-233; completion log entry; primary
+  DEL-07-07 run record.
+- Validation passed: focused App Vitest not-started and solved-state tests,
+  focused Playwright R2 solve smoke 2/2, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, `git diff --check`, and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, solve execution behavior, solver backend
+  seam, result values, analysis-run hashes, cancellation behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-STORAGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-05 project-storage unit-policy tranche: the
+  Project Storage Audit panel and local storage JSON now expose structured
+  unit-policy evidence for local project unit round-trip metadata.
+- The visible `project-storage-unit-round-trip` row now includes sorted model
+  units and `conversion=false`; the packet records DEC-018 unit-system
+  reference, entered-unit preservation, round-trip status/signature, and
+  no-conversion policy.
+- The Report Content Lint public unit-policy inventory now includes the
+  storage audit surface, increasing unit-policy target count to 18.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-234; completion log entry; primary
+  DEL-02-05 run record and supporting DEL-08-05 run record.
+- Validation passed: focused App Vitest initial storage, local
+  create/save/open round-trip, and solved report-lint tests; focused
+  Playwright 2/2 Chromium desktop tests; full desktop Vitest 399/399;
+  single-worker R2/R3 Playwright smoke 18/18; `git diff --check`; and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, local persistence semantics, migration
+  policy, project-envelope schema, model hash canonicalization,
+  report-linter protected-content semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: the Export Safety Review unit-evidence matrix
+  now classifies the Project Storage Audit and Project Validation Preflight
+  export records as covered unit-bearing records because their packets already
+  carry DEC-018 unit-policy evidence.
+- The export-review visible summary and JSON moved from `covered=14/14` to
+  `covered=16/16` without changing conversion behavior; the manifest still
+  records `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-236; completion log entry; primary
+  DEL-12-02 run record and supporting DEL-02-05 run record.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open tests, full desktop Vitest 399/399, single-worker R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, target-specific writer, persistence
+  semantics, validation-preflight semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the
+  Project Validation Preflight public panel as a unit-policy surface because
+  its packet already carries DEC-018 unit-policy evidence.
+- The report-lint visible summary and JSON moved to 20 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-237; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-02-05 run record.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  tests, focused Playwright 1/1 Chromium desktop test, full desktop Vitest
+  399/399, single-worker R2/R3 Playwright smoke 18/18, and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, validation-preflight semantics,
+  persistence semantics, report-linter protected-content semantics, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Agent Proposal review output now carries
+  explicit metadata-only unit policy:
+  `unit_validation=not_required_metadata_review_only` and `conversion=false`.
+- The proposal UI, operation ledger, report-lint inventory, export-review
+  manifest, and report persistence inventory preserve that status without
+  performing conversion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-02/DEL-16-03/DEL-08-05/DEL-12-02/DEL-08-04 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, operation validation semantics, private payload,
+  protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Security Threat Model review output now
+  records unit-check no-bypass evidence for unit-bearing export and handoff
+  workflows.
+- The evidence references DEC-018, DEL-02-02, and DEL-12-05; reports
+  `conversion_performed=false`; and does not invoke a target writer.
+- Report Lint inventories `security-threat-model-unit-policy` as the 43rd
+  public unit-policy target, and Export Safety Review includes
+  `security_threat_model_review` in its unit-evidence matrix.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-261; primary DEL-12-05 run record and
+  supporting DEL-08-05/DEL-12-02 records.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2 after updating stale report-lint target-count assertions,
+  and full single-worker Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, security threat semantics, target writer behavior,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-FIXTURELINTUNITS-001 supporting fixture unit-policy evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now records the invented
+  product-preview fixture bundle as `product-preview-fixture-unit-policy`.
+- The fixture bundle already carries explicit model units, rule-pack unit refs,
+  mechanics-result units, and unit-validation metadata; this tranche makes
+  that evidence discoverable in the public-surface unit inventory.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-FIXTURELINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-262; primary DEL-08-05 run record.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2, and full single-worker Playwright 18/18.
+- Boundary preserved: no fixture payload values, DEC-018 catalog constant,
+  schema dimension enum, unit-conversion API, target writer behavior, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `external_prover_boundary_metadata` as unit-evidence-required because the
+  DEL-15-04 external-prover boundary panel already exposes DEC-018 unit-policy
+  evidence.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=19/20`, and proposal-path evidence reports 20/20 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-263; primary DEL-12-02 run record and
+  supporting DEL-15-04 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, external-prover packet unit
+  policy, private payload, protected content, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `missing_data_warning_blocking_review` as unit-evidence-required because the
+  DEL-07-04 Missing Data Blocking panel already exposes unit-input policy
+  evidence.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=20/21`, and proposal-path evidence reports 21/21 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-264; primary DEL-12-02 run record and
+  supporting DEL-07-04 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, missing-data unit policy,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `editor_contract_review` as unit-evidence-required because the DEL-07-03
+  Editor Contract panel already exposes the DEL-02-02 unit contract.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=21/22`, and proposal-path evidence reports 22/22 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-265; primary DEL-12-02 run record and
+  supporting DEL-07-03 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, editor unit contract, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `secret_private_library_boundary_review` as unit-evidence-required because
+  the DEL-12-04 Secret and Private Libraries panel already exposes explicit
+  unit metadata policy evidence for private material, component, and rule
+  references.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=22/23`, and proposal-path evidence reports 23/23 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-266; primary DEL-12-02 run record and
+  supporting DEL-12-04 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, secret/private unit policy,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `accessibility_usability_baseline_review` as unit-evidence-required because
+  the DEL-07-06 Accessibility Baseline panel already exposes unit-visibility
+  evidence for unit-bearing review surfaces.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=23/24`, and proposal-path evidence reports 24/24 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-267; primary DEL-12-02 run record and
+  supporting DEL-07-06 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, accessibility unit visibility
+  policy, private payload, protected content, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `design_authoring_comparison_workspace` as unit-evidence-required because
+  the DEL-07-08 Design Workspace packet already records DEC-018 unit-system
+  identity, entered-unit preservation, result/comparison unit context, and
+  `conversion_performed=false`.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=24/25`, and proposal-path evidence reports 25/25 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-268; primary DEL-12-02 run record and
+  supporting DEL-07-08 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, design-workspace unit-policy
+  semantics, comparison tolerance behavior, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `validation_release_evidence_review` as unit-evidence-required because the
+  Validation Evidence packet already records DEC-018 unit-system identity,
+  entered-unit preservation, unit-bearing record count, and
+  `conversion_performed=false`.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=25/26`, and proposal-path evidence reports 26/26 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-269; primary DEL-12-02 run record and
+  supporting DEL-09-04/DEL-09-05 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, validation-evidence
+  unit-policy semantics, release threshold policy, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

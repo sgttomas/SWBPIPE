@@ -283,6 +283,7 @@ export function buildPreviewComparison({
     });
   const unmatchedLeftRefs = leftResults.map((item) => item.id).filter((id) => !matchedLeftIds.has(id));
   const diagnostics = comparisonDiagnostics({ unmatchedLeftRefs, unmatchedRightRefs });
+  const matchedResultUnits = Array.from(new Set(deltas.map((item) => item.unit).filter(Boolean))).sort();
 
   return {
     schema_version: "0.1.0",
@@ -314,6 +315,23 @@ export function buildPreviewComparison({
       mapping_basis: "stable result IDs plus explicit source_result_refs from the preview mechanics result envelope",
       tolerance_status: "not_tolerance_checked",
       tolerance_profile_ref: "TBD"
+    },
+    unit_policy_evidence: {
+      evidence_id: "unit-policy-evidence:comparison-workspace-preview",
+      unit_system_ref: ref("UnitSystem", "unit-system:dec-018-si-dual-display"),
+      storage_convention: "entered_units_preserved",
+      comparison_unit_policy: "compare_only_rows_with_equal_explicit_result_units",
+      matching_policy: "stable_result_refs_must_match_and_units_must_be_equal_before_delta",
+      matched_result_units: matchedResultUnits,
+      unmatched_left_result_count: unmatchedLeftRefs.length,
+      unmatched_right_result_count: unmatchedRightRefs.length,
+      conversion_policy: "comparison_workspace_preserves_result_units_without_conversion",
+      conversion_performed: false,
+      tolerance_profile_ref: "TBD",
+      tolerance_status: "not_tolerance_checked",
+      decision_basis_refs: [ref("Decision", "DEC-018"), ref("Decision", "DEC-026"), ref("Deliverable", "DEL-14-05")],
+      protected_content_included: false,
+      private_payload_included: false
     },
     result_deltas: deltas,
     diagnostics,
@@ -552,6 +570,7 @@ function buildProposalFromMechanics(
     rationale: `Generated from current preview mechanics context; selected review reference is ${targetRef}. This narrative is review-only and does not mutate accepted model state.`,
     validation: {
       ...agentProposalFixture.validation,
+      unit_validation: "not_required_metadata_review_only",
       constraint_validation: "warning_computed_context_requires_human_review",
       diff_preview_status: "generated_from_computed_context"
     }

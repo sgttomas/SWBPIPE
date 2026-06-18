@@ -79,6 +79,11 @@ export function OperationLedgerPanel({
               value={formatLatestOperation(ledger)}
               testId="operation-ledger-latest"
             />
+            <LedgerLine
+              label="Unit policy"
+              value={operationLedgerUnitPolicySummary(ledger)}
+              testId="operation-ledger-unit-policy"
+            />
             <LedgerLine label="Boundary" value={ledgerBoundary(ledger)} testId="operation-ledger-boundary" />
             <div className="operation-record-list" data-testid="operation-ledger-records">
               {ledger.records.map((record) => (
@@ -137,6 +142,7 @@ function buildOperationReviewLedger({
     ...editorIntents.map((intent, index) => editorIntentRecord({ intent, index, analysisRun, selectedReviewTarget })),
     ...(proposal ? [proposalRecord({ proposal, analysisRun, selectedReviewTarget, index: editorIntents.length })] : [])
   ];
+  const unitPolicyEvidence = operationLedgerUnitPolicyEvidence(records);
   const decisionCounts = records.reduce(
     (counts, record) => {
       counts[record.decision.status] += 1;
@@ -161,6 +167,7 @@ function buildOperationReviewLedger({
       preview_records_do_not_apply_operations: true,
       rejected_records_mutate_accepted_state: false
     },
+    unit_policy_evidence: unitPolicyEvidence,
     decision_counts: decisionCounts,
     records,
     accepted_model_state_unchanged: true,
@@ -357,6 +364,56 @@ function formatLatestOperation(ledger: ReturnType<typeof buildOperationReviewLed
   const latest = ledger.records[ledger.records.length - 1];
   if (!latest) return "none";
   return `${latest.operation_id}; ${latest.record_source}; ${latest.decision.status}; ${applicationStatus(latest.validation_outcome)}`;
+}
+
+type UnitPolicyLedgerRecord = {
+  operation_history: {
+    changes: Array<{ change_id: string; unit?: string }>;
+  };
+  validation_outcome: {
+    status: string;
+    unit_validation?: string;
+  };
+};
+
+function operationLedgerUnitPolicyEvidence(records: UnitPolicyLedgerRecord[]) {
+  const changeRecords = records.flatMap((record) => record.operation_history.changes);
+  const unitBearingChangeCount = changeRecords.filter(
+    (change) => typeof change.unit === "string" && change.unit !== "none"
+  ).length;
+  const dimensionlessChangeCount = changeRecords.length - unitBearingChangeCount;
+  const validationStatuses = Array.from(
+    new Set(
+      records
+        .map((record) => record.validation_outcome.unit_validation)
+        .filter((status): status is string => typeof status === "string" && status.trim().length > 0)
+    )
+  ).sort();
+
+  return {
+    evidence_id: "unit-policy-evidence:operation-review-ledger",
+    unit_policy: "ledger_preserves_operation_unit_metadata_without_conversion",
+    record_count: records.length,
+    change_count: changeRecords.length,
+    unit_bearing_change_count: unitBearingChangeCount,
+    dimensionless_change_count: dimensionlessChangeCount,
+    unit_validation_statuses: validationStatuses,
+    conversion_performed: false,
+    applied_receipt_units: "not_serialized_in_review_ledger",
+    source: "queued_operation_intents_and_agent_proposals"
+  };
+}
+
+function operationLedgerUnitPolicySummary(ledger: ReturnType<typeof buildOperationReviewLedger>): string {
+  const evidence = ledger.unit_policy_evidence;
+  return [
+    `records=${evidence.record_count}`,
+    `unit_bearing_changes=${evidence.unit_bearing_change_count}`,
+    `dimensionless_changes=${evidence.dimensionless_change_count}`,
+    `unit_validations=${evidence.unit_validation_statuses.length > 0 ? evidence.unit_validation_statuses.join(",") : "none"}`,
+    `receipt_units=${evidence.applied_receipt_units}`,
+    `conversion=${String(evidence.conversion_performed)}`
+  ].join("; ");
 }
 
 function applicationStatus(validationOutcome: { application_status?: string }): string {

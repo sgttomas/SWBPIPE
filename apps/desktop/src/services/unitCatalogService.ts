@@ -162,6 +162,40 @@ export function describeUnitBasis(
   };
 }
 
+export function unitDimensionValidationStatus(
+  route: UnitCatalogRoute | null,
+  unit: string,
+  dimensionId: string
+): string {
+  const normalizedUnit = normalizeSymbol(unit);
+  const normalizedDimension = normalizeDimension(dimensionId);
+  if (
+    normalizedUnit === "TBD" ||
+    normalizedDimension === "TBD"
+  ) {
+    return "missing_unit_or_dimension";
+  }
+  if (normalizedUnit === "none" || normalizedDimension === "dimensionless") {
+    return "not_required_dimensionless";
+  }
+
+  const basis = describeUnitBasis(route, normalizedUnit, normalizedDimension);
+  switch (basis.source) {
+    case "dec018_catalog_accepted":
+      return "dec018_catalog_dimension_match";
+    case "dec018_catalog_unreviewed":
+      return `dec018_catalog_${basis.review_status ?? "unreviewed"}_dimension_match`;
+    case "dec018_catalog_miss":
+      return "dec018_catalog_dimension_mismatch";
+    case "browser_preview_model_metadata":
+      return "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview";
+    case "catalog_loading":
+      return "catalog_loading_unit_dimension_declared";
+    default:
+      return "unit_dimension_status_unknown";
+  }
+}
+
 function normalizeSymbol(symbol: string): string {
   return symbol.trim() || "TBD";
 }

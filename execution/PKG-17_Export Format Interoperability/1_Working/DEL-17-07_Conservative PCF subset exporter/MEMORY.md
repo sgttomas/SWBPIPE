@@ -92,3 +92,24 @@
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001 PCF conversion witness visibility
+
+- Added visible desktop evidence for the existing PCF conversion-witness sidecar:
+  the Conservative PCF Export panel now reports witness count, converted-field
+  scope, and target length unit through `pcf-export-conversion-witnesses`.
+- The PCF package contract and conversion witnesses are unchanged from
+  `TP-UNITS-B2B3-PCFCONVWITNESS-001`; this tranche exposes them in the browser
+  smoke path so the visible panel and downloaded package evidence align.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 398/398, and desktop production build with
+  the existing Vite large-chunk warning.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001.md`;
+  corresponding DEL-02-02 supporting run record; `apps/desktop/SMOKE.md`
+  TP-MAC-208; completion log entry.
+- Boundaries preserved: no PCF package schema change, conversion formula
+  change, target compatibility claim, downstream import evidence,
+  solver-validation claim, unit conversion API, protected standards content,
+  private data, commercial solver behavior, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

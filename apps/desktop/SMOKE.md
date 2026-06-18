@@ -104,7 +104,9 @@ Open the Vite URL printed by the command, normally
    `data-testid="diagnostic-detail-panel"` shows
    `diagnostic:physics:high-displacement-review`,
    `result:disp:node-N-140`, `node:N-140`, linked result value context, and the
-   review-only professional boundary.
+   review-only professional boundary. Confirm
+   `data-testid="diagnostic-unit-context"` shows linked result unit context
+   with `units=mm,rad`, `source=result_envelope`, and `conversion=false`.
 27. Confirm the model context selects `node:N-140` and the property inspector
    (`aria-label="Property inspector"`) shows `Terminal tie-in`.
 28. Knowledge renders `data-testid="knowledge-panel"` and includes computed
@@ -6113,3 +6115,3055 @@ notes:
   certification, sealing, authentication, or code-compliance claim. F-4 and the
   authoring-usability finding remain open until packaged human successor
   journey evidence is recorded.
+
+## TP-MAC-188 packaged A12 + R3 successor journey kit - PREPARED manual checklist, human execution pending (`TP-R3UX-PACKAGEKIT-001`, 2026-06-17)
+
+**Status: PREPARED, not performed.** This is the C5.6 successor kit to
+TP-MAC-141. It builds a fresh packaged `.app`, boot-checks the bundle, and
+defines the human-run checklist for C5.7. This section does not close F-4, the
+A3 authoring-usability finding, R3 exit review, lifecycle issuance, release
+readiness, professional approval, certification, sealing, authentication, or
+code-compliance. Only a later recorded human packaged pass/fail entry can close
+or redirect those findings.
+
+### Binary provenance
+
+- Built from commit `c013b49b8` with:
+  - `npm ci` at the workspace root because this fresh worktree had no
+    `node_modules`;
+  - `cd apps/desktop && npm run tauri -- build --bundles app`.
+- Build evidence: WASM engine generation succeeded, Vite production build
+  succeeded with the existing chunk-size warning, Tauri release build finished
+  in 1m16s, and Tauri produced one macOS app bundle.
+- Bundle path:
+  `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+- Bundle size: `12M`.
+- Boot check: launched the bundled executable for 8 seconds, observed process
+  `openpipestress-desktop` plus WebKit GPU, Networking, and WebContent child
+  processes, recorded `stdout_bytes=0` and `stderr_bytes=0`, then terminated
+  the process cleanly.
+- Validation after evidence edits: `npm test --workspace apps/desktop` passed
+  18 files / 390 tests.
+
+### Human successor checklist for C5.7
+
+Run this checklist against the bundle path above or a freshly rebuilt bundle
+from the then-current reviewed code state. Record pass/fail by step in the
+human execution record below.
+
+1. Launch the `.app`. Expect the technical preview shell, the guided
+   workbench, local project status with `network=false` and `telemetry=false`,
+   and no release/professional/code-compliance claim.
+2. Open the A12 guided authoring tab. Expect the A12 checklist, next-action
+   panel, current queue status, and inline `Apply queued` affordance.
+3. Click `New blank`. Expect a blank local model document without fixture
+   entities or external file copies.
+4. Follow the A12 guided steps to create the two nodes, material, section,
+   straight pipe, support, load case, primitive load, and combination using the
+   invented rehearsal values from
+   `fixtures/product_preview/r2_from_blank_rehearsal.json`.
+5. Use the guided inline apply action or the Operation Apply receipt surface
+   after queued creation steps. Expect applied receipts to remain local and
+   `professional_approval=false`.
+6. Run mechanics preview. Expect completion with `MECHANICS_SOLVED` and
+   result rows visible in the results surface.
+7. Render the report. Expect a report preview and a canonical HTML SHA-256.
+   Record the hash below.
+8. Save locally, list local projects, reopen the saved project, and re-run
+   mechanics preview. Expect the authored model and solve behavior to survive
+   the local save/reopen path.
+9. Switch to the R3 guided rule-pack/private-library tab. Expect the R3 guide,
+   progress status, and next-action panel.
+10. Load the invented private library template, validate it, and request local
+    save. Expect the guide to record the visible action without committing
+    private user data to the repository.
+11. Create the private non-code rule-pack draft, validate it, calculate its
+    checksum, and request local save. The structured composer remains the
+    source of truth; writable expression text parsing is still deferred by
+    `DEC-037`.
+12. Run the R3 rule-check path after mechanics solve. Expect the GUI to show
+    missing-input blockers when required values are absent. Pass/fail must stay
+    blocked until the checker has complete user-supplied inputs; no software
+    code-compliance status may appear.
+13. Quit. Confirm no network, daemon, telemetry, repository-default private
+    data write, protected standards content, release-readiness claim,
+    professional approval, certification, sealing, authentication, or
+    code-compliance claim occurred.
+
+### Human execution record (fill in during C5.7)
+
+```
+performed: NO (prepared package kit only; F-4 and A3 authoring-usability
+  finding remain open until a human completes or fails this successor journey)
+date:
+performed_by:
+binary commit:
+bundle path:
+outcome (PASS / FAIL per step, with any deviations):
+report sha256:
+notes:
+```
+
+- Boundary review: invented preview and rehearsal data only; user-created
+  models and private libraries/rule packs stay in local app storage and are
+  never committed by default. This kit prepares human execution only and makes
+  no lifecycle, release-readiness, professional approval, certification,
+  sealing, authentication, or code-compliance claim.
+
+## TP-MAC-191 support linear-stiffness unit authoring - PASSED (`TP-UNITS-BTAIL-SUPPORTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail support unit I/O slice while C5.7 remains
+  human-execution gated. The Property Inspector support creation panel now
+  exposes a linear-stiffness unit selector and value field. Blank stiffness
+  preserves the prior dimensionless support-create behavior; entered stiffness
+  queues `properties.linear_stiffness` with `{value, unit}` and
+  `dimension=linear_stiffness`.
+- Apply path: `core/model_operations/operation_applier` accepts support
+  creation with either dimensionless restraint metadata or a positive
+  DEC-018-compatible `linear_stiffness` quantity. The browser-mode WASM engine
+  was regenerated with `npm run -w apps/desktop build:wasm` before UI
+  validation.
+- Readback: selected support properties display the preserved
+  `Linear stiffness` value/unit after the local session apply route accepts the
+  structured operation.
+- Validation:
+  - `cargo fmt --manifest-path core/model_operations/operation_applier/Cargo.toml --check` passed.
+  - `cargo test --manifest-path core/model_operations/operation_applier/Cargo.toml` passed 61 unit tests plus canonical-hash and contract-corpus tests.
+  - `npm run -w apps/desktop test -- --run src/App.test.tsx` passed 55/55 tests after WASM regeneration.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 390/390 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite large-chunk warning.
+- Evidence: DEL-07-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SUPPORTUNITS-001.md`; DEL-02-02
+  supporting run record with the same id; completion log entry.
+- Boundary: invented/local preview operation authoring only. No protected
+  standards content, private project data, network/telemetry path, durable
+  persistence semantics, solver/release tolerance policy, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-192 local FEA handoff unit witnesses - PASSED (`TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-witness slice while C5.7
+  remains human-execution gated. The local FEA handoff package now emits
+  source value/unit/dimension preservation witnesses for transfer-basis
+  displacement, force, and moment result refs.
+- Packet contract: `handoff_package.unit_witness_policy` is
+  `preserve_source_result_units_for_referenced_transfer_results`, and
+  `handoff_package.unit_preservation_witnesses[]` records source result ref,
+  source field path, source quantity, target transfer-basis path,
+  unit-system ref, and `conversion_performed=false`.
+- UI check: `data-testid="local-fea-unit-witnesses"` displays
+  `count=3`, `policy=preserve_source_result_units`, and `conversion=false`
+  for the invented preview fixture after mechanics preview.
+- Schema: `schemas/local_fea_handoff.schema.yaml` now strictly defines
+  `UnitPreservationWitness` and `UnitPreservationQuantity`.
+- Validation:
+  - `python3 -m pytest tests/test_local_fea_handoff_contract.py` passed.
+  - `npm run -w apps/desktop test -- --run src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx src/App.test.tsx` passed 58/58 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 391/391 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite large-chunk warning.
+- Evidence: DEL-10-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOCALFEAUNITWITNESS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: target-neutral handoff metadata only. No mesh, external solver,
+  concrete local FEA exchange format, target solver adapter, protected
+  standards content, private project payload, network/telemetry path,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-193 result export unit witnesses - PASSED (`TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-witness slice while C5.7
+  remains human-execution gated. The schema-first result export preview now
+  emits a deterministic unit-preservation witness for each exported result
+  row in the invented mechanics fixture.
+- Packet contract: `result_envelope.unit_witness_policy` is
+  `preserve_source_result_value_unit_and_dimension_per_exported_result_row`,
+  and `result_envelope.unit_preservation_witnesses[]` records source result
+  ref, source field path, source value/unit/dimension, target result row path,
+  target value/unit/dimension, unit-system ref, and
+  `conversion_performed=false`.
+- UI check: `data-testid="result-export-unit-witnesses"` displays
+  `count=737` and `conversion=false` for the invented preview fixture after
+  mechanics preview.
+- Schema: `schemas/results.schema.yaml` now defines optional
+  `UnitPreservationWitness` and `UnitPreservationQuantity` vocabulary for
+  result-envelope unit preservation without changing existing accepted
+  fixtures or trace-chain ownership.
+- Validation:
+  - `python3 tests/test_results_schema.py` passed.
+  - `npm --prefix apps/desktop test -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 391/391 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-08-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: result-envelope unit metadata only. No unit conversion,
+  tolerance policy, solver behavior, public transport commitment, trace-chain
+  ownership change, protected standards content, private project payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-194 comparison mixed-unit tolerance corpus - PASSED (`TP-UNITS-BTAIL-COMPTOLCORPUS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail DEC-026 corpus slice while C5.7 remains
+  human-execution gated. The analysis-run comparison engine now recognizes
+  caller-supplied relative+absolute tolerance pairs when a governed profile
+  supplies both values, while keeping the existing scalar tolerance path for
+  older fixtures.
+- Contract: `schemas/comparison_tolerance.schema.json` now defines optional
+  `relative_tolerance_value`, `absolute_tolerance_value`, and
+  `tolerance_pair_policy=relative_plus_absolute_floor` on tolerance rules.
+  Numeric pair values are still restricted to externally governed or
+  project-specific review status paths. No schema default value was added.
+- Corpus evidence: `tests/test_analysis_run_comparison.py` covers a
+  DEC-026-style mixed-unit profile with stress normalized from `kPa` to `Pa`
+  and force normalized from `lbf` to `N`; the stress case is classified by the
+  relative allowance, and the near-zero force case is classified by the
+  absolute floor. Removing a required conversion still blocks with
+  `ARC-UNIT-CONVERSION-UNSUPPORTED`.
+- Validation:
+  - `python3 tests/test_analysis_run_comparison.py` passed.
+  - `python3 tests/test_comparison_contracts.py` passed.
+  - `python3 -m pytest tests/test_analysis_run_comparison.py tests/test_comparison_contracts.py tests/test_design_authoring_comparison_workspace.py tests/test_state_comparison_handoff_report_sections.py -q` passed 23/23 tests.
+  - `python3 -m pytest -q tests` passed 360/360 tests.
+  - `git diff --check` passed.
+- Evidence: DEL-14-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPTOLCORPUS-001.md`;
+  DEL-14-05 and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: governed-profile comparison evidence only. No default tolerance,
+  release threshold, solver convergence policy, external validation decision,
+  protected standards content, private project payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-195 component library field unit helper - PASSED (`TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains
+  human-execution gated. The Private Library Manager now exposes a component
+  field unit helper for component-library drafts, so a user can add one
+  private component `fields[]` quantity with explicit magnitude, unit, and
+  dimension metadata before running the existing local-only import validation.
+- Unit behavior: browser preview does not synthesize a catalog and keeps the
+  stored `N/m` field unit as a single explicit option with the
+  desktop-only catalog diagnostic. In Tauri/desktop mode, the helper uses the
+  DEC-018 unit catalog and filters `linear_stiffness` options to compatible
+  force-per-length units such as `N/m` and `lbf/in`, excluding length units.
+- Draft payload: applying the helper writes a private `component_records[0]`
+  field with `field_kind=linear_stiffness`,
+  `public_repository_value_policy=private_user_supplied_only`, and
+  `value={magnitude, unit, dimension=linear_stiffness,
+  value_status=private_user_supplied}`. Validation and storage are unchanged
+  and still route through the desktop-only local library backend.
+- Validation:
+  - `npm test --workspace apps/desktop -- LibraryManagerPanel.test.tsx`
+    passed 11/11 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 393/393 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "library manager loads"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-07-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: component-library draft authoring only. No component mechanics,
+  code-specific SIF/flexibility data, public component catalog, library
+  validation rule, local-store policy, protected standards content, private
+  project payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-196 export adapter SDK unit policy evidence - PASSED (`TP-UNITS-BTAIL-ADAPTERSDKUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-17-09 export adapter SDK admission
+  package now includes a structured `unit_policy_evidence` payload and a
+  `unit_policy_evidence.json` manifest member.
+- Unit behavior: the package records `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, source/result/target unit disclosure,
+  `conversion_policy=no_adapter_sdk_conversion_performed`,
+  `conversion_performed=false`, target refs, and a witness policy for candidate
+  targets without claiming target-writer conversion.
+- UI check: `data-testid="export-adapter-sdk-units"` displays
+  `conversion=false`, `witnesses=5`, and the candidate-target no-claim witness
+  policy in the desktop preview; the downloaded registry JSON carries the same
+  `unit_policy_evidence` fields.
+- Validation:
+  - `python3 tests/test_export_adapter_sdk.py` passed.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 393/393 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-17-09 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERSDKUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: adapter-admission metadata only. No runtime loader, public endpoint,
+  target-specific writer, conversion API, target support claim, compatibility
+  claim, external execution, protected standards content, private project
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-203 adapter framework unit policy evidence - PASSED (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail adapter-framework/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-10-02 format-neutral adapter
+  framework preview now includes structured `unit_policy_evidence` in its
+  exported JSON packet.
+- Unit behavior: the packet records `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, source/result unit disclosure,
+  `conversion_policy=adapter_framework_declares_unit_validation_no_format_conversion`,
+  `conversion_performed=false`, and a witness policy for framework-level unit
+  validation without claiming target-writer conversion.
+- UI check: `data-testid="adapter-framework-units"` displays
+  `conversion=false`, `witnesses=1`, and
+  `unit_validation_required_before_adapter_payload_exchange` in the desktop
+  preview; the downloaded adapter JSON carries the same `unit_policy_evidence`
+  fields.
+- Validation:
+  - `python3 tests/test_adapter_framework_contract.py` passed.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-10-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: adapter-framework metadata only. No concrete external format,
+  target-specific writer, conversion API, runtime loader, public endpoint,
+  target support claim, compatibility claim, external execution, protected
+  standards content, private project payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-204 export review unit policy inventory - PASSED (`TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail export-review/unit-evidence inventory slice
+  while C5.7 remains human-execution gated. The DEL-12-02 Export Safety Review
+  manifest now carries top-level `unit_policy_summary` evidence for local
+  export records.
+- Unit behavior: the manifest records `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`,
+  `conversion_policy=export_review_manifest_inventory_only_no_target_conversion`,
+  `conversion_performed=false`, and a 27-row `unit_evidence_matrix`.
+  Fourteen unit-bearing export records are inventoried as covered when their
+  source export packet is available; metadata-only review records are marked
+  `not_unit_bearing_metadata_or_boundary_review`.
+- UI check: `data-testid="export-review-units"` displays
+  `unit-system:dec-018-si-dual-display`, `covered=14/14`, and
+  `conversion=false` after the mechanics preview; the downloaded review JSON
+  carries the same unit-policy summary and matrix.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001.md`;
+  DEL-02-02 and DEL-08-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: export-review metadata inventory only. No target-specific writer,
+  conversion API, public transport commitment, runtime redaction rule change,
+  protected standards content, private project payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-205 load-case primitive unit validation evidence - PASSED (`TP-UNITS-BTAIL-LOADCASEUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail load-case/unit-validation slice while C5.7
+  remains human-execution gated. The desktop Load Cases manager now records
+  unit-dimension validation status on unit-bearing primitive-load create and
+  magnitude-edit operation intents.
+- Unit behavior: primitive load create/edit intents no longer emit
+  `unit_validation=not_run` for unit-bearing quantities. Browser preview
+  records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri catalog routes can record `dec018_catalog_dimension_match` for
+  accepted DEC-018 unit/dimension matches or explicit mismatch/unreviewed
+  statuses.
+- UI check: `data-testid="load-manager-create-primitive-preview"` and
+  `data-testid="load-manager-edit-preview"` include `unit_validation=...`
+  alongside the existing explicit unit and dimension. The R2 smoke checks the
+  create-preview status; App Vitest checks create and edit paths.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests after the test assertion was moved to the
+    exercised create-preview path.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-05-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADCASEUNITVALID-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: load-case operation-intent metadata only. No DEC-018 catalog
+  constant change, schema dimension enum change, unit conversion API change,
+  solver behavior, operation application semantics, protected standards
+  content, private project payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-206 property-inspector unit validation evidence - PASSED (`TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Property Inspector/unit-validation slice while
+  C5.7 remains human-execution gated. The desktop Property Inspector now
+  records unit-dimension validation status on unit-bearing modify intents and
+  explicit create-section/create-material/create-support intents.
+- Unit behavior: unit-bearing Property Inspector intents no longer emit
+  `unit_validation=not_run`. Browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`
+  because the reviewed DEC-018 catalog command is desktop-only; desktop/Tauri
+  routes can record `dec018_catalog_dimension_match`, mismatch, loading, or
+  unreviewed statuses from the catalog basis.
+- UI check: `data-testid="editor-intent-validation"` shows the unit-validation
+  status in the existing operation preview for node coordinate edits, load
+  primitive magnitude edits, section creation, material creation, and support
+  creation. Playwright smoke checks the node and load edit preview statuses;
+  App Vitest checks the edit and create-intent statuses.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001.md`;
+  DEL-02-02 and DEL-16-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: Property Inspector operation-intent metadata only. No DEC-018
+  catalog constant change, schema dimension enum change, unit conversion API
+  change, solver behavior, operation application semantics, accepted
+  model-state mutation, protected standards content, private project payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-207 rule-pack unit policy evidence - PASSED (`TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail rule-pack editor/unit-policy slice while C5.7
+  remains human-execution gated. The Rule-Pack Manager now shows visible unit
+  policy and unit-dimension validation status for declaration `quantity_intent`
+  unit refs and expression literal/table unit refs.
+- Unit behavior: browser preview keeps the existing manual stored-unit text
+  route and explicitly reports `catalog_route=browser_preview_manual_entry`
+  with `conversion=false`. Desktop/Tauri catalog routes continue using the
+  reviewed DEC-018 catalog selectors and can report accepted dimension matches
+  or explicit mismatch/unreviewed/loading statuses.
+- UI check: `data-testid="rule-pack-declarations-unit-policy"` summarizes
+  required-input and value-slot unit refs. `data-testid="rule-pack-expression-unit-policy"`
+  summarizes literal and table unit refs in the active formula. The R2/R3
+  Playwright smoke checks required-input, literal, and table result statuses.
+- Validation:
+  - `npm test --workspace apps/desktop -- unitCatalogService.test.ts DeclarationsEditor.test.tsx ExpressionComposer.test.tsx RulePackManagerPanel.test.tsx` passed 67/67 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+  DEL-02-02, DEL-06-01, and DEL-06-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: rule-pack editor unit-policy metadata only. No DEC-018 catalog
+  constant change, schema dimension enum change, rule-pack schema change,
+  evaluator normalization change, parser/text-syntax change, backend
+  validation/persistence behavior change, protected standards content,
+  private value payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains
+  human-execution gated. The Private Library Manager now exposes a material
+  property unit helper for material-library drafts, so a user can add one
+  private material `properties[]` quantity with explicit magnitude, unit ref,
+  dimension id, and missing-unit policy before running the existing local-only
+  import validation.
+- Unit behavior: browser preview does not synthesize a catalog and keeps the
+  schema-native default unit ref for each property kind as a single explicit
+  option with the desktop-only catalog diagnostic. In Tauri/desktop mode, the
+  helper uses the DEC-018 unit catalog and filters material-property choices by
+  compatible dimensions; for example, `elastic_modulus` offers `Pa`/`MPa` and
+  excludes length units.
+- Draft payload: applying the helper writes a private
+  `material_records[0].properties[]` entry with
+  `property_kind=elastic_modulus`, `value_status=private_user_supplied`,
+  `required_for=mechanics_solve`, and
+  `value={magnitude, unit_ref, dimension_id=stress,
+  quantity_kind=unit_bearing, unit_required=true,
+  missing_unit_behavior=diagnostic_blocking}`. Validation and storage are
+  unchanged and still route through the desktop-only local library backend.
+- Validation:
+  - `npm test --workspace apps/desktop -- LibraryManagerPanel.test.tsx`
+    passed 13/13 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 395/395 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "library manager loads"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-07-03 and DEL-03-01 primary run records
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MATLIBFIELDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: material-library draft authoring only. No material engineering
+  allowables, public material values, validation/storage rule change, schema
+  enum change, DEC-018 catalog constant change, protected standards content,
+  private project payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-198 section library quantity unit helper - PASSED (`TP-UNITS-BTAIL-SECLIBQTYUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains
+  human-execution gated. The Private Library Manager now exposes a section
+  quantity unit helper for section-library drafts, so a user can add one
+  private section dimension or property quantity with explicit magnitude, unit,
+  dimension, provenance, and review status before running the existing
+  local-only import validation.
+- Unit behavior: browser preview does not synthesize a catalog and keeps the
+  selected schema-native default unit as a single explicit option with the
+  desktop-only catalog diagnostic. In Tauri/desktop mode, the helper uses the
+  DEC-018 unit catalog and filters section quantity choices by compatible
+  dimensions; for example, `cross_section_area` offers `m^2`/`in^2` and
+  excludes length units.
+- Draft payload: applying the helper can write either a private
+  `section_records[0].dimensions[]` slot such as
+  `dimension_kind=outside_diameter` or a private
+  `section_records[0].properties[]` slot such as
+  `property_kind=cross_section_area`. Values are recorded as
+  `value_status=private_user_supplied`; property slots keep
+  `calculation_status=not_calculated` so no reviewed/calculated engineering
+  claim is implied. Validation and storage are unchanged and still route
+  through the desktop-only local library backend.
+- Validation:
+  - `npm test --workspace apps/desktop -- LibraryManagerPanel.test.tsx`
+    passed 15/15 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- -g "library manager loads"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-07-03 and DEL-03-02 primary run records
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECLIBQTYUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: section-library draft authoring only. No section-property
+  calculator, public section values, validation/storage rule change, schema
+  enum change, DEC-018 catalog constant change, protected standards content,
+  private project payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-199 handoff package unit witnesses - PASSED (`TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail handoff/unit-evidence slice while C5.7 remains
+  human-execution gated. The desktop Handoff Package panel now emits explicit
+  DEC-018 unit-system disclosure and per-result unit-preservation witnesses in
+  the local review handoff package.
+- Packet contract: `unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, entered-unit storage convention,
+  source model units, result units, target handoff units, and
+  `conversion_performed=false`. `unit_witness_policy` is
+  `preserve_source_result_value_unit_and_dimension_per_handoff_result_ref`,
+  and `unit_preservation_witnesses[]` preserves finite result-row value, unit,
+  and dimension metadata by reference.
+- UI check: `data-testid="handoff-units"` displays the source/result unit
+  disclosure and `data-testid="handoff-unit-witnesses"` displays `count=737`
+  with `conversion=false` for the invented preview fixture after mechanics
+  preview.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-15-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001.md`;
+  DEL-02-02 and DEL-17-03 supporting run records with the same id; completion
+  log entry.
+- Boundary: handoff unit metadata only. No target-specific mapping, external
+  prover execution, downstream compatibility claim, D-21 scope promotion,
+  schema contract change, unit conversion API, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-200 headless runner unit witnesses - PASSED (`TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail headless-runner/unit-evidence slice while C5.7
+  remains human-execution gated. The desktop Headless Runner envelope now
+  emits explicit DEC-018 unit-system disclosure and per-result
+  unit-preservation witnesses for the schema-first local result-handoff
+  preview.
+- Packet contract: `result.unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, entered-unit storage convention,
+  source model units, result units, and `conversion_performed=false`.
+  `result.unit_witness_policy` is
+  `preserve_source_result_value_unit_and_dimension_per_headless_result_handoff_row`,
+  and `result.unit_preservation_witnesses[]` preserves finite result-row
+  value, unit, and inferred dimension metadata by reference.
+- UI check: `data-testid="headless-runner-units"` displays the DEC-018
+  disclosure and `data-testid="headless-runner-unit-witnesses"` displays
+  `count=737` with `conversion=false` for the invented preview fixture after
+  mechanics preview. The pre-run preview path keeps `result_units=[]`,
+  `conversion=false`, and zero witnesses explicit.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+- Evidence: DEL-10-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001.md`;
+  DEL-02-02 and DEL-08-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: headless-runner result-handoff unit metadata only. No final CLI
+  syntax, package script, process/network/filesystem policy, public transport,
+  CI/release matrix, runtime process launcher, schema contract change, unit
+  conversion API, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-201 CAEPIPE external parser unit witnesses - PASSED (`TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail CAEPIPE external parser/unit-evidence slice
+  while C5.7 remains human-execution gated. The desktop CAEPIPE External
+  Harness panel now emits explicit DEC-018 unit-system disclosure and
+  per-parser-row unit-preservation witnesses for the invented public CSV
+  parser fixture.
+- Packet contract: `unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, target parser export units for node
+  displacements and element forces, and `conversion_performed=false`.
+  `unit_witness_policy` is
+  `preserve_parser_csv_row_value_unit_and_dimension_per_row`, and
+  `unit_preservation_witnesses[]` preserves each parser CSV row value, unit,
+  and inferred dimension.
+- UI check: `data-testid="caepipe-external-units"` displays the DEC-018
+  disclosure and `data-testid="caepipe-external-unit-witnesses"` displays
+  `count=3` with `conversion=false`.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-17-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001.md`;
+  DEL-02-02 and DEL-08-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: CAEPIPE external parser unit metadata only. No external CAEPIPE
+  execution, executable/license/path requirement, target compatibility claim,
+  solver validation claim, schema contract change, unit conversion API,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-202 operation diff preview unit witnesses - PASSED (`TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail operation-diff/unit-evidence slice while C5.7
+  remains human-execution gated. The desktop Operation Diff Preview packet now
+  emits explicit DEC-018 unit-system disclosure and per-unit-bearing-diff-row
+  preservation witnesses for queued local operation previews.
+- Packet contract: `unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, target diff rows as
+  `per_change_declared_unit`, and `conversion_performed=false`.
+  `unit_witness_policy` is
+  `preserve_operation_diff_change_value_unit_and_dimension_per_unit_bearing_row`,
+  and `unit_preservation_witnesses[]` preserves each unit-bearing before/after
+  diff row's value text, unit, and dimension.
+- UI check: `data-testid="diff-preview-units"` displays the DEC-018
+  disclosure and `data-testid="diff-preview-unit-witnesses"` displays
+  `count=1` with `conversion=false` for the focused material-modulus edit
+  fixture.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+  - Playwright smoke was not extended with a witness-specific assertion for
+    this slice: the broad R2 smoke previews unit-bearing edits but does not
+    retain a queued diff row without changing later smoke flow. An attempted
+    queue-and-clear assertion path was removed after hanging. Focused App
+    coverage renders the UI and parses the exported packet.
+- Evidence: DEL-16-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001.md`;
+  DEL-16-03 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: operation diff unit metadata only. No operation schema change,
+  operation application, accepted model-state mutation, durable acceptance
+  persistence, unit conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-208 PCF conversion witness visibility - PASSED (`TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail PCF/export-evidence slice while C5.7 remains
+  human-execution gated. The desktop Conservative PCF Export panel now exposes
+  the already-built PCF conversion-witness count and target unit in the visible
+  UI, so browser smoke verifies the same witness sidecar that the package JSON
+  already carries.
+- Unit behavior: no conversion algorithm or package schema changed. The
+  existing PCF package still converts source length fields to the conservative
+  target millimeter fields and carries `conversion_witnesses.json`; the new
+  `data-testid="pcf-export-conversion-witnesses"` line reports
+  `count=23`, the node/pipe-field scope, and `target_length=MM`.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-17-07 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: PCF desktop visibility/evidence only. No PCF package schema
+  change, conversion formula change, target compatibility claim, downstream
+  import evidence, solver-validation claim, unit conversion API, protected
+  standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-209 viewport geometry unit-validation evidence - PASSED (`TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail viewport-geometry/unit-validation slice while
+  C5.7 remains human-execution gated. Explicit viewport node and straight-pipe
+  geometry intents now record length unit-dimension validation evidence instead
+  of `unit_validation=not_run`.
+- Unit behavior: the viewport already loaded the DEC-018 unit catalog when
+  available and displayed the browser-preview model-metadata fallback. This
+  tranche threads that existing route into the queued explicit geometry
+  intents: browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
+  statuses from the same helper. Generic one-click viewport gesture
+  placeholders were later covered by TP-MAC-225.
+- UI check: `data-testid="viewport-intent-unit-validation-create_node"` and
+  `data-testid="viewport-intent-unit-validation-connect_pipe_run"` expose the
+  queued validation status before the operation is applied. The A12 from-blank
+  Playwright journey checks both node and pipe evidence in desktop and compact
+  viewports.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+- Evidence: DEL-07-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: viewport intent evidence only. No DEC-018 catalog constant change,
+  schema dimension enum change, unit conversion API change, operation-applier
+  validation semantics, solver behavior, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-210 primitive-load delete unit-validation evidence - PASSED (`TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail load-case/unit-validation slice while C5.7
+  remains human-execution gated. Explicit primitive-load delete intents now
+  record the existing primitive's unit-dimension validation evidence instead
+  of `unit_validation=not_run`.
+- Unit behavior: deletion preserves the existing primitive's unit and
+  dimension in the operation-intent evidence and runs the same status helper
+  used by primitive-load creation and magnitude edits. Browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
+  statuses from the same helper.
+- UI check: `data-testid="load-manager-primitive-delete-preview"` exposes the
+  queued validation status before the operation is applied. The focused App
+  test checks the visible delete-preview evidence for `load:L-100-Y`.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+- Evidence: DEL-05-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001.md`;
+  DEL-02-02 and DEL-05-05 supporting run records with the same id; completion
+  log entry.
+- Boundary: primitive-load delete intent evidence only. No DEC-018 catalog
+  constant change, schema dimension enum change, unit conversion API change,
+  operation-applier validation semantics, solver behavior, load engine
+  behavior, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-211 external-prover unit policy evidence - PASSED (`TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-15-04 external-prover boundary
+  metadata packet now records explicit DEC-018 unit-policy evidence for the
+  metadata-only external review context.
+- Unit behavior: the packet reuses the shared export unit disclosure helper to
+  record `unit-system:dec-018-si-dual-display`, entered-unit preservation,
+  source model units, result units when an analysis run exists, empty target
+  export units, and
+  `conversion_policy=external_prover_metadata_records_units_without_target_conversion`
+  with `conversion_performed=false`.
+- UI check: `data-testid="external-prover-unit-policy"` exposes source/result
+  unit disclosure, `conversion=false`, the external-prover unit policy, and
+  witness count. The exported metadata JSON carries `unit_policy_evidence`
+  with `external_prover_scope=metadata_only_external_review_context`,
+  `analysis_run_ref`, and the desktop preview external reference.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-15-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: external-prover metadata evidence only. No external solver/prover
+  invocation, target parser, commercial-result ingestion, target writer,
+  conversion API, target compatibility claim, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-212 comparison workspace unit policy evidence - PASSED (`TP-UNITS-BTAIL-COMPARISONGUIUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail comparison-workspace/unit-evidence slice while
+  C5.7 remains human-execution gated. The desktop comparison packet now
+  records explicit unit-policy evidence for mapped result deltas, and the
+  comparison panel exposes that policy beside the tolerance boundary.
+- Unit behavior: comparison matching already required equal explicit result
+  units before producing a delta. This tranche records that invariant as
+  `unit_policy_evidence`, with
+  `comparison_unit_policy=compare_only_rows_with_equal_explicit_result_units`,
+  `conversion_policy=comparison_workspace_preserves_result_units_without_conversion`,
+  matched result units, unmatched row counts, `conversion_performed=false`,
+  and `tolerance_profile_ref=TBD`.
+- UI check: `data-testid="comparison-unit-policy"` exposes matched result
+  units, `matching=equal_explicit_units`, `conversion=false`, and
+  `tolerance=not_tolerance_checked`. The focused App test checks both the
+  packet-level evidence and the rendered row; R2/R3 Playwright smoke checks
+  the visible row in a real browser.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-14-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPARISONGUIUNITS-001.md`;
+  DEL-14-05 and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: comparison workspace evidence only. No comparison delta math,
+  tolerance profile, default tolerance, solver convergence policy, external
+  validation decision, conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-213 design workspace unit policy evidence - PASSED (`TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail design-workspace/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-07-08 design-authoring workspace
+  packet now records explicit unit-policy evidence for the composed model,
+  result, analysis-run, and comparison context exposed by the Results section.
+- Unit behavior: the workspace packet records
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+  model units, result units when a run exists, comparison units when a
+  comparison exists, the embedded comparison unit-policy evidence ref,
+  `conversion_policy=design_workspace_preserves_source_units_without_conversion`,
+  `conversion_performed=false`, `tolerance_profile_ref=TBD`, and
+  DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis refs.
+- UI check: `data-testid="design-workspace-units"` exposes the model unit
+  manifest, result units, comparison units, and `conversion=false`. The
+  focused App test checks both the unsolved and solved packet/UI states; the
+  R2/R3 Playwright smoke checks the solved browser row.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-07-08 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001.md`;
+  DEL-02-02 and DEL-14-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: design-workspace evidence only. No model mutation, comparison
+  delta math, tolerance profile, default tolerance, solver behavior, external
+  validation decision, conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-214 project validation unit policy evidence - PASSED (`TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail project-validation/unit-evidence slice while
+  C5.7 remains human-execution gated. The DEL-02-05 Project Validation
+  Preflight packet now records explicit DEC-018 unit-policy evidence for the
+  existing unit round-trip metadata check.
+- Unit behavior: the packet records
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+  model units, the model unit-bearing record count, persisted round-trip
+  status/signature when a local project snapshot exists, and
+  `conversion_policy=project_validation_records_unit_round_trip_metadata_without_conversion`
+  with `conversion_performed=false`.
+- UI check: `data-testid="project-validation-unit-policy"` exposes the model
+  unit manifest, unit-bearing record count, round-trip status, and
+  `conversion=false`. The focused App test checks both not-persisted and
+  saved/opened packet states; R2/R3 Playwright smoke checks the saved/opened
+  browser row.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-02-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: project-validation evidence only. No persistence semantics,
+  migration policy, hash canonicalization, schema versioning, unit conversion
+  API, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-215 result viewer unit policy evidence - PASSED (`TP-UNITS-BTAIL-RESULTVIEWUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail results-viewer/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-07-05 Results viewer now visibly
+  records the DEC-018 result-unit policy for the solved preview result
+  envelope before filtering and pagination.
+- Unit behavior: the result controls expose
+  `unit-system:dec-018-si-dual-display` by policy, entered-unit preservation,
+  sorted source result units `MPa,N,N*m,mm,rad`, 737 source result rows, and
+  `conversion_policy=result_view_preserves_result_row_units_without_conversion`
+  with `conversion_performed=false`.
+- UI check: `data-testid="result-unit-policy"` exposes the source result unit
+  manifest, result-row count, entered-unit storage convention, and
+  `conversion=false`. The focused App test and R2/R3 Playwright smoke now
+  check the browser row after the preview solve.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests
+    on rerun after one unrelated transient support-label cross-test failure.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-07-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTVIEWUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: result-viewer evidence only. No result math, result filtering,
+  pagination semantics, solver behavior, comparison delta math, tolerance
+  profile, default tolerance, unit conversion API, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-216 delete-intent unit-validation evidence - PASSED (`TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Property Inspector/delete-intent
+  unit-validation slice while C5.7 remains human-execution gated. The explicit
+  support, node, and pipe delete intent previews now record unit validation as
+  `not_required_dimensionless` instead of leaving `unit_validation=not_run`.
+- Unit behavior: delete intents do not introduce a new unit-bearing numeric
+  quantity. The preview metadata now records that fact explicitly while still
+  leaving schema/reference validation to the existing validate/apply path.
+- UI check: `data-testid="editor-intent-validation"` reports
+  `not_required_dimensionless` for support/node/pipe delete previews. The
+  focused App test checks all three delete families, and R2/R3 Playwright
+  smoke checks the support-delete browser preview without applying the
+  deletion.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-07-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001.md`;
+  DEL-16-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: delete-intent metadata only. No delete operation behavior,
+  reference validation, operation application semantics, accepted model-state
+  mutation, solver behavior, unit conversion API, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-217 load-manager dimensionless unit-validation evidence - PASSED (`TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Load Cases manager unit-validation slice while
+  C5.7 remains human-execution gated. Non-unit-bearing load-case and
+  combination operation intents now record unit validation as
+  `not_required_dimensionless` instead of leaving `unit_validation=not_run`.
+- Unit behavior: empty load-case shell creation, load-case metadata edits,
+  whole load-case deletion, combination creation, combination basis/factor
+  edits, combination term creation/deletion, and whole-combination deletion
+  already declare `unit=none` and `dimension=dimensionless`; their preview
+  metadata now makes that classification explicit.
+- UI check: the Load Cases manager preview testids for create-load,
+  metadata/delete, create-combination, combination term create/delete,
+  combination basis/factor, and combination delete now expose
+  `unit_validation=not_required_dimensionless`. Unit-bearing primitive load
+  create/edit paths remain routed through the existing unit/dimension
+  validation helper.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx -t "manager panel"`
+    passed 18/18 focused manager tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-05-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  DEL-07-02, DEL-16-02, and DEL-02-02 supporting run records with the same
+  id; completion log entry.
+- Boundary: operation-intent metadata only. No load-case algebra solver
+  behavior, operation application behavior, accepted model-state mutation,
+  durable persistence, schema enum, unit-conversion API, DEC-018 catalog
+  constant, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-218 viewport component-symbol unit-validation evidence - PASSED (`TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail viewport component-symbol unit-validation slice
+  while C5.7 remains human-execution gated. The reference-only viewport
+  `insert_component_symbol` placeholder now records unit validation as
+  `not_required_dimensionless`.
+- Unit behavior: the component-symbol placeholder introduces no unit-bearing
+  numeric quantity. Explicit viewport node/pipe authoring paths already carry
+  length unit-validation evidence; generic node/pipe placeholders were later
+  covered by TP-MAC-225.
+- UI check: `data-testid="viewport-intent-unit-validation-insert_component_symbol"`
+  exposes `unit_validation=not_required_dimensionless`. The focused App test
+  checks the component-symbol status, and Playwright R2/R3 smoke checks the
+  browser row in desktop and compact viewports.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx -t "viewport editor intents"`
+    passed 1/1 focused App test.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    16/16 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+  DEL-16-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: operation-intent metadata only. No operation application behavior,
+  accepted model-state mutation, durable persistence, schema enum,
+  unit-conversion API, DEC-018 catalog constant, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-225 viewport placeholder unit-validation evidence - PASSED (`TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail viewport placeholder/unit-validation slice while
+  C5.7 remains human-execution gated. The generic one-click `create_node` and
+  `connect_pipe_run` viewport gesture placeholders now record length
+  unit-dimension validation evidence instead of `unit_validation=not_run`.
+- Unit behavior: node and pipe placeholders keep the review-only
+  `pending_service_validation` and no-mutation posture, but their intent
+  metadata now carries `unit=m`, `dimension=length`, and
+  `unit_validation=length=<status>`. Browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
+  statuses from the same helper. The component-symbol placeholder remains
+  `not_required_dimensionless`.
+- UI check: the focused App test verifies node, pipe, and component placeholder
+  statuses after the unit route is loaded. The focused Playwright smoke checks
+  the same three placeholders in desktop and compact browser projects.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "records viewport editor intents without direct persisted-project mutation"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "viewport gesture placeholders record unit validation"`
+    passed 2/2 focused Playwright tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - After the DEC-025 sweep exposed a timing-sensitive viewport animation
+    sample in the broad R2 smoke, `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 with the polling assertion.
+- Command note: an earlier full Playwright run without `--workers=1` printed
+  all 18 passing tests but did not exit promptly; it was interrupted and is
+  not counted as validation evidence.
+- Evidence: DEL-07-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: viewport placeholder metadata only. No accepted model-state
+  mutation, operation-applier validation semantics, solver behavior, component
+  schema, unit conversion API, DEC-018 catalog constant, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-219 validation-evidence unit-policy visibility - PASSED (`TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail validation-evidence/unit-policy slice while
+  C5.7 remains human-execution gated. The Validation Evidence panel and export
+  packet now expose DEC-018 project-unit context for the manual/evidence
+  inventory without asserting release thresholds.
+- Unit behavior: `unit_policy_evidence` records
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+  project units, 18 unit-bearing model records, the
+  `unit_and_schema_verification` manual section, and
+  `conversion_performed=false`.
+- UI check: `data-testid="validation-evidence-unit-policy"` reports the model
+  unit signature, record count, manual section, and no-conversion posture. The
+  focused App test checks the rendered line and exported JSON packet; the
+  focused Playwright smoke checks the same row in desktop and compact browser
+  projects.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace"`
+    passed 1/1 focused App test.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts:548` passed
+    2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-09-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: validation-evidence review metadata only. No release threshold,
+  release authorization, persistence behavior, solver behavior, unit
+  conversion API, DEC-018 catalog constant, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-220 missing-data unit-input policy visibility - PASSED (`TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail missing-data/unit-policy slice while C5.7
+  remains human-execution gated. The Missing Data Blocking panel and export
+  packet now expose explicit unit-input policy evidence for unit-bearing
+  missing inputs without changing solve, rule-check, or lifecycle state.
+- Unit behavior: `unit_input_policy_evidence` records DEC-018/DEL-02-02/
+  DEL-07-04 basis refs, sorted project units, explicit-unit requirement for
+  unit-bearing inputs, no inferred/default units, no auto-filled missing
+  units, and `conversion_performed=false`.
+- UI check: `data-testid="missing-data-unit-policy"` reports
+  `required=true`, `default_units=false`, `conversion=false`, and the model
+  unit signature. The focused App test checks the rendered line and exported
+  JSON packet; the focused Playwright smoke checks the same row in desktop
+  and compact browser projects before the mechanics run.
+- Validation:
+  - `npm test --workspace apps/desktop -- --run src/App.test.tsx` passed
+    1/1 file and 56/56 tests.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop -- e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay"`
+    passed 2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: missing-data review metadata only. No solver behavior,
+  rule-check behavior, unit conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-221 accessibility-baseline unit-visibility evidence - PASSED (`TP-UNITS-BTAIL-A11YUNITVISIBILITY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail/C5 usability-support slice while C5.7 remains
+  human-execution gated. The Accessibility Baseline panel and export packet
+  now expose explicit unit-visibility evidence for unit-bearing review
+  surfaces without selecting a final accessibility target.
+- Unit behavior: `unit_visibility_evidence` records DEC-018/DEL-02-02/
+  DEL-07-05/DEL-07-06 basis refs, sorted project units, unit-bearing review
+  surfaces that keep unit labels visible, no color-only unit signaling, no
+  inferred/default units, and `conversion_performed=false`.
+- UI check: `data-testid="accessibility-baseline-unit-visibility"` reports
+  the unit-visibility policy, model unit signature, result-row visibility
+  basis, and no-conversion posture. The focused App test checks the rendered
+  line and exported JSON packet; the focused Playwright from-blank journey
+  checks the same row in desktop and compact browser projects.
+- Validation:
+  - `npm test --workspace apps/desktop -- --run src/App.test.tsx` passed
+    1/1 file and 56/56 tests.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop -- e2e/r2-smoke.spec.ts -g "R2 from-blank GUI journey authors the A12 rehearsal script"`
+    passed 2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-06 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-A11YUNITVISIBILITY-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: accessibility-baseline review metadata only. No final
+  accessibility conformance target, desktop accessibility-tree audit claim,
+  solver behavior, rule-check behavior, unit conversion API, DEC-018 catalog
+  constant, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-222 run-audit unit traceability evidence - PASSED (`TP-UNITS-BTAIL-RUNAUDITUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail analysis-run audit evidence slice while C5.7
+  remains human-execution gated. The Run Audit panel now exposes solved-run
+  unit traceability from the already-bound model and result envelope.
+- Unit behavior: `data-testid="run-audit-units"` reports sorted model unit
+  declarations, result row unit symbols in the established Results-panel
+  display order, row count, `source=result_envelope`, and
+  `conversion=false`.
+- UI check: the focused App test verifies the run-audit unit line after
+  mechanics preview solve. The focused R2 Playwright journey checks the same
+  line in desktop and compact browser projects after solve.
+- Validation:
+  - `npm test --workspace apps/desktop -- --run src/App.test.tsx` passed
+    1/1 file and 56/56 tests.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop -- e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay"`
+    passed 2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-14-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RUNAUDITUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: run-audit UI evidence only. No analysis-run schema, hash
+  canonicalization, solver behavior, result value, unit conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-223 design-knowledge computed-unit context - PASSED (`TP-UNITS-BTAIL-KNOWLEDGEUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail design-knowledge review-surface slice while
+  C5.7 remains human-execution gated. The Design Knowledge panel now exposes
+  explicit unit context for computed result-derived knowledge records.
+- Unit behavior: `data-testid="knowledge-unit-context"` reports the count of
+  computed unit-bearing knowledge result refs, result units in the established
+  Results-panel display order, `source=computed_preview_result`, and
+  `conversion=false`.
+- UI check: the focused App test verifies the Design Knowledge unit-context
+  line after mechanics preview solve. The focused R2 Playwright journey checks
+  the same line in desktop and compact browser projects after solve.
+- Validation:
+  - `npm test --workspace apps/desktop -- --run src/App.test.tsx` passed
+    1/1 file and 56/56 tests.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop -- e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay"`
+    passed 2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-13-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-KNOWLEDGEUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: design-knowledge review UI evidence only. No design-knowledge
+  schema, solver behavior, result value, unit conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-224 diagnostic linked-result unit context - PASSED (`TP-UNITS-BTAIL-DIAGNOSTICUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail diagnostic review-surface slice while C5.7
+  remains human-execution gated. The Diagnostic Detail panel now exposes
+  explicit unit context for result rows linked to a selected diagnostic.
+- Unit behavior: `data-testid="diagnostic-unit-context"` reports linked result
+  count, first-class result units in linked-result order, `source=result_envelope`,
+  and `conversion=false`. For `HIGH_DISPLACEMENT_REVIEW`, the selected
+  node-level diagnostic links 21 result rows with units `mm,rad`.
+- UI check: the focused App test verifies the Diagnostic Detail unit-context
+  line after mechanics preview solve. The R2/R3 Playwright smoke file checks
+  the same row in desktop and compact browser projects.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "links selected diagnostics to affected result and model context"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "diagnostic detail exposes linked result unit context"`
+    passed 2/2 focused Playwright tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts` passed 18/18 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-07 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: diagnostic review UI evidence only. No diagnostic schema, solver
+  behavior, result value, unit conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-226 secret/private-library unit policy visibility - PASSED (`TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail secret/private-library unit-policy slice while
+  C5.7 remains human-execution gated. The Secret & Private Libraries panel now
+  exposes how unit-bearing private material/rule references are handled when
+  private payloads are withheld.
+- Unit behavior: `data-testid="secret-private-library-unit-policy"` reports
+  `unit_refs=2`, `required=true`, `payload=false`, and `conversion=false`.
+  The exported packet carries `unit_policy` with DEC-018/DEL-02-02/DEL-12-04
+  refs and per-reference metadata statuses for the private material library
+  and private rule-pack references.
+- UI check: the focused App test verifies the visible row and downloaded JSON
+  packet. The focused R2 Playwright journey checks the same visible row in a
+  real browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test after fixing the helper destructuring miss caught
+    by the first focused run.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Playwright test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: secret/private-library metadata UI evidence only. No private
+  library payload read or write, credential handling, storage-root
+  finalization, unit conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-227 editor-contract unit contract visibility - PASSED (`TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail editor-contract unit-contract slice while C5.7
+  remains human-execution gated. The Editor Contract review panel now exposes
+  the DEL-02-02 unit contract already carried in its exported packet.
+- Unit behavior: `data-testid="editor-contract-unit-contract"` reports
+  `contract=DEL-02-02`,
+  `schema=schemas/units.schema.yaml#/$defs/DimensionId`,
+  `policy=unit_bearing_values_require_explicit_unit_metadata`, and
+  `missing=diagnostic_blocking`.
+- UI check: the focused App test verifies the visible row and downloaded JSON
+  packet. The focused R2 Playwright journey checks the same visible row in a
+  real browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "guided workbench shell keeps journey steps, details, and compact status reachable" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-07-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: editor-contract UI/packet visibility only. No editor persistence,
+  accepted model-state mutation, operation-applier behavior, solver behavior,
+  unit conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-228 rule-check run binding unit policy visibility - PASSED (`TP-UNITS-BTAIL-RULECHECKBINDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail run-rule-check binding unit-policy slice while
+  C5.7 remains human-execution gated. The Run Rule Checks binding plan now
+  exposes a visible unit-binding policy summary for runtime value, slot,
+  solver-result, and private-library binding routes.
+- Unit behavior: `data-testid="rule-check-unit-binding-policy"` reports
+  `value_inputs=1`, `value_slots=1`, `solver_selectors=1`,
+  `solver_result_refs=0`, `private_library_refs=0`,
+  `catalog=browser_manual_text_no_fallback`, and `conversion=false` for the
+  browser demo-pack route. Desktop-mode Vitest also verifies
+  `catalog=dec018_catalog(entries=4)`.
+- UI check: the focused RuleCheckRunPanel test verifies browser/manual-text,
+  desktop DEC-018 catalog, and private-library-reference cases. The focused
+  R2 Playwright run-check journey checks the same visible row in a real
+  browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- RuleCheckRunPanel.test.tsx`
+    passed 18/18 tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-06-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULECHECKBINDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: run-check binding-plan UI evidence only. No rule-pack schema,
+  expression grammar, parser/text syntax, backend completeness/evaluator
+  behavior, rule-pack persistence, solver behavior, unit conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-229 operation apply unit policy visibility - PASSED (`TP-UNITS-BTAIL-OPAPPLYUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Apply Operations unit-policy visibility slice
+  while C5.7 remains human-execution gated. The Apply Operations panel now
+  exposes a visible summary of queued unit-bearing intents, dimensionless
+  intents, operation outcome unit-validation statuses, applied receipt count,
+  receipt unit-serialization policy, and conversion posture.
+- Unit behavior: `data-testid="operation-apply-unit-policy"` reports
+  `queued_unit_bearing=1`, `queued_dimensionless=0`,
+  `outcome_unit_validations=none`, `applied_receipts=0`,
+  `receipt_units=not_serialized`, and `conversion=false` before applying the
+  queued load-magnitude edit. After applying through the local WASM route it
+  reports `queued_unit_bearing=0`, `outcome_unit_validations=passed`,
+  `applied_receipts=1`, `receipt_units=not_serialized`, and
+  `conversion=false`.
+- UI check: the focused App test verifies the manager-panel queue/apply path.
+  The focused R2 Playwright journey checks the same visible row in a real
+  browser and confirms the applied operation route remains
+  `local_wasm_engine`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "queues and applies a load-case primitive magnitude through the manager panel"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test after the scenario-specific export-review lint
+    count assertion was restored.
+  - `npm run test --workspace apps/desktop` initially caught the over-broad
+    export-review manifest count assertion and then passed 18/18 files and
+    399/399 tests after repair.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-16-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPAPPLYUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Apply Operations UI/review evidence only. No operation-applier
+  semantics, backend validation, receipt schema, solver behavior,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-230 operation ledger unit policy visibility - PASSED (`TP-UNITS-BTAIL-OPLEDGERUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Operation Review Ledger unit-policy visibility
+  slice while C5.7 remains human-execution gated. The Operation Review Ledger
+  now exposes a visible and exported unit-policy summary for queued GUI
+  operation intents and agent proposal review records.
+- Unit behavior: `data-testid="operation-ledger-unit-policy"` reports record
+  count, unit-bearing change count, dimensionless change count, unit
+  validation statuses, `receipt_units=not_serialized_in_review_ledger`, and
+  `conversion=false`. The exported ledger JSON carries
+  `unit_policy_evidence` with
+  `unit_policy=ledger_preserves_operation_unit_metadata_without_conversion`.
+- UI check: the focused App tests verify viewport intent, material-edit, and
+  agent-proposal ledger paths. The focused R2 Playwright journey checks the
+  same visible row in a real browser before apply.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "records viewport editor intents without direct persisted-project mutation|carries queued editor intents into the report packet as review-only operation context|shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 3/3 selected tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-16-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPLEDGERUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Operation Review Ledger UI/export evidence only. No operation
+  application, acceptance semantics, durable audit persistence, receipt
+  schema, solver behavior, unit-conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-231 report-lint unit policy inventory - PASSED (`TP-UNITS-BTAIL-REPORTLINTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Report Content Lint unit-policy inventory slice
+  while C5.7 remains human-execution gated. The report linter now exposes a
+  visible and exported inventory of public report/export surfaces that carry
+  unit-policy or target-format conversion-witness evidence.
+- Unit behavior: `data-testid="report-lint-unit-policy"` reports
+  `unit_targets=17`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The downloaded lint JSON carries
+  `unit_policy_evidence` with
+  `evidence_kind=public_surface_unit_policy_inventory`,
+  `lint_performs_conversion=false`, and
+  `lint_asserts_target_format_compatibility=false`.
+- UI check: the focused App test verifies the visible row and packet fields
+  for the report linter. The focused R2 Playwright journey checks the same
+  visible row and exported packet in a real browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-REPORTLINTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Report Content Lint UI/export evidence only. No linter
+  protected-content semantics, legal clearance, redaction controls, target
+  writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-232 rendered-report unit basis visibility - PASSED (`TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Rendered Report unit-basis visibility slice
+  while C5.7 remains human-execution gated. The Rendered Report panel now
+  exposes the render-input unit basis before invoking the desktop-only
+  renderer route.
+- Unit behavior: `data-testid="rendered-report-unit-basis"` reports
+  `unit_system=unit-system:dec-018-si-dual-display`, sorted model units,
+  solved result units or `results=none`, `conversion=false`, and
+  `source=renderable_report_input`. This mirrors the existing
+  `buildRenderableReportInput` unit display summary and does not change the
+  Rust renderer, report schema, or report-time conversion behavior.
+- UI check: the focused rendered-report Vitest verifies the visible row for
+  the component route. The focused R2 Playwright checks verify the row for
+  both solved preview results and the A12 from-blank browser-preview render
+  route.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/features/report/renderedReport.test.tsx`
+    passed 8/8 tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay|R2 from-blank GUI journey authors the A12 rehearsal script" --project=chromium-desktop`
+    passed 2/2 focused Chromium desktop tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RENDEREDREPORTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Rendered Report panel UI evidence only. No renderer command,
+  report schema, canonical hash behavior, save/print gate, report-time
+  conversion, unit-conversion API, DEC-018 catalog constant, schema dimension
+  enum, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-233 solve-job unit policy visibility - PASSED (`TP-UNITS-BTAIL-SOLVEJOBUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Solve Job unit-policy visibility slice while
+  C5.7 remains human-execution gated. The Solve execution panel now exposes
+  model/result unit basis in the solve-job audit row and JSON packet.
+- Unit behavior: `data-testid="solve-job-unit-policy"` reports sorted model
+  units, solved result units or `results=none`, result row count, and
+  `conversion=false`. The downloaded solve-job JSON carries
+  `unit_policy_evidence` with DEC-018 and DEL-02-02/DEL-07-07 basis refs,
+  `storage_convention=entered_units_preserved`,
+  `solve_job_unit_policy=solve_job_audit_records_model_and_result_units_without_conversion`,
+  and `conversion_performed=false`.
+- UI check: focused App tests verify the row and packet fields before a run
+  and after the preview mechanics run. The focused R2 Playwright journey
+  verifies the solved row in browser smoke and the from-blank zero-result
+  path.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "computed mechanics diagnostics"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay"`
+    passed 2/2 focused Playwright tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-07-07 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SOLVEJOBUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Solve Job audit UI/export evidence only. No solve execution
+  behavior, solver backend seam, result values, analysis-run hashes,
+  cancellation behavior, unit-conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-234 project-storage unit policy evidence - PASSED (`TP-UNITS-BTAIL-STORAGEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Project Storage Audit unit-policy evidence
+  slice while C5.7 remains human-execution gated. The Project Storage Audit
+  packet now exposes structured unit-policy evidence for the existing local
+  project unit round-trip metadata.
+- Unit behavior: `data-testid="project-storage-unit-round-trip"` now reports
+  sorted model units and `conversion=false` alongside the existing round-trip
+  status, checked-ref count, and signature. The downloaded local storage JSON
+  carries `unit_policy_evidence` with DEC-018 and DEL-02-02/DEL-02-05 basis
+  refs, `storage_convention=entered_units_preserved`,
+  `storage_unit_policy=local_project_storage_audit_records_unit_round_trip_status_without_conversion`,
+  and `conversion_performed=false`.
+- Report-lint inventory: the Report Content Lint public unit-policy inventory
+  now includes the Project Storage Audit surface, increasing
+  `unit_targets` from 17 to 18 while keeping `conversion_witness_targets=2`
+  and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "computed mechanics diagnostics"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay|R2 from-blank GUI journey authors the A12 rehearsal script" --project=chromium-desktop`
+    passed 2/2 focused Playwright tests.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-02-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-STORAGEUNITS-001.md`;
+  DEL-02-02 and DEL-08-05 supporting run records with the same id; completion
+  log entry.
+- Boundary: Project Storage Audit UI/export evidence and report-lint
+  inventory only. No local persistence semantics, migration policy,
+  project-envelope schema, model hash canonicalization, report-linter
+  protected-content semantics, unit-conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-235 native package unit inventory coverage - PASSED (`TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Native JSON Package unit-inventory slice while
+  C5.7 remains human-execution gated. The Native JSON package already exposes
+  project/model/result unit preservation witnesses; this tranche records that
+  public unit surface in the Report Content Lint inventory.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/native-package/NativePackagePanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `native-package-unit-witnesses` to `unit_policy_evidence.target_refs`.
+  The visible lint row reports `unit_targets=19`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    initially caught stale target-count assertions, then passed 1/1 selected
+    test after the assertions were updated.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "computed mechanics diagnostics"`
+    initially caught stale target-count assertions, then passed 1/1 selected
+    test after the assertions were updated.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+- Evidence: DEL-17-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001.md`;
+  DEL-08-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Native JSON Package
+  unit-preservation evidence only. No native JSON packet schema, package
+  member set, package hash basis, target writer, target compatibility posture,
+  report-linter protected-content semantics, legal clearance,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-236 export-review storage/preflight unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Project Storage Audit and Project
+  Validation Preflight packets already expose DEC-018 unit-policy evidence;
+  the export-review manifest now classifies those records as
+  unit-evidence-required rather than metadata-only.
+- App behavior: `data-testid="export-review-units"` now reports
+  `covered=16/16` with `unit-system:dec-018-si-dual-display` and
+  `conversion=false`. The downloaded export-review JSON includes
+  `project_storage_audit` and `project_validation_preflight` in
+  `unit_policy_summary.covered_export_ids`, and both rows have
+  `unit_evidence_status=covered_by_target_panel_or_export_packet`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+  DEL-02-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: export-review metadata inventory only. No project persistence
+  semantics, validation-preflight semantics, target-specific writer,
+  manifest unit conversion, runtime redaction rule, public transport
+  commitment, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-237 project-validation report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Project Validation Preflight panel
+  already exposes DEC-018 `unit_policy_evidence`; the report-lint public
+  inventory now records that public unit-bearing surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx`
+  in its explicit public target roots and target list, and adds
+  `project-validation-unit-policy` to `unit_policy_evidence.target_refs`.
+  The visible lint row reports `unit_targets=20`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    initially caught the missing explicit lint target entry, then passed 1/1
+    selected test after the target list was updated.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test after an over-broad export-review metadata count
+    assertion was restored.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001.md`;
+  DEL-02-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Project Validation Preflight
+  unit-policy evidence only. No validation-preflight packet semantics,
+  project persistence semantics, report-linter protected-content semantics,
+  legal clearance, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-238 operation-diff report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Operation Diff Preview panel already
+  exposes DEC-018 `unit_system_disclosure` and per-change unit preservation
+  witnesses; the report-lint public inventory now records that public
+  unit-witness surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `operation-diff-unit-witnesses` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=21`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001.md`;
+  DEL-16-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Operation Diff Preview
+  unit-witness evidence only. No diff-preview packet semantics, operation
+  validation, operation application, accepted-model mutation behavior,
+  report-linter protected-content semantics, legal clearance,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-239 result-export report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Result Export panel already exposes
+  schema-first local JSON result envelopes with explicit result units and
+  per-result unit preservation witnesses; the report-lint public inventory
+  now records that public unit-witness surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/result-export/ResultExportPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `result-export-unit-witnesses` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=22`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001.md`;
+  DEL-08-04 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Result Export unit-witness
+  evidence only. No result-export packet semantics, result envelope schema,
+  mechanics result generation, export-review manifest semantics,
+  report-linter protected-content semantics, legal clearance, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-240 handoff report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-HANDOFFLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Handoff Package panel already exposes
+  DEC-018 unit-system disclosure and per-result unit preservation witnesses
+  for the local review handoff package; the report-lint public inventory now
+  records that public unit-witness surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/handoff/HandoffPanel.tsx` in its explicit public
+  target roots and target list, and adds `handoff-unit-witnesses` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=23`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-HANDOFFLINTUNITS-001.md`;
+  DEL-15-01 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Handoff Package unit-witness
+  evidence only. No handoff packet semantics, handoff schema, target mapping,
+  external prover workflow, export-review manifest semantics,
+  report-linter protected-content semantics, legal clearance, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-241 headless-runner report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Headless Runner panel already exposes
+  DEC-018 unit-system disclosure and per-result unit preservation witnesses
+  for the schema-first result handoff preview; the report-lint public
+  inventory now records that public unit-witness surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `headless-runner-unit-witnesses` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=24`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001.md`;
+  DEL-10-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Headless Runner
+  unit-witness evidence only. No headless-runner packet semantics, schema,
+  final CLI syntax, package scripts, process policy, network policy,
+  filesystem mutation policy, report-linter protected-content semantics,
+  legal clearance, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-242 adapter-framework report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Adapter Framework panel already exposes
+  DEC-018 unit-policy evidence for the format-neutral adapter declaration; the
+  report-lint public inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx` in
+  its explicit public target roots and target list, and adds
+  `adapter-framework-units` to `unit_policy_evidence.target_refs`. The visible
+  lint row reports `unit_targets=25`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` initially surfaced a
+    `DeclarationsEditor.test.tsx` timing failure in
+    `keeps an out-of-catalog stored unit visible as current instead of snapping it`;
+    the selected test then passed in isolation, and the full desktop Vitest
+    rerun passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001.md`;
+  DEL-10-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Adapter Framework unit-policy
+  evidence only. No adapter-framework packet semantics, schema, concrete
+  external format list, public transport, plugin runtime, permission
+  persistence, package scripts, CI/release matrix, report-linter
+  protected-content semantics, legal clearance, unit-conversion API, DEC-018
+  catalog constant, schema dimension enum, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-243 operation-ledger report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Operation Review Ledger already exposes
+  visible and exported DEC-018 unit-policy evidence for review-only operation
+  records; the report-lint public inventory now records that public
+  unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/operations/OperationLedgerPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `operation-ledger-unit-policy` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=26`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` initially surfaced an
+    order-sensitive `App.test.tsx` Operation Ledger unit-validation status
+    mismatch; the selected test then passed in isolation, and the full desktop
+    Vitest rerun passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001.md`;
+  DEL-16-03 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Operation Review Ledger
+  unit-policy evidence only. No operation application, acceptance semantics,
+  durable audit persistence, receipt schema, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-244 solve-job report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Solve execution panel already exposes
+  visible and exported DEC-018 solve-job unit-policy evidence; the report-lint
+  public inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/solve/SolvePanel.tsx` in its explicit public
+  target roots and target list, and adds `solve-job-unit-policy` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=27`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001.md`;
+  DEL-07-07 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Solve execution solve-job
+  unit-policy evidence only. No solve execution behavior, analysis-run hash
+  generation, cancellation/progress semantics, backend job behavior,
+  report-linter protected-content semantics, legal clearance, redaction
+  controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-245 run-audit report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Run Audit panel already exposes solved
+  analysis-run unit traceability; the report-lint public inventory now records
+  that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/run-audit/RunAuditPanel.tsx` in its explicit
+  public target roots and target list, and adds `run-audit-units` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=28`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001.md`;
+  DEL-14-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Run Audit unit traceability
+  only. No analysis-run schema, hash policy, solver behavior, result values,
+  report-linter protected-content semantics, legal clearance, redaction
+  controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-246 design-knowledge report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Design Knowledge panel already exposes
+  computed result-unit context; the report-lint public inventory now records
+  that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/knowledge/KnowledgePanel.tsx` in its explicit
+  public target roots and target list, and adds `knowledge-unit-context` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=29`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001.md`;
+  DEL-13-01 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Design Knowledge computed-unit
+  context only. No design-knowledge schema, provenance model, result values,
+  solver behavior, report-linter protected-content semantics, legal clearance,
+  redaction controls, target writer compatibility, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-247 apply-operations report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Apply Operations panel already exposes
+  queued-operation and receipt unit-policy context; the report-lint public
+  inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/operations/OperationApplyPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `operation-apply-unit-policy` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=30`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001.md`;
+  DEL-16-03 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Apply Operations unit-policy
+  context only. No operation application, acceptance semantics, durable audit
+  persistence, receipt schema, operation validation, report-linter
+  protected-content semantics, legal clearance, redaction controls, target
+  writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-248 results-viewer report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Results viewer already exposes solved
+  result-unit policy context; the report-lint public inventory now records
+  that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/results/ResultsPanel.tsx` in its explicit public
+  target roots and target list, and adds `result-unit-policy` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=31`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001.md`;
+  DEL-07-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Results viewer result-unit
+  policy context only. No result math, result filtering, pagination
+  semantics, selected-result interpretation, solver behavior, comparison
+  delta math, tolerance profile, default tolerance, report-linter
+  protected-content semantics, legal clearance, redaction controls, target
+  writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-249 rendered-report report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Rendered Report panel already exposes
+  renderable-report unit-basis context; the report-lint public inventory now
+  records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/report/RenderedReportPanel.tsx` in its explicit
+  public target roots and target list, and adds
+  `rendered-report-unit-basis` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=32`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001.md`;
+  DEL-08-01 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Rendered Report unit-basis
+  context only. No report renderer route, canonical hash policy, export-gate
+  policy, report content, print/PDF behavior, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer
+  compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-250 comparison report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-COMPARISONLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Comparison workspace already exposes
+  equal-explicit-unit matching policy context; the report-lint public
+  inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/comparison/ComparisonPanel.tsx` in its explicit
+  public target roots and target list, and adds `comparison-unit-policy` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=33`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-COMPARISONLINTUNITS-001.md`;
+  DEL-14-04 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Comparison workspace
+  unit-matching policy context only. No comparison delta math, result mapping,
+  tolerance profile, default tolerance, solver behavior, report-linter
+  protected-content semantics, legal clearance, redaction controls, target
+  writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-251 run-rule-check report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RULECHECKLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Run Rule Checks panel already exposes
+  runtime value-binding unit policy context; the report-lint public inventory
+  now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `rule-check-unit-binding-policy` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=34`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- RuleCheckRunPanel.test.tsx`
+    passed 18/18 tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke|run-rule-checks panel loads the demo pack"`
+    passed 4/4 focused configured-project tests.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECHECKLINTUNITS-001.md`;
+  DEL-06-03 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Run Rule Checks unit-binding
+  policy context only. No rule-pack schema, expression grammar,
+  parser/text-syntax, backend completeness/evaluator behavior, rule-pack
+  persistence, solver behavior, report-linter protected-content semantics,
+  legal clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-252 diagnostic report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Diagnostics panel already exposes linked
+  result unit context for selected diagnostics; the report-lint public
+  inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `diagnostic-unit-context` to `unit_policy_evidence.target_refs`. The visible
+  lint row reports `unit_targets=35`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "links selected diagnostics to affected result and model context"`
+    passed 1/1 selected test.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "diagnostic detail exposes linked result unit context"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001.md`;
+  DEL-07-07 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Diagnostics linked-result
+  unit context only. No diagnostic schema, diagnostic interpretation behavior,
+  solver behavior, result values, report-linter protected-content semantics,
+  legal clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-253 rule-pack declarations report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Rule Pack Declarations editor already
+  exposes required-input and value-slot unit-reference policy; the report-lint
+  public inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx` in its
+  explicit public target roots and target list, and adds
+  `rule-pack-declarations-unit-policy` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=36`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- RulePackManagerPanel.test.tsx DeclarationsEditor.test.tsx -t "unit|declares|DEC-018|rule-pack"`
+    passed 5/5 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke|rule-pack manager drafts privately"`
+    passed 4/4 focused configured-project tests.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  DEL-07-03, DEL-06-01, and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: report-lint inventory over existing Rule Pack Declarations
+  unit-reference policy context only. No rule-pack schema, expression grammar,
+  parser/text syntax, evaluator behavior, backend validation, persistence,
+  report-linter protected-content semantics, legal clearance, redaction
+  controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-254 rule-pack expression report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Rule Pack Expression Composer already
+  exposes structured-AST expression unit-reference policy; the report-lint
+  public inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/rule-packs/ExpressionComposer.tsx` in its
+  explicit public target roots and target list, and adds
+  `rule-pack-expression-unit-policy` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=37`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- ExpressionComposer.test.tsx RulePackManagerPanel.test.tsx -t "unit|declares|DEC-018|rule-pack|browser-preview"`
+    passed 6/6 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke|rule-pack manager drafts privately"`
+    passed 4/4 focused configured-project tests.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001.md`;
+  DEL-07-03, DEL-06-02, and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: report-lint inventory over existing Rule Pack Expression Composer
+  unit-reference policy context only. No rule-pack schema, expression grammar,
+  writable text parser/syntax, evaluator behavior, backend validation,
+  persistence, report-linter protected-content semantics, legal clearance,
+  redaction controls, target writer compatibility, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-255 library manager report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-LIBRARYLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Library Manager already exposes material,
+  section, and component draft unit-helper surfaces; the report-lint public
+  inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/library/LibraryManagerPanel.tsx` in its explicit
+  public target list, and adds `library-unit-helper-surfaces` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=38`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. Static report-lint target count is 42; solved
+  report packets include 43 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- LibraryManagerPanel.test.tsx -t "unit|library|desktop"`
+    passed 9/9 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke|library manager"`
+    passed 4/4 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+  - `git diff --check` passed.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  DEL-07-03, DEL-03-01, DEL-03-02, and DEL-02-02 supporting run records with
+  the same id; completion log entry.
+- Boundary: report-lint inventory over existing Library Manager unit-helper
+  surfaces only. No library schemas, library import storage, private-library
+  payload handling, report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-256 load manager report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Load Case Manager already exposes
+  load-case, primitive-load, and combination operation unit-validation
+  surfaces; the report-lint public inventory now records that surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx` in its
+  explicit public target list, and adds
+  `load-manager-unit-validation-surface` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=39`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. Static report-lint target count is 43; solved
+  report packets include 44 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "load|primitive|combination|unit_validation"`
+    passed 26/26 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+  - `git diff --check` passed.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001.md`;
+  DEL-07-02, DEL-05-01, DEL-05-02, DEL-16-02, and DEL-02-02 supporting run
+  records with the same id; completion log entry.
+- Boundary: report-lint inventory over existing Load Case Manager
+  unit-validation surfaces only. No load-case schemas, primitive-load or
+  combination behavior, operation validation, operation application,
+  report-linter protected-content semantics, legal clearance, redaction
+  controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-257 property inspector report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Property Inspector already exposes edit,
+  create, and delete operation unit-validation surfaces; the report-lint
+  public inventory now records that surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/model-tree/PropertyInspector.tsx` in its explicit
+  public target list, and adds
+  `property-inspector-unit-validation-surface` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=40`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. Static report-lint target count is 44; solved
+  report packets include 45 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "queues and applies explicit (material|section|support)"`
+    passed 4/4 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001.md`;
+  DEL-07-02, DEL-16-02, and DEL-02-02 supporting run records with the same
+  id; completion log entry.
+- Boundary: report-lint inventory over existing Property Inspector
+  unit-validation surfaces only. No Property Inspector behavior, operation
+  validation, operation application, diff preview, report-linter
+  protected-content semantics, legal clearance, redaction controls, target
+  writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-258 rule completeness report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Rule-Check Completeness panel is an
+  exported public review surface for missing rule-check data; it now exposes
+  explicit rule-input unit-policy evidence and the report-lint public inventory
+  records that surface.
+- App behavior: `RuleCheckPanel` now displays and exports
+  `unit_policy_evidence` with the DEC-018 unit-system ref, sorted model units,
+  unit-bearing record count, explicit rule-input-unit blocking policy,
+  `RULE_UNIT_MISMATCH`, and `conversion_performed=false`. `ReportLintPanel`
+  now includes `apps/desktop/src/features/rule-check/RuleCheckPanel.tsx` as
+  `target:desktop-rule-completeness-template` and adds
+  `rule-completeness-unit-policy` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=41`, `conversion_witness_targets=2`,
+  and `lint_conversion=false`. Static report-lint target count is 45; solved
+  report packets include 46 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  DEL-06-03, DEL-07-04, DEL-05-04, DEL-08-03, and DEL-02-02 supporting run
+  records with the same id.
+- Boundary: evidence and inventory only. No rule evaluator semantics,
+  required-input completeness logic, analysis status semantics, mechanics
+  solve behavior, operation application, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-259 export review rule completeness unit inventory - PASSED (`TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Rule-Check Completeness review is now a
+  unit-bearing exported public surface, so the Export Safety Review and Report
+  packet persistence inventories record it explicitly.
+- App behavior: `ExportReviewPanel` now includes `rule_completeness_review` as
+  an available metadata-only local export row, marks it unit-evidence-required,
+  and reports `covered=17/17` with `conversion=false`. The solved export
+  review manifest now has 28 export rows. `ReportPanel` persistence export
+  evidence now expects 28 local export rows and reports 27 available when the
+  operation ledger is empty.
+- Validation:
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  DEL-06-03, DEL-08-03, DEL-08-04, and DEL-02-02 supporting run records with
+  the same id.
+- Boundary: export/review inventory only. No rule-completeness semantics, rule
+  evaluation, missing-input blocking behavior, runtime redaction rules,
+  target-specific writers, manifest-level unit conversion, public transport
+  commitments, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-260 agent proposal unit-policy inventory - PASSED (`TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Agent Proposal unit-policy inventory slice while
+  C5.7 remains human-execution gated. The Agent Proposal panel is a public
+  review-only operation surface; it now carries explicit metadata-only unit
+  evidence and the report/export inventories record that surface.
+- App behavior: `AgentProposalPanel` now exposes
+  `data-testid="proposal-unit-policy"` with
+  `unit_validation=not_required_metadata_review_only`, source
+  `proposal.validation.unit_validation`, and `conversion=false`. Mechanics
+  proposals and the invented proposal fixture carry the same validation
+  status. The operation ledger preserves the status while still reporting
+  `unit_bearing_changes=0`, held-for-user-acceptance review posture, and
+  accepted-state mutation false.
+- Inventory behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx` as
+  `agent-proposal-unit-policy`, raising visible unit-policy targets to 42
+  while conversion-witness targets remain two. `ExportReviewPanel` now
+  includes `agent_proposal_review` as a metadata-only export row. The row is
+  pending until a proposal exists, then available with
+  `unit_validation_status=not_required_metadata_review_only`. Solved queued
+  export-review evidence reports 29 rows and `covered=17/18`; the proposal
+  path reports 29/29 exports available and 18/18 unit-evidence rows present.
+- Validation:
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx`
+    passed 56/56 tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests after stale report-lint
+    target-count assertions were updated.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-16-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  DEL-16-02, DEL-16-03, DEL-08-05, DEL-12-02, DEL-08-04, and DEL-02-02
+  supporting run records with the same id.
+- Boundary: proposal/export/report inventory evidence only. No proposal
+  application, accepted model-state mutation, operation validation semantics,
+  acceptance semantics, report-linter protected-content semantics, redaction
+  rules, target writer behavior, unit conversion, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-261 security threat-model unit-policy inventory - PASSED (`TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Security Threat Model unit-policy inventory
+  slice while C5.7 remains human-execution gated. The security threat-model
+  review already records `unit_checks` as a no-bypass control; this tranche
+  makes that unit-policy evidence visible and export-review discoverable.
+- App behavior: `SecurityThreatModelPanel` now exposes
+  `data-testid="security-threat-model-unit-policy"` with
+  `unit_checks=true`, `workflows=6`, `conversion=false`, and
+  `certification=false`. The exported threat-model packet carries
+  `unit-policy-evidence:security-threat-model-no-bypass`, references DEC-018,
+  and does not invoke a target writer.
+- Inventory behavior: `ReportLintPanel` now includes
+  `security-threat-model-unit-policy`, raising visible unit-policy targets to
+  43 while conversion-witness targets remain two. `ExportReviewPanel` now
+  marks `security_threat_model_review` as unit-evidence-required, raising
+  solved queued-intent coverage to `covered=18/19`; proposal-path coverage is
+  19/19 once the proposal row is available.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests after updating stale export-review coverage expectations.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 after stale report-lint target-count assertions were updated.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  DEL-08-05, DEL-12-02, and DEL-02-02 supporting run records with the same
+  id.
+- Boundary: security/export/report inventory evidence only. No security
+  sufficiency claim, telemetry authorization, redaction behavior, target
+  writer behavior, unit conversion, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-262 product-preview fixture unit-policy inventory - PASSED (`TP-UNITS-BTAIL-FIXTURELINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The invented product-preview fixture bundle
+  is unit-bearing public example data; this tranche makes its unit evidence
+  discoverable through the public unit-policy inventory.
+- App behavior: `ReportLintPanel` now inventories `fixtures/product_preview`
+  as `product-preview-fixture-unit-policy`. The fixture target text records
+  explicit model quantities, rule-pack unit refs, mechanics-result units, and
+  the active model unit system without changing any fixture payloads.
+- Inventory behavior: the visible lint unit-policy row now reports
+  `unit_targets=44`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-FIXTURELINTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id.
+- Boundary: report-lint inventory evidence only. No fixture data,
+  report-linter protected-content semantics, redaction behavior, target writer
+  behavior, unit conversion, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-263 export-review external-prover unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-15-04 external-prover boundary panel
+  already exposes DEC-018 unit-policy evidence; this tranche classifies the
+  `external_prover_boundary_metadata` export row as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `external_prover_boundary_metadata` in the unit-evidence-required matrix.
+  Solved queued-intent Export Review reports `covered=19/20`; the proposal
+  path reports 20/20 once `agent_proposal_review` is available. The downloaded
+  manifest includes `external_prover_boundary_metadata` in
+  `unit_policy_summary.covered_export_ids` with
+  `unit_evidence_status=covered_by_target_panel_or_export_packet`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests after updating the stale visible coverage assertion.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  DEL-15-04 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No external solver/prover
+  invocation, target parser, commercial-result ingestion, target writer,
+  manifest-level unit conversion, redaction behavior, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-264 export-review missing-data unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-07-04 Missing Data Blocking panel
+  already exposes explicit unit-input policy evidence; this tranche classifies
+  the `missing_data_warning_blocking_review` export row as
+  unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `missing_data_warning_blocking_review` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-input-policy-evidence:missing-data-warning-blocking-review`,
+  `unit_evidence_required=true`, and `conversion_performed=false`. Solved
+  queued-intent Export Review reports `covered=20/21`; the proposal path
+  reports 21/21 once `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001.md`;
+  DEL-07-04 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No missing-data blocking
+  behavior, remediation flow, accepted model mutation, rule-check execution,
+  runtime redaction rule, target writer, manifest-level unit conversion,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-265 export-review editor-contract unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-07-03 Editor Contract panel already
+  exposes the DEL-02-02 unit contract; this tranche classifies
+  `editor_contract_review` as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes `editor_contract_review` in
+  the unit-evidence-required matrix. The row records
+  `unit_policy_ref=DEL-02-02:unit_bearing_values_require_explicit_unit_metadata`,
+  `unit_evidence_required=true`, `missing_unit_behavior=diagnostic_blocking`,
+  and `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=21/22`; the proposal path reports 22/22 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  DEL-07-03 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No editor validation
+  behavior, durable mutation, private rule-pack payload handling,
+  private-library payload handling, target writer, manifest-level unit
+  conversion, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-266 export-review secret/private unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-12-04 Secret and Private Libraries
+  panel already exposes metadata-only unit policy evidence for unit-bearing
+  private material, component, and rule-pack references; this tranche
+  classifies `secret_private_library_boundary_review` as
+  unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `secret_private_library_boundary_review` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-policy:secret-private-library-metadata-only-preview`,
+  `unit_evidence_required=true`, `explicit_unit_metadata_required=true`,
+  `unit_payload_included=false`, and `conversion_performed=false`. Solved
+  queued-intent Export Review reports `covered=22/23`; the proposal path
+  reports 23/23 once `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  DEL-12-04 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No secret/private-library
+  payload handling, credential-value handling, encryption/key-management
+  decision, cloud or network behavior, external secret-manager behavior,
+  target writer, manifest-level unit conversion, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-267 export-review accessibility unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-07-06 Accessibility Baseline panel
+  already exposes unit-visibility evidence for unit-bearing review surfaces;
+  this tranche classifies `accessibility_usability_baseline_review` as
+  unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `accessibility_usability_baseline_review` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-visibility-evidence:accessibility-baseline-preview`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=23/24`; the proposal path reports 24/24 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVA11YUNITS-001.md`;
+  DEL-07-06 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No accessibility finding
+  count, conformance target selection, runtime accessibility evaluation,
+  color signaling policy, target writer, manifest-level unit conversion,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-268 export-review design-workspace unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-07-08 Design Workspace panel already
+  exposes unit-policy evidence for composed model/result/analysis-run/
+  comparison context; this tranche classifies
+  `design_authoring_comparison_workspace` as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `design_authoring_comparison_workspace` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-policy-evidence:design-workspace-preview`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=24/25`; the proposal path reports 25/25 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001.md`;
+  DEL-07-08 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No design-workspace
+  composition behavior, comparison delta math, tolerance profile, operation
+  application, accepted model-state mutation, target writer, manifest-level
+  unit conversion, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-269 export-review validation-evidence unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Validation Evidence panel already
+  exposes unit-policy evidence for project unit context and the validation
+  manual unit/schema section; this tranche classifies
+  `validation_release_evidence_review` as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `validation_release_evidence_review` in the unit-evidence-required matrix.
+  The row records
+  `unit_policy_ref=unit-policy-evidence:validation-release-evidence-review`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=25/26`; the proposal path reports 26/26 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+  DEL-09-04, DEL-09-05, and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No validation manual
+  content, release threshold, release authorization, validation-evidence
+  storage decision, target writer, manifest-level unit conversion, protected
+  standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## TP-MAC-270 export-review report-lint unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Report Content Lint packet already
+  exposes public-surface unit-policy evidence; this tranche classifies
+  `report_protected_content_lint` as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `report_protected_content_lint` in the unit-evidence-required matrix. The
+  row records
+  `unit_policy_ref=unit-policy-evidence:report-lint-public-surfaces`,
+  `unit_evidence_required=true`, `unit_policy_target_count=44`,
+  `conversion_witness_target_count=2`, `default_units_inferred=false`, and
+  `conversion_performed=false`. Solved queued-intent Export Review reports
+  `covered=26/27`; the proposal path reports 27/27 once
+  `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001.md`;
+  DEL-08-05 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No report-linter
+  protected-content semantics, legal clearance, redaction certification,
+  release authorization, runtime redaction rule, target writer,
+  manifest-level unit conversion, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## TP-MAC-271 export-review non-unit boundary classification - PASSED (`TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. This tranche records explicit non-unit-bearing
+  reasons for `telemetry_boundary_review` and `build_package_readiness`.
+- App behavior: `ExportReviewPanel` now carries
+  `unit_boundary_classification=not_unit_bearing_metadata_or_boundary_review`
+  and per-row `unit_boundary_reason` values for the telemetry and build
+  readiness rows. The matrix asserts
+  `not_unit_bearing_export_ids=["telemetry_boundary_review","build_package_readiness"]`.
+  Unit evidence counts remain `covered=26/27` in the solved queued-intent path
+  and 27/27 in the proposal path once `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  DEL-12-03, DEL-10-04, and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory classification only. No telemetry runtime
+  behavior, network behavior, payload construction, build script, CI provider,
+  release matrix, signing, packaging, target writer, manifest-level unit
+  conversion, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

@@ -46,6 +46,11 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
           testId="accessibility-baseline-review-visibility"
         />
         <AccessibilityLine
+          label="Unit visibility"
+          value={`policy=${packet.unit_visibility_evidence.visibility_policy}; model=${packet.unit_visibility_evidence.model_unit_signature}; result_rows=${packet.unit_visibility_evidence.result_row_unit_visibility}; conversion=${String(packet.unit_visibility_evidence.conversion_performed)}`}
+          testId="accessibility-baseline-unit-visibility"
+        />
+        <AccessibilityLine
           label="Open target"
           value={`gui=${packet.open_decisions.accessibility_conformance_target}; reports=${packet.open_decisions.report_accessibility_target}; tooling=${packet.open_decisions.automated_a11y_tooling}`}
           testId="accessibility-baseline-open-target"
@@ -75,6 +80,7 @@ function AccessibilityLine({ label, value, testId }: { label: string; value: str
 }
 
 function buildAccessibilityBaselinePacket(model: PreviewModel) {
+  const unitVisibilityEvidence = buildUnitVisibilityEvidence(model);
   return {
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.accessibility_usability_baseline_review",
@@ -134,6 +140,7 @@ function buildAccessibilityBaselinePacket(model: PreviewModel) {
       "readable_label",
       "warning_visibility",
       "result_review_visibility",
+      "unit_visibility",
       "solve_state_feedback",
       "review_workflow_continuity",
       "contrast_readability",
@@ -147,10 +154,12 @@ function buildAccessibilityBaselinePacket(model: PreviewModel) {
       preserves_diagnostics: true,
       preserves_assumptions: true,
       preserves_provenance: true,
+      preserves_unit_labels: true,
       preserves_privacy_classification: true,
       color_only_status_signaling_allowed: false,
       software_makes_accessibility_conformance_claim: false
     },
+    unit_visibility_evidence: unitVisibilityEvidence,
     open_decisions: {
       accessibility_conformance_target: "TBD",
       report_accessibility_target: "TBD",
@@ -163,6 +172,35 @@ function buildAccessibilityBaselinePacket(model: PreviewModel) {
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function buildUnitVisibilityEvidence(model: PreviewModel) {
+  const modelUnits = Object.fromEntries(
+    Object.entries(model.project.units).sort(([left], [right]) => left.localeCompare(right))
+  );
+  const modelUnitSignature = Object.entries(modelUnits)
+    .map(([dimension, unit]) => `${dimension}=${unit}`)
+    .join(",");
+  return {
+    evidence_id: "unit-visibility-evidence:accessibility-baseline-preview",
+    policy_refs: ["DEC-018", "DEL-02-02", "DEL-07-05", "DEL-07-06"],
+    visibility_policy: "unit_bearing_values_keep_visible_unit_labels_in_review_surfaces",
+    source_model_ref: model.project.id,
+    model_units: modelUnits,
+    model_unit_signature: modelUnitSignature,
+    source_review_surfaces: [
+      "results-panel.result-row-value",
+      "results-panel.result-unit-policy",
+      "report-panel.report-unit-system",
+      "validation-evidence.validation-evidence-unit-policy"
+    ],
+    result_row_unit_visibility: "covered_by_DEL-07-05_result_review_visibility_findings",
+    default_units_inferred: false,
+    color_only_unit_signaling: false,
+    conversion_performed: false,
+    source_value_mutated: false,
+    private_payload_included: false
   };
 }
 

@@ -42,6 +42,14 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await page.getByTestId("review-apply-drawer-toggle").click();
   await expect(page.getByTestId("review-apply-drawer")).toHaveClass(/open/);
   await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("contract=DEL-02-02");
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
+    "schema=schemas/units.schema.yaml#/$defs/DimensionId"
+  );
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
+    "policy=unit_bearing_values_require_explicit_unit_metadata"
+  );
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("missing=diagnostic_blocking");
   await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
 
   await page.getByTestId("journey-step-rule-pack").click();
@@ -72,6 +80,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
+  await page.getByTestId("tree-row-support:S-120").click();
+  await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
+  await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
   await expect(page.getByTestId("guided-workbench")).toContainText("Model edits");
   await expect(page.getByTestId("journey-step-status-loads")).toContainText("available");
   await page.getByTestId("journey-step-loads").click();
@@ -118,6 +129,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
     "entered unit captured explicitly"
   );
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await page.getByTestId("tree-row-load:L-100").click();
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
@@ -130,6 +144,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText("update_load");
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
     "entered unit captured explicitly"
+  );
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
@@ -151,6 +168,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "target=node:N-100; direction=global_y; unit=N; force"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("distributed_force");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
@@ -333,15 +353,28 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "false");
 
   const before = await canvas.screenshot();
-  await page.waitForTimeout(700);
-  const after = await canvas.screenshot();
   expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
-  expect(diffPngPixels(before, after)).toBeGreaterThan(100);
+  await expect
+    .poll(
+      async () => {
+        await page.waitForTimeout(500);
+        return diffPngPixels(before, await canvas.screenshot());
+      },
+      { timeout: 5000 }
+    )
+    .toBeGreaterThan(100);
 
   await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("required=true");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("default_units=false");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("conversion=false");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=737");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=33.211157 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
@@ -353,11 +386,30 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "vector_direction=global_cartesian_displacement_components"
   );
 
+  await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("unit_refs=2");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
+  await expect(page.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("run-audit-units")).toContainText("rows=737");
+  await expect(page.getByTestId("run-audit-units")).toContainText("source=result_envelope");
+  await expect(page.getByTestId("run-audit-units")).toContainText("conversion=false");
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("computed_unit_refs=2");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("units=N,mm");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("source=computed_preview_result");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("conversion=false");
+
   const solvedCanvas = await canvas.screenshot();
   expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);
 
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
+  await expect(page.getByTestId("result-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("rows=737");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
   await page.getByTestId("result-family-reaction").click();
@@ -376,6 +428,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("result-row-result:force:pipe-P-120:axial").click();
   await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
+  await expect(page.getByTestId("comparison-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("comparison-unit-policy")).toContainText("conversion=false");
+  await expect(page.getByTestId("comparison-unit-policy")).toContainText("tolerance=not_tolerance_checked");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
 
   await openWorkspaceSection(page, "report");
   const report = page.getByLabel("Report packet");
@@ -397,16 +455,158 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
+    "unit_system=unit-system:dec-018-si-dual-display"
+  );
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
+  const reportLint = page.getByLabel("Report content lint");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
+    "conversion_witness_targets=2"
+  );
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("lint_conversion=false");
+  const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
+  expect(lintHref).toBeTruthy();
+  const lintPacket = JSON.parse(decodeURIComponent(lintHref!.split(",", 2)[1]));
+  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(44);
+  expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
+  expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
+  expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
+  expect(lintPacket.unit_policy_evidence.target_refs).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+        unit_policy_surface_id: "project-validation-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+        unit_policy_surface_id: "native-package-unit-witnesses"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+        unit_policy_surface_id: "operation-diff-unit-witnesses"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
+        unit_policy_surface_id: "operation-apply-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+        unit_policy_surface_id: "operation-ledger-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/report/RenderedReportPanel.tsx",
+        unit_policy_surface_id: "rendered-report-unit-basis"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/results/ResultsPanel.tsx",
+        unit_policy_surface_id: "result-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+        unit_policy_surface_id: "comparison-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+        unit_policy_surface_id: "knowledge-unit-context"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+        unit_policy_surface_id: "run-audit-units"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/solve/SolvePanel.tsx",
+        unit_policy_surface_id: "solve-job-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
+        unit_policy_surface_id: "rule-pack-declarations-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+        unit_policy_surface_id: "rule-pack-expression-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+        unit_policy_surface_id: "library-unit-helper-surfaces"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+        unit_policy_surface_id: "load-manager-unit-validation-surface"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        unit_policy_surface_id: "property-inspector-unit-validation-surface"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+        unit_policy_surface_id: "diagnostic-unit-context"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+        unit_policy_surface_id: "rule-check-unit-binding-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+        unit_policy_surface_id: "rule-completeness-unit-policy"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+        unit_policy_surface_id: "result-export-unit-witnesses"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+        unit_policy_surface_id: "headless-runner-unit-witnesses"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+        unit_policy_surface_id: "adapter-framework-units"
+      }),
+      expect.objectContaining({
+        source_path: "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+        unit_policy_surface_id: "handoff-unit-witnesses"
+      })
+    ])
+  );
+  const pcfExport = page.getByLabel("Conservative PCF export");
+  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
+  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
+    "target_length=MM"
+  );
   const caepipeMbfExport = page.getByLabel("CAEPIPE MBF export");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
     "target_length=mm"
+  );
+  const caepipeExternalHarness = page.getByLabel("CAEPIPE external harness");
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
+    "unit-system:dec-018-si-dual-display"
+  );
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
+    "count=3"
+  );
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
+    "conversion=false"
   );
   const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText("count=737");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toContainText(
     "conversion=false"
   );
+  const headlessRunner = page.getByLabel("Headless runner envelope");
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText(
+    "unit-system:dec-018-si-dual-display"
+  );
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=737");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText(
+    "conversion=false"
+  );
+  const handoffPackage = page.getByLabel("Handoff package");
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("count=737");
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toContainText("conversion=false");
   const reviewGeometryExport = page.getByLabel("Review geometry export");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=54");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
@@ -426,6 +626,18 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "conversion=false"
   );
+  const adapterFramework = page.getByLabel("Adapter framework envelope");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("conversion=false");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("witnesses=1");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText(
+    "unit_validation_required_before_adapter_payload_exchange"
+  );
+  const exportAdapterSdk = page.getByLabel("Export adapter SDK");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("conversion=false");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("witnesses=5");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText(
+    "candidate_targets_without_claiming_target_writer_conversion"
+  );
 
   // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
   // node intent through the structured-operation seam in a real browser and
@@ -435,11 +647,33 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("records=1");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("unit_bearing_changes=1");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("dimensionless_changes=0");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
+    "unit_validations=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
+    "receipt_units=not_serialized_in_review_ledger"
+  );
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("conversion=false");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=1");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_dimensionless=0");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=0");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("receipt_units=not_serialized");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("conversion=false");
   await page.getByTestId("apply-intent-editor-intent-1").click();
   await expect(applyPanel.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText(
     "route=local_wasm_engine"
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=0");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText(
+    "outcome_unit_validations=passed"
+  );
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=1");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("receipt_units=not_serialized");
+  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 
   // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
@@ -469,6 +703,28 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
     "minuend=load:L-100; subtrahend=load:L-200"
+  );
+});
+
+test("viewport gesture placeholders record unit validation", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+  await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
+  await page.getByRole("button", { name: "Node intent" }).click();
+  await page.getByRole("button", { name: "Pipe-run intent" }).click();
+  await page.getByRole("button", { name: "Component intent" }).click();
+  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("viewport-intent-unit-validation-insert_component_symbol")).toContainText(
+    "unit_validation=not_required_dimensionless"
   );
 });
 
@@ -521,6 +777,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await fillNodeDraft(page, startNode);
   await page.getByTestId("queue-explicit-node-intent").click();
   await expect(page.getByTestId("a12-queue-status")).toContainText("1 queued operation");
+  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await applyQueuedIntent(page, 1, startNode.id);
   await expect(page.getByTestId("a12-journey-step-nodes")).toContainText("1/2");
 
@@ -562,6 +821,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("viewport-create-pipe-yref-z").fill(String(pipe.y_reference.z));
   await page.getByTestId("viewport-create-pipe-provenance").fill(pipe.provenance);
   await page.getByTestId("queue-explicit-pipe-intent").click();
+  await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await applyQueuedIntent(page, 5, pipe.id);
 
   const support = stepPayload("create_support", "support:R2-anchor");
@@ -622,20 +884,63 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "status=unit_metadata_preserved_in_local_project_envelope"
   );
   await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("project.units.length=m");
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("conversion=false");
   await expect(page.getByTestId("project-validation-unit-round-trip")).toContainText(
     "status=unit_metadata_preserved_in_local_project_envelope"
   );
+  await expect(page.getByTestId("project-validation-unit-policy")).toContainText(
+    "round_trip=unit_metadata_preserved_in_local_project_envelope"
+  );
+  await expect(page.getByTestId("project-validation-unit-policy")).toContainText("conversion=false");
+  await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("model=");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("force=N");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("length=m");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText(
+    "manual=unit_and_schema_verification"
+  );
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
+  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText(
+    "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces"
+  );
+  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText("length=m");
+  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText("conversion=false");
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
     "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
   );
   await openWorkspaceSection(page, "report");
   await expect(page.getByTestId("rendered-report-render")).toBeEnabled();
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
+    "unit_system=unit-system:dec-018-si-dual-display"
+  );
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("length=m");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=none");
+  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
   await page.getByTestId("rendered-report-render").click();
   await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
+});
+
+test("diagnostic detail exposes linked result unit context", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await openWorkspaceSection(page, "solve");
+
+  await page.getByTestId("run-mechanics-preview").click();
+  await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toBeVisible();
+  await page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW").click();
+
+  await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:disp:node-N-140");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=21");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("units=mm,rad");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("source=result_envelope");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("conversion=false");
 });
 
 // Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
@@ -690,6 +995,12 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest; this e2e assertion protects the no-fallback/manual-entry route.
   await page.getByTestId("rule-pack-input-dimension").last().selectOption("stress");
   await page.getByTestId("rule-pack-input-unit").last().fill("MPa");
+  await expect(page.getByTestId("rule-pack-declarations-unit-policy")).toContainText(
+    "catalog_route=browser_preview_manual_entry"
+  );
+  await expect(page.getByTestId("rule-pack-declarations-unit-policy")).toContainText(
+    "required_input:user_required_input_2=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
   const declText = await page.getByTestId("rule-pack-draft-json").inputValue();
   expect(JSON.parse(declText).required_inputs).toHaveLength(2);
   expect(JSON.parse(declText).required_inputs[1].quantity_intent).toMatchObject({
@@ -706,6 +1017,12 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   // Vitest covers the desktop catalog-selector path.
   await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-literal-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "catalog_route=browser_preview_manual_entry"
+  );
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "expression.right.quantity=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
 	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("<=");
 	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("MPa [stress]");
   const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
@@ -725,6 +1042,9 @@ test("rule-pack manager drafts privately and reports the desktop-only backend se
   await page.getByTestId("rule-pack-table-argument-unit").fill("degC");
   await page.getByTestId("rule-pack-table-result-dimension").selectOption("stress");
   await page.getByTestId("rule-pack-table-result-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "expression.table.result=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
   await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
   await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
     "interpolate(user_table_1, user_required_input_1)"
@@ -879,6 +1199,55 @@ test("library manager loads an invented private sample and reports the desktop-o
   expect(material.material_library.provenance.redistribution_status).toBe("private_only");
   expect(material.material_records).toEqual([]);
   await expect(page.getByTestId("library-action-status")).toContainText("private_user_data");
+  await expect(page.getByTestId("material-property-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("material-property-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("material-property-unit")).toHaveValue(
+    "unit:kilogram_per_cubic_meter"
+  );
+  await page.getByTestId("material-property-kind").selectOption("elastic_modulus");
+  await expect(page.getByTestId("material-property-unit")).toHaveValue("unit:pascal");
+  await page.getByTestId("material-property-value").fill("210000000000");
+  await page.getByTestId("material-property-apply-draft").click();
+  const materialPropertyText = await page.getByTestId("library-draft-json").inputValue();
+  const materialPropertyDraft = JSON.parse(materialPropertyText);
+  expect(materialPropertyDraft.material_records[0].properties[0]).toMatchObject({
+    property_kind: "elastic_modulus",
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 210000000000,
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      unit_ref: { ref_type: "Unit", ref_id: "unit:pascal" }
+    }
+  });
+
+  await page.getByTestId("library-kind-select").selectOption("section");
+  await page.getByTestId("library-load-template").click();
+  const sectionText = await page.getByTestId("library-draft-json").inputValue();
+  expect(JSON.parse(sectionText).section_library).toBeTruthy();
+  await expect(page.getByTestId("section-quantity-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("section-quantity-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("section-quantity-unit")).toHaveValue("m");
+  await page.getByTestId("section-quantity-value").fill("0.168");
+  await page.getByTestId("section-quantity-apply-draft").click();
+  const sectionDimensionText = await page.getByTestId("library-draft-json").inputValue();
+  const sectionDimensionDraft = JSON.parse(sectionDimensionText);
+  expect(sectionDimensionDraft.section_records[0].dimensions[0]).toMatchObject({
+    dimension_kind: "outside_diameter",
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 0.168,
+      unit: "m",
+      dimension: "length",
+      value_status: "private_user_supplied"
+    }
+  });
 
   // Switching the kind selector and reloading yields the matching library
   // family shape — the component library here.
@@ -886,6 +1255,25 @@ test("library manager loads an invented private sample and reports the desktop-o
   await page.getByTestId("library-load-template").click();
   const componentText = await page.getByTestId("library-draft-json").inputValue();
   expect(JSON.parse(componentText).component_library).toBeTruthy();
+  await expect(page.getByTestId("component-field-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("component-field-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("component-field-unit")).toHaveValue("N/m");
+  await page.getByTestId("component-field-value").fill("12.5");
+  await page.getByTestId("component-field-apply-draft").click();
+  const componentFieldText = await page.getByTestId("library-draft-json").inputValue();
+  const componentFieldDraft = JSON.parse(componentFieldText);
+  expect(componentFieldDraft.component_records[0].fields[0]).toMatchObject({
+    field_kind: "linear_stiffness",
+    public_repository_value_policy: "private_user_supplied_only",
+    value: {
+      magnitude: 12.5,
+      unit: "N/m",
+      dimension: "linear_stiffness",
+      value_status: "private_user_supplied"
+    }
+  });
 
   // Validate routes to the desktop-only seam in browser preview: the
   // validate/save/store backend runs in the Tauri runtime only. Accept/store
@@ -927,6 +1315,15 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
   await expect(page.getByTestId("rule-check-unit-catalog-status")).toContainText(
     "stored manual text"
   );
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_inputs=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_slots=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_result_refs=0");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("private_library_refs=0");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText(
+    "catalog=browser_manual_text_no_fallback"
+  );
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("conversion=false");
   const packText = await page.getByTestId("rule-check-pack-json").inputValue();
   expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
 

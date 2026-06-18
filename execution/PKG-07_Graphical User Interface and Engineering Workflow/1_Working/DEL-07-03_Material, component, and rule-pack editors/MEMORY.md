@@ -1,5 +1,98 @@
 # DEL-07-03 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-03: Report Content Lint now inventories the
+  existing Library Manager material, section, and component unit-helper
+  surfaces through `library-unit-helper-surfaces`.
+- The lint packet now includes
+  `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and
+  `target:desktop-library-manager-template`; public unit-policy targets
+  increase from 37 to 38 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-03-01/DEL-03-02/DEL-02-02 run
+  records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no library editor behavior, library schema, library
+  import storage, private-library payload handling, unit conversion behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-03: Report Content Lint now inventories the
+  existing Rule Pack Expression Composer public unit-policy surface,
+  `rule-pack-expression-unit-policy`.
+- The lint packet now includes
+  `apps/desktop/src/features/rule-packs/ExpressionComposer.tsx` and
+  `target:desktop-rule-pack-expression-template`; public unit-policy targets
+  increase from 36 to 37 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-254; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-06-02/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused ExpressionComposer/RulePackManagerPanel Vitest
+  6/6; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no rule-pack schema, expression grammar, writable text
+  parser/syntax, evaluator behavior, backend validation, persistence, unit
+  conversion behavior, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-03: Report Content Lint now inventories the
+  existing Rule Pack Declarations public unit-policy surface,
+  `rule-pack-declarations-unit-policy`.
+- The lint packet now includes
+  `apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx` and
+  `target:desktop-rule-pack-declarations-template`; public unit-policy targets
+  increase from 35 to 36 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-253; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-06-01/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused RulePackManagerPanel/DeclarationsEditor Vitest
+  5/5; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no rule-pack schema, expression grammar, parser/text
+  syntax, evaluator behavior, backend validation, persistence, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001 editor-contract unit visibility
+
+- The desktop Editor Contract review panel now visibly reports the DEL-02-02
+  unit contract already carried in its exported packet.
+- The visible row records `contract=DEL-02-02`,
+  `schema=schemas/units.schema.yaml#/$defs/DimensionId`,
+  `policy=unit_bearing_values_require_explicit_unit_metadata`, and
+  `missing=diagnostic_blocking`.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no editor persistence, accepted model-state mutation,
+  operation-applier behavior, solver behavior, unit conversion API, DEC-018
+  catalog constant, schema dimension enum, protected standards content,
+  private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented deterministic material/component/rule-pack editor contract records
@@ -229,3 +322,114 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001 component library field unit helper
+
+- Added a Private Library Manager component-field unit helper for
+  component-library import drafts. It writes one private component
+  `fields[]` quantity into the JSON draft with explicit magnitude, unit,
+  `dimension=linear_stiffness`, and private-only provenance/status metadata.
+- Desktop/Tauri route consumes the reviewed DEC-018 unit catalog and filters
+  the `linear_stiffness` unit selector to compatible force-per-length units;
+  browser preview keeps the stored unit visible and records that no fallback
+  catalog is synthesized.
+- Validation passed: focused `LibraryManagerPanel` Vitest 11/11, full desktop
+  Vitest 393/393, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPLIBFIELDUNITS-001.md`;
+  supporting DEL-02-02 run record; SMOKE TP-MAC-195; completion log entry.
+- Boundary unchanged: draft authoring only; no component mechanics, public
+  component values, validation/storage rule change, protected standards
+  content, private project payload, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim.
+
+## 2026-06-17 - TP-UNITS-BTAIL-MATLIBFIELDUNITS-001 material library property unit helper
+
+- Added a Private Library Manager material-property unit helper for
+  material-library import drafts. It writes one private material
+  `properties[]` quantity into the JSON draft with explicit magnitude,
+  schema-native `unit_ref`, `dimension_id`, unit-required flag, and
+  diagnostic-blocking missing-unit behavior.
+- Desktop/Tauri route consumes the reviewed DEC-018 unit catalog and filters
+  material-property unit choices by compatible dimensions; browser preview
+  keeps the selected default unit ref visible and records that no fallback
+  catalog is synthesized.
+- Validation passed: focused `LibraryManagerPanel` Vitest 13/13, full desktop
+  Vitest 395/395, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MATLIBFIELDUNITS-001.md`;
+  corresponding DEL-03-01 primary and DEL-02-02 supporting run records;
+  SMOKE TP-MAC-197; completion log entry.
+- Boundary unchanged: draft authoring only; no material engineering
+  allowables, public material values, validation/storage rule change, schema
+  enum change, protected standards content, private project payload,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim.
+
+## 2026-06-17 - TP-UNITS-BTAIL-SECLIBQTYUNITS-001 section library quantity unit helper
+
+- Added a Private Library Manager section-quantity unit helper for
+  section-library import drafts. It writes one private section dimension or
+  property quantity into the JSON draft with explicit magnitude, unit,
+  dimension, provenance, and review status.
+- Desktop/Tauri route consumes the reviewed DEC-018 unit catalog and filters
+  section quantity unit choices by compatible dimensions; browser preview
+  keeps the selected default unit visible and records that no fallback catalog
+  is synthesized.
+- Validation passed: focused `LibraryManagerPanel` Vitest 15/15, full desktop
+  Vitest 397/397, desktop production build, and focused Playwright
+  library-manager smoke 2/2.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECLIBQTYUNITS-001.md`;
+  corresponding DEL-03-02 primary and DEL-02-02 supporting run records;
+  SMOKE TP-MAC-198; completion log entry.
+- Boundary unchanged: draft authoring only; no section-property calculator,
+  public section values, validation/storage rule change, schema enum change,
+  protected standards content, private project payload, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001 rule-pack unit policy evidence
+
+- Added visible stored-unit policy and unit-dimension validation summaries to
+  the rule-pack declaration and expression authoring surfaces.
+- `DeclarationsEditor` now reports required-input and value-slot
+  `quantity_intent` unit refs against the available unit-catalog route.
+  `ExpressionComposer` now reports literal quantity and table argument/result
+  unit refs through the same helper.
+- Browser preview remains manual-entry only and records declared metadata
+  because the reviewed DEC-018 catalog is desktop/Tauri-only; desktop catalog
+  routes can report accepted DEC-018 matches, mismatches, or review/loading
+  statuses without rewriting stored refs.
+- Validation passed: focused rule-pack/unit Vitest 67/67, focused R2/R3
+  Playwright smoke file 14/14, full desktop Vitest 398/398, and desktop
+  production build with the existing Vite large-chunk warning.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001.md`;
+  supporting DEL-02-02, DEL-06-01, and DEL-06-02 run records; SMOKE
+  TP-MAC-207; completion log entry.
+- Boundary unchanged: no DEC-018 catalog constant, schema enum,
+  `rule_pack.schema` contract, evaluator normalization, parser/text syntax,
+  backend validation/persistence behavior, protected standards content,
+  private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-03: Export Safety Review now classifies
+  `editor_contract_review` as unit-evidence-required and covered by the
+  existing Editor Contract target-panel/export-packet unit contract.
+- The DEL-07-03 editor packet remains explicit that unit-bearing values
+  require explicit unit metadata, missing units are diagnostic-blocking, and
+  `conversion_performed=false` at the export-review manifest boundary.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-265; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no editor validation behavior, durable mutation,
+  private rule-pack payload handling, private-library payload handling,
+  target writer, manifest-level unit conversion, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

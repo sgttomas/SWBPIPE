@@ -74,6 +74,11 @@ export function EditorContractPanel({
           testId="editor-contract-validation"
         />
         <EditorLine
+          label="Unit contract"
+          value={`contract=${packet.unit_contract.contract_ref}; schema=${packet.unit_contract.schema_ref}; policy=${packet.unit_contract.unit_policy}; missing=${packet.unit_contract.missing_unit_behavior}`}
+          testId="editor-contract-unit-contract"
+        />
+        <EditorLine
           label="Rule pack"
           value={`${packet.rule_pack_reference.rule_pack_id}; checksum=${packet.rule_pack_reference.checksum_status}; required_inputs=${packet.rule_pack_reference.required_input_status}`}
           testId="editor-contract-rule-pack"

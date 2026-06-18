@@ -11,6 +11,23 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001 supporting export-review classification
+
+- Supporting role for Export Safety Review matrix cleanup: the
+  `build_package_readiness` export row is explicitly classified as
+  non-unit-bearing metadata because it records script, shell, readiness-profile,
+  and release-decision status without quantities, units, dimensions, or target
+  conversion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-271; completion log entry; primary DEL-12-02
+  run record and supporting DEL-12-03/DEL-02-02 run records.
+- Boundary preserved: no build script, package manifest, Tauri config, CI
+  provider, release matrix, signing, notarization, publishing, installer,
+  binary package, private payload, protected standards content, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## Scope Executed
 
 Implemented the provider-neutral DEL-10-04 release/build skeleton within the

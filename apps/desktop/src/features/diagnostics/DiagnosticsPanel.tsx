@@ -155,6 +155,11 @@ function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterp
           testId="selected-diagnostic-linked-results"
         />
         <DetailLine
+          label="Unit context"
+          value={diagnosticUnitContext(interpretation)}
+          testId="diagnostic-unit-context"
+        />
+        <DetailLine
           label="Knowledge"
           value={
             interpretation.linked_knowledge.length > 0
@@ -167,6 +172,16 @@ function DiagnosticDetail({ interpretation }: { interpretation: DiagnosticInterp
       </dl>
     </section>
   );
+}
+
+function diagnosticUnitContext(interpretation: DiagnosticInterpretation): string {
+  const units = Array.from(new Set(interpretation.linked_results.map((item) => item.unit)));
+  return [
+    `linked_results=${interpretation.linked_results.length}`,
+    `units=${units.length > 0 ? units.join(",") : "none"}`,
+    "source=result_envelope",
+    "conversion=false"
+  ].join("; ");
 }
 
 function DetailLine({ label, value, testId }: { label: string; value: string; testId?: string }) {

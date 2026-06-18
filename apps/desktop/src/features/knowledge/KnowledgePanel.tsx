@@ -1,14 +1,23 @@
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
 
+const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
+
 export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: MechanicsResult | null }) {
   const records = [...(knowledge?.records ?? []), ...physicsRecords(result)];
+  const unitContext = computedKnowledgeUnitContext(result);
   return (
     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
       <div className="panel-title">
         <BookOpen size={16} />
         Design Knowledge
       </div>
+      {unitContext ? (
+        <div className="report-line" data-testid="knowledge-unit-context">
+          <span>Computed unit context</span>
+          <strong>{unitContext}</strong>
+        </div>
+      ) : null}
       {records.length > 0 ? (
         <div className="record-list">
           {records.map((record) => (
@@ -72,4 +81,45 @@ export function physicsRecords(result: MechanicsResult | null): KnowledgeRecord[
   }
 
   return records;
+}
+
+function computedKnowledgeUnitContext(result: MechanicsResult | null): string | null {
+  if (!result) return null;
+
+  const quantities = [
+    result.summary.max_displacement
+      ? {
+          ref: result.summary.max_displacement.result_ref,
+          unit: result.summary.max_displacement.unit
+        }
+      : null,
+    computedAxialForce(result)
+  ].filter((item): item is { ref: string; unit: string } => Boolean(item));
+
+  if (quantities.length === 0) return null;
+
+  const refs = quantities.map((item) => item.ref).sort();
+  const units = Array.from(new Set(quantities.map((item) => item.unit).filter(Boolean))).sort(compareUnitSymbols);
+  return [
+    `computed_unit_refs=${refs.length}`,
+    `units=${units.join(",") || "none"}`,
+    "source=computed_preview_result",
+    "conversion=false"
+  ].join("; ");
+}
+
+function computedAxialForce(result: MechanicsResult): { ref: string; unit: string } | null {
+  const axialForce =
+    result.results.find((item) => item.id === "result:force:pipe-P-120:axial") ??
+    result.results.find((item) => item.kind === "element_local_axial_force");
+  return axialForce ? { ref: axialForce.id, unit: axialForce.unit } : null;
+}
+
+function compareUnitSymbols(left: string, right: string): number {
+  const leftIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(left);
+  const rightIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(right);
+  if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
+  if (leftIndex >= 0) return -1;
+  if (rightIndex >= 0) return 1;
+  return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
 }

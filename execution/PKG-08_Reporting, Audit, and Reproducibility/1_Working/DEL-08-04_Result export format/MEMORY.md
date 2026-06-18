@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-04 Result Export Format
 
+## 2026-06-18 - TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001 supporting result-export inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint public unit-policy inventory now includes
+  `apps/desktop/src/features/result-export/ResultExportPanel.tsx`.
+- The lint inventory records `result-export-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=22`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. Result Export
+  continues to preserve source result value/unit/dimension rows without
+  conversion in the schema-first local JSON result envelope.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 399/399, desktop production build with
+  the existing Vite large-chunk warning, and single-worker R2/R3 Playwright
+  smoke 18/18.
+- Boundary preserved: no result-export packet semantics, result envelope
+  schema, mechanics result generation, export-review manifest semantics,
+  unit conversion API, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## Implementation Summary
 
 2026-05-02: Added bounded result export contract artifacts for schema-first
@@ -315,3 +336,118 @@ Durable TASK evidence:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RESULTEXPORTUNITWITNESS-001 result export unit witnesses
+
+- Added optional result-envelope unit preservation vocabulary to
+  `schemas/results.schema.yaml`: `unit_witness_policy`,
+  `unit_preservation_witnesses[]`, `UnitPreservationWitness`, and
+  `UnitPreservationQuantity`.
+- Updated the desktop result export preview so every exported result row in
+  the invented mechanics fixture carries a deterministic witness preserving
+  source value, unit, and dimension into the exported row with
+  `conversion_performed=false`.
+- Added visible result-export panel evidence
+  `data-testid="result-export-unit-witnesses"` showing `count=737` and
+  `conversion=false` after mechanics preview.
+- Validation passed: `python3 tests/test_results_schema.py`;
+  `npm --prefix apps/desktop test -- App.test.tsx` (55/55);
+  `npm test --workspace apps/desktop` (18/18 files, 391/391 tests);
+  `npm run build --workspace apps/desktop` (existing Vite large-chunk
+  warning); `git diff --check`.
+- Boundary preserved: result-envelope unit metadata only. No unit conversion,
+  solver behavior, public transport commitment, trace-chain ownership change,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-HEADLESSRUNNERUNITWITNESS-001 supporting result-handoff unit evidence
+
+- Supporting role for DEL-10-05 headless-runner tranche: the desktop runner
+  envelope now preserves result-export unit intent at the result-handoff
+  boundary through `result.unit_system_disclosure` and
+  `result.unit_preservation_witnesses[]`.
+- The witness rows mirror the result-export preservation posture: finite
+  mechanics result values keep their source value, unit, and inferred
+  dimension with `conversion_performed=false`.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no result schema change, result-export runtime behavior,
+  public transport commitment, trace-chain ownership change, protected
+  standards content, private payload, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting report export evidence
+
+- Supporting role for DEL-08-04: Report packet persistence export evidence
+  now expects 29 export rows and includes
+  `readiness_by_export_id.agent_proposal_review`.
+- The row is `pending_agent_proposal` before proposal generation and
+  `available` after proposal generation; the report packet remains local
+  browser-download technical-preview evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-02/DEL-16-03/DEL-08-05/DEL-12-02/DEL-02-02 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no result schema, result-export runtime behavior, target
+  writer, public transport commitment, trace-chain ownership, unit conversion,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting export-inventory evidence
+
+- Supporting role for DEL-12-02 Export Safety Review matrix cleanup: the local
+  export inventory now includes `rule_completeness_review`, raising the
+  manifest from 27 to 28 export rows while preserving metadata-only local
+  transport and no-private/no-protected payload posture.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  primary DEL-12-02 run record; `apps/desktop/SMOKE.md` TP-MAC-259.
+- Boundary preserved: no target writer, result envelope, transport, redaction,
+  unit conversion, lifecycle state, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001 supporting export evidence
+
+- Supporting role for DEL-17-05 CAEPIPE external parser tranche: the desktop
+  parser package now exposes result-like row preservation evidence through
+  `unit_system_disclosure`, `unit_witness_policy`, and
+  `unit_preservation_witnesses[]`.
+- The witnesses preserve parser row values, units, and dimensions with
+  `conversion_performed=false`, aligning the parser-only external harness
+  package with the result-export unit-preservation posture without changing
+  the result schema.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no result schema change, result-export runtime behavior,
+  public transport commitment, trace-chain ownership change, protected
+  standards content, private payload, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001 supporting result/export evidence
+
+- Supporting role for DEL-12-02 export-review tranche: the desktop Export
+  Safety Review manifest now inventories unit-bearing result/export records,
+  including result envelope, stress-neutral package, native JSON package,
+  report packet, handoff package, and target-format preview packets.
+- The manifest records the inventory as review metadata only through
+  `unit_policy_summary` and `unit_evidence_matrix`; it does not perform
+  export-time unit conversion or alter the underlying result/export packets.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no result schema change, result-export runtime behavior,
+  public transport commitment, trace-chain ownership change, protected
+  standards content, private payload, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

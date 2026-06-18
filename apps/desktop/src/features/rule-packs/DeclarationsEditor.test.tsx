@@ -283,6 +283,9 @@ describe("DeclarationsEditor component", () => {
     expect((screen.getByTestId("rule-pack-slot-id") as HTMLInputElement).value).toBe(
       "user_limit_slot_1"
     );
+    expect(screen.getByTestId("rule-pack-declarations-unit-policy").textContent).toContain(
+      "unit_policy=stored_unit_refs_preserved"
+    );
   });
 
   it("adds a required input with a fresh unique id and a schema-valid default", () => {
@@ -295,7 +298,7 @@ describe("DeclarationsEditor component", () => {
     expect((inputs[1].quantity_intent as Record<string, unknown>).dimension).toBe("TBD");
   });
 
-  it("edits required-input identity, typing, unit, and status fields", () => {
+  it("edits required-input identity, typing, unit, and status fields", async () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     fireEvent.change(screen.getByTestId("rule-pack-input-id"), { target: { value: "hoop_stress" } });
     fireEvent.change(screen.getByTestId("rule-pack-input-name"), {
@@ -310,6 +313,11 @@ describe("DeclarationsEditor component", () => {
     fireEvent.change(screen.getByTestId("rule-pack-input-unit"), {
       target: { value: "invented_stress_unit" }
     });
+    await waitFor(() =>
+      expect(screen.getByTestId("rule-pack-declarations-unit-policy").textContent).toContain(
+        "required_input:hoop_stress=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=invented_stress_unit;dimension=stress)"
+      )
+    );
     fireEvent.change(screen.getByTestId("rule-pack-input-required-for"), {
       target: { value: "reporting" }
     });
@@ -352,6 +360,9 @@ describe("DeclarationsEditor component", () => {
     expect(optionValues).not.toContain("lbf");
 
     fireEvent.change(unitSelect, { target: { value: "MPa" } });
+    expect(screen.getByTestId("rule-pack-declarations-unit-policy").textContent).toContain(
+      "required_input:user_required_input_1=dec018_catalog_dimension_match(unit=MPa;dimension=stress)"
+    );
     expect(inputsOf(harnessDoc())[0].quantity_intent).toEqual({
       dimension: "stress",
       unit_ref: "MPa",
@@ -380,6 +391,9 @@ describe("DeclarationsEditor component", () => {
     const unitSelect = screen.getByTestId("rule-pack-input-unit") as HTMLSelectElement;
     await waitFor(() => expect(unitSelect.value).toBe("legacy_private_unit"));
     expect(screen.getByText("legacy_private_unit, catalog mismatch")).toBeTruthy();
+    expect(screen.getByTestId("rule-pack-declarations-unit-policy").textContent).toContain(
+      "required_input:legacy=dec018_catalog_dimension_mismatch(unit=legacy_private_unit;dimension=stress)"
+    );
 
     fireEvent.change(unitSelect, { target: { value: "Pa" } });
     expect(inputsOf(harnessDoc())[0].quantity_intent).toEqual({
@@ -448,6 +462,9 @@ describe("DeclarationsEditor component", () => {
       expect(Array.from(slotUnitSelect.options).map((option) => option.value)).toContain("MPa")
     );
     fireEvent.change(slotUnitSelect, { target: { value: "Pa" } });
+    expect(screen.getByTestId("rule-pack-declarations-unit-policy").textContent).toContain(
+      "value_slot:user_limit_slot_1=dec018_catalog_dimension_match(unit=Pa;dimension=stress)"
+    );
 
     expect(slotsOf(harnessDoc())[0].quantity_intent).toEqual({
       dimension: "stress",
