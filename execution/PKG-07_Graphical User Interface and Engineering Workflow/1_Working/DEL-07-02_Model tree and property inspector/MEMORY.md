@@ -772,3 +772,27 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001 property inspector unit validation evidence
+
+- Primary role for a bounded Phase B-tail Property Inspector/unit-validation
+  slice while C5.7 remains human-execution gated.
+- Unit-bearing Property Inspector modify intents and explicit create-section,
+  create-material, and create-support intents now record unit-dimension
+  validation status instead of `unit_validation=not_run`.
+- Browser preview records model-metadata declaration because the reviewed
+  DEC-018 catalog is exposed only through the desktop backend command;
+  desktop/Tauri routes can record accepted DEC-018 dimension matches or
+  explicit mismatch/unreviewed/loading statuses.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-206; completion log entry.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 397/397 tests, and desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver behavior, operation
+  application semantics, accepted model-state mutation, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

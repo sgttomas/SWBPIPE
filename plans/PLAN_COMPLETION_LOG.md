@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail property-inspector unit validation evidence (`TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001`)
+
+Landed one bounded Phase B-tail Property Inspector/unit-validation slice while
+C5.7 remains human-execution gated. The desktop Property Inspector now records
+unit-dimension validation status on unit-bearing modify intents and explicit
+create-section/create-material/create-support intents.
+
+Unit-bearing Property Inspector intents no longer report
+`unit_validation=not_run`. Browser preview records
+`model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`
+because the DEC-018 catalog command is desktop-only; desktop/Tauri catalog
+routes can record `dec018_catalog_dimension_match` for accepted matches or
+explicit mismatch/unreviewed/loading statuses.
+
+The tranche preserves the Property Inspector and operation-review boundary. It
+does not change solver behavior, apply operations automatically, add a unit
+conversion API, or change catalog constants/schema enums.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-206; DEL-07-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001.md`;
+DEL-02-02 and DEL-16-02 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 397/397 tests;
+desktop production build passed with the existing Vite large-chunk warning.
+
+Boundary: Property Inspector operation-intent metadata only. No DEC-018
+catalog constant change, schema dimension enum change, unit conversion API
+change, solver behavior, operation application semantics, accepted model-state
+mutation, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail load-case primitive unit validation evidence (`TP-UNITS-BTAIL-LOADCASEUNITVALID-001`)
 
 Landed one bounded Phase B-tail load-case/unit-validation slice while C5.7

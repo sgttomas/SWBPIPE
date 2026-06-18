@@ -763,3 +763,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
   conversion API, protected standards content, private payload, lifecycle
   state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-07-02 Property Inspector tranche: unit-bearing
+  editor modify and create intents now carry a pre-application
+  unit-dimension validation status in the existing `validation.unit_validation`
+  field.
+- This is operation-intent metadata only. It makes the review preview more
+  explicit before validate/apply, but it does not change the operation applier,
+  diff generation, durable persistence, or accepted model-state mutation
+  semantics.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 397/397, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable acceptance persistence, unit
+  conversion API, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

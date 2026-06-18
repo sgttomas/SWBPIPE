@@ -1984,6 +1984,9 @@ describe("OpenPipeStress desktop preview", () => {
       `before=200000000000; after=${expectedMaterialEditAfter}`
     );
     expect(within(intentPanel).getByTestId("editor-intent-validation").textContent).toContain("not_applied");
+    expect(within(intentPanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
     fireEvent.click(within(intentPanel).getByTestId("validate-editor-intent-inline"));
     await waitFor(() =>
       expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
@@ -6988,6 +6991,12 @@ describe("OpenPipeStress desktop preview", () => {
     });
     expect(within(createMaterialPanel).getByTestId("queue-create-material-intent")).not.toBeDisabled();
     expect(within(createMaterialPanel).getByTestId("editor-operation-preview").textContent).toContain("create_material");
+    expect(within(createMaterialPanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "stress=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
+    expect(within(createMaterialPanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "thermal_expansion_coefficient=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
 
     fireEvent.click(within(createMaterialPanel).getByTestId("queue-create-material-intent"));
     const applyPanel = screen.getByTestId("operation-apply-panel");
@@ -7047,6 +7056,9 @@ describe("OpenPipeStress desktop preview", () => {
     });
     expect(within(createSectionPanel).getByTestId("queue-create-section-intent")).not.toBeDisabled();
     expect(within(createSectionPanel).getByTestId("editor-operation-preview").textContent).toContain("create_section");
+    expect(within(createSectionPanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
 
     fireEvent.click(within(createSectionPanel).getByTestId("queue-create-section-intent"));
     const applyPanel = screen.getByTestId("operation-apply-panel");
@@ -7105,6 +7117,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(createSupportPanel).getByTestId("editor-operation-preview").textContent).toContain(
       "linear_stiffness; unit=N/m"
+    );
+    expect(within(createSupportPanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "linear_stiffness=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
     );
 
     fireEvent.click(within(createSupportPanel).getByTestId("queue-create-support-intent"));

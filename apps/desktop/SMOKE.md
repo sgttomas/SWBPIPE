@@ -6510,6 +6510,41 @@ notes:
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
 
+## TP-MAC-206 property-inspector unit validation evidence - PASSED (`TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Property Inspector/unit-validation slice while
+  C5.7 remains human-execution gated. The desktop Property Inspector now
+  records unit-dimension validation status on unit-bearing modify intents and
+  explicit create-section/create-material/create-support intents.
+- Unit behavior: unit-bearing Property Inspector intents no longer emit
+  `unit_validation=not_run`. Browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`
+  because the reviewed DEC-018 catalog command is desktop-only; desktop/Tauri
+  routes can record `dec018_catalog_dimension_match`, mismatch, loading, or
+  unreviewed statuses from the catalog basis.
+- UI check: `data-testid="editor-intent-validation"` shows the unit-validation
+  status in the existing operation preview for node coordinate edits, load
+  primitive magnitude edits, section creation, material creation, and support
+  creation. Playwright smoke checks the node and load edit preview statuses;
+  App Vitest checks the edit and create-intent statuses.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001.md`;
+  DEL-02-02 and DEL-16-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: Property Inspector operation-intent metadata only. No DEC-018
+  catalog constant change, schema dimension enum change, unit conversion API
+  change, solver behavior, operation application semantics, accepted
+  model-state mutation, protected standards content, private project payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
 
 - Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains

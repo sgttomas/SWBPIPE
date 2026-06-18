@@ -73,12 +73,19 @@ export function PropertyInspector({
         proposedValue,
         proposedUnit,
         rationale,
-        selection
+        selection,
+        unitCatalogRoute
       })
     : null;
-  const sectionCreateIntent = isSectionDraftValid(model, sectionDraft) ? buildCreateSectionIntent(sectionDraft, model) : null;
-  const materialCreateIntent = isMaterialDraftValid(model, materialDraft) ? buildCreateMaterialIntent(materialDraft, model) : null;
-  const supportCreateIntent = isSupportDraftValid(model, supportDraft) ? buildCreateSupportIntent(supportDraft, model) : null;
+  const sectionCreateIntent = isSectionDraftValid(model, sectionDraft)
+    ? buildCreateSectionIntent(sectionDraft, model, unitCatalogRoute)
+    : null;
+  const materialCreateIntent = isMaterialDraftValid(model, materialDraft)
+    ? buildCreateMaterialIntent(materialDraft, model, unitCatalogRoute)
+    : null;
+  const supportCreateIntent = isSupportDraftValid(model, supportDraft)
+    ? buildCreateSupportIntent(supportDraft, model, unitCatalogRoute)
+    : null;
   const nodeDeleteIntent = selectedNode ? buildDeleteNodeIntent(selectedNode, model) : null;
   const pipeDeleteIntent = selectedPipe ? buildDeletePipeIntent(selectedPipe, model) : null;
   const supportDeleteIntent = selectedSupport ? buildDeleteSupportIntent(selectedSupport, model) : null;
@@ -1092,7 +1099,8 @@ function buildOperationIntent({
   proposedValue,
   proposedUnit,
   rationale,
-  selection
+  selection,
+  unitCatalogRoute
 }: {
   field: EditableField;
   model: PreviewModel;
@@ -1100,6 +1108,7 @@ function buildOperationIntent({
   proposedUnit: string;
   rationale: string;
   selection: EntityRef;
+  unitCatalogRoute: UnitCatalogRoute | null;
 }): EditorOperationIntent {
   const operationToken = `${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
   const intentUnit = field.unitEditable ? proposedUnit.trim() || field.unit : field.unit;
@@ -1129,7 +1138,9 @@ function buildOperationIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: field.unitEditable
+        ? propertyUnitValidationStatus(unitCatalogRoute, intentUnit, field.dimension)
+        : "not_required_dimensionless",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1158,7 +1169,51 @@ function parseQuantityPayloadValue(raw: string): number | string {
   return Number.isFinite(parsed) ? parsed : trimmed;
 }
 
-function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): EditorOperationIntent {
+function materialDraftUnitValidationStatus(draft: MaterialDraft, route: UnitCatalogRoute | null): string {
+  const stressStatus = propertyUnitValidationStatus(route, draft.stressUnit, "stress");
+  const thermalStatus = draft.thermalExpansion.trim()
+    ? propertyUnitValidationStatus(route, draft.thermalExpansionUnit, "thermal_expansion_coefficient")
+    : "not_provided";
+  return `stress=${stressStatus}; thermal_expansion_coefficient=${thermalStatus}`;
+}
+
+function propertyUnitValidationStatus(route: UnitCatalogRoute | null, unit: string, dimension: string): string {
+  const normalizedUnit = unit.trim();
+  const normalizedDimension = dimension.trim();
+  if (
+    !normalizedUnit ||
+    normalizedUnit === "TBD" ||
+    !normalizedDimension ||
+    normalizedDimension === "TBD"
+  ) {
+    return "missing_unit_or_dimension";
+  }
+  if (normalizedUnit === "none" || normalizedDimension === "dimensionless") {
+    return "not_required_dimensionless";
+  }
+
+  const basis = describeUnitBasis(route, normalizedUnit, normalizedDimension);
+  switch (basis.source) {
+    case "dec018_catalog_accepted":
+      return "dec018_catalog_dimension_match";
+    case "dec018_catalog_unreviewed":
+      return `dec018_catalog_${basis.review_status ?? "unreviewed"}_dimension_match`;
+    case "dec018_catalog_miss":
+      return "dec018_catalog_dimension_mismatch";
+    case "browser_preview_model_metadata":
+      return "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview";
+    case "catalog_loading":
+      return "catalog_loading_unit_dimension_declared";
+    default:
+      return "unit_dimension_status_unknown";
+  }
+}
+
+function buildCreateSectionIntent(
+  draft: SectionDraft,
+  model: PreviewModel,
+  unitCatalogRoute: UnitCatalogRoute | null
+): EditorOperationIntent {
   const sectionId = draft.id.trim();
   const payload = {
     id: sectionId,
@@ -1198,7 +1253,7 @@ function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): Edi
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: `length=${propertyUnitValidationStatus(unitCatalogRoute, draft.lengthUnit, "length")}`,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1220,7 +1275,11 @@ function buildCreateSectionIntent(draft: SectionDraft, model: PreviewModel): Edi
   };
 }
 
-function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): EditorOperationIntent {
+function buildCreateMaterialIntent(
+  draft: MaterialDraft,
+  model: PreviewModel,
+  unitCatalogRoute: UnitCatalogRoute | null
+): EditorOperationIntent {
   const materialId = draft.id.trim();
   const payload: Record<string, unknown> = {
     id: materialId,
@@ -1260,7 +1319,7 @@ function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): E
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: materialDraftUnitValidationStatus(draft, unitCatalogRoute),
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1282,7 +1341,11 @@ function buildCreateMaterialIntent(draft: MaterialDraft, model: PreviewModel): E
   };
 }
 
-function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): EditorOperationIntent {
+function buildCreateSupportIntent(
+  draft: SupportDraft,
+  model: PreviewModel,
+  unitCatalogRoute: UnitCatalogRoute | null
+): EditorOperationIntent {
   const supportId = draft.id.trim();
   const stiffnessProvided = draft.linearStiffness.trim() !== "";
   const payload: Record<string, unknown> = {
@@ -1327,7 +1390,9 @@ function buildCreateSupportIntent(draft: SupportDraft, model: PreviewModel): Edi
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: stiffnessProvided
+        ? `linear_stiffness=${propertyUnitValidationStatus(unitCatalogRoute, draft.linearStiffnessUnit, "linear_stiffness")}`
+        : "not_required_dimensionless",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },

@@ -920,3 +920,21 @@ Boundary note:
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROPERTYINTENTUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-07-02 Property Inspector tranche: unit-bearing
+  Property Inspector modify and create intents now record unit-dimension
+  validation status instead of `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches or explicit
+  mismatch/unreviewed/loading statuses.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 397/397, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

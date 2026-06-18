@@ -118,6 +118,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
     "entered unit captured explicitly"
   );
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await page.getByTestId("tree-row-load:L-100").click();
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
@@ -130,6 +133,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText("update_load");
   await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
     "entered unit captured explicitly"
+  );
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
