@@ -2178,3 +2178,25 @@ Boundary note:
   private payload, protected content, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `editor_contract_review` as unit-evidence-required because the DEL-07-03
+  Editor Contract panel already exposes the DEL-02-02 unit contract.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=21/22`, and proposal-path evidence reports 22/22 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-265; primary DEL-12-02 run record and
+  supporting DEL-07-03 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, editor unit contract, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

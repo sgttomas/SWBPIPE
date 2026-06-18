@@ -412,3 +412,24 @@ Durable context preserved after PKG-02 grounded finding resolution:
   private payload, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-07-03: Export Safety Review now classifies
+  `editor_contract_review` as unit-evidence-required and covered by the
+  existing Editor Contract target-panel/export-packet unit contract.
+- The DEL-07-03 editor packet remains explicit that unit-bearing values
+  require explicit unit metadata, missing units are diagnostic-blocking, and
+  `conversion_performed=false` at the export-review manifest boundary.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-265; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no editor validation behavior, durable mutation,
+  private rule-pack payload handling, private-library payload handling,
+  target writer, manifest-level unit conversion, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

@@ -498,6 +498,16 @@ missing-data warning semantics, remediation behavior, accepted model mutation,
 rule-check execution, target writers, manifest-level unit conversion, or unit
 conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001`
+(SMOKE TP-MAC-265) landed on 2026-06-18. Export Safety Review now classifies
+`editor_contract_review` as unit-evidence-required because the DEL-07-03
+Editor Contract panel already exposes the DEL-02-02 unit contract. Solved
+queued-intent coverage is now `covered=21/22`; proposal-path coverage is
+22/22 once `agent_proposal_review` is available. This records editor-contract
+unit-evidence inventory without changing editor validation behavior, durable
+mutation, private reference handling, target writers, manifest-level unit
+conversion, or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

@@ -262,3 +262,28 @@ Durable context preserved after reconciliation review:
   payload, protected content, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `editor_contract_review` as unit-evidence-required because the Editor
+  Contract packet already carries the DEL-02-02 unit contract.
+- The editor-contract export row records
+  `unit_policy_ref=DEL-02-02:unit_bearing_values_require_explicit_unit_metadata`,
+  `unit_evidence_required=true`, `missing_unit_behavior=diagnostic_blocking`,
+  and `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=21/22`; proposal
+  path evidence reports 22/22 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-265; active plan and completion log entries;
+  supporting DEL-07-03 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, editor validation
+  behavior, durable mutation, private reference handling, private payload,
+  protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

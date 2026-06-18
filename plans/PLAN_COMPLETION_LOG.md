@@ -14,6 +14,35 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail export-review editor-contract unit evidence (`TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001`)
+
+Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix
+slice while C5.7 remains human-execution gated. The Editor Contract panel
+already exposes the DEL-02-02 unit contract; this tranche makes that existing
+evidence discoverable through the Export Safety Review matrix.
+
+Export Safety Review now classifies `editor_contract_review` as
+unit-evidence-required and covered by target-panel/export-packet evidence.
+Solved queued-intent coverage is now `covered=21/22`; proposal-path coverage
+is 22/22 once `agent_proposal_review` is available.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-265; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEDITORCONTRACTUNITS-001.md`;
+DEL-07-03 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App workspace-render test passed 1/1. Full App, full
+desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded in
+closeout artifacts for this tranche.
+
+Boundary: export-review inventory evidence only. No editor validation
+behavior, durable mutation, private rule-pack payload handling,
+private-library payload handling, target writer, manifest-level unit
+conversion, protected standards content, private payload, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail export-review missing-data unit evidence (`TP-UNITS-BTAIL-EXPORTREVMISSINGDATAUNITS-001`)
 
 Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix

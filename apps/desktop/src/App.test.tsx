@@ -4076,7 +4076,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
       "unit-system:dec-018-si-dual-display"
     );
-    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=20/21");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=21/22");
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
@@ -4236,13 +4236,14 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
     expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(29);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(21);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(20);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(22);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(21);
     expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
     expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
       "project_storage_audit",
       "project_validation_preflight",
       "security_threat_model_review",
+      "editor_contract_review",
       "missing_data_warning_blocking_review",
       "rule_completeness_review",
       "result_envelope",
@@ -4449,6 +4450,11 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(editorContractExport.direct_model_mutation_allowed).toBe(false);
     expect(editorContractExport.accepted_model_state_mutated).toBe(false);
+    expect(editorContractExport.unit_evidence_required).toBe(true);
+    expect(editorContractExport.unit_policy_ref).toBe(
+      "DEL-02-02:unit_bearing_values_require_explicit_unit_metadata"
+    );
+    expect(editorContractExport.conversion_performed).toBe(false);
     const missingDataExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "missing_data_warning_blocking_review"
     );
@@ -7518,8 +7524,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(proposalReviewManifest.summary.export_count).toBe(29);
     expect(proposalReviewManifest.summary.available_count).toBe(29);
     expect(proposalReviewManifest.summary.operation_record_count).toBe(1);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(21);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(21);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(22);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(22);
     const proposalReviewExport = proposalReviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "agent_proposal_review"
     );
