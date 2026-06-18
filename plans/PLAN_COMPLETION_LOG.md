@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail export-review validation-evidence unit evidence (`TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001`)
+
+Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix
+slice while C5.7 remains human-execution gated. The Validation Evidence panel
+already exposes unit-policy evidence for project unit context, unit-bearing
+record count, and the validation manual unit/schema section; this tranche
+makes that existing evidence discoverable through the Export Safety Review
+matrix.
+
+Export Safety Review now classifies `validation_release_evidence_review` as
+unit-evidence-required and covered by target-panel/export-packet evidence.
+Solved queued-intent coverage is now `covered=25/26`; proposal-path coverage
+is 26/26 once `agent_proposal_review` is available.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-269; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+DEL-09-04, DEL-09-05, and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App workspace-render test passed 1/1. Full App, full
+desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded in
+closeout artifacts for this tranche.
+
+Boundary: export-review inventory evidence only. No validation manual content,
+release threshold, release authorization, validation-evidence storage
+decision, target writer, manifest-level unit conversion, protected standards
+content, private payload, lifecycle transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail export-review design-workspace unit evidence (`TP-UNITS-BTAIL-EXPORTREVDESIGNWORKSPACEUNITS-001`)
 
 Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix

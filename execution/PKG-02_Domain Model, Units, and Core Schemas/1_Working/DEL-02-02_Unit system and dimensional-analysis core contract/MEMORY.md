@@ -2272,3 +2272,28 @@ Boundary note:
   content, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `validation_release_evidence_review` as unit-evidence-required because the
+  Validation Evidence packet already records DEC-018 unit-system identity,
+  entered-unit preservation, unit-bearing record count, and
+  `conversion_performed=false`.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=25/26`, and proposal-path evidence reports 26/26 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-269; primary DEL-12-02 run record and
+  supporting DEL-09-04/DEL-09-05 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, validation-evidence
+  unit-policy semantics, release threshold policy, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

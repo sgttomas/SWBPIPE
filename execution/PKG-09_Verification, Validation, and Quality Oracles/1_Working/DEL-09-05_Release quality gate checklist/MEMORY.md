@@ -327,3 +327,25 @@ decisions, or release claims.
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-09-05: Export Safety Review now inventories
+  `validation_release_evidence_review` as unit-evidence-required because the
+  Validation Evidence packet already carries release-gate context plus
+  `unit-policy-evidence:validation-release-evidence-review`.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=25/26`, and proposal-path evidence reports 26/26 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-269; primary DEL-12-02 run record and
+  supporting DEL-09-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no release thresholds, release authorization, release
+  matrix, CI provider, signing/notarization, publication target,
+  release-readiness claim, lifecycle transition, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

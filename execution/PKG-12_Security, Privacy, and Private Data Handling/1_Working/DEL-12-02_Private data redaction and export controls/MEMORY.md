@@ -368,3 +368,29 @@ Durable context preserved after reconciliation review:
   accepted model-state mutation, protected content, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `validation_release_evidence_review` as unit-evidence-required because the
+  Validation Evidence packet already carries `unit_policy_evidence` for
+  project unit context, unit-bearing record count, and the validation manual
+  unit/schema section.
+- The validation-evidence export row records
+  `unit_policy_ref=unit-policy-evidence:validation-release-evidence-review`,
+  `unit_evidence_required=true`, `default_units_inferred=false`, and
+  `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=25/26`; proposal
+  path evidence reports 26/26 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVVALIDATIONEVIDUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-269; active plan and completion log entries;
+  supporting DEL-09-04, DEL-09-05, and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, validation manual
+  content, release threshold, release authorization, protected content,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

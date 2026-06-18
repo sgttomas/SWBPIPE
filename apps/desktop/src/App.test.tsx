@@ -4076,7 +4076,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
       "unit-system:dec-018-si-dual-display"
     );
-    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=24/25");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=25/26");
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
@@ -4236,8 +4236,8 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
     expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(29);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(25);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(24);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(26);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(25);
     expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
     expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
       "project_storage_audit",
@@ -4249,6 +4249,7 @@ describe("OpenPipeStress desktop preview", () => {
       "rule_completeness_review",
       "accessibility_usability_baseline_review",
       "design_authoring_comparison_workspace",
+      "validation_release_evidence_review",
       "result_envelope",
       "stress_neutral_csv_json_package",
       "headless_runner_envelope",
@@ -4308,6 +4309,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
         (item: { export_id: string }) => item.export_id === "design_authoring_comparison_workspace"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "validation_release_evidence_review"
       ).unit_evidence_status
     ).toBe("covered_by_target_panel_or_export_packet");
     expect(
@@ -4592,6 +4598,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationEvidenceExport.final_threshold_policy).toBe("TBD");
     expect(validationEvidenceExport.browser_panel_runs_tool).toBe(false);
     expect(validationEvidenceExport.dry_run_default).toBe(true);
+    expect(validationEvidenceExport.unit_evidence_required).toBe(true);
+    expect(validationEvidenceExport.unit_policy_ref).toBe(
+      "unit-policy-evidence:validation-release-evidence-review"
+    );
+    expect(validationEvidenceExport.default_units_inferred).toBe(false);
+    expect(validationEvidenceExport.conversion_performed).toBe(false);
     expect(validationEvidenceExport.private_payload_included).toBe(false);
     expect(validationEvidenceExport.protected_content_included).toBe(false);
     expect(validationEvidenceExport.release_or_professional_claim).toBe(false);
@@ -7557,8 +7569,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(proposalReviewManifest.summary.export_count).toBe(29);
     expect(proposalReviewManifest.summary.available_count).toBe(29);
     expect(proposalReviewManifest.summary.operation_record_count).toBe(1);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(25);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(25);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(26);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(26);
     const proposalReviewExport = proposalReviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "agent_proposal_review"
     );
