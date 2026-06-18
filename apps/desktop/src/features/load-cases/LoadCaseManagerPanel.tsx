@@ -67,6 +67,7 @@ const COMBINATION_BASIS_OPTIONS = ["mechanics", "result_state_subtraction", "ran
 type CombinationBasis = (typeof COMBINATION_BASIS_OPTIONS)[number];
 
 const COMBINATION_RANGE_MODES = ["min", "max", "min_abs", "max_abs"] as const;
+const DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 
 type CombinationDraft = {
   id: string;
@@ -521,7 +522,7 @@ export function LoadCaseManagerPanel({
         </div>
         <p className="muted load-edit-preview" data-testid="load-manager-create-load-preview">
           {createLoadCaseIntent
-            ? `${createLoadCaseIntent.operation_id}; before=${createLoadCaseIntent.change.before}; after=${loadCaseDraft.id}; unit=${createLoadCaseIntent.change.unit}; ${createLoadCaseIntent.change.dimension}; primitive_loads=0; direct_model_mutation_allowed=false; professional_approval=false`
+            ? `${createLoadCaseIntent.operation_id}; before=${createLoadCaseIntent.change.before}; after=${loadCaseDraft.id}; unit=${createLoadCaseIntent.change.unit}; ${createLoadCaseIntent.change.dimension}; primitive_loads=0; unit_validation=${createLoadCaseIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
             : loadCaseDraft.id.trim() && model.load_cases.some((loadCase) => loadCase.id === loadCaseDraft.id.trim())
               ? `id=${loadCaseDraft.id.trim()} already exists; no load case queued`
               : "complete id/label/kind/status/provenance to queue an empty load case"}
@@ -865,7 +866,7 @@ export function LoadCaseManagerPanel({
         </div>
         <p className="muted load-edit-preview" data-testid="load-manager-create-combination-preview">
           {createCombinationIntent
-            ? `${createCombinationIntent.operation_id}; before=${createCombinationIntent.change.before}; after=${combinationDraft.id}; ${combinationDraftExpression(combinationDraft)}; unit=${createCombinationIntent.change.unit}; ${createCombinationIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+            ? `${createCombinationIntent.operation_id}; before=${createCombinationIntent.change.before}; after=${combinationDraft.id}; ${combinationDraftExpression(combinationDraft)}; unit=${createCombinationIntent.change.unit}; ${createCombinationIntent.change.dimension}; unit_validation=${createCombinationIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
             : combinationDraft.id.trim() &&
                 model.combinations?.some((combination) => combination.id === combinationDraft.id.trim())
               ? `id=${combinationDraft.id.trim()} already exists; no combination queued`
@@ -950,7 +951,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-metadata-preview">
             {metadataIntent
-              ? `${metadataIntent.operation_id}; before=${metadataIntent.change.before}; after=${metadataIntent.change.after}; unit=${metadataIntent.change.unit}; ${metadataIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${metadataIntent.operation_id}; before=${metadataIntent.change.before}; after=${metadataIntent.change.after}; unit=${metadataIntent.change.unit}; ${metadataIntent.change.dimension}; unit_validation=${metadataIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentMetadataValue}; no changed ${metadataField} queued`}
           </p>
           <div className="load-case-delete-controls">
@@ -976,7 +977,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-load-case-delete-preview">
             {loadCaseDeleteIntent
-              ? `${loadCaseDeleteIntent.operation_id}; before=${loadCaseDeleteIntent.change.before}; after=${loadCaseDeleteIntent.change.after}; unit=${loadCaseDeleteIntent.change.unit}; ${loadCaseDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${loadCaseDeleteIntent.operation_id}; before=${loadCaseDeleteIntent.change.before}; after=${loadCaseDeleteIntent.change.after}; unit=${loadCaseDeleteIntent.change.unit}; ${loadCaseDeleteIntent.change.dimension}; unit_validation=${loadCaseDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : "select a load case and provide rationale to queue deletion"}
           </p>
         </section>
@@ -1209,7 +1210,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-create-combination-term-preview">
             {createCombinationTermIntent
-              ? `${createCombinationTermIntent.operation_id}; before=${createCombinationTermIntent.change.before}; after=${combinationTermDraft.loadCaseId} x ${combinationTermDraft.factor}; unit=${createCombinationTermIntent.change.unit}; ${createCombinationTermIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${createCombinationTermIntent.operation_id}; before=${createCombinationTermIntent.change.before}; after=${combinationTermDraft.loadCaseId} x ${combinationTermDraft.factor}; unit=${createCombinationTermIntent.change.unit}; ${createCombinationTermIntent.change.dimension}; unit_validation=${createCombinationTermIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : "select combination/load case and finite factor to queue a combination term"}
           </p>
         </section>
@@ -1263,7 +1264,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-combination-basis-preview">
             {combinationBasisIntent
-              ? `${combinationBasisIntent.operation_id}; before=${combinationBasisIntent.change.before}; after=${combinationBasisIntent.change.after}; unit=${combinationBasisIntent.change.unit}; ${combinationBasisIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${combinationBasisIntent.operation_id}; before=${combinationBasisIntent.change.before}; after=${combinationBasisIntent.change.after}; unit=${combinationBasisIntent.change.unit}; ${combinationBasisIntent.change.dimension}; unit_validation=${combinationBasisIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentCombinationBasis}; no changed combination basis queued`}
           </p>
           <div className="combination-delete-controls">
@@ -1289,7 +1290,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-combination-entity-delete-preview">
             {combinationEntityDeleteIntent
-              ? `${combinationEntityDeleteIntent.operation_id}; before=${combinationEntityDeleteIntent.change.before}; after=${combinationEntityDeleteIntent.change.after}; unit=${combinationEntityDeleteIntent.change.unit}; ${combinationEntityDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${combinationEntityDeleteIntent.operation_id}; before=${combinationEntityDeleteIntent.change.before}; after=${combinationEntityDeleteIntent.change.after}; unit=${combinationEntityDeleteIntent.change.unit}; ${combinationEntityDeleteIntent.change.dimension}; unit_validation=${combinationEntityDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : "select a combination and provide rationale to queue deletion"}
           </p>
         </section>
@@ -1336,7 +1337,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-combination-factor-preview">
             {combinationIntent
-              ? `${combinationIntent.operation_id}; before=${combinationIntent.change.before}; after=${combinationIntent.change.after}; unit=${combinationIntent.change.unit}; ${combinationIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${combinationIntent.operation_id}; before=${combinationIntent.change.before}; after=${combinationIntent.change.after}; unit=${combinationIntent.change.unit}; ${combinationIntent.change.dimension}; unit_validation=${combinationIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentCombinationFactor}; no changed combination factor queued`}
           </p>
           <div className="combination-delete-controls">
@@ -1362,7 +1363,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-combination-delete-preview">
             {combinationDeleteIntent
-              ? `${combinationDeleteIntent.operation_id}; before=${combinationDeleteIntent.change.before}; after=${combinationDeleteIntent.change.after}; unit=${combinationDeleteIntent.change.unit}; ${combinationDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${combinationDeleteIntent.operation_id}; before=${combinationDeleteIntent.change.before}; after=${combinationDeleteIntent.change.after}; unit=${combinationDeleteIntent.change.unit}; ${combinationDeleteIntent.change.dimension}; unit_validation=${combinationDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : "select a combination term and provide rationale to queue deletion"}
           </p>
         </section>
@@ -1610,7 +1611,7 @@ function buildCreateLoadCaseIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1699,7 +1700,7 @@ function buildCreateCombinationIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1841,7 +1842,7 @@ function buildCreateCombinationTermIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1905,7 +1906,7 @@ function buildLoadMetadataIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1965,7 +1966,7 @@ function buildDeleteLoadCaseIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -2037,7 +2038,7 @@ function buildCombinationBasisIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -2097,7 +2098,7 @@ function buildDeleteCombinationIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -2160,7 +2161,7 @@ function buildCombinationFactorIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -2221,7 +2222,7 @@ function buildDeleteCombinationTermIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: DIMENSIONLESS_UNIT_VALIDATION_STATUS,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },

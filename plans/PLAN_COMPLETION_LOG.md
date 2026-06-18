@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail load-manager dimensionless unit-validation evidence (`TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001`)
+
+Landed one bounded Phase B-tail Load Cases manager unit-validation slice while
+C5.7 remains human-execution gated. Empty load-case shell creation, load-case
+metadata edits, whole load-case deletion, combination creation, combination
+basis/factor edits, combination term creation/deletion, and whole-combination
+deletion now record `unit_validation=not_required_dimensionless` in the
+existing operation-intent validation field.
+
+The tranche documents existing non-unit-bearing behavior: the affected
+operations already declare `unit=none` and `dimension=dimensionless`. Unit-
+bearing primitive load create/edit paths remain routed through the existing
+unit/dimension validation helper.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-217; DEL-05-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+DEL-07-02, DEL-16-02, and DEL-02-02 supporting run records with the same id.
+
+Validation: focused manager App Vitest passed 18/18; full desktop Vitest
+passed 18/18 files and 399/399 tests; focused R2/R3 Playwright smoke passed
+14/14; desktop production build passed with the existing Vite large-chunk
+warning. DEC-025 sweep evidence is recorded separately at closeout, not as a
+lifecycle, release, professional, certification, sealing, authentication, or
+code-compliance claim.
+
+Boundary: no load-case algebra solver behavior, operation application
+behavior, accepted model-state mutation, durable persistence, schema enum,
+unit-conversion API, DEC-018 catalog constant, protected standards content,
+private payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail delete-intent unit-validation evidence (`TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001`)
 
 Landed one bounded Phase B-tail Property Inspector/delete-intent

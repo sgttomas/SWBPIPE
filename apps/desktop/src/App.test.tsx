@@ -2262,6 +2262,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-create-load-preview").textContent).toContain(
       "primitive_loads=0"
     );
+    expect(within(manager).getByTestId("load-manager-create-load-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
+    );
     fireEvent.change(within(manager).getByTestId("load-manager-create-load-label"), {
       target: { value: "User operating case" }
     });
@@ -2317,6 +2320,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(manager).getByTestId("load-manager-load-case-delete-preview").textContent).toContain(
       "before=load:L-300; Temporary user case; primitive_user_load; draft; primitives=0; after=not_present; unit=none; dimensionless"
+    );
+    expect(within(manager).getByTestId("load-manager-load-case-delete-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
     );
     fireEvent.click(within(manager).getByTestId("queue-delete-load-case-intent"));
 
@@ -2775,6 +2781,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
       "before=preview_only; after=TBD"
     );
+    expect(within(manager).getByTestId("load-manager-metadata-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
+    );
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -2846,6 +2855,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-combination-factor-preview").textContent).toContain(
       "before=0.5; after=0.75"
     );
+    expect(within(manager).getByTestId("load-manager-combination-factor-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
+    );
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -2905,6 +2917,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
       "before=mechanics; after=result_state_subtraction"
     );
+    expect(within(manager).getByTestId("load-manager-combination-basis-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
+    );
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -2963,6 +2978,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-create-combination-term-preview").textContent).toContain(
       "before=not_present; after=load:L-300 x 0.25; unit=none; dimensionless"
     );
+    expect(within(manager).getByTestId("load-manager-create-combination-term-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
+    );
     fireEvent.click(within(manager).getByTestId("queue-create-combination-term-intent"));
 
     expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain("terms");
@@ -3000,6 +3018,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
       "before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
     );
     fireEvent.change(within(manager).getByTestId("load-manager-create-combination-label"), {
       target: { value: "User operating combination" }
@@ -3057,6 +3078,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
       "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
+    );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
     );
     fireEvent.click(within(manager).getByTestId("queue-create-combination-intent"));
 
@@ -3130,6 +3154,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
       "before=not_present; after=combination:C-300; mode=min_abs; operands=load:L-100, load:L-200; unit=none; dimensionless"
     );
+    expect(within(manager).getByTestId("load-manager-create-combination-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
+    );
     fireEvent.click(within(manager).getByTestId("queue-create-combination-intent"));
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
@@ -3169,6 +3196,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(manager).getByTestId("load-manager-combination-delete-preview").textContent).toContain(
       "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-delete-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
     );
     fireEvent.click(within(manager).getByTestId("queue-delete-combination-term-intent"));
 
@@ -3212,6 +3242,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(manager).getByTestId("load-manager-combination-entity-delete-preview").textContent).toContain(
       "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5"
+    );
+    expect(within(manager).getByTestId("load-manager-combination-entity-delete-preview").textContent).toContain(
+      "unit_validation=not_required_dimensionless"
     );
     fireEvent.click(within(manager).getByTestId("queue-delete-combination-intent"));
 

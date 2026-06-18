@@ -1142,3 +1142,25 @@ Boundary note:
   private data, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-05-02 Load Cases manager tranche: operations that
+  introduce no unit-bearing numeric quantity now explicitly classify unit
+  validation as `not_required_dimensionless`.
+- The tranche does not add or alter unit symbols, dimensions, conversion
+  factors, DEC-018 catalog constants, schema dimension enums, or hidden
+  normalization behavior.
+- Unit-bearing primitive load create/edit paths remain covered by existing
+  unit/dimension validation logic and were not changed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-217; completion log entry.
+- Validation passed: focused manager App Vitest 18/18, full desktop Vitest
+  399/399, focused R2/R3 Playwright 14/14, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, accepted model-state mutation, solver
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

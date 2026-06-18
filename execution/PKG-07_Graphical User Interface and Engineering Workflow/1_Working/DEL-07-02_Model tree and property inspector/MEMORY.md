@@ -817,3 +817,24 @@ Durable context preserved after reconciliation review:
   mutation, solver behavior, protected standards content, private data,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001 supporting GUI evidence
+
+- Supporting role for DEL-05-02 Load Cases manager tranche: non-unit-bearing
+  load-case and combination operation previews now render
+  `unit_validation=not_required_dimensionless` beside their existing
+  `unit=none`, `dimensionless`, direct-mutation, and professional-boundary
+  markers.
+- Primitive load magnitude create/edit previews remain unit-bearing and keep
+  the existing unit/dimension validation helper.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-217; completion log entry.
+- Validation passed: focused manager App Vitest 18/18, full desktop Vitest
+  399/399, focused R2/R3 Playwright 14/14, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no GUI behavior changed beyond preview metadata
+  rendering; no operation application, accepted model-state mutation, durable
+  persistence, unit conversion, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

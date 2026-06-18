@@ -7116,3 +7116,39 @@ notes:
   content, private payload, lifecycle state transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-217 load-manager dimensionless unit-validation evidence - PASSED (`TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Load Cases manager unit-validation slice while
+  C5.7 remains human-execution gated. Non-unit-bearing load-case and
+  combination operation intents now record unit validation as
+  `not_required_dimensionless` instead of leaving `unit_validation=not_run`.
+- Unit behavior: empty load-case shell creation, load-case metadata edits,
+  whole load-case deletion, combination creation, combination basis/factor
+  edits, combination term creation/deletion, and whole-combination deletion
+  already declare `unit=none` and `dimension=dimensionless`; their preview
+  metadata now makes that classification explicit.
+- UI check: the Load Cases manager preview testids for create-load,
+  metadata/delete, create-combination, combination term create/delete,
+  combination basis/factor, and combination delete now expose
+  `unit_validation=not_required_dimensionless`. Unit-bearing primitive load
+  create/edit paths remain routed through the existing unit/dimension
+  validation helper.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx -t "manager panel"`
+    passed 18/18 focused manager tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-05-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  DEL-07-02, DEL-16-02, and DEL-02-02 supporting run records with the same
+  id; completion log entry.
+- Boundary: operation-intent metadata only. No load-case algebra solver
+  behavior, operation application behavior, accepted model-state mutation,
+  durable persistence, schema enum, unit-conversion API, DEC-018 catalog
+  constant, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

@@ -407,3 +407,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001 dimensionless load-manager operation evidence
+
+- Primary role for a bounded Phase B-tail Load Cases manager unit-validation
+  slice while C5.7 remains human-execution gated.
+- Empty load-case shell creation, load-case metadata edits, whole load-case
+  deletion, combination creation, combination basis/factor edits, combination
+  term create/delete, and whole-combination deletion now record
+  `unit_validation=not_required_dimensionless` in the existing operation
+  intent validation field.
+- These operations already declare `unit=none` and `dimension=dimensionless`;
+  the tranche makes that non-unit-bearing status explicit in previews instead
+  of leaving `unit_validation=not_run`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-217; completion log entry.
+- Validation passed: focused manager App Vitest 18/18, full desktop Vitest
+  399/399, focused R2/R3 Playwright 14/14, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no load-case algebra solver behavior, operation
+  application behavior, accepted model-state mutation, durable persistence,
+  unit conversion API, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
