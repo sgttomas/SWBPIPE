@@ -7553,6 +7553,18 @@ notes:
     passed 1/1 selected test.
   - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
     passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test after the scenario-specific export-review lint
+    count assertion was restored.
+  - `npm run test --workspace apps/desktop` initially caught the over-broad
+    export-review manifest count assertion and then passed 18/18 files and
+    399/399 tests after repair.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
   - `git diff --check` passed.
   - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
     tests.
@@ -7767,3 +7779,37 @@ notes:
   schema dimension enum, protected standards content, private payload,
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-235 native package unit inventory coverage - PASSED (`TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Native JSON Package unit-inventory slice while
+  C5.7 remains human-execution gated. The Native JSON package already exposes
+  project/model/result unit preservation witnesses; this tranche records that
+  public unit surface in the Report Content Lint inventory.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/native-package/NativePackagePanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `native-package-unit-witnesses` to `unit_policy_evidence.target_refs`.
+  The visible lint row reports `unit_targets=19`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    initially caught stale target-count assertions, then passed 1/1 selected
+    test after the assertions were updated.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "computed mechanics diagnostics"`
+    initially caught stale target-count assertions, then passed 1/1 selected
+    test after the assertions were updated.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+- Evidence: DEL-17-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001.md`;
+  DEL-08-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Native JSON Package
+  unit-preservation evidence only. No native JSON packet schema, package
+  member set, package hash basis, target writer, target compatibility posture,
+  report-linter protected-content semantics, legal clearance,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

@@ -247,6 +247,15 @@ Report Content Lint inventory now includes this public unit-policy surface
 (`unit_targets=18`) without changing persistence semantics, migration policy,
 hash canonicalization, or linter protected-content semantics.
 
+Latest B-tail update: `TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001`
+(SMOKE TP-MAC-235) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Native JSON Package public unit-preservation surface
+(`native-package-unit-witnesses`), raising public unit-policy targets to 19
+while keeping target-format conversion witnesses at two. This records the
+existing native package project/model/result unit witnesses without changing
+the native JSON packet, package hashing, target compatibility posture, or unit
+conversion behavior.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

@@ -1,5 +1,26 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-17-03 native package tranche: the desktop Report
+  Content Lint inventory now includes the Native JSON Package
+  unit-preservation surface.
+- The lint inventory records `native-package-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=19`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The native
+  package itself continues to preserve source unit declarations and quantity
+  value/unit fields without conversion.
+- Validation passed after stale count assertions were updated and one
+  scenario-specific export-review lint count assertion was restored: focused
+  App Vitest selected tests, full desktop Vitest 399/399, desktop production
+  build with the existing Vite large-chunk warning, and single-worker R2/R3
+  Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, native package conversion behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-OPLEDGERUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-16-03 Operation Review Ledger tranche: the desktop

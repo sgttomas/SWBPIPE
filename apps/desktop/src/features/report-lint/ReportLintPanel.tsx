@@ -137,6 +137,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+          "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
           "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
           "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
@@ -238,6 +239,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "external-prover-units",
     "none",
     "external-prover metadata unit policy"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+    "native-package-unit-witnesses",
+    "none",
+    "native JSON package unit preservation witnesses"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -444,6 +451,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "External prover boundary template records metadata-only names, tags, references, attachment refs, unsupported target flags, private payload false, and no software authority claim."
+    ),
+    target(
+      "target:desktop-native-package-template",
+      "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Native JSON package template records project-owned package members, stable IDs, unit preservation witnesses, private payload false, protected payload false, target compatibility false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-review-geometry-template",

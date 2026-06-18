@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail native package unit inventory coverage (`TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001`)
+
+Landed one bounded Phase B-tail Native JSON package unit-inventory slice while
+C5.7 remains human-execution gated. The Native JSON package panel already
+exposed project unit declarations, model quantity witnesses, result quantity
+witnesses, and `conversion=false`; this tranche makes that public
+unit-preservation surface discoverable through the Report Content Lint
+unit-policy inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/native-package/NativePackagePanel.tsx` and target
+ref `native-package-unit-witnesses`. Unit-policy target count increases from
+18 to 19, while target-format conversion-witness target count remains two
+(PCF and CAEPIPE MBF). The lint still performs no conversion and makes no
+target-format compatibility assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-235; DEL-17-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001.md`;
+DEL-08-05 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest initially caught stale count assertions and
+then passed the workspace-render, local create/save/open, computed-diagnostics,
+and queued-editor-intent selected tests. Full desktop Vitest initially caught
+one over-broad export-review manifest count update and then passed 18/18 files
+and 399/399 tests after repair. Desktop production build passed with the
+existing Vite large-chunk warning. Single-worker R2/R3 Playwright smoke passed
+18/18 tests.
+
+Boundary: no native JSON packet schema, package member set, package hash
+basis, target writer, target compatibility posture, report-linter
+protected-content semantics, legal clearance, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-18 - B-tail project-storage unit policy evidence (`TP-UNITS-BTAIL-STORAGEUNITS-001`)
 
 Landed one bounded Phase B-tail Project Storage Audit unit-policy evidence

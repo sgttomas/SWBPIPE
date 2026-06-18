@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-05 Report Protected-Content Linter
 
+## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-17-03 native package unit-inventory tranche: the
+  Report Content Lint public unit-policy inventory now includes
+  `apps/desktop/src/features/native-package/NativePackagePanel.tsx`.
+- `data-testid="report-lint-unit-policy"` now reports 19 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The exported lint packet includes the native package target ref with
+  `unit_policy_surface_id=native-package-unit-witnesses`.
+- Validation passed after updating stale target-count assertions and
+  restoring one scenario-specific export-review lint count assertion:
+  focused App Vitest selected tests, full desktop Vitest 399/399, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## Current Implementation
 
 2026-05-02 implementation from sealed dispatch brief
