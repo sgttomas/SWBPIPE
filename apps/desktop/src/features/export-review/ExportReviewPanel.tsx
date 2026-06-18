@@ -139,6 +139,7 @@ const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
   "headless_runner_envelope",
   "adapter_framework_envelope",
   "local_fea_handoff_package",
+  "external_prover_boundary_metadata",
   "review_geometry_export",
   "conservative_pcf_export",
   "caepipe_mbf_export",

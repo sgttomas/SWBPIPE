@@ -213,3 +213,26 @@ Durable context preserved after reconciliation review:
   content, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `external_prover_boundary_metadata` as unit-evidence-required because the
+  external-prover boundary packet already carries DEC-018 unit-policy
+  evidence.
+- Solved queued-intent Export Review now reports `covered=19/20`; proposal
+  path evidence reports 20/20 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-263; active plan and completion log entries;
+  supporting DEL-15-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, external solver or
+  prover invocation, commercial-result ingestion, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail export-review external-prover unit evidence (`TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001`)
+
+Landed one bounded Phase B-tail Export Safety Review unit-evidence matrix
+slice while C5.7 remains human-execution gated. The external-prover boundary
+panel already exposes DEC-018 unit-policy evidence; this tranche makes that
+existing evidence discoverable through the Export Safety Review matrix.
+
+Export Safety Review now classifies `external_prover_boundary_metadata` as
+unit-evidence-required and covered by target-panel/export-packet evidence.
+Solved queued-intent coverage is now `covered=19/20`; proposal-path coverage
+is 20/20 once `agent_proposal_review` is available.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-263; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+DEL-15-04 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App workspace-render test passed 1/1; full App test file
+passed 56/56 after updating the stale visible coverage assertion; full
+desktop Vitest passed 18/18 files and 399/399 tests; desktop build passed
+with the existing Vite large-chunk warning; focused R2 Playwright passed 2/2;
+full single-worker Playwright passed 18/18.
+
+Boundary: export-review inventory evidence only. No external solver/prover
+invocation, target parser, commercial-result ingestion, target writer,
+manifest-level unit conversion, redaction behavior, public transport
+commitment, protected standards content, private payload, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail product-preview fixture unit-policy inventory (`TP-UNITS-BTAIL-FIXTURELINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while

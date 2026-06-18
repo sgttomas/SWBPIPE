@@ -8888,3 +8888,38 @@ notes:
   behavior, unit conversion, protected standards content, private payload,
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-263 export-review external-prover unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-15-04 external-prover boundary panel
+  already exposes DEC-018 unit-policy evidence; this tranche classifies the
+  `external_prover_boundary_metadata` export row as unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `external_prover_boundary_metadata` in the unit-evidence-required matrix.
+  Solved queued-intent Export Review reports `covered=19/20`; the proposal
+  path reports 20/20 once `agent_proposal_review` is available. The downloaded
+  manifest includes `external_prover_boundary_metadata` in
+  `unit_policy_summary.covered_export_ids` with
+  `unit_evidence_status=covered_by_target_panel_or_export_packet`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests after updating the stale visible coverage assertion.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  DEL-15-04 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No external solver/prover
+  invocation, target parser, commercial-result ingestion, target writer,
+  manifest-level unit conversion, redaction behavior, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -126,3 +126,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   compatibility claim, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-15-04: Export Safety Review now classifies
+  `external_prover_boundary_metadata` as unit-evidence-required and covered by
+  the existing external-prover target-panel/export-packet unit evidence.
+- The DEL-15-04 packet remains metadata-only external review context with
+  `unit-policy-evidence:external-prover-preview`,
+  `conversion_performed=false`, no external solver/prover invocation, and no
+  commercial-result ingestion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVEXTPROVERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-263; primary DEL-12-02 run record and
+  supporting DEL-02-02 run record.
+- Validation passed: focused App workspace-render test, full App test file
+  56/56, full desktop Vitest 399/399, desktop production build with the
+  existing Vite large-chunk warning, focused R2 Playwright 2/2, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no external solver/prover invocation, target parser,
+  commercial-result ingestion, software-created external validation record,
+  target writer, external acceptance state, manifest-level unit conversion,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
