@@ -1,5 +1,26 @@
 # DEL-07-05 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-RESULTVIEWLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Results viewer result-unit policy
+  surface.
+- The lint inventory records `result-unit-policy` as an existing unit-policy
+  surface and reports `unit_targets=31`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The Results viewer continues to expose
+  `units=MPa,N,N*m,mm,rad`, `rows=737`, entered-unit preservation, and
+  `conversion=false`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no result math, result filtering, pagination semantics,
+  selected-result interpretation, solver behavior, comparison delta math,
+  tolerance profile, default tolerance, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented deterministic results-viewer contract records under

@@ -123,6 +123,7 @@ function buildReportLintPacket({
         scan_scope: "explicit_public_surfaces",
         public_surface_roots: [
           "apps/desktop/src/features/report/ReportPanel.tsx",
+          "apps/desktop/src/features/results/ResultsPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
           "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
@@ -184,6 +185,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "report-unit-system",
     "none",
     "report packet unit-system disclosure"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/results/ResultsPanel.tsx",
+    "result-unit-policy",
+    "none",
+    "results viewer result-unit policy"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
@@ -430,6 +437,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Report packet template uses metadata, diagnostics, limitations, and no professional approval claim."
+    ),
+    target(
+      "target:desktop-results-viewer-template",
+      "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Results viewer template records solved result groups, result-unit policy, row count, filtering state, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-export-review-template",
