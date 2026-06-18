@@ -14,6 +14,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail comparison report-lint unit inventory (`TP-UNITS-BTAIL-COMPARISONLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Comparison workspace already exposes
+equal-explicit-unit matching policy context; this tranche makes that public
+unit-policy surface discoverable through the Report Content Lint
+public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/comparison/ComparisonPanel.tsx`, target
+`target:desktop-comparison-workspace-template`, and target ref
+`comparison-unit-policy`. Unit-policy target count increases from 32 to 33,
+while target-format conversion-witness target count remains two. The lint
+still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-250; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-COMPARISONLINTUNITS-001.md`;
+DEL-14-04 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render and local project
+round-trip selected tests passed 1/1 each; focused Playwright R2 smoke passed
+2/2 configured project tests; full desktop Vitest passed 18/18 files and
+399/399 tests. Desktop production build passed with the existing Vite
+large-chunk warning. Single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Comparison workspace
+unit-matching policy context only. No comparison delta math, result mapping,
+tolerance profile, default tolerance, solver behavior, report-linter
+protected-content semantics, legal clearance, redaction controls, target
+writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+dimension enum, protected standards content, private payload, lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail rendered-report report-lint unit inventory (`TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while

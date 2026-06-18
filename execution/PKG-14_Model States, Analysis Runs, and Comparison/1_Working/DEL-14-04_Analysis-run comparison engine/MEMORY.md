@@ -1,5 +1,27 @@
 # DEL-14-04 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-COMPARISONLINTUNITS-001 supporting comparison evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Comparison workspace unit-matching
+  policy surface.
+- The lint inventory records `comparison-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=33`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Comparison
+  workspace continues to report equal-explicit-unit matching over solved
+  result units `MPa,N,N*m,mm,rad`, `conversion=false`, and
+  `tolerance=not_tolerance_checked`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no comparison delta math, result mapping, tolerance
+  profile, default tolerance, solver behavior, unit conversion API, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Implementation Notes
 
 - Added a narrow diagnostic analysis-run comparison module at `core/comparison/analysis_run/engine.py`.
