@@ -87,7 +87,9 @@ export function buildDiagnosticInterpretation({
         id: item.id,
         kind: item.kind,
         entity_ref: item.entity_ref,
-        value_label: `${item.value} ${item.unit}`
+        value_label: `${item.value} ${item.unit}`,
+        unit: item.unit,
+        unit_source: "result_envelope" as const
       })) ?? [];
   const linkedKnowledge = allKnowledgeRecords(knowledge, result).filter((record) =>
     [diagnostic.id, diagnostic.code, ...affectedRefs]

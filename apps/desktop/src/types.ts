@@ -199,6 +199,8 @@ export type DiagnosticInterpretation = {
     kind: string;
     entity_ref: string;
     value_label: string;
+    unit: string;
+    unit_source: "result_envelope";
   }>;
   linked_knowledge: KnowledgeRecord[];
   review_explanation: string;

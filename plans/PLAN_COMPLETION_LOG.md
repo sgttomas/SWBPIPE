@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail diagnostic linked-result unit context (`TP-UNITS-BTAIL-DIAGNOSTICUNITS-001`)
+
+Landed one bounded Phase B-tail diagnostic review-surface slice while C5.7
+remains human-execution gated. The DEL-07-07 Diagnostic Detail panel now
+records explicit unit context for result rows linked to the selected
+diagnostic.
+
+The tranche adds first-class `unit` and `unit_source` fields to diagnostic
+linked-result interpretation records and renders
+`data-testid="diagnostic-unit-context"` with linked result count, result unit
+symbols in linked-result order, `source=result_envelope`, and
+`conversion=false`. For `HIGH_DISPLACEMENT_REVIEW`, the selected node-level
+diagnostic links 21 result rows with units `mm,rad`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-224; DEL-07-07 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 selected test; focused Playwright
+passed 2/2 tests; full desktop Vitest passed 18/18 files and 399/399 tests;
+R2/R3 Playwright smoke passed 18/18 tests; desktop production build passed
+with the existing Vite large-chunk warning. DEC-025 sweep evidence is
+recorded separately at closeout, not as a lifecycle, release, professional,
+certification, sealing, authentication, or code-compliance claim.
+
+Boundary: no diagnostic schema, solver behavior, result value, unit-conversion
+API, DEC-018 catalog constant, schema dimension enum, protected standards
+content, private payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail design-knowledge computed-unit context (`TP-UNITS-BTAIL-KNOWLEDGEUNITS-001`)
 
 Landed one bounded Phase B-tail design-knowledge review-surface slice while

@@ -1274,3 +1274,27 @@ Boundary note:
   behavior, protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DIAGNOSTICUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-07 diagnostic review-surface tranche:
+  diagnostic linked-result interpretation records now carry first-class
+  `unit` and `unit_source` fields sourced from the result envelope.
+- The Diagnostic Detail panel exposes
+  `data-testid="diagnostic-unit-context"` with linked result count, result
+  units, `source=result_envelope`, and `conversion=false`.
+- For `HIGH_DISPLACEMENT_REVIEW`, the selected node-level diagnostic links
+  21 result rows for `node:N-140` with units `mm,rad`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-224; completion log entry; primary
+  DEL-07-07 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright diagnostic smoke 2/2, full desktop Vitest 399/399, R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, diagnostic schema, solver behavior,
+  result value, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

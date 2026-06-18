@@ -749,6 +749,22 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("rendered-report-route")).toContainText("REPORT-RENDERER-DESKTOP-ONLY");
 });
 
+test("diagnostic detail exposes linked result unit context", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await openWorkspaceSection(page, "solve");
+
+  await page.getByTestId("run-mechanics-preview").click();
+  await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toBeVisible();
+  await page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW").click();
+
+  await expect(page.getByTestId("selected-diagnostic-linked-results")).toContainText("result:disp:node-N-140");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("linked_results=21");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("units=mm,rad");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("source=result_envelope");
+  await expect(page.getByTestId("diagnostic-unit-context")).toContainText("conversion=false");
+});
+
 // Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
 // private draft in memory and reports the honest desktop-only seam for
 // validation, checksum, persistence, and listing in browser mode — the

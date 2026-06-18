@@ -104,7 +104,9 @@ Open the Vite URL printed by the command, normally
    `data-testid="diagnostic-detail-panel"` shows
    `diagnostic:physics:high-displacement-review`,
    `result:disp:node-N-140`, `node:N-140`, linked result value context, and the
-   review-only professional boundary.
+   review-only professional boundary. Confirm
+   `data-testid="diagnostic-unit-context"` shows linked result unit context
+   with `units=mm,rad`, `source=result_envelope`, and `conversion=false`.
 27. Confirm the model context selects `node:N-140` and the property inspector
    (`aria-label="Property inspector"`) shows `Terminal tie-in`.
 28. Knowledge renders `data-testid="knowledge-panel"` and includes computed
@@ -7346,3 +7348,34 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-224 diagnostic linked-result unit context - PASSED (`TP-UNITS-BTAIL-DIAGNOSTICUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail diagnostic review-surface slice while C5.7
+  remains human-execution gated. The Diagnostic Detail panel now exposes
+  explicit unit context for result rows linked to a selected diagnostic.
+- Unit behavior: `data-testid="diagnostic-unit-context"` reports linked result
+  count, first-class result units in linked-result order, `source=result_envelope`,
+  and `conversion=false`. For `HIGH_DISPLACEMENT_REVIEW`, the selected
+  node-level diagnostic links 21 result rows with units `mm,rad`.
+- UI check: the focused App test verifies the Diagnostic Detail unit-context
+  line after mechanics preview solve. The R2/R3 Playwright smoke file checks
+  the same row in desktop and compact browser projects.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "links selected diagnostics to affected result and model context"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "diagnostic detail exposes linked result unit context"`
+    passed 2/2 focused Playwright tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts` passed 18/18 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-07 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: diagnostic review UI evidence only. No diagnostic schema, solver
+  behavior, result value, unit conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

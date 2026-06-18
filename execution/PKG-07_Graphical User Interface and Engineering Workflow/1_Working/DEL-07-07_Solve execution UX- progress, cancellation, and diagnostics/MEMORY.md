@@ -217,3 +217,27 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DIAGNOSTICUNITS-001 diagnostic unit context evidence
+
+- WORKING_ITEMS Phase B-tail tranche exposed explicit unit context for
+  selected diagnostic linked results in the desktop Diagnostic Detail panel.
+- Diagnostic linked-result interpretation records now carry first-class
+  `unit` and `unit_source` fields sourced from the result envelope, and
+  `data-testid="diagnostic-unit-context"` renders linked result count, units,
+  `source=result_envelope`, and `conversion=false`.
+- For `HIGH_DISPLACEMENT_REVIEW`, the selected node-level diagnostic links
+  21 result rows for `node:N-140` with units `mm,rad`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DIAGNOSTICUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-224; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright diagnostic smoke 2/2, full desktop Vitest 399/399, R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no diagnostic schema, solver behavior, result value,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

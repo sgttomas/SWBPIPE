@@ -7144,6 +7144,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(diagnosticDetail).getByTestId("selected-diagnostic-linked-results").textContent).toContain(
       "result:disp:node-N-140"
     );
+    expect(within(diagnosticDetail).getByTestId("diagnostic-unit-context").textContent).toContain(
+      "linked_results=21"
+    );
+    expect(within(diagnosticDetail).getByTestId("diagnostic-unit-context").textContent).toContain("units=mm,rad");
+    expect(within(diagnosticDetail).getByTestId("diagnostic-unit-context").textContent).toContain(
+      "source=result_envelope"
+    );
+    expect(within(diagnosticDetail).getByTestId("diagnostic-unit-context").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(diagnosticDetail).getByTestId("selected-diagnostic-explanation").textContent).toContain(
       "review threshold"
     );
