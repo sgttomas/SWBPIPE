@@ -3954,7 +3954,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
       "unit-system:dec-018-si-dual-display"
     );
-    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=14/14");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=16/16");
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
@@ -4111,10 +4111,12 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
     expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(27);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(14);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(14);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(16);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(16);
     expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
     expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
+      "project_storage_audit",
+      "project_validation_preflight",
       "result_envelope",
       "stress_neutral_csv_json_package",
       "headless_runner_envelope",
@@ -4130,6 +4132,16 @@ describe("OpenPipeStress desktop preview", () => {
       "handoff_package",
       "operation_review_ledger"
     ]);
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "project_storage_audit"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "project_validation_preflight"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
     expect(
       reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
         (item: { export_id: string }) => item.export_id === "result_envelope"

@@ -7813,3 +7813,38 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-236 export-review storage/preflight unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Project Storage Audit and Project
+  Validation Preflight packets already expose DEC-018 unit-policy evidence;
+  the export-review manifest now classifies those records as
+  unit-evidence-required rather than metadata-only.
+- App behavior: `data-testid="export-review-units"` now reports
+  `covered=16/16` with `unit-system:dec-018-si-dual-display` and
+  `conversion=false`. The downloaded export-review JSON includes
+  `project_storage_audit` and `project_validation_preflight` in
+  `unit_policy_summary.covered_export_ids`, and both rows have
+  `unit_evidence_status=covered_by_target_panel_or_export_packet`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+  DEL-02-05 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: export-review metadata inventory only. No project persistence
+  semantics, validation-preflight semantics, target-specific writer,
+  manifest unit conversion, runtime redaction rule, public transport
+  commitment, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

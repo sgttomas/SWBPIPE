@@ -1542,3 +1542,27 @@ Boundary note:
   private data, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: the Export Safety Review unit-evidence matrix
+  now classifies the Project Storage Audit and Project Validation Preflight
+  export records as covered unit-bearing records because their packets already
+  carry DEC-018 unit-policy evidence.
+- The export-review visible summary and JSON moved from `covered=14/14` to
+  `covered=16/16` without changing conversion behavior; the manifest still
+  records `conversion_performed=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-236; completion log entry; primary
+  DEL-12-02 run record and supporting DEL-02-05 run record.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open tests, full desktop Vitest 399/399, single-worker R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, target-specific writer, persistence
+  semantics, validation-preflight semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

@@ -428,3 +428,27 @@ Boundaries preserved:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 supporting export-review matrix evidence
+
+- Supporting role for DEL-02-05: the Export Safety Review manifest now
+  consumes the existing Project Storage Audit and Project Validation Preflight
+  unit-policy packet contracts as unit-bearing export evidence.
+- `project_storage_audit` and `project_validation_preflight` now appear in the
+  export-review covered unit-evidence set, raising the manifest coverage line
+  to `covered=16/16`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-236; completion log entry; primary
+  DEL-12-02 run record and supporting DEL-02-02 run record.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open tests, full desktop Vitest 399/399, single-worker R2/R3
+  Playwright smoke 18/18, and desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no project persistence semantics, local storage
+  behavior, validation-preflight semantics, migration policy,
+  project-envelope schema, model hash canonicalization, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

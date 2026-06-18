@@ -118,3 +118,23 @@ Durable context preserved after reconciliation review:
   payload, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: the desktop Export Safety
+  Review manifest now treats `project_storage_audit` and
+  `project_validation_preflight` as unit-evidence-required records because
+  both source packets already carry DEC-018 unit-policy evidence.
+- The visible `export-review-units` line and downloaded JSON now report
+  `covered=16/16`; both storage/preflight rows have
+  `unit_evidence_status=covered_by_target_panel_or_export_packet`.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open tests, full desktop Vitest 399/399, desktop production
+  build with the existing Vite large-chunk warning, and single-worker R2/R3
+  Playwright smoke 18/18.
+- Boundary preserved: no project persistence semantics,
+  validation-preflight semantics, runtime redaction rule, public transport
+  commitment, target-specific writer, manifest-level unit conversion,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

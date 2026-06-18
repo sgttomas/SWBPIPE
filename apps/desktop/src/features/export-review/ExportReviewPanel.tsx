@@ -129,6 +129,8 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
 }
 
 const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
+  "project_storage_audit",
+  "project_validation_preflight",
   "result_envelope",
   "stress_neutral_csv_json_package",
   "headless_runner_envelope",

@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail export-review storage/preflight unit evidence (`TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001`)
+
+Landed one bounded Phase B-tail Export Safety Review matrix cleanup while
+C5.7 remains human-execution gated. The export-review manifest already listed
+the Project Storage Audit and Project Validation Preflight export records, and
+those packets already carried DEC-018 unit-policy evidence; this tranche now
+classifies those two records as unit-evidence-required instead of
+metadata-only.
+
+The Export Safety Review `unit_policy_summary` still performs no conversion
+and makes no target-writer compatibility claim. Its 27-row
+`unit_evidence_matrix` now records 16 unit-bearing covered export records,
+including `project_storage_audit` and `project_validation_preflight`, and the
+visible `export-review-units` row reports `covered=16/16`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-236; DEL-12-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001.md`;
+DEL-02-05 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest passed the workspace-render and local
+create/save/open selected tests; full desktop Vitest passed 18/18 files and
+399/399 tests; desktop production build passed with the existing Vite
+large-chunk warning; single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: export-review metadata inventory only. No project persistence
+semantics, validation-preflight semantics, target-specific writer, manifest
+unit conversion, runtime redaction rule, public transport commitment,
+protected standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail native package unit inventory coverage (`TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001`)
 
 Landed one bounded Phase B-tail Native JSON package unit-inventory slice while
