@@ -1,5 +1,24 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001 supporting unit evidence
+
+- Supporting role for DEL-12-04 secret/private-library tranche: the desktop
+  Secret & Private Libraries panel now surfaces explicit unit-policy evidence
+  for metadata-only private material/rule references.
+- The packet records explicit unit metadata required at import/use time,
+  `unit_payload_included=false`, `conversion_performed=false`, and
+  `repository_default_private_write=false`; it does not infer/default private
+  units or read private values.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-KNOWLEDGEUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-13-01 design-knowledge tranche: the desktop Design

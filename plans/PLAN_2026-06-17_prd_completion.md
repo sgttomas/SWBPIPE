@@ -183,6 +183,12 @@ Latest B-tail update: `TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`
 validation status while preserving review-only service-validation/no-mutation
 behavior; component-symbol remains `not_required_dimensionless`.
 
+Latest B-tail update: `TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001`
+(SMOKE TP-MAC-226) landed on 2026-06-17. The Secret & Private Libraries panel
+now exposes metadata-only unit policy for unit-bearing private material/rule
+references: explicit unit metadata required at use, no private unit payload in
+the preview packet, and `conversion=false`.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

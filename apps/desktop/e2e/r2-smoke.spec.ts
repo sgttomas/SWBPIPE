@@ -375,6 +375,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
 
   await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("unit_refs=2");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
+  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
   await expect(page.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
   await expect(page.getByTestId("run-audit-units")).toContainText("rows=737");

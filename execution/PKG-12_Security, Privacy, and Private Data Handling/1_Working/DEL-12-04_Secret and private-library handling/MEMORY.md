@@ -9,6 +9,27 @@ package_id: PKG-12
 
 # MEMORY - DEL-12-04
 
+## 2026-06-17 - TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001
+
+- App-integration B-tail addendum: the desktop Secret & Private Libraries
+  panel now exposes metadata-only unit policy for private material-library and
+  private rule-pack references.
+- The packet records `private_unit_reference_count=2`,
+  `explicit_unit_metadata_required=true`, `unit_payload_included=false`,
+  `conversion_performed=false`, and
+  `repository_default_private_write=false`; per-reference statuses preserve
+  that private values are withheld and unit metadata is required at import/use
+  time.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no private library payload read/write, credential
+  storage, storage-root finalization, unit conversion API, protected standards
+  content, private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 Implemented DEV-001 revision 0.5 Tranche M slice for secret and
 private-library reference handling.
 

@@ -1882,6 +1882,18 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(secretPrivateLibrary).getByTestId("secret-private-library-secrets").textContent).toContain(
       "provider=TBD"
     );
+    expect(within(secretPrivateLibrary).getByTestId("secret-private-library-unit-policy").textContent).toContain(
+      "unit_refs=2"
+    );
+    expect(within(secretPrivateLibrary).getByTestId("secret-private-library-unit-policy").textContent).toContain(
+      "required=true"
+    );
+    expect(within(secretPrivateLibrary).getByTestId("secret-private-library-unit-policy").textContent).toContain(
+      "payload=false"
+    );
+    expect(within(secretPrivateLibrary).getByTestId("secret-private-library-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(secretPrivateLibrary).getByTestId("secret-private-library-no-bypass").textContent).toContain(
       "direct_sql=false"
     );
@@ -1907,6 +1919,23 @@ describe("OpenPipeStress desktop preview", () => {
     expect(secretPrivatePacket.summary.payload_present).toBe(false);
     expect(secretPrivatePacket.summary.secret_material_present).toBe(false);
     expect(secretPrivatePacket.summary.public_fixture_block_count).toBe(4);
+    expect(secretPrivatePacket.unit_policy.private_unit_reference_count).toBe(2);
+    expect(secretPrivatePacket.unit_policy.explicit_unit_metadata_required).toBe(true);
+    expect(secretPrivatePacket.unit_policy.unit_payload_included).toBe(false);
+    expect(secretPrivatePacket.unit_policy.conversion_performed).toBe(false);
+    expect(secretPrivatePacket.unit_policy.repository_default_private_write).toBe(false);
+    expect(secretPrivatePacket.unit_policy.unit_metadata_statuses).toEqual([
+      {
+        reference_id: "spl:private-material-library:invented-preview",
+        record_kind: "private_material_library",
+        unit_metadata_status: "private_unit_bearing_values_withheld_explicit_unit_metadata_required_at_use"
+      },
+      {
+        reference_id: "spl:private-rule-pack:invented-preview",
+        record_kind: "private_rule_pack",
+        unit_metadata_status: "private_rule_inputs_withheld_explicit_unit_metadata_required_at_use"
+      }
+    ]);
     expect(secretPrivatePacket.guard_contexts.public_fixture.summary.blocked_count).toBe(4);
     expect(secretPrivatePacket.guard_contexts.public_report.summary.metadata_only_count).toBe(4);
     expect(secretPrivatePacket.guard_contexts.local_private.explicit_local_private_intent).toBe(true);

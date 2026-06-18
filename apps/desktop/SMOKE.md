@@ -7420,3 +7420,39 @@ notes:
   schema dimension enum, protected standards content, private payload,
   lifecycle state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-226 secret/private-library unit policy visibility - PASSED (`TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail secret/private-library unit-policy slice while
+  C5.7 remains human-execution gated. The Secret & Private Libraries panel now
+  exposes how unit-bearing private material/rule references are handled when
+  private payloads are withheld.
+- Unit behavior: `data-testid="secret-private-library-unit-policy"` reports
+  `unit_refs=2`, `required=true`, `payload=false`, and `conversion=false`.
+  The exported packet carries `unit_policy` with DEC-018/DEL-02-02/DEL-12-04
+  refs and per-reference metadata statuses for the private material library
+  and private rule-pack references.
+- UI check: the focused App test verifies the visible row and downloaded JSON
+  packet. The focused R2 Playwright journey checks the same visible row in a
+  real browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test after fixing the helper destructuring miss caught
+    by the first focused run.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Playwright test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: secret/private-library metadata UI evidence only. No private
+  library payload read or write, credential handling, storage-root
+  finalization, unit conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

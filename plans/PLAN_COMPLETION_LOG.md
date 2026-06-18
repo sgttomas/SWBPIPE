@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail secret/private-library unit policy visibility (`TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001`)
+
+Landed one bounded Phase B-tail secret/private-library unit-policy slice while
+C5.7 remains human-execution gated. The DEL-12-04 Secret & Private Libraries
+panel now exposes how unit-bearing private material/rule references are handled
+when private payloads are withheld.
+
+The tranche adds a `unit_policy` section to the exported secret/private packet
+and a visible `secret-private-library-unit-policy` row. It records two
+metadata-only private unit references, explicit unit metadata required at use,
+`unit_payload_included=false`, `conversion_performed=false`, and
+`repository_default_private_write=false`. Per-reference statuses distinguish
+private material values from private rule input values without reading or
+serializing those private payloads.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-226; DEL-12-04 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 selected test after the first
+focused run caught and fixed a helper destructuring miss; focused Playwright
+passed 1/1 Chromium desktop test; full desktop Vitest passed 18/18 files and
+399/399 tests; desktop production build passed with the existing Vite
+large-chunk warning; single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: no private library payload read or write, credential handling,
+storage-root finalization, unit-conversion API, DEC-018 catalog constant,
+schema dimension enum, protected standards content, private payload, lifecycle
+state transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail viewport placeholder unit validation (`TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`)
 
 Landed one bounded Phase B-tail viewport placeholder unit-validation slice
