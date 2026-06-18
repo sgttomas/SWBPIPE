@@ -1,5 +1,24 @@
 # DEL-07-03 Memory
 
+## 2026-06-17 - TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001 editor-contract unit visibility
+
+- The desktop Editor Contract review panel now visibly reports the DEL-02-02
+  unit contract already carried in its exported packet.
+- The visible row records `contract=DEL-02-02`,
+  `schema=schemas/units.schema.yaml#/$defs/DimensionId`,
+  `policy=unit_bearing_values_require_explicit_unit_metadata`, and
+  `missing=diagnostic_blocking`.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no editor persistence, accepted model-state mutation,
+  operation-applier behavior, solver behavior, unit conversion API, DEC-018
+  catalog constant, schema dimension enum, protected standards content,
+  private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented deterministic material/component/rule-pack editor contract records

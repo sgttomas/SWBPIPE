@@ -7456,3 +7456,37 @@ notes:
   dimension enum, protected standards content, private payload, lifecycle
   state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-227 editor-contract unit contract visibility - PASSED (`TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail editor-contract unit-contract slice while C5.7
+  remains human-execution gated. The Editor Contract review panel now exposes
+  the DEL-02-02 unit contract already carried in its exported packet.
+- Unit behavior: `data-testid="editor-contract-unit-contract"` reports
+  `contract=DEL-02-02`,
+  `schema=schemas/units.schema.yaml#/$defs/DimensionId`,
+  `policy=unit_bearing_values_require_explicit_unit_metadata`, and
+  `missing=diagnostic_blocking`.
+- UI check: the focused App test verifies the visible row and downloaded JSON
+  packet. The focused R2 Playwright journey checks the same visible row in a
+  real browser.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "guided workbench shell keeps journey steps, details, and compact status reachable" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-07-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: editor-contract UI/packet visibility only. No editor persistence,
+  accepted model-state mutation, operation-applier behavior, solver behavior,
+  unit conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

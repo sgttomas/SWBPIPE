@@ -1,5 +1,23 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-03 editor-contract tranche: the desktop Editor
+  Contract review panel now visibly reports the DEL-02-02 unit contract
+  already carried in its exported packet.
+- The row records the dimension schema ref, explicit unit-bearing metadata
+  policy, and missing-unit diagnostic-blocking behavior without adding unit
+  conversion or inference behavior.
+- Validation passed: focused App Vitest 1/1 selected test; focused Playwright
+  Chromium desktop smoke 1/1; full desktop Vitest 399/399; full R2/R3
+  Playwright smoke 18/18; desktop production build with the existing Vite
+  large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001 supporting unit evidence
 
 - Supporting role for DEL-12-04 secret/private-library tranche: the desktop

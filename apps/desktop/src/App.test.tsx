@@ -1184,6 +1184,18 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("ready=2");
     expect(within(editorContract).getByTestId("editor-contract-validation").textContent).toContain("blocked=2");
+    expect(within(editorContract).getByTestId("editor-contract-unit-contract").textContent).toContain(
+      "contract=DEL-02-02"
+    );
+    expect(within(editorContract).getByTestId("editor-contract-unit-contract").textContent).toContain(
+      "schema=schemas/units.schema.yaml#/$defs/DimensionId"
+    );
+    expect(within(editorContract).getByTestId("editor-contract-unit-contract").textContent).toContain(
+      "policy=unit_bearing_values_require_explicit_unit_metadata"
+    );
+    expect(within(editorContract).getByTestId("editor-contract-unit-contract").textContent).toContain(
+      "missing=diagnostic_blocking"
+    );
     expect(within(editorContract).getByTestId("editor-contract-rule-pack").textContent).toContain(
       "rule-pack:user-supplied:not-loaded"
     );
@@ -1210,6 +1222,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(editorContractPacket.summary.blocked_editor_count).toBe(2);
     expect(editorContractPacket.summary.diagnostic_count).toBe(4);
     expect(editorContractPacket.summary.queued_intent_count).toBe(0);
+    expect(editorContractPacket.unit_contract).toEqual({
+      contract_ref: "DEL-02-02",
+      schema_ref: "schemas/units.schema.yaml#/$defs/DimensionId",
+      unit_policy: "unit_bearing_values_require_explicit_unit_metadata",
+      missing_unit_behavior: "diagnostic_blocking"
+    });
     expect(editorContractPacket.editors.map((item: { editor_kind: string }) => item.editor_kind)).toContain(
       "material"
     );

@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail editor-contract unit contract visibility (`TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001`)
+
+Landed one bounded Phase B-tail editor-contract unit-contract slice while C5.7
+remains human-execution gated. The DEL-07-03 Editor Contract review panel now
+exposes the DEL-02-02 unit contract already carried in its exported packet.
+
+The tranche adds a visible `editor-contract-unit-contract` row reporting
+`contract=DEL-02-02`, the dimension schema ref
+`schemas/units.schema.yaml#/$defs/DimensionId`, the
+`unit_bearing_values_require_explicit_unit_metadata` policy, and
+`missing=diagnostic_blocking`. The exported packet is unchanged in shape for
+downstream consumers; the visible UI now witnesses the same contract.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-227; DEL-07-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 selected test; focused Playwright
+passed 1/1 Chromium desktop test; full desktop Vitest passed 18/18 files and
+399/399 tests; desktop production build passed with the existing Vite
+large-chunk warning; single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: no editor persistence, accepted model-state mutation,
+operation-applier behavior, solver behavior, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail secret/private-library unit policy visibility (`TP-UNITS-BTAIL-SECRETPRIVATEUNITPOLICY-001`)
 
 Landed one bounded Phase B-tail secret/private-library unit-policy slice while

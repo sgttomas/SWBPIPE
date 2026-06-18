@@ -42,6 +42,14 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await page.getByTestId("review-apply-drawer-toggle").click();
   await expect(page.getByTestId("review-apply-drawer")).toHaveClass(/open/);
   await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("contract=DEL-02-02");
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
+    "schema=schemas/units.schema.yaml#/$defs/DimensionId"
+  );
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
+    "policy=unit_bearing_values_require_explicit_unit_metadata"
+  );
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("missing=diagnostic_blocking");
   await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
 
   await page.getByTestId("journey-step-rule-pack").click();

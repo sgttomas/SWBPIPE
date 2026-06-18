@@ -189,6 +189,12 @@ now exposes metadata-only unit policy for unit-bearing private material/rule
 references: explicit unit metadata required at use, no private unit payload in
 the preview packet, and `conversion=false`.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001`
+(SMOKE TP-MAC-227) landed on 2026-06-17. The Editor Contract review panel now
+exposes the DEL-02-02 unit contract already carried in its exported packet:
+dimension schema ref, explicit-unit policy, and diagnostic-blocking behavior
+for missing units.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.
