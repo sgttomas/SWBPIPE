@@ -300,6 +300,15 @@ handoff package result-unit preservation witnesses without changing handoff
 packet semantics, handoff schema, target mapping, linter semantics, or unit
 conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001`
+(SMOKE TP-MAC-241) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Headless Runner public unit-witness surface
+(`headless-runner-unit-witnesses`), raising public unit-policy targets to 24
+while keeping target-format conversion witnesses at two. This records the
+existing headless runner result-handoff unit preservation witnesses without
+changing headless-runner packet semantics, schema/runtime policy, final CLI
+syntax, linter semantics, or unit conversion behavior.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

@@ -139,6 +139,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
           "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+          "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
           "apps/desktop/src/features/handoff/HandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
@@ -255,6 +256,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "local-fea-unit-witnesses",
     "none",
     "local FEA handoff unit witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+    "headless-runner-unit-witnesses",
+    "none",
+    "headless runner result handoff unit preservation witnesses"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/handoff/HandoffPanel.tsx",
@@ -493,6 +500,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Local FEA handoff template records target-neutral selected-region metadata, result-reference transfer basis, mesh not generated, external solver not invoked, target format TBD, private payload false, protected payload false, and no approval, authentication, certification, sealing, or code-compliance claim."
+    ),
+    target(
+      "target:desktop-headless-runner-template",
+      "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Headless runner template records schema-first preview request/result handoff metadata, result-reference unit preservation witnesses, final CLI and process policy deferred, network false, private payload false, protected payload false, and no release, target compatibility, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-handoff-package-template",
