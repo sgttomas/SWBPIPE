@@ -6,6 +6,7 @@ import {
   loadUnitCatalog,
   type UnitCatalogRoute,
   type UnitCatalogEntry,
+  unitDimensionValidationStatus,
   unitEntryMatchesDimension
 } from "../../services/unitCatalogService";
 import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewModel, Vec3 } from "../../types";
@@ -204,14 +205,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
 
   function addExplicitNodeIntent() {
     if (!nodeDraftValid) return;
-    const intent = buildExplicitNodeIntent(model, nodeDraft, queuedIntents.length + localIntents.length + 1);
+    const intent = buildExplicitNodeIntent(model, nodeDraft, unitCatalogRoute, queuedIntents.length + localIntents.length + 1);
     queueIntent(intent);
     setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
   }
 
   function addExplicitPipeIntent() {
     if (!pipeDraftValid) return;
-    const intent = buildExplicitPipeIntent(model, pipeDraft, queuedIntents.length + localIntents.length + 1);
+    const intent = buildExplicitPipeIntent(model, pipeDraft, unitCatalogRoute, queuedIntents.length + localIntents.length + 1);
     queueIntent(intent);
     setPipeDraft(emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
     setPipeEndpointPickMode(null);
@@ -607,7 +608,9 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
               <article key={intent.queue_id ?? intent.operation_id} data-testid={`viewport-intent-${intent.change.change_kind}`}>
                 <strong>{intent.change.change_kind}</strong>
                 <span>pending_service_validation</span>
-                <small>unit_aware_domain_validation_required</small>
+                <small data-testid={`viewport-intent-unit-validation-${intent.change.change_kind}`}>
+                  unit_validation={intent.validation.unit_validation}
+                </small>
                 <small>does_not_mutate_persisted_project_payload</small>
                 <small>{intent.queue_id ?? "not_queued"}</small>
               </article>
@@ -942,7 +945,12 @@ function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequ
   };
 }
 
-function buildExplicitNodeIntent(_model: PreviewModel, draft: NodeDraft, sequence: number): EditorOperationIntent {
+function buildExplicitNodeIntent(
+  _model: PreviewModel,
+  draft: NodeDraft,
+  unitCatalogRoute: UnitCatalogRoute | null,
+  sequence: number
+): EditorOperationIntent {
   const nodeId = draft.id.trim();
   const label = draft.label.trim();
   const lengthUnit = draft.coordinateUnit.trim() || "TBD";
@@ -982,7 +990,7 @@ function buildExplicitNodeIntent(_model: PreviewModel, draft: NodeDraft, sequenc
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: `length=${unitDimensionValidationStatus(unitCatalogRoute, lengthUnit, "length")}`,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1004,7 +1012,12 @@ function buildExplicitNodeIntent(_model: PreviewModel, draft: NodeDraft, sequenc
   };
 }
 
-function buildExplicitPipeIntent(_model: PreviewModel, draft: PipeDraft, sequence: number): EditorOperationIntent {
+function buildExplicitPipeIntent(
+  _model: PreviewModel,
+  draft: PipeDraft,
+  unitCatalogRoute: UnitCatalogRoute | null,
+  sequence: number
+): EditorOperationIntent {
   const pipeId = draft.id.trim();
   const label = draft.label.trim();
   const lengthUnit = draft.lengthUnit.trim() || "TBD";
@@ -1051,7 +1064,7 @@ function buildExplicitPipeIntent(_model: PreviewModel, draft: PipeDraft, sequenc
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: `length=${unitDimensionValidationStatus(unitCatalogRoute, lengthUnit, "length")}`,
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },

@@ -348,3 +348,28 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001 viewport geometry unit-validation evidence
+
+- WORKING_ITEMS app-integration tranche threaded the existing DEC-018
+  unit-catalog route in `PipeViewport` into explicit viewport geometry
+  operation intents.
+- Explicit create-node and connect-pipe queued intents now record
+  `length=<unit-dimension-validation-status>` in
+  `validation.unit_validation` instead of `not_run`; browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`.
+- Generic one-click viewport gesture placeholders remain `unit_validation=not_run`
+  because they are intentionally underspecified and still block rather than
+  inventing geometry.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-209. Focused validation passed:
+  `npm test --workspace apps/desktop -- App.test.tsx` (55/55) and
+  `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` (14/14).
+  Full desktop validation passed: `npm test --workspace apps/desktop`
+  (18/18 files, 398/398 tests) and `npm run build --workspace apps/desktop`
+  with the existing Vite large-chunk warning.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, unit
+  conversion API, or DAG authority changed.

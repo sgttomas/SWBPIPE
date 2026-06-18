@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail viewport geometry unit-validation evidence (`TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001`)
+
+Landed one bounded Phase B-tail viewport-geometry/unit-validation slice while
+C5.7 remains human-execution gated. Explicit viewport node and straight-pipe
+geometry intents now carry length unit-dimension validation evidence in their
+queued operation records instead of `unit_validation=not_run`.
+
+The tranche reuses the existing DEC-018 unit-catalog route already displayed
+by the viewport forms. Browser preview records
+`length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+desktop/Tauri routes can record DEC-018 accepted, mismatch, loading, or
+unreviewed statuses through the same shared helper. Generic one-click viewport
+gesture placeholders remain `unit_validation=not_run` because they still lack
+explicit geometry/unit payloads and are intentionally blocked at apply.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-209; DEL-07-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 398/398 tests;
+desktop production build passed with the existing Vite large-chunk warning.
+DEC-025 sweep evidence is recorded separately at closeout, not as a lifecycle,
+release, professional, certification, sealing, authentication, or
+code-compliance claim.
+
+Boundary: viewport intent evidence only. No DEC-018 catalog constant change,
+schema dimension enum change, unit conversion API change, operation-applier
+validation semantics, solver behavior, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
 ## 2026-06-17 - B-tail PCF conversion witness visibility (`TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001`)
 
 Landed one bounded Phase B-tail PCF/export-evidence slice while C5.7 remains

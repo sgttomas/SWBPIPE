@@ -569,6 +569,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await fillNodeDraft(page, startNode);
   await page.getByTestId("queue-explicit-node-intent").click();
   await expect(page.getByTestId("a12-queue-status")).toContainText("1 queued operation");
+  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await applyQueuedIntent(page, 1, startNode.id);
   await expect(page.getByTestId("a12-journey-step-nodes")).toContainText("1/2");
 
@@ -610,6 +613,9 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("viewport-create-pipe-yref-z").fill(String(pipe.y_reference.z));
   await page.getByTestId("viewport-create-pipe-provenance").fill(pipe.provenance);
   await page.getByTestId("queue-explicit-pipe-intent").click();
+  await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await applyQueuedIntent(page, 5, pipe.id);
 
   const support = stepPayload("create_support", "support:R2-anchor");

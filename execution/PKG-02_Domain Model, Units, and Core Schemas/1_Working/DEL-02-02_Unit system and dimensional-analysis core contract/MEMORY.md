@@ -976,3 +976,24 @@ Boundary note:
   downstream import evidence, protected standards content, private data,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-01 viewport tranche: explicit viewport
+  create-node and connect-pipe operation intents now record length
+  unit-dimension validation evidence instead of `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches, mismatches,
+  unreviewed statuses, or loading/catalog-unavailable statuses from the same
+  shared helper.
+- Generic one-click viewport gesture placeholders remain `not_run` because
+  they do not yet carry explicit geometry/unit payloads.
+- Validation passed: focused App Vitest 55/55 and focused R2/R3 Playwright
+  smoke file 14/14; full desktop Vitest 18/18 files and 398/398 tests; and
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation-applier validation
+  semantics, solver behavior, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

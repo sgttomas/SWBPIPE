@@ -1794,7 +1794,7 @@ describe("OpenPipeStress desktop preview", () => {
 
     for (const intent of [nodeIntent, pipeIntent, componentIntent]) {
       expect(intent.textContent).toContain("pending_service_validation");
-      expect(intent.textContent).toContain("unit_aware_domain_validation_required");
+      expect(intent.textContent).toContain("unit_validation=not_run");
       expect(intent.textContent).toContain("does_not_mutate_persisted_project_payload");
     }
     expect(componentIntent.textContent).toContain("editor-intent-3");
@@ -7444,6 +7444,9 @@ describe("OpenPipeStress desktop preview", () => {
     });
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
+    expect(within(viewportIntentPanel).getByTestId("viewport-intent-unit-validation-create_node").textContent).toContain(
+      "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
     expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
@@ -7583,6 +7586,9 @@ describe("OpenPipeStress desktop preview", () => {
     });
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
+    expect(within(viewportIntentPanel).getByTestId("viewport-intent-unit-validation-connect_pipe_run").textContent).toContain(
+      "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
     expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");

@@ -6531,6 +6531,9 @@ notes:
   - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
   - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
     14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
   - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
   - `npm run build --workspace apps/desktop` passed with the existing Vite
     large-chunk warning.
@@ -6837,3 +6840,36 @@ notes:
   standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-209 viewport geometry unit-validation evidence - PASSED (`TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail viewport-geometry/unit-validation slice while
+  C5.7 remains human-execution gated. Explicit viewport node and straight-pipe
+  geometry intents now record length unit-dimension validation evidence instead
+  of `unit_validation=not_run`.
+- Unit behavior: the viewport already loaded the DEC-018 unit catalog when
+  available and displayed the browser-preview model-metadata fallback. This
+  tranche threads that existing route into the queued explicit geometry
+  intents: browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
+  statuses from the same helper. Generic one-click viewport gesture placeholders
+  remain `unit_validation=not_run` because they are still underspecified.
+- UI check: `data-testid="viewport-intent-unit-validation-create_node"` and
+  `data-testid="viewport-intent-unit-validation-connect_pipe_run"` expose the
+  queued validation status before the operation is applied. The A12 from-blank
+  Playwright journey checks both node and pipe evidence in desktop and compact
+  viewports.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+- Evidence: DEL-07-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: viewport intent evidence only. No DEC-018 catalog constant change,
+  schema dimension enum change, unit conversion API change, operation-applier
+  validation semantics, solver behavior, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
