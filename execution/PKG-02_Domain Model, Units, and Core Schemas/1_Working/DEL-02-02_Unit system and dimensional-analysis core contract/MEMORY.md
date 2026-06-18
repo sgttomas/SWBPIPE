@@ -72,6 +72,20 @@
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 supporting unit-contract evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the Rule-Check
+  Completeness panel and exported packet now cite DEC-018, preserve entered
+  model units, count unit-bearing model records, and state that missing
+  rule-input units block rule checks rather than being inferred or converted.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  primary DEL-08-05 run record; `apps/desktop/SMOKE.md` TP-MAC-258.
+- Boundary preserved: no DEC-018 catalog constant, unit conversion API, schema
+  dimension enum, solver units, stored model schema, lifecycle state,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Report Content Lint now classifies the Rule

@@ -347,6 +347,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "run-rule-check binding unit-policy evidence"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+    "rule-completeness-unit-policy",
+    "none",
+    "rule-completeness review explicit rule-input unit policy"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
     "result-export-unit-witnesses",
     "none",
@@ -698,6 +704,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Run Rule Checks template records private rule-pack binding routes, runtime value unit policy, solver-result and private-library binding counts, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-rule-completeness-template",
+      "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Rule-check completeness template records missing user/private rule-check data, explicit rule-input unit policy, unit-mismatch diagnostic policy, mechanics separation, private payload false, protected payload false, and no code-compliance, approval, certification, or professional reliance claim."
     ),
     target(
       "target:desktop-result-export-template",

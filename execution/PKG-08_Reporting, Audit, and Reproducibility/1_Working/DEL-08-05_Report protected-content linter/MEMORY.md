@@ -155,6 +155,32 @@
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 primary report-lint inventory evidence
+
+- Primary role for Phase B-tail Report Content Lint inventory: the Rule-Check
+  Completeness panel now carries explicit rule-input unit-policy evidence, and
+  the report linter records `RuleCheckPanel.tsx` as
+  `rule-completeness-unit-policy`.
+- `data-testid="report-lint-unit-policy"` now reports 41 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  Static report-lint target count is 45; solved report packets include 46
+  targets after the generated preview-report JSON target is appended.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-258; active plan entry; supporting
+  DEL-06-03, DEL-07-04, DEL-05-04, DEL-08-03, and DEL-02-02 run records.
+- Validation passed: focused App render test, focused solved-results App test,
+  full desktop Vitest 399/399, desktop production build with the existing Vite
+  large-chunk warning, focused R2 Playwright 2/2, and single-worker Playwright
+  18/18.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility, rule evaluator
+  semantics, required-input checker behavior, analysis status semantics,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULECHECKLINTUNITS-001 primary report-lint inventory evidence
 
 - Primary role for Phase B-tail Run Rule Checks report-lint inventory: the

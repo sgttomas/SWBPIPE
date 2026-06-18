@@ -21,6 +21,29 @@ type CompletenessFinding = {
   rule_check_blocking: boolean;
 };
 
+type RefRecord = {
+  ref_type: string;
+  ref_id: string;
+  ref: string;
+};
+
+type RuleCompletenessUnitPolicyEvidence = {
+  evidence_id: string;
+  unit_system_ref: RefRecord;
+  source_model_ref: RefRecord;
+  storage_convention: string;
+  rule_completeness_unit_policy: string;
+  model_units: Record<string, string>;
+  unit_bearing_record_count: number;
+  rule_input_unit_policy: string;
+  unit_mismatch_diagnostic_code: string;
+  conversion_policy: string;
+  conversion_performed: false;
+  decision_basis_refs: RefRecord[];
+  protected_content_included: false;
+  private_payload_included: false;
+};
+
 export function RuleCheckPanel({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
   const review = buildRuleCompletenessReview({ model, result });
 
@@ -49,6 +72,11 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
       <div className="report-list" data-testid="rule-check-body">
         <ReviewLine label="Rule status" value={review.rule_check_status} testId="rule-check-status" />
         <ReviewLine label="Mechanics status" value={review.mechanics_status} testId="rule-check-mechanics-status" />
+        <ReviewLine
+          label="Unit policy"
+          value={ruleCompletenessUnitPolicySummary(review.unit_policy_evidence)}
+          testId="rule-check-unit-policy"
+        />
         <ReviewLine label="Boundary" value={ruleBoundary(review)} testId="rule-check-boundary" />
         <div className="operation-record-list" data-testid="rule-check-findings">
           {review.findings.map((finding) => (
@@ -92,6 +120,7 @@ function buildRuleCompletenessReview({ model, result }: { model: PreviewModel; r
   const professionalStatus = result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance;
   const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
   const findings = buildFindings({ model, result, diagnostics, ruleStatus });
+  const unitPolicyEvidence = buildRuleCompletenessUnitPolicy(model);
   const ruleBlockingCount = findings.filter((finding) => finding.rule_check_blocking).length;
   const provenanceWarningCount = findings.filter((finding) => finding.warning_class === "PROVENANCE_WARNING").length;
   const ipBoundaryWarningCount = findings.filter((finding) => finding.warning_class === "IP_BOUNDARY_WARNING").length;
@@ -120,6 +149,7 @@ function buildRuleCompletenessReview({ model, result }: { model: PreviewModel; r
       bundled_code_values_used: false,
       compliance_claim_made: false
     },
+    unit_policy_evidence: unitPolicyEvidence,
     findings,
     diagnostic_refs: diagnostics.map((item) => item.id ?? item.code),
     data_boundary: model.data_boundary,
@@ -127,6 +157,31 @@ function buildRuleCompletenessReview({ model, result }: { model: PreviewModel; r
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function buildRuleCompletenessUnitPolicy(model: PreviewModel): RuleCompletenessUnitPolicyEvidence {
+  return {
+    evidence_id: "unit-policy-evidence:rule-completeness-review",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    source_model_ref: reference("Model", model.project.id),
+    storage_convention: "entered_units_preserved",
+    rule_completeness_unit_policy:
+      "rule_completeness_review_records_rule_input_unit_requirements_without_conversion",
+    model_units: sortedStringRecord(model.project.units),
+    unit_bearing_record_count: countUnitBearingRecords(model),
+    rule_input_unit_policy: "required_rule_inputs_must_carry_explicit_units_or_block_user_rule_checks",
+    unit_mismatch_diagnostic_code: "RULE_UNIT_MISMATCH",
+    conversion_policy: "completeness_review_does_not_convert_or_infer_missing_rule_units",
+    conversion_performed: false,
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-06-03"),
+      reference("Deliverable", "DEL-07-04")
+    ],
+    protected_content_included: false,
+    private_payload_included: false
   };
 }
 
@@ -261,6 +316,57 @@ function ruleBoundary(review: ReturnType<typeof buildRuleCompletenessReview>): s
     `bundled code values=${String(review.summary.bundled_code_values_used)}`,
     "no compliance claim"
   ].join("; ");
+}
+
+function ruleCompletenessUnitPolicySummary(evidence: RuleCompletenessUnitPolicyEvidence): string {
+  return [
+    `model=${formatUnitRecord(evidence.model_units)}`,
+    `records=${evidence.unit_bearing_record_count}`,
+    `rule_input_units=explicit_or_blocking`,
+    `diagnostic=${evidence.unit_mismatch_diagnostic_code}`,
+    `conversion=${String(evidence.conversion_performed)}`
+  ].join("; ");
+}
+
+function countUnitBearingRecords(model: PreviewModel): number {
+  const pipeSectionQuantities = model.pipe_segments.flatMap((segment) => Object.values(segment.section));
+  const materialQuantities = (model.materials ?? []).flatMap((material) => [
+    material.elastic_modulus,
+    material.shear_modulus,
+    material.thermal_expansion_coefficient
+  ]);
+  const loadQuantities = model.load_cases.flatMap((loadCase) =>
+    (loadCase.primitive_loads ?? []).map((primitiveLoad) => primitiveLoad.magnitude)
+  );
+  return [...pipeSectionQuantities, ...materialQuantities, ...loadQuantities].filter(hasUnit).length;
+}
+
+function hasUnit(value: unknown): value is { unit: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "unit" in value &&
+    typeof (value as { unit?: unknown }).unit === "string" &&
+    (value as { unit: string }).unit.length > 0
+  );
+}
+
+function reference(refType: string, refId: string): RefRecord {
+  return { ref_type: refType, ref_id: refId, ref: refId };
+}
+
+function sortedStringRecord(record: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([, value]) => typeof value === "string" && value.length > 0)
+      .sort(([left], [right]) => left.localeCompare(right))
+  );
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  const entries = Object.entries(units).sort(([left], [right]) => left.localeCompare(right));
+  if (entries.length === 0) return "none";
+  return entries.map(([key, value]) => `${key}=${value}`).join(",");
 }
 
 function professionalBoundary() {

@@ -109,3 +109,17 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 supporting GUI evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the Rule-Check
+  Completeness GUI now displays `rule-check-unit-policy` with explicit
+  rule-input unit policy, model unit context, `RULE_UNIT_MISMATCH`, and
+  `conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  primary DEL-08-05 run record; `apps/desktop/SMOKE.md` TP-MAC-258.
+- Boundary preserved: no missing-data blocking behavior, remediation flow,
+  accepted model mutation, rule-check execution, lifecycle state,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

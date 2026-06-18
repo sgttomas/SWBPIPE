@@ -8686,3 +8686,47 @@ notes:
   dimension enum, protected standards content, private payload, lifecycle
   state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-258 rule completeness report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Rule-Check Completeness panel is an
+  exported public review surface for missing rule-check data; it now exposes
+  explicit rule-input unit-policy evidence and the report-lint public inventory
+  records that surface.
+- App behavior: `RuleCheckPanel` now displays and exports
+  `unit_policy_evidence` with the DEC-018 unit-system ref, sorted model units,
+  unit-bearing record count, explicit rule-input-unit blocking policy,
+  `RULE_UNIT_MISMATCH`, and `conversion_performed=false`. `ReportLintPanel`
+  now includes `apps/desktop/src/features/rule-check/RuleCheckPanel.tsx` as
+  `target:desktop-rule-completeness-template` and adds
+  `rule-completeness-unit-policy` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=41`, `conversion_witness_targets=2`,
+  and `lint_conversion=false`. Static report-lint target count is 45; solved
+  report packets include 46 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  DEL-06-03, DEL-07-04, DEL-05-04, DEL-08-03, and DEL-02-02 supporting run
+  records with the same id.
+- Boundary: evidence and inventory only. No rule evaluator semantics,
+  required-input completeness logic, analysis status semantics, mechanics
+  solve behavior, operation application, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

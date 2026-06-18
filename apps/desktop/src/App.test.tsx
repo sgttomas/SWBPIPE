@@ -233,6 +233,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(ruleCheck).getByTestId("rule-check-summary").textContent).toContain(
       "mechanics_reviewable=false"
     );
+    expect(within(ruleCheck).getByTestId("rule-check-unit-policy").textContent).toContain(
+      "rule_input_units=explicit_or_blocking"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-unit-policy").textContent).toContain(
+      "diagnostic=RULE_UNIT_MISMATCH"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(ruleCheck).getByTestId("rule-check-status").textContent).toContain(
       "not_performed_user_rule_inputs_missing"
     );
@@ -1508,7 +1517,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(designWorkspacePacket.protected_content_included).toBe(false);
     expect(designWorkspacePacket.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=44");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=45");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -1521,7 +1530,7 @@ describe("OpenPipeStress desktop preview", () => {
       "clearance=false"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
-      "unit_targets=40"
+      "unit_targets=41"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
       "conversion_witness_targets=2"
@@ -1544,7 +1553,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.linter_status.professional_approval).toBe(false);
     expect(lintPacket.linter_status.ci_release_policy).toBe("TBD");
     expect(lintPacket.unit_policy_evidence.evidence_kind).toBe("public_surface_unit_policy_inventory");
-    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(40);
+    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(41);
     expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
     expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
     expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
@@ -1627,6 +1636,10 @@ describe("OpenPipeStress desktop preview", () => {
           unit_policy_surface_id: "rule-check-unit-binding-policy"
         }),
         expect.objectContaining({
+          source_path: "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+          unit_policy_surface_id: "rule-completeness-unit-policy"
+        }),
+        expect.objectContaining({
           source_path: "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           unit_policy_surface_id: "result-export-unit-witnesses"
         }),
@@ -1658,7 +1671,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(44);
+    expect(lintPacket.lint_run.summary.target_count).toBe(45);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -6365,6 +6378,10 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(ruleCheck).getByTestId("rule-check-status").textContent).toContain("RULE_INPUTS_INCOMPLETE");
     expect(within(ruleCheck).getByTestId("rule-check-mechanics-status").textContent).toContain("MECHANICS_SOLVED");
+    expect(within(ruleCheck).getByTestId("rule-check-unit-policy").textContent).toContain(
+      "rule_input_units=explicit_or_blocking"
+    );
+    expect(within(ruleCheck).getByTestId("rule-check-unit-policy").textContent).toContain("conversion=false");
     expect(within(ruleCheck).getByTestId("rule-check-boundary").textContent).toContain(
       "bundled code values=false"
     );
@@ -6383,6 +6400,29 @@ describe("OpenPipeStress desktop preview", () => {
     expect(ruleCheckPacket.summary.finding_count).toBe(5);
     expect(ruleCheckPacket.summary.rule_check_blocked).toBe(true);
     expect(ruleCheckPacket.summary.mechanics_results_reviewable).toBe(true);
+    expect(ruleCheckPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(ruleCheckPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(ruleCheckPacket.unit_policy_evidence.rule_completeness_unit_policy).toBe(
+      "rule_completeness_review_records_rule_input_unit_requirements_without_conversion"
+    );
+    expect(ruleCheckPacket.unit_policy_evidence.model_units).toEqual({
+      angle: "rad",
+      force: "N",
+      length: "m",
+      pressure: "Pa",
+      stress: "MPa",
+      temperature: "degC"
+    });
+    expect(ruleCheckPacket.unit_policy_evidence.unit_bearing_record_count).toBe(18);
+    expect(ruleCheckPacket.unit_policy_evidence.rule_input_unit_policy).toBe(
+      "required_rule_inputs_must_carry_explicit_units_or_block_user_rule_checks"
+    );
+    expect(ruleCheckPacket.unit_policy_evidence.unit_mismatch_diagnostic_code).toBe(
+      "RULE_UNIT_MISMATCH"
+    );
+    expect(ruleCheckPacket.unit_policy_evidence.conversion_performed).toBe(false);
     expect(ruleCheckPacket.summary.silent_defaults_used).toBe(false);
     expect(ruleCheckPacket.summary.bundled_code_values_used).toBe(false);
     expect(ruleCheckPacket.summary.compliance_claim_made).toBe(false);
@@ -6956,7 +6996,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=45");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=46");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -6966,8 +7006,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(45);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(45);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(46);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(46);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);

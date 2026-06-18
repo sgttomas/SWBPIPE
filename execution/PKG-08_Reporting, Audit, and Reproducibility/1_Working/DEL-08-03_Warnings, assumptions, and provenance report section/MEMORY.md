@@ -133,3 +133,17 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001 supporting report-section evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the Rule-Check
+  Completeness public report surface now includes explicit unit-policy
+  evidence alongside missing-input, provenance, assumption, and IP-boundary
+  findings.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULECOMPLETENESSLINTUNITS-001.md`;
+  primary DEL-08-05 run record; `apps/desktop/SMOKE.md` TP-MAC-258.
+- Boundary preserved: no report clearance, legal review, redaction,
+  professional boundary semantics, lifecycle state, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
