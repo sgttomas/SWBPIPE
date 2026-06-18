@@ -2065,3 +2065,25 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Agent Proposal review output now carries
+  explicit metadata-only unit policy:
+  `unit_validation=not_required_metadata_review_only` and `conversion=false`.
+- The proposal UI, operation ledger, report-lint inventory, export-review
+  manifest, and report persistence inventory preserve that status without
+  performing conversion.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-02/DEL-16-03/DEL-08-05/DEL-12-02/DEL-08-04 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, operation validation semantics, private payload,
+  protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

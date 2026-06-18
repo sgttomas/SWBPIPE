@@ -90,3 +90,30 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 primary evidence
+
+- Primary role for DEL-16-04: Agent Proposal review output now carries
+  explicit metadata-only unit evidence. `AgentProposalPanel` displays
+  `proposal.validation.unit_validation`, source
+  `proposal.validation.unit_validation`, and `conversion=false`.
+- Mechanics-derived proposals and the invented proposal fixture now set
+  `unit_validation=not_required_metadata_review_only`.
+- Report Content Lint now inventories `AgentProposalPanel.tsx` as
+  `agent-proposal-unit-policy`; Export Safety Review and Report packet
+  persistence now include `agent_proposal_review`, pending until a proposal
+  exists and available after proposal generation.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; completion log entry; supporting
+  DEL-16-02, DEL-16-03, DEL-08-05, DEL-12-02, DEL-08-04, and DEL-02-02 run
+  records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no proposal application, accepted model-state mutation,
+  operation validation semantics, acceptance semantics, unit conversion,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

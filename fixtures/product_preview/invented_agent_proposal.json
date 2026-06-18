@@ -27,6 +27,7 @@
   "validation": {
     "schema_validation": "passed",
     "constraint_validation": "warning_unresolved_support_canonical_stiffness_dimensions",
+    "unit_validation": "not_required_metadata_review_only",
     "diff_preview_status": "generated",
     "application_status": "not_applied"
   },

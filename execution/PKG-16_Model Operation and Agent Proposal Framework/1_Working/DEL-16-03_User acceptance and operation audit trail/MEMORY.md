@@ -693,3 +693,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   content, private payload, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting audit evidence
+
+- Supporting role for DEL-16-03: proposal review records now preserve explicit
+  metadata-only unit validation status in the operation ledger while remaining
+  held for user acceptance.
+- The ledger still records `accepted_model_state_mutated=false`,
+  `unit_bearing_changes=0`, and `conversion=false`; the added status is
+  `not_required_metadata_review_only`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-02/DEL-08-05/DEL-12-02/DEL-08-04/DEL-02-02 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no user acceptance semantics, operation application,
+  durable acceptance authority, model mutation, unit conversion, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -8766,3 +8766,54 @@ notes:
   commitments, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-260 agent proposal unit-policy inventory - PASSED (`TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Agent Proposal unit-policy inventory slice while
+  C5.7 remains human-execution gated. The Agent Proposal panel is a public
+  review-only operation surface; it now carries explicit metadata-only unit
+  evidence and the report/export inventories record that surface.
+- App behavior: `AgentProposalPanel` now exposes
+  `data-testid="proposal-unit-policy"` with
+  `unit_validation=not_required_metadata_review_only`, source
+  `proposal.validation.unit_validation`, and `conversion=false`. Mechanics
+  proposals and the invented proposal fixture carry the same validation
+  status. The operation ledger preserves the status while still reporting
+  `unit_bearing_changes=0`, held-for-user-acceptance review posture, and
+  accepted-state mutation false.
+- Inventory behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx` as
+  `agent-proposal-unit-policy`, raising visible unit-policy targets to 42
+  while conversion-witness targets remain two. `ExportReviewPanel` now
+  includes `agent_proposal_review` as a metadata-only export row. The row is
+  pending until a proposal exists, then available with
+  `unit_validation_status=not_required_metadata_review_only`. Solved queued
+  export-review evidence reports 29 rows and `covered=17/18`; the proposal
+  path reports 29/29 exports available and 18/18 unit-evidence rows present.
+- Validation:
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx`
+    passed 56/56 tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests after stale report-lint
+    target-count assertions were updated.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-16-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  DEL-16-02, DEL-16-03, DEL-08-05, DEL-12-02, DEL-08-04, and DEL-02-02
+  supporting run records with the same id.
+- Boundary: proposal/export/report inventory evidence only. No proposal
+  application, accepted model-state mutation, operation validation semantics,
+  acceptance semantics, report-linter protected-content semantics, redaction
+  rules, target writer behavior, unit conversion, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

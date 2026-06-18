@@ -570,6 +570,7 @@ function buildProposalFromMechanics(
     rationale: `Generated from current preview mechanics context; selected review reference is ${targetRef}. This narrative is review-only and does not mutate accepted model state.`,
     validation: {
       ...agentProposalFixture.validation,
+      unit_validation: "not_required_metadata_review_only",
       constraint_validation: "warning_computed_context_requires_human_review",
       diff_preview_status: "generated_from_computed_context"
     }

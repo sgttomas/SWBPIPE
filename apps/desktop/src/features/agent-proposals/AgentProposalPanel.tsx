@@ -12,6 +12,8 @@ export function AgentProposalPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   onLoad: () => void;
 }) {
+  const unitPolicy = proposal ? proposalUnitPolicy(proposal) : null;
+
   return (
     <section className="panel agent-panel" aria-label="Agentic proposal" data-testid="agent-proposal-panel">
       <div className="panel-title">Proposal</div>
@@ -68,6 +70,16 @@ export function AgentProposalPanel({
               ))}
             </div>
           </section>
+          {unitPolicy ? (
+            <section className="proposal-section" aria-label="Proposal unit policy" data-testid="proposal-unit-policy">
+              <h3>Unit Policy</h3>
+              <div className="proposal-meta-grid">
+                <ProposalFact label="Status" value={unitPolicy.status} />
+                <ProposalFact label="Source" value={unitPolicy.source} />
+                <ProposalFact label="Conversion" value={unitPolicy.conversion} />
+              </div>
+            </section>
+          ) : null}
           <div className="diff-list">
             {proposal.operation.changes.map((change) => (
               <article key={change.change_id}>
@@ -133,4 +145,12 @@ function ProposalFlag({ label, value }: { label: string; value: boolean }) {
 
 function formatKey(key: string): string {
   return key.replaceAll("_", " ");
+}
+
+function proposalUnitPolicy(proposal: AgentProposal) {
+  return {
+    status: proposal.validation.unit_validation ?? "not_declared",
+    source: "proposal.validation.unit_validation",
+    conversion: "false"
+  };
 }

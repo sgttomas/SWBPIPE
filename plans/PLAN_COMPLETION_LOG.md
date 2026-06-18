@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail agent proposal unit-policy inventory (`TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001`)
+
+Landed one bounded Phase B-tail Agent Proposal unit-policy inventory slice
+while C5.7 remains human-execution gated. The Agent Proposal panel is a public
+review-only operation surface; this tranche makes its metadata-only
+unit-validation status visible and discoverable through report/export
+inventories.
+
+The Agent Proposal panel now displays `proposal.validation.unit_validation`;
+mechanics-derived proposals and the invented proposal fixture set
+`unit_validation=not_required_metadata_review_only`. Report Content Lint now
+includes `apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx`
+and `agent-proposal-unit-policy`, raising unit-policy target count from 41 to
+42 while conversion-witness targets remain two. Export Safety Review now
+includes `agent_proposal_review`, pending until a proposal exists and available
+after proposal generation; report persistence export inventory now expects 29
+rows.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-260; DEL-16-04 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+DEL-16-02, DEL-16-03, DEL-08-05, DEL-12-02, DEL-08-04, and DEL-02-02
+supporting run records with the same id.
+
+Validation: focused App proposal test passed 1/1; focused queued-intent export
+review test passed 1/1; full App test file passed 56/56; full desktop Vitest
+passed 18/18 files and 399/399 tests. Desktop production build passed with
+the existing Vite large-chunk warning. Focused R2 Playwright passed 2/2 after
+stale target-count assertions were updated; full single-worker Playwright
+passed 18/18.
+
+Boundary: proposal/export/report inventory evidence only. No proposal
+application, accepted model-state mutation, operation validation semantics,
+acceptance semantics, report-linter protected-content semantics, redaction
+rules, target writer behavior, unit conversion, protected standards content,
+private payload, lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-18 - B-tail property inspector report-lint unit inventory (`TP-UNITS-BTAIL-PROPERTYINSPECTORLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while

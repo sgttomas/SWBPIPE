@@ -379,6 +379,28 @@ Durable TASK evidence:
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
 
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting report export evidence
+
+- Supporting role for DEL-08-04: Report packet persistence export evidence
+  now expects 29 export rows and includes
+  `readiness_by_export_id.agent_proposal_review`.
+- The row is `pending_agent_proposal` before proposal generation and
+  `available` after proposal generation; the report packet remains local
+  browser-download technical-preview evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; primary DEL-16-04 run record and
+  supporting DEL-16-02/DEL-16-03/DEL-08-05/DEL-12-02/DEL-02-02 records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no result schema, result-export runtime behavior, target
+  writer, public transport commitment, trace-chain ownership, unit conversion,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting export-inventory evidence
 
 - Supporting role for DEL-12-02 Export Safety Review matrix cleanup: the local

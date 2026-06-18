@@ -126,6 +126,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/report/RenderedReportPanel.tsx",
           "apps/desktop/src/features/results/ResultsPanel.tsx",
           "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+          "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
           "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
@@ -207,6 +208,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "comparison-unit-policy",
     "none",
     "comparison workspace unit-matching policy"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
+    "agent-proposal-unit-policy",
+    "none",
+    "review-only proposal operation unit-validation policy"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
@@ -522,6 +529,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Comparison workspace template records explicit-unit matching policy, tolerance status, mapped result counts, comparison diagnostics, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-agent-proposal-template",
+      "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Agent proposal template records review-only operation proposal unit-validation status, user-acceptance boundary, accepted-state mutation false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-export-review-template",

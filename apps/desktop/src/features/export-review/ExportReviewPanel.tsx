@@ -131,6 +131,7 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
 const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
   "project_storage_audit",
   "project_validation_preflight",
+  "agent_proposal_review",
   "rule_completeness_review",
   "result_envelope",
   "stress_neutral_csv_json_package",
@@ -183,6 +184,7 @@ function buildExportReviewManifest({
   const securityThreatModelReady = true;
   const editorContractReady = true;
   const missingDataReviewReady = true;
+  const agentProposalReviewReady = Boolean(proposal);
   const accessibilityBaselineReady = true;
   const designWorkspaceReady = true;
   const buildReadinessReady = true;
@@ -454,6 +456,36 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "Rule completeness review records explicit rule-input unit policy and missing private/user rule data without conversion."
+    },
+    {
+      export_id: "agent_proposal_review",
+      label: "Agent proposal review",
+      document_kind: "openpipestress.technical_preview.agent_proposal_review",
+      readiness: agentProposalReviewReady ? "available" : "pending_agent_proposal",
+      deliverable_refs: ["DEL-16-01", "DEL-16-02", "DEL-16-03", "DEL-16-04", "DEL-07-08", "DEL-02-02"],
+      source_refs: [
+        model.project.id,
+        proposal?.proposal_id ?? "not generated",
+        selectedReviewTarget ? `${selectedReviewTarget.target_type}:${selectedReviewTarget.id}` : "no selected review target"
+      ],
+      proposal_ref: proposal?.proposal_id ?? "not generated",
+      proposal_operation_ref: proposal?.operation.operation_id ?? "not generated",
+      selected_review_target_ref: selectedReviewTarget
+        ? `${selectedReviewTarget.target_type}:${selectedReviewTarget.id}`
+        : "not selected",
+      validation_status: proposal?.validation.application_status ?? "not generated",
+      diff_preview_status: proposal?.validation.diff_preview_status ?? "not generated",
+      unit_validation_status: proposal?.validation.unit_validation ?? "not generated",
+      review_only: true,
+      user_acceptance_required: Boolean(proposal?.audit_boundary.requires_user_acceptance),
+      accepted_model_state_mutated: Boolean(proposal?.audit_boundary.mutates_accepted_model_state),
+      unit_evidence_required: true,
+      redaction_action: "agent_proposal_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Agent proposal review records metadata-only operation proposal unit-validation status without applying operations or converting units."
     },
     {
       export_id: "accessibility_usability_baseline_review",

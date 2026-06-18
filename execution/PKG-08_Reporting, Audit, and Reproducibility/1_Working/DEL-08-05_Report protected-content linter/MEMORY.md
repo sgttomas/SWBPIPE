@@ -729,3 +729,26 @@ code-compliance decisions.
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting report-lint evidence
+
+- Supporting role for DEL-08-05: Report Content Lint now classifies the Agent
+  Proposal panel as a public unit-policy surface.
+- The lint packet now includes
+  `apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx` and
+  `agent-proposal-unit-policy`; visible unit-policy targets increase to 42
+  while conversion-witness targets remain two and `lint_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; completion log entry; primary
+  DEL-16-04 run record and supporting DEL-16-02/DEL-16-03/DEL-12-02/DEL-08-04/DEL-02-02
+  records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility, unit conversion,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

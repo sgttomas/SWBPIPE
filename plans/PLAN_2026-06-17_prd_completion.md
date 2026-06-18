@@ -441,6 +441,17 @@ Completeness unit-evidence export without changing rule-completeness
 semantics, redaction behavior, target writers, manifest-level unit conversion,
 public transport posture, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001`
+(SMOKE TP-MAC-260) landed on 2026-06-18. The Agent Proposal panel now exposes
+metadata-only unit policy for review-only proposal operations
+(`unit_validation=not_required_metadata_review_only`, `conversion=false`);
+Report Content Lint now inventories `agent-proposal-unit-policy`, raising
+public unit-policy targets to 42; and Export Safety Review / Report packet
+persistence now include `agent_proposal_review`, raising export rows to 29.
+The proposal row is pending until a proposal exists, then available with 18/18
+unit-evidence rows present, without changing proposal application, accepted
+model-state mutation, redaction behavior, target writers, or unit conversion.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

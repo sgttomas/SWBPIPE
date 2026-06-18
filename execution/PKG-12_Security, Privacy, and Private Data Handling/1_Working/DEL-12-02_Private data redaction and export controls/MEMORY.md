@@ -162,3 +162,29 @@ Durable context preserved after reconciliation review:
   semantics, protected standards content, private payload, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001 supporting export-review evidence
+
+- Supporting role for DEL-12-02: the Export Safety Review manifest now
+  includes `agent_proposal_review` as a metadata-only local export row.
+- The row is pending until a proposal exists, then available with
+  `unit_validation_status=not_required_metadata_review_only`,
+  `review_only=true`, `user_acceptance_required=true`, and
+  `accepted_model_state_mutated=false`.
+- Export Review now has 29 rows. Solved queued-intent evidence reports
+  `covered=17/18`; proposal-path evidence reports 29/29 exports available and
+  18/18 unit-evidence rows present.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-260; active plan and completion log entries;
+  primary DEL-16-04 run record and supporting DEL-16-02/DEL-16-03/DEL-08-05/DEL-08-04/DEL-02-02
+  records.
+- Validation passed: focused App proposal and queued-intent tests, full App
+  test file 56/56, full desktop Vitest 399/399, desktop build with existing
+  Vite large-chunk warning, focused R2 Playwright 2/2, and full single-worker
+  Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, proposal
+  application behavior, private payload, protected content, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
