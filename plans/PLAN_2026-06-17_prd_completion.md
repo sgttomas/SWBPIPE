@@ -319,14 +319,14 @@ adapter-framework packet semantics, concrete external formats, public
 transport, plugin/runtime policy, linter semantics, or unit conversion
 behavior.
 
-Latest B-tail update: `TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001`
-(SMOKE TP-MAC-244) landed on 2026-06-18. The Report Content Lint inventory
-now includes the Solve execution public unit-policy surface
-(`solve-job-unit-policy`), raising public unit-policy targets to 27 while
-keeping target-format conversion witnesses at two. This records the existing
-solve-job unit-policy evidence without changing solve execution behavior,
-analysis-run hash generation, cancellation/progress semantics, backend job
-behavior, linter semantics, or unit conversion behavior.
+Latest B-tail update: `TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001`
+(SMOKE TP-MAC-245) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Run Audit public unit traceability surface
+(`run-audit-units`), raising public unit-policy targets to 28 while keeping
+target-format conversion witnesses at two. This records the existing
+analysis-run audit unit evidence without changing analysis-run schema, hash
+policy, solver behavior, result values, linter semantics, or unit conversion
+behavior.
 
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 

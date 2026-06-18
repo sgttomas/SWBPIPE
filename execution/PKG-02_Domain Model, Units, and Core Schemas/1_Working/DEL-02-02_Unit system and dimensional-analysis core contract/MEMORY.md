@@ -1,5 +1,25 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-RUNAUDITLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Run Audit unit traceability surface.
+- The lint inventory records `run-audit-units` as an existing unit-policy
+  surface and reports `unit_targets=28`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The Run Audit panel continues to derive model and
+  result unit evidence from the solved analysis-run/result envelope context
+  without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, analysis-run schema, hash policy,
+  solver behavior, result values, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-SOLVEJOBLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

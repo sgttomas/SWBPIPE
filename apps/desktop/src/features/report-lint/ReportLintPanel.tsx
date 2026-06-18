@@ -138,6 +138,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
           "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
+          "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
           "apps/desktop/src/features/solve/SolvePanel.tsx",
           "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
@@ -253,6 +254,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "validation-evidence-units",
     "none",
     "validation evidence unit-policy visibility"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+    "run-audit-units",
+    "none",
+    "analysis-run audit unit traceability"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/solve/SolvePanel.tsx",
@@ -514,6 +521,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Validation evidence template records DEL-09-04 and DEL-09-05 manual sections, evidence areas, local readiness profiles, release-gate families, unresolved TBD decisions, browser tool execution false, private payload false, protected payload false, and no release authorization, certification, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-run-audit-template",
+      "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Run audit template records local analysis-run audit metadata, model-state and result hash references, result-envelope unit traceability, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-solve-job-template",
