@@ -1,5 +1,35 @@
 # MEMORY - DEL-06-02 Sandboxed Unit-Aware Expression Evaluator
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-06-02: Report Content Lint now inventories the
+  existing Rule Pack Expression Composer unit-policy surface,
+  `rule-pack-expression-unit-policy`.
+- The lint packet now includes
+  `apps/desktop/src/features/rule-packs/ExpressionComposer.tsx` and records
+  the expression AST unit-reference policy as public inventory evidence.
+  Public unit-policy targets increase from 36 to 37; conversion-witness
+  targets remain two and lint conversion remains false.
+- This is inventory over existing editor-side expression unit refs only. It
+  does not change evaluator normalization, exact-unit matching, blocking
+  findings, grammar, parser policy, run-check execution behavior, or backend
+  validation.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-254; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused ExpressionComposer/RulePackManagerPanel Vitest
+  6/6; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no evaluator behavior, rule-pack schema, expression
+  grammar, writable text parser/syntax, backend validation, persistence, unit
+  conversion API, DEC-018 catalog constant, schema dimension enum, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Implementation Summary
 
 Implemented the bounded `core/rules/expression_evaluator` Rust crate for the

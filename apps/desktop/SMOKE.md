@@ -8519,3 +8519,45 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-254 rule-pack expression report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Rule Pack Expression Composer already
+  exposes structured-AST expression unit-reference policy; the report-lint
+  public inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/rule-packs/ExpressionComposer.tsx` in its
+  explicit public target roots and target list, and adds
+  `rule-pack-expression-unit-policy` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=37`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- ExpressionComposer.test.tsx RulePackManagerPanel.test.tsx -t "unit|declares|DEC-018|rule-pack|browser-preview"`
+    passed 6/6 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke|rule-pack manager drafts privately"`
+    passed 4/4 focused configured-project tests.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "round trips local create, save, and open project controls without external file copies"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001.md`;
+  DEL-07-03, DEL-06-02, and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: report-lint inventory over existing Rule Pack Expression Composer
+  unit-reference policy context only. No rule-pack schema, expression grammar,
+  writable text parser/syntax, evaluator behavior, backend validation,
+  persistence, report-linter protected-content semantics, legal clearance,
+  redaction controls, target writer compatibility, unit-conversion API,
+  DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

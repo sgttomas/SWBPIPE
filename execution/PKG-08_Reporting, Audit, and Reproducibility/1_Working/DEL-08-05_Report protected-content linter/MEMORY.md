@@ -1,5 +1,31 @@
 # MEMORY - DEL-08-05 Report Protected-Content Linter
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 primary report-lint inventory evidence
+
+- Primary role for Phase B-tail Report Content Lint inventory: the report
+  linter now includes `ExpressionComposer.tsx` as an explicit public target
+  and records `rule-pack-expression-unit-policy` in
+  `unit_policy_evidence.target_refs`.
+- `data-testid="report-lint-unit-policy"` now reports 37 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-254; completion log entry; supporting
+  DEL-07-03, DEL-06-02, and DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local
+  create/save/open round-trip tests; focused ExpressionComposer/
+  RulePackManagerPanel Vitest 6/6; focused R2/rule-pack Playwright smoke 4/4;
+  full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke 18/18;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility, rule-pack
+  schema, expression grammar, writable text parser/syntax, evaluator
+  behavior, backend validation, persistence, unit-conversion API, DEC-018
+  catalog constant, schema dimension enum, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 primary report-lint inventory evidence
 
 - Primary role for Phase B-tail Report Content Lint inventory: the report

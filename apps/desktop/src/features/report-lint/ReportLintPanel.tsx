@@ -134,6 +134,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
           "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+          "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
           "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
           "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
           "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
@@ -242,6 +243,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "rule-pack-declarations-unit-policy",
     "none",
     "rule-pack declaration unit-reference policy evidence"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+    "rule-pack-expression-unit-policy",
+    "none",
+    "rule-pack expression AST unit-reference policy evidence"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
@@ -554,6 +561,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Rule-pack declarations template records required-input and value-slot unit-reference policy, browser manual-entry route, stored unit refs preserved, conversion false, private payload false, protected payload false, and no parser, release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-rule-pack-expression-template",
+      "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Rule-pack expression composer template records structured AST unit-reference policy, browser manual-entry route, stored expression unit refs preserved, conversion false, private payload false, protected payload false, read-only text preview only, and no parser, release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-operation-diff-template",

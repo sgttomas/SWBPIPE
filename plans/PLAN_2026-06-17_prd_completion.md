@@ -382,6 +382,16 @@ existing declaration required-input/value-slot unit policy context without
 changing rule-pack schema, expression grammar, parser/text syntax, backend
 validation, linter semantics, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001`
+(SMOKE TP-MAC-254) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Rule Pack Expression Composer public unit-reference policy
+surface (`rule-pack-expression-unit-policy`), raising public unit-policy
+targets to 37 while keeping target-format conversion witnesses at two. This
+records the existing structured-AST expression unit policy context without
+changing rule-pack schema, expression grammar, writable text parser/syntax,
+backend validation, evaluator behavior, linter semantics, or unit conversion
+behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.
