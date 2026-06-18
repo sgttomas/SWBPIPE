@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail operation ledger unit policy visibility (`TP-UNITS-BTAIL-OPLEDGERUNITS-001`)
+
+Landed one bounded Phase B-tail Operation Review Ledger unit-policy visibility
+slice while C5.7 remains human-execution gated. The DEL-16-03 operation
+ledger now exposes how queued GUI operation intents and agent proposal review
+records carry unit-policy evidence before any explicit user acceptance.
+
+The tranche adds `operation-ledger-unit-policy` to the ledger panel and
+`unit_policy_evidence` to the downloaded ledger JSON. GUI intent records
+count unit-bearing and dimensionless changes from explicit operation metadata;
+agent proposal records without unit metadata remain dimensionless/no
+unit-validation evidence. The row and packet report validation statuses,
+`receipt_units=not_serialized_in_review_ledger`, and `conversion=false`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-230; DEL-16-03 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPLEDGERUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 3/3 selected tests; focused Playwright
+passed 1/1 Chromium desktop test; `git diff --check` passed; full desktop
+Vitest passed 18/18 files and 399/399 tests; desktop production build passed
+with the existing Vite large-chunk warning; single-worker R2/R3 Playwright
+smoke passed 18/18 tests.
+
+Boundary: no operation application, acceptance semantics, durable audit
+persistence, receipt schema, solver behavior, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail operation apply unit policy visibility (`TP-UNITS-BTAIL-OPAPPLYUNITS-001`)
 
 Landed one bounded Phase B-tail Apply Operations unit-policy visibility slice

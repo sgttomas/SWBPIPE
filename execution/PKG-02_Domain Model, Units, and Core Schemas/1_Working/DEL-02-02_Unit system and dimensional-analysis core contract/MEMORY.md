@@ -1,5 +1,25 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-OPLEDGERUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-16-03 Operation Review Ledger tranche: the desktop
+  ledger now visibly reports unit-policy evidence for queued GUI operation
+  intents and agent proposal review records.
+- The row and exported packet record unit-bearing/dimensionless change
+  counts, operation unit-validation statuses,
+  `receipt_units=not_serialized_in_review_ledger`, and `conversion=false`;
+  they do not add unit conversion or inference behavior.
+- Validation passed: focused App Vitest 3/3 selected tests; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application change,
+  acceptance semantics change, durable audit persistence change, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-OPAPPLYUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-16-02 Apply Operations tranche: the desktop Apply

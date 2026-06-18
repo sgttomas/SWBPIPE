@@ -9,6 +9,25 @@ package_id: PKG-16
 
 # DEL-16-03 Memory
 
+## 2026-06-17 - TP-UNITS-BTAIL-OPLEDGERUNITS-001
+
+- The desktop Operation Review Ledger now exposes a visible and exported
+  unit-policy summary for queued GUI operation intents and agent proposal
+  review records.
+- The summary records unit-bearing/dimensionless change counts, unit
+  validation statuses, `receipt_units=not_serialized_in_review_ledger`, and
+  `conversion=false`; it does not change operation application, acceptance
+  semantics, durable audit persistence, receipt schema, or solver behavior.
+- Validation passed: focused App Vitest 3/3 selected tests; focused Chromium
+  desktop Playwright smoke 1/1; `git diff --check`; full desktop Vitest
+  399/399; full R2/R3 Playwright smoke 18/18; desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no operation application, acceptance semantics, durable
+  audit persistence, receipt schema, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 Implemented a narrow deterministic operation audit trail module at
 `core/model_operations/audit_trail/`.
 

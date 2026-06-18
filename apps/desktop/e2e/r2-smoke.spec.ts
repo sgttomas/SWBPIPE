@@ -528,6 +528,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("records=1");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("unit_bearing_changes=1");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("dimensionless_changes=0");
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
+    "unit_validations=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
+    "receipt_units=not_serialized_in_review_ledger"
+  );
+  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("conversion=false");
   await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=1");
   await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_dimensionless=0");
   await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=0");

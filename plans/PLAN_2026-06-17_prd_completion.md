@@ -208,6 +208,13 @@ unit-validation statuses, applied receipt count, receipt unit-serialization
 policy, and `conversion=false` without changing apply semantics or receipt
 schema.
 
+Latest B-tail update: `TP-UNITS-BTAIL-OPLEDGERUNITS-001`
+(SMOKE TP-MAC-230) landed on 2026-06-17. The Operation Review Ledger now
+exposes visible and exported unit-policy evidence for review records:
+unit-bearing/dimensionless change counts, unit-validation statuses,
+ledger receipt-unit boundary, and `conversion=false` without changing
+acceptance semantics or durable audit persistence.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

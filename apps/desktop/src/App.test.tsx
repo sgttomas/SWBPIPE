@@ -2097,9 +2097,25 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(operationLedger).getByTestId("operation-ledger-decision-counts").textContent).toContain(
       "3 held_for_user_acceptance"
     );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "records=3"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "unit_bearing_changes=2"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "dimensionless_changes=1"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     const ledgerHref = within(operationLedger).getByTestId("operation-ledger-export-link").getAttribute("href") ?? "";
     const ledgerPacket = JSON.parse(decodeURIComponent(ledgerHref.split(",", 2)[1]));
     expect(ledgerPacket.decision_counts.held_for_user_acceptance).toBe(3);
+    expect(ledgerPacket.unit_policy_evidence.unit_bearing_change_count).toBe(2);
+    expect(ledgerPacket.unit_policy_evidence.dimensionless_change_count).toBe(1);
+    expect(ledgerPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(ledgerPacket.unit_policy_evidence.applied_receipt_units).toBe("not_serialized_in_review_ledger");
     expect(ledgerPacket.records[0].source.source_ref).toBe("apps/desktop/src/features/viewport/PipeViewport.tsx");
     expect(ledgerPacket.records[0].actor.source_role).toBe("viewport_editor");
     expect(ledgerPacket.records.every((item: { accepted_model_state_ref: { ref: string } }) => item.accepted_model_state_ref.ref === "not generated")).toBe(
@@ -3803,6 +3819,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(operationLedger).getByTestId("operation-ledger-boundary").textContent).toContain(
       "does not mutate accepted model state"
     );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "unit_bearing_changes=1"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "unit_validations=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "receipt_units=not_serialized_in_review_ledger"
+    );
     const ledgerHref = within(operationLedger).getByTestId("operation-ledger-export-link").getAttribute("href") ?? "";
     const ledgerPacket = JSON.parse(decodeURIComponent(ledgerHref.split(",", 2)[1]));
     expect(ledgerPacket.document_kind).toBe("openpipestress.technical_preview.operation_review_ledger");
@@ -3812,6 +3837,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(ledgerPacket.decision_counts.held_for_user_acceptance).toBe(1);
     expect(ledgerPacket.decision_counts.accepted).toBe(0);
     expect(ledgerPacket.decision_counts.rejected).toBe(0);
+    expect(ledgerPacket.unit_policy_evidence.evidence_id).toBe("unit-policy-evidence:operation-review-ledger");
+    expect(ledgerPacket.unit_policy_evidence.unit_policy).toBe(
+      "ledger_preserves_operation_unit_metadata_without_conversion"
+    );
+    expect(ledgerPacket.unit_policy_evidence.unit_bearing_change_count).toBe(1);
+    expect(ledgerPacket.unit_policy_evidence.dimensionless_change_count).toBe(0);
+    expect(ledgerPacket.unit_policy_evidence.unit_validation_statuses).toEqual([
+      "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    ]);
+    expect(ledgerPacket.unit_policy_evidence.conversion_performed).toBe(false);
     expect(ledgerPacket.records[0].record_source).toBe("gui_editor_intent_queue");
     expect(ledgerPacket.records[0].decision.status).toBe("held_for_user_acceptance");
     expect(ledgerPacket.records[0].decision.explicit_user_acceptance).toBe(false);
@@ -6999,6 +7034,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(operationLedger).getByTestId("operation-ledger-boundary").textContent).toContain(
       "requires explicit user acceptance"
     );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "records=1"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "unit_bearing_changes=0"
+    );
+    expect(within(operationLedger).getByTestId("operation-ledger-unit-policy").textContent).toContain(
+      "unit_validations=none"
+    );
     expect(
       within(operationLedger).getByTestId("operation-ledger-record-op-review-computed-diagnostic").textContent
     ).toContain("result:stress:pipe-P-120:end-j:torsional-shear");
@@ -7008,6 +7052,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(ledgerPacket.export_scope).toBe("local_browser_download_preview");
     expect(ledgerPacket.deliverable_refs).toContain("DEL-16-04");
     expect(ledgerPacket.decision_counts.held_for_user_acceptance).toBe(1);
+    expect(ledgerPacket.unit_policy_evidence.unit_bearing_change_count).toBe(0);
+    expect(ledgerPacket.unit_policy_evidence.dimensionless_change_count).toBe(1);
+    expect(ledgerPacket.unit_policy_evidence.unit_validation_statuses).toEqual([]);
+    expect(ledgerPacket.unit_policy_evidence.conversion_performed).toBe(false);
     expect(ledgerPacket.records[0].record_source).toBe("agent_proposal");
     expect(ledgerPacket.records[0].proposal_ref).toBe("proposal:physics-diagnostic-review");
     expect(ledgerPacket.records[0].decision.status).toBe("held_for_user_acceptance");

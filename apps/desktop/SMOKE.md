@@ -7569,3 +7569,40 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-230 operation ledger unit policy visibility - PASSED (`TP-UNITS-BTAIL-OPLEDGERUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Operation Review Ledger unit-policy visibility
+  slice while C5.7 remains human-execution gated. The Operation Review Ledger
+  now exposes a visible and exported unit-policy summary for queued GUI
+  operation intents and agent proposal review records.
+- Unit behavior: `data-testid="operation-ledger-unit-policy"` reports record
+  count, unit-bearing change count, dimensionless change count, unit
+  validation statuses, `receipt_units=not_serialized_in_review_ledger`, and
+  `conversion=false`. The exported ledger JSON carries
+  `unit_policy_evidence` with
+  `unit_policy=ledger_preserves_operation_unit_metadata_without_conversion`.
+- UI check: the focused App tests verify viewport intent, material-edit, and
+  agent-proposal ledger paths. The focused R2 Playwright journey checks the
+  same visible row in a real browser before apply.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "records viewport editor intents without direct persisted-project mutation|carries queued editor intents into the report packet as review-only operation context|shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 3/3 selected tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `git diff --check` passed.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-16-03 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPLEDGERUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: Operation Review Ledger UI/export evidence only. No operation
+  application, acceptance semantics, durable audit persistence, receipt
+  schema, solver behavior, unit-conversion API, DEC-018 catalog constant,
+  schema dimension enum, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
