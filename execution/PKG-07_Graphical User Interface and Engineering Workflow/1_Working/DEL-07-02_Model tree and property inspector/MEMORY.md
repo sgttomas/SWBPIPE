@@ -796,3 +796,24 @@ Durable context preserved after reconciliation review:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 delete-intent unit validation evidence
+
+- Primary role for a bounded Phase B-tail Property Inspector/delete-intent
+  unit-validation slice while C5.7 remains human-execution gated.
+- Explicit support, node, and pipe delete intent previews now record
+  `unit_validation=not_required_dimensionless` instead of leaving
+  `unit_validation=not_run`.
+- Delete intents do not introduce new unit-bearing numeric quantities; schema
+  and reference checks remain in the existing validate/apply path.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-216; completion log entry.
+- Validation passed: focused App Vitest 56/56. Broader validation is recorded
+  in the tranche run record and closeout sweep artifact.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, delete operation behavior,
+  reference validation, operation application semantics, accepted model-state
+  mutation, solver behavior, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

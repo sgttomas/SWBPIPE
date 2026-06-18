@@ -72,6 +72,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
   await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
+  await page.getByTestId("tree-row-support:S-120").click();
+  await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
+  await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
   await expect(page.getByTestId("guided-workbench")).toContainText("Model edits");
   await expect(page.getByTestId("journey-step-status-loads")).toContainText("available");
   await page.getByTestId("journey-step-loads").click();

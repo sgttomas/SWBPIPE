@@ -7083,3 +7083,36 @@ notes:
   content, private payload, lifecycle state transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-216 delete-intent unit-validation evidence - PASSED (`TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail Property Inspector/delete-intent
+  unit-validation slice while C5.7 remains human-execution gated. The explicit
+  support, node, and pipe delete intent previews now record unit validation as
+  `not_required_dimensionless` instead of leaving `unit_validation=not_run`.
+- Unit behavior: delete intents do not introduce a new unit-bearing numeric
+  quantity. The preview metadata now records that fact explicitly while still
+  leaving schema/reference validation to the existing validate/apply path.
+- UI check: `data-testid="editor-intent-validation"` reports
+  `not_required_dimensionless` for support/node/pipe delete previews. The
+  focused App test checks all three delete families, and R2/R3 Playwright
+  smoke checks the support-delete browser preview without applying the
+  deletion.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-07-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001.md`;
+  DEL-16-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: delete-intent metadata only. No delete operation behavior,
+  reference validation, operation application semantics, accepted model-state
+  mutation, solver behavior, unit conversion API, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

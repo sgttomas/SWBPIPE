@@ -7365,6 +7365,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("delete_support");
     expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("before=Guide on riser");
     expect(within(deleteSupportPanel).getByTestId("editor-operation-preview").textContent).toContain("after=not_present");
+    expect(within(deleteSupportPanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "not_required_dimensionless"
+    );
 
     fireEvent.click(within(deleteSupportPanel).getByTestId("queue-delete-support-intent"));
     const applyPanel = screen.getByTestId("operation-apply-panel");
@@ -7432,6 +7435,9 @@ describe("OpenPipeStress desktop preview", () => {
       "before=Delete target node; x=9; y=1; z=0"
     );
     expect(within(deleteNodePanel).getByTestId("editor-operation-preview").textContent).toContain("after=not_present");
+    expect(within(deleteNodePanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "not_required_dimensionless"
+    );
 
     fireEvent.click(within(deleteNodePanel).getByTestId("queue-delete-node-intent"));
     expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain("not_present");
@@ -7504,6 +7510,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(deletePipePanel).getByTestId("editor-operation-preview").textContent).toContain(
       "after=not_present"
+    );
+    expect(within(deletePipePanel).getByTestId("editor-intent-validation").textContent).toContain(
+      "not_required_dimensionless"
     );
 
     fireEvent.click(within(deletePipePanel).getByTestId("queue-delete-pipe-intent"));

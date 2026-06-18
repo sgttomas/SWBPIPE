@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail delete-intent unit-validation evidence (`TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001`)
+
+Landed one bounded Phase B-tail Property Inspector/delete-intent
+unit-validation slice while C5.7 remains human-execution gated. Explicit
+support, node, and pipe delete intent previews now record unit validation as
+`not_required_dimensionless` instead of leaving `unit_validation=not_run`.
+
+The tranche documents the existing behavior that these delete intents do not
+introduce new unit-bearing numeric quantities. Schema and reference checks
+remain in the existing validate/apply path; delete operation behavior,
+accepted model-state mutation semantics, and solver behavior are unchanged.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-216; DEL-07-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001.md`;
+DEL-16-02 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest passed 56/56; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 399/399 tests;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: no delete operation behavior, reference validation, operation
+application semantics, accepted model-state mutation, solver behavior, unit
+conversion API, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail result viewer unit policy evidence (`TP-UNITS-BTAIL-RESULTVIEWUNITS-001`)
 
 Landed one bounded Phase B-tail results-viewer/unit-evidence slice while C5.7

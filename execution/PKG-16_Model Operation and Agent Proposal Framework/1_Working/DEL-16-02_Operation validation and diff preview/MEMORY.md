@@ -782,3 +782,21 @@ Durable context preserved after PKG-02 grounded finding resolution:
   conversion API, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-07-02 Property Inspector tranche: explicit support,
+  node, and pipe delete intents now record pre-application unit validation as
+  `not_required_dimensionless`.
+- This is operation-intent metadata only. It makes the delete preview more
+  explicit before validate/apply, while keeping schema/reference validation,
+  diff generation, operation application, durable persistence, and accepted
+  model-state mutation semantics unchanged.
+- Validation evidence is recorded in the DEL-07-02 primary run record and this
+  deliverable's supporting run record. DEC-025 sweep evidence is recorded in
+  closeout artifacts.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable acceptance persistence, unit
+  conversion API, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

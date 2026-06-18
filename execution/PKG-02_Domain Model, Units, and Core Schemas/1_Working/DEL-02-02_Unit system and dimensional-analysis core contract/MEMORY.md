@@ -1124,3 +1124,21 @@ Boundary note:
   tolerance, protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-07-02 delete-intent tranche: support, node, and pipe
+  delete previews now explicitly classify unit validation as
+  `not_required_dimensionless`.
+- The tranche records that these delete operations do not introduce new
+  unit-bearing numeric quantities. It closes another `unit_validation=not_run`
+  audit gap without adding a conversion API or hidden normalization path.
+- Validation evidence is recorded in the DEL-07-02 primary run record and
+  this deliverable's supporting run record. DEC-025 sweep evidence is recorded
+  in closeout artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, delete behavior, reference
+  validation, operation application semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

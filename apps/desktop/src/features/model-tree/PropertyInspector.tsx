@@ -1444,7 +1444,7 @@ function buildDeleteSupportIntent(support: PreviewModel["supports"][number], mod
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: "not_required_dimensionless",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1497,7 +1497,7 @@ function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: Previ
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: "not_required_dimensionless",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1550,7 +1550,7 @@ function buildDeletePipeIntent(pipe: PreviewModel["pipe_segments"][number], mode
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: "not_required_dimensionless",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
