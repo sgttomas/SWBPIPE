@@ -6087,6 +6087,15 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(runAudit).getByTestId("run-audit-hashes").textContent).toContain("analysis_run_record");
     expect(within(runAudit).getByTestId("run-audit-hashes").textContent).toContain("result_envelope");
+    expect(within(runAudit).getByTestId("run-audit-units").textContent).toContain(
+      "model=angle=rad,force=N,length=m"
+    );
+    expect(within(runAudit).getByTestId("run-audit-units").textContent).toContain(
+      "results=MPa,N,N*m,mm,rad"
+    );
+    expect(within(runAudit).getByTestId("run-audit-units").textContent).toContain("rows=737");
+    expect(within(runAudit).getByTestId("run-audit-units").textContent).toContain("source=result_envelope");
+    expect(within(runAudit).getByTestId("run-audit-units").textContent).toContain("conversion=false");
     expect(within(runAudit).getByTestId("run-audit-input-manifest").textContent).toContain(
       "ResultEnvelope:result-envelope:run:preview-linear-static-001"
     );

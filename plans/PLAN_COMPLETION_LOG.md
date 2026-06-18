@@ -14,6 +14,35 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail run-audit unit traceability evidence (`TP-UNITS-BTAIL-RUNAUDITUNITS-001`)
+
+Landed one bounded Phase B-tail analysis-run audit evidence slice while C5.7
+remains human-execution gated. The DEL-14-02 Run Audit panel now records unit
+traceability for solved runs from the already-bound model and result envelope.
+
+The tranche adds `data-testid="run-audit-units"` with sorted model unit
+declarations, result row unit symbols in the established Results-panel display
+order, row count, `source=result_envelope`, and `conversion=false`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-222; DEL-14-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RUNAUDITUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 file and 56/56 tests; focused R2
+Playwright smoke passed 2/2; full desktop Vitest passed 18/18 files and
+399/399 tests; desktop production build passed with the existing Vite
+large-chunk warning. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: no analysis-run schema, hash canonicalization, solver behavior,
+result value, unit-conversion API, DEC-018 catalog constant, schema dimension
+enum, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail accessibility-baseline unit-visibility evidence (`TP-UNITS-BTAIL-A11YUNITVISIBILITY-001`)
 
 Landed one bounded Phase B-tail/C5 usability-support slice while C5.7 remains

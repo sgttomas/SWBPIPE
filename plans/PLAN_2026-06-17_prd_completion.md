@@ -159,6 +159,12 @@ packet now expose unit-visibility evidence for unit-bearing review surfaces,
 including DEC-018/DEL-02-02/DEL-07-05/DEL-07-06 refs, sorted project units,
 no color-only unit signaling, and `conversion_performed=false`.
 
+Latest B-tail update: `TP-UNITS-BTAIL-RUNAUDITUNITS-001`
+(SMOKE TP-MAC-222) landed on 2026-06-17. The Run Audit panel now exposes
+unit traceability for solved analysis runs, including sorted model units,
+result row unit symbols, row count, `source=result_envelope`, and
+`conversion=false`.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

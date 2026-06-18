@@ -368,6 +368,13 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "vector_direction=global_cartesian_displacement_components"
   );
 
+  await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("run-audit-units")).toContainText("rows=737");
+  await expect(page.getByTestId("run-audit-units")).toContainText("source=result_envelope");
+  await expect(page.getByTestId("run-audit-units")).toContainText("conversion=false");
+
   const solvedCanvas = await canvas.screenshot();
   expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);
 

@@ -1,5 +1,22 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-RUNAUDITUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-14-02 run-audit tranche: the desktop Run Audit
+  panel now surfaces explicit unit traceability for solved analysis runs.
+- The audit row reads model unit declarations and result row units from
+  existing app envelopes, records `source=result_envelope`, and keeps
+  `conversion=false`; it does not infer/default units or add conversion
+  behavior.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-A11YUNITVISIBILITY-001 supporting unit evidence
 
 - Supporting role for DEL-07-06 accessibility-baseline tranche: the desktop

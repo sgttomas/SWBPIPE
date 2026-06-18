@@ -1,5 +1,22 @@
 # MEMORY - DEL-14-02 Analysis Run Records
 
+## 2026-06-17 - TP-UNITS-BTAIL-RUNAUDITUNITS-001 run-audit unit traceability
+
+- Primary role for a bounded Phase B-tail analysis-run audit evidence slice:
+  the desktop Run Audit panel now exposes a `Unit audit` row for solved runs.
+- The row derives sorted model unit declarations from `model.project.units`,
+  result row unit symbols from the bound result envelope, the result row
+  count, `source=result_envelope`, and `conversion=false`.
+- Validation passed: focused App Vitest 56/56; focused R2 Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RUNAUDITUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-222.
+- Boundary preserved: no analysis-run schema, hash policy, solver behavior,
+  result values, unit conversion API, lifecycle state, review disposition,
+  protected/private data posture, release status, professional approval,
+  certification, sealing, authentication, or code-compliance posture changed.
+
 ## Implementation Summary
 
 2026-05-04: Added the schema-first analysis run record contract for DEV-001

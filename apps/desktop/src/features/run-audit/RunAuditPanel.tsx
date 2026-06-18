@@ -1,6 +1,8 @@
 import { Fingerprint } from "lucide-react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
+const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
+
 export function RunAuditPanel({
   model,
   result,
@@ -40,6 +42,11 @@ export function RunAuditPanel({
             label="Hash evidence"
             value={`${result.results.length} result rows; ${resultHashCount} result value hashes; scopes: ${hashScopes}`}
             testId="run-audit-hashes"
+          />
+          <AuditLine
+            label="Unit audit"
+            value={unitAuditSummary(model, result)}
+            testId="run-audit-units"
           />
           <AuditLine
             label="Input manifest"
@@ -104,4 +111,32 @@ function boundarySummary(boundary: Record<string, boolean>): string {
     return "human review required; no compliance, certification, sealing, authentication, or approval claim";
   }
   return "professional boundary requires attention";
+}
+
+function unitAuditSummary(model: PreviewModel, result: MechanicsResult): string {
+  return [
+    `model=${formatUnitRecord(model.project.units)}`,
+    `results=${uniqueResultUnits(result).join(",") || "none"}`,
+    `rows=${result.results.length}`,
+    "source=result_envelope",
+    "conversion=false"
+  ].join("; ");
+}
+
+function uniqueResultUnits(result: MechanicsResult): string[] {
+  return Array.from(new Set(result.results.map((item) => item.unit).filter(Boolean))).sort(compareUnitSymbols);
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  const entries = Object.entries(units).sort(([left], [right]) => left.localeCompare(right));
+  return entries.map(([dimension, unit]) => `${dimension}=${unit}`).join(",") || "none";
+}
+
+function compareUnitSymbols(left: string, right: string): number {
+  const leftIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(left);
+  const rightIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(right);
+  if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
+  if (leftIndex >= 0) return -1;
+  if (rightIndex >= 0) return 1;
+  return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
 }
