@@ -6595,3 +6595,44 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-202 operation diff preview unit witnesses - PASSED (`TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail operation-diff/unit-evidence slice while C5.7
+  remains human-execution gated. The desktop Operation Diff Preview packet now
+  emits explicit DEC-018 unit-system disclosure and per-unit-bearing-diff-row
+  preservation witnesses for queued local operation previews.
+- Packet contract: `unit_system_disclosure` records
+  `unit-system:dec-018-si-dual-display`, target diff rows as
+  `per_change_declared_unit`, and `conversion_performed=false`.
+  `unit_witness_policy` is
+  `preserve_operation_diff_change_value_unit_and_dimension_per_unit_bearing_row`,
+  and `unit_preservation_witnesses[]` preserves each unit-bearing before/after
+  diff row's value text, unit, and dimension.
+- UI check: `data-testid="diff-preview-units"` displays the DEC-018
+  disclosure and `data-testid="diff-preview-unit-witnesses"` displays
+  `count=1` with `conversion=false` for the focused material-modulus edit
+  fixture.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+  - Playwright smoke was not extended with a witness-specific assertion for
+    this slice: the broad R2 smoke previews unit-bearing edits but does not
+    retain a queued diff row without changing later smoke flow. An attempted
+    queue-and-clear assertion path was removed after hanging. Focused App
+    coverage renders the UI and parses the exported packet.
+- Evidence: DEL-16-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001.md`;
+  DEL-16-03 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: operation diff unit metadata only. No operation schema change,
+  operation application, accepted model-state mutation, durable acceptance
+  persistence, unit conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

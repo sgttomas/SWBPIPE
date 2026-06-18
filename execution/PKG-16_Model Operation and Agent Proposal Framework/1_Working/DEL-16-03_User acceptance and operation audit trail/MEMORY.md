@@ -621,3 +621,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001 supporting audit evidence
+
+- Supporting role for DEL-16-02 operation diff tranche: queued-operation
+  review evidence now carries DEC-018 disclosure and per-unit-bearing-diff-row
+  unit-preservation witnesses before any user acceptance or application.
+- The evidence confirms operation review rows preserve entered unit and
+  dimension metadata while remaining held for user acceptance and
+  `accepted_model_state_mutated=false`.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no operation application, accepted model-state mutation,
+  durable acceptance persistence, operation schema change, protected standards
+  content, private payload, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

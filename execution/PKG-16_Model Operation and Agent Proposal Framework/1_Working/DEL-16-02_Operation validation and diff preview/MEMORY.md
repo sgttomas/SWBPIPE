@@ -741,3 +741,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001 operation diff unit witnesses
+
+- Primary role for the bounded Phase B-tail operation diff unit witness
+  tranche. The desktop Operation Diff Preview packet now emits DEC-018
+  unit-system disclosure and one unit-preservation witness per unit-bearing
+  local diff row.
+- The diff packet preserves before/after value text, unit, and dimension with
+  `conversion_performed=false`; visible UI evidence shows the DEC-018
+  disclosure and `count=1` witness for the focused material-modulus edit
+  fixture.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`. Playwright was
+  not extended with a witness-specific assertion because the broad R2 smoke
+  does not retain a queued diff row without altering later flow; an attempted
+  queue-and-clear path hung and was removed.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable acceptance persistence, unit
+  conversion API, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

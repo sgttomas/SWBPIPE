@@ -848,3 +848,20 @@ Boundary note:
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001 supporting unit evidence
+
+- Supporting role for DEL-16-02/DEL-16-03 operation diff tranche: the desktop
+  Operation Diff Preview packet now records DEC-018 unit-system disclosure and
+  per-unit-bearing-diff-row value/unit/dimension preservation witnesses with
+  `conversion_performed=false`.
+- The evidence confirms local operation previews do not perform hidden unit
+  conversion and do not drop unit metadata before user acceptance.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, desktop production build with the
+  existing Vite large-chunk warning, and `git diff --check`.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

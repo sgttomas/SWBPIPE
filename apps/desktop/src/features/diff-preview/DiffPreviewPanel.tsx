@@ -6,6 +6,7 @@ import type {
   PreviewModel,
   SelectedReviewTarget
 } from "../../types";
+import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 type DiffChangeRow = {
   change_id: string;
@@ -64,6 +65,20 @@ export function DiffPreviewPanel({
               label="State binding"
               value={`${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
               testId="diff-preview-state-binding"
+            />
+            <DiffLine
+              label="Units"
+              value={`${packet.unit_system_disclosure.unit_system_ref.ref}; ${unitDisclosureSummary(
+                packet.unit_system_disclosure
+              )}`}
+              testId="diff-preview-units"
+            />
+            <DiffLine
+              label="Unit witnesses"
+              value={`count=${packet.unit_preservation_witnesses.length}; policy=preserve_diff_change_units; conversion=${String(
+                packet.unit_preservation_witnesses.some((item) => item.conversion_performed)
+              )}`}
+              testId="diff-preview-unit-witnesses"
             />
             <DiffLine label="Validation" value={diffValidation(packet)} testId="diff-preview-validation" />
             <DiffLine label="Boundary" value={diffBoundary(packet)} testId="diff-preview-boundary" />
@@ -127,6 +142,17 @@ function buildDiffPreviewPacket({
   ];
   const diffRowCount = previews.reduce((total, preview) => total + preview.changes.length, 0);
   const heldCount = previews.filter((preview) => preview.review_decision === "held_for_user_acceptance").length;
+  const unitPreservationWitnesses = operationDiffUnitPreservationWitnesses(previews);
+  const unitSystemDisclosure = buildExportUnitSystemDisclosure({
+    model,
+    targetExportUnits: {
+      diff_preview_change_rows: "per_change_declared_unit"
+    },
+    conversionPolicy: "operation_diff_preview_preserves_declared_change_units_no_preview_conversion",
+    conversionPerformed: false,
+    conversionScope: [],
+    sourceLocation: "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx"
+  });
 
   return {
     schema_version: "0.1.0",
@@ -145,8 +171,12 @@ function buildDiffPreviewPacket({
       held_for_user_acceptance_count: heldCount,
       accepted_model_state_mutated: false,
       hash_bound_diff_preview_count: 0,
-      local_visual_diff_preview_count: diffRowCount
+      local_visual_diff_preview_count: diffRowCount,
+      unit_preservation_witness_count: unitPreservationWitnesses.length
     },
+    unit_system_disclosure: unitSystemDisclosure,
+    unit_witness_policy: "preserve_operation_diff_change_value_unit_and_dimension_per_unit_bearing_row",
+    unit_preservation_witnesses: unitPreservationWitnesses,
     previews,
     unresolved_tbd: [
       "hash-bound backend diff preview reference for GUI editor intents",
@@ -159,6 +189,57 @@ function buildDiffPreviewPacket({
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
   };
+}
+
+function operationDiffUnitPreservationWitnesses(previews: Array<{ preview_id: string; operation_id: string; changes: DiffChangeRow[] }>) {
+  return previews.flatMap((preview, previewIndex) =>
+    preview.changes
+      .map((change, changeIndex) => ({ change, changeIndex }))
+      .filter(({ change }) => isUnitBearingDiffChange(change))
+      .map(({ change, changeIndex }) => ({
+        witness_id: `operation-diff-unit:${safeRefToken(`${preview.operation_id}-${change.change_id}`)}`,
+        source_operation_ref: reference("Operation", preview.operation_id),
+        source_change_ref: reference("OperationChange", change.change_id),
+        source_field_path: `previews[${previewIndex}].changes[${changeIndex}]`,
+        source_quantity: {
+          before: change.before,
+          after: change.after,
+          unit: change.unit,
+          dimension: change.dimension
+        },
+        target_preview_ref: reference("DiffPreview", preview.preview_id),
+        target_field_path: `previews[${previewIndex}].changes[${changeIndex}]`,
+        target_quantity: {
+          before: change.before,
+          after: change.after,
+          unit: change.unit,
+          dimension: change.dimension
+        },
+        target_quantity_policy: "diff_preview_preserves_declared_operation_change_value_unit_and_dimension",
+        export_unit_policy: "preserve_diff_change_row_unit_and_dimension",
+        conversion_performed: false,
+        decision_basis_refs: [
+          reference("Decision", "DEC-018"),
+          reference("Deliverable", "DEL-02-02"),
+          reference("Deliverable", "DEL-16-02"),
+          reference("Deliverable", "DEL-16-03")
+        ],
+        provenance: {
+          source_name: "OpenPipeStress desktop operation diff preview",
+          source_location: "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+          source_license: "project-governed",
+          contributor: "OpenPipeStress app integration tranche",
+          contributor_certification: "Operation diff unit metadata only; no protected standards or private payloads.",
+          redistribution_status: "public_permissive",
+          review_status: "desktop_preview",
+          privacy_classification: "public_metadata"
+        }
+      }))
+  );
+}
+
+function isUnitBearingDiffChange(change: DiffChangeRow): boolean {
+  return change.unit !== "none" && change.unit !== "TBD" && change.dimension !== "dimensionless" && change.dimension !== "TBD";
 }
 
 function editorIntentPreview({ intent, index }: { intent: EditorOperationIntent; index: number }) {
@@ -295,4 +376,8 @@ function safeRefToken(value: string): string {
 
 function safeFileToken(value: string): string {
   return safeRefToken(value);
+}
+
+function reference(objectType: string, ref: string) {
+  return { object_type: objectType, ref };
 }

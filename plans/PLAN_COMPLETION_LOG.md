@@ -14,6 +14,42 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail operation diff preview unit witnesses (`TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001`)
+
+Landed one bounded Phase B-tail operation-diff/unit-evidence slice while C5.7
+remains human-execution gated. The desktop Operation Diff Preview packet now
+emits explicit DEC-018 unit-system disclosure and per-unit-bearing-diff-row
+unit-preservation witnesses for queued local operation previews.
+
+The diff packet records `unit-system:dec-018-si-dual-display`, target diff rows
+as `per_change_declared_unit`, and `conversion_performed=false`. Each
+unit-bearing diff row gets a preservation witness for before/after value text,
+unit, and dimension. The visible UI shows `diff-preview-units` and
+`diff-preview-unit-witnesses` with `count=1` and `conversion=false` in the
+focused material-modulus edit fixture.
+
+The tranche preserves the operation-review boundary. It does not apply queued
+operations, mutate accepted model state, add durable operation acceptance
+persistence, change the operation schema, or make professional/code-compliance
+claims.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-202; DEL-16-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001.md`;
+DEL-16-03 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2 Playwright smoke
+passed 2/2; full desktop Vitest passed 18/18 files and 397/397 tests; desktop
+production build passed with the existing Vite large-chunk warning; `git diff
+--check` passed. Playwright smoke was not extended with a witness-specific
+assertion because the broad R2 smoke does not retain a queued diff row without
+altering later flow; an attempted queue-and-clear path hung and was removed.
+
+Boundary: operation diff unit metadata only. No operation schema change,
+operation application, accepted model-state mutation, durable acceptance
+persistence, unit conversion API, protected standards content, private payload,
+lifecycle state transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail CAEPIPE external parser unit witnesses (`TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001`)
 
 Landed one bounded Phase B-tail CAEPIPE external parser/unit-evidence slice

@@ -3352,6 +3352,14 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(diffPreview).getByTestId("diff-preview-validation").textContent).toContain("0 hash-bound rows");
     expect(within(diffPreview).getByTestId("diff-preview-validation").textContent).toContain("1 held");
+    expect(within(diffPreview).getByTestId("diff-preview-units").textContent).toContain(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(within(diffPreview).getByTestId("diff-preview-units").textContent).toContain("conversion=false");
+    expect(within(diffPreview).getByTestId("diff-preview-unit-witnesses").textContent).toContain("count=1");
+    expect(within(diffPreview).getByTestId("diff-preview-unit-witnesses").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(diffPreview).getByTestId("diff-preview-boundary").textContent).toContain(
       "accepted model mutated=false"
     );
@@ -3372,6 +3380,29 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPacket.summary.accepted_model_state_mutated).toBe(false);
     expect(diffPacket.summary.hash_bound_diff_preview_count).toBe(0);
     expect(diffPacket.summary.local_visual_diff_preview_count).toBe(1);
+    expect(diffPacket.summary.unit_preservation_witness_count).toBe(1);
+    expect(diffPacket.unit_system_disclosure.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+    expect(diffPacket.unit_system_disclosure.target_export_units.diff_preview_change_rows).toBe(
+      "per_change_declared_unit"
+    );
+    expect(diffPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(diffPacket.unit_witness_policy).toBe(
+      "preserve_operation_diff_change_value_unit_and_dimension_per_unit_bearing_row"
+    );
+    expect(diffPacket.unit_preservation_witnesses).toHaveLength(1);
+    expect(diffPacket.unit_preservation_witnesses[0].source_quantity).toMatchObject({
+      before: "200000000000",
+      after: expectedMaterialEditAfter,
+      unit: "Pa",
+      dimension: "stress"
+    });
+    expect(diffPacket.unit_preservation_witnesses[0].target_quantity).toMatchObject({
+      before: "200000000000",
+      after: expectedMaterialEditAfter,
+      unit: "Pa",
+      dimension: "stress"
+    });
+    expect(diffPacket.unit_preservation_witnesses[0].conversion_performed).toBe(false);
     expect(diffPacket.previews[0].record_source).toBe("gui_editor_intent_queue");
     expect(diffPacket.previews[0].operation_id).toBe(
       "op:editor-intent-material:invented-carbon-steel-elastic_modulus.value"
