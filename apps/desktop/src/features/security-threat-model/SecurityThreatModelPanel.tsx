@@ -60,6 +60,11 @@ export function SecurityThreatModelPanel({
           testId="security-threat-model-controls"
         />
         <ThreatLine
+          label="Unit no-bypass"
+          value={`unit_checks=${String(packet.unit_policy_evidence.unit_checks_required)}; workflows=${packet.unit_policy_evidence.export_workflow_count}; conversion=${String(packet.unit_policy_evidence.conversion_performed)}; certification=${String(packet.security_certification_claim)}`}
+          testId="security-threat-model-unit-policy"
+        />
+        <ThreatLine
           label="Open decisions"
           value={`tbd=${packet.summary.tbd_decision_count}; plugin=${packet.open_decisions.plugin_permission_model}; telemetry=${packet.open_decisions.telemetry_event_schema}`}
           testId="security-threat-model-open-decisions"
@@ -97,6 +102,7 @@ function buildSecurityThreatModelPacket({
 }) {
   const threats = threatInventory();
   const openDecisionValues = Object.values(openDecisions());
+  const unitPolicyEvidence = securityThreatModelUnitPolicyEvidence();
 
   return {
     schema_version: "0.1.0",
@@ -156,6 +162,7 @@ function buildSecurityThreatModelPacket({
       telemetry_bypass_allowed: false,
       plugin_manifest_grants_runtime_access: false
     },
+    unit_policy_evidence: unitPolicyEvidence,
     open_decisions: openDecisions(),
     storage_capability_ref: storageCapability
       ? {
@@ -171,6 +178,32 @@ function buildSecurityThreatModelPacket({
     release_or_professional_claim: false,
     security_certification_claim: false,
     professional_boundary: professionalBoundary()
+  };
+}
+
+function securityThreatModelUnitPolicyEvidence() {
+  return {
+    evidence_id: "unit-policy-evidence:security-threat-model-no-bypass",
+    unit_policy: "security_threat_model_requires_unit_checks_no_bypass_for_unit_bearing_workflows",
+    unit_checks_required: true,
+    unit_bearing_workflow_refs: [
+      "common_export_packages_target_profiles_native_open_json",
+      "caepipe_mbf_and_external_harness_evidence",
+      "stress_neutral_csv_json",
+      "conservative_pcf_subset",
+      "glb_gltf_review_geometry",
+      "export_adapter_sdk_and_additional_targets"
+    ],
+    export_workflow_count: exportWorkflows().length,
+    conversion_performed: false,
+    target_writer_invoked: false,
+    security_certification_claim: false,
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-12-05")
+    ],
+    source: "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx"
   };
 }
 
@@ -281,6 +314,13 @@ function professionalBoundary() {
     software_makes_sealing_claim: false,
     software_makes_approval_claim: false,
     software_makes_authentication_claim: false
+  };
+}
+
+function reference(objectType: string, ref: string) {
+  return {
+    object_type: objectType,
+    ref
   };
 }
 

@@ -116,3 +116,28 @@ Durable context preserved after reconciliation review:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001 primary security unit-policy evidence
+
+- Primary role for Phase B-tail Security Threat Model unit-policy evidence:
+  the desktop threat-model packet now carries
+  `unit-policy-evidence:security-threat-model-no-bypass`.
+- The visible review surface reports unit-check no-bypass status for
+  unit-bearing export and handoff workflows with `conversion=false` and
+  `certification=false`.
+- Export Safety Review now marks `security_threat_model_review` as
+  unit-evidence-required and references the security threat-model unit-policy
+  evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-261; completion log entry; supporting
+  DEL-08-05, DEL-12-02, and DEL-02-02 run records.
+- Validation passed: full App test file 56/56 after updating stale
+  export-review coverage expectations, full desktop Vitest 399/399, desktop
+  build with the existing Vite large-chunk warning, focused R2 Playwright 2/2
+  after updating stale report-lint target-count assertions, and full
+  single-worker Playwright 18/18.
+- Boundary preserved: no security sufficiency claim, telemetry authorization,
+  release-readiness claim, target writer behavior, unit conversion, private
+  payload, protected content, lifecycle transition, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

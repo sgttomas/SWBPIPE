@@ -131,6 +131,7 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
 const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
   "project_storage_audit",
   "project_validation_preflight",
+  "security_threat_model_review",
   "agent_proposal_review",
   "rule_completeness_review",
   "result_envelope",
@@ -368,6 +369,11 @@ function buildExportReviewManifest({
       storage_bypass_requested: false,
       plugin_manifest_grants_runtime_access: false,
       no_bypass_controls_present: true,
+      unit_evidence_required: true,
+      unit_policy_ref: "unit-policy-evidence:security-threat-model-no-bypass",
+      unit_policy:
+        "security_threat_model_requires_unit_checks_no_bypass_for_unit_bearing_workflows",
+      conversion_performed: false,
       security_certification_claim: false,
       redaction_action: "threat_model_metadata_only_no_private_payload",
       private_payload_included: false,

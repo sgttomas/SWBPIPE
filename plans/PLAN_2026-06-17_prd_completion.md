@@ -452,6 +452,20 @@ The proposal row is pending until a proposal exists, then available with 18/18
 unit-evidence rows present, without changing proposal application, accepted
 model-state mutation, redaction behavior, target writers, or unit conversion.
 
+Latest B-tail update: `TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001`
+(SMOKE TP-MAC-261) landed on 2026-06-18. The Security Threat Model panel now
+exposes explicit unit-check no-bypass evidence for unit-bearing export and
+handoff workflows (`unit_checks=true`, `conversion=false`,
+`certification=false`); Report Content Lint now inventories
+`security-threat-model-unit-policy`, raising public unit-policy targets to 43;
+and Export Safety Review marks `security_threat_model_review` as
+unit-evidence-required, raising solved queued-intent coverage to
+`covered=18/19` and proposal-path coverage to 19/19 when the proposal row is
+available. This records security unit-policy inventory evidence without
+changing threat semantics, telemetry authorization, redaction behavior, target
+writers, manifest-level unit conversion, security certification posture, or
+unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

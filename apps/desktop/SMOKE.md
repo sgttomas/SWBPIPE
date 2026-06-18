@@ -8817,3 +8817,42 @@ notes:
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-261 security threat-model unit-policy inventory - PASSED (`TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Security Threat Model unit-policy inventory
+  slice while C5.7 remains human-execution gated. The security threat-model
+  review already records `unit_checks` as a no-bypass control; this tranche
+  makes that unit-policy evidence visible and export-review discoverable.
+- App behavior: `SecurityThreatModelPanel` now exposes
+  `data-testid="security-threat-model-unit-policy"` with
+  `unit_checks=true`, `workflows=6`, `conversion=false`, and
+  `certification=false`. The exported threat-model packet carries
+  `unit-policy-evidence:security-threat-model-no-bypass`, references DEC-018,
+  and does not invoke a target writer.
+- Inventory behavior: `ReportLintPanel` now includes
+  `security-threat-model-unit-policy`, raising visible unit-policy targets to
+  43 while conversion-witness targets remain two. `ExportReviewPanel` now
+  marks `security_threat_model_review` as unit-evidence-required, raising
+  solved queued-intent coverage to `covered=18/19`; proposal-path coverage is
+  19/19 once the proposal row is available.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests after updating stale export-review coverage expectations.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 after stale report-lint target-count assertions were updated.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  DEL-08-05, DEL-12-02, and DEL-02-02 supporting run records with the same
+  id.
+- Boundary: security/export/report inventory evidence only. No security
+  sufficiency claim, telemetry authorization, redaction behavior, target
+  writer behavior, unit conversion, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

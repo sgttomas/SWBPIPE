@@ -2087,3 +2087,27 @@ Boundary note:
   protected content, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Security Threat Model review output now
+  records unit-check no-bypass evidence for unit-bearing export and handoff
+  workflows.
+- The evidence references DEC-018, DEL-02-02, and DEL-12-05; reports
+  `conversion_performed=false`; and does not invoke a target writer.
+- Report Lint inventories `security-threat-model-unit-policy` as the 43rd
+  public unit-policy target, and Export Safety Review includes
+  `security_threat_model_review` in its unit-evidence matrix.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-261; primary DEL-12-05 run record and
+  supporting DEL-08-05/DEL-12-02 records.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2 after updating stale report-lint target-count assertions,
+  and full single-worker Playwright 18/18.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, security threat semantics, target writer behavior,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

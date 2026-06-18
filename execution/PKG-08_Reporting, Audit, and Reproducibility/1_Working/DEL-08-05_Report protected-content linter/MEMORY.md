@@ -752,3 +752,26 @@ code-compliance decisions.
   private payload, protected content, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001 supporting report-lint evidence
+
+- Supporting role for DEL-08-05: Report Content Lint now inventories the
+  Security Threat Model panel's unit-check no-bypass evidence.
+- The lint packet now includes
+  `apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx`
+  as `security-threat-model-unit-policy`; visible unit-policy targets increase
+  to 43 while conversion-witness targets remain two and
+  `lint_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-261; completion log entry; primary
+  DEL-12-05 run record and supporting DEL-12-02/DEL-02-02 records.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2 after updating stale report-lint target-count assertions,
+  and full single-worker Playwright 18/18.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility, unit conversion,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

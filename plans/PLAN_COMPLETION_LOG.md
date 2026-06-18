@@ -14,6 +14,43 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail security threat-model unit-policy inventory (`TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001`)
+
+Landed one bounded Phase B-tail Security Threat Model unit-policy inventory
+slice while C5.7 remains human-execution gated. The security threat-model
+review already records `unit_checks` as a no-bypass control; this tranche
+makes that unit-policy evidence visible and discoverable through report/export
+inventories.
+
+The Security Threat Model panel now displays explicit unit-check no-bypass
+evidence for unit-bearing export and handoff workflows:
+`unit_checks=true`, six workflow refs, `conversion=false`, and
+`certification=false`. Report Content Lint now inventories
+`security-threat-model-unit-policy`, raising unit-policy target count from 42
+to 43 while conversion-witness targets remain two. Export Safety Review now
+marks `security_threat_model_review` as unit-evidence-required, raising solved
+queued-intent coverage to `covered=18/19`; proposal-path coverage is 19/19
+once the proposal row is available.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-261; DEL-12-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+DEL-08-05, DEL-12-02, and DEL-02-02 supporting run records with the same id.
+
+Validation: full App test file passed 56/56 after stale export-review
+coverage expectations were updated; full desktop Vitest passed 18/18 files
+and 399/399 tests; desktop build passed with the existing Vite large-chunk
+warning; focused R2 Playwright passed 2/2 after stale report-lint target-count
+assertions were updated; full single-worker Playwright passed 18/18.
+
+Boundary: security/export/report inventory evidence only. No threat-model
+semantics, telemetry authorization, runtime redaction rules, target writer
+behavior, manifest-level unit conversion, protected standards content, private
+payload, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, security sufficiency claim, or
+code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail agent proposal unit-policy inventory (`TP-UNITS-BTAIL-AGENTPROPOSALUNITS-001`)
 
 Landed one bounded Phase B-tail Agent Proposal unit-policy inventory slice

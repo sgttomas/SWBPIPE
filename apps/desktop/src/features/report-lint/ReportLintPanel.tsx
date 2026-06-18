@@ -240,6 +240,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "secret/private-library metadata unit policy"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
+    "security-threat-model-unit-policy",
+    "none",
+    "security threat-model unit-check no-bypass evidence"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
     "editor-contract-unit-contract",
     "none",

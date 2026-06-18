@@ -188,3 +188,28 @@ Durable context preserved after reconciliation review:
   application behavior, private payload, protected content, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001 supporting export-review evidence
+
+- Supporting role for DEL-12-02: Export Safety Review now treats
+  `security_threat_model_review` as unit-evidence-required because the
+  threat-model packet carries explicit unit-check no-bypass evidence.
+- The security threat-model export row records
+  `unit_policy_ref=unit-policy-evidence:security-threat-model-no-bypass`,
+  `unit_evidence_required=true`, and `conversion_performed=false`.
+- Solved queued-intent evidence now reports `covered=18/19`; proposal-path
+  evidence reports 19/19 unit-evidence rows present.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-261; active plan and completion log entries;
+  primary DEL-12-05 run record and supporting DEL-08-05/DEL-02-02 records.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2 after updating stale report-lint target-count assertions,
+  and full single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, telemetry
+  authorization, security certification claim, private payload, protected
+  content, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

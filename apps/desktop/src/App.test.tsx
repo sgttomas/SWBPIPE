@@ -1530,7 +1530,7 @@ describe("OpenPipeStress desktop preview", () => {
       "clearance=false"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
-      "unit_targets=42"
+      "unit_targets=43"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
       "conversion_witness_targets=2"
@@ -1553,7 +1553,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.linter_status.professional_approval).toBe(false);
     expect(lintPacket.linter_status.ci_release_policy).toBe("TBD");
     expect(lintPacket.unit_policy_evidence.evidence_kind).toBe("public_surface_unit_policy_inventory");
-    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(42);
+    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(43);
     expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
     expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
     expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
@@ -1598,6 +1598,10 @@ describe("OpenPipeStress desktop preview", () => {
         expect.objectContaining({
           source_path: "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
           unit_policy_surface_id: "agent-proposal-unit-policy"
+        }),
+        expect.objectContaining({
+          source_path: "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
+          unit_policy_surface_id: "security-threat-model-unit-policy"
         }),
         expect.objectContaining({
           source_path: "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
@@ -2163,6 +2167,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(securityThreatModel).getByTestId("security-threat-model-coverage").textContent).toContain(
       "workflows=6"
     );
+    expect(within(securityThreatModel).getByTestId("security-threat-model-unit-policy").textContent).toContain(
+      "unit_checks=true"
+    );
+    expect(within(securityThreatModel).getByTestId("security-threat-model-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(securityThreatModel).getByTestId("security-threat-model-open-decisions").textContent).toContain(
       "tbd=13"
     );
@@ -2190,6 +2200,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(threatModelPacket.export_workflows).toContain("export_adapter_sdk_and_additional_targets");
     expect(threatModelPacket.no_bypass_controls.direct_sql_allowed).toBe(false);
     expect(threatModelPacket.no_bypass_controls.plugin_manifest_grants_runtime_access).toBe(false);
+    expect(threatModelPacket.unit_policy_evidence.evidence_id).toBe(
+      "unit-policy-evidence:security-threat-model-no-bypass"
+    );
+    expect(threatModelPacket.unit_policy_evidence.unit_checks_required).toBe(true);
+    expect(threatModelPacket.unit_policy_evidence.export_workflow_count).toBe(6);
+    expect(threatModelPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(threatModelPacket.unit_policy_evidence.security_certification_claim).toBe(false);
     expect(threatModelPacket.open_decisions.plugin_permission_model).toBe("TBD");
     expect(threatModelPacket.open_decisions.telemetry_event_schema).toBe("TBD");
     expect(threatModelPacket.private_payload_included).toBe(false);
@@ -4055,7 +4072,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
       "unit-system:dec-018-si-dual-display"
     );
-    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=17/18");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=18/19");
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
@@ -4215,12 +4232,13 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
     expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(29);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(18);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(17);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(19);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(18);
     expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
     expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
       "project_storage_audit",
       "project_validation_preflight",
+      "security_threat_model_review",
       "rule_completeness_review",
       "result_envelope",
       "stress_neutral_csv_json_package",
@@ -4252,6 +4270,11 @@ describe("OpenPipeStress desktop preview", () => {
         (item: { export_id: string }) => item.export_id === "agent_proposal_review"
       ).unit_evidence_status
     ).toBe("pending_source_export_packet");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "security_threat_model_review"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
     expect(
       reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
         (item: { export_id: string }) => item.export_id === "result_envelope"
@@ -4388,6 +4411,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(securityThreatModelExport.local_first).toBe(true);
     expect(securityThreatModelExport.telemetry_default_off).toBe(true);
     expect(securityThreatModelExport.no_bypass_controls_present).toBe(true);
+    expect(securityThreatModelExport.unit_evidence_required).toBe(true);
+    expect(securityThreatModelExport.unit_policy_ref).toBe("unit-policy-evidence:security-threat-model-no-bypass");
+    expect(securityThreatModelExport.conversion_performed).toBe(false);
     expect(securityThreatModelExport.direct_sql_access).toBe(false);
     expect(securityThreatModelExport.security_certification_claim).toBe(false);
     const editorContractExport = reviewManifest.exports.find(
@@ -7475,8 +7501,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(proposalReviewManifest.summary.export_count).toBe(29);
     expect(proposalReviewManifest.summary.available_count).toBe(29);
     expect(proposalReviewManifest.summary.operation_record_count).toBe(1);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(18);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(18);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(19);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(19);
     const proposalReviewExport = proposalReviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "agent_proposal_review"
     );
