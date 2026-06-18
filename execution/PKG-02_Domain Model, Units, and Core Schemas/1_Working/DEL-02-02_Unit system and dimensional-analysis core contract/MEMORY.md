@@ -1,5 +1,30 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the Rule
+  Pack Declarations editor as a unit-policy surface because it already exposes
+  stored unit-reference policy for required inputs and value slots.
+- The report-lint visible summary and JSON moved to 36 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-253; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-06-01 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused RulePackManagerPanel/DeclarationsEditor Vitest
+  5/5; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, rule-pack schema, expression grammar,
+  parser/text syntax, evaluator behavior, backend validation, persistence,
+  report-linter protected-content semantics, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Report Content Lint now classifies the

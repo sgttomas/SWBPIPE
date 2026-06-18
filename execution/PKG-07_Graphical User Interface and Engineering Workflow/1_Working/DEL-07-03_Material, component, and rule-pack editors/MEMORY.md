@@ -1,5 +1,30 @@
 # DEL-07-03 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-03: Report Content Lint now inventories the
+  existing Rule Pack Declarations public unit-policy surface,
+  `rule-pack-declarations-unit-policy`.
+- The lint packet now includes
+  `apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx` and
+  `target:desktop-rule-pack-declarations-template`; public unit-policy targets
+  increase from 35 to 36 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-253; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-06-01/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused RulePackManagerPanel/DeclarationsEditor Vitest
+  5/5; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no rule-pack schema, expression grammar, parser/text
+  syntax, evaluator behavior, backend validation, persistence, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-EDITORCONTRACTUNITS-001 editor-contract unit visibility
 
 - The desktop Editor Contract review panel now visibly reports the DEL-02-02

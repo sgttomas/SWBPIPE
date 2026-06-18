@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail rule-pack declarations report-lint unit inventory (`TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Rule Pack Declarations editor already
+exposes required-input and value-slot unit-reference policy; this tranche
+makes that public unit-policy surface discoverable through the Report Content
+Lint public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx`, target
+`target:desktop-rule-pack-declarations-template`, and target ref
+`rule-pack-declarations-unit-policy`. Unit-policy target count increases from
+35 to 36, while target-format conversion-witness target count remains two. The
+lint still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-253; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+DEL-07-03, DEL-06-01, and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render and local project round-trip
+selected tests passed 1/1 each; focused RulePackManagerPanel/DeclarationsEditor
+Vitest passed 5/5 selected tests; focused Playwright R2/rule-pack smoke passed
+4/4 configured project tests; full desktop Vitest passed 18/18 files and
+399/399 tests. Desktop production build passed with the existing Vite
+large-chunk warning. Single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Rule Pack Declarations
+unit-reference policy context only. No rule-pack schema, expression grammar,
+parser/text syntax, evaluator behavior, backend validation, persistence,
+report-linter protected-content semantics, legal clearance, redaction
+controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+constant, schema dimension enum, protected standards content, private payload,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail diagnostic report-lint unit inventory (`TP-UNITS-BTAIL-DIAGNOSTICLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while

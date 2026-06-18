@@ -1,5 +1,28 @@
 # MEMORY - DEL-06-01 Rule-pack schema
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting schema evidence
+
+- Supporting role for DEL-06-01: Report Content Lint now inventories the
+  existing Rule Pack Declarations unit-reference policy surface.
+- The report-lint packet includes
+  `apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx`,
+  `target:desktop-rule-pack-declarations-template`, and
+  `rule-pack-declarations-unit-policy` as a public unit-policy target.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-253; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip tests; focused RulePackManagerPanel/DeclarationsEditor Vitest
+  5/5; focused R2/rule-pack Playwright smoke 4/4; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; and desktop production
+  build with the existing Vite large-chunk warning.
+- Boundary preserved: no `rule_pack.schema.yaml` contract, schema version,
+  schema enum, evaluator behavior, parser/text syntax, backend validation,
+  persistence, protected standards content, private data, lifecycle state,
+  release readiness, professional approval, certification, sealing,
+  authentication, or code-compliance posture changed.
+
 ## Implementation Ledger
 
 2026-05-02:

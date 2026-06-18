@@ -238,6 +238,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "editor contract unit-bearing operation rule"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
+    "rule-pack-declarations-unit-policy",
+    "none",
+    "rule-pack declaration unit-reference policy evidence"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
     "operation-diff-unit-witnesses",
     "none",
@@ -541,6 +547,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Editor contract template records material/component/rule-pack reference editor metadata, operation-intent routing, private library references only, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-rule-pack-declarations-template",
+      "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Rule-pack declarations template records required-input and value-slot unit-reference policy, browser manual-entry route, stored unit refs preserved, conversion false, private payload false, protected payload false, and no parser, release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-operation-diff-template",
