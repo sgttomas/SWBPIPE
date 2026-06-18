@@ -8,6 +8,7 @@ import type {
   ModelHashEvidence,
   ModelMigrationLedgerRecord,
   ModelHashIntegrityEvidence,
+  ObjectRef,
   PreviewModel,
   ProjectEnvelopeHashEvidence,
   ProjectEnvelopeHashIntegrityEvidence
@@ -112,6 +113,11 @@ export function ProjectValidationPanel({
             packet.summary.unit_round_trip_checked_ref_count
           }; signature=${packet.summary.unit_round_trip_signature}`}
           testId="project-validation-unit-round-trip"
+        />
+        <ValidationLine
+          label="Unit policy"
+          value={projectValidationUnitPolicySummary(packet.unit_policy_evidence)}
+          testId="project-validation-unit-policy"
         />
         <ValidationLine
           label="Model hash evidence"
@@ -236,6 +242,7 @@ function buildProjectValidationPacket({
     projectEnvelopeHashIntegrity
   });
   const categories = buildRoundTripCategories(model, modelHashStatus);
+  const unitPolicyEvidence = buildProjectValidationUnitPolicyEvidence({ model, projectSummary });
   const migrationStatus = projectSummary?.migration_status ?? "not_persisted_this_session";
   const storeMigration = buildStoreMigrationEvidence({ projectSummary, storageCapability });
   const versionCheckStatus = model.schema_version === "0.1.0" ? "supported_current_schema" : "unsupported_schema_review_required";
@@ -324,6 +331,7 @@ function buildProjectValidationPacket({
       evidence_source: projectSummary ? "local_project_summary" : "not_persisted_this_session",
       comparison_basis: "deterministic_unit_metadata_signature_from_restored_local_project_envelope"
     },
+    unit_policy_evidence: unitPolicyEvidence,
     service_operations: buildServiceOperations({ projectSummary, projectOperation, validationStatus, versionCheckStatus }),
     store_migration: storeMigration,
     model_document_migration: modelDocumentMigrationEvidence(model, modelDocumentMigration, modelMigrationLedger),
@@ -364,6 +372,63 @@ function buildProjectValidationPacket({
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
   };
+}
+
+type ProjectValidationUnitPolicyEvidence = {
+  evidence_id: string;
+  unit_system_ref: ObjectRef;
+  source_model_ref: ObjectRef;
+  storage_convention: "entered_units_preserved";
+  validation_unit_policy: string;
+  model_units: Record<string, string>;
+  unit_bearing_record_count: number;
+  unit_round_trip_status: string;
+  unit_round_trip_checked_ref_count: number;
+  unit_round_trip_signature: string;
+  conversion_policy: string;
+  conversion_performed: false;
+  decision_basis_refs: ObjectRef[];
+  protected_content_included: false;
+  private_payload_included: false;
+};
+
+function buildProjectValidationUnitPolicyEvidence({
+  model,
+  projectSummary
+}: {
+  model: PreviewModel;
+  projectSummary: LocalProjectSummary | null;
+}): ProjectValidationUnitPolicyEvidence {
+  return {
+    evidence_id: "unit-policy-evidence:project-validation-preflight",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    source_model_ref: reference("Model", model.project.id),
+    storage_convention: "entered_units_preserved",
+    validation_unit_policy: "validate_round_trip_preserves_explicit_model_unit_metadata_without_conversion",
+    model_units: sortedStringRecord(model.project.units),
+    unit_bearing_record_count: countUnitBearingRecords(model),
+    unit_round_trip_status: projectSummary?.unit_round_trip_status ?? "not_persisted_this_session",
+    unit_round_trip_checked_ref_count: projectSummary?.unit_round_trip_checked_ref_count ?? 0,
+    unit_round_trip_signature: projectSummary?.unit_round_trip_signature ?? "not_persisted",
+    conversion_policy: "project_validation_records_unit_round_trip_metadata_without_conversion",
+    conversion_performed: false,
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-02-05")
+    ],
+    protected_content_included: false,
+    private_payload_included: false
+  };
+}
+
+function projectValidationUnitPolicySummary(evidence: ProjectValidationUnitPolicyEvidence): string {
+  return [
+    `model=${formatUnitRecord(evidence.model_units)}`,
+    `records=${evidence.unit_bearing_record_count}`,
+    `round_trip=${evidence.unit_round_trip_status}`,
+    `conversion=${String(evidence.conversion_performed)}`
+  ].join("; ");
 }
 
 function modelHashEvidenceStatus({
@@ -607,6 +672,24 @@ function hasUnit(value: unknown): value is { unit: string } {
     typeof (value as { unit?: unknown }).unit === "string" &&
     (value as { unit: string }).unit.length > 0
   );
+}
+
+function sortedStringRecord(record: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([, value]) => typeof value === "string" && value.length > 0)
+      .sort(([left], [right]) => left.localeCompare(right))
+  );
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  const entries = Object.entries(units).sort(([left], [right]) => left.localeCompare(right));
+  if (entries.length === 0) return "none";
+  return entries.map(([key, value]) => `${key}=${value}`).join(",");
+}
+
+function reference(objectType: string, ref: string): ObjectRef {
+  return { object_type: objectType, ref };
 }
 
 function validationDiagnostics({

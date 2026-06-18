@@ -1598,6 +1598,18 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-unit-round-trip").textContent).toContain(
       "status=not_persisted_this_session"
     );
+    expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
+      "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
+      "records=18"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
+      "round_trip=not_persisted_this_session"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(projectValidation).getByTestId("project-validation-operations").textContent).toContain(
       "version_check=supported_current_schema"
     );
@@ -1622,6 +1634,30 @@ describe("OpenPipeStress desktop preview", () => {
       signature: "not_persisted",
       evidence_source: "not_persisted_this_session"
     });
+    expect(validationPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(validationPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(validationPacket.unit_policy_evidence.validation_unit_policy).toBe(
+      "validate_round_trip_preserves_explicit_model_unit_metadata_without_conversion"
+    );
+    expect(validationPacket.unit_policy_evidence.model_units).toEqual({
+      angle: "rad",
+      force: "N",
+      length: "m",
+      pressure: "Pa",
+      stress: "MPa",
+      temperature: "degC"
+    });
+    expect(validationPacket.unit_policy_evidence.unit_bearing_record_count).toBe(18);
+    expect(validationPacket.unit_policy_evidence.unit_round_trip_status).toBe("not_persisted_this_session");
+    expect(validationPacket.unit_policy_evidence.unit_round_trip_signature).toBe("not_persisted");
+    expect(validationPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(validationPacket.unit_policy_evidence.decision_basis_refs.map((item: { ref: string }) => item.ref)).toEqual([
+      "DEC-018",
+      "DEL-02-02",
+      "DEL-02-05"
+    ]);
     expect(validationPacket.store_migration.evidence_source).toBe("storage_capability_probe");
     expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual([]);
@@ -4420,6 +4456,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(projectValidation).getByTestId("project-validation-unit-round-trip").textContent).toContain(
       "project.units.length=m"
     );
+    expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
+      "round_trip=unit_metadata_preserved_in_local_project_envelope"
+    );
+    expect(within(projectValidation).getByTestId("project-validation-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     await waitFor(() =>
       expect(within(projectValidation).getByTestId("project-validation-envelope-hash").textContent).toContain(
         "envelope_hash=project_envelope_hash_verified_on_open"
@@ -4453,6 +4495,17 @@ describe("OpenPipeStress desktop preview", () => {
       validationPacket.summary.unit_round_trip_signature
     );
     expect(validationPacket.unit_round_trip_evidence.checked_ref_count).toBeGreaterThan(0);
+    expect(validationPacket.unit_policy_evidence.unit_round_trip_status).toBe(
+      "unit_metadata_preserved_in_local_project_envelope"
+    );
+    expect(validationPacket.unit_policy_evidence.unit_round_trip_signature).toBe(
+      validationPacket.summary.unit_round_trip_signature
+    );
+    expect(validationPacket.unit_policy_evidence.unit_round_trip_checked_ref_count).toBeGreaterThan(0);
+    expect(validationPacket.unit_policy_evidence.conversion_policy).toBe(
+      "project_validation_records_unit_round_trip_metadata_without_conversion"
+    );
+    expect(validationPacket.unit_policy_evidence.conversion_performed).toBe(false);
     expect(validationPacket.store_migration.migration_framework).toBe("browser_memory_preview_no_sqlite_migration_ledger");
     expect(validationPacket.store_migration.evidence_source).toBe("local_project_summary");
     expect(validationPacket.store_migration.migration_scope).toBe(

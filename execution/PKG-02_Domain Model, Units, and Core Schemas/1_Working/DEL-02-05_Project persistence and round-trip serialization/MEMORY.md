@@ -377,3 +377,24 @@ Boundaries preserved:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001 primary evidence
+
+- Primary role for project validation/unit-evidence tranche: the Project
+  Validation Preflight packet now carries `unit_policy_evidence` for the
+  existing unit round-trip metadata check, and the panel exposes the policy in
+  `project-validation-unit-policy`.
+- The packet records DEC-018 unit-system identity, entered-unit preservation,
+  sorted model units, the model unit-bearing record count, persisted
+  round-trip status/signature when a local project snapshot exists,
+  `conversion_performed=false`, and DEC-018/DEL-02-02/DEL-02-05 basis refs.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no persistence semantics, migration policy, hash
+  canonicalization, schema versioning, unit conversion API, protected
+  standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

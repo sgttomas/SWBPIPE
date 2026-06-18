@@ -14,6 +14,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail project validation unit policy evidence (`TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001`)
+
+Landed one bounded Phase B-tail project-validation/unit-evidence slice while
+C5.7 remains human-execution gated. The DEL-02-05 Project Validation Preflight
+packet now records explicit DEC-018 unit-policy evidence for the existing
+unit round-trip metadata check.
+
+The tranche adds `unit_policy_evidence` to the validation preflight export
+with `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+model units, the model unit-bearing record count, persisted round-trip
+status/signature when a local snapshot exists,
+`conversion_policy=project_validation_records_unit_round_trip_metadata_without_conversion`,
+`conversion_performed=false`, and DEC-018/DEL-02-02/DEL-02-05 basis refs. The
+rendered project-validation panel now exposes `project-validation-unit-policy`
+so the same policy is visible in the browser.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-214; DEL-02-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 56/56; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 399/399 tests;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: no persistence semantics, migration policy, hash canonicalization,
+schema versioning, unit conversion API, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail design workspace unit policy evidence (`TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001`)
 
 Landed one bounded Phase B-tail design-workspace/unit-evidence slice while

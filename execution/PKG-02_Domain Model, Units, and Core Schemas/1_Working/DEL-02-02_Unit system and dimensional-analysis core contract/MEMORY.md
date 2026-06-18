@@ -1083,3 +1083,25 @@ Boundary note:
   private data, lifecycle transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-05 project validation tranche: the Project
+  Validation Preflight packet now records explicit DEC-018 unit-policy
+  evidence for its existing unit round-trip metadata check.
+- The packet records `unit-system:dec-018-si-dual-display`, entered-unit
+  preservation, sorted model units, the model unit-bearing record count,
+  persisted round-trip status/signature when present, `conversion_performed=false`,
+  and DEC-018/DEL-02-02/DEL-02-05 basis refs. It preserves metadata-evidence
+  behavior and does not introduce a conversion API or hidden normalization.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, persistence semantics, migration
+  policy, hash canonicalization, schema versioning, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

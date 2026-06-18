@@ -7015,3 +7015,37 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-214 project validation unit policy evidence - PASSED (`TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail project-validation/unit-evidence slice while
+  C5.7 remains human-execution gated. The DEL-02-05 Project Validation
+  Preflight packet now records explicit DEC-018 unit-policy evidence for the
+  existing unit round-trip metadata check.
+- Unit behavior: the packet records
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+  model units, the model unit-bearing record count, persisted round-trip
+  status/signature when a local project snapshot exists, and
+  `conversion_policy=project_validation_records_unit_round_trip_metadata_without_conversion`
+  with `conversion_performed=false`.
+- UI check: `data-testid="project-validation-unit-policy"` exposes the model
+  unit manifest, unit-bearing record count, round-trip status, and
+  `conversion=false`. The focused App test checks both not-persisted and
+  saved/opened packet states; R2/R3 Playwright smoke checks the saved/opened
+  browser row.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-02-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: project-validation evidence only. No persistence semantics,
+  migration policy, hash canonicalization, schema versioning, unit conversion
+  API, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
