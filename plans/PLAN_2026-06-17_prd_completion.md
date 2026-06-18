@@ -401,6 +401,15 @@ two. This records the existing library unit-helper context without changing
 library schemas, library import storage, private-library payload handling,
 linter semantics, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001`
+(SMOKE TP-MAC-256) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Load Case Manager public operation unit-validation surface
+(`load-manager-unit-validation-surface`), raising public unit-policy targets
+to 39 while keeping target-format conversion witnesses at two. This records
+the existing load-case/primitive-load/combination unit-validation context
+without changing load-case schemas, operation validation/application, linter
+semantics, or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

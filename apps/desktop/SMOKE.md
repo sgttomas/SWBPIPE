@@ -8602,3 +8602,46 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-256 load manager report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Load Case Manager already exposes
+  load-case, primitive-load, and combination operation unit-validation
+  surfaces; the report-lint public inventory now records that surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx` in its
+  explicit public target list, and adds
+  `load-manager-unit-validation-surface` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=39`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. Static report-lint target count is 43; solved
+  report packets include 44 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "load|primitive|combination|unit_validation"`
+    passed 26/26 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+  - `git diff --check` passed.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001.md`;
+  DEL-07-02, DEL-05-01, DEL-05-02, DEL-16-02, and DEL-02-02 supporting run
+  records with the same id; completion log entry.
+- Boundary: report-lint inventory over existing Load Case Manager
+  unit-validation surfaces only. No load-case schemas, primitive-load or
+  combination behavior, operation validation, operation application,
+  report-linter protected-content semantics, legal clearance, redaction
+  controls, target writer compatibility, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

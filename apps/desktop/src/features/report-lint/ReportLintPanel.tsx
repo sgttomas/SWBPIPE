@@ -257,6 +257,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "material, section, and component library draft unit-helper surfaces"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "load-manager-unit-validation-surface",
+    "none",
+    "load-case and primitive-load operation unit-validation surfaces"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
     "operation-diff-unit-witnesses",
     "none",
@@ -581,6 +587,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Library manager template records material, section, and component draft unit helpers, DEC-018-filtered unit choices, private local-import boundary, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-load-case-manager-template",
+      "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Load case manager template records load-case, primitive-load, and combination operation intents with explicit unit-validation status, direct model mutation false, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-operation-diff-template",

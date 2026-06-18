@@ -879,3 +879,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
   conversion API, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+## 2026-06-18 - TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-16-02: Report Content Lint now inventories the
+  existing Load Case Manager operation unit-validation previews through
+  `load-manager-unit-validation-surface`.
+- The lint packet now includes
+  `apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx`; public
+  unit-policy targets increase from 38 to 39 while conversion-witness targets
+  remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LOADMANAGERLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-256; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-02/DEL-05-01/DEL-05-02/DEL-02-02
+  run records.
+- Validation passed: focused App Vitest workspace-render; focused load/unit
+  App tests 26/26; focused R2 Playwright smoke 2/2; full desktop Vitest
+  399/399; single-worker R2/R3 Playwright smoke 18/18; `git diff --check`;
+  and desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no operation validation, operation application, diff
+  preview, unit conversion behavior, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
