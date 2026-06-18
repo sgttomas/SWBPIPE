@@ -1323,6 +1323,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(designWorkspace).getByTestId("design-workspace-operation").textContent).toContain(
       "accepted_mutation=false"
     );
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain(
+      "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC"
+    );
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain("results=none");
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain(
+      "comparison=none"
+    );
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(designWorkspace).getByTestId("design-workspace-boundary").textContent).toContain(
       "professional_claim=false"
     );
@@ -1347,6 +1357,31 @@ describe("OpenPipeStress desktop preview", () => {
     expect(designWorkspacePacket.core_contract_evidence.analysis_run_count).toBe(2);
     expect(designWorkspacePacket.core_contract_evidence.graphical_overlay_count).toBe(5);
     expect(designWorkspacePacket.current_workspace_state.state_run_browser).toBe("pending_mechanics_run");
+    expect(designWorkspacePacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(designWorkspacePacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(designWorkspacePacket.unit_policy_evidence.workspace_unit_policy).toBe(
+      "compose_model_result_and_comparison_units_without_conversion"
+    );
+    expect(designWorkspacePacket.unit_policy_evidence.model_units).toEqual({
+      angle: "rad",
+      force: "N",
+      length: "m",
+      pressure: "Pa",
+      stress: "MPa",
+      temperature: "degC"
+    });
+    expect(designWorkspacePacket.unit_policy_evidence.result_units).toEqual([]);
+    expect(designWorkspacePacket.unit_policy_evidence.comparison_units).toEqual([]);
+    expect(designWorkspacePacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(designWorkspacePacket.unit_policy_evidence.comparison_unit_policy_ref).toBe("not generated");
+    expect(designWorkspacePacket.unit_policy_evidence.decision_basis_refs.map((item: { ref: string }) => item.ref)).toEqual([
+      "DEC-018",
+      "DEC-026",
+      "DEL-02-02",
+      "DEL-14-04"
+    ]);
     expect(designWorkspacePacket.mutation_boundary.workspace_mutates_accepted_model_state).toBe(false);
     expect(designWorkspacePacket.mutation_boundary.accepted_model_state_mutated).toBe(false);
     expect(designWorkspacePacket.private_payload_included).toBe(false);
@@ -5928,6 +5963,33 @@ describe("OpenPipeStress desktop preview", () => {
     expect(comparisonRow.textContent).toContain("459.8 N*m");
     expect(within(comparison).getByTestId("comparison-diagnostics").textContent).toContain(
       "1 comparison diagnostic"
+    );
+    const designWorkspace = await screen.findByLabelText("Design-authoring workspace");
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain(
+      "results=MPa,N,N*m,mm,rad"
+    );
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain(
+      "comparison=MPa,N,N*m,mm,rad"
+    );
+    expect(within(designWorkspace).getByTestId("design-workspace-units").textContent).toContain(
+      "conversion=false"
+    );
+    const designWorkspaceHref =
+      within(designWorkspace).getByTestId("design-workspace-export-link").getAttribute("href") ?? "";
+    const solvedDesignWorkspacePacket = JSON.parse(decodeURIComponent(designWorkspaceHref.split(",", 2)[1]));
+    expect(solvedDesignWorkspacePacket.unit_policy_evidence.result_units).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
+    expect(solvedDesignWorkspacePacket.unit_policy_evidence.comparison_units).toEqual([
+      "MPa",
+      "N",
+      "N*m",
+      "mm",
+      "rad"
+    ]);
+    expect(solvedDesignWorkspacePacket.unit_policy_evidence.analysis_run_ref.ref).toBe(
+      "run:preview-linear-static-001"
+    );
+    expect(solvedDesignWorkspacePacket.unit_policy_evidence.comparison_unit_policy_ref).toBe(
+      "unit-policy-evidence:comparison-workspace-preview"
     );
     fireEvent.click(
       within(comparison).getByTestId(

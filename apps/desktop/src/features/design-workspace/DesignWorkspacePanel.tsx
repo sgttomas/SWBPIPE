@@ -5,6 +5,7 @@ import type {
   DesignKnowledge,
   EditorOperationIntent,
   MechanicsResult,
+  ObjectRef,
   PreviewComparison,
   PreviewModel,
   SelectedReviewTarget
@@ -84,6 +85,11 @@ export function DesignWorkspacePanel({
           testId="design-workspace-routing"
         />
         <WorkspaceLine
+          label="Units"
+          value={workspaceUnitPolicySummary(packet.unit_policy_evidence)}
+          testId="design-workspace-units"
+        />
+        <WorkspaceLine
           label="Boundary"
           value={`private_payload=${String(packet.private_payload_included)}; protected=${String(packet.protected_content_included)}; professional_claim=${String(packet.release_or_professional_claim)}`}
           testId="design-workspace-boundary"
@@ -155,6 +161,7 @@ function buildDesignWorkspacePacket({
   const unresolvedComparisonCount =
     (comparison?.summary.unmatched_left_results ?? 0) + (comparison?.summary.unmatched_right_results ?? 0);
   const selectedRef = selectedReviewTarget ? `${selectedReviewTarget.target_type}:${selectedReviewTarget.id}` : "none";
+  const unitPolicyEvidence = buildWorkspaceUnitPolicyEvidence({ model, result, analysisRun, comparison });
 
   return {
     schema_version: "0.1.0",
@@ -238,12 +245,105 @@ function buildDesignWorkspacePacket({
       gui_originated_changes_route: "structured_operation_or_application_service_command_intent_only",
       accepted_operation_requires_explicit_user_acceptance_record: true
     },
+    unit_policy_evidence: unitPolicyEvidence,
     data_boundary: model.data_boundary,
     private_payload_included: false,
     protected_content_included: false,
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary()
   };
+}
+
+type DesignWorkspaceUnitPolicyEvidence = {
+  evidence_id: string;
+  unit_system_ref: ObjectRef;
+  source_model_ref: ObjectRef;
+  analysis_run_ref: ObjectRef;
+  comparison_ref: ObjectRef;
+  storage_convention: "entered_units_preserved";
+  workspace_unit_policy: string;
+  model_units: Record<string, string>;
+  result_units: string[];
+  comparison_units: string[];
+  comparison_unit_policy_ref: string;
+  conversion_policy: string;
+  conversion_performed: false;
+  tolerance_profile_ref: "TBD";
+  tolerance_status: "not_tolerance_checked";
+  decision_basis_refs: ObjectRef[];
+  protected_content_included: false;
+  private_payload_included: false;
+};
+
+function buildWorkspaceUnitPolicyEvidence({
+  model,
+  result,
+  analysisRun,
+  comparison
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  comparison: PreviewComparison | null;
+}): DesignWorkspaceUnitPolicyEvidence {
+  return {
+    evidence_id: "unit-policy-evidence:design-workspace-preview",
+    unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
+    source_model_ref: reference("Model", model.project.id),
+    analysis_run_ref: reference("AnalysisRun", analysisRun?.analysis_run.run_id ?? "not generated"),
+    comparison_ref: reference("Comparison", comparison?.comparison_id ?? "not generated"),
+    storage_convention: "entered_units_preserved",
+    workspace_unit_policy: "compose_model_result_and_comparison_units_without_conversion",
+    model_units: sortedStringRecord(model.project.units),
+    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)),
+    comparison_units: comparison?.unit_policy_evidence.matched_result_units.slice().sort() ?? [],
+    comparison_unit_policy_ref: comparison?.unit_policy_evidence.evidence_id ?? "not generated",
+    conversion_policy: "design_workspace_preserves_source_units_without_conversion",
+    conversion_performed: false,
+    tolerance_profile_ref: "TBD",
+    tolerance_status: comparison?.unit_policy_evidence.tolerance_status ?? "not_tolerance_checked",
+    decision_basis_refs: [
+      reference("Decision", "DEC-018"),
+      reference("Decision", "DEC-026"),
+      reference("Deliverable", "DEL-02-02"),
+      reference("Deliverable", "DEL-14-04")
+    ],
+    protected_content_included: false,
+    private_payload_included: false
+  };
+}
+
+function workspaceUnitPolicySummary(evidence: DesignWorkspaceUnitPolicyEvidence): string {
+  const resultUnits = evidence.result_units.length > 0 ? evidence.result_units.join(",") : "none";
+  const comparisonUnits = evidence.comparison_units.length > 0 ? evidence.comparison_units.join(",") : "none";
+  return [
+    `model=${formatUnitRecord(evidence.model_units)}`,
+    `results=${resultUnits}`,
+    `comparison=${comparisonUnits}`,
+    `conversion=${String(evidence.conversion_performed)}`
+  ].join("; ");
+}
+
+function sortedStringRecord(record: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([, value]) => typeof value === "string" && value.length > 0)
+      .sort(([left], [right]) => left.localeCompare(right))
+  );
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort();
+}
+
+function formatUnitRecord(units: Record<string, string>): string {
+  const entries = Object.entries(units).sort(([left], [right]) => left.localeCompare(right));
+  if (entries.length === 0) return "none";
+  return entries.map(([key, value]) => `${key}=${value}`).join(",");
+}
+
+function reference(objectType: string, ref: string): ObjectRef {
+  return { object_type: objectType, ref };
 }
 
 function professionalBoundary() {

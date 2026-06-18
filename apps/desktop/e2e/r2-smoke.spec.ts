@@ -388,6 +388,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("comparison-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
   await expect(page.getByTestId("comparison-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("comparison-unit-policy")).toContainText("tolerance=not_tolerance_checked");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
 
   await openWorkspaceSection(page, "report");
   const report = page.getByLabel("Report packet");

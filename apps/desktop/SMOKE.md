@@ -6979,3 +6979,39 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-213 design workspace unit policy evidence - PASSED (`TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail design-workspace/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-07-08 design-authoring workspace
+  packet now records explicit unit-policy evidence for the composed model,
+  result, analysis-run, and comparison context exposed by the Results section.
+- Unit behavior: the workspace packet records
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+  model units, result units when a run exists, comparison units when a
+  comparison exists, the embedded comparison unit-policy evidence ref,
+  `conversion_policy=design_workspace_preserves_source_units_without_conversion`,
+  `conversion_performed=false`, `tolerance_profile_ref=TBD`, and
+  DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis refs.
+- UI check: `data-testid="design-workspace-units"` exposes the model unit
+  manifest, result units, comparison units, and `conversion=false`. The
+  focused App test checks both the unsolved and solved packet/UI states; the
+  R2/R3 Playwright smoke checks the solved browser row.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-07-08 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001.md`;
+  DEL-02-02 and DEL-14-04 supporting run records with the same id; completion
+  log entry.
+- Boundary: design-workspace evidence only. No model mutation, comparison
+  delta math, tolerance profile, default tolerance, solver behavior, external
+  validation decision, conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

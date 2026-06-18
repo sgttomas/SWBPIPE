@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail design workspace unit policy evidence (`TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001`)
+
+Landed one bounded Phase B-tail design-workspace/unit-evidence slice while
+C5.7 remains human-execution gated. The DEL-07-08 design-authoring workspace
+packet now records explicit unit-policy evidence for the composed model,
+result, analysis-run, and comparison context exposed by the Results section.
+
+The tranche adds `unit_policy_evidence` to the workspace export with
+`unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted model
+units, result units, comparison units, the embedded comparison
+unit-policy-evidence ref, `conversion_performed=false`,
+`tolerance_profile_ref=TBD`, and DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis
+refs. The rendered workspace now exposes `design-workspace-units` so the same
+policy is visible in the browser.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-213; DEL-07-08 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001.md`;
+DEL-02-02 and DEL-14-04 supporting run records with the same id.
+
+Validation: focused App Vitest passed 56/56; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 399/399 tests;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: no model mutation, comparison delta math, tolerance profile, default
+tolerance, solver behavior, external validation decision, conversion API,
+protected standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail comparison workspace unit policy evidence (`TP-UNITS-BTAIL-COMPARISONGUIUNITS-001`)
 
 Landed one bounded Phase B-tail comparison-workspace/unit-evidence slice while

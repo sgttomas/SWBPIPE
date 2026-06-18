@@ -113,3 +113,25 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001 primary evidence
+
+- Primary role for design workspace/unit-evidence tranche: the desktop
+  design-authoring workspace packet now carries `unit_policy_evidence` for
+  the composed model, result, analysis-run, and comparison context, and the
+  workspace panel exposes the policy in `design-workspace-units`.
+- The packet records DEC-018 unit-system identity, entered-unit preservation,
+  sorted model units, result units when a run exists, comparison units when a
+  comparison exists, the embedded comparison unit-policy evidence ref,
+  `conversion_performed=false`, and DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis
+  refs.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no model mutation, comparison delta math, tolerance
+  profile, default tolerance, solver behavior, external validation decision,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

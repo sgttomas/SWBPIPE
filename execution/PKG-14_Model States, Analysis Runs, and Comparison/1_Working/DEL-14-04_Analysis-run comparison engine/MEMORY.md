@@ -134,3 +134,24 @@ Durable context preserved after reconciliation review:
   protected standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001 supporting comparison evidence
+
+- Supporting role for DEL-07-08 design workspace tranche: the desktop
+  design-authoring workspace packet now records the embedded DEL-14-04
+  comparison unit-policy evidence ref and comparison matched-unit set when a
+  comparison exists.
+- The design workspace evidence consumes the comparison packet's existing
+  equal-explicit-unit matching policy and matched units without changing
+  comparison delta math, tolerance classification, unmatched row accounting,
+  or solver behavior.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no comparison delta math, tolerance profile, default
+  tolerance, solver convergence policy, external validation decision,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

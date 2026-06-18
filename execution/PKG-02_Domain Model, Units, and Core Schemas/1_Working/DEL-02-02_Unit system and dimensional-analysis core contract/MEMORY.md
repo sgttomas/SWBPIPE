@@ -1060,3 +1060,26 @@ Boundary note:
   tolerance, solver convergence policy, protected standards content, private
   data, lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-DESIGNWORKSPACEUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-08 design workspace tranche: the desktop
+  design-authoring workspace packet now records explicit DEC-018 unit-policy
+  evidence for its composed model/result/analysis-run/comparison context.
+- The packet records `unit-system:dec-018-si-dual-display`, entered-unit
+  preservation, sorted model units, result units, comparison units, the
+  embedded comparison unit-policy evidence ref,
+  `conversion_performed=false`, and DEC-018/DEC-026/DEL-02-02/DEL-14-04 basis
+  refs. It preserves source units and does not introduce a conversion API or
+  hidden normalization path.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, model mutation, comparison delta
+  math, default tolerance, solver behavior, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
