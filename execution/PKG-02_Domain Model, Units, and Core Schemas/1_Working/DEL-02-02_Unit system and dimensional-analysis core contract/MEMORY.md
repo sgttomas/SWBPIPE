@@ -1,5 +1,28 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-RULECHECKLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Run Rule Checks unit-binding policy
+  surface.
+- The lint inventory records `rule-check-unit-binding-policy` as an existing
+  unit-policy surface and reports `unit_targets=34`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Run Rule
+  Checks panel continues to preserve runtime binding units without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused RuleCheckRunPanel Vitest 18/18, focused
+  R2/run-check Playwright smoke 4/4 configured project tests, full desktop
+  Vitest 18/18 files and 399/399 tests, desktop production build with the
+  existing Vite large-chunk warning, and single-worker R2/R3 Playwright smoke
+  18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, rule-pack schema, expression
+  grammar, parser/text-syntax, backend completeness/evaluator behavior,
+  rule-pack persistence, solver behavior, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-COMPARISONLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

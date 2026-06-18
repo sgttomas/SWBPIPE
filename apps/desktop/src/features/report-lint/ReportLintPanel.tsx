@@ -145,6 +145,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
           "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
           "apps/desktop/src/features/solve/SolvePanel.tsx",
+          "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
           "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
           "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
@@ -301,6 +302,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "solve-job-unit-policy",
     "none",
     "solve job audit unit-policy evidence"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+    "rule-check-unit-binding-policy",
+    "none",
+    "run-rule-check binding unit-policy evidence"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
@@ -605,6 +612,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Solve job template records local solve execution audit metadata, model and result unit-policy evidence, cancellation and progress metadata, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-rule-check-run-template",
+      "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Run Rule Checks template records private rule-pack binding routes, runtime value unit policy, solver-result and private-library binding counts, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-result-export-template",

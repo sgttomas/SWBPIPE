@@ -1508,7 +1508,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(designWorkspacePacket.protected_content_included).toBe(false);
     expect(designWorkspacePacket.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=37");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=38");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-scope").textContent).toContain(
@@ -1521,7 +1521,7 @@ describe("OpenPipeStress desktop preview", () => {
       "clearance=false"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
-      "unit_targets=33"
+      "unit_targets=34"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
       "conversion_witness_targets=2"
@@ -1544,7 +1544,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.linter_status.professional_approval).toBe(false);
     expect(lintPacket.linter_status.ci_release_policy).toBe("TBD");
     expect(lintPacket.unit_policy_evidence.evidence_kind).toBe("public_surface_unit_policy_inventory");
-    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(33);
+    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(34);
     expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
     expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
     expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
@@ -1599,6 +1599,10 @@ describe("OpenPipeStress desktop preview", () => {
           unit_policy_surface_id: "solve-job-unit-policy"
         }),
         expect.objectContaining({
+          source_path: "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+          unit_policy_surface_id: "rule-check-unit-binding-policy"
+        }),
+        expect.objectContaining({
           source_path: "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           unit_policy_surface_id: "result-export-unit-witnesses"
         }),
@@ -1630,7 +1634,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
       "heuristic_review_evidence_not_legal_or_professional_clearance"
     );
-    expect(lintPacket.lint_run.summary.target_count).toBe(37);
+    expect(lintPacket.lint_run.summary.target_count).toBe(38);
     expect(lintPacket.lint_run.summary.finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
@@ -6928,7 +6932,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.boundary.protected_content_included).toBe(false);
     expect(exportPacket.persistence_evidence.boundary.release_or_professional_claim).toBe(false);
     const reportLint = await screen.findByLabelText("Report content lint");
-    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=38");
+    expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("targets=39");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("findings=0");
     expect(within(reportLint).getByTestId("report-lint-summary").textContent).toContain("blocking=0");
     expect(within(reportLint).getByTestId("report-lint-clean-scan").textContent).toContain(
@@ -6938,8 +6942,8 @@ describe("OpenPipeStress desktop preview", () => {
     const reportLintPacket = JSON.parse(decodeURIComponent(reportLintHref.split(",", 2)[1]));
     expect(reportLintPacket.deliverable_id).toBe("DEL-08-05");
     expect(reportLintPacket.lint_run.run_id).toBe("lint:report-preview:run-preview-linear-static-001");
-    expect(reportLintPacket.lint_run.summary.target_count).toBe(38);
-    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(38);
+    expect(reportLintPacket.lint_run.summary.target_count).toBe(39);
+    expect(reportLintPacket.lint_run.summary.scanned_target_count).toBe(39);
     expect(reportLintPacket.lint_run.summary.finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.blocking_finding_count).toBe(0);
     expect(reportLintPacket.lint_run.summary.clean_scan_is_clearance).toBe(false);
