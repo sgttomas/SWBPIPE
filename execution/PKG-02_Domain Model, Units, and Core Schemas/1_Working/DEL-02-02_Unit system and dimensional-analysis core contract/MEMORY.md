@@ -1105,3 +1105,22 @@ Boundary note:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RESULTVIEWUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-05 results-viewer tranche: the desktop Results
+  viewer now visibly records the DEC-018 result-unit policy for the solved
+  preview result envelope before filtering and pagination.
+- The visible row records source result units `MPa,N,N*m,mm,rad`, 737 result
+  rows, entered-unit preservation, and `conversion_performed=false`. It
+  preserves source result units and does not introduce a conversion API or
+  hidden normalization path.
+- Validation evidence is recorded in the DEL-07-05 primary run record and
+  this deliverable's supporting run record. DEC-025 sweep evidence is
+  recorded in closeout artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, result math, result filtering,
+  pagination semantics, solver behavior, comparison delta math, default
+  tolerance, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

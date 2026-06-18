@@ -14,6 +14,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail result viewer unit policy evidence (`TP-UNITS-BTAIL-RESULTVIEWUNITS-001`)
+
+Landed one bounded Phase B-tail results-viewer/unit-evidence slice while C5.7
+remains human-execution gated. The DEL-07-05 Results viewer now visibly
+records the DEC-018 result-unit policy for the solved preview result envelope
+before filtering and pagination.
+
+The tranche adds `result-unit-policy` to the result controls with
+`unit-system:dec-018-si-dual-display` policy basis, entered-unit preservation,
+source result units `MPa,N,N*m,mm,rad`, 737 source result rows,
+`conversion_policy=result_view_preserves_result_row_units_without_conversion`,
+and `conversion_performed=false`. The result table continues to display each
+row's source unit; no result math, filtering, pagination, solver behavior, or
+tolerance behavior changed.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-215; DEL-07-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTVIEWUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 56/56; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 399/399 tests
+on rerun after one unrelated transient support-label cross-test failure;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: no result math, result filtering, pagination semantics, solver
+behavior, comparison delta math, tolerance profile, default tolerance, unit
+conversion API, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail project validation unit policy evidence (`TP-UNITS-BTAIL-PROJECTVALIDATIONUNITS-001`)
 
 Landed one bounded Phase B-tail project-validation/unit-evidence slice while

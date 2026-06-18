@@ -141,3 +141,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-RESULTVIEWUNITS-001 result unit policy evidence
+
+- WORKING_ITEMS Phase B-tail tranche added explicit result-unit policy
+  disclosure to the Results viewer. The solved preview result controls now
+  expose `result-unit-policy` with source result units `MPa,N,N*m,mm,rad`,
+  737 result rows, entered-unit preservation, and `conversion=false`.
+- The policy documents the existing behavior that result rows display their
+  source units without conversion. Filtering, pagination, selected-result
+  interpretation, solver output, comparison math, and tolerance status are
+  unchanged.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTVIEWUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-215. DEC-025 sweep evidence is recorded
+  in closeout artifacts.
+- No lifecycle state, review finding disposition, release readiness,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards data, private project data,
+  network path, telemetry path, or DAG authority changed.

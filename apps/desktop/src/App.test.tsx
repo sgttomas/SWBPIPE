@@ -6006,6 +6006,12 @@ describe("OpenPipeStress desktop preview", () => {
       "matching=equal_explicit_units"
     );
     expect(within(comparison).getByTestId("comparison-unit-policy").textContent).toContain("conversion=false");
+    const earlyResults = await screen.findByLabelText("Results");
+    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain(
+      "units=MPa,N,N*m,mm,rad"
+    );
+    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain("rows=737");
+    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain("conversion=false");
     expect(within(comparison).getByTestId("comparison-mapping-basis").textContent).toContain("source_result_refs");
     expect(within(comparison).getByTestId("comparison-boundary").textContent).toContain(
       "no compliance, certification, sealing, authentication, or approval claim"
@@ -6052,6 +6058,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(await screen.findByRole("heading", { name: "Rack span" })).toBeInTheDocument();
     expect(within(comparison).getByTestId("comparison-summary").textContent).toContain("243 comparable pairs");
     const results = await screen.findByLabelText("Results");
+    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("units=MPa,N,N*m,mm,rad");
+    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("rows=737");
+    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("conversion=false");
     expect(within(results).getByTestId("result-group-displacement")).toBeInTheDocument();
     expect(within(results).getByTestId("result-group-reaction")).toBeInTheDocument();
     expect(within(results).getByTestId("result-group-force")).toBeInTheDocument();

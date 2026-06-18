@@ -367,6 +367,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("results-panel")).toBeVisible();
+  await expect(page.getByTestId("result-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("rows=737");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("conversion=false");
   await expect(page.getByTestId("result-filter-summary")).toContainText("737 of 737 results match filter");
   await expect(page.getByTestId("result-family-count-reaction")).toContainText("9");
   await page.getByTestId("result-family-reaction").click();

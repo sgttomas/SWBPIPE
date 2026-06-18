@@ -7049,3 +7049,37 @@ notes:
   API, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-215 result viewer unit policy evidence - PASSED (`TP-UNITS-BTAIL-RESULTVIEWUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail results-viewer/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-07-05 Results viewer now visibly
+  records the DEC-018 result-unit policy for the solved preview result
+  envelope before filtering and pagination.
+- Unit behavior: the result controls expose
+  `unit-system:dec-018-si-dual-display` by policy, entered-unit preservation,
+  sorted source result units `MPa,N,N*m,mm,rad`, 737 source result rows, and
+  `conversion_policy=result_view_preserves_result_row_units_without_conversion`
+  with `conversion_performed=false`.
+- UI check: `data-testid="result-unit-policy"` exposes the source result unit
+  manifest, result-row count, entered-unit storage convention, and
+  `conversion=false`. The focused App test and R2/R3 Playwright smoke now
+  check the browser row after the preview solve.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests
+    on rerun after one unrelated transient support-label cross-test failure.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-07-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-RESULTVIEWUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: result-viewer evidence only. No result math, result filtering,
+  pagination semantics, solver behavior, comparison delta math, tolerance
+  profile, default tolerance, unit conversion API, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
