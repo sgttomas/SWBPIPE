@@ -132,6 +132,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+          "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
           "apps/desktop/src/features/viewport/PipeViewport.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
@@ -215,6 +216,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "operation-diff-unit-witnesses",
     "none",
     "operation diff preview unit preservation witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+    "operation-ledger-unit-policy",
+    "none",
+    "operation review ledger unit-policy evidence"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/viewport/PipeViewport.tsx",
@@ -458,6 +465,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Operation diff preview template records local review-only operation diffs, declared change units and dimensions, unit preservation witnesses, accepted state mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-operation-ledger-template",
+      "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Operation review ledger template records local review-only operation records, unit-policy evidence, held user-acceptance decisions, accepted state mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-viewport-editor-template",

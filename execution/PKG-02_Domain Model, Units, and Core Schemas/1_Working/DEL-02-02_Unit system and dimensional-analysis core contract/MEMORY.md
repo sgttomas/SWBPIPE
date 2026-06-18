@@ -1,5 +1,27 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Operation Review Ledger unit-policy
+  surface.
+- The lint inventory records `operation-ledger-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=26`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Operation
+  Review Ledger continues to preserve review-only operation unit-policy
+  evidence without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest rerun 399/399 after an order-sensitive
+  Operation Ledger status mismatch was confirmed passing in isolation,
+  desktop production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application, acceptance
+  semantics, durable audit persistence, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

@@ -9,6 +9,22 @@ package_id: PKG-16
 
 # DEL-16-03 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 Report Content Lint inventory tranche: the
+  desktop report-lint public-surface inventory now includes the Operation
+  Review Ledger unit-policy evidence surface
+  (`operation-ledger-unit-policy`).
+- This records the existing review-only operation ledger unit-policy evidence
+  without changing operation application, acceptance semantics, durable audit
+  persistence, receipt schema, or operation-ledger packet semantics.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest rerun 399/399 after an order-sensitive
+  Operation Ledger status mismatch was confirmed passing in isolation,
+  desktop production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-OPLEDGERUNITS-001
 
 - The desktop Operation Review Ledger now exposes a visible and exported

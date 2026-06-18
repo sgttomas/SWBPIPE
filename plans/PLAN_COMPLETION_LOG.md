@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail operation-ledger report-lint unit inventory (`TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Operation Review Ledger already
+exposes visible and exported DEC-018 unit-policy evidence for review-only
+operation records; this tranche makes that public unit-policy surface
+discoverable through the Report Content Lint public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/operations/OperationLedgerPanel.tsx`, target
+`target:desktop-operation-ledger-template`, and target ref
+`operation-ledger-unit-policy`. Unit-policy target count increases from 25 to
+26, while target-format conversion-witness target count remains two. The lint
+still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-243; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001.md`;
+DEL-16-03 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render and local project
+round-trip selected tests passed 1/1 each; focused Playwright R2 smoke passed
+2/2 configured project tests. An initial full desktop Vitest attempt surfaced
+an order-sensitive `App.test.tsx` Operation Ledger unit-validation status
+mismatch; the selected test then passed in isolation, and the full desktop
+Vitest rerun passed 18/18 files and 399/399 tests. Desktop production build
+passed with the existing Vite large-chunk warning. Single-worker R2/R3
+Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Operation Review Ledger
+unit-policy evidence only. No operation application, acceptance semantics,
+durable audit persistence, receipt schema, report-linter protected-content
+semantics, legal clearance, redaction controls, target writer compatibility,
+unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+protected standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail adapter-framework report-lint unit inventory (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while
