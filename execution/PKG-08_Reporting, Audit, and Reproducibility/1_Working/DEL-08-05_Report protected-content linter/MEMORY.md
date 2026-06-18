@@ -775,3 +775,27 @@ code-compliance decisions.
   private payload, protected content, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-FIXTURELINTUNITS-001 primary fixture unit inventory evidence
+
+- Primary role for DEL-08-05: Report Content Lint now inventories the
+  invented `fixtures/product_preview` bundle as a public unit-policy target.
+- The lint packet now includes `fixtures/product_preview` as
+  `product-preview-fixture-unit-policy`; visible unit-policy targets increase
+  to 44 while conversion-witness targets remain two and
+  `lint_conversion=false`.
+- The fixture target text records that the bundle carries explicit model
+  quantities, rule-pack unit refs, mechanics-result units, and the active
+  model unit system without modifying fixture payloads.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-FIXTURELINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-262; completion log entry; supporting
+  DEL-02-02 run record.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2, and full single-worker Playwright 18/18.
+- Boundary preserved: no fixture data, report-linter protected-content
+  semantics, legal clearance, redaction controls, target writer compatibility,
+  unit conversion, private payload, protected content, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

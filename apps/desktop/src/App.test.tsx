@@ -1530,7 +1530,7 @@ describe("OpenPipeStress desktop preview", () => {
       "clearance=false"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
-      "unit_targets=43"
+      "unit_targets=44"
     );
     expect(within(reportLint).getByTestId("report-lint-unit-policy").textContent).toContain(
       "conversion_witness_targets=2"
@@ -1553,7 +1553,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(lintPacket.linter_status.professional_approval).toBe(false);
     expect(lintPacket.linter_status.ci_release_policy).toBe("TBD");
     expect(lintPacket.unit_policy_evidence.evidence_kind).toBe("public_surface_unit_policy_inventory");
-    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(43);
+    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe(44);
     expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe(2);
     expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(false);
     expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe(false);
@@ -1670,6 +1670,10 @@ describe("OpenPipeStress desktop preview", () => {
         expect.objectContaining({
           source_path: "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
           conversion_witness_surface_id: "caepipe-mbf-conversion-witnesses"
+        }),
+        expect.objectContaining({
+          source_path: "fixtures/product_preview",
+          unit_policy_surface_id: "product-preview-fixture-unit-policy"
         })
       ])
     );

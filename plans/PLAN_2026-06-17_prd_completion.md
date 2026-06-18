@@ -466,6 +466,16 @@ changing threat semantics, telemetry authorization, redaction behavior, target
 writers, manifest-level unit conversion, security certification posture, or
 unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-FIXTURELINTUNITS-001`
+(SMOKE TP-MAC-262) landed on 2026-06-18. Report Content Lint now inventories
+the invented product-preview fixture bundle (`fixtures/product_preview`) as
+`product-preview-fixture-unit-policy`, raising public unit-policy targets to
+44 while keeping target-format conversion witnesses at two. The fixture lint
+target text records explicit model quantities, rule-pack unit refs,
+mechanics-result units, and the active model unit system without changing any
+fixture payloads, report-linter protected-content semantics, target writers,
+or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

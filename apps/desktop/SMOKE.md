@@ -8856,3 +8856,35 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-262 product-preview fixture unit-policy inventory - PASSED (`TP-UNITS-BTAIL-FIXTURELINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The invented product-preview fixture bundle
+  is unit-bearing public example data; this tranche makes its unit evidence
+  discoverable through the public unit-policy inventory.
+- App behavior: `ReportLintPanel` now inventories `fixtures/product_preview`
+  as `product-preview-fixture-unit-policy`. The fixture target text records
+  explicit model quantities, rule-pack unit refs, mechanics-result units, and
+  the active model unit system without changing any fixture payloads.
+- Inventory behavior: the visible lint unit-policy row now reports
+  `unit_targets=44`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx` passed 56/56
+    tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-FIXTURELINTUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id.
+- Boundary: report-lint inventory evidence only. No fixture data,
+  report-linter protected-content semantics, redaction behavior, target writer
+  behavior, unit conversion, protected standards content, private payload,
+  lifecycle state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

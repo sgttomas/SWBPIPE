@@ -442,6 +442,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "stress-neutral-unit-witnesses",
     "none",
     "stress-neutral export unit witnesses"
+  ),
+  unitPolicySurface(
+    "fixtures/product_preview",
+    "product-preview-fixture-unit-policy",
+    "none",
+    "invented product-preview fixtures carry explicit model, rule-pack, and result units"
   )
 ] as const;
 
@@ -828,7 +834,7 @@ function lintTargets({
       "fixtures/product_preview",
       "public_fixture",
       "invented_public_example",
-      `${model.project.id}; ${model.data_boundary.public_examples_policy}; ${model.data_boundary.protected_source_policy}`
+      `${model.project.id}; ${model.data_boundary.public_examples_policy}; ${model.data_boundary.protected_source_policy}; unit_system=${model.project.units.length},${model.project.units.force},${model.project.units.stress}; invented fixtures include explicit model quantities, rule-pack unit refs, and mechanics-result units`
     )
   ];
 

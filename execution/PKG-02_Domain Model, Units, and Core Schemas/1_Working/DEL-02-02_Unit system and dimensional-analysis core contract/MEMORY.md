@@ -2111,3 +2111,22 @@ Boundary note:
   private payload, protected content, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-FIXTURELINTUNITS-001 supporting fixture unit-policy evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now records the invented
+  product-preview fixture bundle as `product-preview-fixture-unit-policy`.
+- The fixture bundle already carries explicit model units, rule-pack unit refs,
+  mechanics-result units, and unit-validation metadata; this tranche makes
+  that evidence discoverable in the public-surface unit inventory.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-FIXTURELINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-262; primary DEL-08-05 run record.
+- Validation passed: full App test file 56/56, full desktop Vitest 399/399,
+  desktop build with the existing Vite large-chunk warning, focused R2
+  Playwright 2/2, and full single-worker Playwright 18/18.
+- Boundary preserved: no fixture payload values, DEC-018 catalog constant,
+  schema dimension enum, unit-conversion API, target writer behavior, private
+  payload, protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

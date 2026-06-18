@@ -14,6 +14,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail product-preview fixture unit-policy inventory (`TP-UNITS-BTAIL-FIXTURELINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The invented product-preview fixture
+bundle is unit-bearing public example data; this tranche makes its unit
+evidence discoverable through the public unit-policy inventory.
+
+Report Content Lint now inventories `fixtures/product_preview` as
+`product-preview-fixture-unit-policy`, raising unit-policy target count from
+43 to 44 while conversion-witness targets remain two. The fixture target text
+records explicit model quantities, rule-pack unit refs, mechanics-result
+units, and the active model unit system without changing any fixture payloads.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-262; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-FIXTURELINTUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: full App test file passed 56/56; full desktop Vitest passed 18/18
+files and 399/399 tests; desktop build passed with the existing Vite
+large-chunk warning; focused R2 Playwright passed 2/2; full single-worker
+Playwright passed 18/18.
+
+Boundary: report-lint inventory evidence only. No fixture data,
+report-linter protected-content semantics, runtime redaction rules, target
+writer behavior, unit conversion, protected standards content, private
+payload, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail security threat-model unit-policy inventory (`TP-UNITS-BTAIL-SECTHREATUNITPOLICY-001`)
 
 Landed one bounded Phase B-tail Security Threat Model unit-policy inventory
