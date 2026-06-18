@@ -123,6 +123,7 @@ function buildReportLintPacket({
         scan_scope: "explicit_public_surfaces",
         public_surface_roots: [
           "apps/desktop/src/features/report/ReportPanel.tsx",
+          "apps/desktop/src/features/report/RenderedReportPanel.tsx",
           "apps/desktop/src/features/results/ResultsPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
@@ -185,6 +186,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "report-unit-system",
     "none",
     "report packet unit-system disclosure"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/report/RenderedReportPanel.tsx",
+    "rendered-report-unit-basis",
+    "none",
+    "rendered calculation report unit-basis disclosure"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/results/ResultsPanel.tsx",
@@ -437,6 +444,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Report packet template uses metadata, diagnostics, limitations, and no professional approval claim."
+    ),
+    target(
+      "target:desktop-rendered-report-template",
+      "apps/desktop/src/features/report/RenderedReportPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Rendered report template records renderable-report unit basis, canonical HTML hash route, export-blocked state, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-results-viewer-template",

@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-01 Calculation Report Generator
 
+## 2026-06-18 - TP-UNITS-BTAIL-RENDEREDREPORTLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Rendered Report unit-basis surface.
+- The lint inventory records `rendered-report-unit-basis` as an existing
+  unit-policy surface and reports `unit_targets=32`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Rendered
+  Report panel continues to expose `unit_system`, model-unit summary,
+  result-unit summary, `conversion=false`, and
+  `source=renderable_report_input`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no report renderer route, canonical hash policy,
+  export-gate policy, report content, print/PDF behavior, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## Implementation Record
 
 2026-05-02:
