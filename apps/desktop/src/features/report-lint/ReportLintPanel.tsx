@@ -139,6 +139,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
           "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
           "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+          "apps/desktop/src/features/handoff/HandoffPanel.tsx",
           "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
           "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
           "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
@@ -254,6 +255,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "local-fea-unit-witnesses",
     "none",
     "local FEA handoff unit witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+    "handoff-unit-witnesses",
+    "none",
+    "local review handoff package unit preservation witnesses"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
@@ -486,6 +493,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Local FEA handoff template records target-neutral selected-region metadata, result-reference transfer basis, mesh not generated, external solver not invoked, target format TBD, private payload false, protected payload false, and no approval, authentication, certification, sealing, or code-compliance claim."
+    ),
+    target(
+      "target:desktop-handoff-package-template",
+      "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Handoff package template records stable IDs, local review handoff metadata, result-reference unit preservation witnesses, target-specific mapping deferred, private payload false, protected payload false, and no target compatibility, approval, certification, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-external-prover-template",

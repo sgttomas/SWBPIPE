@@ -1,5 +1,26 @@
 # MEMORY - DEL-15-01 Canonical handoff package schema and manifest
 
+## 2026-06-18 - TP-UNITS-BTAIL-HANDOFFLINTUNITS-001 supporting handoff inventory evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint public unit-policy inventory now includes
+  `apps/desktop/src/features/handoff/HandoffPanel.tsx`.
+- The lint inventory records `handoff-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=23`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The handoff
+  package continues to preserve source result value/unit/dimension rows
+  without conversion.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 399/399, desktop production build with
+  the existing Vite large-chunk warning, and single-worker R2/R3 Playwright
+  smoke 18/18.
+- Boundary preserved: no handoff packet semantics, handoff schema, target
+  mapping, external prover workflow, unit conversion API, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001 handoff unit witnesses
 
 - Added primary Phase B-tail unit evidence for the desktop handoff package:

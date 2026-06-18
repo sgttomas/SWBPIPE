@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail handoff report-lint unit inventory (`TP-UNITS-BTAIL-HANDOFFLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Handoff Package panel already exposes
+DEC-018 unit-system disclosure and per-result unit preservation witnesses for
+the local review handoff package; this tranche makes that public unit-witness
+surface discoverable through the Report Content Lint public-surface
+inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/handoff/HandoffPanel.tsx`, target
+`target:desktop-handoff-package-template`, and target ref
+`handoff-unit-witnesses`. Unit-policy target count increases from 22 to 23,
+while target-format conversion-witness target count remains two. The lint
+still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-240; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-HANDOFFLINTUNITS-001.md`;
+DEL-15-01 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render and local project
+round-trip selected tests passed 1/1 each; focused Playwright R2 smoke passed
+2/2 configured project tests. Full desktop Vitest passed 18/18 files and
+399/399 tests. Desktop production build passed with the existing Vite
+large-chunk warning. Single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Handoff Package unit-witness
+evidence only. No handoff packet semantics, handoff schema, target mapping,
+external prover workflow, export-review manifest semantics, report-linter
+protected-content semantics, legal clearance, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-18 - B-tail result-export report-lint unit inventory (`TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while
