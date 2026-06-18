@@ -309,6 +309,16 @@ existing headless runner result-handoff unit preservation witnesses without
 changing headless-runner packet semantics, schema/runtime policy, final CLI
 syntax, linter semantics, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001`
+(SMOKE TP-MAC-242) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Adapter Framework public unit-policy surface
+(`adapter-framework-units`), raising public unit-policy targets to 25 while
+keeping target-format conversion witnesses at two. This records the existing
+format-neutral adapter framework unit-policy evidence without changing
+adapter-framework packet semantics, concrete external formats, public
+transport, plugin/runtime policy, linter semantics, or unit conversion
+behavior.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

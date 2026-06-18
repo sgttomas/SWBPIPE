@@ -14,6 +14,46 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail adapter-framework report-lint unit inventory (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Adapter Framework panel already
+exposes DEC-018 unit-policy evidence for the format-neutral adapter
+declaration; this tranche makes that public unit-policy surface discoverable
+through the Report Content Lint public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx`,
+target `target:desktop-adapter-framework-template`, and target ref
+`adapter-framework-units`. Unit-policy target count increases from 24 to 25,
+while target-format conversion-witness target count remains two. The lint
+still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-242; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-ADAPTERFRAMEWORKLINTUNITS-001.md`;
+DEL-10-02 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest workspace-render and local project
+round-trip selected tests passed 1/1 each; focused Playwright R2 smoke passed
+2/2 configured project tests. An initial full desktop Vitest attempt surfaced
+a transient `DeclarationsEditor.test.tsx` timing failure; the selected test
+then passed in isolation, and the full desktop Vitest rerun passed 18/18 files
+and 399/399 tests. Desktop production build passed with the existing Vite
+large-chunk warning. Single-worker R2/R3 Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Adapter Framework unit-policy
+evidence only. No adapter-framework packet semantics, schema, concrete
+external format list, public transport, plugin runtime, permission
+persistence, package scripts, CI/release matrix, report-linter
+protected-content semantics, legal clearance, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-18 - B-tail headless-runner report-lint unit inventory (`TP-UNITS-BTAIL-HEADLESSRUNNERLINTUNITS-001`)
 
 Landed one bounded Phase B-tail Report Content Lint inventory slice while

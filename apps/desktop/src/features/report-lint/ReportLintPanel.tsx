@@ -147,6 +147,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
           "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
           "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+          "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
           "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
           "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
           "fixtures/product_preview"
@@ -304,6 +305,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "caepipe-external-units",
     "none",
     "CAEPIPE external harness parser unit witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+    "adapter-framework-units",
+    "none",
+    "format-neutral adapter framework unit-policy evidence"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
@@ -556,6 +563,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "CAEPIPE external harness template records parser-only invented CSV rows, absent executable configuration, external invocation false, user-owned live execution TBDs, private payload false, protected payload false, and no CAEPIPE compatibility, solver validation, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-adapter-framework-template",
+      "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Adapter framework template records format-neutral adapter declaration metadata, unit-validation policy evidence, no-bypass controls, concrete external formats deferred, private payload false, protected payload false, and no support, compatibility, release, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-export-adapter-sdk-template",
