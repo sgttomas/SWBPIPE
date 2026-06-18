@@ -959,3 +959,20 @@ Boundary note:
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001 supporting unit evidence
+
+- Supporting role for DEL-17-07 PCF export tranche: the existing PCF
+  source-to-target millimeter conversion witnesses are now visible in the
+  desktop panel and checked by the R2/R3 Playwright smoke.
+- The tranche exposes existing evidence only. The PCF package still carries
+  `conversion_witnesses.json`; no DEC-018 catalog constant, unit conversion
+  API, target unit policy, or conversion formula changed.
+- Validation passed: focused App Vitest 55/55, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 398/398, and desktop production build with
+  the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target compatibility claim,
+  downstream import evidence, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

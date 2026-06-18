@@ -406,6 +406,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(reportPacket.private_payload_included).toBe(false);
   expect(reportPacket.protected_content_included).toBe(false);
   expect(reportPacket.release_or_professional_claim).toBe(false);
+  const pcfExport = page.getByLabel("Conservative PCF export");
+  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
+  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
+    "target_length=MM"
+  );
   const caepipeMbfExport = page.getByLabel("CAEPIPE MBF export");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(

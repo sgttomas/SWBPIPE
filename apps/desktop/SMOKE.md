@@ -6808,3 +6808,32 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-208 PCF conversion witness visibility - PASSED (`TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail PCF/export-evidence slice while C5.7 remains
+  human-execution gated. The desktop Conservative PCF Export panel now exposes
+  the already-built PCF conversion-witness count and target unit in the visible
+  UI, so browser smoke verifies the same witness sidecar that the package JSON
+  already carries.
+- Unit behavior: no conversion algorithm or package schema changed. The
+  existing PCF package still converts source length fields to the conservative
+  target millimeter fields and carries `conversion_witnesses.json`; the new
+  `data-testid="pcf-export-conversion-witnesses"` line reports
+  `count=23`, the node/pipe-field scope, and `target_length=MM`.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-17-07 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: PCF desktop visibility/evidence only. No PCF package schema
+  change, conversion formula change, target compatibility claim, downstream
+  import evidence, solver-validation claim, unit conversion API, protected
+  standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

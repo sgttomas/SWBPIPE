@@ -131,6 +131,11 @@ export function PcfExportPanel({
           testId="pcf-export-units"
         />
         <PcfLine
+          label="Conversion witnesses"
+          value={`count=${packet.conversion_witnesses.length}; scope=node.coordinates,pipe_segments.outside_diameter,pipe_segments.wall_thickness; target_length=${packet.pcf_payload.units.coordinates}`}
+          testId="pcf-export-conversion-witnesses"
+        />
+        <PcfLine
           label="Package"
           value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; pcf_lines=${packet.manifest.pcf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
           testId="pcf-export-package"

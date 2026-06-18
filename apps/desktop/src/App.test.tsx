@@ -535,6 +535,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("target=bolt_diameter=MM");
     expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("coordinates=MM");
     expect(within(pcfExport).getByTestId("pcf-export-units").textContent).toContain("conversion=true");
+    expect(within(pcfExport).getByTestId("pcf-export-conversion-witnesses").textContent).toContain("count=23");
+    expect(within(pcfExport).getByTestId("pcf-export-conversion-witnesses").textContent).toContain(
+      "target_length=MM"
+    );
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("members=8");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("stable_ids=4");
     expect(within(pcfExport).getByTestId("pcf-export-package").textContent).toContain("diagnostics=4");

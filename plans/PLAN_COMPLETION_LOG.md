@@ -14,6 +14,33 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail PCF conversion witness visibility (`TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001`)
+
+Landed one bounded Phase B-tail PCF/export-evidence slice while C5.7 remains
+human-execution gated. The Conservative PCF Export panel now shows the existing
+PCF conversion-witness sidecar count, scope, and target length unit in visible
+browser UI.
+
+The tranche does not change the PCF package schema or conversion behavior. It
+surfaces the existing `conversion_witnesses.json` evidence line in the panel
+and extends App and Playwright assertions so the visible desktop smoke proves
+`count=23` and `target_length=MM`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-208; DEL-17-07 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PCFCONVWITNESSVISIBLE-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 398/398 tests;
+desktop production build passed with the existing Vite large-chunk warning.
+
+Boundary: PCF desktop visibility/evidence only. No PCF package schema change,
+conversion formula change, target compatibility claim, downstream import
+evidence, solver-validation claim, unit conversion API, protected standards
+content, private payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-17 - B-tail rule-pack unit policy evidence (`TP-UNITS-BTAIL-RULEPACKUNITPOLICY-001`)
 
 Landed one bounded Phase B-tail rule-pack editor/unit-policy slice while C5.7
