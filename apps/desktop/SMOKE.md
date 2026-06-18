@@ -8987,3 +8987,35 @@ notes:
   conversion, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-266 export-review secret/private unit evidence - PASSED (`TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The DEL-12-04 Secret and Private Libraries
+  panel already exposes metadata-only unit policy evidence for unit-bearing
+  private material, component, and rule-pack references; this tranche
+  classifies `secret_private_library_boundary_review` as
+  unit-evidence-required.
+- App behavior: `ExportReviewPanel` now includes
+  `secret_private_library_boundary_review` in the unit-evidence-required
+  matrix. The row records
+  `unit_policy_ref=unit-policy:secret-private-library-metadata-only-preview`,
+  `unit_evidence_required=true`, `explicit_unit_metadata_required=true`,
+  `unit_payload_included=false`, and `conversion_performed=false`. Solved
+  queued-intent Export Review reports `covered=22/23`; the proposal path
+  reports 23/23 once `agent_proposal_review` is available.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - Full App, full desktop Vitest, build, Playwright, and DEC-025 sweep
+    evidence are recorded in closeout artifacts for this tranche.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  DEL-12-04 and DEL-02-02 supporting run records with the same id.
+- Boundary: export-review inventory evidence only. No secret/private-library
+  payload handling, credential-value handling, encryption/key-management
+  decision, cloud or network behavior, external secret-manager behavior,
+  target writer, manifest-level unit conversion, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

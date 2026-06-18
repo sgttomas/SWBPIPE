@@ -508,6 +508,17 @@ unit-evidence inventory without changing editor validation behavior, durable
 mutation, private reference handling, target writers, manifest-level unit
 conversion, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001`
+(SMOKE TP-MAC-266) landed on 2026-06-18. Export Safety Review now classifies
+`secret_private_library_boundary_review` as unit-evidence-required because
+the DEL-12-04 Secret and Private Libraries panel already exposes
+metadata-only unit policy evidence. Solved queued-intent coverage is now
+`covered=22/23`; proposal-path coverage is 23/23 once
+`agent_proposal_review` is available. This records secret/private unit-evidence
+inventory without including private unit payloads, changing secret/private
+payload handling, target writers, manifest-level unit conversion, or unit
+conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

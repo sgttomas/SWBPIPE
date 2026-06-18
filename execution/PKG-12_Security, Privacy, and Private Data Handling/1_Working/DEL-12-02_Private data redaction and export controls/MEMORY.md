@@ -287,3 +287,31 @@ Durable context preserved after reconciliation review:
   protected content, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001 primary export-review matrix cleanup
+
+- Primary role for the bounded B-tail tranche: Export Safety Review now treats
+  `secret_private_library_boundary_review` as unit-evidence-required because
+  the DEL-12-04 Secret and Private Libraries panel already carries
+  metadata-only unit policy evidence for private material, component, and
+  rule references.
+- The secret/private-library export row records
+  `unit_policy_ref=unit-policy:secret-private-library-metadata-only-preview`,
+  `unit_evidence_required=true`, `explicit_unit_metadata_required=true`,
+  `unit_payload_included=false`, and `conversion_performed=false`.
+- Solved queued-intent Export Review now reports `covered=22/23`; proposal
+  path evidence reports 23/23 once `agent_proposal_review` is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-266; active plan and completion log entries;
+  supporting DEL-12-04 and DEL-02-02 run records.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, secret/private
+  payload handling, credential-value handling, encryption/key-management
+  decision, cloud or network behavior, external secret-manager behavior,
+  protected content, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

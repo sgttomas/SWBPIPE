@@ -4076,7 +4076,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
       "unit-system:dec-018-si-dual-display"
     );
-    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=21/22");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=22/23");
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
@@ -4236,12 +4236,13 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
     expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(29);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(22);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(21);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(23);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(22);
     expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
     expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
       "project_storage_audit",
       "project_validation_preflight",
+      "secret_private_library_boundary_review",
       "security_threat_model_review",
       "editor_contract_review",
       "missing_data_warning_blocking_review",
@@ -4277,6 +4278,11 @@ describe("OpenPipeStress desktop preview", () => {
         (item: { export_id: string }) => item.export_id === "agent_proposal_review"
       ).unit_evidence_status
     ).toBe("pending_source_export_packet");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "secret_private_library_boundary_review"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
     expect(
       reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
         (item: { export_id: string }) => item.export_id === "security_threat_model_review"
@@ -4404,6 +4410,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(secretPrivateExport.cloud_or_network_reference).toBe(false);
     expect(secretPrivateExport.secret_material_present).toBe(false);
     expect(secretPrivateExport.metadata_only).toBe(true);
+    expect(secretPrivateExport.unit_evidence_required).toBe(true);
+    expect(secretPrivateExport.unit_policy_ref).toBe("unit-policy:secret-private-library-metadata-only-preview");
+    expect(secretPrivateExport.explicit_unit_metadata_required).toBe(true);
+    expect(secretPrivateExport.unit_payload_included).toBe(false);
+    expect(secretPrivateExport.conversion_performed).toBe(false);
     expect(secretPrivateExport.security_certification_claim).toBe(false);
     const securityThreatModelExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "security_threat_model_review"
@@ -7524,8 +7535,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(proposalReviewManifest.summary.export_count).toBe(29);
     expect(proposalReviewManifest.summary.available_count).toBe(29);
     expect(proposalReviewManifest.summary.operation_record_count).toBe(1);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(22);
-    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(22);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(23);
+    expect(proposalReviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(23);
     const proposalReviewExport = proposalReviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "agent_proposal_review"
     );

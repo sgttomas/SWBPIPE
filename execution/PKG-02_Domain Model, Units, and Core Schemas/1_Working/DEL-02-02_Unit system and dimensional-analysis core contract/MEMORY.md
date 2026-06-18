@@ -2200,3 +2200,27 @@ Boundary note:
   payload, protected content, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001 supporting unit-policy evidence
+
+- Supporting role for DEL-02-02: Export Safety Review now inventories
+  `secret_private_library_boundary_review` as unit-evidence-required because
+  the DEL-12-04 Secret and Private Libraries panel already exposes explicit
+  unit metadata policy evidence for private material, component, and rule
+  references.
+- The export-review manifest remains inventory-only and reports
+  `conversion_performed=false`; solved queued-intent evidence reports
+  `covered=22/23`, and proposal-path evidence reports 23/23 when the proposal
+  row is available.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVSECRETPRIVATEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-266; primary DEL-12-02 run record and
+  supporting DEL-12-04 run record.
+- Validation passed: focused App workspace-render test. Full App, full
+  desktop Vitest, build, Playwright, and DEC-025 sweep evidence are recorded
+  in closeout artifacts for this tranche.
+- Boundary preserved: no DEC-018 catalog constant, schema dimension enum,
+  unit-conversion API, target writer behavior, secret/private unit policy,
+  private payload, protected content, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
