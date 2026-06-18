@@ -165,6 +165,12 @@ unit traceability for solved analysis runs, including sorted model units,
 result row unit symbols, row count, `source=result_envelope`, and
 `conversion=false`.
 
+Latest B-tail update: `TP-UNITS-BTAIL-KNOWLEDGEUNITS-001`
+(SMOKE TP-MAC-223) landed on 2026-06-17. The Design Knowledge panel now
+exposes computed-result unit context for result-derived knowledge records,
+including unit-bearing ref count, result unit symbols,
+`source=computed_preview_result`, and `conversion=false`.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

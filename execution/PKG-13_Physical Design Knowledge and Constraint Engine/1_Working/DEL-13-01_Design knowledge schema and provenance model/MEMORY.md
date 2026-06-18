@@ -1,5 +1,23 @@
 # MEMORY - DEL-13-01 Design Knowledge Schema and Provenance Model
 
+## 2026-06-17 - TP-UNITS-BTAIL-KNOWLEDGEUNITS-001 computed-unit context evidence
+
+- Primary role for a bounded Phase B-tail review-surface evidence slice: the
+  desktop Design Knowledge panel now exposes a computed-unit context row when
+  mechanics results are present.
+- The row derives the count of computed unit-bearing knowledge result refs,
+  result unit symbols, `source=computed_preview_result`, and
+  `conversion=false` from the existing result envelope.
+- Validation passed: focused App Vitest 56/56; focused R2 Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-KNOWLEDGEUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-223.
+- Boundary preserved: no design-knowledge schema, result values, solver
+  behavior, unit conversion API, lifecycle state, review disposition,
+  protected/private data posture, release status, professional approval,
+  certification, sealing, authentication, or code-compliance posture changed.
+
 ## Implementation Summary
 
 2026-05-04: Added the schema-first design knowledge contract for DEV-001

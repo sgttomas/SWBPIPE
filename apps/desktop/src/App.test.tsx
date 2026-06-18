@@ -6396,6 +6396,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(gapLedger).getByTestId("gap:endpoint-j-recovery").textContent).not.toContain("compliance failure");
 
     const knowledge = await screen.findByLabelText("Design knowledge");
+    expect(within(knowledge).getByTestId("knowledge-unit-context").textContent).toContain("computed_unit_refs=2");
+    expect(within(knowledge).getByTestId("knowledge-unit-context").textContent).toContain("units=N,mm");
+    expect(within(knowledge).getByTestId("knowledge-unit-context").textContent).toContain(
+      "source=computed_preview_result"
+    );
+    expect(within(knowledge).getByTestId("knowledge-unit-context").textContent).toContain("conversion=false");
     expect(within(knowledge).getByText(/HIGH DISPLACEMENT REVIEW/i)).toBeInTheDocument();
     expect(within(knowledge).getByText(/result:disp:node-N-140 is 26.515341 mm/i)).toBeInTheDocument();
     expect(within(knowledge).getByText(/result:force:pipe-P-120:axial is/i)).toBeInTheDocument();

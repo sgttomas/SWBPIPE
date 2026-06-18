@@ -374,6 +374,11 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("run-audit-units")).toContainText("rows=737");
   await expect(page.getByTestId("run-audit-units")).toContainText("source=result_envelope");
   await expect(page.getByTestId("run-audit-units")).toContainText("conversion=false");
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("computed_unit_refs=2");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("units=N,mm");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("source=computed_preview_result");
+  await expect(page.getByTestId("knowledge-unit-context")).toContainText("conversion=false");
 
   const solvedCanvas = await canvas.screenshot();
   expect(pngStats(solvedCanvas).uniqueColors).toBeGreaterThan(100);

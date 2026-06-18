@@ -14,6 +14,36 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail design-knowledge computed-unit context (`TP-UNITS-BTAIL-KNOWLEDGEUNITS-001`)
+
+Landed one bounded Phase B-tail design-knowledge review-surface slice while
+C5.7 remains human-execution gated. The DEL-13-01 Design Knowledge panel now
+records explicit unit context for computed result-derived knowledge records.
+
+The tranche adds `data-testid="knowledge-unit-context"` with the count of
+computed unit-bearing knowledge result refs, result unit symbols in the
+established Results-panel display order, `source=computed_preview_result`, and
+`conversion=false`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-223; DEL-13-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-KNOWLEDGEUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 file and 56/56 tests; focused R2
+Playwright smoke passed 2/2; full desktop Vitest passed 18/18 files and
+399/399 tests; desktop production build passed with the existing Vite
+large-chunk warning. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: no design-knowledge schema, solver behavior, result value,
+unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+protected standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail run-audit unit traceability evidence (`TP-UNITS-BTAIL-RUNAUDITUNITS-001`)
 
 Landed one bounded Phase B-tail analysis-run audit evidence slice while C5.7
