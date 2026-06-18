@@ -172,3 +172,16 @@ Durable context preserved after reconciliation review:
   private rule-pack handling, blocking logic, protected content, private data,
   lifecycle state, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting export-review inventory evidence
+
+- Supporting role for DEL-12-02 Export Safety Review matrix cleanup: the
+  export manifest now includes `rule_completeness_review` as an available
+  local export row and marks it unit-evidence-required.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  primary DEL-12-02 run record; `apps/desktop/SMOKE.md` TP-MAC-259.
+- Boundary preserved: no required-input checker logic, rule evaluator
+  behavior, missing-input blocking behavior, private rule-pack handling,
+  lifecycle state, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

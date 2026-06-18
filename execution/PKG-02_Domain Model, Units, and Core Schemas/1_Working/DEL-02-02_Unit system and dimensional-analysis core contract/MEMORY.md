@@ -86,6 +86,20 @@
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting unit-evidence inventory
+
+- Supporting role for DEL-12-02 Export Safety Review matrix cleanup:
+  `rule_completeness_review` is now unit-evidence-required in the manifest
+  because it carries DEC-018 explicit rule-input unit-policy evidence. The
+  visible Export Review unit line now reports `covered=17/17`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  primary DEL-12-02 run record; `apps/desktop/SMOKE.md` TP-MAC-259.
+- Boundary preserved: no DEC-018 catalog constant, unit conversion API, schema
+  dimension enum, solver unit handling, stored model schema, lifecycle state,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Report Content Lint now classifies the Rule

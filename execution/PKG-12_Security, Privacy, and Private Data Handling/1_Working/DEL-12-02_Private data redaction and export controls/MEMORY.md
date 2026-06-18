@@ -138,3 +138,27 @@ Durable context preserved after reconciliation review:
   protected standards content, private payload, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 primary export-review inventory evidence
+
+- Primary role for Phase B-tail Export Safety Review matrix cleanup: the
+  manifest now includes `rule_completeness_review` as an available local
+  metadata-only export row and marks it unit-evidence-required because the
+  Rule-Check Completeness packet carries DEC-018 unit evidence.
+- Visible Export Review evidence now reports 28 of 28 local exports ready in
+  the solved queued-intent path and `covered=17/17`; the Report packet
+  persistence export inventory now expects 28 rows and reports 27 available
+  when the operation ledger is empty.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-259; active plan entry; supporting
+  DEL-06-03, DEL-08-03, DEL-08-04, and DEL-02-02 run records.
+- Validation passed: focused App Vitest queued-intent report packet and solved
+  diagnostics/report tests, full desktop Vitest 399/399, desktop production
+  build with the existing Vite large-chunk warning, focused R2 Playwright 2/2,
+  and single-worker Playwright 18/18.
+- Boundary preserved: no runtime redaction rule, public transport commitment,
+  target-specific writer, manifest-level unit conversion, rule-completeness
+  semantics, protected standards content, private payload, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

@@ -131,6 +131,7 @@ function ReviewLine({ label, value, testId }: { label: string; value: string; te
 const UNIT_EVIDENCE_REQUIRED_EXPORT_IDS = new Set([
   "project_storage_audit",
   "project_validation_preflight",
+  "rule_completeness_review",
   "result_envelope",
   "stress_neutral_csv_json_package",
   "headless_runner_envelope",
@@ -435,6 +436,24 @@ function buildExportReviewManifest({
       release_or_professional_claim: false,
       review_note:
         "DEL-07-04 desktop missing-data warning review; solve-required and rule-check-required data stay distinct, missing values are not auto-filled, and warning meaning is exported as text metadata."
+    },
+    {
+      export_id: "rule_completeness_review",
+      label: "Rule-check completeness review",
+      document_kind: "openpipestress.technical_preview.rule_completeness_review",
+      readiness: "available",
+      deliverable_refs: ["DEL-06-03", "DEL-07-04", "DEL-05-04", "DEL-08-03", "DEL-02-02"],
+      source_refs: [model.project.id, result?.run_id ?? "not generated"],
+      finding_count: diagnostics.length,
+      rule_check_status: result?.status.rule_check ?? model.analysis_status.rule_check,
+      mechanics_results_reviewable: Boolean(result),
+      unit_evidence_required: true,
+      redaction_action: "rule_completeness_metadata_only_no_private_payload",
+      private_payload_included: false,
+      protected_content_included: false,
+      release_or_professional_claim: false,
+      review_note:
+        "Rule completeness review records explicit rule-input unit policy and missing private/user rule data without conversion."
     },
     {
       export_id: "accessibility_usability_baseline_review",

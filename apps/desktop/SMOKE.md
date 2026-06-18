@@ -8730,3 +8730,39 @@ notes:
   protected standards content, private payload, lifecycle state transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-259 export review rule completeness unit inventory - PASSED (`TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Export Safety Review matrix cleanup while C5.7
+  remains human-execution gated. The Rule-Check Completeness review is now a
+  unit-bearing exported public surface, so the Export Safety Review and Report
+  packet persistence inventories record it explicitly.
+- App behavior: `ExportReviewPanel` now includes `rule_completeness_review` as
+  an available metadata-only local export row, marks it unit-evidence-required,
+  and reports `covered=17/17` with `conversion=false`. The solved export
+  review manifest now has 28 export rows. `ReportPanel` persistence export
+  evidence now expects 28 local export rows and reports 27 available when the
+  operation ledger is empty.
+- Validation:
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- --run src/App.test.tsx -t "shows computed mechanics diagnostics in results, knowledge, and review-only proposal context"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke"`
+    passed 2/2 focused configured-project tests.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-12-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  DEL-06-03, DEL-08-03, DEL-08-04, and DEL-02-02 supporting run records with
+  the same id.
+- Boundary: export/review inventory only. No rule-completeness semantics, rule
+  evaluation, missing-input blocking behavior, runtime redaction rules,
+  target-specific writers, manifest-level unit conversion, public transport
+  commitments, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

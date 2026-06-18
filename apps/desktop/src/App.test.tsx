@@ -1699,7 +1699,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(diffPreview.textContent).toContain("does not apply operations");
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "20 of 27 local exports ready"
+      "21 of 28 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-redaction").textContent).toContain(
       "protected content blocked=true"
@@ -2303,7 +2303,7 @@ describe("OpenPipeStress desktop preview", () => {
 
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "21 of 27 local exports ready"
+      "22 of 28 local exports ready"
     );
     const reviewHref = within(exportReview).getByTestId("export-review-link").getAttribute("href") ?? "";
     const reviewManifest = JSON.parse(decodeURIComponent(reviewHref.split(",", 2)[1]));
@@ -4040,7 +4040,7 @@ describe("OpenPipeStress desktop preview", () => {
     const exportReview = await screen.findByLabelText("Export safety review");
     expect(await within(exportReview).findByText(/run:preview-linear-static-001/i)).toBeInTheDocument();
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
-      "27 of 27 local exports ready"
+      "28 of 28 local exports ready"
     );
     expect(within(exportReview).getByTestId("export-review-summary").textContent).toContain(
       "no private/protected payloads"
@@ -4051,7 +4051,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain(
       "unit-system:dec-018-si-dual-display"
     );
-    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=16/16");
+    expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("covered=17/17");
     expect(within(exportReview).getByTestId("export-review-units").textContent).toContain("conversion=false");
     expect(within(exportReview).getByTestId("export-review-record-project_storage_audit").textContent).toContain(
       "available"
@@ -4074,6 +4074,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(exportReview).getByTestId("export-review-record-missing_data_warning_blocking_review").textContent
     ).toContain("available");
+    expect(within(exportReview).getByTestId("export-review-record-rule_completeness_review").textContent).toContain(
+      "available"
+    );
     expect(
       within(exportReview).getByTestId("export-review-record-accessibility_usability_baseline_review").textContent
     ).toContain("available");
@@ -4198,8 +4201,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(reviewManifest.objectives).toContain("OBJ-009");
     expect(reviewManifest.objectives).toContain("OBJ-016");
     expect(reviewManifest.objectives).toContain("OBJ-017");
-    expect(reviewManifest.summary.export_count).toBe(27);
-    expect(reviewManifest.summary.available_count).toBe(27);
+    expect(reviewManifest.summary.export_count).toBe(28);
+    expect(reviewManifest.summary.available_count).toBe(28);
     expect(reviewManifest.summary.operation_record_count).toBe(1);
     expect(reviewManifest.unit_policy_summary.evidence_id).toBe("unit-policy-evidence:export-review-manifest");
     expect(reviewManifest.unit_policy_summary.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
@@ -4207,13 +4210,14 @@ describe("OpenPipeStress desktop preview", () => {
       "export_review_manifest_inventory_only_no_target_conversion"
     );
     expect(reviewManifest.unit_policy_summary.conversion_performed).toBe(false);
-    expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(27);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(16);
-    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(16);
+    expect(reviewManifest.unit_policy_summary.summary.reviewed_export_count).toBe(28);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_required_count).toBe(17);
+    expect(reviewManifest.unit_policy_summary.summary.unit_evidence_present_count).toBe(17);
     expect(reviewManifest.unit_policy_summary.summary.conversion_performed_count).toBe(0);
     expect(reviewManifest.unit_policy_summary.covered_export_ids).toEqual([
       "project_storage_audit",
       "project_validation_preflight",
+      "rule_completeness_review",
       "result_envelope",
       "stress_neutral_csv_json_package",
       "headless_runner_envelope",
@@ -4246,6 +4250,11 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe("covered_by_target_panel_or_export_packet");
     expect(
       reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
+        (item: { export_id: string }) => item.export_id === "rule_completeness_review"
+      ).unit_evidence_status
+    ).toBe("covered_by_target_panel_or_export_packet");
+    expect(
+      reviewManifest.unit_policy_summary.unit_evidence_matrix.find(
         (item: { export_id: string }) => item.export_id === "telemetry_boundary_review"
       ).unit_evidence_status
     ).toBe("not_unit_bearing_metadata_or_boundary_review");
@@ -4257,6 +4266,7 @@ describe("OpenPipeStress desktop preview", () => {
       "security_threat_model_review",
       "editor_contract_review",
       "missing_data_warning_blocking_review",
+      "rule_completeness_review",
       "accessibility_usability_baseline_review",
       "design_authoring_comparison_workspace",
       "build_package_readiness",
@@ -4286,6 +4296,17 @@ describe("OpenPipeStress desktop preview", () => {
       reviewManifest.exports.find((item: { export_id: string }) => item.export_id === "project_validation_preflight")
         .round_trip_status
     ).toBe("semantic_categories_declared");
+    const ruleCompletenessExport = reviewManifest.exports.find(
+      (item: { export_id: string }) => item.export_id === "rule_completeness_review"
+    );
+    expect(ruleCompletenessExport.document_kind).toBe(
+      "openpipestress.technical_preview.rule_completeness_review"
+    );
+    expect(ruleCompletenessExport.deliverable_refs).toContain("DEL-06-03");
+    expect(ruleCompletenessExport.deliverable_refs).toContain("DEL-02-02");
+    expect(ruleCompletenessExport.unit_evidence_required).toBe(true);
+    expect(ruleCompletenessExport.private_payload_included).toBe(false);
+    expect(ruleCompletenessExport.protected_content_included).toBe(false);
     const telemetryExport = reviewManifest.exports.find(
       (item: { export_id: string }) => item.export_id === "telemetry_boundary_review"
     );
@@ -6840,7 +6861,7 @@ describe("OpenPipeStress desktop preview", () => {
       "validation=preview_not_persisted"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain(
-      "26 of 27 local exports ready"
+      "27 of 28 local exports ready"
     );
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("storage=available");
     expect(within(report).getByTestId("report-export-readiness").textContent).toContain("validation=available");
@@ -6915,8 +6936,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(exportPacket.persistence_evidence.validation_preflight.round_trip_status).toBe(
       "semantic_categories_declared"
     );
-    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(27);
-    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(26);
+    expect(exportPacket.persistence_evidence.export_inventory.expected_export_count).toBe(28);
+    expect(exportPacket.persistence_evidence.export_inventory.available_count).toBe(27);
     expect(exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.project_storage_audit).toBe(
       "available"
     );
@@ -6938,6 +6959,9 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(
       exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.missing_data_warning_blocking_review
+    ).toBe("available");
+    expect(
+      exportPacket.persistence_evidence.export_inventory.readiness_by_export_id.rule_completeness_review
     ).toBe("available");
     expect(
       exportPacket.persistence_evidence.export_inventory.readiness_by_export_id

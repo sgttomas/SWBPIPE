@@ -431,6 +431,16 @@ required-input unit evidence without changing evaluator semantics,
 required-input completeness behavior, analysis status semantics, linter
 semantics, or unit conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001`
+(SMOKE TP-MAC-259) landed on 2026-06-18. The Export Safety Review manifest now
+includes `rule_completeness_review` as an available metadata-only local export
+row and marks it unit-evidence-required, raising export rows to 28 and
+unit-evidence coverage to `covered=17/17`; the Report packet persistence
+export inventory now expects 28 rows. This records the Rule-Check
+Completeness unit-evidence export without changing rule-completeness
+semantics, redaction behavior, target writers, manifest-level unit conversion,
+public transport posture, or unit conversion behavior.
+
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

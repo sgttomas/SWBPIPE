@@ -379,6 +379,20 @@ Durable TASK evidence:
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
 
+## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001 supporting export-inventory evidence
+
+- Supporting role for DEL-12-02 Export Safety Review matrix cleanup: the local
+  export inventory now includes `rule_completeness_review`, raising the
+  manifest from 27 to 28 export rows while preserving metadata-only local
+  transport and no-private/no-protected payload posture.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-EXPORTREVIEWRULECOMPUNITS-001.md`;
+  primary DEL-12-02 run record; `apps/desktop/SMOKE.md` TP-MAC-259.
+- Boundary preserved: no target writer, result envelope, transport, redaction,
+  unit conversion, lifecycle state, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-CAEPIPEEXTERNALUNITWITNESS-001 supporting export evidence
 
 - Supporting role for DEL-17-05 CAEPIPE external parser tranche: the desktop
