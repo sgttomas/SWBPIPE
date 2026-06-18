@@ -997,3 +997,24 @@ Boundary note:
   semantics, solver behavior, protected standards content, private data,
   lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-05-01 primitive-load delete tranche:
+  primitive-load delete intents now record unit-dimension validation status
+  for the existing unit-bearing primitive quantity instead of
+  `unit_validation=not_run`.
+- Browser preview records declared model metadata because the reviewed DEC-018
+  catalog is exposed only through the desktop backend route; desktop/Tauri
+  catalog routes can record accepted DEC-018 dimension matches, mismatches,
+  unreviewed statuses, or loading/catalog-unavailable statuses from the same
+  helper used by primitive create/edit.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -6460,6 +6460,12 @@ notes:
   carries the same unit-policy summary and matrix.
 - Validation:
   - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
   - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
     passed 2/2 Playwright tests.
   - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
@@ -6873,3 +6879,31 @@ notes:
   payload, lifecycle state transition, release-readiness claim, professional
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
+
+## TP-MAC-210 primitive-load delete unit-validation evidence - PASSED (`TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail load-case/unit-validation slice while C5.7
+  remains human-execution gated. Explicit primitive-load delete intents now
+  record the existing primitive's unit-dimension validation evidence instead
+  of `unit_validation=not_run`.
+- Unit behavior: deletion preserves the existing primitive's unit and
+  dimension in the operation-intent evidence and runs the same status helper
+  used by primitive-load creation and magnitude edits. Browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
+  statuses from the same helper.
+- UI check: `data-testid="load-manager-primitive-delete-preview"` exposes the
+  queued validation status before the operation is applied. The focused App
+  test checks the visible delete-preview evidence for `load:L-100-Y`.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+- Evidence: DEL-05-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001.md`;
+  DEL-02-02 and DEL-05-05 supporting run records with the same id; completion
+  log entry.
+- Boundary: primitive-load delete intent evidence only. No DEC-018 catalog
+  constant change, schema dimension enum change, unit conversion API change,
+  operation-applier validation semantics, solver behavior, load engine
+  behavior, protected standards content, private payload, lifecycle state
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

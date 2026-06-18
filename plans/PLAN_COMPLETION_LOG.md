@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail primitive-load delete unit-validation evidence (`TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001`)
+
+Landed one bounded Phase B-tail load-case/unit-validation slice while C5.7
+remains human-execution gated. Explicit primitive-load delete intents now
+carry the existing primitive's unit-dimension validation evidence in the
+visible delete preview instead of `unit_validation=not_run`.
+
+The tranche reuses the existing DEC-018 unit-catalog route already used by
+primitive-load create and magnitude-edit intents. Browser preview records
+`model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+desktop/Tauri routes can record DEC-018 accepted, mismatch, loading, or
+unreviewed statuses through the same shared helper. The operation semantics
+remain a delete of the selected indexed primitive; no conversion or load-engine
+behavior changed.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-210; DEL-05-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001.md`;
+DEL-02-02 and DEL-05-05 supporting run records with the same id.
+
+Validation: focused App Vitest passed 55/55; full desktop Vitest passed 18/18
+files and 398/398 tests; focused R2/R3 Playwright smoke file passed 14/14;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: primitive-load delete intent evidence only. No DEC-018 catalog
+constant change, schema dimension enum change, unit conversion API change,
+operation-applier validation semantics, solver behavior, load engine behavior,
+protected standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail viewport geometry unit-validation evidence (`TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001`)
 
 Landed one bounded Phase B-tail viewport-geometry/unit-validation slice while

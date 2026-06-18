@@ -456,3 +456,22 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001 supporting primitive-load unit evidence
+
+- Supporting role for DEL-05-01 primitive-load delete tranche: deleting an
+  existing concentrated/distributed/user primitive-load record from the desktop
+  Load Cases manager now preserves the selected primitive's unit and dimension
+  in the operation-intent evidence and records unit-dimension validation
+  status.
+- No `core/loads/user_loads` source behavior changed. The tranche is limited
+  to visible operation-intent evidence for the existing indexed primitive load.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout artifacts.
+- Boundary preserved: no user-load engine behavior, solver behavior,
+  operation application semantics, unit conversion API, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

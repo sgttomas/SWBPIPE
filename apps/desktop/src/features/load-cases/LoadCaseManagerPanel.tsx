@@ -173,6 +173,7 @@ export function LoadCaseManagerPanel({
       ? buildDeletePrimitiveLoadIntent({
           model,
           primitive: selectedPrimitive,
+          unitCatalogRoute,
           rationale: primitiveDeleteRationale
         })
       : null;
@@ -1083,7 +1084,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-primitive-delete-preview">
             {primitiveDeleteIntent
-              ? `${primitiveDeleteIntent.operation_id}; before=${primitiveDeleteIntent.change.before}; after=${primitiveDeleteIntent.change.after}; unit=${primitiveDeleteIntent.change.unit}; ${primitiveDeleteIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${primitiveDeleteIntent.operation_id}; before=${primitiveDeleteIntent.change.before}; after=${primitiveDeleteIntent.change.after}; unit=${primitiveDeleteIntent.change.unit}; ${primitiveDeleteIntent.change.dimension}; unit_validation=${primitiveDeleteIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : "select a primitive load and provide rationale to queue deletion"}
           </p>
         </section>
@@ -2384,14 +2385,18 @@ function primitiveUnitValidationStatus(
 function buildDeletePrimitiveLoadIntent({
   model,
   primitive,
+  unitCatalogRoute,
   rationale
 }: {
   model: PreviewModel;
   primitive: PrimitiveLoadView;
+  unitCatalogRoute: UnitCatalogRoute | null;
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `primitive_loads.${primitive.index}`;
   const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-delete`;
+  const unit = primitiveUnit(primitive.load);
+  const dimension = primitiveDimension(primitive.load);
   return {
     operation_id: `op:load-manager-${operationToken}`,
     operation_kind: "delete",
@@ -2413,14 +2418,14 @@ function buildDeletePrimitiveLoadIntent({
       field_path: fieldPath,
       before: primitiveLoadDisplay(primitive.load),
       after: "not_present",
-      unit: primitiveUnit(primitive.load),
-      dimension: primitiveDimension(primitive.load),
+      unit,
+      dimension,
       source_note: "explicit user-entered primitive load deletion; existing indexed primitive only"
     },
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: primitiveUnitValidationStatus(unitCatalogRoute, unit, dimension),
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },

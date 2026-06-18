@@ -569,3 +569,22 @@
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001 primitive-load delete unit validation evidence
+
+- Primary role for bounded B-tail tranche: the desktop Load Cases manager now
+  records unit-dimension validation status on unit-bearing primitive-load
+  delete operation intents.
+- The delete preview preserves the selected primitive's existing unit and
+  dimension, and reports the same validation status family used by
+  primitive-load creation and magnitude edits instead of
+  `unit_validation=not_run`.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout artifacts.
+- Boundary preserved: no primitive-load engine behavior, solver behavior,
+  operation application semantics, unit conversion API, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

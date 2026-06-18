@@ -2588,6 +2588,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-primitive-delete-preview").textContent).toContain(
       "before=load:L-100-Y; occasional; node:node:N-140; global_y; 350 N; force"
     );
+    expect(within(manager).getByTestId("load-manager-primitive-delete-preview").textContent).toContain(
+      "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
     fireEvent.click(within(manager).getByTestId("queue-delete-primitive-load-intent"));
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
