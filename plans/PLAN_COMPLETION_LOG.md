@@ -14,6 +14,41 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail adapter framework unit policy evidence (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001`)
+
+Landed one bounded Phase B-tail adapter-framework/unit-evidence slice while
+C5.7 remains human-execution gated. The desktop Adapter Framework packet now
+emits explicit DEC-018 unit-policy evidence for the format-neutral adapter
+contract.
+
+The packet records `unit-system:dec-018-si-dual-display`,
+`entered_units_preserved`, source/result unit disclosure,
+`conversion_policy=adapter_framework_declares_unit_validation_no_format_conversion`,
+and `conversion_performed=false`. The visible UI shows
+`adapter-framework-units` with `witnesses=1` and the framework-level unit
+validation policy.
+
+The tranche preserves the adapter-framework boundary. It does not choose a
+concrete external format, add a target-specific writer, add a unit conversion
+API, add a runtime loader/public endpoint, make a target support claim, or
+make target compatibility/professional/code-compliance claims.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-203; DEL-10-02 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: adapter framework contract test passed; focused App Vitest passed
+55/55; focused R2 Playwright smoke passed 2/2; full desktop Vitest passed
+18/18 files and 397/397 tests; desktop production build passed with the
+existing Vite large-chunk warning.
+
+Boundary: adapter-framework unit metadata only. No DEC-018 catalog constant
+change, schema dimension enum change, unit conversion API change, concrete
+external format, target-specific writer, external execution, protected
+standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - B-tail operation diff preview unit witnesses (`TP-UNITS-BTAIL-OPDIFFUNITWITNESS-001`)
 
 Landed one bounded Phase B-tail operation-diff/unit-evidence slice while C5.7

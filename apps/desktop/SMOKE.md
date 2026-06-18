@@ -6407,6 +6407,40 @@ notes:
   approval, certification, sealing, authentication, or code-compliance claim
   changed.
 
+## TP-MAC-203 adapter framework unit policy evidence - PASSED (`TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail adapter-framework/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-10-02 format-neutral adapter
+  framework preview now includes structured `unit_policy_evidence` in its
+  exported JSON packet.
+- Unit behavior: the packet records `unit-system:dec-018-si-dual-display`,
+  `entered_units_preserved`, source/result unit disclosure,
+  `conversion_policy=adapter_framework_declares_unit_validation_no_format_conversion`,
+  `conversion_performed=false`, and a witness policy for framework-level unit
+  validation without claiming target-writer conversion.
+- UI check: `data-testid="adapter-framework-units"` displays
+  `conversion=false`, `witnesses=1`, and
+  `unit_validation_required_before_adapter_payload_exchange` in the desktop
+  preview; the downloaded adapter JSON carries the same `unit_policy_evidence`
+  fields.
+- Validation:
+  - `python3 tests/test_adapter_framework_contract.py` passed.
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-10-02 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: adapter-framework metadata only. No concrete external format,
+  target-specific writer, conversion API, runtime loader, public endpoint,
+  target support claim, compatibility claim, external execution, protected
+  standards content, private project payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
 
 - Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains

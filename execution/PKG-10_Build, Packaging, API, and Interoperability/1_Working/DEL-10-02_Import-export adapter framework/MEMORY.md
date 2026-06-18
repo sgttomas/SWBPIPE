@@ -1,5 +1,25 @@
 # MEMORY - DEL-10-02 Import/export adapter framework
 
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001 adapter framework unit evidence
+
+- Primary role for bounded Phase B-tail adapter-framework/unit-evidence
+  tranche: the desktop Adapter Framework preview now exports structured
+  `unit_policy_evidence` with DEC-018 basis, entered-unit preservation,
+  source/result unit disclosure, and `conversion_performed=false`.
+- The visible UI row `adapter-framework-units` displays the framework-level
+  unit validation policy and witness count without claiming target-writer
+  conversion, target support, external runtime behavior, or compatibility.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-203; `plans/PLAN_COMPLETION_LOG.md`.
+- Validation passed: adapter framework contract test; focused App Vitest
+  55/55; focused R2 Playwright smoke 2/2; full desktop Vitest 397/397;
+  desktop production build with the existing Vite large-chunk warning.
+- Boundary preserved: no concrete external format, target-specific writer,
+  unit conversion API, runtime loader, public endpoint, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 Implemented within the sealed write scope from
 `execution/_Coordination/DEV-001_DISPATCH_DEL-10-02.md`.
 

@@ -283,6 +283,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(adapterFramework).getByTestId("adapter-framework-validation").textContent).toContain(
       "schema=required"
     );
+    expect(within(adapterFramework).getByTestId("adapter-framework-units").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(adapterFramework).getByTestId("adapter-framework-units").textContent).toContain(
+      "witnesses=1"
+    );
     expect(within(adapterFramework).getByTestId("adapter-framework-no-bypass").textContent).toContain(
       "direct_sql=false"
     );
@@ -319,6 +325,25 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterPacket.validation_plan.unit_validation).toBe("required");
     expect(adapterPacket.validation_plan.protected_content_screening).toBe("required");
     expect(adapterPacket.validation_plan.export_review).toBe("required_before_shared_payload");
+    expect(adapterPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(adapterPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(adapterPacket.unit_policy_evidence.conversion_policy).toBe(
+      "adapter_framework_declares_unit_validation_no_format_conversion"
+    );
+    expect(adapterPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(adapterPacket.unit_policy_evidence.framework_scope).toBe(
+      "format_neutral_adapter_contract_metadata_only"
+    );
+    expect(adapterPacket.unit_policy_evidence.framework_unit_policy).toBe(
+      "unit_validation_required_before_adapter_payload_exchange"
+    );
+    expect(adapterPacket.unit_policy_evidence.witness_policy).toBe(
+      "record_framework_unit_policy_without_claiming_target_writer_conversion"
+    );
+    expect(adapterPacket.unit_policy_evidence.witness_count).toBe(1);
+    expect(adapterPacket.unit_policy_evidence.adapter_ref.ref_id).toBe("ops.adapter.desktop_preview");
     expect(adapterPacket.operation_result.parse_status).toBe("not_parsed_by_framework");
     expect(adapterPacket.operation_result.result_envelope_ref.compatibility).toBe(
       "schema_first_json_result_envelope"
@@ -5329,6 +5354,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(adapterFramework).getByTestId("adapter-framework-validation").textContent).toContain(
       "export=required_before_shared_payload"
     );
+    expect(within(adapterFramework).getByTestId("adapter-framework-units").textContent).toContain(
+      "conversion=false"
+    );
+    expect(within(adapterFramework).getByTestId("adapter-framework-units").textContent).toContain(
+      "witnesses=1"
+    );
     const adapterHref =
       within(adapterFramework).getByTestId("adapter-framework-export-link").getAttribute("href") ?? "";
     const adapterPacket = JSON.parse(decodeURIComponent(adapterHref.split(",", 2)[1]));
@@ -5348,6 +5379,16 @@ describe("OpenPipeStress desktop preview", () => {
     expect(adapterPacket.operation_result.result_envelope_ref.ref.ref_id).toBe(
       "result-envelope:run:preview-linear-static-001"
     );
+    expect(adapterPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(adapterPacket.unit_policy_evidence.result_units).toContain("MPa");
+    expect(adapterPacket.unit_policy_evidence.result_units).toContain("mm");
+    expect(adapterPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(adapterPacket.unit_policy_evidence.framework_unit_policy).toBe(
+      "unit_validation_required_before_adapter_payload_exchange"
+    );
+    expect(adapterPacket.unit_policy_evidence.witness_count).toBe(1);
     expect(adapterPacket.adapter_declaration.no_bypass_controls.must_preserve_diagnostics).toBe(true);
     expect(adapterPacket.adapter_declaration.no_bypass_controls.must_preserve_report_controls).toBe(true);
     expect(adapterPacket.adapter_declaration.no_bypass_controls.must_preserve_human_acceptance_boundary).toBe(true);

@@ -448,6 +448,12 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toContainText(
     "conversion=false"
   );
+  const adapterFramework = page.getByLabel("Adapter framework envelope");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("conversion=false");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("witnesses=1");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText(
+    "unit_validation_required_before_adapter_payload_exchange"
+  );
   const exportAdapterSdk = page.getByLabel("Export adapter SDK");
   await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("conversion=false");
   await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("witnesses=5");

@@ -761,6 +761,24 @@ Boundary note:
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
 
+## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERFRAMEWORKUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-10-02 adapter-framework tranche: the format-neutral
+  desktop adapter framework packet now records DEC-018 unit-policy evidence,
+  entered-unit storage convention, source/result unit disclosure, and
+  `conversion_performed=false`.
+- The evidence confirms the framework requires unit validation before adapter
+  payload exchange but does not perform target-format conversion or claim any
+  target writer support.
+- Validation passed: adapter framework contract test; App Vitest 55/55;
+  focused R2 Playwright smoke 2/2; full desktop Vitest 397/397; desktop
+  production build with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, target-specific writer, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-ADAPTERSDKUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-17-09 export-adapter SDK tranche: adapter admission
