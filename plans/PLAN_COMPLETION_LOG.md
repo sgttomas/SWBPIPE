@@ -14,6 +14,37 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail viewport component-symbol unit-validation evidence (`TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`)
+
+Landed one bounded Phase B-tail viewport component-symbol unit-validation
+slice while C5.7 remains human-execution gated. The reference-only viewport
+`insert_component_symbol` placeholder now records
+`unit_validation=not_required_dimensionless`.
+
+The tranche preserves the prior geometry boundary: generic `create_node` and
+`connect_pipe_run` placeholders remain `unit_validation=not_run` because they
+are still underspecified geometry gestures. Explicit viewport node and pipe
+authoring paths already carry length unit-validation evidence.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-218; DEL-07-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+DEL-16-02 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest passed 1/1; focused R2/R3 Playwright smoke
+passed 16/16; full desktop Vitest passed 18/18 files and 399/399 tests;
+desktop production build passed with the existing Vite large-chunk warning.
+DEC-025 sweep evidence is recorded separately at closeout, not as lifecycle,
+release, professional, certification, sealing, authentication, or
+code-compliance claims.
+
+Boundary: no operation application behavior, accepted model-state mutation,
+durable persistence, schema enum, unit-conversion API, DEC-018 catalog
+constant, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail load-manager dimensionless unit-validation evidence (`TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001`)
 
 Landed one bounded Phase B-tail Load Cases manager unit-validation slice while

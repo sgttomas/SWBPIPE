@@ -373,3 +373,25 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim, protected
   standards data, private project data, network path, telemetry path, unit
   conversion API, or DAG authority changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001 viewport component-symbol unit-validation evidence
+
+- WORKING_ITEMS app-integration tranche classified the reference-only
+  viewport `insert_component_symbol` placeholder as
+  `unit_validation=not_required_dimensionless`.
+- Generic `create_node` and `connect_pipe_run` placeholder gestures remain
+  `unit_validation=not_run` because they are still underspecified geometry
+  gestures; explicit create-node and connect-pipe authoring paths already
+  carry length unit-validation evidence.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-218. Focused validation passed:
+  `npm test --workspace apps/desktop -- src/App.test.tsx -t "viewport editor intents"`
+  (1/1) and `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts`
+  (16/16). Full desktop validation passed: `npm test --workspace apps/desktop`
+  (18/18 files, 399/399 tests) and `npm run build --workspace apps/desktop`
+  with the existing Vite large-chunk warning.
+- No lifecycle state, release readiness, professional approval,
+  certification, sealing, authentication, code-compliance claim, protected
+  standards data, private project data, network path, telemetry path, unit
+  conversion API, operation application behavior, or DAG authority changed.

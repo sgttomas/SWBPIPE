@@ -21,6 +21,7 @@ type Props = {
 };
 
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
+const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 
 type ViewportSelectionTarget = {
   ref: EntityRef;
@@ -923,7 +924,7 @@ function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequ
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: viewportCommandUnitValidationStatus(commandType),
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1097,6 +1098,11 @@ function viewportOperationKind(commandType: ViewportCommandType): EditorOperatio
   if (commandType === "create_node") return "create";
   if (commandType === "connect_pipe_run") return "connect";
   return "insert";
+}
+
+function viewportCommandUnitValidationStatus(commandType: ViewportCommandType): string {
+  if (commandType === "insert_component_symbol") return VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS;
+  return "not_run";
 }
 
 function viewportTarget(commandType: ViewportCommandType, nodeRefs: string[], firstComponent: string): EditorOperationIntent["target"] {

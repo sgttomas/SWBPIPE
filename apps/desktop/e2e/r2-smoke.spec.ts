@@ -532,6 +532,19 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
 });
 
+test("viewport component-symbol placeholder records dimensionless unit validation", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-status")).toContainText(
+    "engine_route=local_wasm_engine; engine_state=ready"
+  );
+  await page.getByRole("button", { name: "Component intent" }).click();
+  await expect(page.getByTestId("viewport-intent-unit-validation-insert_component_symbol")).toContainText(
+    "unit_validation=not_required_dimensionless"
+  );
+});
+
 test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page }) => {
   await page.goto("/");
 

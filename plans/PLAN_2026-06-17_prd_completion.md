@@ -132,8 +132,13 @@ Phases are ordered by dependency, not strictly by execution. Each numbered item 
 Latest B-tail update: `TP-UNITS-BTAIL-LOADMANAGERDIMLESSUNITVALID-001`
 (SMOKE TP-MAC-217) landed on 2026-06-17. Non-unit-bearing Load Cases manager
 load-case and combination operation previews now record
-`unit_validation=not_required_dimensionless`; remaining code `not_run`
-classification is the viewport generic component-symbol intent.
+`unit_validation=not_required_dimensionless`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`
+(SMOKE TP-MAC-218) landed on 2026-06-17. The reference-only viewport
+component-symbol placeholder now records
+`unit_validation=not_required_dimensionless`; generic node/pipe-run geometry
+placeholders remain `not_run` until their payloads are specified.
 
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 

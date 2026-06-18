@@ -1164,3 +1164,25 @@ Boundary note:
   behavior, protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001 supporting unit evidence
+
+- Supporting role for DEL-07-01 viewport tranche: the reference-only
+  component-symbol placeholder introduces no unit-bearing numeric quantity and
+  now explicitly records `unit_validation=not_required_dimensionless`.
+- The tranche does not add or alter unit symbols, dimensions, conversion
+  factors, DEC-018 catalog constants, schema dimension enums, or hidden
+  normalization behavior.
+- Explicit viewport node and pipe authoring paths remain covered by existing
+  length unit-validation logic and were not changed.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-218; completion log entry.
+- Validation passed: focused App Vitest 1/1 and focused R2/R3 Playwright
+  smoke 16/16; full desktop Vitest 399/399; desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, accepted model-state mutation, solver
+  behavior, protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

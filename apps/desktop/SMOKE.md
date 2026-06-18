@@ -7152,3 +7152,38 @@ notes:
   constant, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-218 viewport component-symbol unit-validation evidence - PASSED (`TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail viewport component-symbol unit-validation slice
+  while C5.7 remains human-execution gated. The reference-only viewport
+  `insert_component_symbol` placeholder now records unit validation as
+  `not_required_dimensionless`.
+- Unit behavior: the component-symbol placeholder introduces no unit-bearing
+  numeric quantity. Generic `create_node` and `connect_pipe_run` placeholders
+  remain `unit_validation=not_run` because they are intentionally
+  underspecified geometry gestures; explicit viewport node/pipe authoring
+  paths already carry length unit-validation evidence.
+- UI check: `data-testid="viewport-intent-unit-validation-insert_component_symbol"`
+  exposes `unit_validation=not_required_dimensionless`. The focused App test
+  checks the component-symbol status while preserving node/pipe placeholder
+  `not_run`, and Playwright R2/R3 smoke checks the browser row in desktop and
+  compact viewports.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx -t "viewport editor intents"`
+    passed 1/1 focused App test.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    16/16 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+  DEL-16-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: operation-intent metadata only. No operation application behavior,
+  accepted model-state mutation, durable persistence, schema enum,
+  unit-conversion API, DEC-018 catalog constant, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

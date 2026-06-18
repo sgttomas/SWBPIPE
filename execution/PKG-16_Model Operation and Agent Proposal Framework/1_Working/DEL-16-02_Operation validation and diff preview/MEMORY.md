@@ -804,6 +804,26 @@ Durable context preserved after PKG-02 grounded finding resolution:
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
 
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001 supporting operation-intent evidence
+
+- Supporting role for DEL-07-01 viewport tranche: the reference-only
+  `insert_component_symbol` placeholder intent now records pre-application
+  unit validation as `not_required_dimensionless`.
+- This is operation-intent metadata only. Generic node and pipe-run gesture
+  placeholders remain `not_run`; explicit node/pipe authoring paths remain
+  covered by length unit-validation evidence.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-218; completion log entry.
+- Validation passed: focused App Vitest 1/1 and focused R2/R3 Playwright
+  smoke 16/16; full desktop Vitest 399/399; desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no operation schema change, operation application,
+  accepted model-state mutation, durable persistence, unit conversion API,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-DELETEINTENTUNITVALID-001 supporting operation-intent evidence
 
 - Supporting role for DEL-07-02 Property Inspector tranche: explicit support,

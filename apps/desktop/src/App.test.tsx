@@ -1919,11 +1919,14 @@ describe("OpenPipeStress desktop preview", () => {
     const pipeIntent = within(intentPanel).getByTestId("viewport-intent-connect_pipe_run");
     const componentIntent = within(intentPanel).getByTestId("viewport-intent-insert_component_symbol");
 
-    for (const intent of [nodeIntent, pipeIntent, componentIntent]) {
+    for (const intent of [nodeIntent, pipeIntent]) {
       expect(intent.textContent).toContain("pending_service_validation");
       expect(intent.textContent).toContain("unit_validation=not_run");
       expect(intent.textContent).toContain("does_not_mutate_persisted_project_payload");
     }
+    expect(componentIntent.textContent).toContain("pending_service_validation");
+    expect(componentIntent.textContent).toContain("unit_validation=not_required_dimensionless");
+    expect(componentIntent.textContent).toContain("does_not_mutate_persisted_project_payload");
     expect(componentIntent.textContent).toContain("editor-intent-3");
     expect(pipeIntent.textContent).toContain("editor-intent-2");
     expect(nodeIntent.textContent).toContain("editor-intent-1");
