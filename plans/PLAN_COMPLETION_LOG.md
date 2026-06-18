@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail external-prover unit policy evidence (`TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001`)
+
+Landed one bounded Phase B-tail target-format/unit-evidence slice while C5.7
+remains human-execution gated. The desktop external-prover boundary metadata
+panel now exposes explicit DEC-018 unit-policy evidence for the metadata-only
+external review context.
+
+The tranche reuses the shared export unit disclosure helper so the exported
+metadata JSON records `unit-system:dec-018-si-dual-display`,
+`entered_units_preserved`, source model units, result units when an analysis
+run exists, empty target export units, and
+`conversion_policy=external_prover_metadata_records_units_without_target_conversion`
+with `conversion_performed=false`. The visible
+`external-prover-unit-policy` row reports the same source/result unit
+disclosure, conversion status, policy, and witness count.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-211; DEL-15-04 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 55/55; full desktop Vitest passed 18/18
+files and 398/398 tests; focused R2/R3 Playwright smoke file passed 14/14;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: external-prover metadata evidence only. No external solver/prover
+invocation, target parser, commercial-result ingestion, target writer,
+conversion API, target compatibility claim, protected standards content,
+private payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-17 - B-tail primitive-load delete unit-validation evidence (`TP-UNITS-BTAIL-PRIMDELETEUNITVALID-001`)
 
 Landed one bounded Phase B-tail load-case/unit-validation slice while C5.7

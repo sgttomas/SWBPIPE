@@ -374,6 +374,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(externalProver).getByTestId("external-prover-run-boundary").textContent).toContain(
       "tool_invoked=false"
     );
+    expect(within(externalProver).getByTestId("external-prover-unit-policy").textContent).toContain(
+      "length=m"
+    );
+    expect(within(externalProver).getByTestId("external-prover-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(externalProver).getByTestId("external-prover-authority-boundary").textContent).toContain(
       "compliance=false"
     );
@@ -391,6 +397,23 @@ describe("OpenPipeStress desktop preview", () => {
     expect(externalPacket.attachments[0].payload_embedded).toBe(false);
     expect(externalPacket.handoff_package_refs[0].ref.ref).toBe("handoff:TBD");
     expect(externalPacket.immutable_model_state_refs[0].ref.ref).toBe("state:TBD");
+    expect(externalPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(externalPacket.unit_policy_evidence.conversion_policy).toBe(
+      "external_prover_metadata_records_units_without_target_conversion"
+    );
+    expect(externalPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(externalPacket.unit_policy_evidence.external_prover_scope).toBe(
+      "metadata_only_external_review_context"
+    );
+    expect(externalPacket.unit_policy_evidence.external_prover_unit_policy).toBe(
+      "record_units_for_external_reviewer_without_invoking_target_solver"
+    );
+    expect(externalPacket.unit_policy_evidence.witness_policy).toBe(
+      "record_external_prover_unit_policy_without_claiming_target_writer_conversion"
+    );
+    expect(externalPacket.unit_policy_evidence.witness_count).toBe(1);
+    expect(externalPacket.unit_policy_evidence.analysis_run_ref.ref).toBe("analysis-run:TBD");
+    expect(externalPacket.unit_policy_evidence.external_ref.ref).toBe("external:desktop-preview-metadata-only");
     expect(externalPacket.unsupported_target_flags).toHaveLength(3);
     expect(externalPacket.diagnostics).toHaveLength(4);
     expect(externalPacket.professional_boundary.external_tool_invoked).toBe(false);
@@ -6370,6 +6393,12 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(solvedExternalProver).getByTestId("external-prover-run-boundary").textContent).toContain(
       "commercial_results=false"
     );
+    expect(within(solvedExternalProver).getByTestId("external-prover-unit-policy").textContent).toContain(
+      "results=MPa,N,N*m,mm,rad"
+    );
+    expect(within(solvedExternalProver).getByTestId("external-prover-unit-policy").textContent).toContain(
+      "policy=record_units_for_external_reviewer_without_invoking_target_solver"
+    );
     const solvedExternalHref =
       within(solvedExternalProver).getByTestId("external-prover-export-link").getAttribute("href") ?? "";
     const solvedExternalPacket = JSON.parse(decodeURIComponent(solvedExternalHref.split(",", 2)[1]));
@@ -6377,6 +6406,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solvedExternalPacket.handoff_package_refs[0].ref.ref).toContain("run:preview-linear-static-001");
     expect(solvedExternalPacket.immutable_model_state_refs[0].ref.ref).toBe("state:project:invented-loop-01:preview");
     expect(solvedExternalPacket.external_references[0].hash_refs[0].algorithm).toBe("sha256");
+    expect(solvedExternalPacket.unit_policy_evidence.result_units).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
+    expect(solvedExternalPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(solvedExternalPacket.unit_policy_evidence.analysis_run_ref.ref).toBe("run:preview-linear-static-001");
     expect(solvedExternalPacket.professional_boundary.external_tool_invoked).toBe(false);
     expect(solvedExternalPacket.professional_boundary.commercial_result_payload_ingested).toBe(false);
     expect(solvedExternalPacket.professional_boundary.software_creates_professional_reliance_record).toBe(false);

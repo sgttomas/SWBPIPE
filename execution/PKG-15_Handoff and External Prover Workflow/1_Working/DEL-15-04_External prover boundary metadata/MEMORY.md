@@ -101,3 +101,28 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001 primary evidence
+
+- Primary role for external-prover metadata/unit-evidence tranche: the
+  desktop external-prover boundary metadata packet now carries
+  `unit_policy_evidence` for the metadata-only external review context.
+- The packet records DEC-018 unit system disclosure, entered-unit
+  preservation, source model units, result units when a run exists, no target
+  export units, and
+  `conversion_policy=external_prover_metadata_records_units_without_target_conversion`
+  with `conversion_performed=false`.
+- The visible `external-prover-unit-policy` row reports source/result unit
+  disclosure, `conversion=false`, external-prover unit policy, and witness
+  count; the exported JSON also records `analysis_run_ref` and the desktop
+  preview external reference.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no external solver/prover invocation, target parser,
+  commercial-result ingestion, target writer, conversion API, target
+  compatibility claim, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.

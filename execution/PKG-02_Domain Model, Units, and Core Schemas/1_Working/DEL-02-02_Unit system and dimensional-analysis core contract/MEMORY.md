@@ -1018,3 +1018,25 @@ Boundary note:
   standards content, private data, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-15-04 external-prover metadata tranche: the desktop
+  external-prover boundary metadata packet now carries explicit DEC-018
+  unit-policy evidence for the metadata-only external review context.
+- The packet uses the shared export unit disclosure helper to record
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, source
+  model units, result units when a run exists, empty target export units, and
+  `conversion_performed=false`.
+- The external-prover-specific policy records units for reviewer context
+  without invoking a target solver/prover or claiming target-writer conversion.
+- Validation passed: focused App Vitest 55/55, full desktop Vitest 18/18 files
+  and 398/398 tests, focused R2/R3 Playwright smoke file 14/14, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, solver/prover invocation, target
+  parser, commercial-result ingestion, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

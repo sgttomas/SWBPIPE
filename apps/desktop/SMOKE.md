@@ -6907,3 +6907,38 @@ notes:
   behavior, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-211 external-prover unit policy evidence - PASSED (`TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail target-format/unit-evidence slice while C5.7
+  remains human-execution gated. The DEL-15-04 external-prover boundary
+  metadata packet now records explicit DEC-018 unit-policy evidence for the
+  metadata-only external review context.
+- Unit behavior: the packet reuses the shared export unit disclosure helper to
+  record `unit-system:dec-018-si-dual-display`, entered-unit preservation,
+  source model units, result units when an analysis run exists, empty target
+  export units, and
+  `conversion_policy=external_prover_metadata_records_units_without_target_conversion`
+  with `conversion_performed=false`.
+- UI check: `data-testid="external-prover-unit-policy"` exposes source/result
+  unit disclosure, `conversion=false`, the external-prover unit policy, and
+  witness count. The exported metadata JSON carries `unit_policy_evidence`
+  with `external_prover_scope=metadata_only_external_review_context`,
+  `analysis_run_ref`, and the desktop preview external reference.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 398/398 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-15-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: external-prover metadata evidence only. No external solver/prover
+  invocation, target parser, commercial-result ingestion, target writer,
+  conversion API, target compatibility claim, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
