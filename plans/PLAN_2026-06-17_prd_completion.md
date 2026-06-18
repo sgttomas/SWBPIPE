@@ -146,6 +146,13 @@ packet now expose DEC-018 project-unit context, unit-bearing record count, the
 `unit_and_schema_verification` manual section, and
 `conversion_performed=false` without adding release thresholds.
 
+Latest B-tail update: `TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001`
+(SMOKE TP-MAC-220) landed on 2026-06-17. The Missing Data Blocking panel and
+warning packet now expose explicit unit-input policy evidence for unit-bearing
+missing inputs, including DEC-018/DEL-02-02 refs, sorted project units, no
+inferred/default units, no auto-filled missing units, and
+`conversion_performed=false`.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

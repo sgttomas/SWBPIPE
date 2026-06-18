@@ -1255,6 +1255,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(missingData).getByTestId("missing-data-status-separation").textContent).toContain(
       "mechanics_reviewable=false"
     );
+    expect(within(missingData).getByTestId("missing-data-unit-policy").textContent).toContain(
+      "required=true"
+    );
+    expect(within(missingData).getByTestId("missing-data-unit-policy").textContent).toContain(
+      "default_units=false"
+    );
+    expect(within(missingData).getByTestId("missing-data-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(missingData).getByTestId("missing-data-blocking").textContent).toContain("solve=0");
     expect(within(missingData).getByTestId("missing-data-blocking").textContent).toContain("rule=2");
     expect(within(missingData).getByTestId("missing-data-assistive").textContent).toContain(
@@ -1287,6 +1296,17 @@ describe("OpenPipeStress desktop preview", () => {
     expect(missingDataPacket.summary.rule_check_blocked).toBe(true);
     expect(missingDataPacket.summary.mechanics_results_reviewable).toBe(false);
     expect(missingDataPacket.summary.silent_defaults_used).toBe(false);
+    expect(missingDataPacket.unit_input_policy_evidence.evidence_id).toBe(
+      "unit-input-policy-evidence:missing-data-warning-blocking-review"
+    );
+    expect(missingDataPacket.unit_input_policy_evidence.policy_refs).toContain("DEC-018");
+    expect(missingDataPacket.unit_input_policy_evidence.policy_refs).toContain("DEL-02-02");
+    expect(missingDataPacket.unit_input_policy_evidence.unit_bearing_inputs_require_explicit_units).toBe(true);
+    expect(missingDataPacket.unit_input_policy_evidence.unit_warning_remediation_requires_explicit_units).toBe(true);
+    expect(missingDataPacket.unit_input_policy_evidence.default_units_inferred).toBe(false);
+    expect(missingDataPacket.unit_input_policy_evidence.silent_unit_defaults_used).toBe(false);
+    expect(missingDataPacket.unit_input_policy_evidence.conversion_performed).toBe(false);
+    expect(missingDataPacket.unit_input_policy_evidence.model_units.length).toBe("m");
     expect(missingDataPacket.auto_fill_missing_data).toBe(false);
     expect(
       missingDataPacket.class_inventory.map((item: { warning_class: string }) => item.warning_class)

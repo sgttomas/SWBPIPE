@@ -351,6 +351,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   expect(diffPngPixels(before, after)).toBeGreaterThan(100);
 
   await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("required=true");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("default_units=false");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("conversion=false");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");

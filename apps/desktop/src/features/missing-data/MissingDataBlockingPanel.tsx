@@ -71,6 +71,11 @@ export function MissingDataBlockingPanel({
           testId="missing-data-status-separation"
         />
         <MissingDataLine
+          label="Unit input policy"
+          value={`required=${String(packet.unit_input_policy_evidence.unit_bearing_inputs_require_explicit_units)}; default_units=${String(packet.unit_input_policy_evidence.default_units_inferred)}; conversion=${String(packet.unit_input_policy_evidence.conversion_performed)}; model_units=${packet.unit_input_policy_evidence.model_unit_symbols.join(",")}`}
+          testId="missing-data-unit-policy"
+        />
+        <MissingDataLine
           label="Blocking"
           value={`solve=${packet.summary.solve_blocking_count}; rule=${packet.summary.rule_check_blocking_count}; ids=${packet.blocking_summary.blocking_warning_ids.join(",") || "none"}`}
           testId="missing-data-blocking"
@@ -137,6 +142,7 @@ function buildMissingDataBlockingPacket({
   const warnings = buildWarnings({ model, result, diagnostics, statusInputs });
   const blockingWarnings = warnings.filter((warning) => warning.blocks_mechanics_solve || warning.blocks_rule_check);
   const classInventory = warningClassInventory(warnings);
+  const unitInputPolicyEvidence = buildUnitInputPolicyEvidence(model);
   return {
     schema_version: "0.1.0",
     document_kind: "openpipestress.technical_preview.missing_data_warning_blocking_review",
@@ -174,6 +180,7 @@ function buildMissingDataBlockingPacket({
       bundled_code_values_used: false,
       compliance_claim_made: false
     },
+    unit_input_policy_evidence: unitInputPolicyEvidence,
     analysis_boundary_contract: {
       contract_ref: "DEL-02-03",
       authority_model: "mechanics_rule_human_acceptance_separated",
@@ -201,6 +208,27 @@ function buildMissingDataBlockingPacket({
     release_or_professional_claim: false,
     professional_boundary: professionalBoundary(),
     provenance: previewProvenance()
+  };
+}
+
+function buildUnitInputPolicyEvidence(model: PreviewModel) {
+  const modelUnitEntries = Object.entries(model.project.units).sort(([left], [right]) => left.localeCompare(right));
+  return {
+    evidence_id: "unit-input-policy-evidence:missing-data-warning-blocking-review",
+    policy_refs: ["DEC-018", "DEL-02-02", "DEL-07-04"],
+    missing_data_warning_ref: "solve-required-physical-inputs",
+    source_model_ref: model.project.id,
+    model_units: Object.fromEntries(modelUnitEntries),
+    model_unit_symbols: [...new Set(modelUnitEntries.map(([, unit]) => unit))].sort(),
+    unit_bearing_inputs_require_explicit_units: true,
+    unit_warning_remediation_requires_explicit_units: true,
+    default_units_inferred: false,
+    silent_unit_defaults_used: false,
+    auto_fill_missing_units: false,
+    conversion_performed: false,
+    source_value_mutated: false,
+    protected_catalog_used: false,
+    private_payload_included: false
   };
 }
 

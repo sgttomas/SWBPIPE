@@ -1,5 +1,24 @@
 # DEL-07-04 Memory
 
+## 2026-06-17 - TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001 unit-input policy visibility
+
+- WORKING_ITEMS added explicit unit-input policy evidence to the desktop
+  Missing Data Blocking panel and warning JSON packet.
+- The new review row and packet evidence cite DEC-018/DEL-02-02/DEL-07-04,
+  require explicit units for unit-bearing missing inputs, and keep
+  `default_units_inferred=false`, `auto_fill_missing_units=false`, and
+  `conversion_performed=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-220.
+- Validation passed: focused App Vitest 56/56; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no solve behavior, rule-check behavior, lifecycle
+  transition, private/protected data, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-05-08 Type 2 Implementation
 
 Implemented deterministic missing-data warning and blocking UX contract records

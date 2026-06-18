@@ -7221,3 +7221,35 @@ notes:
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-220 missing-data unit-input policy visibility - PASSED (`TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail missing-data/unit-policy slice while C5.7
+  remains human-execution gated. The Missing Data Blocking panel and export
+  packet now expose explicit unit-input policy evidence for unit-bearing
+  missing inputs without changing solve, rule-check, or lifecycle state.
+- Unit behavior: `unit_input_policy_evidence` records DEC-018/DEL-02-02/
+  DEL-07-04 basis refs, sorted project units, explicit-unit requirement for
+  unit-bearing inputs, no inferred/default units, no auto-filled missing
+  units, and `conversion_performed=false`.
+- UI check: `data-testid="missing-data-unit-policy"` reports
+  `required=true`, `default_units=false`, `conversion=false`, and the model
+  unit signature. The focused App test checks the rendered line and exported
+  JSON packet; the focused Playwright smoke checks the same row in desktop
+  and compact browser projects before the mechanics run.
+- Validation:
+  - `npm test --workspace apps/desktop -- --run src/App.test.tsx` passed
+    1/1 file and 56/56 tests.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop -- e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay"`
+    passed 2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-07-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-MISSINGDATAUNITPOLICY-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: missing-data review metadata only. No solver behavior,
+  rule-check behavior, unit conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private payload, lifecycle
+  state transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
