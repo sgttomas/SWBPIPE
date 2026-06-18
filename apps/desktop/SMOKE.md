@@ -7187,3 +7187,37 @@ notes:
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-219 validation-evidence unit-policy visibility - PASSED (`TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail validation-evidence/unit-policy slice while
+  C5.7 remains human-execution gated. The Validation Evidence panel and export
+  packet now expose DEC-018 project-unit context for the manual/evidence
+  inventory without asserting release thresholds.
+- Unit behavior: `unit_policy_evidence` records
+  `unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+  project units, 18 unit-bearing model records, the
+  `unit_and_schema_verification` manual section, and
+  `conversion_performed=false`.
+- UI check: `data-testid="validation-evidence-unit-policy"` reports the model
+  unit signature, record count, manual section, and no-conversion posture. The
+  focused App test checks the rendered line and exported JSON packet; the
+  focused Playwright smoke checks the same row in desktop and compact browser
+  projects.
+- Validation:
+  - `npm test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace"`
+    passed 1/1 focused App test.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts:548` passed
+    2/2 focused Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-09-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: validation-evidence review metadata only. No release threshold,
+  release authorization, persistence behavior, solver behavior, unit
+  conversion API, DEC-018 catalog constant, protected standards content,
+  private payload, lifecycle state transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

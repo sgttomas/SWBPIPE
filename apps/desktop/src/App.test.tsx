@@ -1087,6 +1087,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(validationEvidence).getByTestId("validation-evidence-inventory").textContent).toContain(
       "gui=PLANNED"
     );
+    expect(within(validationEvidence).getByTestId("validation-evidence-unit-policy").textContent).toContain(
+      "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC"
+    );
+    expect(within(validationEvidence).getByTestId("validation-evidence-unit-policy").textContent).toContain(
+      "records=18"
+    );
+    expect(within(validationEvidence).getByTestId("validation-evidence-unit-policy").textContent).toContain(
+      "conversion=false"
+    );
     expect(within(validationEvidence).getByTestId("validation-evidence-release-checks").textContent).toContain(
       "skeleton_checks=2"
     );
@@ -1116,7 +1125,37 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
     expect(validationEvidencePacket.summary.required_release_path_count).toBe(7);
     expect(validationEvidencePacket.summary.skeleton_check_count).toBe(2);
+    expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(18);
     expect(validationEvidencePacket.validation_manual.professional_reliance_outside_software_authority).toBe(true);
+    expect(validationEvidencePacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(validationEvidencePacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(validationEvidencePacket.unit_policy_evidence.validation_evidence_unit_policy).toBe(
+      "validation_evidence_records_project_unit_context_without_conversion_or_release_threshold_claim"
+    );
+    expect(validationEvidencePacket.unit_policy_evidence.model_units).toEqual({
+      angle: "rad",
+      force: "N",
+      length: "m",
+      pressure: "Pa",
+      stress: "MPa",
+      temperature: "degC"
+    });
+    expect(validationEvidencePacket.unit_policy_evidence.unit_bearing_record_count).toBe(18);
+    expect(validationEvidencePacket.unit_policy_evidence.unit_and_schema_manual_section).toBe(
+      "unit_and_schema_verification"
+    );
+    expect(validationEvidencePacket.unit_policy_evidence.conversion_policy).toBe(
+      "validation_evidence_inventory_records_unit_context_without_conversion"
+    );
+    expect(validationEvidencePacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(validationEvidencePacket.unit_policy_evidence.release_gate_threshold_policy).toBe("TBD");
+    expect(validationEvidencePacket.unit_policy_evidence.decision_basis_refs.map((item: { ref: string }) => item.ref)).toEqual([
+      "DEC-018",
+      "DEL-02-02",
+      "DEL-09-05"
+    ]);
     expect(validationEvidencePacket.release_readiness_tool.browser_panel_runs_tool).toBe(false);
     expect(validationEvidencePacket.release_readiness_tool.latest_dag_dependency_edges).toBe(
       "execution/_DAG/DAG-006/DependencyEdges.csv"

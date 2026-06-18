@@ -1,5 +1,23 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-17 - TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-09-05 validation-evidence tranche: the desktop
+  Validation Evidence packet now records DEC-018 project-unit context and
+  no-conversion posture for the release-evidence inventory.
+- The packet preserves entered-unit metadata, counts 18 unit-bearing model
+  records in the invented preview fixture, and keeps
+  `conversion_performed=false`; it does not introduce a unit conversion API,
+  release-threshold decision, or release-readiness claim.
+- Validation passed: focused App Vitest 1/1; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, protected standards content,
+  private data, lifecycle transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-HANDOFFUNITWITNESS-001 supporting unit evidence
 
 - Supporting role for DEL-15-01 handoff tranche: the desktop handoff package

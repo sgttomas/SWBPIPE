@@ -140,6 +140,12 @@ component-symbol placeholder now records
 `unit_validation=not_required_dimensionless`; generic node/pipe-run geometry
 placeholders remain `not_run` until their payloads are specified.
 
+Latest B-tail update: `TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`
+(SMOKE TP-MAC-219) landed on 2026-06-17. The Validation Evidence panel and
+packet now expose DEC-018 project-unit context, unit-bearing record count, the
+`unit_and_schema_verification` manual section, and
+`conversion_performed=false` without adding release thresholds.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

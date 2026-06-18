@@ -708,6 +708,14 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "round_trip=unit_metadata_preserved_in_local_project_envelope"
   );
   await expect(page.getByTestId("project-validation-unit-policy")).toContainText("conversion=false");
+  await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("model=");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("force=N");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("length=m");
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText(
+    "manual=unit_and_schema_verification"
+  );
+  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");

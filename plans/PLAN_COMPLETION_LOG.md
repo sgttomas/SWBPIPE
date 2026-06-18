@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail validation-evidence unit-policy visibility (`TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`)
+
+Landed one bounded Phase B-tail validation-evidence/unit-policy slice while
+C5.7 remains human-execution gated. The DEL-09-05 Validation Evidence panel
+and exported packet now record DEC-018 project-unit context for the
+manual/evidence inventory without asserting release thresholds.
+
+The tranche adds `unit_policy_evidence` with
+`unit-system:dec-018-si-dual-display`, entered-unit preservation, sorted
+project units, 18 unit-bearing model records, the
+`unit_and_schema_verification` manual section,
+`conversion_policy=validation_evidence_inventory_records_unit_context_without_conversion`,
+`conversion_performed=false`, and `release_gate_threshold_policy=TBD`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-219; DEL-09-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1; focused R2 Playwright from-blank
+journey smoke passed 2/2; full desktop Vitest passed 18/18 files and 399/399
+tests; desktop production build passed with the existing Vite large-chunk
+warning. DEC-025 sweep evidence is recorded separately at closeout, not as a
+lifecycle, release, professional, certification, sealing, authentication, or
+code-compliance claim.
+
+Boundary: no release threshold, release authorization, persistence behavior,
+solver behavior, unit-conversion API, DEC-018 catalog constant, protected
+standards content, private payload, lifecycle state transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-17 - B-tail viewport component-symbol unit-validation evidence (`TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`)
 
 Landed one bounded Phase B-tail viewport component-symbol unit-validation

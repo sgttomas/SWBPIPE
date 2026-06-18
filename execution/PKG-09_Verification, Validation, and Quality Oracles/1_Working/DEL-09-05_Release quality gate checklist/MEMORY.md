@@ -11,6 +11,24 @@ revision: 0.5
 
 # MEMORY - DEL-09-05 Release Quality Gate Checklist
 
+## 2026-06-17 - TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001 validation-evidence unit policy
+
+- WORKING_ITEMS added explicit DEC-018 unit-policy evidence to the desktop
+  Validation Evidence panel and exported JSON packet.
+- The packet records project-unit context from the invented preview model,
+  18 unit-bearing model records, the `unit_and_schema_verification` manual
+  section, `release_gate_threshold_policy=TBD`, and
+  `conversion_performed=false`.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-219.
+- Validation passed: focused App Vitest 1/1; focused Playwright 2/2;
+  full desktop Vitest 399/399; desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no release threshold, release authorization, lifecycle
+  state, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## Scope Executed
 
 Implemented the DEL-09-05 documentation/process artifact within the sealed
