@@ -9,6 +9,26 @@ package_id: PKG-16
 
 # DEL-16-03 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-08-05 Report Content Lint inventory tranche: the
+  desktop report-lint public-surface inventory now includes the Apply
+  Operations unit-policy evidence surface (`operation-apply-unit-policy`).
+- This records the existing queued-operation and applied-receipt unit-policy
+  context without changing operation application, acceptance semantics,
+  durable audit persistence, receipt schema, operation validation, or
+  operation-ledger packet semantics.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no operation application, acceptance semantics, durable
+  audit persistence, receipt schema, unit-conversion API, DEC-018 catalog
+  constant, schema dimension enum, protected standards content, private data,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-OPLEDGERLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-08-05 Report Content Lint inventory tranche: the

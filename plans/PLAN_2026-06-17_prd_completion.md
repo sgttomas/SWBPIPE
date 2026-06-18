@@ -319,14 +319,14 @@ adapter-framework packet semantics, concrete external formats, public
 transport, plugin/runtime policy, linter semantics, or unit conversion
 behavior.
 
-Latest B-tail update: `TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001`
-(SMOKE TP-MAC-246) landed on 2026-06-18. The Report Content Lint inventory
-now includes the Design Knowledge public computed-unit context surface
-(`knowledge-unit-context`), raising public unit-policy targets to 29 while
-keeping target-format conversion witnesses at two. This records the existing
-computed result-unit context without changing design-knowledge schema,
-provenance model, result values, solver behavior, linter semantics, or unit
-conversion behavior.
+Latest B-tail update: `TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001`
+(SMOKE TP-MAC-247) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Apply Operations public unit-policy surface
+(`operation-apply-unit-policy`), raising public unit-policy targets to 30
+while keeping target-format conversion witnesses at two. This records the
+existing queued-operation and receipt unit-policy context without changing
+operation application, acceptance semantics, receipt schema, linter semantics,
+or unit conversion behavior.
 
 ### Phase D - R4: piping components and nonlinear supports (solver depth)
 

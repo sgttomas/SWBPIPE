@@ -132,6 +132,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
           "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+          "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
           "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
           "apps/desktop/src/features/viewport/PipeViewport.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
@@ -219,6 +220,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "operation-diff-unit-witnesses",
     "none",
     "operation diff preview unit preservation witnesses"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
+    "operation-apply-unit-policy",
+    "none",
+    "apply-operations queued and receipt unit-policy evidence"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
@@ -486,6 +493,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Operation diff preview template records local review-only operation diffs, declared change units and dimensions, unit preservation witnesses, accepted state mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-operation-apply-template",
+      "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Apply Operations template records queued structured operations, unit-validation outcomes, session-local applied receipts, receipt unit-serialization policy, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-operation-ledger-template",

@@ -1,5 +1,27 @@
 # MEMORY - DEL-08-05 Report Protected-Content Linter
 
+## 2026-06-18 - TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001 primary report-lint inventory evidence
+
+- Primary role for Phase B-tail Apply Operations report-lint inventory: the
+  Report Content Lint public unit-policy inventory now includes
+  `apps/desktop/src/features/operations/OperationApplyPanel.tsx`.
+- `data-testid="report-lint-unit-policy"` now reports 30 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The exported lint packet includes the Apply Operations target ref with
+  `unit_policy_surface_id=operation-apply-unit-policy`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no operation application, acceptance semantics, durable
+  audit persistence, receipt schema, operation validation, report-linter
+  protected-content semantics, legal clearance, redaction controls, target
+  writer compatibility, unit-conversion API, DEC-018 catalog constant, schema
+  dimension enum, protected standards content, private data, lifecycle
+  transition, release-readiness claim, professional approval, certification,
+  sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001 primary report-lint inventory evidence
 
 - Primary role for Phase B-tail Design Knowledge report-lint inventory: the

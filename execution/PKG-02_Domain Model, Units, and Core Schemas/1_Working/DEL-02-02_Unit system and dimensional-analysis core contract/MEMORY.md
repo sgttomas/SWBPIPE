@@ -1,5 +1,28 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-OPAPPLYLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Apply Operations unit-policy
+  surface.
+- The lint inventory records `operation-apply-unit-policy` as an existing
+  unit-policy surface and reports `unit_targets=30`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The Apply
+  Operations panel continues to surface queued unit-bearing/dimensionless
+  operation counts, validation statuses, receipt unit-serialization policy,
+  and `conversion=false`.
+- Validation passed: focused App Vitest workspace-render and local project
+  round-trip selected tests, focused R2 Playwright smoke 2/2 configured
+  project tests, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, operation application, acceptance
+  semantics, durable audit persistence, receipt schema, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-KNOWLEDGELINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report
