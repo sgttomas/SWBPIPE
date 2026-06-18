@@ -137,6 +137,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
           "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+          "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
           "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
           "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
           "apps/desktop/src/features/solve/SolvePanel.tsx",
@@ -248,6 +249,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "design-workspace-units",
     "none",
     "design workspace result/comparison unit disclosure"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+    "knowledge-unit-context",
+    "none",
+    "design knowledge computed-unit context"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
@@ -514,6 +521,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Design workspace template records DEL-07-08 design knowledge, constraint warning, state/run, comparison, overlay, and operation-diff review metadata, accepted model mutation false, private payload false, protected payload false, and no acceptance, release, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-design-knowledge-template",
+      "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Design knowledge template records local invented knowledge records, computed preview result unit context, provenance and review metadata, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-validation-evidence-template",
