@@ -6861,8 +6861,8 @@ notes:
   intents: browser preview records
   `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
   desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
-  statuses from the same helper. Generic one-click viewport gesture placeholders
-  remain `unit_validation=not_run` because they are still underspecified.
+  statuses from the same helper. Generic one-click viewport gesture
+  placeholders were later covered by TP-MAC-225.
 - UI check: `data-testid="viewport-intent-unit-validation-create_node"` and
   `data-testid="viewport-intent-unit-validation-connect_pipe_run"` expose the
   queued validation status before the operation is applied. The A12 from-blank
@@ -7162,15 +7162,13 @@ notes:
   `insert_component_symbol` placeholder now records unit validation as
   `not_required_dimensionless`.
 - Unit behavior: the component-symbol placeholder introduces no unit-bearing
-  numeric quantity. Generic `create_node` and `connect_pipe_run` placeholders
-  remain `unit_validation=not_run` because they are intentionally
-  underspecified geometry gestures; explicit viewport node/pipe authoring
-  paths already carry length unit-validation evidence.
+  numeric quantity. Explicit viewport node/pipe authoring paths already carry
+  length unit-validation evidence; generic node/pipe placeholders were later
+  covered by TP-MAC-225.
 - UI check: `data-testid="viewport-intent-unit-validation-insert_component_symbol"`
   exposes `unit_validation=not_required_dimensionless`. The focused App test
-  checks the component-symbol status while preserving node/pipe placeholder
-  `not_run`, and Playwright R2/R3 smoke checks the browser row in desktop and
-  compact viewports.
+  checks the component-symbol status, and Playwright R2/R3 smoke checks the
+  browser row in desktop and compact viewports.
 - Validation:
   - `npm test --workspace apps/desktop -- src/App.test.tsx -t "viewport editor intents"`
     passed 1/1 focused App test.
@@ -7188,6 +7186,49 @@ notes:
   unit-conversion API, DEC-018 catalog constant, protected standards content,
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## TP-MAC-225 viewport placeholder unit-validation evidence - PASSED (`TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail viewport placeholder/unit-validation slice while
+  C5.7 remains human-execution gated. The generic one-click `create_node` and
+  `connect_pipe_run` viewport gesture placeholders now record length
+  unit-dimension validation evidence instead of `unit_validation=not_run`.
+- Unit behavior: node and pipe placeholders keep the review-only
+  `pending_service_validation` and no-mutation posture, but their intent
+  metadata now carries `unit=m`, `dimension=length`, and
+  `unit_validation=length=<status>`. Browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes can record DEC-018 accepted/mismatch/loading/unreviewed
+  statuses from the same helper. The component-symbol placeholder remains
+  `not_required_dimensionless`.
+- UI check: the focused App test verifies node, pipe, and component placeholder
+  statuses after the unit route is loaded. The focused Playwright smoke checks
+  the same three placeholders in desktop and compact browser projects.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "records viewport editor intents without direct persisted-project mutation"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "viewport gesture placeholders record unit validation"`
+    passed 2/2 focused Playwright tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - After the DEC-025 sweep exposed a timing-sensitive viewport animation
+    sample in the broad R2 smoke, `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 with the polling assertion.
+- Command note: an earlier full Playwright run without `--workers=1` printed
+  all 18 passing tests but did not exit promptly; it was interrupted and is
+  not counted as validation evidence.
+- Evidence: DEL-07-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: viewport placeholder metadata only. No accepted model-state
+  mutation, operation-applier validation semantics, solver behavior, component
+  schema, unit conversion API, DEC-018 catalog constant, protected standards
+  content, private payload, lifecycle state transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
 
 ## TP-MAC-219 validation-evidence unit-policy visibility - PASSED (`TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`, 2026-06-17)

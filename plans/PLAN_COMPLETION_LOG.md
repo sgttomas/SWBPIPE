@@ -14,6 +14,47 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail viewport placeholder unit validation (`TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`)
+
+Landed one bounded Phase B-tail viewport placeholder unit-validation slice
+while C5.7 remains human-execution gated. The DEL-07-01 one-click viewport
+gesture placeholders for `create_node` and `connect_pipe_run` now record
+length unit-dimension validation evidence instead of `unit_validation=not_run`.
+
+The tranche preserves review-only `pending_service_validation`, direct model
+mutation disallowance, and service-validation requirements. It changes the
+placeholder intent metadata to carry `unit=m`, `dimension=length`, and
+`unit_validation=length=<status>` through the same unit route used by explicit
+viewport geometry. Browser preview records
+`length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`.
+The component-symbol placeholder remains `not_required_dimensionless`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-225; DEL-07-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 1/1 selected test; focused Playwright
+passed 2/2 tests; full desktop Vitest passed 18/18 files and 399/399 tests;
+single-worker R2/R3 Playwright smoke passed 18/18 tests; desktop production
+build passed with the existing Vite large-chunk warning. A DEC-025 sweep
+attempt exposed a timing-sensitive broad-smoke viewport animation sample; the
+R2 desktop preview smoke passed 1/1 after replacing the single sample with a
+bounded polling assertion. One exploratory full Playwright run without
+`--workers=1` printed all 18 passing tests but was interrupted after a delayed
+exit and is not counted as validation evidence.
+DEC-025 sweep evidence is recorded separately at closeout, not as a lifecycle,
+release, professional, certification, sealing, authentication, or
+code-compliance claim.
+
+Boundary: no accepted model-state mutation, operation-applier validation
+semantics, solver behavior, component schema, unit-conversion API, DEC-018
+catalog constant, schema dimension enum, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-17 - B-tail diagnostic linked-result unit context (`TP-UNITS-BTAIL-DIAGNOSTICUNITS-001`)
 
 Landed one bounded Phase B-tail diagnostic review-surface slice while C5.7
@@ -210,10 +251,10 @@ slice while C5.7 remains human-execution gated. The reference-only viewport
 `insert_component_symbol` placeholder now records
 `unit_validation=not_required_dimensionless`.
 
-The tranche preserves the prior geometry boundary: generic `create_node` and
-`connect_pipe_run` placeholders remain `unit_validation=not_run` because they
-are still underspecified geometry gestures. Explicit viewport node and pipe
-authoring paths already carry length unit-validation evidence.
+The tranche preserved the prior geometry boundary at the time: explicit
+viewport node and pipe authoring paths already carried length unit-validation
+evidence. Generic `create_node` and `connect_pipe_run` placeholders were later
+covered by TP-MAC-225.
 
 Evidence: `apps/desktop/SMOKE.md` TP-MAC-218; DEL-07-01 primary run record
 `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`;
@@ -515,8 +556,7 @@ by the viewport forms. Browser preview records
 `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
 desktop/Tauri routes can record DEC-018 accepted, mismatch, loading, or
 unreviewed statuses through the same shared helper. Generic one-click viewport
-gesture placeholders remain `unit_validation=not_run` because they still lack
-explicit geometry/unit payloads and are intentionally blocked at apply.
+gesture placeholders were later covered by TP-MAC-225.
 
 Evidence: `apps/desktop/SMOKE.md` TP-MAC-209; DEL-07-01 primary run record
 `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`;

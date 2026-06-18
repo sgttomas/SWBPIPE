@@ -137,8 +137,8 @@ load-case and combination operation previews now record
 Latest B-tail update: `TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001`
 (SMOKE TP-MAC-218) landed on 2026-06-17. The reference-only viewport
 component-symbol placeholder now records
-`unit_validation=not_required_dimensionless`; generic node/pipe-run geometry
-placeholders remain `not_run` until their payloads are specified.
+`unit_validation=not_required_dimensionless`; generic node/pipe-run
+placeholders were later covered by `TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`.
 
 Latest B-tail update: `TP-UNITS-BTAIL-VALIDATIONEVIDUNITS-001`
 (SMOKE TP-MAC-219) landed on 2026-06-17. The Validation Evidence panel and
@@ -176,6 +176,12 @@ Latest B-tail update: `TP-UNITS-BTAIL-DIAGNOSTICUNITS-001`
 exposes linked-result unit context for selected diagnostics, including linked
 result count, first-class result unit symbols, `source=result_envelope`, and
 `conversion=false`.
+
+Latest B-tail update: `TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001`
+(SMOKE TP-MAC-225) landed on 2026-06-17. Generic viewport `create_node` and
+`connect_pipe_run` gesture placeholders now record length unit-dimension
+validation status while preserving review-only service-validation/no-mutation
+behavior; component-symbol remains `not_required_dimensionless`.
 
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 

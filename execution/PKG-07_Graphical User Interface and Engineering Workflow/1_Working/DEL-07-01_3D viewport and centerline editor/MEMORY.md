@@ -358,9 +358,8 @@ Durable context preserved after reconciliation review:
   `length=<unit-dimension-validation-status>` in
   `validation.unit_validation` instead of `not_run`; browser preview records
   `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`.
-- Generic one-click viewport gesture placeholders remain `unit_validation=not_run`
-  because they are intentionally underspecified and still block rather than
-  inventing geometry.
+- Generic one-click viewport gesture placeholders were later covered by
+  TP-MAC-225.
 - Evidence is recorded in
   `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTGEOMUNITS-001.md`
   and `apps/desktop/SMOKE.md` TP-MAC-209. Focused validation passed:
@@ -379,10 +378,9 @@ Durable context preserved after reconciliation review:
 - WORKING_ITEMS app-integration tranche classified the reference-only
   viewport `insert_component_symbol` placeholder as
   `unit_validation=not_required_dimensionless`.
-- Generic `create_node` and `connect_pipe_run` placeholder gestures remain
-  `unit_validation=not_run` because they are still underspecified geometry
-  gestures; explicit create-node and connect-pipe authoring paths already
-  carry length unit-validation evidence.
+- Generic `create_node` and `connect_pipe_run` placeholder gestures were
+  later covered by TP-MAC-225; explicit create-node and connect-pipe authoring
+  paths already carry length unit-validation evidence.
 - Evidence is recorded in
   `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTCOMPUNITVALID-001.md`
   and `apps/desktop/SMOKE.md` TP-MAC-218. Focused validation passed:
@@ -395,3 +393,30 @@ Durable context preserved after reconciliation review:
   certification, sealing, authentication, code-compliance claim, protected
   standards data, private project data, network path, telemetry path, unit
   conversion API, operation application behavior, or DAG authority changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001 viewport placeholder unit-validation evidence
+
+- WORKING_ITEMS Phase B-tail tranche threaded the existing viewport unit
+  route and model default length unit into generic one-click viewport gesture
+  placeholders.
+- Generic `create_node` and `connect_pipe_run` placeholders now record
+  `unit=m`, `dimension=length`, and `unit_validation=length=<status>`
+  instead of `unit_validation=not_run`. Browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`.
+- The placeholders remain review-only `pending_service_validation` intents;
+  they still do not mutate accepted model state and still require structured
+  application-service validation before durable model changes.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`
+  and `apps/desktop/SMOKE.md` TP-MAC-225; supporting DEL-02-02 run record
+  and completion log entry are present.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright placeholder smoke 2/2, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no accepted model-state mutation, operation-applier
+  validation semantics, solver behavior, component schema, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -1075,8 +1075,8 @@ Boundary note:
   catalog routes can record accepted DEC-018 dimension matches, mismatches,
   unreviewed statuses, or loading/catalog-unavailable statuses from the same
   shared helper.
-- Generic one-click viewport gesture placeholders remain `not_run` because
-  they do not yet carry explicit geometry/unit payloads.
+- Generic one-click viewport gesture placeholders were later covered by
+  TP-MAC-225.
 - Validation passed: focused App Vitest 55/55 and focused R2/R3 Playwright
   smoke file 14/14; full desktop Vitest 18/18 files and 398/398 tests; and
   desktop production build with the existing Vite large-chunk warning.
@@ -1298,3 +1298,31 @@ Boundary note:
   result value, protected standards content, private data, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-07-01 viewport placeholder tranche: generic
+  viewport `create_node` and `connect_pipe_run` placeholders now declare
+  length unit metadata and unit-validation status instead of
+  `unit_validation=not_run`.
+- Browser preview records
+  `length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri routes use the same DEC-018 catalog helper as explicit
+  viewport geometry. No unit conversion path or hidden normalization behavior
+  was added.
+- The `insert_component_symbol` placeholder remains explicitly
+  non-unit-bearing with `unit_validation=not_required_dimensionless`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-VIEWPORTPLACEHOLDERUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-225; completion log entry; primary
+  DEL-07-01 run record.
+- Validation passed: focused App Vitest 1/1 selected test, focused
+  Playwright placeholder smoke 2/2, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, accepted model-state mutation,
+  operation-applier validation semantics, solver behavior, protected
+  standards content, private data, lifecycle transition, release-readiness
+  claim, professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

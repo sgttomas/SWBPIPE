@@ -200,7 +200,13 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   }, [model, selection, deformation]);
 
   function addIntent(commandType: ViewportCommandType) {
-    const intent = buildIntent(model, commandType, queuedIntents.length + localIntents.length + 1);
+    const intent = buildIntent(
+      model,
+      commandType,
+      queuedIntents.length + localIntents.length + 1,
+      unitCatalogRoute,
+      defaultLengthUnit
+    );
     queueIntent(intent);
   }
 
@@ -902,12 +908,19 @@ function shortEntityToken(value: string): string {
   return parts[parts.length - 1] || value;
 }
 
-function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequence: number): EditorOperationIntent {
+function buildIntent(
+  model: PreviewModel,
+  commandType: ViewportCommandType,
+  sequence: number,
+  unitCatalogRoute: UnitCatalogRoute | null,
+  defaultLengthUnit: string
+): EditorOperationIntent {
   const operationToken = `${safeToken(commandType)}-${sequence.toString().padStart(3, "0")}`;
   const nodeRefs = model.nodes.slice(0, 2).map((node) => node.id);
   const firstComponent = model.components[0]?.id ?? "TBD";
+  const lengthUnit = defaultLengthUnit.trim() || "TBD";
   const target = viewportTarget(commandType, nodeRefs, firstComponent);
-  const change = viewportChange(commandType, target.ref, nodeRefs, firstComponent);
+  const change = viewportChange(commandType, target.ref, nodeRefs, firstComponent, lengthUnit);
 
   return {
     operation_id: `op:viewport-intent-${operationToken}`,
@@ -924,7 +937,7 @@ function buildIntent(model: PreviewModel, commandType: ViewportCommandType, sequ
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: viewportCommandUnitValidationStatus(commandType),
+      unit_validation: viewportCommandUnitValidationStatus(commandType, unitCatalogRoute, lengthUnit),
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -1100,9 +1113,13 @@ function viewportOperationKind(commandType: ViewportCommandType): EditorOperatio
   return "insert";
 }
 
-function viewportCommandUnitValidationStatus(commandType: ViewportCommandType): string {
+function viewportCommandUnitValidationStatus(
+  commandType: ViewportCommandType,
+  unitCatalogRoute: UnitCatalogRoute | null,
+  lengthUnit: string
+): string {
   if (commandType === "insert_component_symbol") return VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS;
-  return "not_run";
+  return `length=${unitDimensionValidationStatus(unitCatalogRoute, lengthUnit, "length")}`;
 }
 
 function viewportTarget(commandType: ViewportCommandType, nodeRefs: string[], firstComponent: string): EditorOperationIntent["target"] {
@@ -1119,8 +1136,10 @@ function viewportChange(
   commandType: ViewportCommandType,
   targetRef: string,
   nodeRefs: string[],
-  firstComponent: string
+  firstComponent: string,
+  lengthUnit: string
 ): EditorOperationIntent["change"] {
+  const isLengthBearing = commandType !== "insert_component_symbol";
   const after =
     commandType === "connect_pipe_run"
       ? nodeRefs.join(" -> ")
@@ -1134,9 +1153,11 @@ function viewportChange(
     field_path: `viewport.${commandType}`,
     before: "not_present",
     after,
-    unit: "none",
-    dimension: "dimensionless",
-    source_note: "viewport editor gesture review intent; pending_service_validation"
+    unit: isLengthBearing ? lengthUnit : "none",
+    dimension: isLengthBearing ? "length" : "dimensionless",
+    source_note: isLengthBearing
+      ? "viewport editor gesture review intent; length unit must be service-validated; pending_service_validation"
+      : "viewport editor gesture review intent; pending_service_validation"
   };
 }
 

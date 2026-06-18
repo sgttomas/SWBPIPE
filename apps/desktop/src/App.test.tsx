@@ -1983,6 +1983,9 @@ describe("OpenPipeStress desktop preview", () => {
     render(<App />);
 
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
+    expect(await screen.findByTestId("viewport-unit-catalog-status")).toHaveTextContent(
+      "browser preview uses model metadata"
+    );
     const intentPanel = screen.getByLabelText("Viewport editor intents");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
 
@@ -2000,7 +2003,9 @@ describe("OpenPipeStress desktop preview", () => {
 
     for (const intent of [nodeIntent, pipeIntent]) {
       expect(intent.textContent).toContain("pending_service_validation");
-      expect(intent.textContent).toContain("unit_validation=not_run");
+      expect(intent.textContent).toContain(
+        "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+      );
       expect(intent.textContent).toContain("does_not_mutate_persisted_project_payload");
     }
     expect(componentIntent.textContent).toContain("pending_service_validation");

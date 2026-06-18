@@ -345,10 +345,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "false");
 
   const before = await canvas.screenshot();
-  await page.waitForTimeout(700);
-  const after = await canvas.screenshot();
   expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
-  expect(diffPngPixels(before, after)).toBeGreaterThan(100);
+  await expect
+    .poll(
+      async () => {
+        await page.waitForTimeout(500);
+        return diffPngPixels(before, await canvas.screenshot());
+      },
+      { timeout: 5000 }
+    )
+    .toBeGreaterThan(100);
 
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("missing-data-unit-policy")).toContainText("required=true");
@@ -547,14 +553,23 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
 });
 
-test("viewport component-symbol placeholder records dimensionless unit validation", async ({ page }) => {
+test("viewport gesture placeholders record unit validation", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await expect(page.getByTestId("operation-engine-status")).toContainText(
     "engine_route=local_wasm_engine; engine_state=ready"
   );
+  await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
+  await page.getByRole("button", { name: "Node intent" }).click();
+  await page.getByRole("button", { name: "Pipe-run intent" }).click();
   await page.getByRole("button", { name: "Component intent" }).click();
+  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await expect(page.getByTestId("viewport-intent-unit-validation-insert_component_symbol")).toContainText(
     "unit_validation=not_required_dimensionless"
   );
