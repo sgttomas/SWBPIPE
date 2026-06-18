@@ -6942,3 +6942,40 @@ notes:
   private payload, lifecycle state transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-212 comparison workspace unit policy evidence - PASSED (`TP-UNITS-BTAIL-COMPARISONGUIUNITS-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail comparison-workspace/unit-evidence slice while
+  C5.7 remains human-execution gated. The desktop comparison packet now
+  records explicit unit-policy evidence for mapped result deltas, and the
+  comparison panel exposes that policy beside the tolerance boundary.
+- Unit behavior: comparison matching already required equal explicit result
+  units before producing a delta. This tranche records that invariant as
+  `unit_policy_evidence`, with
+  `comparison_unit_policy=compare_only_rows_with_equal_explicit_result_units`,
+  `conversion_policy=comparison_workspace_preserves_result_units_without_conversion`,
+  matched result units, unmatched row counts, `conversion_performed=false`,
+  and `tolerance_profile_ref=TBD`.
+- UI check: `data-testid="comparison-unit-policy"` exposes matched result
+  units, `matching=equal_explicit_units`, `conversion=false`, and
+  `tolerance=not_tolerance_checked`. The focused App test checks both the
+  packet-level evidence and the rendered row; R2/R3 Playwright smoke checks
+  the visible row in a real browser.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 56/56 tests.
+  - `npm run test:e2e --workspace apps/desktop -- r2-smoke.spec.ts` passed
+    14/14 Playwright tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `git diff --check` passed.
+- Evidence: DEL-14-04 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPARISONGUIUNITS-001.md`;
+  DEL-14-05 and DEL-02-02 supporting run records with the same id;
+  completion log entry.
+- Boundary: comparison workspace evidence only. No comparison delta math,
+  tolerance profile, default tolerance, solver convergence policy, external
+  validation decision, conversion API, protected standards content, private
+  payload, lifecycle state transition, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

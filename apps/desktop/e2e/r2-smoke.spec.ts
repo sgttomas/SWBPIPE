@@ -385,6 +385,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("result-row-result:force:pipe-P-120:axial").click();
   await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
   await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
+  await expect(page.getByTestId("comparison-unit-policy")).toContainText("units=MPa,N,N*m,mm,rad");
+  await expect(page.getByTestId("comparison-unit-policy")).toContainText("conversion=false");
+  await expect(page.getByTestId("comparison-unit-policy")).toContainText("tolerance=not_tolerance_checked");
 
   await openWorkspaceSection(page, "report");
   const report = page.getByLabel("Report packet");

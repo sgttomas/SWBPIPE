@@ -93,3 +93,21 @@ Durable context preserved after reconciliation review:
   No default tolerance, external validation decision, release threshold,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPARISONGUIUNITS-001 supporting comparison-policy evidence
+
+- Supporting role for DEL-14-04 comparison workspace tranche: the desktop
+  comparison packet now records unit-policy evidence aligned with the
+  comparison mapping and tolerance contract boundary.
+- The packet records DEC-018/DEC-026/DEL-14-05 basis refs, equal-explicit-unit
+  matching policy, matched result units, unmatched row counts,
+  `conversion_performed=false`, and `tolerance_profile_ref=TBD`.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no schema change, governed tolerance value, default
+  tolerance, external validation decision, comparison pass/fail claim,
+  release threshold, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

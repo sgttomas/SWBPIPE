@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 import { App } from "./App";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { buildDeformationOverlay, PipeViewport } from "./features/viewport/PipeViewport";
-import { loadPreviewModel } from "./services/previewService";
+import {
+  buildAnalysisRunPreview,
+  buildPreviewComparison,
+  loadPreviewModel,
+  runPreviewMechanics
+} from "./services/previewService";
 import type { EditorOperationIntent, MechanicsResult } from "./types";
 
 function deformationResultRows(results: MechanicsResult["results"]): MechanicsResult {
@@ -58,6 +63,34 @@ function displacementComponentRows(
 }
 
 describe("OpenPipeStress desktop preview", () => {
+  it("records comparison workspace unit policy evidence without conversion", async () => {
+    const model = await loadPreviewModel();
+    const result = await runPreviewMechanics(model);
+    const analysisRun = await buildAnalysisRunPreview(result);
+    const comparisonPacket = buildPreviewComparison({ result, analysisRun });
+
+    expect(comparisonPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display"
+    );
+    expect(comparisonPacket.unit_policy_evidence.storage_convention).toBe("entered_units_preserved");
+    expect(comparisonPacket.unit_policy_evidence.comparison_unit_policy).toBe(
+      "compare_only_rows_with_equal_explicit_result_units"
+    );
+    expect(comparisonPacket.unit_policy_evidence.conversion_policy).toBe(
+      "comparison_workspace_preserves_result_units_without_conversion"
+    );
+    expect(comparisonPacket.unit_policy_evidence.conversion_performed).toBe(false);
+    expect(comparisonPacket.unit_policy_evidence.matched_result_units).toEqual(["MPa", "N", "N*m", "mm", "rad"]);
+    expect(comparisonPacket.unit_policy_evidence.unmatched_left_result_count).toBe(4);
+    expect(comparisonPacket.unit_policy_evidence.unmatched_right_result_count).toBe(0);
+    expect(comparisonPacket.unit_policy_evidence.tolerance_profile_ref).toBe("TBD");
+    expect(comparisonPacket.unit_policy_evidence.decision_basis_refs.map((item) => item.ref)).toEqual([
+      "DEC-018",
+      "DEC-026",
+      "DEL-14-05"
+    ]);
+  });
+
   it("presents the C5 guided workbench shell with reachable detail views", async () => {
     render(<App />);
 
@@ -5878,6 +5911,13 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(comparison).getByTestId("comparison-tolerance-status").textContent).toContain(
       "not_tolerance_checked"
     );
+    expect(within(comparison).getByTestId("comparison-unit-policy").textContent).toContain(
+      "units=MPa,N,N*m,mm,rad"
+    );
+    expect(within(comparison).getByTestId("comparison-unit-policy").textContent).toContain(
+      "matching=equal_explicit_units"
+    );
+    expect(within(comparison).getByTestId("comparison-unit-policy").textContent).toContain("conversion=false");
     expect(within(comparison).getByTestId("comparison-mapping-basis").textContent).toContain("source_result_refs");
     expect(within(comparison).getByTestId("comparison-boundary").textContent).toContain(
       "no compliance, certification, sealing, authentication, or approval claim"

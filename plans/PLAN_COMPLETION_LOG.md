@@ -14,6 +14,39 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail comparison workspace unit policy evidence (`TP-UNITS-BTAIL-COMPARISONGUIUNITS-001`)
+
+Landed one bounded Phase B-tail comparison-workspace/unit-evidence slice while
+C5.7 remains human-execution gated. The desktop comparison packet now records
+explicit unit-policy evidence for mapped result deltas, and the comparison
+panel exposes that policy beside the tolerance boundary.
+
+The tranche records the existing invariant that comparison rows are mapped
+only when stable result references match and the left/right result units are
+equal. The packet now carries `unit_policy_evidence` with DEC-018/DEC-026/
+DEL-14-05 basis refs, matched result units, unmatched row counts,
+`conversion_policy=comparison_workspace_preserves_result_units_without_conversion`,
+`conversion_performed=false`, and `tolerance_profile_ref=TBD`. No delta math,
+tolerance profile, or classification behavior changed.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-212; DEL-14-04 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-COMPARISONGUIUNITS-001.md`;
+DEL-14-05 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest passed 56/56; focused R2/R3 Playwright smoke
+file passed 14/14; full desktop Vitest passed 18/18 files and 399/399 tests;
+desktop production build passed with the existing Vite large-chunk warning;
+`git diff --check` passed. DEC-025 sweep evidence is recorded separately at
+closeout, not as a lifecycle, release, professional, certification, sealing,
+authentication, or code-compliance claim.
+
+Boundary: comparison workspace evidence only. No comparison delta math,
+tolerance profile, default tolerance, solver convergence policy, external
+validation decision, conversion API, protected standards content, private
+payload, lifecycle state transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
 ## 2026-06-17 - B-tail external-prover unit policy evidence (`TP-UNITS-BTAIL-EXTERNALPROVERUNITS-001`)
 
 Landed one bounded Phase B-tail target-format/unit-evidence slice while C5.7

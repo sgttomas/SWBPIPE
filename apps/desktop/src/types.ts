@@ -315,9 +315,28 @@ export type PreviewComparison = {
     tolerance_status: "not_tolerance_checked";
     tolerance_profile_ref: "TBD";
   };
+  unit_policy_evidence: ComparisonUnitPolicyEvidence;
   result_deltas: ComparisonDelta[];
   diagnostics: Diagnostic[];
   professional_boundary: Record<string, boolean>;
+};
+
+export type ComparisonUnitPolicyEvidence = {
+  evidence_id: string;
+  unit_system_ref: ObjectRef;
+  storage_convention: "entered_units_preserved";
+  comparison_unit_policy: string;
+  matching_policy: string;
+  matched_result_units: string[];
+  unmatched_left_result_count: number;
+  unmatched_right_result_count: number;
+  conversion_policy: string;
+  conversion_performed: false;
+  tolerance_profile_ref: "TBD";
+  tolerance_status: "not_tolerance_checked";
+  decision_basis_refs: ObjectRef[];
+  protected_content_included: false;
+  private_payload_included: false;
 };
 
 export type ComparisonParticipant = {

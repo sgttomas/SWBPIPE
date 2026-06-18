@@ -1040,3 +1040,23 @@ Boundary note:
   parser, commercial-result ingestion, protected standards content, private
   data, lifecycle transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPARISONGUIUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-14-04 comparison workspace tranche: the desktop
+  comparison packet now records explicit unit-policy evidence for mapped
+  result deltas.
+- The packet records equal-explicit-unit matching, matched result units,
+  unmatched row counts, `conversion_performed=false`, and DEC-018/DEC-026/
+  DEL-14-05 basis refs. It preserves source result units and does not
+  introduce any conversion API or hidden normalization path.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, comparison delta math, default
+  tolerance, solver convergence policy, protected standards content, private
+  data, lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

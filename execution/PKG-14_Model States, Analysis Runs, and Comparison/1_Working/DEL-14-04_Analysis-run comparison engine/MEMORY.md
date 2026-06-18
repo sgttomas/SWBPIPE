@@ -113,3 +113,24 @@ Durable context preserved after reconciliation review:
   validation decision, protected standards content, private payload, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPARISONGUIUNITS-001 primary evidence
+
+- Primary role for comparison workspace/unit-evidence tranche: the desktop
+  preview comparison packet now carries `unit_policy_evidence` for mapped
+  result deltas, and the Comparison panel exposes the policy in
+  `comparison-unit-policy`.
+- The packet records that comparison deltas are produced only after stable
+  result references match and left/right result units are equal. It records
+  matched result units, unmatched row counts, DEC-018/DEC-026/DEL-14-05 basis
+  refs, `conversion_performed=false`, and `tolerance_profile_ref=TBD`.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no comparison delta math, tolerance profile, default
+  tolerance, solver convergence policy, external validation decision,
+  protected standards content, private payload, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
