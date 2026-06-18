@@ -7887,3 +7887,42 @@ notes:
   dimension enum, protected standards content, private payload, lifecycle
   state transition, release-readiness claim, professional approval,
   certification, sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-238 operation-diff report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Operation Diff Preview panel already
+  exposes DEC-018 `unit_system_disclosure` and per-change unit preservation
+  witnesses; the report-lint public inventory now records that public
+  unit-witness surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx` in its
+  explicit public target roots and target list, and adds
+  `operation-diff-unit-witnesses` to `unit_policy_evidence.target_refs`. The
+  visible lint row reports `unit_targets=21`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`.
+- Validation:
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- src/App.test.tsx -t "carries queued editor intents into the report packet as review-only operation context"`
+    passed 1/1 selected test.
+  - `npx playwright test e2e/r2-smoke.spec.ts -g "R2 desktop preview smoke covers solve, results, report, and viewport overlay" --project=chromium-desktop`
+    passed 1/1 focused Chromium desktop test.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and 399/399
+    tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npx playwright test e2e/r2-smoke.spec.ts --workers=1` passed 18/18
+    tests.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001.md`;
+  DEL-16-02 and DEL-02-02 supporting run records with the same id; completion
+  log entry.
+- Boundary: report-lint inventory over existing Operation Diff Preview
+  unit-witness evidence only. No diff-preview packet semantics, operation
+  validation, operation application, accepted-model mutation behavior,
+  report-linter protected-content semantics, legal clearance,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

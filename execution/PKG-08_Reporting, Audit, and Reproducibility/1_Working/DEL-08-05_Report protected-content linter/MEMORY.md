@@ -1,5 +1,25 @@
 # MEMORY - DEL-08-05 Report Protected-Content Linter
 
+## 2026-06-18 - TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001 primary report-lint inventory evidence
+
+- Primary role for Phase B-tail Operation Diff Preview report-lint inventory:
+  the Report Content Lint public unit-policy inventory now includes
+  `apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx`.
+- `data-testid="report-lint-unit-policy"` now reports 21 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+  The exported lint packet includes the diff-preview target ref with
+  `unit_policy_surface_id=operation-diff-unit-witnesses`.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  selected tests, focused Chromium desktop R2 smoke, full desktop Vitest
+  399/399, desktop production build with the existing Vite large-chunk
+  warning, and single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-17-03 native package unit-inventory tranche: the

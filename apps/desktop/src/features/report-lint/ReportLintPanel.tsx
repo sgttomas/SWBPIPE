@@ -131,6 +131,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
           "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
           "apps/desktop/src/features/editor-contract/EditorContractPanel.tsx",
+          "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
           "apps/desktop/src/features/viewport/PipeViewport.tsx",
           "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
           "apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx",
@@ -204,6 +205,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "editor-contract-unit-contract",
     "none",
     "editor contract unit-bearing operation rule"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+    "operation-diff-unit-witnesses",
+    "none",
+    "operation diff preview unit preservation witnesses"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/viewport/PipeViewport.tsx",
@@ -416,6 +423,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Editor contract template records material/component/rule-pack reference editor metadata, operation-intent routing, private library references only, private payload false, protected payload false, accepted state mutation false, and no approval, authentication, certification, sealing, code compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-operation-diff-template",
+      "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Operation diff preview template records local review-only operation diffs, declared change units and dimensions, unit preservation witnesses, accepted state mutation false, private payload false, protected payload false, and no approval, certification, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-viewport-editor-template",

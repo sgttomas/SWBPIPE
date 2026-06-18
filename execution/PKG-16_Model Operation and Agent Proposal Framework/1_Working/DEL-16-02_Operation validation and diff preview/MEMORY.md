@@ -1,5 +1,25 @@
 # MEMORY - DEL-16-02 Operation validation and diff preview
 
+## 2026-06-18 - TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Operation Diff Preview unit-witness
+  surface.
+- The lint inventory records `operation-diff-unit-witnesses` and reports
+  `unit_targets=21`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. The diff-preview packet itself continues to
+  preserve declared operation change units and dimensions without conversion.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  selected tests, focused Chromium desktop R2 smoke, full desktop Vitest
+  399/399, desktop production build with the existing Vite large-chunk
+  warning, and single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no operation validation, diff preview, operation
+  application, accepted-state mutation, operation audit persistence,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-OPAPPLYUNITS-001
 
 - The desktop Apply Operations panel now exposes a visible unit-policy summary

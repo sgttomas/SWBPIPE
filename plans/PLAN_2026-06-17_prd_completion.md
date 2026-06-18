@@ -273,6 +273,15 @@ existing Project Validation Preflight DEC-018 unit evidence without changing
 preflight semantics, persistence behavior, linter semantics, or unit
 conversion behavior.
 
+Latest B-tail update: `TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001`
+(SMOKE TP-MAC-238) landed on 2026-06-18. The Report Content Lint inventory
+now includes the Operation Diff Preview public unit-witness surface
+(`operation-diff-unit-witnesses`), raising public unit-policy targets to 21
+while keeping target-format conversion witnesses at two. This records the
+existing diff-preview DEC-018 unit witness evidence without changing
+diff-preview semantics, operation validation/application behavior, linter
+semantics, or unit conversion behavior.
+
 ### Phase D — R4: piping components and nonlinear supports (solver depth)
 
 **Objective:** PRD §22.5 exit criteria verbatim — "Nonlinear support validation cases converge" and "Component provenance appears in reports." Closes FR-017..021. **All component factors are user-entered** (SIFs, flexibility factors, stiffnesses) per the PRD code-neutral boundary (§1, §11.3.x, §6.3): the solver never computes code-derived factors from protected tables; the public distribution ships no protected B31J/code values.

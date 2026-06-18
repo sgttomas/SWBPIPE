@@ -1,5 +1,25 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-DIFFPREVIEWLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-08-05 report-lint inventory: the desktop Report
+  Content Lint inventory now includes the Operation Diff Preview
+  unit-witness surface.
+- The lint inventory records `operation-diff-unit-witnesses` as an existing
+  unit-policy surface and reports `unit_targets=21`,
+  `conversion_witness_targets=2`, and `lint_conversion=false`. The operation
+  diff preview continues to preserve declared change value/unit/dimension
+  rows without conversion.
+- Validation passed: focused App Vitest workspace-render and queued-intent
+  selected tests, focused Chromium desktop R2 smoke, full desktop Vitest
+  399/399, desktop production build with the existing Vite large-chunk
+  warning, and single-worker R2/R3 Playwright smoke 18/18.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit conversion API change, diff-preview unit witness behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-NATIVEPACKAGEUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-17-03 native package tranche: the desktop Report
