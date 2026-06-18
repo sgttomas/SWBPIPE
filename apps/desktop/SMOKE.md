@@ -6475,6 +6475,41 @@ notes:
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
 
+## TP-MAC-205 load-case primitive unit validation evidence - PASSED (`TP-UNITS-BTAIL-LOADCASEUNITVALID-001`, 2026-06-17)
+
+- Scope: bounded Phase B-tail load-case/unit-validation slice while C5.7
+  remains human-execution gated. The desktop Load Cases manager now records
+  unit-dimension validation status on unit-bearing primitive-load create and
+  magnitude-edit operation intents.
+- Unit behavior: primitive load create/edit intents no longer emit
+  `unit_validation=not_run` for unit-bearing quantities. Browser preview
+  records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`;
+  desktop/Tauri catalog routes can record `dec018_catalog_dimension_match` for
+  accepted DEC-018 unit/dimension matches or explicit mismatch/unreviewed
+  statuses.
+- UI check: `data-testid="load-manager-create-primitive-preview"` and
+  `data-testid="load-manager-edit-preview"` include `unit_validation=...`
+  alongside the existing explicit unit and dimension. The R2 smoke checks the
+  create-preview status; App Vitest checks create and edit paths.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 55/55 tests.
+  - `npm run test:e2e --workspace apps/desktop -- -g "R2 desktop preview smoke"`
+    passed 2/2 Playwright tests after the test assertion was moved to the
+    exercised create-preview path.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 397/397 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+- Evidence: DEL-05-01 primary run record
+  `WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADCASEUNITVALID-001.md`;
+  DEL-02-02 supporting run record with the same id; completion log entry.
+- Boundary: load-case operation-intent metadata only. No DEC-018 catalog
+  constant change, schema dimension enum change, unit conversion API change,
+  solver behavior, operation application semantics, protected standards
+  content, private project payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## TP-MAC-197 material library property unit helper - PASSED (`TP-UNITS-BTAIL-MATLIBFIELDUNITS-001`, 2026-06-17)
 
 - Scope: bounded Phase B-tail app unit-entry slice while C5.7 remains

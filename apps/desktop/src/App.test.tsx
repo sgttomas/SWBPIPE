@@ -2088,6 +2088,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain(
       'before=1200000; after={"value":1500000,"unit":"Pa"}'
     );
+    expect(within(manager).getByTestId("load-manager-edit-preview").textContent).toContain(
+      "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+    );
     fireEvent.click(within(manager).getByTestId("queue-load-magnitude-intent"));
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
@@ -2248,6 +2251,11 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
       "target=node:N-100; direction=global_y; unit=N; force"
+    );
+    await waitFor(() =>
+      expect(within(manager).getByTestId("load-manager-create-primitive-preview").textContent).toContain(
+        "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+      )
     );
 
     fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), {

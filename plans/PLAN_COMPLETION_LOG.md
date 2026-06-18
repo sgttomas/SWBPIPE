@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-17 - B-tail load-case primitive unit validation evidence (`TP-UNITS-BTAIL-LOADCASEUNITVALID-001`)
+
+Landed one bounded Phase B-tail load-case/unit-validation slice while C5.7
+remains human-execution gated. The desktop Load Cases manager now records
+unit-dimension validation status on unit-bearing primitive-load create and
+magnitude-edit operation intents.
+
+Primitive create/edit intents no longer report `unit_validation=not_run` for
+unit-bearing quantities. Browser preview records
+`model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`
+because the DEC-018 catalog command is desktop-only; desktop/Tauri catalog
+routes can record `dec018_catalog_dimension_match` for accepted matches or
+explicit mismatch/unreviewed statuses. The visible create and edit previews
+display the validation status next to the already explicit unit and dimension.
+
+The tranche preserves the load-case and operation-review boundary. It does not
+change solver behavior, apply operations automatically, add a unit conversion
+API, or change catalog constants/schema enums.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-205; DEL-05-01 primary run record
+`WORKING_ITEMS_RUN_2026-06-17_TP-UNITS-BTAIL-LOADCASEUNITVALID-001.md`;
+DEL-02-02 supporting run record with the same id.
+
+Validation: focused App Vitest passed 55/55; focused R2 Playwright smoke
+passed 2/2; full desktop Vitest passed 18/18 files and 397/397 tests; desktop
+production build passed with the existing Vite large-chunk warning.
+
+Boundary: load-case operation-intent metadata only. No DEC-018 catalog
+constant change, schema dimension enum change, unit conversion API change,
+solver behavior, operation application semantics, protected standards content,
+private payload, lifecycle state transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or
+code-compliance claim changed.
+
 ## 2026-06-17 - B-tail export review unit policy inventory (`TP-UNITS-BTAIL-EXPORTREVIEWUNITS-001`)
 
 Landed one bounded Phase B-tail export-review/unit-evidence inventory slice

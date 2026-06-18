@@ -164,6 +164,7 @@ export function LoadCaseManagerPanel({
           primitive: selectedPrimitive,
           proposedMagnitude,
           proposedUnit: proposedMagnitudeUnit,
+          unitCatalogRoute,
           rationale
         })
       : null;
@@ -258,7 +259,8 @@ export function LoadCaseManagerPanel({
   const createPrimitiveLoadIntent = isPrimitiveLoadDraftReady(model, primitiveLoadDraft)
     ? buildCreatePrimitiveLoadIntent({
         model,
-        draft: primitiveLoadDraft
+        draft: primitiveLoadDraft,
+        unitCatalogRoute
       })
     : null;
   const primitiveDraftDimension = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
@@ -684,7 +686,7 @@ export function LoadCaseManagerPanel({
         </div>
         <p className="muted load-edit-preview" data-testid="load-manager-create-primitive-preview">
           {createPrimitiveLoadIntent
-            ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+            ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; unit_validation=${createPrimitiveLoadIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
             : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
               ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
               : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load"}
@@ -1055,7 +1057,7 @@ export function LoadCaseManagerPanel({
           </div>
           <p className="muted load-edit-preview" data-testid="load-manager-edit-preview">
             {intent
-              ? `${intent.operation_id}; before=${intent.change.before}; after=${intent.change.after}; unit=${intent.change.unit}; ${intent.change.dimension}; direct_model_mutation_allowed=false; professional_approval=false`
+              ? `${intent.operation_id}; before=${intent.change.before}; after=${intent.change.after}; unit=${intent.change.unit}; ${intent.change.dimension}; unit_validation=${intent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
               : `current=${currentMagnitude} ${primitiveUnit(selectedPrimitive.load)}; no changed magnitude queued`}
           </p>
           <div className="primitive-load-delete-controls">
@@ -1720,10 +1722,12 @@ function buildCreateCombinationIntent({
 
 function buildCreatePrimitiveLoadIntent({
   model,
-  draft
+  draft,
+  unitCatalogRoute
 }: {
   model: PreviewModel;
   draft: PrimitiveLoadDraft;
+  unitCatalogRoute: UnitCatalogRoute | null;
 }): EditorOperationIntent {
   const unit = draft.unit.trim() || "TBD";
   const dimension = primitiveLoadDraftDimension(draft.category, draft.direction);
@@ -1771,7 +1775,7 @@ function buildCreatePrimitiveLoadIntent({
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: primitiveUnitValidationStatus(unitCatalogRoute, unit, dimension),
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -2281,17 +2285,20 @@ function buildLoadMagnitudeIntent({
   primitive,
   proposedMagnitude,
   proposedUnit,
+  unitCatalogRoute,
   rationale
 }: {
   model: PreviewModel;
   primitive: PrimitiveLoadView;
   proposedMagnitude: string;
   proposedUnit: string;
+  unitCatalogRoute: UnitCatalogRoute | null;
   rationale: string;
 }): EditorOperationIntent {
   const fieldPath = `primitive_loads.${primitive.index}.magnitude.value`;
   const operationToken = `${safeToken(primitive.loadCase.id)}-${safeToken(primitiveId(primitive.load))}-magnitude`;
   const unit = proposedUnit.trim() || primitiveUnit(primitive.load);
+  const dimension = primitiveDimension(primitive.load);
   const parsedMagnitude = parseFiniteNumber(proposedMagnitude);
   const after = JSON.stringify({
     value: parsedMagnitude ?? (proposedMagnitude.trim() || "TBD"),
@@ -2319,13 +2326,13 @@ function buildLoadMagnitudeIntent({
       before: primitiveMagnitudeDisplay(primitive.load),
       after,
       unit,
-      dimension: primitiveDimension(primitive.load),
+      dimension,
       source_note: "unit metadata required"
     },
     validation: {
       schema_validation: "not_run",
       constraint_validation: "not_run",
-      unit_validation: "not_run",
+      unit_validation: primitiveUnitValidationStatus(unitCatalogRoute, unit, dimension),
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -2345,6 +2352,33 @@ function buildLoadMagnitudeIntent({
     },
     rationale: rationale.trim() || `load magnitude edit intent for ${model.project.id}`
   };
+}
+
+function primitiveUnitValidationStatus(
+  route: UnitCatalogRoute | null,
+  unit: string,
+  dimension: string
+): string {
+  const normalizedUnit = unit.trim();
+  const normalizedDimension = dimension.trim();
+  if (!normalizedUnit || normalizedUnit === "TBD" || !normalizedDimension || normalizedDimension === "TBD") {
+    return "missing_unit_or_dimension";
+  }
+  const basis = describeUnitBasis(route, normalizedUnit, normalizedDimension);
+  switch (basis.source) {
+    case "dec018_catalog_accepted":
+      return "dec018_catalog_dimension_match";
+    case "dec018_catalog_unreviewed":
+      return `dec018_catalog_${basis.review_status ?? "unreviewed"}_dimension_match`;
+    case "dec018_catalog_miss":
+      return "dec018_catalog_dimension_mismatch";
+    case "browser_preview_model_metadata":
+      return "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview";
+    case "catalog_loading":
+      return "catalog_loading_unit_dimension_declared";
+    default:
+      return "unit_dimension_status_unknown";
+  }
 }
 
 function buildDeletePrimitiveLoadIntent({

@@ -550,3 +550,22 @@
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-LOADCASEUNITVALID-001 primitive-load unit validation evidence
+
+- Primary role for bounded B-tail tranche: the desktop Load Cases manager now
+  records unit-dimension validation status on unit-bearing primitive-load
+  create and magnitude-edit operation intents.
+- Browser preview records
+  `model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview`
+  because the DEC-018 catalog command is desktop-only; desktop/Tauri catalog
+  routes can record `dec018_catalog_dimension_match` or explicit
+  mismatch/unreviewed statuses.
+- Validation passed: focused App Vitest 55/55, focused R2 Playwright smoke
+  2/2, full desktop Vitest 397/397, and desktop production build with the
+  existing Vite large-chunk warning.
+- Boundary preserved: no primitive-load engine behavior, solver behavior,
+  operation application semantics, unit conversion API, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.

@@ -427,11 +427,11 @@ export type EditorOperationIntent = {
     source_note: string;
   };
   validation: {
-    schema_validation: "not_run";
-    constraint_validation: "not_run";
-    unit_validation: "not_run";
-    diff_preview_status: "not_generated";
-    application_status: "not_applied";
+    schema_validation: string;
+    constraint_validation: string;
+    unit_validation: string;
+    diff_preview_status: string;
+    application_status: string;
   };
   audit_boundary: {
     mutation_route: "structured_operations_only";

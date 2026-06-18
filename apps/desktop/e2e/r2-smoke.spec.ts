@@ -152,6 +152,9 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
     "target=node:N-100; direction=global_y; unit=N; force"
   );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
   await page.getByTestId("load-manager-create-primitive-category").selectOption("distributed_force");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
   await expect(page.getByTestId("load-manager-create-primitive-pipe")).toHaveValue("pipe:P-100");
