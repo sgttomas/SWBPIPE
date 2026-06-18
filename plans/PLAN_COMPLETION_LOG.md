@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-18 - B-tail project-validation report-lint unit inventory (`TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001`)
+
+Landed one bounded Phase B-tail Report Content Lint inventory slice while
+C5.7 remains human-execution gated. The Project Validation Preflight panel
+already exposed DEC-018 `unit_policy_evidence`; this tranche makes that
+public unit-bearing surface discoverable through the Report Content Lint
+public-surface inventory.
+
+The Report Content Lint explicit public-surface inventory now includes
+`apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx`,
+target `target:desktop-project-validation-template`, and target ref
+`project-validation-unit-policy`. Unit-policy target count increases from 19
+to 20, while target-format conversion-witness target count remains two. The
+lint still performs no conversion and makes no target-format compatibility
+assertion.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-237; DEL-08-05 primary run record
+`WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001.md`;
+DEL-02-05 and DEL-02-02 supporting run records with the same id.
+
+Validation: focused App Vitest initially caught the missing explicit lint
+target entry, then passed the workspace-render selected test after repair;
+focused Playwright R2 desktop preview smoke passed 1/1; full desktop Vitest
+initially caught one over-broad export-review metadata count assertion, then
+passed 18/18 files and 399/399 tests after repair. Desktop production build
+passed with the existing Vite large-chunk warning. Single-worker R2/R3
+Playwright smoke passed 18/18 tests.
+
+Boundary: report-lint inventory over existing Project Validation Preflight
+unit-policy evidence only. No validation-preflight packet semantics, project
+persistence semantics, report-linter protected-content semantics, legal
+clearance, unit-conversion API, DEC-018 catalog constant, schema dimension
+enum, protected standards content, private payload, lifecycle state
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-18 - B-tail export-review storage/preflight unit evidence (`TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001`)
 
 Landed one bounded Phase B-tail Export Safety Review matrix cleanup while

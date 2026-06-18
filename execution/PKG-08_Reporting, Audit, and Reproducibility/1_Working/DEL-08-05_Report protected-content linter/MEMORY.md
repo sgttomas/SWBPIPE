@@ -216,3 +216,29 @@ code-compliance decisions.
   protected standards content, private data, lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## 2026-06-18 - TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001 primary report-lint inventory evidence
+
+- Primary role for Phase B-tail Report Content Lint inventory: the report
+  linter now includes `ProjectValidationPanel.tsx` as an explicit public
+  target and records `project-validation-unit-policy` in
+  `unit_policy_evidence.target_refs`.
+- `data-testid="report-lint-unit-policy"` now reports 20 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-PROJECTVALIDATIONLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-237; completion log entry; supporting
+  DEL-02-05 and DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render test after catching
+  the missing explicit target entry, focused Playwright 1/1 Chromium desktop
+  test, focused queued-intent App Vitest after restoring an over-broad
+  export-review metadata assertion, full desktop Vitest 399/399,
+  single-worker R2/R3 Playwright smoke 18/18, and desktop production build
+  with the existing Vite large-chunk warning.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  validation-preflight semantics, project persistence semantics,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

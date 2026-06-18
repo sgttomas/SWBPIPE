@@ -125,6 +125,7 @@ function buildReportLintPacket({
           "apps/desktop/src/features/report/ReportPanel.tsx",
           "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
           "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+          "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
           "apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx",
           "apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx",
           "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
@@ -185,6 +186,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "project-storage-unit-round-trip",
     "none",
     "project storage audit unit round-trip policy evidence"
+  ),
+  unitPolicySurface(
+    "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+    "project-validation-unit-policy",
+    "none",
+    "project validation preflight unit round-trip policy evidence"
   ),
   unitPolicySurface(
     "apps/desktop/src/features/secret-private-library/SecretPrivateLibraryPanel.tsx",
@@ -367,6 +374,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Project storage audit template records local project persistence, unit round-trip evidence, local-only boundary, external file copy false, private payload false, protected payload false, and no release or professional claim."
+    ),
+    target(
+      "target:desktop-project-validation-template",
+      "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Project validation preflight template records schema/version checks, migration evidence, hash verification, unit round-trip evidence, private payload false, protected payload false, and no release, code compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-build-readiness-template",
