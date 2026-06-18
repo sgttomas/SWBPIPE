@@ -8561,3 +8561,44 @@ notes:
   content, private payload, lifecycle state transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## TP-MAC-255 library manager report-lint unit inventory - PASSED (`TP-UNITS-BTAIL-LIBRARYLINTUNITS-001`, 2026-06-18)
+
+- Scope: bounded Phase B-tail Report Content Lint inventory slice while C5.7
+  remains human-execution gated. The Library Manager already exposes material,
+  section, and component draft unit-helper surfaces; the report-lint public
+  inventory now records that public unit-policy surface.
+- App behavior: `ReportLintPanel` now includes
+  `apps/desktop/src/features/library/LibraryManagerPanel.tsx` in its explicit
+  public target list, and adds `library-unit-helper-surfaces` to
+  `unit_policy_evidence.target_refs`. The visible lint row reports
+  `unit_targets=38`, `conversion_witness_targets=2`, and
+  `lint_conversion=false`. Static report-lint target count is 42; solved
+  report packets include 43 targets after appending the generated preview
+  report JSON target.
+- Validation:
+  - `npm run test --workspace apps/desktop -- App.test.tsx -t "renders the engineering workspace from invented local fixtures"`
+    passed 1/1 selected test.
+  - `npm run test --workspace apps/desktop -- LibraryManagerPanel.test.tsx -t "unit|library|desktop"`
+    passed 9/9 selected tests.
+  - `npm run test:e2e --workspace apps/desktop -- --grep "R2 desktop preview smoke|library manager"`
+    passed 4/4 focused configured-project tests.
+  - `npm run test --workspace apps/desktop` passed 18/18 files and
+    399/399 tests.
+  - `npm run build --workspace apps/desktop` passed with the existing Vite
+    large-chunk warning.
+  - `npm run test:e2e --workspace apps/desktop -- --workers=1` passed 18/18
+    tests.
+  - `git diff --check` passed.
+- Evidence: DEL-08-05 primary run record
+  `WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  DEL-07-03, DEL-03-01, DEL-03-02, and DEL-02-02 supporting run records with
+  the same id; completion log entry.
+- Boundary: report-lint inventory over existing Library Manager unit-helper
+  surfaces only. No library schemas, library import storage, private-library
+  payload handling, report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility,
+  unit-conversion API, DEC-018 catalog constant, schema dimension enum,
+  protected standards content, private payload, lifecycle state transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

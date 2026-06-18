@@ -251,6 +251,12 @@ const UNIT_POLICY_SURFACE_MARKERS = [
     "rule-pack expression AST unit-reference policy evidence"
   ),
   unitPolicySurface(
+    "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+    "library-unit-helper-surfaces",
+    "none",
+    "material, section, and component library draft unit-helper surfaces"
+  ),
+  unitPolicySurface(
     "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
     "operation-diff-unit-witnesses",
     "none",
@@ -568,6 +574,13 @@ function lintTargets({
       "public_report_template",
       "public_metadata",
       "Rule-pack expression composer template records structured AST unit-reference policy, browser manual-entry route, stored expression unit refs preserved, conversion false, private payload false, protected payload false, read-only text preview only, and no parser, release, code-compliance, or professional reliance claim."
+    ),
+    target(
+      "target:desktop-library-manager-template",
+      "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+      "public_report_template",
+      "public_metadata",
+      "Library manager template records material, section, and component draft unit helpers, DEC-018-filtered unit choices, private local-import boundary, conversion false, private payload false, protected payload false, and no release, code-compliance, or professional reliance claim."
     ),
     target(
       "target:desktop-operation-diff-template",

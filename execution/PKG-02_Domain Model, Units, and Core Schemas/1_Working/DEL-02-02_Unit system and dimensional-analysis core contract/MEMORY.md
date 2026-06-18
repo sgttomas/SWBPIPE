@@ -1,5 +1,30 @@
 # MEMORY - DEL-02-02
 
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting unit evidence
+
+- Supporting role for DEL-02-02: Report Content Lint now classifies the
+  Library Manager as a unit-policy surface because it already exposes material,
+  section, and component draft unit-helper surfaces.
+- The report-lint visible summary and JSON moved to 38 unit-policy targets
+  while preserving two conversion-witness targets and
+  `lint_performs_conversion=false`.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-03-01/DEL-03-02 run
+  records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no DEC-018 catalog constant change, schema dimension
+  enum change, unit-conversion API, library schema, library import storage,
+  private-library payload handling, report-linter protected-content semantics,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting unit evidence
 
 - Supporting role for DEL-02-02: Report Content Lint now classifies the Rule

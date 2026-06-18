@@ -1,5 +1,30 @@
 # MEMORY - DEL-03-01 Material Library Schema With Provenance
 
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-03-01: Report Content Lint now inventories the
+  existing Library Manager unit-helper surfaces, including the material
+  property unit helper governed by material-library context.
+- The lint packet now includes
+  `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and
+  `library-unit-helper-surfaces`; public unit-policy targets increase from 37
+  to 38 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-07-03/DEL-03-02/DEL-02-02 run
+  records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no material schema, fixture value, public source/catalog
+  authority, material import storage, protected material table, proprietary
+  catalog data, unit conversion behavior, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-05-01 Bounded Product-Development Session
 
 Human gate:

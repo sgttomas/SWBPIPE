@@ -1,5 +1,30 @@
 # DEL-07-03 Memory
 
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 supporting report-lint inventory evidence
+
+- Supporting role for DEL-07-03: Report Content Lint now inventories the
+  existing Library Manager material, section, and component unit-helper
+  surfaces through `library-unit-helper-surfaces`.
+- The lint packet now includes
+  `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and
+  `target:desktop-library-manager-template`; public unit-policy targets
+  increase from 37 to 38 while conversion-witness targets remain two.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; primary
+  DEL-08-05 run record and supporting DEL-03-01/DEL-03-02/DEL-02-02 run
+  records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no library editor behavior, library schema, library
+  import storage, private-library payload handling, unit conversion behavior,
+  protected standards content, private data, lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 supporting report-lint inventory evidence
 
 - Supporting role for DEL-07-03: Report Content Lint now inventories the

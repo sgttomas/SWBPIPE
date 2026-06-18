@@ -1,5 +1,32 @@
 # MEMORY - DEL-08-05 Report Protected-Content Linter
 
+## 2026-06-18 - TP-UNITS-BTAIL-LIBRARYLINTUNITS-001 primary report-lint inventory evidence
+
+- Primary role for Phase B-tail Report Content Lint inventory: the report
+  linter now includes `LibraryManagerPanel.tsx` as an explicit public target
+  and records `library-unit-helper-surfaces` in
+  `unit_policy_evidence.target_refs`.
+- `data-testid="report-lint-unit-policy"` now reports 38 unit-policy targets,
+  two target-format conversion-witness targets, and `lint_conversion=false`.
+- Static report-lint target count is now 42; solved report packets include 43
+  targets after the generated preview-report JSON target is appended.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-18_TP-UNITS-BTAIL-LIBRARYLINTUNITS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-255; completion log entry; supporting
+  DEL-07-03, DEL-03-01, DEL-03-02, and DEL-02-02 run records.
+- Validation passed: focused App Vitest workspace-render; focused
+  LibraryManagerPanel Vitest 9/9; focused R2/library-manager Playwright smoke
+  4/4; full desktop Vitest 399/399; single-worker R2/R3 Playwright smoke
+  18/18; `git diff --check`; and desktop production build with the existing
+  Vite large-chunk warning.
+- Boundary preserved: no report-linter protected-content semantics, legal
+  clearance, redaction controls, target writer compatibility, library schema,
+  library import storage, private-library payload handling, unit-conversion
+  API, DEC-018 catalog constant, schema dimension enum, protected standards
+  content, private data, lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKEXPRLINTUNITS-001 primary report-lint inventory evidence
 
 - Primary role for Phase B-tail Report Content Lint inventory: the report
