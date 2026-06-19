@@ -262,7 +262,7 @@ Each increment ships independently, keeps the app runnable, and keeps `App.test.
 - **Inc 4 — Canvas as hero.** Remove `clamp` cap; add orbit controls, axis triad, view cube, reference grid+scale, selection handles, load glyphs; move creation forms out; wire `CommandBar`. *Closes "postage stamp."*
 - **Inc 5 — Inspector + dual units + required flags.** Refactor `PropertyInspector`; add `DualUnitValue`, `RequiredFlag`, provenance block; dual-unit columns in `ResultsPanel`.
 - **Inc 6 — Layout grid (bulk tabular). LANDED 2026-06-19** (`TP-R3UX-GRIDMODE-001`, SMOKE TP-MAC-273): added `EntityGrid` + Grid-mode toggle in `ModelTree`; changed cells fan out to existing structured `EditorOperationIntent`s. (Largest new surface; **core to authoring usability**, sequenced last only because single-entity authoring is functional after Inc 5 — so it is non-gating for the *first* TP-MAC-189 re-attempt, but a committed follow-through, not optional.)
-- **Inc 7 — Packaged build + human pass prep.** Rebuild bundle, re-run Playwright-against-dist, prepare TP-MAC-189 successor checklist; hand to human (C5.7 re-attempt).
+- **Inc 7 — Packaged build + human pass prep. LANDED 2026-06-19** (`TP-R3UX-PACKAGEKIT-002`, SMOKE TP-MAC-274): rebuilt bundle, re-ran packaged/dist evidence, boot-checked the `.app`, and handed TP-MAC-189 back to the human for the C5.7 re-attempt.
 
 Minimum to re-attempt the C5.7 human pass: **Inc 0–5** (one nav, demoted strings, hero canvas, dual units, required flags). Inc 6 (bulk-tabular) is **core** to the authoring experience but non-gating for the *first* A3/F-4 re-attempt — a committed follow-through, not optional.
 

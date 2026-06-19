@@ -1,5 +1,26 @@
 # DEL-07-06 Memory
 
+## 2026-06-19 - TP-R3UX-PACKAGEKIT-002 C5.7R Inc 7 packaged re-pass kit
+
+WORKING_ITEMS rebuilt the packaged macOS `.app` after C5.7R Inc 0-6 and
+prepared the human TP-MAC-189 re-pass handoff. The bundle path is
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`,
+built from commit `60fb533fe`.
+
+Validation passed: `npm run tauri -- build --bundles app`; 8-second packaged
+executable boot probe with process state `SN`, `stdout_bytes=0`,
+`stderr_bytes=0`, and clean termination. Inc 6/7 closeout evidence also
+includes dist Playwright 1/1 and DEC-025 sweep
+`SWEEP_20260619T144814Z_48083bd29407-dirty.json`.
+
+Evidence is recorded in
+`_run_records/WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-PACKAGEKIT-002.md` and
+`apps/desktop/SMOKE.md` TP-MAC-274.
+
+F-4 and A3 remain open until the human TP-MAC-189 packaged re-pass is recorded.
+No lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-19 - TP-R3UX-GRIDMODE-001 C5.7R Inc 6 layout grid
 
 WORKING_ITEMS added the committed Inc 6 bulk-tabular Grid mode to the Model

@@ -9231,3 +9231,24 @@ notes:
   approval, certification, sealing, authentication, or code-compliance claim
   changed. Inc 7 packaged build/pass prep and the human TP-MAC-189 re-pass
   remain residuals.
+
+## TP-MAC-274 C5.7R packaged re-pass kit - PREPARED (`TP-R3UX-PACKAGEKIT-002`, 2026-06-19)
+
+- Scope: C5.7R Inc 7 package build and human-pass handoff after Inc 0-6.
+- Build: `cd apps/desktop && npm run tauri -- build --bundles app` passed at
+  commit `60fb533fe`, regenerating the WASM operation engine and producing:
+  `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+  Bundle size: `12M`.
+- Boot probe: launched the bundled executable for 8 seconds, observed process
+  state `SN`, recorded `stdout_bytes=0` and `stderr_bytes=0`, and terminated
+  cleanly.
+- Validation basis: `npm run test:e2e:dist --workspace apps/desktop` passed
+  1/1 earlier in this Inc 6/7 closeout; DEC-025 sweep
+  `validation/evidence/sweeps/SWEEP_20260619T144814Z_48083bd29407-dirty.json`
+  passed overall.
+- Human execution pending: run TP-MAC-189 against the rebuilt bundle and record
+  pass/fail per step, performed-by, date, binary commit `60fb533fe`, bundle
+  path, report hash when generated, and notes.
+- Boundary: package/evidence/handoff only. No lifecycle transition,
+  release-readiness claim, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

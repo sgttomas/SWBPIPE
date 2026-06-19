@@ -65,14 +65,18 @@
      pass was run and FAILED on usability (2026-06-18): "a wall of
      evidence/telemetry strings, three competing navigation systems, the model
      a postage stamp" — F-4 and the A3 authoring-usability finding stay open.**
-     The human-approved repair tranche **C5.7R** has Inc 0-6 landed: Inc 0-5
+     The human-approved repair tranche **C5.7R** has Inc 0-7 landed: Inc 0-5
      are recorded under `TP-R3UX-WORKSPACEREDESIGN-001` / SMOKE TP-MAC-272 /
      DEL-07-06 `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-WORKSPACEREDESIGN-001.md`;
      Inc 6 Grid mode is recorded under `TP-R3UX-GRIDMODE-001` / SMOKE
      TP-MAC-273 / DEL-07-06
-     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-GRIDMODE-001.md`.
-     The next ordinary C5 action is Inc 7 packaged build/pass prep and then
-     the packaged C5.7 human re-pass (target SMOKE TP-MAC-189). Honor the
+     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-GRIDMODE-001.md`; Inc 7 packaged
+     kit is recorded under `TP-R3UX-PACKAGEKIT-002` / SMOKE TP-MAC-274 /
+     DEL-07-06
+     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-PACKAGEKIT-002.md`.
+     The next C5 action is the packaged C5.7 human re-pass (target SMOKE
+     TP-MAC-189), which must be performed by the human and recorded before
+     F-4/A3 can close or C5.8 can begin. Honor the
      spec's scope boundaries:
      agent-panel seam reserved-not-built (`D-21`); `DEC-037` (structured rule
      composer, no writable text); dual units display-only; no new engine

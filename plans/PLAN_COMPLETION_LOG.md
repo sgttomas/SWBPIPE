@@ -14,6 +14,32 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-19 - C5.7R packaged re-pass kit Inc 7 (`TP-R3UX-PACKAGEKIT-002`)
+
+Rebuilt the macOS `.app` after C5.7R Inc 0-6 and prepared the human TP-MAC-189
+packaged re-pass handoff. The bundle was produced at
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`
+from commit `60fb533fe`.
+
+Validation: `npm run tauri -- build --bundles app` passed; the packaged
+executable boot probe ran for 8 seconds with process state `SN`,
+`stdout_bytes=0`, `stderr_bytes=0`, and clean termination. The Inc 6/7
+closeout evidence also includes dist Playwright 1/1 and DEC-025 sweep
+`SWEEP_20260619T144814Z_48083bd29407-dirty.json` passing overall.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-274; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-PACKAGEKIT-002.md`.
+
+Residuals: the human TP-MAC-189 packaged re-pass is now the next gated item.
+F-4/A3 remain open until that human record passes or records the next bounded
+repair.
+
+Boundary: package/evidence/handoff only. No lifecycle transition,
+release-readiness claim, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-19 - C5.7R layout grid Inc 6 (`TP-R3UX-GRIDMODE-001`)
 
 Landed the committed bulk-tabular follow-through from the workspace redesign:
