@@ -39,6 +39,26 @@ Executable prompts and TASK briefs must derive paths from the active checkout:
 | `RESEARCH` | 1 | Evidence-grounded, read-only inquiry over accepted decompositions, source/standards catalogs, and retrieval indexes; returns cited findings without changing project state. |
 | `AUDIT_*` | 2 | Runs bounded checks for decomposition coverage, governance conformance, dependency closure, and epistemic integrity. |
 
+## Knowledge-source reliability
+
+The external engineering corpus `domains/piping-design/` (BM25 + dense retrieval
+index, ~48.2k chunks) has **vetted, reliable prose / concept / design-guidance
+content**, but its **extracted equation artifacts are NOT reliable** — they are
+unreviewed `pdf2md`/OCR extractions pending the maintainer's manual equation
+review, which writes a per-artifact JSON review status.
+
+- `RESEARCH`/`RESEARCHER` and any retrieval consumer (including a future embedded
+  design agent) may cite `piping-design` for concepts, terminology, and approach,
+  but must **never present an extracted equation from this corpus as
+  authoritative**, and must surface each artifact's review status (cleared vs
+  unverified).
+- **Never use `piping-design` equation artifacts as references for a
+  physics-model build** (solver / kernel / analytic-verification, including
+  grounding the Phase-D engineering decisions D-16 / D-18 / D-19). Physics and
+  equations come from the maintainer's vetted sources, not corpus extractions.
+
+Per human directive 2026-06-18 (`DEC-043`).
+
 ## Project-Wide Execution Discipline
 
 Use bounded app-integration or lifecycle tranches by default. A parent
