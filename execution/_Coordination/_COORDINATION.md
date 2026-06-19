@@ -257,7 +257,7 @@ steps 1–5 pass; remainder blocked on authoring-journey usability, not
 function). **Two named blocking residuals must close before any R3 exit
 review:** verification finding F-4 (a completed human GUI journey in the
 packaged webview) and the authoring-journey usability finding (completion
-plan A3 row). Interactive authoring of user-created local models — applying editor
+plan A3 row). **Update 2026-06-18:** the C5.7 packaged human pass was attempted and FAILED on usability (a wall of telemetry strings, three competing navs, a postage-stamp model); the active human-approved repair tranche is **C5.7R, the workspace redesign** (`plans/PLAN_2026-06-18_workspace_redesign_c5_7.md`, increments Inc 0-6; Inc 0-5 minimum to re-attempt the pass), which must land before the re-run packaged pass and any R3 exit review. Interactive authoring of user-created local models — applying editor
 operations to a persisted local model document — is in scope at this stage
 and does not violate the technical-preview boundary. The boundary
 prohibitions concern claims, network surfaces, and data classes, not

@@ -8,7 +8,7 @@
 - Read `{WORKING_ROOT}/AGENTS.md` for project-local agent posture and closeout discipline.
 - Read `{WORKING_ROOT}/execution/_Coordination/_COORDINATION.md` and follow the Application Integration And Issuance Loop directions.
 - Read `docs/PLAN.md` — the non-governing strategic roadmap — for the definition of "complete per the PRD", the current milestone position, the layer-relation map, and roadmap-level risks. It is strategic orientation that routes to the authorities; the completion plan below remains the tactical selection instrument.
-- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-21`.
+- Read `plans/PLAN_2026-06-17_prd_completion.md` — the current completion plan (non-governing `PROPOSAL`, supersedes the 2026-06-10 plan) — for phase ordering toward the PRD, the dependency spine, the FR completion map, and the human decision register `D-01..D-22` (with `DEC-041/042/043` recorded 2026-06-18: the embedded-agent substrate ruling, the D-21 held-with-prep disposition, and the piping-design equation-reliability constraint).
 - Discover current state from authoritative surfaces named in `_COORDINATION.md`: `_DAG/_LATEST.md`, approved DAG artifacts, deliverable-local `_STATUS.md`, `MEMORY.md`, `_run_records/**`, dependency/review files, current app/build/test surfaces, `execution/_Coordination/_DECISIONS/_REGISTER.md`, and current aggregation or review artifacts as needed.
 - Treat `execution/_DAG/DAG-007/` as the validated canonical dependency type-system rectification successor pending human approval. Do not treat it as current authority or update `_DAG/_LATEST.md` unless the human approval record is completed.
 - Treat blockers or dirty git state outside this project/write scope as external-scope noise; record and bypass, do not fix.
@@ -29,7 +29,7 @@
    default, local-status discovery, DAG-guided context selection, bounded
    workers, fan-in, validation, evidence records, and project-local
    `AGENTS.md` closeout routing for completed validated tranches.
-6. Human decisions (`D-01..D-21` and any newly discovered human-gated `TBD`)
+6. Human decisions (`D-01..D-22` and any newly discovered human-gated `TBD`)
    are never resolved by agents. Prepare decision packets per the loop's
    decision-escalation step, surface pending rulings every session, and
    proceed only on unblocked work.
@@ -61,10 +61,24 @@
      spine for the current target stage (R3/Phase C per `DEC-035`). C1-C4
      are landed; continue **Phase C5 — R3 exit readiness and
      authoring-usability closure** before any Phase D work unless the human
-     explicitly overrides. C5.1-C5.5 are landed. The next C5 implementation
-     item is the packaged journey successor kit (`TP-R3UX-PACKAGEKIT-001` /
-     target SMOKE TP-MAC-188), with the Phase B unit-aware-I/O remainder
-     allowed alongside only when it does not block or displace C5;
+     explicitly overrides. C5.1-C5.6 are landed. **The C5.7 human packaged
+     pass was run and FAILED on usability (2026-06-18): "a wall of
+     evidence/telemetry strings, three competing navigation systems, the model
+     a postage stamp" — F-4 and the A3 authoring-usability finding stay open.**
+     The human has approved the repair as the **active build tranche (C5.7R)**:
+     **build the workspace redesign per
+     `plans/PLAN_2026-06-18_workspace_redesign_c5_7.md`** — execute it, do not
+     re-propose. Start at **Inc 0 (frame skeleton)** and proceed Inc 1→5 (one
+     ribbon replacing the three competing navs; telemetry/evidence demoted to a
+     status-bar Audit drawer + an Issues home; hero canvas; Inspector with dual
+     units + required flags). **Inc 0-5 is the minimum to re-attempt the
+     packaged human pass** (the re-run C5.7, target SMOKE TP-MAC-189); Inc 6
+     (CAEPIPE-style bulk-tabular grid) is core but non-gating for that first
+     re-attempt. Honor the spec's scope boundaries: agent-panel seam
+     reserved-not-built (`D-21`); `DEC-037` (structured rule composer, no
+     writable text); dual units display-only; no new engine contracts (Grid
+     mode fans existing `EditorOperationIntent`s). The Phase B unit-aware-I/O
+     remainder is allowed alongside only when it does not block or displace C5;
    - if that item is blocked by a human decision, run the loop's
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked
