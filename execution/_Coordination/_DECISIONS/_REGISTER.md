@@ -2,7 +2,7 @@
 
 **Created:** 2026-06-10. Non-governing tracking surface. This register tracks
 decision-packet preparation and ruling pointers for the human-gated decisions
-in `plans/PLAN_2026-06-10_prd_completion.md` §2. It confers no authority:
+in `plans/PLAN_2026-06-17_prd_completion.md` §2. It confers no authority:
 agents prepare packets labeled `PROPOSAL`; only the human project authority
 rules. Record accepted rulings per existing decision practice (`DEC`/`SCA`
 entries in `execution/_Decomposition/SOFTWARE_DECOMP.md` or a successor
@@ -36,9 +36,22 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-07b | Contributor intake mechanism (legal mechanism, review process) if and when external contributions open (deferred from the D-07 ruling, `DEC-027`) | Opening external contribution intake; R5 IP contribution process disposition | NOT_PREPARED | — | — |
 | D-14 | R2 → R3 stage advancement of the Working Desktop Application Standard current target stage in `_COORDINATION.md` (coordination-update scope only; no lifecycle, release, or milestone-acceptance claim) | Phase C selection as ordinary in-stage work; the loop is halted at this gate | RULED | [D-14_r2_stage_advancement.md](D-14_r2_stage_advancement.md) (2026-06-12; evidence: `plans/VERIFICATION_2026-06-12_r2_exit_chain.md`) | `DEC-029` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (Option O-B: hold at R2, 2026-06-12); **hold superseded same day by `DEC-035`** (advance to R3 with F-4 and the authoring-usability finding as named blocking residuals at the R3 exit review, after packaged-pass attempts 1–3 in `apps/desktop/SMOKE.md` TP-MAC-141). Companions ruled the same sitting: `DEC-030` (contract corpus accepted as human-reviewed), `DEC-031` (three C1 grammar ASSUMPTIONs accepted as drafted) |
 | D-CDR | Cycle-driven resolution doctrine: adopt the SCC / four-move kernel as posture and route it into the discoverable surfaces (strategy, coordination, completion plan, agent instructions); defer operational machinery to the next decomposition revision / SCA | DAG construction/audit posture; original DAG-007 timing note superseded by 2026-06-16 dependency type-system rectification | RULED | [PLAN_2026-06-13_cycle_driven_resolution_doctrine.md](../../../plans/PLAN_2026-06-13_cycle_driven_resolution_doctrine.md) §2/§3/§7 (plan-as-packet; 2026-06-15 DAG-007 amendment, later superseded for the DAG-007 identifier) | `DEC-040` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (2026-06-15: kernel adopted; in-project routing + cross-project agent habit applied; machinery deferred to the next SCA. `DAG-007` was later used for canonical dependency type-system rectification and remains pending human approval.) |
+| D-15 | Spring-hanger scope: is the R4 "spring hangers" deliverable satisfied by the existing generic `spring` support (DEL-04-03) or does it require constant-effort / variable-rate hanger behavior (preload, travel range, hot/cold load) with its own schema slots | Phase D, D5 | NOT_PREPARED | — | — |
+| D-16 | Global nonlinear solve ownership & method: which deliverable owns the assembled iterative loop wrapping the active-set classifier (DEL-04-04, which "does not assemble or solve the global nonlinear system", vs. a new integration tranche bridging DEL-04-04 ↔ DEL-04-01) and the iteration-control method (active-set fixed-point with convergence/relaxation) | Phase D, D6 (assembled nonlinear solve — R4 product hinge); PRD §22.5 R4 exit "nonlinear support validation cases converge" | AWAITING_RULING | [D-16_global_nonlinear_solve_ownership.md](D-16_global_nonlinear_solve_ownership.md) (2026-06-18) | — |
+| D-17 | Sparse-solver live-path adoption timing: bind `core/solver/sparse_direct` (DEC-023) into the live `frame_kernel`/`product_physics` solve path within R4, or defer to R5/post-R4 | Phase D, D7; PRD §20 scale | NOT_PREPARED | — | — |
+| D-18 | Component macro-element realization: bend/branch/rigid/EJ as solver macro-elements vs straight-element geometry + user-flexibility multipliers in stress recovery (`ComponentMechanicsInterface.solver_consumption`); all component factors stay user-entered per the code-neutral boundary | Phase D, D1–D4; R4 exit half "component provenance appears in reports" (via D8) | AWAITING_RULING | [D-18_component_macro_element_realization.md](D-18_component_macro_element_realization.md) (2026-06-18) | — |
+| D-19 | Release convergence tolerance policy: close the `TolerancePolicyTbd` diagnostic for the solver-convergence axis (residual/iteration stopping criteria for the assembled nonlinear loop), distinct from the analytic verification seed (1.0e-9) governed under DEC-024/DEC-026 | Phase D, D6 + D9; R4 exit "validation cases converge"; RGAP-004 | AWAITING_RULING | [D-19_release_convergence_tolerance_policy.md](D-19_release_convergence_tolerance_policy.md) (2026-06-18) | — |
+| D-20 | Release-artifact protected-content scan ownership & procedure (RGAP-005): owner + recorded procedure for the release-time artifact scan and legal/protected-data release gate | Phase E, E7; R5 exit "no known protected standards data" | NOT_PREPARED | — | — |
+| D-21 | PRD scope-change to the v0.2 milestone set (adopt R6/R7 + the inserted v0.2 R3 States/Comparison) via the governed `SCOPE_CHANGE` path; adopts the v0.2 FR renumber (traceability-breaking, requires an FR crosswalk) | Extended Horizon (Phases G/H/I) | NOT_PREPARED | — | — |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
 Phase A report work, `D-02` in the Phase C lead-up, `D-03`/`D-04` before
 Phase D evidence, `D-05`/`D-06`/`D-07`/`D-09` mid-plan, `D-11` human-paced
 throughout, `D-12` at the R5 gate.
+
+The R4/R5 decisions surfaced by the 2026-06-17 completion plan are tracked
+above: `D-16`/`D-18`/`D-19` are prepared (`AWAITING_RULING`) for the Phase D
+lead-up; `D-15`/`D-17` prepare at the D5/D7 lead-up; `D-20` at the E7 lead-up;
+`D-21` (v0.2 scope-change) is held until the R4/R5 lead-up per the 2026-06-17
+horizon ruling.
