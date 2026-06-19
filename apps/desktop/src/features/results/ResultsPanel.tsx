@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
+import { convertForDisplay, formatConverted } from "../../services/unitConversion";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -123,6 +124,7 @@ export function ResultsPanel({
                         <th>Entity</th>
                         <th>Location</th>
                         <th>Value</th>
+                        <th>Dual (≈)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -146,6 +148,9 @@ export function ResultsPanel({
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
                             {item.value} {item.unit}
+                          </td>
+                          <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
+                            <DualUnitCompanion value={item.value} unit={item.unit} />
                           </td>
                         </tr>
                       ))}
@@ -205,10 +210,10 @@ function ResultControls({
   return (
     <section className="result-controls" aria-label="Result filtering" data-testid="result-controls">
       <div className="report-line" data-testid="result-unit-policy">
-        <span>Result unit policy</span>
+        <span>Result units</span>
         <strong>
-          units={unitPolicy.result_units.join(",")}; rows={unitPolicy.result_row_count};
-          storage={unitPolicy.storage_convention}; conversion={String(unitPolicy.conversion_performed)}
+          {unitPolicy.result_units.length > 0 ? unitPolicy.result_units.join(", ") : "none"} · {unitPolicy.result_row_count} rows ·
+          entered units preserved (SI/US companion shown for reference)
         </strong>
       </div>
       <div className="result-family-row" role="group" aria-label="Result family filter">
@@ -318,6 +323,16 @@ function buildResultUnitPolicy(result: MechanicsResult) {
     private_payload_included: false,
     protected_content_included: false
   };
+}
+
+function DualUnitCompanion({ value, unit }: { value: number; unit: string }) {
+  const companion = convertForDisplay(value, unit);
+  if (!companion) return <>—</>;
+  return (
+    <>
+      ≈ {formatConverted(companion.value)} {companion.unit}
+    </>
+  );
 }
 
 function compareResultUnits(left: string, right: string) {

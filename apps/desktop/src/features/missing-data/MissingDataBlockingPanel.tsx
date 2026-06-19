@@ -126,6 +126,13 @@ function MissingDataLine({ label, value, testId }: { label: string; value: strin
   );
 }
 
+// Count of solve/rule-check blocking warnings, for the global Issues badge so it
+// reflects the missing-input blockers the Issues home shows (TP-MAC-189 step 12),
+// not just the raw diagnostics arrays.
+export function countMissingDataBlockers(args: { model: PreviewModel; result: MechanicsResult | null }): number {
+  return buildMissingDataBlockingPacket(args).summary.blocking_warning_count;
+}
+
 function buildMissingDataBlockingPacket({
   model,
   result

@@ -1,6 +1,7 @@
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
 import { type CSSProperties, type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {
   describeUnitBasis,
   loadUnitCatalog,
@@ -23,6 +24,7 @@ type Props = {
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
+const VIEW_TARGET = { x: 3.8, y: 1.2, z: 0.7 } as const;
 
 type ViewportSelectionTarget = {
   ref: EntityRef;
@@ -71,6 +73,8 @@ type DeformationOverlay = {
 export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], result = null, selection }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const draftProjectorRef = useRef<DraftProjector | null>(null);
+  const cameraStateRef = useRef<{ position: [number, number, number]; target: [number, number, number] } | null>(null);
+  const lastPresetRef = useRef<ViewPreset | null>(null);
   const defaultLengthUnit = model.project.units.length ?? "TBD";
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
@@ -125,13 +129,38 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf6f7f4);
     const camera = new THREE.PerspectiveCamera(42, host.clientWidth / host.clientHeight, 0.1, 1000);
-    applyViewPreset(camera, viewPreset);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(host.clientWidth, host.clientHeight);
     host.replaceChildren(renderer.domElement);
     draftProjectorRef.current = (event) => raycastDraftPoint(event, renderer.domElement, camera);
+
+    // Interactive orbit/pan/zoom. Camera state is preserved across the scene
+    // rebuilds that fire on model/selection/deformation changes, so picking an
+    // entity no longer snaps the view back; clicking a view-preset button (which
+    // changes viewPreset) deliberately re-frames the model.
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    const presetChanged = lastPresetRef.current !== viewPreset;
+    if (presetChanged || !cameraStateRef.current) {
+      applyViewPreset(camera, viewPreset);
+      controls.target.set(VIEW_TARGET.x, VIEW_TARGET.y, VIEW_TARGET.z);
+    } else {
+      const saved = cameraStateRef.current;
+      camera.position.set(saved.position[0], saved.position[1], saved.position[2]);
+      controls.target.set(saved.target[0], saved.target[1], saved.target[2]);
+    }
+    lastPresetRef.current = viewPreset;
+    controls.update();
+    const persistCameraState = () => {
+      cameraStateRef.current = {
+        position: [camera.position.x, camera.position.y, camera.position.z],
+        target: [controls.target.x, controls.target.y, controls.target.z]
+      };
+    };
+    controls.addEventListener("change", persistCameraState);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.72));
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -186,6 +215,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
+      controls.update();
       renderer.render(scene, camera);
     };
     animate();
@@ -193,6 +223,8 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
+      controls.removeEventListener("change", persistCameraState);
+      controls.dispose();
       draftProjectorRef.current = null;
       renderer.dispose();
       host.replaceChildren();
@@ -375,6 +407,9 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
         </div>
         <span data-testid="command-selection-readout">
           Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
+        </span>
+        <span className="command-hint" data-testid="viewport-orbit-hint">
+          Drag to orbit · scroll to zoom · right-drag to pan
         </span>
       </section>
       <section className="viewport-intents" aria-label="Viewport editor intents">

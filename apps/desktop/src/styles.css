@@ -1426,6 +1426,12 @@ button:focus-visible {
   color: #7c4d15;
 }
 
+.dual-unit-cell {
+  color: #5d6b66;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .viewport-shell {
   display: grid;
   grid-template-rows: auto minmax(520px, 1fr) auto auto;
@@ -1607,6 +1613,12 @@ button:focus-visible {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.command-hint {
+  color: #5d6b66;
+  font-size: 11px;
+  font-style: italic;
 }
 
 .viewport-toolbar > span {

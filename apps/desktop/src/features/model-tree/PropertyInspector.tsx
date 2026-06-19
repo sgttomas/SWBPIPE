@@ -10,6 +10,7 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties } from "../model-workspace/modelView";
+import { dualUnitDisplay } from "../../services/unitConversion";
 
 export function PropertyInspector({
   model,
@@ -673,9 +674,8 @@ function InlineValidationPreview({
   return (
     <article className="editor-inline-validation" data-testid="editor-intent-inline-validation">
       <strong data-testid="editor-intent-inline-validation-status">
-        {outcome.mode}; application_status={outcome.validation.application_status}; schema=
-        {outcome.validation.schema_validation}; unit={outcome.validation.unit_validation}; before_state=
-        {outcome.validation.before_state_validation}
+        {outcome.mode} — application status: {outcome.validation.application_status}; schema: {outcome.validation.schema_validation};
+        units: {outcome.validation.unit_validation}; prior state: {outcome.validation.before_state_validation}
       </strong>
       {outcome.diff_preview.map((row) => (
         <small data-testid="editor-intent-inline-validation-diff" key={`${row.entity_ref}-${row.field_path}-${row.after}`}>
@@ -765,20 +765,20 @@ function OperationIntentPreview({ intent }: { intent: EditorOperationIntent }) {
         />
         <IntentFact
           label="Audit boundary"
-          value={`${intent.audit_boundary.mutation_route}; direct_model_mutation_allowed=${String(
-            intent.audit_boundary.direct_model_mutation_allowed
-          )}; requires_user_acceptance=${String(intent.audit_boundary.requires_user_acceptance)}; mutates_accepted_model_state=${String(
+          value={`Routed through the ${intent.audit_boundary.mutation_route.replaceAll("_", " ")}; ${
+            intent.audit_boundary.direct_model_mutation_allowed ? "allows direct model mutation" : "no direct model mutation"
+          }; ${intent.audit_boundary.requires_user_acceptance ? "requires your acceptance" : "no acceptance required"}; ${
             intent.audit_boundary.mutates_accepted_model_state
-          )}`}
+              ? "changes the accepted model"
+              : "does not change the accepted model until applied"
+          }`}
           testId="editor-intent-audit-boundary"
         />
         <IntentFact
           label="Professional boundary"
-          value={`human_review_required=${String(
-            intent.professional_boundary.human_review_required
-          )}; software_makes_compliance_claim=${String(
-            intent.professional_boundary.software_makes_compliance_claim
-          )}; software_makes_approval_claim=${String(intent.professional_boundary.software_makes_approval_claim)}`}
+          value={`${intent.professional_boundary.human_review_required ? "Requires human review" : "No human review flagged"}; ${
+            intent.professional_boundary.software_makes_compliance_claim ? "makes a compliance claim" : "no compliance claim"
+          }; ${intent.professional_boundary.software_makes_approval_claim ? "makes an approval claim" : "no approval claim"}`}
           testId="editor-intent-professional-boundary"
         />
         <IntentFact label="Rationale" value={intent.rationale || "TBD"} />
@@ -803,9 +803,9 @@ function IntentQueue({ intents = [] }: { intents?: EditorOperationIntent[] }) {
           <strong>{intent.queue_id}</strong>
           <span>{intent.operation_id}</span>
           <small>
-            {intent.change.field_path}: {intent.change.before} to {intent.change.after}; application_status=
-            {intent.validation.application_status}; mutates_accepted_model_state=
-            {String(intent.audit_boundary.mutates_accepted_model_state)}
+            {intent.change.field_path}: {intent.change.before} to {intent.change.after}; status:{" "}
+            {intent.validation.application_status};{" "}
+            {intent.audit_boundary.mutates_accepted_model_state ? "changes accepted model" : "no accepted model change"}
           </small>
         </article>
       ))}
@@ -831,14 +831,18 @@ function DualUnitValue({
   unit: string;
   basis: UnitBasisDisplay | null;
 }) {
+  const dual = dualUnitDisplay(value, unit);
   return (
     <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Dual-unit display">
       <span>Dual units</span>
       <strong>
-        {value} {unit}
+        {dual.enteredValue} {dual.enteredUnit}
       </strong>
+      <small data-testid="inspector-dual-unit-converted">
+        {dual.convertedValue ? `≈ ${dual.convertedValue} ${dual.convertedUnit}` : "No SI/US companion for this unit."}
+      </small>
       <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
-      <small>Storage remains entered-units-preserved.</small>
+      <small>Display only — storage stays entered-units-preserved.</small>
     </section>
   );
 }

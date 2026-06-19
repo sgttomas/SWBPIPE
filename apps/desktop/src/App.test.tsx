@@ -2432,10 +2432,10 @@ describe("OpenPipeStress desktop preview", () => {
       "op:editor-intent-material:invented-carbon-steel-label"
     );
     expect(within(intentPanel).getByTestId("editor-intent-audit-boundary").textContent).toContain(
-      "direct_model_mutation_allowed=false"
+      "no direct model mutation"
     );
     expect(within(intentPanel).getByTestId("editor-intent-professional-boundary").textContent).toContain(
-      "software_makes_compliance_claim=false"
+      "no compliance claim"
     );
     expect(within(intentPanel).getByTestId("queue-editor-intent")).toBeDisabled();
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-field"), {
@@ -2460,14 +2460,14 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(intentPanel).getByTestId("validate-editor-intent-inline"));
     await waitFor(() =>
       expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
-        "validate_only; application_status=not_applied"
+        "application status: not_applied"
       )
     );
     expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
-      "schema=passed"
+      "schema: passed"
     );
     expect(within(intentPanel).getByTestId("editor-intent-inline-validation-status").textContent).toContain(
-      "unit=passed"
+      "units: passed"
     );
     expect(within(intentPanel).getByTestId("editor-intent-inline-validation-diff").textContent).toContain(
       `material:invented-carbon-steel elastic_modulus.value 200000000000 to ${expectedMaterialEditAfter} [Pa]`
@@ -2478,7 +2478,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(intentPanel).getByTestId("queue-editor-intent"));
     expect(within(intentPanel).getByTestId("editor-intent-queue").textContent).toContain("editor-intent-1");
     expect(within(intentPanel).getByTestId("editor-intent-queue").textContent).toContain(
-      "mutates_accepted_model_state=false"
+      "no accepted model change"
     );
     expect(within(intentPanel).getByRole("button", { name: /Queue review intent/i })).not.toBeDisabled();
     expect(within(inspector).getByRole("heading", { name: "Invented carbon-steel-like material" })).toBeInTheDocument();
@@ -6697,10 +6697,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(within(comparison).getByTestId("comparison-unit-policy").textContent).toContain("conversion=false");
     const earlyResults = await screen.findByLabelText("Results");
     expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain(
-      "units=MPa,N,N*m,mm,rad"
+      "MPa, N, N*m, mm, rad"
     );
-    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain("rows=737");
-    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain("conversion=false");
+    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain("737 rows");
+    expect(within(earlyResults).getByTestId("result-unit-policy").textContent).toContain("entered units preserved");
     expect(within(comparison).getByTestId("comparison-mapping-basis").textContent).toContain("source_result_refs");
     expect(within(comparison).getByTestId("comparison-boundary").textContent).toContain(
       "no compliance, certification, sealing, authentication, or approval claim"
@@ -6747,9 +6747,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(await screen.findByRole("heading", { name: "Rack span" })).toBeInTheDocument();
     expect(within(comparison).getByTestId("comparison-summary").textContent).toContain("243 comparable pairs");
     const results = await screen.findByLabelText("Results");
-    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("units=MPa,N,N*m,mm,rad");
-    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("rows=737");
-    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("conversion=false");
+    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("MPa, N, N*m, mm, rad");
+    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("737 rows");
+    expect(within(results).getByTestId("result-unit-policy").textContent).toContain("entered units preserved");
     expect(within(results).getByTestId("result-group-displacement")).toBeInTheDocument();
     expect(within(results).getByTestId("result-group-reaction")).toBeInTheDocument();
     expect(within(results).getByTestId("result-group-force")).toBeInTheDocument();

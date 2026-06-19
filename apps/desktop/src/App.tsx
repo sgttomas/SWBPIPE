@@ -32,7 +32,7 @@ import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
-import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
+import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
@@ -1682,7 +1682,13 @@ function issueCountFor(
     (count, outcome) => count + outcome.diagnostics.length,
     0
   );
-  return model.diagnostics.length + (knowledge?.diagnostics.length ?? 0) + (result?.diagnostics.length ?? 0) + operationDiagnosticCount;
+  return (
+    model.diagnostics.length +
+    (knowledge?.diagnostics.length ?? 0) +
+    (result?.diagnostics.length ?? 0) +
+    operationDiagnosticCount +
+    countMissingDataBlockers({ model, result })
+  );
 }
 
 function GuidedWorkbench({
