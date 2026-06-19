@@ -1074,42 +1074,40 @@ button:focus-visible {
 
 .viewport-axis-triad,
 .viewport-view-cube,
-.viewport-scale-bar,
-.viewport-load-glyphs,
-.viewport-selection-handles {
+.viewport-scale-bar {
   position: absolute;
   z-index: 2;
 }
 
 .viewport-axis-triad {
-  left: 14px;
-  bottom: 14px;
-  display: grid;
-  grid-template-columns: repeat(3, 24px);
-  gap: 5px;
+  left: 12px;
+  bottom: 12px;
+  width: 96px;
+  height: 96px;
 }
 
-.viewport-axis-triad .axis {
-  display: grid;
-  width: 24px;
-  height: 24px;
-  place-items: center;
-  border-radius: 50%;
-  color: #ffffff;
+.viewport-gizmo-host,
+.viewport-gizmo-host canvas {
+  width: 96px;
+  height: 96px;
+}
+
+.viewport-display-toggles {
+  display: flex;
+  gap: 4px;
+}
+
+.viewport-display-toggles button {
+  min-height: 24px;
+  padding: 2px 8px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
-.viewport-axis-triad .x {
-  background: #b9462f;
-}
-
-.viewport-axis-triad .y {
-  background: #347b46;
-}
-
-.viewport-axis-triad .z {
-  background: #2e638f;
+.viewport-display-toggles button[aria-pressed="true"] {
+  color: #ffffff;
+  background: #31403d;
+  border-color: #31403d;
 }
 
 .viewport-view-cube {
@@ -1143,42 +1141,6 @@ button:focus-visible {
   font-size: 12px;
   font-weight: 700;
   text-align: center;
-}
-
-.viewport-load-glyphs {
-  inset: 0;
-  pointer-events: none;
-}
-
-.viewport-load-glyph {
-  position: absolute;
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border: 2px solid #7c4d15;
-  border-radius: 50%;
-  color: #7c4d15;
-  background: #fff3df;
-  font-weight: 900;
-}
-
-.viewport-selection-handles {
-  width: 54px;
-  height: 54px;
-  margin: -27px 0 0 -27px;
-  border: 2px solid #f08c22;
-  border-radius: 5px;
-  box-shadow: 0 0 0 2px rgb(255 255 255 / 80%);
-  pointer-events: none;
-}
-
-.viewport-selection-handles::before,
-.viewport-selection-handles::after {
-  content: "";
-  position: absolute;
-  inset: 7px;
-  border: 1px dashed #f08c22;
 }
 
 .command-bar {

@@ -1,5 +1,5 @@
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
-import { type CSSProperties, type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {
@@ -25,6 +25,7 @@ type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_componen
 type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 const VIEW_TARGET = { x: 3.8, y: 1.2, z: 0.7 } as const;
+const GIZMO_SIZE = 96;
 
 type ViewportSelectionTarget = {
   ref: EntityRef;
@@ -75,6 +76,9 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   const draftProjectorRef = useRef<DraftProjector | null>(null);
   const cameraStateRef = useRef<{ position: [number, number, number]; target: [number, number, number] } | null>(null);
   const lastPresetRef = useRef<ViewPreset | null>(null);
+  const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
+  const selectionLayerRef = useRef<HTMLDivElement | null>(null);
+  const gizmoHostRef = useRef<HTMLDivElement | null>(null);
   const defaultLengthUnit = model.project.units.length ?? "TBD";
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
@@ -82,6 +86,9 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
+  const [showLabels, setShowLabels] = useState(true);
+  const [showLoads, setShowLoads] = useState(true);
+  const [showGrid, setShowGrid] = useState(true);
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
@@ -166,14 +173,30 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
     key.position.set(4, 9, 7);
     scene.add(key);
-    scene.add(grid());
 
     const nodeMap = new Map(model.nodes.map((node) => [node.id, node.position]));
+    if (showGrid) scene.add(referenceGround(model));
+
+    // Pickable meshes (raycast click-to-select) and the 3D anchor positions used
+    // to keep the entity labels pinned to their part as the camera orbits.
+    const pickables: THREE.Object3D[] = [];
+    const anchorPositions: Array<{ id: string; position: THREE.Vector3; offsetPct: number }> = [];
+    const tag = (object: THREE.Object3D, ref: EntityRef, position: Vec3) => {
+      object.userData.entityRef = ref;
+      pickables.push(object);
+      // Co-located entities (a support/component sits on its node) would stack
+      // their labels at the same screen point; nudge them apart vertically.
+      const offsetPct = ref.type === "support" ? 8 : ref.type === "component" ? -8 : 0;
+      anchorPositions.push({ id: ref.id, position: new THREE.Vector3(position.x, position.y, position.z), offsetPct });
+    };
+
     for (const segment of model.pipe_segments) {
       const from = nodeMap.get(segment.from);
       const to = nodeMap.get(segment.to);
       if (!from || !to) continue;
-      scene.add(pipeMesh(from, to, selection.id === segment.id));
+      const mesh = pipeMesh(from, to, selection.id === segment.id);
+      tag(mesh, { type: "pipe", id: segment.id }, midpoint(from, to));
+      scene.add(mesh);
     }
     if (deformation.state === "available") {
       for (const segment of model.pipe_segments) {
@@ -189,18 +212,89 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       }
     }
     for (const node of model.nodes) {
-      scene.add(marker(node.position, selection.id === node.id ? 0xf08c22 : 0x2f6f73, 0.095));
+      const mesh = marker(node.position, selection.id === node.id ? 0xf08c22 : 0x2f6f73, 0.095);
+      tag(mesh, { type: "node", id: node.id }, node.position);
+      scene.add(mesh);
     }
     for (const support of model.supports) {
       const node = nodeMap.get(support.node);
       if (!node) continue;
-      scene.add(supportMesh(node, selection.id === support.id));
+      const mesh = supportMesh(node, selection.id === support.id);
+      tag(mesh, { type: "support", id: support.id }, { x: node.x, y: node.y - 0.26, z: node.z });
+      scene.add(mesh);
     }
     for (const component of model.components) {
       const node = nodeMap.get(component.node);
       if (!node) continue;
-      scene.add(componentMesh(node, selection.id === component.id));
+      const mesh = componentMesh(node, selection.id === component.id);
+      tag(mesh, { type: "component", id: component.id }, { x: node.x, y: node.y + 0.2, z: node.z });
+      scene.add(mesh);
     }
+    if (showLoads) {
+      for (const arrow of buildLoadArrows(model, nodeMap)) scene.add(arrow);
+    }
+
+    // Raycast picking: clicking a mesh selects its entity (primary selection).
+    const raycaster = new THREE.Raycaster();
+    pickRef.current = (event) => {
+      const fraction = eventPositionFraction(renderer.domElement, event);
+      const pointer = new THREE.Vector2(fraction.x * 2 - 1, -(fraction.y * 2 - 1));
+      raycaster.setFromCamera(pointer, camera);
+      for (const hit of raycaster.intersectObjects(pickables, true)) {
+        let object: THREE.Object3D | null = hit.object;
+        while (object) {
+          const ref = object.userData?.entityRef as EntityRef | undefined;
+          if (ref) return ref;
+          object = object.parent;
+        }
+      }
+      return null;
+    };
+
+    // Orientation gizmo: a small second scene showing the world X/Y/Z axes,
+    // viewed from the same direction as the main camera so it rotates with the
+    // orbit. Rendered into its own corner canvas.
+    const gizmoHost = gizmoHostRef.current;
+    let gizmoRenderer: THREE.WebGLRenderer | null = null;
+    let gizmoScene: THREE.Scene | null = null;
+    let gizmoCamera: THREE.PerspectiveCamera | null = null;
+    if (gizmoHost) {
+      gizmoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      gizmoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      gizmoRenderer.setSize(GIZMO_SIZE, GIZMO_SIZE);
+      gizmoHost.replaceChildren(gizmoRenderer.domElement);
+      gizmoScene = new THREE.Scene();
+      gizmoScene.add(buildOrientationGizmo());
+      gizmoCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    }
+
+    const renderGizmo = () => {
+      if (!gizmoRenderer || !gizmoScene || !gizmoCamera) return;
+      const offset = camera.position.clone().sub(controls.target);
+      if (offset.lengthSq() === 0) offset.set(0, 0, 1);
+      gizmoCamera.position.copy(offset.normalize().multiplyScalar(3.2));
+      gizmoCamera.up.copy(camera.up);
+      gizmoCamera.lookAt(0, 0, 0);
+      gizmoRenderer.render(gizmoScene, gizmoCamera);
+    };
+
+    // Keep the (toggleable) entity labels pinned to their part: project each
+    // anchor to screen space every frame so the label tracks the 3D position
+    // through orbit/pan/zoom instead of floating at a fixed screen spot.
+    const updateLabelAnchors = () => {
+      const layer = selectionLayerRef.current;
+      if (!layer) return;
+      for (const { id, position, offsetPct } of anchorPositions) {
+        const button = layer.querySelector<HTMLElement>(`[data-testid="viewport-select-${id}"]`);
+        if (!button) continue;
+        const projected = position.clone().project(camera);
+        const behind = projected.z > 1;
+        button.style.display = behind ? "none" : "";
+        if (behind) continue;
+        button.style.left = `${clamp((projected.x * 0.5 + 0.5) * 100, 2, 98)}%`;
+        button.style.top = `${clamp((-projected.y * 0.5 + 0.5) * 100 + offsetPct, 2, 98)}%`;
+      }
+    };
 
     const resize = () => {
       const { clientWidth, clientHeight } = host;
@@ -217,6 +311,8 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       frame = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
+      renderGizmo();
+      updateLabelAnchors();
     };
     animate();
 
@@ -225,11 +321,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       window.removeEventListener("resize", resize);
       controls.removeEventListener("change", persistCameraState);
       controls.dispose();
+      pickRef.current = null;
       draftProjectorRef.current = null;
       renderer.dispose();
+      gizmoRenderer?.dispose();
+      if (gizmoHost) gizmoHost.replaceChildren();
       host.replaceChildren();
     };
-  }, [model, selection, deformation, viewPreset]);
+  }, [model, selection, deformation, viewPreset, showLoads, showGrid]);
 
   function addIntent(commandType: ViewportCommandType) {
     const intent = buildIntent(
@@ -303,6 +402,16 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     );
   }
 
+  function handleViewportPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 && event.button !== undefined) return;
+    const picked = pickRef.current?.(event);
+    if (picked) {
+      onSelect(picked);
+      return;
+    }
+    captureNodeDraftFromViewport(event);
+  }
+
   return (
     <div className="viewport-shell">
       <div className="viewport-toolbar">
@@ -315,18 +424,51 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
           <strong data-testid="viewport-deformation-summary">{deformation.summary}</strong>
           <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>
         </span>
+        <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
+          <button
+            type="button"
+            data-testid="toggle-viewport-labels"
+            aria-pressed={showLabels}
+            className={showLabels ? "active" : ""}
+            onClick={() => setShowLabels((value) => !value)}
+            title="Show or hide entity labels"
+          >
+            Labels
+          </button>
+          <button
+            type="button"
+            data-testid="toggle-viewport-loads"
+            aria-pressed={showLoads}
+            className={showLoads ? "active" : ""}
+            onClick={() => setShowLoads((value) => !value)}
+            title="Show or hide load arrows"
+          >
+            Loads
+          </button>
+          <button
+            type="button"
+            data-testid="toggle-viewport-grid"
+            aria-pressed={showGrid}
+            className={showGrid ? "active" : ""}
+            onClick={() => setShowGrid((value) => !value)}
+            title="Show or hide the ground grid"
+          >
+            Grid
+          </button>
+        </div>
         <span>Selected: {selection.id}</span>
       </div>
       <div className="viewport-frame">
         <div
           className="viewport-canvas"
           data-testid="viewport-canvas"
-          onPointerDown={captureNodeDraftFromViewport}
+          onPointerDown={handleViewportPointerDown}
           ref={hostRef}
           aria-label="Three.js pipe centerline viewport"
-          title="Draft node from viewport"
+          title="Click a part to select it; drag to orbit, scroll to zoom"
         />
-        <div className="viewport-selection-layer" aria-label="Viewport entity selection" data-testid="viewport-selection-layer">
+        {showLabels ? (
+        <div className="viewport-selection-layer" aria-label="Viewport entity selection" data-testid="viewport-selection-layer" ref={selectionLayerRef}>
           {selectionTargets.map((target) => {
             const active = selection.id === target.ref.id;
             return (
@@ -347,10 +489,9 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
             );
           })}
         </div>
-        <div className="viewport-axis-triad" aria-label="Axis triad" data-testid="viewport-axis-triad">
-          <span className="axis x">X</span>
-          <span className="axis y">Y</span>
-          <span className="axis z">Z</span>
+        ) : null}
+        <div className="viewport-axis-triad" aria-label="Orientation gizmo" data-testid="viewport-axis-triad">
+          <div className="viewport-gizmo-host" ref={gizmoHostRef} aria-hidden="true" />
         </div>
         <div className="viewport-view-cube" aria-label="View controls" data-testid="viewport-view-cube">
           <button type="button" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")}>
@@ -366,29 +507,6 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
         <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
           1 {defaultLengthUnit}
         </div>
-        <div className="viewport-load-glyphs" aria-label="Load glyphs" data-testid="viewport-load-glyphs">
-          {model.load_cases.flatMap((loadCase, loadCaseIndex) =>
-            (loadCase.primitive_loads ?? []).slice(0, 4).map((_, primitiveIndex) => (
-              <span
-                className="viewport-load-glyph"
-                key={`${loadCase.id}:${primitiveIndex}`}
-                style={{
-                  left: `${18 + primitiveIndex * 9}%`,
-                  top: `${20 + loadCaseIndex * 7}%`
-                }}
-                title={`${loadCase.id} primitive load ${primitiveIndex + 1}`}
-              >
-                ↑
-              </span>
-            ))
-          )}
-        </div>
-        <div
-          className="viewport-selection-handles"
-          aria-label="Selection handles"
-          data-testid="viewport-selection-handles"
-          style={selectionHandleStyle(selectionTargets, selection)}
-        />
       </div>
       <section className="command-bar" aria-label="Command and selection bar" data-testid="command-bar">
         <div className="command-buttons" aria-label="Command shortcuts">
@@ -725,17 +843,6 @@ function applyViewPreset(camera: THREE.PerspectiveCamera, preset: ViewPreset) {
   }
   camera.lookAt(3.8, 1.2, 0.7);
   camera.updateProjectionMatrix();
-}
-
-function selectionHandleStyle(targets: ViewportSelectionTarget[], selection: EntityRef): CSSProperties {
-  const target = targets.find((candidate) => candidate.ref.type === selection.type && candidate.ref.id === selection.id);
-  if (!target) {
-    return { display: "none" };
-  }
-  return {
-    left: `${target.screen.x}%`,
-    top: `${target.screen.y}%`
-  };
 }
 
 function emptyPipeDraft(lengthUnit: string): PipeDraft {
@@ -1344,11 +1451,105 @@ function deformationMarker(position: Vec3, active: boolean) {
   ).translateX(position.x).translateY(position.y).translateZ(position.z);
 }
 
-function grid() {
-  const helper = new THREE.GridHelper(10, 10, 0x8b9490, 0xd6dbd4);
-  helper.position.set(3.8, -0.02, 1.1);
-  helper.rotation.x = Math.PI / 2;
+// Ground reference grid on the global XZ plane, centred under the model bounds
+// and sized to the model — replaces the old fixed-size grid that was rotated
+// into a vertical plane and offset from a hard-coded point.
+function referenceGround(model: PreviewModel): THREE.GridHelper {
+  const xs = model.nodes.map((node) => node.position.x);
+  const ys = model.nodes.map((node) => node.position.y);
+  const zs = model.nodes.map((node) => node.position.z);
+  const minX = xs.length ? Math.min(...xs) : 0;
+  const maxX = xs.length ? Math.max(...xs) : 1;
+  const minY = ys.length ? Math.min(...ys) : 0;
+  const minZ = zs.length ? Math.min(...zs) : 0;
+  const maxZ = zs.length ? Math.max(...zs) : 1;
+  const size = Math.max(maxX - minX, maxZ - minZ, 1) * 1.6;
+  const divisions = Math.max(4, Math.min(20, Math.round(size)));
+  const helper = new THREE.GridHelper(size, divisions, 0xb6bfb9, 0xdce1db);
+  helper.position.set((minX + maxX) / 2, minY - 0.02, (minZ + maxZ) / 2);
+  const material = helper.material as THREE.Material & { opacity: number };
+  material.transparent = true;
+  material.opacity = 0.55;
   return helper;
+}
+
+// Real 3D load arrows anchored to the loaded node or element midpoint and
+// oriented along the load's global direction, so they move with the model.
+function buildLoadArrows(model: PreviewModel, nodeMap: Map<string, Vec3>): THREE.Object3D[] {
+  const pipeMidpoints = new Map<string, Vec3>();
+  for (const segment of model.pipe_segments) {
+    const from = nodeMap.get(segment.from);
+    const to = nodeMap.get(segment.to);
+    if (from && to) pipeMidpoints.set(segment.id, midpoint(from, to));
+  }
+  const arrows: THREE.Object3D[] = [];
+  for (const loadCase of model.load_cases) {
+    for (const primitive of loadCase.primitive_loads ?? []) {
+      const record = primitive as Record<string, unknown>;
+      const anchor = loadAnchor(record, nodeMap, pipeMidpoints);
+      const direction = globalDirectionVector(record);
+      if (!anchor || !direction) continue;
+      const isMoment = String(record.dimension ?? "").includes("moment");
+      const color = isMoment ? 0x7b4ea3 : 0xd9822b;
+      const origin = new THREE.Vector3(anchor.x, anchor.y, anchor.z);
+      arrows.push(new THREE.ArrowHelper(direction, origin, 0.9, color, 0.28, 0.16));
+    }
+  }
+  return arrows;
+}
+
+function loadAnchor(
+  primitive: Record<string, unknown>,
+  nodeMap: Map<string, Vec3>,
+  pipeMidpoints: Map<string, Vec3>
+): Vec3 | null {
+  const target = primitive.target as Record<string, unknown> | undefined;
+  if (!target) return null;
+  if (target.type === "node" && typeof target.node === "string") return nodeMap.get(target.node) ?? null;
+  if (target.type === "element" && typeof target.pipe === "string") return pipeMidpoints.get(target.pipe) ?? null;
+  return null;
+}
+
+function globalDirectionVector(primitive: Record<string, unknown>): THREE.Vector3 | null {
+  const direction = String(primitive.direction ?? "");
+  const magnitude = primitive.magnitude as { value?: number } | undefined;
+  const sign = (magnitude?.value ?? 1) < 0 ? -1 : 1;
+  const axis = direction.includes("_x")
+    ? new THREE.Vector3(1, 0, 0)
+    : direction.includes("_y")
+      ? new THREE.Vector3(0, 1, 0)
+      : direction.includes("_z")
+        ? new THREE.Vector3(0, 0, 1)
+        : null;
+  return axis ? axis.multiplyScalar(sign).normalize() : null;
+}
+
+// X/Y/Z orientation gizmo: coloured world axes plus letter sprites.
+function buildOrientationGizmo(): THREE.Object3D {
+  const group = new THREE.Group();
+  group.add(new THREE.AxesHelper(1));
+  group.add(axisLabelSprite("X", "#b9462f", new THREE.Vector3(1.3, 0, 0)));
+  group.add(axisLabelSprite("Y", "#347b46", new THREE.Vector3(0, 1.3, 0)));
+  group.add(axisLabelSprite("Z", "#2e638f", new THREE.Vector3(0, 0, 1.3)));
+  return group;
+}
+
+function axisLabelSprite(text: string, color: string, position: THREE.Vector3): THREE.Sprite {
+  const canvas = document.createElement("canvas");
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = color;
+    ctx.font = "bold 48px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 32, 36);
+  }
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true }));
+  sprite.position.copy(position);
+  sprite.scale.set(0.55, 0.55, 0.55);
+  return sprite;
 }
 
 function toVector(position: Vec3) {
