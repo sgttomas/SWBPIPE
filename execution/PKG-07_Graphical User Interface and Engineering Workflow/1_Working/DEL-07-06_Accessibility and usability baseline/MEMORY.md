@@ -1,5 +1,26 @@
 # DEL-07-06 Memory
 
+## 2026-06-19 - TP-R3UX-GRIDMODE-001 C5.7R Inc 6 layout grid
+
+WORKING_ITEMS added the committed Inc 6 bulk-tabular Grid mode to the Model
+pane. Tree mode remains available; Grid mode exposes editable tables for nodes,
+pipes, supports, materials, sections, components, load cases, and combinations.
+Changed cells queue ordinary structured review intents through the existing
+operation seam; no new backend contract or direct model mutation path was
+introduced.
+
+Evidence is recorded in
+`_run_records/WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-GRIDMODE-001.md` and
+`apps/desktop/SMOKE.md` TP-MAC-273.
+
+Validation passed: focused App Vitest 57/57; full desktop Vitest 400/400;
+desktop production build; dev Playwright 18/18; dist Playwright 1/1. The
+existing Vite large-chunk warning remains.
+
+Boundary preserved: frontend authoring ergonomics only. No lifecycle
+transition, release-readiness claim, professional approval, certification,
+sealing, authentication, or code-compliance claim changed.
+
 ## 2026-06-17 - TP-UNITS-BTAIL-A11YUNITVISIBILITY-001 unit-visibility evidence
 
 - WORKING_ITEMS added explicit unit-visibility evidence to the desktop

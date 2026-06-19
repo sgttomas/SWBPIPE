@@ -52,6 +52,23 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("ribbon-current-step")).toContainText("Queue a model edit");
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
   await expect(page.getByTestId("status-pill-professional")).toContainText("HUMAN_REVIEW_REQUIRED");
+  await page.getByTestId("layout-mode-grid").click();
+  await expect(page.getByTestId("entity-grid")).toBeVisible();
+  await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
+  await page.getByTestId("entity-grid-row-node:N-100").click();
+  await expect(page.getByLabel("Property inspector")).toContainText("node:N-100");
+  await page.getByTestId("entity-grid-input-node:N-100-x").fill("1.25");
+  await page.getByTestId("entity-grid-input-node:N-100-y").fill("0.5");
+  await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
+  await page.getByTestId("queue-entity-grid-intents").click();
+  await expect(page.getByTestId("entity-grid-queued-message")).toContainText("Queued 2 review intents");
+  await expect(page.getByTestId("operation-apply-row-editor-intent-1")).toContainText(
+    "op:grid-intent-node:N-100-position-x"
+  );
+  await expect(page.getByTestId("operation-apply-row-editor-intent-2")).toContainText(
+    "op:grid-intent-node:N-100-position-y"
+  );
+  await page.getByTestId("layout-mode-tree").click();
   await expect(page.getByTestId("audit-boundary-drawer")).toHaveCount(0);
   await page.getByTestId("audit-drawer-toggle").click();
   await expect(page.getByTestId("audit-boundary-drawer")).toBeVisible();

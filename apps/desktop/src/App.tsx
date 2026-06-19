@@ -1031,7 +1031,7 @@ export function App() {
       <div className="workspace">
         <section className="modeling-workspace" aria-label="Modeling workspace" data-testid="modeling-workspace">
           <div className="workspace-pane workspace-pane-tree">
-            <ModelTree model={model} selection={selection} onSelect={setSelection} />
+            <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={setSelection} />
           </div>
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport

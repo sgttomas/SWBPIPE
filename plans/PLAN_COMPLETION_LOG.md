@@ -14,6 +14,38 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-19 - C5.7R layout grid Inc 6 (`TP-R3UX-GRIDMODE-001`)
+
+Landed the committed bulk-tabular follow-through from the workspace redesign:
+the Model pane now supports Tree and Grid modes, with Grid mode exposing
+spreadsheet-style editable rows for nodes, pipes, supports, materials,
+sections, components, load cases, and combinations.
+
+Changed cells fan out to ordinary structured `EditorOperationIntent`s through
+the existing review/apply seam. Unit-bearing grid edits carry explicit unit
+metadata; relationship cells that are not part of this slice remain read-only.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-273; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-GRIDMODE-001.md`.
+
+Validation: focused App Vitest passed 57/57; full desktop Vitest passed
+18/18 files and 400/400 tests; desktop production build passed with the
+existing Vite chunk-size warning; dev Playwright passed 18/18; dist
+Playwright passed 1/1. The DEC-025 evidence sweep passed overall:
+`validation/evidence/sweeps/SWEEP_20260619T144814Z_48083bd29407-dirty.json`.
+
+Residuals: Inc 7 packaged build/pass-prep remains before the next human
+TP-MAC-189 packaged re-pass; F-4/A3 remain open until the human pass is
+recorded.
+
+Boundary: frontend authoring ergonomics and tests only. No solver, schema,
+evaluator, persistence, backend API, unit storage, protected-content,
+private-data, network/telemetry, lifecycle, release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-19 - C5.7R workspace redesign Inc 0-5 (`TP-R3UX-WORKSPACEREDESIGN-001`)
 
 Landed the minimum workspace redesign required before the first C5.7 packaged

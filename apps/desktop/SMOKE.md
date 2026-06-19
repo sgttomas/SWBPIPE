@@ -9201,3 +9201,33 @@ notes:
   approval, certification, sealing, authentication, or code-compliance claim
   changed. Inc 6 bulk tabular grid and the packaged human TP-MAC-189 re-pass
   remain residuals.
+
+## TP-MAC-273 workspace redesign Inc 6 layout grid - PASSED (`TP-R3UX-GRIDMODE-001`, 2026-06-19)
+
+- Scope: C5.7R Inc 6 committed follow-through. Adds the CAEPIPE-style bulk
+  tabular Grid mode to the left layout region while preserving Tree mode.
+- App behavior: the Model pane now has Tree/Grid segmented controls. Grid
+  mode exposes editable tables for nodes, pipes, supports, materials,
+  sections, components, load cases, and combinations. Editing cells records
+  local drafts; "Queue changed cells" fans each changed cell into an existing
+  structured `EditorOperationIntent` with no new backend contract.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - `npm test --workspace apps/desktop` passed 18/18 files and 400/400 tests.
+  - `npm run build --workspace apps/desktop` passed, retaining the existing
+    Vite chunk-size warning.
+  - `npm run test:e2e --workspace apps/desktop` passed 18/18 Playwright
+    checks across desktop and compact Chromium projects.
+  - `npm run test:e2e:dist --workspace apps/desktop` passed 1/1 packaged
+    production smoke check.
+  - `python3 tools/release/run_evidence_sweep.py --execute` passed overall;
+    summary:
+    `validation/evidence/sweeps/SWEEP_20260619T144814Z_48083bd29407-dirty.json`.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-GRIDMODE-001.md`.
+- Boundary: frontend shell/authoring ergonomics/test coverage only. No solver,
+  schema, evaluator, persistence, backend API, unit storage, protected-content,
+  private-data, network/telemetry, lifecycle, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed. Inc 7 packaged build/pass prep and the human TP-MAC-189 re-pass
+  remain residuals.

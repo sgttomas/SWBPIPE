@@ -1,53 +1,110 @@
-import { Box, CircleDot, GitBranch, Search, SquareStack, X, Zap } from "lucide-react";
+import { Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, X, Zap } from "lucide-react";
 import type React from "react";
-import { useMemo, useState } from "react";
-import type { EntityRef, PreviewModel } from "../../types";
+import { useEffect, useMemo, useState } from "react";
+import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
 
 type Props = {
   model: PreviewModel;
   selection: EntityRef;
   onSelect: (selection: EntityRef) => void;
+  onQueueIntent?: (intent: EditorOperationIntent) => void;
 };
 
-export function ModelTree({ model, selection, onSelect }: Props) {
+type LayoutMode = "tree" | "grid";
+type GridEntityType = "materials" | "sections" | "nodes" | "pipes" | "supports" | "components" | "load_cases" | "combinations";
+
+const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = [
+  { id: "nodes", label: "Nodes" },
+  { id: "pipes", label: "Pipes" },
+  { id: "supports", label: "Supports" },
+  { id: "materials", label: "Materials" },
+  { id: "sections", label: "Sections" },
+  { id: "components", label: "Components" },
+  { id: "load_cases", label: "Load Cases" },
+  { id: "combinations", label: "Combinations" }
+];
+
+export function ModelTree({ model, selection, onSelect, onQueueIntent }: Props) {
   const [filterText, setFilterText] = useState("");
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("tree");
+  const [gridEntityType, setGridEntityType] = useState<GridEntityType>(() => gridEntityTypeFromSelection(selection));
   const tree = useMemo(() => buildTree(model), [model]);
   const filteredTree = useMemo(() => filterTree(tree, filterText), [tree, filterText]);
+
+  useEffect(() => {
+    if (layoutMode === "grid") {
+      setGridEntityType(gridEntityTypeFromSelection(selection));
+    }
+  }, [layoutMode, selection.id, selection.type]);
 
   return (
     <div className="panel model-tree" aria-label="Model tree">
       <div className="panel-title">Model</div>
+      <section className="layout-mode-toggle" aria-label="Layout grid mode" data-testid="layout-grid-mode-toggle">
+        <button
+          aria-pressed={layoutMode === "tree"}
+          data-testid="layout-mode-tree"
+          onClick={() => setLayoutMode("tree")}
+          type="button"
+        >
+          <ListTree size={14} aria-hidden="true" />
+          Tree
+        </button>
+        <button
+          aria-pressed={layoutMode === "grid"}
+          data-testid="layout-mode-grid"
+          onClick={() => setLayoutMode("grid")}
+          type="button"
+        >
+          <Table2 size={14} aria-hidden="true" />
+          Grid
+        </button>
+      </section>
       <TreeControls
         filterText={filterText}
         filteredCount={filteredTree.count}
         totalCount={tree.count}
         onFilterChange={setFilterText}
       />
-      {filteredTree.project ? (
-        <TreeButton
-          active={selection.id === model.project.id}
-          item={filteredTree.project}
-          onClick={() => onSelect({ type: "project", id: model.project.id })}
+      {layoutMode === "grid" ? (
+        <EntityGrid
+          entityType={gridEntityType}
+          filterText={filterText}
+          model={model}
+          onEntityTypeChange={setGridEntityType}
+          onQueueIntent={onQueueIntent}
+          onSelect={onSelect}
+          selection={selection}
         />
-      ) : null}
-      {filteredTree.groups.length ? (
-        filteredTree.groups.map((group) => (
-          <TreeGroup key={group.title} title={group.title}>
-            {group.items.map((item) => (
-              <TreeButton
-                key={item.id}
-                active={selection.id === item.id}
-                item={item}
-                onClick={() => onSelect({ type: item.type, id: item.id })}
-              />
-            ))}
-          </TreeGroup>
-        ))
-      ) : !filteredTree.project ? (
-        <p className="muted" data-testid="model-tree-filter-empty">
-          No model entities match this filter.
-        </p>
-      ) : null}
+      ) : (
+        <>
+          {filteredTree.project ? (
+            <TreeButton
+              active={selection.id === model.project.id}
+              item={filteredTree.project}
+              onClick={() => onSelect({ type: "project", id: model.project.id })}
+            />
+          ) : null}
+          {filteredTree.groups.length ? (
+            filteredTree.groups.map((group) => (
+              <TreeGroup key={group.title} title={group.title}>
+                {group.items.map((item) => (
+                  <TreeButton
+                    key={item.id}
+                    active={selection.id === item.id}
+                    item={item}
+                    onClick={() => onSelect({ type: item.type, id: item.id })}
+                  />
+                ))}
+              </TreeGroup>
+            ))
+          ) : !filteredTree.project ? (
+            <p className="muted" data-testid="model-tree-filter-empty">
+              No model entities match this filter.
+            </p>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
@@ -302,4 +359,521 @@ function TreeButton({
       </span>
     </button>
   );
+}
+
+type GridColumn = {
+  key: string;
+  label: string;
+  fieldPath: string;
+  objectType: EditorOperationObjectType;
+  changeKind: EditorOperationIntent["change"]["change_kind"];
+  dimension: string;
+  sourceNote: string;
+  unit: (row: GridRow) => string;
+  value: (row: GridRow) => string;
+  unitEditable?: boolean;
+  readonly?: boolean;
+};
+
+type GridRow = {
+  id: string;
+  label: string;
+  type: EntityRef["type"];
+  searchText: string;
+  raw: unknown;
+};
+
+function EntityGrid({
+  entityType,
+  filterText,
+  model,
+  onEntityTypeChange,
+  onQueueIntent,
+  onSelect,
+  selection
+}: {
+  entityType: GridEntityType;
+  filterText: string;
+  model: PreviewModel;
+  onEntityTypeChange: (entityType: GridEntityType) => void;
+  onQueueIntent?: (intent: EditorOperationIntent) => void;
+  onSelect: (selection: EntityRef) => void;
+  selection: EntityRef;
+}) {
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [queuedMessage, setQueuedMessage] = useState("");
+  const rows = useMemo(() => gridRows(model, entityType), [model, entityType]);
+  const columns = useMemo(() => gridColumns(model, entityType), [model, entityType]);
+  const query = filterText.trim().toLowerCase();
+  const visibleRows = query ? rows.filter((row) => row.searchText.includes(query)) : rows;
+  const changedCells = changedGridCells({ columns, drafts, rows: visibleRows });
+  const queueDisabled = !onQueueIntent || changedCells.length === 0;
+
+  useEffect(() => {
+    setDrafts({});
+    setQueuedMessage("");
+  }, [entityType, model.project.id]);
+
+  function updateCell(row: GridRow, column: GridColumn, value: string) {
+    setDrafts((current) => {
+      const key = draftKey(row, column);
+      const baseValue = column.value(row);
+      const next = { ...current };
+      if (value === baseValue) {
+        delete next[key];
+      } else {
+        next[key] = value;
+      }
+      return next;
+    });
+  }
+
+  function handleQueueChangedCells() {
+    if (!onQueueIntent || changedCells.length === 0) return;
+    changedCells.forEach(({ column, row, value }, index) => {
+      onQueueIntent(buildGridOperationIntent({ column, model, row, sequence: index + 1, value }));
+    });
+    setQueuedMessage(`Queued ${changedCells.length} review intent${changedCells.length === 1 ? "" : "s"} from Grid mode.`);
+    setDrafts({});
+  }
+
+  return (
+    <section className="entity-grid" aria-label="Bulk entity grid" data-testid="entity-grid">
+      <div className="entity-grid-tabs" aria-label="Grid entity type">
+        {GRID_ENTITY_TYPES.map((item) => (
+          <button
+            aria-pressed={item.id === entityType}
+            data-testid={`entity-grid-type-${item.id}`}
+            key={item.id}
+            onClick={() => onEntityTypeChange(item.id)}
+            type="button"
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div className="entity-grid-summary">
+        <span data-testid="entity-grid-summary">
+          {visibleRows.length} of {rows.length} {GRID_ENTITY_TYPES.find((item) => item.id === entityType)?.label ?? "rows"}
+        </span>
+        <span data-testid="entity-grid-change-count">{changedCells.length} changed cells</span>
+      </div>
+      <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
+        <table data-testid={`entity-grid-table-${entityType}`}>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              {columns.map((column) => (
+                <th key={column.key} scope="col">
+                  {column.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((row) => (
+              <tr key={row.id} className={selection.id === row.id ? "active" : ""}>
+                <th scope="row">
+                  <button
+                    aria-pressed={selection.id === row.id}
+                    data-testid={`entity-grid-row-${row.id}`}
+                    onClick={() => onSelect({ type: row.type, id: row.id })}
+                    type="button"
+                  >
+                    {row.id}
+                  </button>
+                </th>
+                {columns.map((column) => {
+                  const key = draftKey(row, column);
+                  const value = drafts[key] ?? column.value(row);
+                  return (
+                    <td key={column.key}>
+                      {column.readonly ? (
+                        <span data-testid={`entity-grid-cell-${safeToken(row.id)}-${safeToken(column.key)}`}>{value}</span>
+                      ) : (
+                        <input
+                          aria-label={`${row.id} ${column.label}`}
+                          data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`}
+                          onChange={(event) => updateCell(row, column, event.target.value)}
+                          value={value}
+                        />
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {visibleRows.length === 0 ? (
+          <p className="muted" data-testid="entity-grid-empty">
+            No grid rows match this filter.
+          </p>
+        ) : null}
+      </div>
+      <div className="entity-grid-actions">
+        <button
+          data-testid="queue-entity-grid-intents"
+          disabled={queueDisabled}
+          onClick={handleQueueChangedCells}
+          type="button"
+        >
+          <Table2 size={14} aria-hidden="true" />
+          Queue changed cells
+        </button>
+        <button
+          data-testid="clear-entity-grid-drafts"
+          disabled={changedCells.length === 0}
+          onClick={() => setDrafts({})}
+          type="button"
+        >
+          <X size={14} aria-hidden="true" />
+          Clear grid edits
+        </button>
+      </div>
+      <p className="muted entity-grid-boundary" data-testid="entity-grid-boundary">
+        Grid mode fans each changed cell into a structured review intent; storage remains local and professional approval is not recorded.
+      </p>
+      {queuedMessage ? (
+        <p className="entity-grid-queued" data-testid="entity-grid-queued-message">
+          {queuedMessage}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {
+  if (entityType === "materials") {
+    return (model.materials ?? []).map((material) => row(material.id, material.label, "material", material, [
+      material.id,
+      material.label,
+      material.provenance
+    ]));
+  }
+  if (entityType === "sections") {
+    return (model.sections ?? []).map((section) =>
+      row(section.id, section.name, "section", section, [
+        section.id,
+        section.name,
+        section.section_type,
+        provenanceKeyword(section.provenance)
+      ])
+    );
+  }
+  if (entityType === "nodes") {
+    return model.nodes.map((node) => row(node.id, node.label, "node", node, [node.id, node.label, node.provenance]));
+  }
+  if (entityType === "pipes") {
+    return model.pipe_segments.map((pipe) =>
+      row(pipe.id, pipe.label, "pipe", pipe, [pipe.id, pipe.label, pipe.from, pipe.to, pipe.material, pipe.provenance])
+    );
+  }
+  if (entityType === "supports") {
+    return model.supports.map((support) =>
+      row(support.id, support.label, "support", support, [
+        support.id,
+        support.label,
+        support.node,
+        support.restraints.join(" "),
+        support.provenance
+      ])
+    );
+  }
+  if (entityType === "components") {
+    return model.components.map((component) =>
+      row(component.id, component.label, "component", component, [
+        component.id,
+        component.label,
+        component.kind,
+        component.node,
+        component.provenance
+      ])
+    );
+  }
+  if (entityType === "load_cases") {
+    return model.load_cases.map((loadCase) =>
+      row(loadCase.id, loadCase.label, "load", loadCase, [
+        loadCase.id,
+        loadCase.label,
+        loadCase.kind,
+        loadCase.status,
+        loadCase.provenance
+      ])
+    );
+  }
+  return (model.combinations ?? []).map((combination) =>
+    row(combination.id, combination.label, "combination", combination, [
+      combination.id,
+      combination.label,
+      combination.basis,
+      combination.provenance
+    ])
+  );
+}
+
+function row(id: string, label: string, type: EntityRef["type"], raw: unknown, keywords: string[]): GridRow {
+  return { id, label, type, raw, searchText: keywords.join(" ").toLowerCase() };
+}
+
+function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColumn[] {
+  const lengthUnit = model.project.units.length ?? "m";
+  if (entityType === "nodes") {
+    return [
+      scalarGridColumn("label", "Label", "label", "Node", "node label only"),
+      quantityGridColumn("x", "X", "position.x", "Node", "length", lengthUnit),
+      quantityGridColumn("y", "Y", "position.y", "Node", "length", lengthUnit),
+      quantityGridColumn("z", "Z", "position.z", "Node", "length", lengthUnit),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Node", "public/private source note")
+    ];
+  }
+  if (entityType === "pipes") {
+    return [
+      scalarGridColumn("label", "Label", "label", "Element", "pipe segment label only"),
+      readonlyGridColumn("from", "From", "from", "Element"),
+      readonlyGridColumn("to", "To", "to", "Element"),
+      scalarGridColumn("material", "Material", "material", "Element", "material reference"),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Element", "public/private source note")
+    ];
+  }
+  if (entityType === "supports") {
+    return [
+      scalarGridColumn("label", "Label", "label", "Support", "support label only", "update_support"),
+      scalarGridColumn("node", "Node", "node", "Support", "target node reference", "update_support"),
+      scalarGridColumn("restraints", "Restraints", "restraints", "Support", "restraint direction set", "update_support"),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Support", "public/private source note", "update_support")
+    ];
+  }
+  if (entityType === "materials") {
+    return [
+      scalarGridColumn("label", "Label", "label", "Material", "material label only"),
+      quantityGridColumn("elastic", "Elastic", "elastic_modulus.value", "Material", "stress", "Pa"),
+      quantityGridColumn("shear", "Shear", "shear_modulus.value", "Material", "stress", "Pa"),
+      quantityGridColumn("thermal", "Thermal", "thermal_expansion_coefficient.value", "Material", "thermal_expansion_coefficient", "1/degC"),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Material", "public/private source note")
+    ];
+  }
+  if (entityType === "sections") {
+    return [
+      scalarGridColumn("name", "Name", "name", "Section", "section label only"),
+      scalarGridColumn("type", "Type", "section_type", "Section", "section type"),
+      quantityGridColumn("outside", "Outside dia.", "properties.outside_diameter.value", "Section", "length", lengthUnit),
+      quantityGridColumn("wall", "Wall", "properties.wall_thickness.value", "Section", "length", lengthUnit),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Section", "public/private source note")
+    ];
+  }
+  if (entityType === "components") {
+    return [
+      scalarGridColumn("label", "Label", "label", "Component", "component label only"),
+      scalarGridColumn("kind", "Kind", "kind", "Component", "component type"),
+      scalarGridColumn("node", "Node", "node", "Component", "target node reference"),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Component", "public/private source note")
+    ];
+  }
+  if (entityType === "load_cases") {
+    return [
+      scalarGridColumn("label", "Label", "label", "Load", "load case label only", "update_load"),
+      scalarGridColumn("kind", "Kind", "kind", "Load", "load case kind", "update_load"),
+      scalarGridColumn("status", "Status", "status", "Load", "load case status", "update_load"),
+      scalarGridColumn("provenance", "Provenance", "provenance", "Load", "public/private source note", "update_load")
+    ];
+  }
+  return [
+    scalarGridColumn("label", "Label", "label", "Combination", "combination label only"),
+    scalarGridColumn("basis", "Basis", "basis", "Combination", "mechanics or user rule basis"),
+    scalarGridColumn("provenance", "Provenance", "provenance", "Combination", "public/private source note")
+  ];
+}
+
+function scalarGridColumn(
+  key: string,
+  label: string,
+  fieldPath: string,
+  objectType: EditorOperationObjectType,
+  sourceNote: string,
+  changeKind: GridColumn["changeKind"] = "set_field"
+): GridColumn {
+  return {
+    key,
+    label,
+    fieldPath,
+    objectType,
+    changeKind,
+    dimension: "dimensionless",
+    sourceNote,
+    unit: () => "none",
+    value: (gridRow) => stringValueAtPath(gridRow.raw, fieldPath)
+  };
+}
+
+function quantityGridColumn(
+  key: string,
+  label: string,
+  fieldPath: string,
+  objectType: EditorOperationObjectType,
+  dimension: string,
+  fallbackUnit: string,
+  changeKind: GridColumn["changeKind"] = "set_field"
+): GridColumn {
+  return {
+    key,
+    label,
+    fieldPath,
+    objectType,
+    changeKind,
+    dimension,
+    sourceNote: "unit metadata required; entered unit captured explicitly",
+    unitEditable: false,
+    unit: (gridRow) => quantityUnitValue(gridRow.raw, fieldPath, fallbackUnit),
+    value: (gridRow) => stringValueAtPath(gridRow.raw, fieldPath)
+  };
+}
+
+function readonlyGridColumn(
+  key: string,
+  label: string,
+  fieldPath: string,
+  objectType: EditorOperationObjectType
+): GridColumn {
+  return {
+    ...scalarGridColumn(key, label, fieldPath, objectType, "reference field"),
+    readonly: true
+  };
+}
+
+function changedGridCells({
+  columns,
+  drafts,
+  rows
+}: {
+  columns: GridColumn[];
+  drafts: Record<string, string>;
+  rows: GridRow[];
+}): Array<{ row: GridRow; column: GridColumn; value: string }> {
+  return rows.flatMap((row) =>
+    columns.flatMap((column) => {
+      if (column.readonly) return [];
+      const key = draftKey(row, column);
+      const value = drafts[key];
+      if (value === undefined || value === column.value(row)) return [];
+      return [{ row, column, value }];
+    })
+  );
+}
+
+function buildGridOperationIntent({
+  column,
+  model,
+  row,
+  sequence,
+  value
+}: {
+  column: GridColumn;
+  model: PreviewModel;
+  row: GridRow;
+  sequence: number;
+  value: string;
+}): EditorOperationIntent {
+  const operationToken = `${safeToken(row.id)}-${safeToken(column.fieldPath)}-${sequence.toString().padStart(2, "0")}`;
+  const unit = column.unit(row);
+  const after =
+    column.dimension === "dimensionless"
+      ? value.trim() || "TBD"
+      : JSON.stringify({ value: parseQuantityPayloadValue(value), unit });
+
+  return {
+    operation_id: `op:grid-intent-${operationToken}`,
+    operation_kind: "modify",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: `grid:${model.project.id}:${row.id}`,
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: column.objectType,
+      ref: row.id
+    },
+    change: {
+      change_id: `change:grid:${operationToken}`,
+      change_kind: column.changeKind,
+      field_label: column.label,
+      field_path: column.fieldPath,
+      before: column.value(row),
+      after,
+      unit,
+      dimension: column.dimension,
+      source_note: `layout_grid_bulk_tabular; ${column.sourceNote}`
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: column.dimension === "dimensionless" ? "not_required_dimensionless" : "model_metadata_unit_dimension_declared",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: "layout_grid_bulk_tabular_review_change"
+  };
+}
+
+function gridEntityTypeFromSelection(selection: EntityRef): GridEntityType {
+  if (selection.type === "material") return "materials";
+  if (selection.type === "section") return "sections";
+  if (selection.type === "node") return "nodes";
+  if (selection.type === "pipe") return "pipes";
+  if (selection.type === "support") return "supports";
+  if (selection.type === "component") return "components";
+  if (selection.type === "load") return "load_cases";
+  if (selection.type === "combination") return "combinations";
+  return "nodes";
+}
+
+function draftKey(row: GridRow, column: GridColumn): string {
+  return `${row.id}::${column.fieldPath}`;
+}
+
+function stringValueAtPath(source: unknown, fieldPath: string): string {
+  const value = fieldPath.split(".").reduce<unknown>((current, part) => {
+    if (current === null || current === undefined) return undefined;
+    if (/^\d+$/.test(part) && Array.isArray(current)) return current[Number(part)];
+    if (typeof current === "object") return (current as Record<string, unknown>)[part];
+    return undefined;
+  }, source);
+  if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object") return JSON.stringify(value);
+  return "";
+}
+
+function quantityUnitValue(source: unknown, valuePath: string, fallbackUnit: string): string {
+  const unitPath = valuePath.replace(/\.value$/, ".unit");
+  if (unitPath === valuePath) return fallbackUnit;
+  return stringValueAtPath(source, unitPath) || fallbackUnit;
+}
+
+function parseQuantityPayloadValue(raw: string): number | string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "TBD";
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : trimmed;
+}
+
+function safeToken(value: string): string {
+  return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "entity";
 }

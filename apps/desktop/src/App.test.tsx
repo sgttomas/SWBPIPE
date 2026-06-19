@@ -2529,6 +2529,43 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain("invented_example_user_defined_mechanics_combination_no_code_default");
   });
 
+  it("queues layout-grid cell edits as structured review intents", async () => {
+    render(<App />);
+
+    const tree = await screen.findByLabelText("Model tree");
+    fireEvent.click(within(tree).getByTestId("layout-mode-grid"));
+    expect(within(tree).getByTestId("entity-grid")).toBeInTheDocument();
+    expect(within(tree).getByTestId("entity-grid-table-nodes")).toBeInTheDocument();
+
+    fireEvent.click(within(tree).getByTestId("entity-grid-row-node:N-100"));
+    expect(screen.getByLabelText("Property inspector").textContent).toContain("node:N-100");
+
+    fireEvent.change(within(tree).getByTestId("entity-grid-input-node:N-100-x"), {
+      target: { value: "1.25" }
+    });
+    fireEvent.change(within(tree).getByTestId("entity-grid-input-node:N-100-y"), {
+      target: { value: "0.5" }
+    });
+    expect(within(tree).getByTestId("entity-grid-change-count").textContent).toContain("2 changed cells");
+
+    fireEvent.click(within(tree).getByTestId("queue-entity-grid-intents"));
+    expect(within(tree).getByTestId("entity-grid-queued-message").textContent).toContain("Queued 2 review intents");
+
+    const applyPanel = screen.getByTestId("operation-apply-panel");
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      "op:grid-intent-node:N-100-position-x"
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
+      '"unit":"m"'
+    );
+    expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-2").textContent).toContain(
+      "op:grid-intent-node:N-100-position-y"
+    );
+    expect(within(tree).getByTestId("entity-grid-boundary").textContent).toContain(
+      "fans each changed cell into a structured review intent"
+    );
+  });
+
   it("queues and applies a load-case primitive magnitude through the manager panel", async () => {
     render(<App />);
 
