@@ -91,23 +91,16 @@ describe("OpenPipeStress desktop preview", () => {
     ]);
   });
 
-  it("presents the C5 guided workbench shell with reachable detail views", async () => {
+  it("presents the C5.7R ribbon workspace shell with reachable detail views", async () => {
     render(<App />);
 
     expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
-    const guided = await screen.findByTestId("guided-workbench");
-    expect(within(guided).getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
-    expect(within(guided).getByTestId("journey-current-step").textContent).toContain("Queue a model edit");
-    expect(within(guided).getByTestId("r3-exit-journey-status").textContent).toContain(
-      "Packaged A12/R3 human pass not recorded"
-    );
-    const a12Journey = within(guided).getByTestId("a12-authoring-journey");
-    expect(within(a12Journey).getByTestId("a12-next-action").textContent).toContain("Start with New blank");
-    expect(within(a12Journey).getByTestId("a12-queue-status").textContent).toContain("No queued operations");
-    expect(within(a12Journey).getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "next");
-    expect(within(a12Journey).getByTestId("a12-journey-step-save-reopen")).toBeInTheDocument();
-    expect(within(guided).getByTestId("guided-journey-tab-a12")).toHaveAttribute("aria-pressed", "true");
-    expect(within(guided).getByTestId("guided-journey-tab-r3")).toHaveAttribute("aria-pressed", "false");
+    const ribbon = await screen.findByTestId("workflow-ribbon");
+    expect(within(ribbon).getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
+    expect(within(ribbon).getByTestId("ribbon-current-step").textContent).toContain("Queue a model edit");
+    expect(screen.queryByTestId("guided-workbench")).toBeNull();
+    expect(screen.queryByTestId("workspace-nav")).toBeNull();
+    expect(screen.queryByTestId("guided-journey-stack")).toBeNull();
 
     const drawer = screen.getByTestId("review-apply-drawer");
     expect(drawer.className).not.toContain("open");
@@ -116,34 +109,22 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByLabelText("Editor contract review")).toBeInTheDocument();
     expect(screen.getByLabelText("Operation diff preview")).toBeInTheDocument();
 
-    fireEvent.click(within(guided).getByTestId("journey-step-rule-pack"));
-    expect(within(guided).getByTestId("journey-step-rule-pack")).toHaveAttribute("aria-pressed", "true");
-    expect(within(guided).getByTestId("journey-current-step").textContent).toContain(
-      "Draft the private non-code rule pack"
-    );
+    fireEvent.click(within(ribbon).getByTestId("ribbon-stop-rules"));
+    expect(within(ribbon).getByTestId("ribbon-stop-rules")).toHaveAttribute("aria-pressed", "true");
+    expect(within(ribbon).getByTestId("ribbon-current-step").textContent).toContain("Draft the private non-code rule pack");
     expect(screen.getByTestId("workspace-section-rule-packs")).toBeInTheDocument();
 
-    fireEvent.click(within(guided).getByTestId("guided-journey-tab-r3"));
-    expect(within(guided).getByTestId("guided-journey-tab-r3")).toHaveAttribute("aria-pressed", "true");
-    const r3Flow = within(guided).getByTestId("r3-guided-flow");
-    expect(within(r3Flow).getByTestId("r3-flow-next-action").textContent).toContain(
-      "Load and validate a private local library"
-    );
-    expect(within(r3Flow).getByTestId("r3-flow-missing-input-blocker").textContent).toContain(
-      "Missing-input gate pending"
-    );
-    expect(within(r3Flow).getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "next");
-
-    fireEvent.click(within(r3Flow).getByTestId("r3-flow-step-library"));
+    fireEvent.click(within(ribbon).getByTestId("ribbon-section-libraries"));
     expect(screen.getByTestId("workspace-section-libraries")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("library-load-template"));
     fireEvent.click(screen.getByTestId("library-validate"));
-    await waitFor(() =>
-      expect(within(r3Flow).getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "complete")
-    );
 
-    fireEvent.click(within(r3Flow).getByTestId("r3-flow-step-bind"));
+    fireEvent.click(within(ribbon).getByTestId("ribbon-stop-analyze"));
     expect(screen.getByTestId("workspace-section-solve")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+    expect(await screen.findByTestId("issues-home")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
+    expect(await screen.findByTestId("audit-boundary-drawer")).toBeInTheDocument();
     // Heavy full-<App/> Three.js render plus shell-level integration checks:
     // allow the same DEC-025/full-suite worker load that exercised this path.
   }, 60000);
@@ -151,7 +132,7 @@ describe("OpenPipeStress desktop preview", () => {
   it("renders the engineering workspace from invented local fixtures", async () => {
     render(<App />);
 
-    expect(await screen.findByText("OpenPipeStress Technical Preview")).toBeInTheDocument();
+    expect(await screen.findByText("OpenPipeStress")).toBeInTheDocument();
     expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
     expect(await screen.findByTestId("solve-panel")).toBeInTheDocument();
     expect(screen.getByTestId("viewport-deformation-status").textContent).toContain("not started; result rows=0");
@@ -1285,6 +1266,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(editorContractPacket.protected_content_included).toBe(false);
     expect(editorContractPacket.release_or_professional_claim).toBe(false);
     expect(editorContractPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     const missingData = await screen.findByLabelText("Missing-data blocking review");
     expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("classes=6");
     expect(within(missingData).getByTestId("missing-data-summary").textContent).toContain("active=5");
@@ -1737,9 +1719,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(exportReview).getByTestId("export-review-record-validation_release_evidence_review").textContent
     ).toContain("available");
-    expect(screen.getByText("Human review required")).toBeInTheDocument();
-    expect(screen.getByText("Local preview store")).toBeInTheDocument();
+    expect(screen.getByTestId("status-pill-professional").textContent).toContain("HUMAN_REVIEW_REQUIRED");
+    expect(screen.getByTestId("workspace-status-bar")).toBeInTheDocument();
     expect(screen.getByLabelText("Local project controls")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
+    expect(await screen.findByTestId("audit-boundary-drawer")).toBeInTheDocument();
     expect(screen.getByTestId("local-project-status").textContent).toContain("Browser memory preview local store");
     expect(screen.getByTestId("local-project-status").textContent).toContain("network=false");
     expect(screen.getByTestId("local-project-status").textContent).toContain("telemetry=false");
@@ -1831,6 +1815,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(storagePacket.private_payload_included).toBe(false);
     expect(storagePacket.protected_content_included).toBe(false);
     expect(storagePacket.release_or_professional_claim).toBe(false);
+    fireEvent.click(within(screen.getByTestId("audit-boundary-drawer")).getByRole("button", { name: /Close/i }));
     const projectValidation = await screen.findByLabelText("Project validation preflight");
     expect(within(projectValidation).getByTestId("project-validation-summary").textContent).toContain(
       "validation=preview_not_persisted"
@@ -2014,7 +1999,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.boundary.local_only_project_store).toBe(true);
     expect(validationPacket.boundary.repository_default_private_write).toBe(false);
     expect(validationPacket.boundary.accepted_model_state_mutated).toBe(false);
-    const telemetryBoundary = await screen.findByLabelText("Telemetry boundary review");
+    const telemetryBoundary = (await screen.findAllByLabelText("Telemetry boundary review"))[0];
     expect(within(telemetryBoundary).getByTestId("telemetry-boundary-summary").textContent).toContain(
       "disabled=true"
     );
@@ -2220,7 +2205,8 @@ describe("OpenPipeStress desktop preview", () => {
     expect(validationPacket.protected_content_included).toBe(false);
     expect(validationPacket.release_or_professional_claim).toBe(false);
 
-    const boundary = screen.getByTestId("preview-boundary-strip");
+    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
+    const boundary = await screen.findByTestId("audit-boundary-drawer");
     expect(within(boundary).getByText("Public data")).toBeInTheDocument();
     expect(boundary.textContent).toContain("invented_or_cleared_data_only");
     expect(boundary.textContent).toContain("no_bundled_protected_owner_or_standards_data");
@@ -2236,15 +2222,16 @@ describe("OpenPipeStress desktop preview", () => {
       "browser preview uses model metadata"
     );
     const intentPanel = screen.getByLabelText("Viewport editor intents");
+    const commandBar = screen.getByTestId("command-bar");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
 
     expect(within(intentPanel).getByTestId("viewport-intent-empty").textContent).toContain(
       "do not mutate persisted project data directly"
     );
 
-    fireEvent.click(within(intentPanel).getByRole("button", { name: /Node intent/i }));
-    fireEvent.click(within(intentPanel).getByRole("button", { name: /Pipe-run intent/i }));
-    fireEvent.click(within(intentPanel).getByRole("button", { name: /Component intent/i }));
+    fireEvent.click(within(commandBar).getByRole("button", { name: /Node/i }));
+    fireEvent.click(within(commandBar).getByRole("button", { name: /Pipe/i }));
+    fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
 
     const nodeIntent = within(intentPanel).getByTestId("viewport-intent-create_node");
     const pipeIntent = within(intentPanel).getByTestId("viewport-intent-connect_pipe_run");
@@ -2581,24 +2568,10 @@ describe("OpenPipeStress desktop preview", () => {
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
     expect(within(applyPanel).getByTestId("operation-apply-summary").textContent).toContain("1 queued; 0 applied");
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "queued_unit_bearing=1"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "queued_dimensionless=0"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "outcome_unit_validations=none"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "applied_receipts=0"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "receipt_units=not_serialized"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "conversion=false"
-    );
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("1 unit-bearing queued");
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("0 dimensionless queued");
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("no unit validations yet");
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("0 applied receipts");
     expect(within(applyPanel).getByTestId("operation-apply-row-editor-intent-1").textContent).toContain(
       "primitive_loads.2.magnitude.value"
     );
@@ -2614,23 +2587,11 @@ describe("OpenPipeStress desktop preview", () => {
       "pressure; 1500000 Pa"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "queued_unit_bearing=0"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "outcome_unit_validations=passed"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "applied_receipts=1"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "receipt_units=not_serialized"
-    );
-    expect(within(applyPanel).getByTestId("operation-apply-unit-policy").textContent).toContain(
-      "conversion=false"
-    );
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("0 unit-bearing queued");
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("passed");
+    expect(within(applyPanel).getByTestId("operation-unit-policy-chip").textContent).toContain("1 applied receipts");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
@@ -2675,7 +2636,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByLabelText("Property inspector").textContent).toContain("User operating case");
     expect(screen.getByLabelText("Property inspector").textContent).toContain("load:L-300");
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -2726,7 +2687,7 @@ describe("OpenPipeStress desktop preview", () => {
       "2 load cases; 7 primitive loads; 1 combinations"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-2-editor-intent-2").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=2");
@@ -2812,7 +2773,7 @@ describe("OpenPipeStress desktop preview", () => {
       "load:L-100-F300; node:node:N-100; global_y; dimension=force"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -2865,7 +2826,7 @@ describe("OpenPipeStress desktop preview", () => {
       "load:L-100-D300; element:pipe:P-100; global_y; dimension=force_per_length"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -2919,7 +2880,7 @@ describe("OpenPipeStress desktop preview", () => {
       "load:L-100-M300; node:node:N-100; rotation_z; dimension=moment"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -2975,7 +2936,7 @@ describe("OpenPipeStress desktop preview", () => {
       "load:L-100-P300; element:pipe:P-100; global_x; dimension=pressure"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -3031,7 +2992,7 @@ describe("OpenPipeStress desktop preview", () => {
       "load:L-100-T300; element:pipe:P-100; global_z; dimension=temperature_interval"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -3085,7 +3046,7 @@ describe("OpenPipeStress desktop preview", () => {
       "load:L-100-I300; support:support:S-100; UZ; dimension=displacement"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -3138,9 +3099,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("queues and applies load-case status metadata through the manager panel", async () => {
@@ -3384,7 +3345,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(screen.getByLabelText("Property inspector").textContent).toContain("load:L-300 x 0.25");
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-2-editor-intent-2").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=2");
@@ -3434,7 +3395,7 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(within(manager).getByTestId("load-manager-combination-select-combination:C-300"));
     expect(screen.getByLabelText("Property inspector").textContent).toContain("combination:C-300");
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -3490,7 +3451,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(newCombination.textContent).toContain("basis=result_state_subtraction");
     expect(newCombination.textContent).toContain("minuend=load:L-100; subtrahend=load:L-200");
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
@@ -3606,7 +3567,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain("load:L-100 x 1");
     expect(inspector.textContent).not.toContain("load:L-200 x 0.5");
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -3653,7 +3614,7 @@ describe("OpenPipeStress desktop preview", () => {
       "2 load cases; 7 primitive loads; 0 combinations"
     );
     expect(within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1").textContent).toContain(
-      "persistence=session_state_only_not_yet_saved"
+      "persistence session_state_only_not_yet_saved"
     );
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
@@ -4878,7 +4839,7 @@ describe("OpenPipeStress desktop preview", () => {
   it("round trips local create, save, and open project controls without external file copies", async () => {
     render(<App />);
 
-    expect(await screen.findByText("OpenPipeStress Technical Preview")).toBeInTheDocument();
+    expect(await screen.findByText("OpenPipeStress")).toBeInTheDocument();
     const controls = screen.getByLabelText("Local project controls");
     const storageAudit = await screen.findByLabelText("Project storage audit");
     const projectValidation = await screen.findByLabelText("Project validation preflight");
@@ -5268,7 +5229,7 @@ describe("OpenPipeStress desktop preview", () => {
   it("creates a blank local model document as the active authoring target", async () => {
     render(<App />);
 
-    expect(await screen.findByText("OpenPipeStress Technical Preview")).toBeInTheDocument();
+    expect(await screen.findByText("OpenPipeStress")).toBeInTheDocument();
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
 
@@ -5278,22 +5239,21 @@ describe("OpenPipeStress desktop preview", () => {
       )
     );
     expect(within(controls).getByText("Blank Local Model")).toBeInTheDocument();
-    expect(screen.getByTestId("status-mechanics").textContent).toContain("MODEL INCOMPLETE");
-    expect(screen.getByTestId("status-rule-check").textContent).toContain("RULE INPUTS INCOMPLETE");
-    expect(screen.getByTestId("status-professional-acceptance").textContent).toContain("NOT PROVIDED");
-    expect(screen.getByTestId("preview-boundary-strip").textContent).toContain(
+    expect(screen.getByTestId("status-pill-mechanics").textContent).toContain("MODEL_INCOMPLETE");
+    expect(screen.getByTestId("status-pill-rule-check").textContent).toContain("RULE_INPUTS_INCOMPLETE");
+    expect(screen.getByTestId("status-pill-professional").textContent).toContain("HUMAN_REVIEW_REQUIRED");
+    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
+    const auditDrawer = await screen.findByTestId("audit-boundary-drawer");
+    expect(auditDrawer.textContent).toContain(
       "blank_user_created_local_document_no_bundled_engineering_values"
     );
-    expect(screen.getByTestId("preview-boundary-strip").textContent).toContain(
+    expect(auditDrawer.textContent).toContain(
       "local_user_document_not_committed_to_repository"
     );
-    const journey = screen.getByTestId("guided-workbench");
-    expect(within(journey).getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
-    expect(within(journey).getByTestId("journey-step-status-model").textContent).toContain("current");
-    expect(within(journey).getByTestId("journey-step-status-loads").textContent).toContain("available");
-    expect(within(journey).getByTestId("journey-step-status-solve-check").textContent).toContain("not run");
-    fireEvent.click(within(journey).getByTestId("journey-step-loads"));
-    expect(screen.getByTestId("workspace-nav-loads")).toHaveAttribute("aria-pressed", "true");
+    const ribbon = screen.getByTestId("workflow-ribbon");
+    expect(within(ribbon).getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(within(ribbon).getByTestId("ribbon-stop-loads"));
+    expect(within(ribbon).getByTestId("ribbon-stop-loads")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByTestId("workspace-section-loads").className).toBe("workspace-dock-section");
 
     const tree = screen.getByLabelText("Model tree");
@@ -5364,10 +5324,11 @@ describe("OpenPipeStress desktop preview", () => {
       () => {
         expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed");
         expect(screen.getByTestId("solve-job-summary").textContent).toContain("result_rows=0");
-        expect(screen.getByTestId("status-mechanics").textContent).toContain("MODEL INCOMPLETE");
+        expect(screen.getByTestId("status-pill-mechanics").textContent).toContain("MODEL_INCOMPLETE");
       },
       { timeout: 10000 }
     );
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     const diagnostics = await screen.findByLabelText("Diagnostics");
     expect(diagnostics.textContent).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     const resultsPanel = await screen.findByTestId("results-panel");
@@ -7712,6 +7673,7 @@ describe("OpenPipeStress desktop preview", () => {
     render(<App />);
 
     fireEvent.click(await screen.findByRole("button", { name: /Run mechanics preview/i }));
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(await screen.findByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toBeInTheDocument();
 
     const diagnostics = await screen.findByLabelText("Diagnostics");
@@ -7840,10 +7802,10 @@ describe("OpenPipeStress desktop preview", () => {
 
     // Applied receipt with honest route, acceptance, and persistence labels.
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("route=local_wasm_engine");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Applied through local_wasm_engine");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
 
     // The session model document changed and earlier solve context is gone.
     expect(inspector.textContent).toContain("195000000000 Pa");
@@ -7868,13 +7830,14 @@ describe("OpenPipeStress desktop preview", () => {
     // Browser fixture mode must not publish stale solved rows for the edited model.
     fireEvent.click(screen.getByTestId("run-mechanics-preview"));
     await waitFor(() => expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=completed"));
-    expect(screen.getByTestId("status-mechanics").textContent).toContain("MODEL INCOMPLETE");
+    expect(screen.getByTestId("status-pill-mechanics").textContent).toContain("MODEL_INCOMPLETE");
     expect(within(screen.getByTestId("solve-readiness-summary")).getByTestId("readiness-mechanics").textContent).toContain(
       "0 computed result rows; model incomplete"
     );
     expect(within(screen.getByTestId("solve-readiness-summary")).getByTestId("readiness-diagnostics").textContent).toContain(
       "1 blocking/error"
     );
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(screen.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeInTheDocument();
     const editedSolveHref = screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
     const editedSolvePacket = JSON.parse(decodeURIComponent(editedSolveHref.split(",", 2)[1]));
@@ -7967,9 +7930,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("queues and applies explicit section creation through the structured operation seam", async () => {
@@ -8028,9 +7991,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("queues and applies explicit support creation through the structured operation seam", async () => {
@@ -8090,9 +8053,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("queues and applies explicit support deletion through the structured operation seam", async () => {
@@ -8131,9 +8094,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("queues and applies explicit node deletion through the structured operation seam", async () => {
@@ -8200,9 +8163,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-2-editor-intent-2");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("blocks node deletion while model entities still reference it", async () => {
@@ -8279,9 +8242,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("blocks pipe deletion while primitive loads still reference it", async () => {
@@ -8418,11 +8381,11 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("local-project-review-context").textContent).toContain("applied_operations=1");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
 
-    expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=1; redo=0");
+    expect(within(applyPanel).getByTestId("session-history-chip").textContent).toContain("1 undo / 0 redo");
     expect(within(applyPanel).getByTestId("undo-session-model-edit")).not.toBeDisabled();
     expect(within(applyPanel).getByTestId("redo-session-model-edit")).toBeDisabled();
 
@@ -8433,7 +8396,7 @@ describe("OpenPipeStress desktop preview", () => {
       )
     );
     expect(screen.queryByTestId("tree-row-node:N-150")).toBeNull();
-    expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=0; redo=1");
+    expect(within(applyPanel).getByTestId("session-history-chip").textContent).toContain("0 undo / 1 redo");
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     fireEvent.click(within(applyPanel).getByTestId("redo-session-model-edit"));
@@ -8446,7 +8409,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(redoneNodeRow.textContent).toContain("User preview node");
     expect(redoneNodeRow).toHaveClass("active");
     expect(screen.getByLabelText("Property inspector").textContent).toContain("8.4, 2.4, 2.8 m");
-    expect(within(applyPanel).getByTestId("session-history-summary").textContent).toContain("undo=1; redo=0");
+    expect(within(applyPanel).getByTestId("session-history-chip").textContent).toContain("1 undo / 0 redo");
   });
 
   it("captures viewport pointer geometry into an explicit node draft before apply", async () => {
@@ -8565,9 +8528,9 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByTestId("solve-job-summary").textContent).toContain("state=not_started");
 
     const receipt = within(applyPanel).getByTestId("applied-operation-route-applied-1-editor-intent-1");
-    expect(receipt.textContent).toContain("acceptance=user_initiated_apply_in_local_session");
-    expect(receipt.textContent).toContain("persistence=session_state_only_not_yet_saved");
-    expect(receipt.textContent).toContain("professional_approval=false");
+    expect(receipt.textContent).toContain("Acceptance basis user_initiated_apply_in_local_session");
+    expect(receipt.textContent).toContain("persistence session_state_only_not_yet_saved");
+    expect(receipt.textContent).toContain("professional approval not recorded");
   });
 
   it("picks straight pipe endpoints from viewport node targets before apply", async () => {
@@ -8644,7 +8607,7 @@ describe("OpenPipeStress desktop preview", () => {
 
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
     const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
-    fireEvent.click(within(viewportIntentPanel).getByRole("button", { name: /Node intent/i }));
+    fireEvent.click(within(screen.getByTestId("command-bar")).getByRole("button", { name: /Node/i }));
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
     fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));

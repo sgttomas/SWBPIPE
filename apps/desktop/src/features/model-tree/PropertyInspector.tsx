@@ -216,6 +216,15 @@ export function PropertyInspector({
           </div>
         ))}
       </dl>
+      <section className="inspector-context-grid" aria-label="Inspector review context">
+        <DualUnitValue
+          value={selectedField?.before ?? "TBD"}
+          unit={selectedField?.unit ?? "TBD"}
+          basis={selectedFieldUnitBasis}
+        />
+        <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
+        <RequiredFlagList flags={requiredFlagsForSelection(model, selection, properties)} />
+      </section>
       <UnitCatalogPanel route={unitCatalogRoute} bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]} />
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
         <h3>Review-only edit intent</h3>
@@ -811,6 +820,111 @@ function IntentFact({ label, value, testId }: { label: string; value: string; te
       <strong>{value}</strong>
     </div>
   );
+}
+
+function DualUnitValue({
+  value,
+  unit,
+  basis
+}: {
+  value: string;
+  unit: string;
+  basis: UnitBasisDisplay | null;
+}) {
+  return (
+    <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Dual-unit display">
+      <span>Dual units</span>
+      <strong>
+        {value} {unit}
+      </strong>
+      <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
+      <small>Storage remains entered-units-preserved.</small>
+    </section>
+  );
+}
+
+function ProvenanceBlock({ rows }: { rows: Array<[string, string]> }) {
+  return (
+    <section className="inspector-context-card" data-testid="inspector-provenance-block" aria-label="Provenance">
+      <span>Provenance</span>
+      {rows.length > 0 ? (
+        <dl>
+          {rows.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <small>No provenance fields on this selected entity.</small>
+      )}
+    </section>
+  );
+}
+
+function RequiredFlagList({ flags }: { flags: string[] }) {
+  return (
+    <section className="inspector-context-card" data-testid="inspector-required-flags" aria-label="Required flags">
+      <span>Required</span>
+      {flags.length > 0 ? (
+        flags.map((flag) => (
+          <strong className="required-flag" key={flag}>
+            ⚑ {flag}
+          </strong>
+        ))
+      ) : (
+        <small>No missing selected fields detected.</small>
+      )}
+    </section>
+  );
+}
+
+function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<[string, string]> {
+  const entity = selectedEntity(model, selection);
+  if (!entity || typeof entity !== "object") return [];
+  const record = entity as Record<string, unknown>;
+  const rows: Array<[string, string]> = [];
+  for (const key of ["source_name", "source_location", "source_license", "contributor", "redistribution_status", "review_status"]) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) rows.push([labelFromKey(key), value]);
+  }
+  const source = record.source ?? record.provenance ?? record.source_ref ?? null;
+  if (source && typeof source === "object") {
+    const sourceRecord = source as Record<string, unknown>;
+    for (const key of ["source_name", "source_ref", "source_license", "review_status"]) {
+      const value = sourceRecord[key];
+      if (typeof value === "string" && value.trim()) rows.push([labelFromKey(key), value]);
+    }
+  } else if (typeof source === "string" && source.trim()) {
+    rows.push(["Source", source]);
+  }
+  return rows;
+}
+
+function requiredFlagsForSelection(model: PreviewModel, selection: EntityRef, properties: Array<[string, string]>): string[] {
+  const flags = properties
+    .filter(([, value]) => value.trim() === "" || value.trim() === "TBD")
+    .map(([label]) => label);
+  const entity = selectedEntity(model, selection);
+  if (entity && typeof entity === "object") {
+    const record = entity as Record<string, unknown>;
+    if (!record.provenance && !record.source && !record.source_ref) flags.push("provenance");
+  }
+  return Array.from(new Set(flags)).slice(0, 4);
+}
+
+function selectedEntity(model: PreviewModel, selection: EntityRef): unknown {
+  if (selection.type === "node") return model.nodes.find((item) => item.id === selection.id);
+  if (selection.type === "pipe") return model.pipe_segments.find((item) => item.id === selection.id);
+  if (selection.type === "support") return model.supports.find((item) => item.id === selection.id);
+  if (selection.type === "component") return model.components.find((item) => item.id === selection.id);
+  if (selection.type === "load") return model.load_cases.find((item) => item.id === selection.id);
+  return null;
+}
+
+function labelFromKey(key: string): string {
+  return key.replaceAll("_", " ");
 }
 
 function UnitCatalogPanel({

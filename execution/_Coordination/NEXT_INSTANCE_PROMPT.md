@@ -65,20 +65,19 @@
      pass was run and FAILED on usability (2026-06-18): "a wall of
      evidence/telemetry strings, three competing navigation systems, the model
      a postage stamp" — F-4 and the A3 authoring-usability finding stay open.**
-     The human has approved the repair as the **active build tranche (C5.7R)**:
-     **build the workspace redesign per
-     `plans/PLAN_2026-06-18_workspace_redesign_c5_7.md`** — execute it, do not
-     re-propose. Start at **Inc 0 (frame skeleton)** and proceed Inc 1→5 (one
-     ribbon replacing the three competing navs; telemetry/evidence demoted to a
-     status-bar Audit drawer + an Issues home; hero canvas; Inspector with dual
-     units + required flags). **Inc 0-5 is the minimum to re-attempt the
-     packaged human pass** (the re-run C5.7, target SMOKE TP-MAC-189); Inc 6
-     (CAEPIPE-style bulk-tabular grid) is core but non-gating for that first
-     re-attempt. Honor the spec's scope boundaries: agent-panel seam
-     reserved-not-built (`D-21`); `DEC-037` (structured rule composer, no
-     writable text); dual units display-only; no new engine contracts (Grid
-     mode fans existing `EditorOperationIntent`s). The Phase B unit-aware-I/O
-     remainder is allowed alongside only when it does not block or displace C5;
+     The human-approved repair tranche **C5.7R** has its minimum re-pass
+     implementation landed: Inc 0-5 are recorded under
+     `TP-R3UX-WORKSPACEREDESIGN-001` / SMOKE TP-MAC-272 / DEL-07-06
+     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-WORKSPACEREDESIGN-001.md`.
+     The next ordinary C5 action is to prepare/re-run the packaged C5.7 human
+     pass (target SMOKE TP-MAC-189) or, if the human does not take the pass
+     yet, continue the non-gating but committed C5.7R Inc 6
+     (CAEPIPE-style bulk-tabular grid). Honor the spec's scope boundaries:
+     agent-panel seam reserved-not-built (`D-21`); `DEC-037` (structured rule
+     composer, no writable text); dual units display-only; no new engine
+     contracts (Grid mode fans existing `EditorOperationIntent`s). The Phase B
+     unit-aware-I/O remainder is allowed alongside only when it does not block
+     or displace C5;
    - if that item is blocked by a human decision, run the loop's
      decision-escalation step: prepare the decision packet if none exists;
      if a packet already awaits ruling, take the next unblocked

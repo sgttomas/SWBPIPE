@@ -12,9 +12,7 @@ test("production dist serves the wasm engine and New blank succeeds", async ({ p
   // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
   // through the wasm32 operation_applier build; ready proves the glue and
   // _bg.wasm both resolved from the dist asset layout.
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
   // First wasm-dependent authoring action — the step that failed in the
   // packaged app.

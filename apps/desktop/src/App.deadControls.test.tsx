@@ -84,8 +84,8 @@ async function renderReadyShell(): Promise<HTMLElement> {
   // observations are not confused with warmup re-renders.
   await waitFor(
     () => {
-      const status = screen.getByTestId("operation-engine-status").textContent ?? "";
-      if (!/engine_state=(ready|unavailable)/.test(status)) {
+      const status = screen.getByTestId("operation-engine-chip").textContent ?? "";
+      if (!/Engine (ready|unavailable)/.test(status)) {
         throw new Error(`engine not settled: ${status}`);
       }
     },

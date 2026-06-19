@@ -1,5 +1,5 @@
 import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
-import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import {
   describeUnitBasis,
@@ -21,6 +21,7 @@ type Props = {
 };
 
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
+type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 
 type ViewportSelectionTarget = {
@@ -76,6 +77,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
+  const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
@@ -123,8 +125,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf6f7f4);
     const camera = new THREE.PerspectiveCamera(42, host.clientWidth / host.clientHeight, 0.1, 1000);
-    camera.position.set(7.6, 7, 8);
-    camera.lookAt(3.8, 1.2, 0.7);
+    applyViewPreset(camera, viewPreset);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -185,7 +186,6 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
-      scene.rotation.y = Math.sin(Date.now() / 6000) * 0.05;
       renderer.render(scene, camera);
     };
     animate();
@@ -197,7 +197,7 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       renderer.dispose();
       host.replaceChildren();
     };
-  }, [model, selection, deformation]);
+  }, [model, selection, deformation, viewPreset]);
 
   function addIntent(commandType: ViewportCommandType) {
     const intent = buildIntent(
@@ -315,7 +315,68 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
             );
           })}
         </div>
+        <div className="viewport-axis-triad" aria-label="Axis triad" data-testid="viewport-axis-triad">
+          <span className="axis x">X</span>
+          <span className="axis y">Y</span>
+          <span className="axis z">Z</span>
+        </div>
+        <div className="viewport-view-cube" aria-label="View controls" data-testid="viewport-view-cube">
+          <button type="button" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")}>
+            Front
+          </button>
+          <button type="button" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")}>
+            Top
+          </button>
+          <button type="button" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")}>
+            Iso
+          </button>
+        </div>
+        <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
+          1 {defaultLengthUnit}
+        </div>
+        <div className="viewport-load-glyphs" aria-label="Load glyphs" data-testid="viewport-load-glyphs">
+          {model.load_cases.flatMap((loadCase, loadCaseIndex) =>
+            (loadCase.primitive_loads ?? []).slice(0, 4).map((_, primitiveIndex) => (
+              <span
+                className="viewport-load-glyph"
+                key={`${loadCase.id}:${primitiveIndex}`}
+                style={{
+                  left: `${18 + primitiveIndex * 9}%`,
+                  top: `${20 + loadCaseIndex * 7}%`
+                }}
+                title={`${loadCase.id} primitive load ${primitiveIndex + 1}`}
+              >
+                ↑
+              </span>
+            ))
+          )}
+        </div>
+        <div
+          className="viewport-selection-handles"
+          aria-label="Selection handles"
+          data-testid="viewport-selection-handles"
+          style={selectionHandleStyle(selectionTargets, selection)}
+        />
       </div>
+      <section className="command-bar" aria-label="Command and selection bar" data-testid="command-bar">
+        <div className="command-buttons" aria-label="Command shortcuts">
+          <button type="button" data-testid="command-node" onClick={() => addIntent("create_node")}>
+            <CirclePlus size={15} aria-hidden="true" />
+            Node
+          </button>
+          <button type="button" data-testid="command-pipe" onClick={() => addIntent("connect_pipe_run")}>
+            <GitBranch size={15} aria-hidden="true" />
+            Pipe
+          </button>
+          <button type="button" data-testid="command-component" onClick={() => addIntent("insert_component_symbol")}>
+            <Box size={15} aria-hidden="true" />
+            Component
+          </button>
+        </div>
+        <span data-testid="command-selection-readout">
+          Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
+        </span>
+      </section>
       <section className="viewport-intents" aria-label="Viewport editor intents">
         <div className="viewport-intent-controls">
           <div className="viewport-node-form" aria-label="Explicit node geometry">
@@ -590,20 +651,6 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
               ? `DEC-018 unit catalog loaded; entries=${unitCatalogRoute.catalog.entry_count}`
               : "browser preview uses model metadata for viewport length units"}
           </small>
-          <div className="viewport-intent-actions">
-            <button type="button" onClick={() => addIntent("create_node")}>
-              <CirclePlus size={15} aria-hidden="true" />
-              Node intent
-            </button>
-            <button type="button" onClick={() => addIntent("connect_pipe_run")}>
-              <GitBranch size={15} aria-hidden="true" />
-              Pipe-run intent
-            </button>
-            <button type="button" onClick={() => addIntent("insert_component_symbol")}>
-              <Box size={15} aria-hidden="true" />
-              Component intent
-            </button>
-          </div>
         </div>
         <div className="viewport-intent-list" data-testid="viewport-intent-list">
           {visibleIntents.length === 0 ? (
@@ -631,6 +678,29 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
 
 function emptyNodeDraft(lengthUnit: string): NodeDraft {
   return { id: "", label: "", coordinateUnit: lengthUnit, x: "", y: "", z: "" };
+}
+
+function applyViewPreset(camera: THREE.PerspectiveCamera, preset: ViewPreset) {
+  if (preset === "front") {
+    camera.position.set(3.8, 1.2, 11);
+  } else if (preset === "top") {
+    camera.position.set(3.8, 12, 0.7);
+  } else {
+    camera.position.set(7.6, 7, 8);
+  }
+  camera.lookAt(3.8, 1.2, 0.7);
+  camera.updateProjectionMatrix();
+}
+
+function selectionHandleStyle(targets: ViewportSelectionTarget[], selection: EntityRef): CSSProperties {
+  const target = targets.find((candidate) => candidate.ref.type === selection.type && candidate.ref.id === selection.id);
+  if (!target) {
+    return { display: "none" };
+  }
+  return {
+    left: `${target.screen.x}%`,
+    top: `${target.screen.y}%`
+  };
 }
 
 function emptyPipeDraft(lengthUnit: string): PipeDraft {

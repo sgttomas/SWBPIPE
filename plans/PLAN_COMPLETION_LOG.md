@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-19 - C5.7R workspace redesign Inc 0-5 (`TP-R3UX-WORKSPACEREDESIGN-001`)
+
+Landed the minimum workspace redesign required before the first C5.7 packaged
+human-pass reattempt: one workflow ribbon replaces the prior journey rail,
+workspace tabs, and guided journey stack; storage/boundary/evidence detail is
+collapsed into an Audit drawer; diagnostics and missing-input blockers are
+collapsed into an Issues drawer; the viewport is promoted to the central hero
+canvas; and the inspector now exposes display-only dual-unit context,
+provenance, and required-field flags.
+
+The app shell now renders a slim title bar, six-stop ribbon, tree/canvas/
+inspector workspace, command/selection bar, and global status bar. The
+Operation Apply panel no longer defaults to raw route/unit/session strings;
+it uses compact chips and human-readable receipts while retaining governed
+operation packet assertions.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-272; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-WORKSPACEREDESIGN-001.md`.
+
+Validation: `npm test --workspace apps/desktop` passed 18/18 test files and
+399/399 tests; `npm run test:e2e --workspace apps/desktop` passed 18/18;
+`npm run test:e2e:dist --workspace apps/desktop` passed 1/1; `npm run build
+--workspace apps/desktop` passed with the existing Vite chunk-size warning.
+The DEC-025 evidence sweep passed overall:
+`validation/evidence/sweeps/SWEEP_20260619T072613Z_5dbd406023ba-dirty.json`.
+
+Residuals: Inc 6 bulk tabular grid remains a committed C5.7R follow-through
+item; the C5.7 packaged human pass must still be rebuilt and re-run before
+F-4/A3 can close.
+
+Boundary: frontend shell/presentation/test coverage only. No solver, schema,
+evaluator, persistence, backend API, unit storage, protected-content,
+private-data, network/telemetry, lifecycle, release-readiness, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
+---
+
 ## 2026-06-18 - B-tail export-review non-unit boundary classification (`TP-UNITS-BTAIL-EXPORTREVNONUNITBOUNDARY-001`)
 
 Landed one bounded Phase B-tail Export Safety Review matrix cleanup while C5.7

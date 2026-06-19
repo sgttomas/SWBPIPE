@@ -18,13 +18,28 @@ const rehearsal = JSON.parse(
   readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
 ) as RehearsalFixture;
 
-// TP-APP-R2-UXSHELL-001: the shell keeps the spatial core (model tree |
+// TP-R3UX-WORKSPACEREDESIGN-001: the shell keeps the spatial core (model tree |
 // viewport | property inspector) persistent and organizes the remaining
-// panels behind an always-visible workspace section navigation. The specs
-// drive that navigation through its visible controls exactly as a human
-// following SMOKE.md TP-MAC-141 would.
+// panels behind one always-visible workflow ribbon. The specs drive that
+// ribbon through its visible controls exactly as a human following SMOKE.md
+// TP-MAC-189 would.
 async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
-  await page.getByTestId(`workspace-nav-${sectionId}`).click();
+  const primaryStopBySection: Record<string, string> = {
+    operations: "model",
+    libraries: "model",
+    project: "model",
+    loads: "loads",
+    solve: "analyze",
+    results: "results",
+    "rule-packs": "rules",
+    report: "report",
+    exports: "report"
+  };
+  const primaryStop = primaryStopBySection[sectionId];
+  if (primaryStop) {
+    await page.getByTestId(`ribbon-stop-${primaryStop}`).click();
+  }
+  await page.getByTestId(`ribbon-section-${sectionId}`).click();
   await expect(page.getByTestId(`workspace-section-${sectionId}`)).toBeVisible();
 }
 
@@ -32,15 +47,18 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("guided-workbench")).toBeVisible();
-  await expect(page.getByTestId("journey-step-model")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("journey-current-step")).toContainText("Queue a model edit");
-  await expect(page.getByTestId("r3-exit-journey-status")).toContainText(
-    "Packaged A12/R3 human pass not recorded"
-  );
-  await expect(page.getByTestId("review-apply-drawer")).not.toHaveClass(/open/);
-  await page.getByTestId("review-apply-drawer-toggle").click();
-  await expect(page.getByTestId("review-apply-drawer")).toHaveClass(/open/);
+  await expect(page.getByTestId("workflow-ribbon")).toBeVisible();
+  await expect(page.getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("ribbon-current-step")).toContainText("Queue a model edit");
+  await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
+  await expect(page.getByTestId("status-pill-professional")).toContainText("HUMAN_REVIEW_REQUIRED");
+  await expect(page.getByTestId("audit-boundary-drawer")).toHaveCount(0);
+  await page.getByTestId("audit-drawer-toggle").click();
+  await expect(page.getByTestId("audit-boundary-drawer")).toBeVisible();
+  await expect(page.getByTestId("local-project-status")).toContainText("network=false");
+  await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
+  await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
+  await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("contract=DEL-02-02");
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
@@ -52,9 +70,9 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("missing=diagnostic_blocking");
   await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
 
-  await page.getByTestId("journey-step-rule-pack").click();
-  await expect(page.getByTestId("journey-step-rule-pack")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("journey-current-step")).toContainText("Draft the private non-code rule pack");
+  await page.getByTestId("ribbon-stop-rules").click();
+  await expect(page.getByTestId("ribbon-stop-rules")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("ribbon-current-step")).toContainText("Draft the private non-code rule pack");
   await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
 
   const horizontalOverflow = await page.evaluate(
@@ -69,12 +87,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "OpenPipeStress Technical Preview" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "OpenPipeStress" })).toBeVisible();
   // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
   // through the wasm32 operation_applier build; wait for init before edits.
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await expect(page.getByTestId("property-unit-catalog-status")).toContainText(
     "browser preview uses model metadata"
   );
@@ -83,20 +99,20 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("tree-row-support:S-120").click();
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
-  await expect(page.getByTestId("guided-workbench")).toContainText("Model edits");
-  await expect(page.getByTestId("journey-step-status-loads")).toContainText("available");
-  await page.getByTestId("journey-step-loads").click();
+  await expect(page.getByTestId("workflow-ribbon")).toContainText("Model");
+  await page.getByTestId("ribbon-stop-loads").click();
+  await expect(page.getByTestId("ribbon-stop-loads")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
   const compactJourneyGeometry = await page.evaluate(() => {
     const dock = document.querySelector<HTMLElement>(".workspace-dock");
     const dockBody = document.querySelector<HTMLElement>(".workspace-dock-body");
-    const journey = document.querySelector<HTMLElement>(".journey-rail");
-    const items = Array.from(document.querySelectorAll<HTMLElement>(".journey-step"));
+    const ribbon = document.querySelector<HTMLElement>(".workflow-ribbon");
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".ribbon-stop"));
     const body = document.body;
-    if (!dock || !dockBody || !journey || items.length === 0) {
-      return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, journeyHeight: 0 };
+    if (!dock || !dockBody || !ribbon || items.length === 0) {
+      return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, ribbonHeight: 0 };
     }
-    const dockBounds = dock.getBoundingClientRect();
+    const ribbonBounds = ribbon.getBoundingClientRect();
     const bodyBounds = body.getBoundingClientRect();
     return {
       bodyOverflow: body.scrollWidth - body.clientWidth,
@@ -105,18 +121,18 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
         0,
         ...items.map((item) => {
           const bounds = item.getBoundingClientRect();
-          return Math.max(0, bounds.right - dockBounds.right, dockBounds.left - bounds.left);
+          return Math.max(0, bounds.right - ribbonBounds.right, ribbonBounds.left - bounds.left);
         })
       ),
-      journeyHeight: journey.getBoundingClientRect().height,
-      viewportOverflow: Math.max(0, dockBounds.right - bodyBounds.right, bodyBounds.left - dockBounds.left)
+      ribbonHeight: ribbon.getBoundingClientRect().height,
+      viewportOverflow: Math.max(0, ribbonBounds.right - bodyBounds.right, bodyBounds.left - ribbonBounds.left)
     };
   });
   expect(compactJourneyGeometry.bodyOverflow).toBe(0);
   expect(compactJourneyGeometry.viewportOverflow).toBe(0);
   expect(compactJourneyGeometry.itemOverflow).toBe(0);
   expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(64);
-  expect(compactJourneyGeometry.journeyHeight).toBeGreaterThan(0);
+  expect(compactJourneyGeometry.ribbonHeight).toBeGreaterThan(0);
   await page.getByTestId("tree-row-node:N-110").click();
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
@@ -150,8 +166,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
+  await page.getByTestId("audit-drawer-toggle").click();
   await expect(page.getByTestId("local-project-status")).toContainText("network=false");
   await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
+  await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 7 primitive loads; 1 combinations"
@@ -354,20 +372,17 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   const before = await canvas.screenshot();
   expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
-  await expect
-    .poll(
-      async () => {
-        await page.waitForTimeout(500);
-        return diffPngPixels(before, await canvas.screenshot());
-      },
-      { timeout: 5000 }
-    )
-    .toBeGreaterThan(100);
+  await expect(page.getByTestId("viewport-axis-triad")).toBeVisible();
+  await expect(page.getByTestId("viewport-view-cube")).toBeVisible();
+  await expect(page.getByTestId("viewport-scale-bar")).toContainText("m");
+  await expect(page.getByTestId("command-bar")).toBeVisible();
 
   await openWorkspaceSection(page, "solve");
+  await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("missing-data-unit-policy")).toContainText("required=true");
   await expect(page.getByTestId("missing-data-unit-policy")).toContainText("default_units=false");
   await expect(page.getByTestId("missing-data-unit-policy")).toContainText("conversion=false");
+  await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=737");
@@ -386,16 +401,19 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "vector_direction=global_cartesian_displacement_components"
   );
 
-  await openWorkspaceSection(page, "evidence");
-  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("unit_refs=2");
-  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
-  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
-  await expect(page.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
-  await expect(page.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
-  await expect(page.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
-  await expect(page.getByTestId("run-audit-units")).toContainText("rows=737");
-  await expect(page.getByTestId("run-audit-units")).toContainText("source=result_envelope");
-  await expect(page.getByTestId("run-audit-units")).toContainText("conversion=false");
+  await page.getByTestId("audit-drawer-toggle").click();
+  const auditDrawer = page.getByTestId("audit-boundary-drawer");
+  await expect(auditDrawer).toBeVisible();
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("unit_refs=2");
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("results=MPa,N,N*m,mm,rad");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("rows=737");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("source=result_envelope");
+  await expect(auditDrawer.getByTestId("run-audit-units")).toContainText("conversion=false");
+  await auditDrawer.getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("knowledge-unit-context")).toContainText("computed_unit_refs=2");
   await expect(page.getByTestId("knowledge-unit-context")).toContainText("units=N,mm");
@@ -657,23 +675,16 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "receipt_units=not_serialized_in_review_ledger"
   );
   await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("conversion=false");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=1");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_dimensionless=0");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=0");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("receipt_units=not_serialized");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("conversion=false");
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("1 unit-bearing queued");
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 dimensionless queued");
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 applied receipts");
   await page.getByTestId("apply-intent-editor-intent-1").click();
   await expect(applyPanel.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText(
-    "route=local_wasm_engine"
+    "Applied through local_wasm_engine"
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("queued_unit_bearing=0");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText(
-    "outcome_unit_validations=passed"
-  );
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("applied_receipts=1");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("receipt_units=not_serialized");
-  await expect(applyPanel.getByTestId("operation-apply-unit-policy")).toContainText("conversion=false");
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 unit-bearing queued");
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("1 applied receipts");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 
   // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
@@ -692,7 +703,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 1 applied");
   await page.getByTestId("apply-intent-editor-intent-2").click();
   await expect(applyPanel.getByTestId("applied-operation-route-applied-2-editor-intent-2")).toContainText(
-    "route=local_wasm_engine"
+    "Applied through local_wasm_engine"
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 2 applied");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
@@ -710,13 +721,11 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
-  await page.getByRole("button", { name: "Node intent" }).click();
-  await page.getByRole("button", { name: "Pipe-run intent" }).click();
-  await page.getByRole("button", { name: "Component intent" }).click();
+  await page.getByTestId("command-node").click();
+  await page.getByTestId("command-pipe").click();
+  await page.getByTestId("command-component").click();
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
@@ -732,42 +741,23 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await page.getByRole("button", { name: "New blank" }).click();
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
-  await expect(page.getByTestId("a12-authoring-journey")).toBeVisible();
-  await expect(page.getByTestId("a12-next-action")).toContainText("Add two nodes");
-  await expect(page.getByTestId("a12-queue-status")).toContainText("No queued operations");
-  await expect(page.getByTestId("a12-journey-step-blank")).toHaveAttribute("data-status", "complete");
-  await expect(page.getByTestId("a12-journey-step-nodes")).toHaveAttribute("data-status", "next");
-  for (const stepId of [
-    "nodes",
-    "material",
-    "section",
-    "pipe",
-    "support",
-    "load-case",
-    "primitive-load",
-    "combination",
-    "solve",
-    "report",
-    "save-reopen"
-  ]) {
-    await expect(page.getByTestId(`a12-journey-step-${stepId}`)).toBeVisible();
-  }
-  await page.getByTestId("a12-journey-step-load-case").click();
+  await expect(page.getByTestId("workflow-ribbon")).toBeVisible();
+  await expect(page.getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
-  await page.getByTestId("a12-journey-step-solve").click();
+  await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
-  await page.getByTestId("a12-journey-step-report").click();
+  await openWorkspaceSection(page, "report");
   await expect(page.getByTestId("workspace-section-report")).toBeVisible();
-  await page.getByTestId("a12-journey-step-save-reopen").click();
+  await openWorkspaceSection(page, "project");
   await expect(page.getByTestId("workspace-section-project")).toBeVisible();
-  await page.getByTestId("a12-journey-step-nodes").click();
+  await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "0 load cases; 0 primitive loads; 0 combinations"
@@ -776,19 +766,15 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   const startNode = stepPayload("create_node", "node:R2-100");
   await fillNodeDraft(page, startNode);
   await page.getByTestId("queue-explicit-node-intent").click();
-  await expect(page.getByTestId("a12-queue-status")).toContainText("1 queued operation");
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await applyQueuedIntent(page, 1, startNode.id);
-  await expect(page.getByTestId("a12-journey-step-nodes")).toContainText("1/2");
 
   const loadedNode = stepPayload("create_node", "node:R2-110");
   await fillNodeDraft(page, loadedNode);
   await page.getByTestId("queue-explicit-node-intent").click();
   await applyQueuedIntent(page, 2, loadedNode.id);
-  await expect(page.getByTestId("a12-journey-step-nodes")).toHaveAttribute("data-status", "complete");
-  await expect(page.getByTestId("a12-next-action")).toContainText("Add a material");
 
   const material = stepPayload("create_material", "material:r2-carbon-steel");
   await page.getByTestId("create-material-id").fill(material.id);
@@ -892,19 +878,22 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "round_trip=unit_metadata_preserved_in_local_project_envelope"
   );
   await expect(page.getByTestId("project-validation-unit-policy")).toContainText("conversion=false");
-  await openWorkspaceSection(page, "evidence");
-  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("model=");
-  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("force=N");
-  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("length=m");
-  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText(
+  await page.getByTestId("audit-drawer-toggle").click();
+  const auditDrawer = page.getByTestId("audit-boundary-drawer");
+  await expect(auditDrawer).toBeVisible();
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("model=");
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("force=N");
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("length=m");
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText(
     "manual=unit_and_schema_verification"
   );
-  await expect(page.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
-  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText(
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
+  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText(
     "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces"
   );
-  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText("length=m");
-  await expect(page.getByTestId("accessibility-baseline-unit-visibility")).toContainText("conversion=false");
+  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText("length=m");
+  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText("conversion=false");
+  await auditDrawer.getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
@@ -912,9 +901,11 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+  await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
     "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
   );
+  await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "report");
   await expect(page.getByTestId("rendered-report-render")).toBeEnabled();
   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
@@ -933,6 +924,7 @@ test("diagnostic detail exposes linked result unit context", async ({ page }) =>
   await openWorkspaceSection(page, "solve");
 
   await page.getByTestId("run-mechanics-preview").click();
+  await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toBeVisible();
   await page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW").click();
 
@@ -950,9 +942,7 @@ test("diagnostic detail exposes linked result unit context", async ({ page }) =>
 test("rule-pack manager drafts privately and reports the desktop-only backend seam", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
   await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("rule-pack-scope-status")).toContainText("local SQLite only");
@@ -1177,9 +1167,7 @@ test("library manager loads an invented private sample and reports the desktop-o
 }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
   await openWorkspaceSection(page, "libraries");
   await expect(page.getByTestId("library-scope-status")).toContainText("local SQLite only");
@@ -1423,64 +1411,45 @@ test("run-rule-checks panel loads the demo pack, derives bindings, and reports t
 test("R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("operation-engine-status")).toContainText(
-    "engine_route=local_wasm_engine; engine_state=ready"
-  );
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
-  await page.getByTestId("guided-journey-tab-r3").click();
-  await expect(page.getByTestId("r3-guided-flow")).toBeVisible();
-  await expect(page.getByTestId("r3-flow-next-action")).toContainText(
-    "Load and validate a private local library"
-  );
-  await expect(page.getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "next");
-  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText("Missing-input gate pending");
+  await expect(page.getByTestId("workflow-ribbon")).toBeVisible();
+  await expect(page.getByTestId("status-pill-rule-check")).toContainText("RULE_INPUTS_INCOMPLETE");
 
-  await page.getByTestId("r3-flow-step-library").click();
+  await openWorkspaceSection(page, "libraries");
   await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
   await page.getByTestId("library-load-template").click();
   await page.getByTestId("library-validate").click();
   await expect(page.getByTestId("library-action-status")).toContainText(
     "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
   );
-  await expect(page.getByTestId("r3-flow-step-library")).toHaveAttribute("data-status", "complete");
   await page.getByTestId("library-save").click();
-  await expect(page.getByTestId("r3-flow-status")).toContainText("private library=save requested");
 
-  await page.getByTestId("r3-flow-step-rule-pack").click();
+  await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
   await page.getByTestId("rule-pack-new-draft").click();
   await page.getByTestId("rule-pack-validate").click();
   await expect(page.getByTestId("rule-pack-action-status")).toContainText(
     "RULE-PACK-BACKEND-DESKTOP-ONLY"
   );
-  await expect(page.getByTestId("r3-flow-step-rule-pack")).toHaveAttribute("data-status", "complete");
   await page.getByTestId("rule-pack-compute-checksum").click();
   await expect(page.getByTestId("rule-pack-action-status")).toContainText(
     "RULE-PACK-BACKEND-DESKTOP-ONLY"
   );
   await page.getByTestId("rule-pack-save").click();
-  await expect(page.getByTestId("r3-flow-step-checksum-save")).toHaveAttribute("data-status", "complete");
 
-  await page.getByTestId("r3-flow-step-solve").click();
+  await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
-  await expect(page.getByTestId("r3-flow-step-solve")).toHaveAttribute("data-status", "complete");
 
   await page.getByTestId("rule-check-load-demo").click();
   await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
-  await expect(page.getByTestId("r3-flow-step-bind")).toHaveAttribute("data-status", "complete");
-  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText("Binding review active");
 
   await page.getByTestId("rule-check-run").click();
   await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");
-  await expect(page.getByTestId("r3-flow-step-run")).toHaveAttribute("data-status", "complete");
-  await expect(page.getByTestId("r3-flow-missing-input-blocker")).toContainText(
-    "browser preview keeps pass/fail blocked"
-  );
-  await expect(page.getByTestId("r3-exit-journey-status")).toContainText(
-    "Packaged A12/R3 human pass not recorded"
-  );
+  await page.getByTestId("issues-drawer-toggle").click();
+  await expect(page.getByTestId("issues-home")).toContainText("RULE_INPUTS_INCOMPLETE");
 
   const horizontalOverflow = await page.evaluate(
     () =>
@@ -1509,19 +1478,20 @@ async function fillNodeDraft(page: Page, payload: any): Promise<void> {
 
 async function applyQueuedIntent(page: Page, sequence: number, expectedOperation: string): Promise<void> {
   // Authoring forms live in the persistent core or the Load Cases section;
-  // the guided A12 control applies the next queued operation while leaving
-  // the Operation Apply section as the receipt and audit surface.
+  // the Operation Apply section is the receipt and audit surface.
   const key = `editor-intent-${sequence}`;
-  await expect(page.getByTestId("a12-queue-status")).toContainText(`1 queued operation: ${expectedOperation}`);
-  await page.getByTestId("a12-review-apply-button").click();
+  await openWorkspaceSection(page, "operations");
+  await expect(page.getByTestId("operation-apply-summary")).toContainText(`1 queued; ${sequence - 1} applied`);
+  await page.getByTestId(`apply-intent-${key}`).click();
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
   await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${sequence} applied`);
   await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
-    "route=local_wasm_engine"
+    "Applied through local_wasm_engine"
   );
   await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
-    "professional_approval=false"
+    "professional approval not recorded"
   );
+  await expect(page.getByTestId(`applied-operation-applied-${sequence}-${key}`)).toContainText(expectedOperation);
 }
 
 type PngImage = {

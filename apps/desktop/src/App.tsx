@@ -149,6 +149,16 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
+type RibbonStopId = "model" | "loads" | "analyze" | "results" | "rules" | "report";
+
+type RibbonStop = {
+  id: RibbonStopId;
+  label: string;
+  sections: WorkspaceSectionId[];
+  primarySection: WorkspaceSectionId;
+  journeyStepIds: JourneyStepId[];
+};
+
 const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string; description: string }> = [
   {
     id: "operations",
@@ -201,6 +211,51 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
     id: "evidence",
     label: "Audit & Boundaries",
     description: "Run audit, validation evidence, telemetry/privacy/security boundary reviews"
+  }
+];
+
+const RIBBON_STOPS: ReadonlyArray<RibbonStop> = [
+  {
+    id: "model",
+    label: "Model",
+    primarySection: "operations",
+    sections: ["operations", "libraries", "project"],
+    journeyStepIds: ["model", "private-libraries", "save-reopen"]
+  },
+  {
+    id: "loads",
+    label: "Loads",
+    primarySection: "loads",
+    sections: ["loads"],
+    journeyStepIds: ["loads"]
+  },
+  {
+    id: "analyze",
+    label: "Analyze",
+    primarySection: "solve",
+    sections: ["solve"],
+    journeyStepIds: ["solve-check"]
+  },
+  {
+    id: "results",
+    label: "Results",
+    primarySection: "results",
+    sections: ["results"],
+    journeyStepIds: ["results"]
+  },
+  {
+    id: "rules",
+    label: "Rules",
+    primarySection: "rule-packs",
+    sections: ["rule-packs", "libraries"],
+    journeyStepIds: ["rule-pack", "private-libraries"]
+  },
+  {
+    id: "report",
+    label: "Report",
+    primarySection: "report",
+    sections: ["report", "exports", "project"],
+    journeyStepIds: ["report", "save-reopen"]
   }
 ];
 
@@ -377,6 +432,8 @@ export function App() {
     ...INITIAL_R3_JOURNEY_STATE
   }));
   const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
+  const [auditDrawerOpen, setAuditDrawerOpen] = useState(false);
+  const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
   const intentSequence = useRef(0);
   const comparison = useMemo(
     () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
@@ -908,38 +965,13 @@ export function App() {
 
   return (
     <main className="app-shell" data-testid="desktop-preview-shell">
-      <header className="topbar">
+      <header className="titlebar">
         <div>
-          <h1>OpenPipeStress Technical Preview</h1>
-          <p>{model.project.description}</p>
+          <h1>OpenPipeStress</h1>
+          <p>{projectSummary?.project_name ?? model.project.name}</p>
         </div>
-        <div className="topbar-actions" aria-label="Preview status">
-          <Badge icon={<Database size={16} />} label="Invented data" />
-          <Badge icon={<Activity size={16} />} label="Local execution" />
-          <Badge
-            icon={<HardDrive size={16} />}
-            label={storageCapability ? storageBadgeLabel(storageCapability) : "Storage check pending"}
-          />
-          <Badge icon={<FileWarning size={16} />} label="Human review required" />
-        </div>
-      </header>
-
-      <section className="project-toolbar" aria-label="Local project controls">
-        <div>
-          <strong>{projectSummary?.project_name ?? model.project.name}</strong>
-          <span data-testid="local-project-status">
-            {storageCapability
-              ? ` ${storageCapability.engine} local store; network=${String(storageCapability.network_required)}; daemon=${String(
-                  storageCapability.daemon_required
-                )}; telemetry=${String(storageCapability.telemetry_enabled)}; FTS5=${String(
-                  storageCapability.fts5_available
-                )}.`
-              : " Checking local storage."}
-          </span>
-          <span data-testid="local-project-message"> {projectMessage}</span>
-          <span data-testid="local-project-review-context"> {projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
-        </div>
-        <div className="project-toolbar-actions">
+        <div className="titlebar-actions" aria-label="Local project controls">
+          <span className="titlebar-project-name">{projectSummary?.project_name ?? model.project.name}</span>
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
             <Database size={15} aria-hidden="true" />
             Create local
@@ -961,8 +993,13 @@ export function App() {
             Save local
           </button>
         </div>
+      </header>
+
+      <section className="project-strip" aria-label="Project summary">
+        <span data-testid="local-project-message">{projectMessage}</span>
+        <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
-          <div className="project-toolbar-actions" data-testid="project-index-picker" aria-label="Open listed project by id">
+          <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
             {projectIndex.map((entry) => (
               <button
                 key={entry.project_id}
@@ -972,35 +1009,24 @@ export function App() {
                 disabled={projectBusy}
               >
                 <FolderOpen size={15} aria-hidden="true" />
-                Open {entry.project_name} ({entry.project_id})
+                {entry.project_name} ({entry.project_id})
               </button>
             ))}
           </div>
         ) : null}
       </section>
 
-      <section className="boundary-strip" aria-label="Preview boundary" data-testid="preview-boundary-strip">
-        <BoundaryItem
-          icon={<Database size={15} aria-hidden="true" />}
-          label="Public data"
-          value={boundaryValue(model, "public_examples_policy")}
-        />
-        <BoundaryItem
-          icon={<ShieldCheck size={15} aria-hidden="true" />}
-          label="Protected content"
-          value={boundaryValue(model, "protected_source_policy")}
-        />
-        <BoundaryItem
-          icon={<LockKeyhole size={15} aria-hidden="true" />}
-          label="Private data"
-          value={boundaryValue(model, "private_data_policy")}
-        />
-        <BoundaryItem
-          icon={<FileWarning size={15} aria-hidden="true" />}
-          label="Professional boundary"
-          value={boundaryValue(model, "professional_boundary")}
-        />
-      </section>
+      <Ribbon
+        activeSection={activeSection}
+        analysisRun={analysisRun}
+        appliedOperationCount={appliedOperations.length}
+        editorIntents={editorIntents}
+        projectMessage={projectMessage}
+        projectSummary={projectSummary}
+        result={result}
+        ruleCheckAggregate={ruleCheckAggregate}
+        onSelectSection={setActiveSection}
+      />
 
       <div className="workspace">
         <section className="modeling-workspace" aria-label="Modeling workspace" data-testid="modeling-workspace">
@@ -1031,50 +1057,6 @@ export function App() {
         </section>
 
         <section className="workspace-dock" aria-label="Workspace sections">
-          <GuidedWorkbench
-            activeSection={activeSection}
-            analysisRun={analysisRun}
-            appliedOperationCount={appliedOperations.length}
-            editorIntents={editorIntents}
-            model={model}
-            projectMessage={projectMessage}
-            projectOperation={projectOperation}
-            projectSummary={projectSummary}
-            result={result}
-            ruleCheckAggregate={ruleCheckAggregate}
-            activeA12StepId={activeA12StepId}
-            activeR3StepId={activeR3StepId}
-            guidedJourneyMode={guidedJourneyMode}
-            operationBusy={operationBusy}
-            r3JourneyState={r3JourneyState}
-            onApplyNextQueuedIntent={handleApplyNextQueuedIntent}
-            onSelectA12Step={setActiveA12StepId}
-            onSelectGuidedJourneyMode={setGuidedJourneyMode}
-            onSelectR3Step={setActiveR3StepId}
-            onSelectSection={setActiveSection}
-          />
-
-          <nav className="workspace-nav" aria-label="Workspace section navigation" data-testid="workspace-nav">
-            {WORKSPACE_SECTIONS.map((section) => (
-              <button
-                key={section.id}
-                type="button"
-                className={activeSection === section.id ? "workspace-nav-item active" : "workspace-nav-item"}
-                data-testid={`workspace-nav-${section.id}`}
-                aria-pressed={activeSection === section.id}
-                title={section.description}
-                onClick={() => setActiveSection(section.id)}
-              >
-                {section.label}
-                {section.id === "operations" ? (
-                  <span className="workspace-nav-count" data-testid="workspace-nav-operations-count">
-                    {editorIntents.length} queued
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </nav>
-
           <div className="workspace-dock-body">
             <section
               className={dockSectionClass("operations", activeSection)}
@@ -1188,16 +1170,6 @@ export function App() {
                 onCancel={handleCancelRun}
                 onRun={handleRun}
               />
-              <DiagnosticsPanel
-                model={model}
-                knowledge={knowledge}
-                result={result}
-                selectedDiagnosticId={
-                  selectedReviewTarget?.target_type === "diagnostic" ? selectedReviewTarget.id : null
-                }
-                onSelectDiagnostic={handleSelectDiagnostic}
-              />
-              <MissingDataBlockingPanel model={model} result={result} />
               <RuleCheckPanel model={model} result={result} />
               <RuleCheckRunPanel
                 model={model}
@@ -1361,6 +1333,40 @@ export function App() {
         </section>
       </div>
 
+      <StatusBar
+        model={model}
+        knowledge={knowledge}
+        result={result}
+        storageCapability={storageCapability}
+        operationOutcomes={operationOutcomes}
+        auditDrawerOpen={auditDrawerOpen}
+        issuesDrawerOpen={issuesDrawerOpen}
+        onOpenAudit={() => setAuditDrawerOpen((open) => !open)}
+        onOpenIssues={() => setIssuesDrawerOpen((open) => !open)}
+      />
+
+      {auditDrawerOpen ? (
+        <AuditBoundaryDrawer
+          model={model}
+          result={result}
+          analysisRun={analysisRun}
+          storageCapability={storageCapability}
+          onClose={() => setAuditDrawerOpen(false)}
+        />
+      ) : null}
+
+      {issuesDrawerOpen ? (
+        <IssuesHome
+          model={model}
+          knowledge={knowledge}
+          result={result}
+          operationOutcomes={operationOutcomes}
+          selectedDiagnosticId={selectedReviewTarget?.target_type === "diagnostic" ? selectedReviewTarget.id : null}
+          onClose={() => setIssuesDrawerOpen(false)}
+          onSelectDiagnostic={handleSelectDiagnostic}
+        />
+      ) : null}
+
       <footer className="app-footer">
         Technical preview only: no production-readiness, release-readiness, certification, sealing, code-compliance; no licensed engineering reliance claim.
       </footer>
@@ -1373,6 +1379,310 @@ export function App() {
 // removes them from the accessibility tree in a real browser.
 function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: WorkspaceSectionId): string {
   return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
+}
+
+function Ribbon({
+  activeSection,
+  analysisRun,
+  appliedOperationCount,
+  editorIntents,
+  projectMessage,
+  projectSummary,
+  result,
+  ruleCheckAggregate,
+  onSelectSection
+}: {
+  activeSection: WorkspaceSectionId;
+  analysisRun: AnalysisRunEnvelope | null;
+  appliedOperationCount: number;
+  editorIntents: EditorOperationIntent[];
+  projectMessage: string;
+  projectSummary: LocalProjectSummary | null;
+  result: MechanicsResult | null;
+  ruleCheckAggregate: RuleCheckStatus | null;
+  onSelectSection: (section: WorkspaceSectionId) => void;
+}) {
+  const activeStop = ribbonStopForSection(activeSection);
+  const current = currentJourneyStep({
+    activeSection,
+    analysisRun,
+    appliedOperationCount,
+    editorIntents,
+    projectMessage,
+    projectSummary,
+    result,
+    ruleCheckAggregate
+  });
+
+  return (
+    <section className="workflow-ribbon" aria-label="Workflow ribbon" data-testid="workflow-ribbon">
+      <nav className="ribbon-stop-list" aria-label="Primary workflow">
+        {RIBBON_STOPS.map((stop) => (
+          <button
+            key={stop.id}
+            type="button"
+            className={activeStop.id === stop.id ? "ribbon-stop active" : "ribbon-stop"}
+            data-testid={`ribbon-stop-${stop.id}`}
+            aria-pressed={activeStop.id === stop.id}
+            onClick={() => onSelectSection(stop.primarySection)}
+          >
+            <span>{stop.label}</span>
+            <small>{ribbonStopBadge(stop, activeSection, editorIntents, result, analysisRun, projectSummary)}</small>
+          </button>
+        ))}
+      </nav>
+      <article className="ribbon-current-step" data-testid="ribbon-current-step">
+        <span>Current step</span>
+        <strong>{current.title}</strong>
+        <p>{current.body}</p>
+        <div className="ribbon-section-switcher" aria-label="Ribbon section switcher">
+          {activeStop.sections.map((section) => (
+            <button
+              key={section}
+              type="button"
+              data-testid={`ribbon-section-${section}`}
+              aria-pressed={activeSection === section}
+              onClick={() => onSelectSection(section)}
+            >
+              {WORKSPACE_SECTIONS.find((candidate) => candidate.id === section)?.label ?? section}
+            </button>
+          ))}
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function StatusBar({
+  model,
+  knowledge,
+  result,
+  storageCapability,
+  operationOutcomes,
+  auditDrawerOpen,
+  issuesDrawerOpen,
+  onOpenAudit,
+  onOpenIssues
+}: {
+  model: PreviewModel;
+  knowledge: DesignKnowledge | null;
+  result: MechanicsResult | null;
+  storageCapability: LocalStorageCapability | null;
+  operationOutcomes: Record<string, OperationOutcome>;
+  auditDrawerOpen: boolean;
+  issuesDrawerOpen: boolean;
+  onOpenAudit: () => void;
+  onOpenIssues: () => void;
+}) {
+  const status = result?.status ?? model.analysis_status;
+  const issueCount = issueCountFor(model, knowledge, result, operationOutcomes);
+  return (
+    <section className="status-bar" aria-label="Workspace status" data-testid="workspace-status-bar">
+      <div className="status-pill-group" aria-label="Analysis statuses">
+        <StatusPill label="Mechanics" value={status.mechanics} testId="status-pill-mechanics" />
+        <StatusPill label="Rule check" value={ruleCheckStatusLabel(status.rule_check)} testId="status-pill-rule-check" />
+        <StatusPill
+          label="Professional"
+          value={professionalStatusLabel(status.professional_acceptance)}
+          testId="status-pill-professional"
+        />
+      </div>
+      <div className="status-bar-actions">
+        <button
+          type="button"
+          className="status-drawer-button"
+          data-testid="audit-drawer-toggle"
+          aria-expanded={auditDrawerOpen}
+          onClick={onOpenAudit}
+        >
+          Local · no network · no telemetry
+          <small>{storageCapability ? storageBadgeLabel(storageCapability) : "checking storage"}</small>
+        </button>
+        <button
+          type="button"
+          className="status-drawer-button issue-button"
+          data-testid="issues-drawer-toggle"
+          aria-expanded={issuesDrawerOpen}
+          onClick={onOpenIssues}
+        >
+          ⚑ {issueCount} Issues
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function AuditBoundaryDrawer({
+  model,
+  result,
+  analysisRun,
+  storageCapability,
+  onClose
+}: {
+  model: PreviewModel;
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  storageCapability: LocalStorageCapability | null;
+  onClose: () => void;
+}) {
+  return (
+    <aside className="workspace-drawer audit-drawer" aria-label="Audit and boundaries drawer" data-testid="audit-boundary-drawer">
+      <div className="drawer-header">
+        <div>
+          <span>Audit & boundaries</span>
+          <h2>Local preview evidence</h2>
+        </div>
+        <button type="button" onClick={onClose}>
+          Close
+        </button>
+      </div>
+      <section className="boundary-grid" aria-label="Preview boundary details">
+        <BoundaryItem icon={<Database size={15} aria-hidden="true" />} label="Public data" value={boundaryValue(model, "public_examples_policy")} />
+        <BoundaryItem
+          icon={<ShieldCheck size={15} aria-hidden="true" />}
+          label="Protected content"
+          value={boundaryValue(model, "protected_source_policy")}
+        />
+        <BoundaryItem icon={<LockKeyhole size={15} aria-hidden="true" />} label="Private data" value={boundaryValue(model, "private_data_policy")} />
+        <BoundaryItem
+          icon={<FileWarning size={15} aria-hidden="true" />}
+          label="Professional boundary"
+          value={boundaryValue(model, "professional_boundary")}
+        />
+      </section>
+      <section className="storage-capability" data-testid="local-project-status">
+        <strong>{storageCapability ? storageBadgeLabel(storageCapability) : "Storage check pending"}</strong>
+        <span>
+          {storageCapability
+            ? `${storageCapability.engine} local store; network=${String(storageCapability.network_required)}; daemon=${String(
+                storageCapability.daemon_required
+              )}; telemetry=${String(storageCapability.telemetry_enabled)}; FTS5=${String(storageCapability.fts5_available)}.`
+            : "Checking local storage."}
+        </span>
+      </section>
+      <div className="drawer-panel-grid">
+        <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
+        <ValidationEvidencePanel model={model} />
+        <BuildReadinessPanel model={model} />
+        <TelemetryBoundaryPanel model={model} storageCapability={storageCapability} />
+        <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
+        <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
+        <AccessibilityBaselinePanel model={model} />
+      </div>
+    </aside>
+  );
+}
+
+function IssuesHome({
+  model,
+  knowledge,
+  result,
+  operationOutcomes,
+  selectedDiagnosticId,
+  onClose,
+  onSelectDiagnostic
+}: {
+  model: PreviewModel;
+  knowledge: DesignKnowledge | null;
+  result: MechanicsResult | null;
+  operationOutcomes: Record<string, OperationOutcome>;
+  selectedDiagnosticId: string | null;
+  onClose: () => void;
+  onSelectDiagnostic: (diagnosticId: string) => void;
+}) {
+  const operationDiagnostics = Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics);
+  return (
+    <aside className="workspace-drawer issues-drawer" aria-label="Issues home" data-testid="issues-home">
+      <div className="drawer-header">
+        <div>
+          <span>Issues</span>
+          <h2>Diagnostics and required inputs</h2>
+        </div>
+        <button type="button" onClick={onClose}>
+          Close
+        </button>
+      </div>
+      {operationDiagnostics.length > 0 ? (
+        <section className="panel issues-operation-list" aria-label="Operation diagnostics">
+          <div className="panel-title">Operation diagnostics</div>
+          {operationDiagnostics.map((diagnostic) => (
+            <article className={`issue-row ${diagnostic.severity}`} key={diagnostic.id}>
+              <strong>{diagnostic.code}</strong>
+              <p>{diagnostic.message}</p>
+            </article>
+          ))}
+        </section>
+      ) : null}
+      <DiagnosticsPanel
+        model={model}
+        knowledge={knowledge}
+        result={result}
+        selectedDiagnosticId={selectedDiagnosticId}
+        onSelectDiagnostic={onSelectDiagnostic}
+      />
+      <MissingDataBlockingPanel model={model} result={result} />
+    </aside>
+  );
+}
+
+function StatusPill({ label, value, testId }: { label: string; value: string; testId: string }) {
+  return (
+    <span className="status-pill" data-testid={testId} title={value}>
+      <strong>{label}</strong>
+      <code>{value}</code>
+    </span>
+  );
+}
+
+function professionalStatusLabel(value: string) {
+  if (value.toLowerCase() === "not_provided") {
+    return "HUMAN_REVIEW_REQUIRED";
+  }
+  return value;
+}
+
+function ruleCheckStatusLabel(value: string) {
+  if (value.toLowerCase() === "not_performed_user_rule_inputs_missing") {
+    return "RULE_INPUTS_INCOMPLETE";
+  }
+  return value;
+}
+
+function ribbonStopForSection(section: WorkspaceSectionId): RibbonStop {
+  return RIBBON_STOPS.find((stop) => stop.sections.includes(section)) ?? RIBBON_STOPS[0];
+}
+
+function ribbonStopBadge(
+  stop: RibbonStop,
+  activeSection: WorkspaceSectionId,
+  editorIntents: EditorOperationIntent[],
+  result: MechanicsResult | null,
+  analysisRun: AnalysisRunEnvelope | null,
+  projectSummary: LocalProjectSummary | null
+): string {
+  const statuses = stop.journeyStepIds.map((id) => {
+    const step = JOURNEY_STEPS.find((candidate) => candidate.id === id);
+    return step
+      ? journeyStepStatus({ step, activeSection, editorIntents, result, analysisRun, projectSummary })
+      : "pending";
+  });
+  if (statuses.some((status) => status.includes("current"))) return "current";
+  if (statuses.every((status) => status.includes("ready") || status.includes("solved") || status.includes("saved"))) return "ready";
+  if (statuses.some((status) => status.includes("queued"))) return "queued";
+  return statuses[0] ?? "pending";
+}
+
+function issueCountFor(
+  model: PreviewModel,
+  knowledge: DesignKnowledge | null,
+  result: MechanicsResult | null,
+  operationOutcomes: Record<string, OperationOutcome>
+): number {
+  const operationDiagnosticCount = Object.values(operationOutcomes).reduce(
+    (count, outcome) => count + outcome.diagnostics.length,
+    0
+  );
+  return model.diagnostics.length + (knowledge?.diagnostics.length ?? 0) + (result?.diagnostics.length ?? 0) + operationDiagnosticCount;
 }
 
 function GuidedWorkbench({

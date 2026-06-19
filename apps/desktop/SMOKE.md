@@ -9167,3 +9167,37 @@ notes:
   conversion, protected standards content, private payload, lifecycle state
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## TP-MAC-272 workspace redesign Inc 0-5 - PASSED (`TP-R3UX-WORKSPACEREDESIGN-001`, 2026-06-19)
+
+- Scope: C5.7R minimum redesign before the next packaged human pass attempt.
+  Replaces the three competing navigation systems with one ribbon; demotes
+  evidence, telemetry, storage, and boundary strings into the Audit drawer;
+  moves diagnostics and missing-input blockers into the Issues drawer; enlarges
+  the viewport into the hero canvas; and adds inspector dual-unit/provenance/
+  required-field context.
+- App behavior: default shell now renders a title bar, ribbon, tree/canvas/
+  inspector workspace, status bar, Audit drawer, and Issues drawer. The
+  viewport exposes axis triad, view cube controls, scale bar, load glyph
+  summary, selection handles, and a command/selection bar. Operation Apply
+  raw summaries were replaced with compact chips and human-readable receipts.
+- Validation:
+  - `npm test --workspace apps/desktop` passed 18/18 test files and 399/399
+    tests.
+  - `npm run test:e2e --workspace apps/desktop` passed 18/18 Playwright
+    checks across desktop and compact Chromium projects.
+  - `npm run test:e2e:dist --workspace apps/desktop` passed 1/1 packaged
+    production smoke check.
+  - `npm run build --workspace apps/desktop` passed, retaining the existing
+    Vite chunk-size warning.
+  - `python3 tools/release/run_evidence_sweep.py --execute` passed overall;
+    summary:
+    `validation/evidence/sweeps/SWEEP_20260619T072613Z_5dbd406023ba-dirty.json`.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-WORKSPACEREDESIGN-001.md`.
+- Boundary: frontend shell/presentation/test coverage only. No solver,
+  schema, evaluator, persistence, backend API, unit storage, protected-content,
+  private-data, network/telemetry, lifecycle, release-readiness, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed. Inc 6 bulk tabular grid and the packaged human TP-MAC-189 re-pass
+  remain residuals.

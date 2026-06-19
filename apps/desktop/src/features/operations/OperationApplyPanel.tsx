@@ -39,13 +39,12 @@ export function OperationApplyPanel({
         {queuedIntents.length} queued; {appliedOperations.length} applied this session. Applying validates through the
         structured-operation seam and replaces the session model document; saving the project stores it locally.
       </p>
-      <small className="muted" data-testid="operation-engine-status">
-        engine_route={engineStatus.route}; engine_state={engineStatus.state}
-        {engineStatus.detail ? `; ${engineStatus.detail}` : ""}
-      </small>
-      <small className="muted" data-testid="operation-apply-unit-policy">
-        {operationApplyUnitPolicySummary(queuedIntents, outcomes, appliedOperations)}
-      </small>
+      <div className="operation-status-chips" aria-label="Operation status">
+        <span data-testid="operation-engine-chip">Engine {engineStatus.state}</span>
+        <span data-testid="operation-unit-policy-chip">
+          {operationApplyUnitPolicySummary(queuedIntents, outcomes, appliedOperations)}
+        </span>
+      </div>
       <div className="operation-history-actions" aria-label="Session edit history">
         <button
           data-testid="undo-session-model-edit"
@@ -67,9 +66,9 @@ export function OperationApplyPanel({
           <Redo2 size={14} aria-hidden="true" />
           Redo
         </button>
-        <small data-testid="session-history-summary">
-          undo={undoCount}; redo={redoCount}; local_session_only=true; saved_project_mutated=false
-        </small>
+        <span className="operation-history-chip" data-testid="session-history-chip">
+          {undoCount} undo / {redoCount} redo
+        </span>
       </div>
       {message ? (
         <p className="muted" data-testid="operation-apply-message">
@@ -131,9 +130,9 @@ export function OperationApplyPanel({
                 {receipt.after}
               </small>
               <small data-testid={`applied-operation-route-${receipt.receipt_id}`}>
-                route={receipt.application_route}; acceptance={receipt.acceptance.acceptance_basis};{" "}
-                persistence={receipt.acceptance.persistence_status}; professional_approval=
-                {String(receipt.acceptance.acceptance_is_professional_approval)}
+                Applied through {receipt.application_route}. Acceptance basis {receipt.acceptance.acceptance_basis};
+                persistence {receipt.acceptance.persistence_status}; professional approval{" "}
+                {receipt.acceptance.acceptance_is_professional_approval ? "recorded" : "not recorded"}.
               </small>
               <small>model_hash={shortHash(receipt.applied_model_hash)}</small>
             </article>
@@ -153,9 +152,9 @@ function OutcomeSummary({ outcome, testKey }: { outcome: OperationOutcome; testK
   return (
     <div className="operation-outcome" data-testid={`operation-outcome-${testKey}`}>
       <small data-testid={`operation-outcome-status-${testKey}`}>
-        {outcome.mode}; application_status={outcome.validation.application_status}; schema=
-        {outcome.validation.schema_validation}; unit={outcome.validation.unit_validation}; before_state=
-        {outcome.validation.before_state_validation}; route={outcome.application_route}
+        {outcome.mode} outcome: {outcome.validation.application_status}. Schema {outcome.validation.schema_validation};
+        units {outcome.validation.unit_validation}; prior state {outcome.validation.before_state_validation}. Route{" "}
+        {outcome.application_route}.
       </small>
       {outcome.diff_preview.map((row) => (
         <small data-testid={`operation-outcome-diff-${testKey}`} key={`${row.field_path}-${row.after}`}>
@@ -185,14 +184,9 @@ function operationApplyUnitPolicySummary(
         .filter((status) => status.trim().length > 0)
     )
   ).sort();
-  return [
-    `queued_unit_bearing=${queuedUnitBearing}`,
-    `queued_dimensionless=${queuedDimensionless}`,
-    `outcome_unit_validations=${unitValidationStatuses.length > 0 ? unitValidationStatuses.join(",") : "none"}`,
-    `applied_receipts=${appliedOperations.length}`,
-    "receipt_units=not_serialized",
-    "conversion=false"
-  ].join("; ");
+  return `${queuedUnitBearing} unit-bearing queued, ${queuedDimensionless} dimensionless queued; ${
+    unitValidationStatuses.length > 0 ? unitValidationStatuses.join(", ") : "no unit validations yet"
+  }; ${appliedOperations.length} applied receipts.`;
 }
 
 export function intentKey(intent: EditorOperationIntent): string {
