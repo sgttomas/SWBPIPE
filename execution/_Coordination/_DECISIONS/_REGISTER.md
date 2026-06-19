@@ -42,7 +42,8 @@ human-gated `TBD`s get new `D-XX` rows appended here.
 | D-18 | Component macro-element realization: bend/branch/rigid/EJ as solver macro-elements vs straight-element geometry + user-flexibility multipliers in stress recovery (`ComponentMechanicsInterface.solver_consumption`); all component factors stay user-entered per the code-neutral boundary | Phase D, D1–D4; R4 exit half "component provenance appears in reports" (via D8) | AWAITING_RULING | [D-18_component_macro_element_realization.md](D-18_component_macro_element_realization.md) (2026-06-18) | — |
 | D-19 | Release convergence tolerance policy: close the `TolerancePolicyTbd` diagnostic for the solver-convergence axis (residual/iteration stopping criteria for the assembled nonlinear loop), distinct from the analytic verification seed (1.0e-9) governed under DEC-024/DEC-026 | Phase D, D6 + D9; R4 exit "validation cases converge"; RGAP-004 | AWAITING_RULING | [D-19_release_convergence_tolerance_policy.md](D-19_release_convergence_tolerance_policy.md) (2026-06-18) | — |
 | D-20 | Release-artifact protected-content scan ownership & procedure (RGAP-005): owner + recorded procedure for the release-time artifact scan and legal/protected-data release gate | Phase E, E7; R5 exit "no known protected standards data" | NOT_PREPARED | — | — |
-| D-21 | PRD scope-change to the v0.2 milestone set (adopt R6/R7 + the inserted v0.2 R3 States/Comparison) via the governed `SCOPE_CHANGE` path; adopts the v0.2 FR renumber (traceability-breaking, requires an FR crosswalk) | Extended Horizon (Phases G/H/I) | NOT_PREPARED | — | — |
+| D-21 | PRD scope-change to the v0.2 milestone set (adopt R6/R7 + the inserted v0.2 R3 States/Comparison) via the governed `SCOPE_CHANGE` path; adopts the v0.2 FR renumber (traceability-breaking, requires an FR crosswalk) | Extended Horizon (Phases G/H/I) | NOT_PREPARED (held) | — | held reaffirmed 2026-06-18; harness-independent embedded-agent prep sanctioned — `DEC-042` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 |
+| D-22 | Embedded-agent runtime substrate: consume the `chirality-app-dev` harness as versioned packages (pure-TS contract pkg → React UI pkg → Node-SDK sidecar at the live-binding stage); keep app-dev on Electron; reject the Tauri-refactor and the Rust-reimplementation alternatives; any stack unification is a separate human-gated app-dev packet; execution gated behind `D-21` and a no-manual-toil automation condition | v0.2/R7 Agent-Assisted Design integration | RULED | — (ruled directly, no packet) | `DEC-041` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (2026-06-18) |
 
 **Recommended preparation order** (from the completion plan §2): `D-01` and
 `D-08` first (longest poles, both touch Phase A/B foundations), `D-10` with
@@ -54,4 +55,8 @@ The R4/R5 decisions surfaced by the 2026-06-17 completion plan are tracked
 above: `D-16`/`D-18`/`D-19` are prepared (`AWAITING_RULING`) for the Phase D
 lead-up; `D-15`/`D-17` prepare at the D5/D7 lead-up; `D-20` at the E7 lead-up;
 `D-21` (v0.2 scope-change) is held until the R4/R5 lead-up per the 2026-06-17
-horizon ruling.
+horizon ruling — reaffirmed 2026-06-18 (`DEC-042`), with harness-independent
+embedded-agent preparation sanctioned as ordinary v0.1 prep. `D-22` (2026-06-18,
+`DEC-041`) records the embedded-agent runtime-substrate ruling: consume the
+app-dev harness as versioned packages, app-dev stays Electron, execution gated
+behind `D-21` and a no-manual-toil automation condition.
