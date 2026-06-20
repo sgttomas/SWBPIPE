@@ -2244,6 +2244,18 @@ describe("OpenPipeStress desktop preview", () => {
       "do not mutate persisted project data directly"
     );
 
+    // The unit-catalog status chip reads identically whether the catalog is
+    // still loading (route === null) or has resolved to the browser-preview
+    // fallback, so awaiting the chip text alone does not gate readiness. Wait
+    // for the resolved route to reach the viewport draft — the node unit-basis
+    // flips from "catalog loading" to "model metadata" only once loadUnitCatalog
+    // settles — before queuing intents; otherwise, under parallel-suite load,
+    // the queued unit_validation can capture the transient catalog_loading
+    // status. Mirrors the unit-basis gating used elsewhere in this file.
+    await waitFor(() =>
+      expect(screen.getByTestId("viewport-create-node-unit-basis")).toHaveTextContent("model metadata")
+    );
+
     fireEvent.click(within(commandBar).getByRole("button", { name: /Node/i }));
     fireEvent.click(within(commandBar).getByRole("button", { name: /Pipe/i }));
     fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
