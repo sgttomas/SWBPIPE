@@ -14,6 +14,61 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - "Professional grade" CAD-shell rebuild: viewport + menu IA + collapsible rails (`TP-R3UX-VIEWPORT-001`, `TP-R3UX-CADSHELL-001`, `TP-R3UX-CADSHELL-002`)
+
+Human-directed usability arc layered on C5.7R Inc 0-7, per
+`plans/PLAN_2026-06-18_workspace_redesign_c5_7.md` (§8 criterion C: canvas reads
+as 3D / spatial core dominant; §10 scope boundaries). Frontend + native-menu
+only; no backend/engine/schema/contract change; code-neutral; agent-panel seam
+(`D-21`) reserved-not-built.
+
+- **Phase 1 - CAD-grade 3D viewport** (`TP-R3UX-VIEWPORT-001`): the spatial core
+  reads as a real 3D modeling surface (addresses the prior "postage stamp"
+  finding).
+- **Phase 2 tranche 2a - menu-bar IA** (`TP-R3UX-CADSHELL-001`): retired the
+  always-visible workflow ribbon for a native macOS menu bar (`build_app_menu`
+  in `src-tauri/src/lib.rs`, forwarding clicks via a `native-menu-command`
+  event) plus a tested in-DOM menu bar (suppressed in the packaged shell), and a
+  collapsible viewport-dominant dock (workspace sections summoned/dismissed from
+  the View menu).
+- **Phase 2 tranche 2b - collapsible rails + inspector auto-open**
+  (`TP-R3UX-CADSHELL-002`): the model-tree and inspector panes collapse to thin
+  vertical strips (one persistent `aria-expanded` toggle each; panel hidden via
+  CSS only, never `aria-hidden`), handing column width to the viewport; a single
+  `handleSelectEntity` re-opens a collapsed inspector on selection from the tree,
+  viewport, or load-case manager; View-menu Model Tree/Inspector toggles in both
+  the in-DOM and native menus. An 18-agent pre-commit adversarial review caught
+  and fixed three in-scope defects (missed load-case wiring; focus loss on the
+  first two-button collapse design; missing `aria-expanded`).
+
+Validation (per tranche): `npx tsc -b --noEmit` clean; `npm test --workspace
+apps/desktop` 406/406 (incl. the dead-control audit; verified 10x stable on 2b);
+`cargo check --release` clean; `npm run test:e2e --workspace apps/desktop` 18/18;
+`npm run tauri -- build --bundles app` plus boot probe ALIVE/clean. Committed to
+`main` (`1ae9361d3` 2a, `6c74e343e` 2b; the separate pre-existing-flake
+test-timing fix is `ed2b7cb18`).
+
+Evidence: DEL-07-06 run records
+`WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-VIEWPORT-001.md`,
+`WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-CADSHELL-001.md`,
+`WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-CADSHELL-002.md`.
+
+Residuals: tranche 2c (object-creation toolbar; make Insert commands arm a
+creation tool rather than only navigate) is the remaining builder increment;
+rebuild the `.app` after 2c. The human C5.7 packaged re-pass (target SMOKE
+TP-MAC-189) remains the gate; F-4/A3 stay open until that human record passes or
+records the next bounded repair. Deferred out-of-scope review findings: native
+View menu items lack a checked-state indicator the in-DOM menu has, and the
+shared menu renderer uses `aria-pressed` on `role="menuitem"` (both pre-existing,
+not introduced by this arc).
+
+Boundary: frontend presentation/navigation/styling plus a three-line native View
+menu addition only. No lifecycle transition, release-readiness claim,
+professional approval, certification, sealing, authentication, or code-compliance
+claim changed.
+
+---
+
 ## 2026-06-19 - C5.7R packaged re-pass kit Inc 7 (`TP-R3UX-PACKAGEKIT-002`)
 
 Rebuilt the macOS `.app` after C5.7R Inc 0-6 and prepared the human TP-MAC-189

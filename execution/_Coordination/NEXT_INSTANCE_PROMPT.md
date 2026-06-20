@@ -74,9 +74,24 @@
      kit is recorded under `TP-R3UX-PACKAGEKIT-002` / SMOKE TP-MAC-274 /
      DEL-07-06
      `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-PACKAGEKIT-002.md`.
-     The next C5 action is the packaged C5.7 human re-pass (target SMOKE
-     TP-MAC-189), which must be performed by the human and recorded before
-     F-4/A3 can close or C5.8 can begin. Honor the
+     **Further human-directed "professional grade" CAD-shell increments
+     landed on top of Inc 0-7** (frontend + native-menu only, per
+     `plans/PLAN_2026-06-18_workspace_redesign_c5_7.md` §10): the CAD-grade
+     3D viewport (`TP-R3UX-VIEWPORT-001` / DEL-07-06
+     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-VIEWPORT-001.md`); Phase 2 tranche
+     2a, a native + in-DOM menu-bar IA with a collapsible viewport-dominant
+     dock (`TP-R3UX-CADSHELL-001` /
+     `WORKING_ITEMS_RUN_2026-06-19_TP-R3UX-CADSHELL-001.md`); and Phase 2
+     tranche 2b, collapsible tree/inspector rails with inspector auto-open on
+     selection (`TP-R3UX-CADSHELL-002` /
+     `WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-CADSHELL-002.md`). Each is
+     gates-green (tsc; vitest 406/406; e2e 18/18; cargo check; `.app`
+     rebuilt/boots clean) and committed to `main`.
+     **The remaining builder increment is tranche 2c — an object-creation
+     toolbar that makes Insert commands arm a creation tool rather than only
+     navigate.** After 2c, rebuild the `.app`; the packaged C5.7 human re-pass
+     (target SMOKE TP-MAC-189) remains the gate and must be performed by the
+     human and recorded before F-4/A3 can close or C5.8 can begin. Honor the
      spec's scope boundaries:
      agent-panel seam reserved-not-built (`D-21`); `DEC-037` (structured rule
      composer, no writable text); dual units display-only; no new engine
