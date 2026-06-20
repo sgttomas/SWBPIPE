@@ -9252,3 +9252,45 @@ notes:
 - Boundary: package/evidence/handoff only. No lifecycle transition,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-275 C5.7R object-creation toolbar and rebuilt app - PASSED (`TP-R3UX-CREATIONTOOLS-001`, 2026-06-20)
+
+- Scope: C5.7R tranche 2c. Insert commands now arm object-creation tools
+  instead of only navigating/collapsing panels. The viewport command bar exposes
+  Node, Pipe, Support, Component, and Load tools with active state and separates
+  arming from queueing.
+- App behavior: in-DOM and native Insert commands dispatch through the same
+  `runMenuCommand` sink. Node/Pipe/Component preview intents queue only after
+  `Queue preview`; explicit node/pipe forms, Inspector support creation, and
+  Load Cases creation continue through existing structured-operation surfaces.
+  Empty-canvas node coordinate capture now requires the Node tool to be armed;
+  Pipe arming starts endpoint-pick mode.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build --workspace apps/desktop` passed, retaining the existing
+    Vite chunk-size warning.
+  - `npm run test:e2e --workspace apps/desktop` passed 18/18 Playwright checks
+    across desktop and compact Chromium projects.
+  - `npm run test:e2e:dist --workspace apps/desktop` passed 1/1 production
+    dist smoke check.
+  - `cargo check --release` in `apps/desktop/src-tauri` passed.
+  - `cd apps/desktop && npm run tauri -- build --bundles app` passed,
+    regenerating the WASM operation engine and producing:
+    `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+    Bundle size: `12M`.
+- Boot probe: launched the bundled executable for 8 seconds, observed process
+  state `SN`, recorded `stdout_bytes=0` and `stderr_bytes=0`, and terminated
+  cleanly.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-CREATIONTOOLS-001.md`.
+- Human execution pending: run TP-MAC-189 against the rebuilt bundle and record
+  pass/fail per step, performed-by, date, binary commit, bundle path, report
+  hash when generated, and notes. F-4 and A3 remain open until that human
+  record passes or records the next bounded repair.
+- Boundary: frontend/menu interaction, tests, and package evidence only. No
+  solver, schema, evaluator, persistence, backend API, unit storage,
+  protected-content, private-data, network/telemetry, lifecycle,
+  release-readiness, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.

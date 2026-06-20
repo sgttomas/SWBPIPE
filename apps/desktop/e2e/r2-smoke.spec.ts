@@ -361,6 +361,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
     "Pipe geometry: m, model metadata"
   );
+  await page.getByTestId("command-node").click();
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
   await canvas.click({ position: { x: 64, y: 64 } });
   await expect(page.getByTestId("viewport-create-node-id")).toHaveValue("node:V-001");
   await expect(page.getByTestId("viewport-create-node-label")).toHaveValue("Viewport node V-001");
@@ -732,8 +734,15 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
   await page.getByTestId("command-node").click();
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
+  await expect(page.getByTestId("local-project-review-context")).toContainText("0 pending operations");
+  await page.getByTestId("queue-armed-creation-intent").click();
   await page.getByTestId("command-pipe").click();
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Pipe tool armed");
+  await page.getByTestId("queue-armed-creation-intent").click();
   await page.getByTestId("command-component").click();
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Component tool armed");
+  await page.getByTestId("queue-armed-creation-intent").click();
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );

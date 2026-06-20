@@ -1,5 +1,31 @@
 # DEL-07-06 Memory
 
+## 2026-06-20 - TP-R3UX-CREATIONTOOLS-001 object-creation toolbar
+
+WORKING_ITEMS completed the remaining C5.7R CAD-shell builder increment
+(tranche 2c). Insert menu commands now arm the same object-creation tools shown
+in the viewport command bar instead of only navigating/collapsing panels. The
+toolbar exposes Node, Pipe, Support, Component, and Load tools with visible
+active state; arming is separate from queueing. Node/Pipe/Component preview
+intents still queue ordinary review-only `EditorOperationIntent`s through the
+existing operation seam; explicit node/pipe forms, Inspector support creation,
+and Load Cases creation stay on their prior contract surfaces.
+
+Validation passed: focused App Vitest 57/57; full desktop Vitest 19 files /
+406 tests; desktop production build with the existing Vite large-chunk warning;
+desktop Playwright 18/18; dist Playwright 1/1; `cargo check --release`; Tauri
+`.app` build; and an 8-second packaged boot probe (`state=SN`,
+`stdout_bytes=0`, `stderr_bytes=0`). Evidence is recorded in
+`_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-CREATIONTOOLS-001.md` and
+`apps/desktop/SMOKE.md` TP-MAC-275.
+
+The freshly rebuilt bundle is
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`
+(`12M`). F-4 and A3 remain open until the human TP-MAC-189 packaged re-pass is
+recorded. No lifecycle transition, release-readiness claim, professional
+approval, certification, sealing, authentication, or code-compliance claim
+changed.
+
 ## 2026-06-19 - TP-R3UX-PACKAGEKIT-002 C5.7R Inc 7 packaged re-pass kit
 
 WORKING_ITEMS rebuilt the packaged macOS `.app` after C5.7R Inc 0-6 and

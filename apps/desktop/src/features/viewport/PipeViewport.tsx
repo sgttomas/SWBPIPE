@@ -13,7 +13,9 @@ import {
 import type { EditorOperationIntent, EntityRef, MechanicsResult, PreviewModel, Vec3 } from "../../types";
 
 type Props = {
+  armedCreationTool?: CreationTool | null;
   model: PreviewModel;
+  onArmCreationTool?: (tool: CreationTool | null) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   onSelect: (selection: EntityRef) => void;
   queuedIntents?: EditorOperationIntent[];
@@ -21,6 +23,7 @@ type Props = {
   selection: EntityRef;
 };
 
+export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
@@ -71,7 +74,16 @@ type DeformationOverlay = {
   nodePositions: Map<string, Vec3>;
 };
 
-export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [], result = null, selection }: Props) {
+export function PipeViewport({
+  armedCreationTool = null,
+  model,
+  onArmCreationTool = () => {},
+  onQueueIntent,
+  onSelect,
+  queuedIntents = [],
+  result = null,
+  selection
+}: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const draftProjectorRef = useRef<DraftProjector | null>(null);
   const cameraStateRef = useRef<{ position: [number, number, number]; target: [number, number, number] } | null>(null);
@@ -116,6 +128,14 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (armedCreationTool === "pipe") {
+      setPipeEndpointPickMode("from");
+    } else {
+      setPipeEndpointPickMode(null);
+    }
+  }, [armedCreationTool]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -341,6 +361,16 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     queueIntent(intent);
   }
 
+  function queueArmedPreviewIntent() {
+    const commandType = viewportCommandTypeForCreationTool(armedCreationTool);
+    if (!commandType) return;
+    addIntent(commandType);
+  }
+
+  function armCreationTool(tool: CreationTool) {
+    onArmCreationTool(armedCreationTool === tool ? null : tool);
+  }
+
   function addExplicitNodeIntent() {
     if (!nodeDraftValid) return;
     const intent = buildExplicitNodeIntent(model, nodeDraft, unitCatalogRoute, queuedIntents.length + localIntents.length + 1);
@@ -406,10 +436,16 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
     if (event.button !== 0 && event.button !== undefined) return;
     const picked = pickRef.current?.(event);
     if (picked) {
+      if (armedCreationTool === "pipe" && pipeEndpointPickMode && picked.type === "node") {
+        setPipeDraft((current) => nextPipeDraftWithEndpoint(current, pipeEndpointPickMode, picked.id));
+        setPipeEndpointPickMode(pipeEndpointPickMode === "from" ? "to" : null);
+      }
       onSelect(picked);
       return;
     }
-    captureNodeDraftFromViewport(event);
+    if (armedCreationTool === "node") {
+      captureNodeDraftFromViewport(event);
+    }
   }
 
   return (
@@ -509,20 +545,76 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
         </div>
       </div>
       <section className="command-bar" aria-label="Command and selection bar" data-testid="command-bar">
-        <div className="command-buttons" aria-label="Command shortcuts">
-          <button type="button" data-testid="command-node" onClick={() => addIntent("create_node")}>
+        <div className="command-buttons" aria-label="Object creation tools">
+          <button
+            type="button"
+            className={armedCreationTool === "node" ? "active" : ""}
+            data-testid="command-node"
+            aria-pressed={armedCreationTool === "node"}
+            onClick={() => armCreationTool("node")}
+            title="Arm node creation"
+          >
             <CirclePlus size={15} aria-hidden="true" />
             Node
           </button>
-          <button type="button" data-testid="command-pipe" onClick={() => addIntent("connect_pipe_run")}>
+          <button
+            type="button"
+            className={armedCreationTool === "pipe" ? "active" : ""}
+            data-testid="command-pipe"
+            aria-pressed={armedCreationTool === "pipe"}
+            onClick={() => armCreationTool("pipe")}
+            title="Arm pipe-run creation"
+          >
             <GitBranch size={15} aria-hidden="true" />
             Pipe
           </button>
-          <button type="button" data-testid="command-component" onClick={() => addIntent("insert_component_symbol")}>
+          <button
+            type="button"
+            className={armedCreationTool === "support" ? "active" : ""}
+            data-testid="command-support"
+            aria-pressed={armedCreationTool === "support"}
+            onClick={() => armCreationTool("support")}
+            title="Arm support creation in the Inspector"
+          >
+            <CircleDot size={15} aria-hidden="true" />
+            Support
+          </button>
+          <button
+            type="button"
+            className={armedCreationTool === "component" ? "active" : ""}
+            data-testid="command-component"
+            aria-pressed={armedCreationTool === "component"}
+            onClick={() => armCreationTool("component")}
+            title="Arm component-symbol insertion"
+          >
             <Box size={15} aria-hidden="true" />
             Component
           </button>
+          <button
+            type="button"
+            className={armedCreationTool === "load" ? "active" : ""}
+            data-testid="command-load"
+            aria-pressed={armedCreationTool === "load"}
+            onClick={() => armCreationTool("load")}
+            title="Arm load creation in the Load Cases panel"
+          >
+            <CirclePlus size={15} aria-hidden="true" />
+            Load
+          </button>
         </div>
+        <button
+          type="button"
+          className="command-preview-button"
+          data-testid="queue-armed-creation-intent"
+          disabled={!viewportCommandTypeForCreationTool(armedCreationTool)}
+          onClick={queueArmedPreviewIntent}
+          title="Queue a review-only preview intent for the armed viewport tool"
+        >
+          Queue preview
+        </button>
+        <span className="command-active-tool" data-testid="armed-creation-tool">
+          {creationToolStatusLabel(armedCreationTool)}
+        </span>
         <span data-testid="command-selection-readout">
           Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
         </span>
@@ -831,6 +923,22 @@ export function PipeViewport({ model, onQueueIntent, onSelect, queuedIntents = [
 
 function emptyNodeDraft(lengthUnit: string): NodeDraft {
   return { id: "", label: "", coordinateUnit: lengthUnit, x: "", y: "", z: "" };
+}
+
+function viewportCommandTypeForCreationTool(tool: CreationTool | null): ViewportCommandType | null {
+  if (tool === "node") return "create_node";
+  if (tool === "pipe") return "connect_pipe_run";
+  if (tool === "component") return "insert_component_symbol";
+  return null;
+}
+
+function creationToolStatusLabel(tool: CreationTool | null): string {
+  if (tool === "node") return "Node tool armed: click empty canvas to fill coordinates, then queue node.";
+  if (tool === "pipe") return "Pipe tool armed: pick from/to nodes or complete the pipe form.";
+  if (tool === "support") return "Support tool armed: select a node, then complete Create support in the Inspector.";
+  if (tool === "component") return "Component tool armed: queue a review-only component-symbol preview intent.";
+  if (tool === "load") return "Load tool armed: use the Load Cases panel to create load cases and primitive loads.";
+  return "No creation tool armed.";
 }
 
 function applyViewPreset(camera: THREE.PerspectiveCamera, preset: ViewPreset) {

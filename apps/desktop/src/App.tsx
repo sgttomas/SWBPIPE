@@ -58,7 +58,7 @@ import { SolvePanel } from "./features/solve/SolvePanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
 import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
-import { PipeViewport } from "./features/viewport/PipeViewport";
+import { PipeViewport, type CreationTool } from "./features/viewport/PipeViewport";
 import {
   buildAnalysisRunPreview,
   buildPreviewComparison,
@@ -301,6 +301,7 @@ export function App() {
   // sections are summoned from the View menu and dismissed back to the viewport.
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
+  const [armedCreationTool, setArmedCreationTool] = useState<CreationTool | null>(null);
   // Collapsible spatial-core rails. Both default expanded, so existing layout,
   // unit, and e2e behavior are unchanged; collapsing a rail hands its column
   // width to the 3D viewport so the spatial core can dominate the surface.
@@ -846,11 +847,24 @@ export function App() {
     setInspectorCollapsed(false);
   }
 
+  function handleArmCreationTool(tool: CreationTool | null) {
+    setArmedCreationTool(tool);
+    if (!tool) return;
+    if (tool === "load") {
+      setActiveSection("loads");
+      return;
+    }
+    setActiveSection(null);
+    if (tool === "support") {
+      setInspectorCollapsed(false);
+    }
+  }
+
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
   // sections and toggle the tree/inspector rails; the spatial core (tree |
-  // viewport | inspector) is always present, so Insert commands collapse the
-  // dock to surface the relevant authoring pane.
+  // viewport | inspector) is always present, so Insert commands arm the same
+  // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
     setOpenMenu(null);
     switch (command) {
@@ -891,13 +905,19 @@ export function App() {
         setInspectorCollapsed((collapsed) => !collapsed);
         break;
       case "insert.load":
-        setActiveSection("loads");
+        handleArmCreationTool("load");
         break;
       case "insert.node":
+        handleArmCreationTool("node");
+        break;
       case "insert.pipe":
+        handleArmCreationTool("pipe");
+        break;
       case "insert.support":
+        handleArmCreationTool("support");
+        break;
       case "insert.component":
-        setActiveSection(null);
+        handleArmCreationTool("component");
         break;
       case "analyze.run":
         void handleRun();
@@ -1017,6 +1037,7 @@ export function App() {
           projectBusy={projectBusy}
           running={running}
           treeCollapsed={treeCollapsed}
+          armedCreationTool={armedCreationTool}
           onCommand={runMenuCommand}
           onOpenMenu={setOpenMenu}
         />
@@ -1049,7 +1070,9 @@ export function App() {
           </div>
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport
+              armedCreationTool={armedCreationTool}
               model={model}
+              onArmCreationTool={handleArmCreationTool}
               onQueueIntent={handleQueueEditorIntent}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
@@ -1432,6 +1455,7 @@ function MenuBar({
   projectBusy,
   running,
   treeCollapsed,
+  armedCreationTool,
   onCommand,
   onOpenMenu
 }: {
@@ -1445,6 +1469,7 @@ function MenuBar({
   projectBusy: boolean;
   running: boolean;
   treeCollapsed: boolean;
+  armedCreationTool: CreationTool | null;
   onCommand: (command: MenuCommandId) => void;
   onOpenMenu: (menu: MenuId | null) => void;
 }) {
@@ -1496,12 +1521,12 @@ function MenuBar({
       id: "insert",
       label: "Insert",
       items: [
-        { kind: "command", id: "insert.node", label: "Node" },
-        { kind: "command", id: "insert.pipe", label: "Pipe Run" },
-        { kind: "command", id: "insert.support", label: "Support" },
-        { kind: "command", id: "insert.component", label: "Component" },
+        { kind: "command", id: "insert.node", label: "Node", active: armedCreationTool === "node" },
+        { kind: "command", id: "insert.pipe", label: "Pipe Run", active: armedCreationTool === "pipe" },
+        { kind: "command", id: "insert.support", label: "Support", active: armedCreationTool === "support" },
+        { kind: "command", id: "insert.component", label: "Component", active: armedCreationTool === "component" },
         { kind: "separator" },
-        { kind: "command", id: "insert.load", label: "Load Case" }
+        { kind: "command", id: "insert.load", label: "Load Case", active: armedCreationTool === "load" }
       ]
     },
     {

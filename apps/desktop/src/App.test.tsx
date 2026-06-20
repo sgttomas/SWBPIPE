@@ -136,6 +136,19 @@ describe("OpenPipeStress desktop preview", () => {
     fireEvent.click(screen.getByTestId("menu-item-view.section.solve"));
     expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
 
+    // Insert commands arm object-creation tools; they do not merely navigate or
+    // queue operations on click.
+    fireEvent.click(screen.getByTestId("menu-insert"));
+    fireEvent.click(screen.getByTestId("menu-item-insert.node"));
+    expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Node tool armed");
+    expect(screen.getByTestId("command-node")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+
+    fireEvent.click(screen.getByTestId("menu-insert"));
+    fireEvent.click(screen.getByTestId("menu-item-insert.load"));
+    expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Load tool armed");
+    expect(screen.getByTestId("workspace-section-loads").className).toBe("workspace-dock-section");
+
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(await screen.findByTestId("issues-home")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
@@ -2257,8 +2270,15 @@ describe("OpenPipeStress desktop preview", () => {
     );
 
     fireEvent.click(within(commandBar).getByRole("button", { name: /Node/i }));
+    expect(within(commandBar).getByTestId("armed-creation-tool")).toHaveTextContent("Node tool armed");
+    expect(screen.getByTestId("local-project-review-context").textContent).toContain("0 pending operations");
+    fireEvent.click(within(commandBar).getByTestId("queue-armed-creation-intent"));
     fireEvent.click(within(commandBar).getByRole("button", { name: /Pipe/i }));
+    expect(within(commandBar).getByTestId("armed-creation-tool")).toHaveTextContent("Pipe tool armed");
+    fireEvent.click(within(commandBar).getByTestId("queue-armed-creation-intent"));
     fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
+    expect(within(commandBar).getByTestId("armed-creation-tool")).toHaveTextContent("Component tool armed");
+    fireEvent.click(within(commandBar).getByTestId("queue-armed-creation-intent"));
 
     const nodeIntent = within(intentPanel).getByTestId("viewport-intent-create_node");
     const pipeIntent = within(intentPanel).getByTestId("viewport-intent-connect_pipe_run");
@@ -8483,6 +8503,8 @@ describe("OpenPipeStress desktop preview", () => {
     const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
     const queueButton = within(viewportIntentPanel).getByTestId("queue-explicit-node-intent");
     expect(queueButton).toBeDisabled();
+    fireEvent.click(within(screen.getByTestId("command-bar")).getByRole("button", { name: /Node/i }));
+    expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Node tool armed");
 
     fireEvent.pointerDown(viewportCanvas, { button: 0, clientX: 300, clientY: 160 });
 
@@ -8671,7 +8693,10 @@ describe("OpenPipeStress desktop preview", () => {
 
     expect(await screen.findByLabelText("Three.js pipe centerline viewport")).toBeInTheDocument();
     const viewportIntentPanel = screen.getByLabelText("Viewport editor intents");
-    fireEvent.click(within(screen.getByTestId("command-bar")).getByRole("button", { name: /Node/i }));
+    const commandBar = screen.getByTestId("command-bar");
+    fireEvent.click(within(commandBar).getByRole("button", { name: /Node/i }));
+    expect(within(commandBar).getByTestId("armed-creation-tool")).toHaveTextContent("Node tool armed");
+    fireEvent.click(within(commandBar).getByTestId("queue-armed-creation-intent"));
 
     const applyPanel = screen.getByTestId("operation-apply-panel");
     fireEvent.click(within(applyPanel).getByTestId("apply-intent-editor-intent-1"));

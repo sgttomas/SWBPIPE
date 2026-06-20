@@ -14,6 +14,40 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - C5.7R object-creation toolbar (`TP-R3UX-CREATIONTOOLS-001`)
+
+Completed the remaining C5.7R CAD-shell builder increment, tranche 2c:
+Insert commands now arm object-creation tools rather than only navigating or
+collapsing panels. The viewport command bar exposes Node, Pipe, Support,
+Component, and Load tools with active state and separates arming from queueing.
+Node/Pipe/Component preview intents still queue existing review-only
+`EditorOperationIntent`s only after `Queue preview`; explicit node/pipe forms,
+Inspector support creation, and Load Cases creation remain on their prior
+structured-operation surfaces. Empty-canvas node coordinate capture now requires
+the Node tool to be armed; Pipe arming starts endpoint-pick mode.
+
+Validation: `npm test --workspace apps/desktop -- App.test.tsx` 57/57; full
+desktop Vitest 19 files / 406 tests; `npm run build --workspace apps/desktop`
+green with the existing Vite large-chunk warning; desktop Playwright 18/18;
+dist Playwright 1/1; `cargo check --release`; `npm run tauri -- build --bundles
+app`; packaged boot probe alive for 8 seconds with state `SN`,
+`stdout_bytes=0`, `stderr_bytes=0`. Fresh bundle:
+`apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`
+(`12M`).
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-275; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-CREATIONTOOLS-001.md`.
+
+Residuals: the human C5.7 packaged re-pass (target SMOKE TP-MAC-189) is now the
+next unblocked plan item. F-4 and A3 remain open until that human record passes
+or records the next bounded repair.
+
+Boundary: frontend/menu interaction, tests, and package evidence only. No
+backend operation kind, solver, schema, evaluator, persistence, unit storage,
+protected-content, private-data, network/telemetry, lifecycle,
+release-readiness, professional approval, certification, sealing,
+authentication, or code-compliance claim changed.
+
 ## 2026-06-20 - "Professional grade" CAD-shell rebuild: viewport + menu IA + collapsible rails (`TP-R3UX-VIEWPORT-001`, `TP-R3UX-CADSHELL-001`, `TP-R3UX-CADSHELL-002`)
 
 Human-directed usability arc layered on C5.7R Inc 0-7, per
