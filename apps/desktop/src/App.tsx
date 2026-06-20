@@ -1,5 +1,4 @@
 import {
-  Activity,
   Database,
   FileWarning,
   FilePlus,
@@ -93,6 +92,7 @@ import {
   saveLocalProject
 } from "./services/projectService";
 import { computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
+import { isTauriRuntime, listenToNativeMenu } from "./services/nativeMenu";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -149,15 +149,34 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
-type RibbonStopId = "model" | "loads" | "analyze" | "results" | "rules" | "report";
+// CAD-shell menu model (TP-R3UX-CADSHELL). The in-DOM menu bar is the tested
+// source of truth; the native macOS menu (Tauri) emits these same command ids.
+type MenuId = "file" | "edit" | "view" | "insert" | "analyze";
 
-type RibbonStop = {
-  id: RibbonStopId;
-  label: string;
-  sections: WorkspaceSectionId[];
-  primarySection: WorkspaceSectionId;
-  journeyStepIds: JourneyStepId[];
-};
+type MenuCommandId =
+  | "file.new-local"
+  | "file.new-blank"
+  | "file.open-local"
+  | "file.list-local"
+  | "file.save-local"
+  | "edit.undo"
+  | "edit.redo"
+  | "view.issues"
+  | "view.audit"
+  | "view.close-panels"
+  | `view.section.${WorkspaceSectionId}`
+  | "insert.node"
+  | "insert.pipe"
+  | "insert.support"
+  | "insert.component"
+  | "insert.load"
+  | "analyze.run"
+  | "analyze.cancel"
+  | "analyze.rule-checks";
+
+type MenuItemSpec =
+  | { kind: "command"; id: MenuCommandId; label: string; disabled?: boolean; active?: boolean }
+  | { kind: "separator" };
 
 const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string; description: string }> = [
   {
@@ -214,68 +233,6 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
   }
 ];
 
-const RIBBON_STOPS: ReadonlyArray<RibbonStop> = [
-  {
-    id: "model",
-    label: "Model",
-    primarySection: "operations",
-    sections: ["operations", "libraries", "project"],
-    journeyStepIds: ["model", "private-libraries", "save-reopen"]
-  },
-  {
-    id: "loads",
-    label: "Loads",
-    primarySection: "loads",
-    sections: ["loads"],
-    journeyStepIds: ["loads"]
-  },
-  {
-    id: "analyze",
-    label: "Analyze",
-    primarySection: "solve",
-    sections: ["solve"],
-    journeyStepIds: ["solve-check"]
-  },
-  {
-    id: "results",
-    label: "Results",
-    primarySection: "results",
-    sections: ["results"],
-    journeyStepIds: ["results"]
-  },
-  {
-    id: "rules",
-    label: "Rules",
-    primarySection: "rule-packs",
-    sections: ["rule-packs", "libraries"],
-    journeyStepIds: ["rule-pack", "private-libraries"]
-  },
-  {
-    id: "report",
-    label: "Report",
-    primarySection: "report",
-    sections: ["report", "exports", "project"],
-    journeyStepIds: ["report", "save-reopen"]
-  }
-];
-
-type JourneyStepId =
-  | "model"
-  | "loads"
-  | "private-libraries"
-  | "rule-pack"
-  | "solve-check"
-  | "results"
-  | "report"
-  | "save-reopen";
-
-type JourneyStep = {
-  id: JourneyStepId;
-  label: string;
-  section: WorkspaceSectionId;
-  description: string;
-};
-
 type R3JourneyEvent =
   | "library_template_loaded"
   | "library_validate_requested"
@@ -300,57 +257,6 @@ const INITIAL_R3_JOURNEY_STATE: R3JourneyState = {
   rule_check_pack_loaded: false,
   rule_check_run_requested: false
 };
-
-const JOURNEY_STEPS: ReadonlyArray<JourneyStep> = [
-  {
-    id: "model",
-    label: "Model edits",
-    section: "operations",
-    description: "Select geometry, queue structured edits, then review and apply them"
-  },
-  {
-    id: "loads",
-    label: "Loads",
-    section: "loads",
-    description: "Create or edit load cases, primitive loads, and combinations"
-  },
-  {
-    id: "private-libraries",
-    label: "Libraries",
-    section: "libraries",
-    description: "Review private local library import status before rule-pack references"
-  },
-  {
-    id: "rule-pack",
-    label: "Rule pack",
-    section: "rule-packs",
-    description: "Draft, validate, checksum, and store a private non-code rule pack"
-  },
-  {
-    id: "solve-check",
-    label: "Solve/check",
-    section: "solve",
-    description: "Run mechanics, review missing inputs, then run rule checks"
-  },
-  {
-    id: "results",
-    label: "Results",
-    section: "results",
-    description: "Inspect solved results, comparison context, and design-authoring state"
-  },
-  {
-    id: "report",
-    label: "Report",
-    section: "report",
-    description: "Render the calculation report and report packet after solve/check evidence exists"
-  },
-  {
-    id: "save-reopen",
-    label: "Save/reopen",
-    section: "project",
-    description: "Save the local project and verify local project persistence"
-  }
-];
 
 export function App() {
   const [model, setModel] = useState<PreviewModel | null>(null);
@@ -388,7 +294,11 @@ export function App() {
   const [operationEngineStatus, setOperationEngineStatus] = useState<OperationEngineStatus>(() =>
     initialOperationEngineStatus()
   );
-  const [activeSection, setActiveSection] = useState<WorkspaceSectionId>("operations");
+  // CAD-shell IA (TP-R3UX-CADSHELL): the dock starts collapsed so the spatial
+  // core (model tree | 3D viewport | inspector) owns the surface; workspace
+  // sections are summoned from the View menu and dismissed back to the viewport.
+  const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
+  const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
     ...INITIAL_R3_JOURNEY_STATE
   }));
@@ -920,12 +830,107 @@ export function App() {
     }
   }
 
+  // Single command sink for both the in-DOM menu bar (tested) and the native
+  // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
+  // sections; the spatial core (tree | viewport | inspector) is always present,
+  // so Insert commands collapse the dock to surface the relevant authoring pane.
+  function runMenuCommand(command: MenuCommandId) {
+    setOpenMenu(null);
+    switch (command) {
+      case "file.new-local":
+        void handleCreateProject();
+        break;
+      case "file.new-blank":
+        void handleCreateBlankProject();
+        break;
+      case "file.open-local":
+        void handleOpenProject();
+        break;
+      case "file.list-local":
+        void handleListProjects();
+        break;
+      case "file.save-local":
+        void handleSaveProject();
+        break;
+      case "edit.undo":
+        handleUndoSessionModelEdit();
+        break;
+      case "edit.redo":
+        handleRedoSessionModelEdit();
+        break;
+      case "view.issues":
+        setIssuesDrawerOpen((open) => !open);
+        break;
+      case "view.audit":
+        setAuditDrawerOpen((open) => !open);
+        break;
+      case "view.close-panels":
+        setActiveSection(null);
+        break;
+      case "insert.load":
+        setActiveSection("loads");
+        break;
+      case "insert.node":
+      case "insert.pipe":
+      case "insert.support":
+      case "insert.component":
+        setActiveSection(null);
+        break;
+      case "analyze.run":
+        void handleRun();
+        break;
+      case "analyze.cancel":
+        void handleCancelRun();
+        break;
+      case "analyze.rule-checks":
+        setActiveSection("solve");
+        break;
+      default: {
+        const prefix = "view.section.";
+        if (command.startsWith(prefix)) {
+          const sectionId = command.slice(prefix.length) as WorkspaceSectionId;
+          setActiveSection((current) => (current === sectionId ? null : sectionId));
+        }
+        break;
+      }
+    }
+  }
+
+  // Latest-closure ref so native menu events (registered once) always dispatch
+  // against current state rather than the first render.
+  const runMenuCommandRef = useRef(runMenuCommand);
+  runMenuCommandRef.current = runMenuCommand;
+  useEffect(() => {
+    let unlisten = () => {};
+    let cancelled = false;
+    listenToNativeMenu((command) => runMenuCommandRef.current(command as MenuCommandId)).then((dispose) => {
+      if (cancelled) {
+        dispose();
+        return;
+      }
+      unlisten = dispose;
+    });
+    return () => {
+      cancelled = true;
+      unlisten();
+    };
+  }, []);
+
+  // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
+  // in-DOM menu bar is suppressed to avoid a redundant second row. In the
+  // browser/Playwright preview there is no native menu, so the in-DOM bar
+  // renders and remains the navigable, tested source of truth.
+  const showInAppMenuBar = !isTauriRuntime();
+
   if (!model || !selection) {
     return <div className="loading-screen">Loading local OpenPipeStress preview fixture.</div>;
   }
 
   return (
-    <main className="app-shell" data-testid="desktop-preview-shell">
+    <main
+      className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
+      data-testid="desktop-preview-shell"
+    >
       <header className="titlebar">
         <div>
           <h1>OpenPipeStress</h1>
@@ -977,19 +982,22 @@ export function App() {
         ) : null}
       </section>
 
-      <Ribbon
-        activeSection={activeSection}
-        analysisRun={analysisRun}
-        appliedOperationCount={appliedOperations.length}
-        editorIntents={editorIntents}
-        projectMessage={projectMessage}
-        projectSummary={projectSummary}
-        result={result}
-        ruleCheckAggregate={ruleCheckAggregate}
-        onSelectSection={setActiveSection}
-      />
+      {showInAppMenuBar ? (
+        <MenuBar
+          activeSection={activeSection}
+          auditOpen={auditDrawerOpen}
+          canRedo={redoStack.length > 0}
+          canUndo={undoStack.length > 0}
+          issuesOpen={issuesDrawerOpen}
+          openMenu={openMenu}
+          projectBusy={projectBusy}
+          running={running}
+          onCommand={runMenuCommand}
+          onOpenMenu={setOpenMenu}
+        />
+      ) : null}
 
-      <div className="workspace">
+      <div className={activeSection ? "workspace" : "workspace dock-collapsed"}>
         <section className="modeling-workspace" aria-label="Modeling workspace" data-testid="modeling-workspace">
           <div className="workspace-pane workspace-pane-tree">
             <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={setSelection} />
@@ -1017,7 +1025,19 @@ export function App() {
           </div>
         </section>
 
-        <section className="workspace-dock" aria-label="Workspace sections">
+        <section
+          className={activeSection ? "workspace-dock" : "workspace-dock collapsed"}
+          aria-label="Workspace sections"
+          data-testid="workspace-dock"
+        >
+          {activeSection ? (
+            <header className="workspace-dock-header" data-testid="workspace-dock-header">
+              <h2>{WORKSPACE_SECTIONS.find((candidate) => candidate.id === activeSection)?.label ?? activeSection}</h2>
+              <button type="button" data-testid="workspace-dock-close" onClick={() => setActiveSection(null)}>
+                Close panel
+              </button>
+            </header>
+          ) : null}
           <div className="workspace-dock-body">
             <section
               className={dockSectionClass("operations", activeSection)}
@@ -1338,79 +1358,142 @@ export function App() {
 // Inactive sections stay mounted (form drafts, queue previews, and audit
 // state survive navigation) and are hidden with CSS only; display:none also
 // removes them from the accessibility tree in a real browser.
-function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: WorkspaceSectionId): string {
+function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: WorkspaceSectionId | null): string {
   return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
 }
 
-function Ribbon({
+function MenuBar({
   activeSection,
-  analysisRun,
-  appliedOperationCount,
-  editorIntents,
-  projectMessage,
-  projectSummary,
-  result,
-  ruleCheckAggregate,
-  onSelectSection
+  auditOpen,
+  canRedo,
+  canUndo,
+  issuesOpen,
+  openMenu,
+  projectBusy,
+  running,
+  onCommand,
+  onOpenMenu
 }: {
-  activeSection: WorkspaceSectionId;
-  analysisRun: AnalysisRunEnvelope | null;
-  appliedOperationCount: number;
-  editorIntents: EditorOperationIntent[];
-  projectMessage: string;
-  projectSummary: LocalProjectSummary | null;
-  result: MechanicsResult | null;
-  ruleCheckAggregate: RuleCheckStatus | null;
-  onSelectSection: (section: WorkspaceSectionId) => void;
+  activeSection: WorkspaceSectionId | null;
+  auditOpen: boolean;
+  canRedo: boolean;
+  canUndo: boolean;
+  issuesOpen: boolean;
+  openMenu: MenuId | null;
+  projectBusy: boolean;
+  running: boolean;
+  onCommand: (command: MenuCommandId) => void;
+  onOpenMenu: (menu: MenuId | null) => void;
 }) {
-  const activeStop = ribbonStopForSection(activeSection);
-  const current = currentJourneyStep({
-    activeSection,
-    analysisRun,
-    appliedOperationCount,
-    editorIntents,
-    projectMessage,
-    projectSummary,
-    result,
-    ruleCheckAggregate
-  });
+  const menus: ReadonlyArray<{ id: MenuId; label: string; items: MenuItemSpec[] }> = [
+    {
+      id: "file",
+      label: "File",
+      items: [
+        { kind: "command", id: "file.new-local", label: "New Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.new-blank", label: "New Blank Project", disabled: projectBusy },
+        { kind: "separator" },
+        { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
+        { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
+        { kind: "separator" },
+        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy }
+      ]
+    },
+    {
+      id: "edit",
+      label: "Edit",
+      items: [
+        { kind: "command", id: "edit.undo", label: "Undo Model Edit", disabled: !canUndo },
+        { kind: "command", id: "edit.redo", label: "Redo Model Edit", disabled: !canRedo }
+      ]
+    },
+    {
+      id: "view",
+      label: "View",
+      items: [
+        ...WORKSPACE_SECTIONS.map(
+          (section): MenuItemSpec => ({
+            kind: "command",
+            id: `view.section.${section.id}`,
+            label: section.label,
+            active: activeSection === section.id
+          })
+        ),
+        { kind: "separator" },
+        { kind: "command", id: "view.issues", label: "Issues", active: issuesOpen },
+        { kind: "command", id: "view.audit", label: "Audit & Boundaries", active: auditOpen },
+        { kind: "separator" },
+        { kind: "command", id: "view.close-panels", label: "Close Panel (show viewport)", disabled: !activeSection }
+      ]
+    },
+    {
+      id: "insert",
+      label: "Insert",
+      items: [
+        { kind: "command", id: "insert.node", label: "Node" },
+        { kind: "command", id: "insert.pipe", label: "Pipe Run" },
+        { kind: "command", id: "insert.support", label: "Support" },
+        { kind: "command", id: "insert.component", label: "Component" },
+        { kind: "separator" },
+        { kind: "command", id: "insert.load", label: "Load Case" }
+      ]
+    },
+    {
+      id: "analyze",
+      label: "Analyze",
+      items: [
+        { kind: "command", id: "analyze.run", label: "Run Mechanics Preview", disabled: running },
+        { kind: "command", id: "analyze.cancel", label: "Cancel Run", disabled: !running },
+        { kind: "separator" },
+        { kind: "command", id: "analyze.rule-checks", label: "Rule Checks" }
+      ]
+    }
+  ];
 
   return (
-    <section className="workflow-ribbon" aria-label="Workflow ribbon" data-testid="workflow-ribbon">
-      <nav className="ribbon-stop-list" aria-label="Primary workflow">
-        {RIBBON_STOPS.map((stop) => (
-          <button
-            key={stop.id}
-            type="button"
-            className={activeStop.id === stop.id ? "ribbon-stop active" : "ribbon-stop"}
-            data-testid={`ribbon-stop-${stop.id}`}
-            aria-pressed={activeStop.id === stop.id}
-            onClick={() => onSelectSection(stop.primarySection)}
-          >
-            <span>{stop.label}</span>
-            <small>{ribbonStopBadge(stop, activeSection, editorIntents, result, analysisRun, projectSummary)}</small>
-          </button>
+    <>
+      {openMenu ? (
+        <div className="app-menu-backdrop" data-testid="app-menu-backdrop" onClick={() => onOpenMenu(null)} />
+      ) : null}
+      <nav className="app-menu-bar" data-testid="app-menu-bar" aria-label="Application menu">
+        {menus.map((menu) => (
+          <div className="app-menu" key={menu.id}>
+            <button
+              type="button"
+              className={openMenu === menu.id ? "app-menu-trigger open" : "app-menu-trigger"}
+              data-testid={`menu-${menu.id}`}
+              aria-haspopup="menu"
+              aria-expanded={openMenu === menu.id}
+              onClick={() => onOpenMenu(openMenu === menu.id ? null : menu.id)}
+            >
+              {menu.label}
+            </button>
+            {openMenu === menu.id ? (
+              <div className="app-menu-dropdown" role="menu" data-testid={`menu-dropdown-${menu.id}`}>
+                {menu.items.map((item, index) =>
+                  item.kind === "separator" ? (
+                    <div key={`sep-${index}`} className="app-menu-separator" role="separator" />
+                  ) : (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="menuitem"
+                      className={item.active ? "app-menu-item active" : "app-menu-item"}
+                      data-testid={`menu-item-${item.id}`}
+                      aria-pressed={item.active ?? undefined}
+                      disabled={item.disabled}
+                      onClick={() => onCommand(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  )
+                )}
+              </div>
+            ) : null}
+          </div>
         ))}
       </nav>
-      <article className="ribbon-current-step" data-testid="ribbon-current-step">
-        <span>Current step</span>
-        <strong>{current.title}</strong>
-        <p>{current.body}</p>
-        <div className="ribbon-section-switcher" aria-label="Ribbon section switcher">
-          {activeStop.sections.map((section) => (
-            <button
-              key={section}
-              type="button"
-              data-testid={`ribbon-section-${section}`}
-              aria-pressed={activeSection === section}
-              onClick={() => onSelectSection(section)}
-            >
-              {WORKSPACE_SECTIONS.find((candidate) => candidate.id === section)?.label ?? section}
-            </button>
-          ))}
-        </div>
-      </article>
-    </section>
+    </>
   );
 }
 
@@ -1609,30 +1692,6 @@ function ruleCheckStatusLabel(value: string) {
   return value;
 }
 
-function ribbonStopForSection(section: WorkspaceSectionId): RibbonStop {
-  return RIBBON_STOPS.find((stop) => stop.sections.includes(section)) ?? RIBBON_STOPS[0];
-}
-
-function ribbonStopBadge(
-  stop: RibbonStop,
-  activeSection: WorkspaceSectionId,
-  editorIntents: EditorOperationIntent[],
-  result: MechanicsResult | null,
-  analysisRun: AnalysisRunEnvelope | null,
-  projectSummary: LocalProjectSummary | null
-): string {
-  const statuses = stop.journeyStepIds.map((id) => {
-    const step = JOURNEY_STEPS.find((candidate) => candidate.id === id);
-    return step
-      ? journeyStepStatus({ step, activeSection, editorIntents, result, analysisRun, projectSummary })
-      : "pending";
-  });
-  if (statuses.some((status) => status.includes("current"))) return "current";
-  if (statuses.every((status) => status.includes("ready") || status.includes("solved") || status.includes("saved"))) return "ready";
-  if (statuses.some((status) => status.includes("queued"))) return "queued";
-  return statuses[0] ?? "pending";
-}
-
 function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
@@ -1670,142 +1729,6 @@ function isBlankAuthoringModel(model: PreviewModel): boolean {
 
 function countStatus(actual: number, required: number): string {
   return actual >= required ? "done" : `${actual}/${required}`;
-}
-
-function journeyStepIcon(stepId: JourneyStepId): React.ReactNode {
-  switch (stepId) {
-    case "model":
-      return <List size={15} aria-hidden="true" />;
-    case "loads":
-      return <Activity size={15} aria-hidden="true" />;
-    case "private-libraries":
-      return <LockKeyhole size={15} aria-hidden="true" />;
-    case "rule-pack":
-      return <FileWarning size={15} aria-hidden="true" />;
-    case "solve-check":
-      return <ShieldCheck size={15} aria-hidden="true" />;
-    case "results":
-      return <Database size={15} aria-hidden="true" />;
-    case "report":
-      return <FilePlus size={15} aria-hidden="true" />;
-    case "save-reopen":
-      return <Save size={15} aria-hidden="true" />;
-  }
-}
-
-function journeyStepStatus({
-  step,
-  activeSection,
-  editorIntents,
-  result,
-  analysisRun,
-  projectSummary
-}: {
-  step: JourneyStep;
-  activeSection: WorkspaceSectionId;
-  editorIntents: EditorOperationIntent[];
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
-  projectSummary: LocalProjectSummary | null;
-}): string {
-  if (activeSection === step.section) return "current";
-  if (step.id === "model") return editorIntents.length > 0 ? `${editorIntents.length} queued` : "ready";
-  if (step.id === "solve-check") return result ? "solved" : "not run";
-  if (step.id === "results") return result ? `${result.results.length} rows` : "after solve";
-  if (step.id === "report") return analysisRun ? "ready" : "after solve";
-  if (step.id === "save-reopen") return projectSummary ? "local" : "not saved";
-  return "available";
-}
-
-function currentJourneyStep({
-  activeSection,
-  analysisRun,
-  appliedOperationCount,
-  editorIntents,
-  projectMessage,
-  projectSummary,
-  result,
-  ruleCheckAggregate
-}: {
-  activeSection: WorkspaceSectionId;
-  analysisRun: AnalysisRunEnvelope | null;
-  appliedOperationCount: number;
-  editorIntents: EditorOperationIntent[];
-  projectMessage: string;
-  projectSummary: LocalProjectSummary | null;
-  result: MechanicsResult | null;
-  ruleCheckAggregate: RuleCheckStatus | null;
-}): { title: string; body: string; status: string } {
-  switch (activeSection) {
-    case "operations":
-      return editorIntents.length > 0
-        ? {
-            title: "Review and apply queued model edits",
-            body: "Validate queued operations, apply accepted edits to the local session model, then save when ready.",
-            status: `${editorIntents.length} queued; ${appliedOperationCount} applied this session`
-          }
-        : {
-            title: "Queue a model edit",
-            body: "Select in the tree or viewport, queue an inspector or viewport edit, then review/apply here.",
-            status: "No queued operations"
-          };
-    case "loads":
-      return {
-        title: "Author load cases and combinations",
-        body: "Use the load manager to create or edit loads before solving. Proposed edits still pass through Operation Apply before they mutate the local session model.",
-        status: `${editorIntents.length} queued operation${editorIntents.length === 1 ? "" : "s"}`
-      };
-    case "libraries":
-      return {
-        title: "Prepare private local libraries",
-        body: "Import or inspect private library records locally. Public fixtures remain invented and private payloads stay out of the repository.",
-        status: "Private-library route available"
-      };
-    case "rule-packs":
-      return {
-        title: "Draft the private non-code rule pack",
-        body: "Create, validate, checksum, and save rule-pack drafts through the structured composer. Writable expression text remains out of scope under DEC-037.",
-        status: "AST composer only; no text parser"
-      };
-    case "solve":
-      return {
-        title: "Run solve and rule checks",
-        body: "Run mechanics first, then review missing rule-check inputs and check results. Missing inputs block pass/fail instead of being guessed.",
-        status: result
-          ? `Solved ${result.results.length} rows; rule_check=${ruleCheckAggregate ?? "not run"}`
-          : "Solve not run in this session"
-      };
-    case "results":
-      return {
-        title: "Review results and model-state context",
-        body: "Inspect result rows, diagnostics, deformed shape status, comparison context, and selected-review targets before reporting.",
-        status: result ? `${result.results.length} result rows available` : "Results populate after solve"
-      };
-    case "report":
-      return {
-        title: "Render the calculation report",
-        body: "Generate the hash-bound report surface after solving. Reports disclose assumptions, warnings, provenance, and boundary status without professional approval claims.",
-        status: analysisRun ? `analysis_run=${analysisRun.analysis_run.run_id}` : "Report evidence waits for solve"
-      };
-    case "project":
-      return {
-        title: "Save and reopen the local project",
-        body: "Persist the current local session model and verify the local store. User-created models remain local project data and are not committed to the repository.",
-        status: projectSummary ? projectMessage : "No local project summary yet"
-      };
-    case "exports":
-      return {
-        title: "Use export and handoff details deliberately",
-        body: "Export surfaces are available for review evidence and local handoff packages after the main journey state is ready.",
-        status: "Detail route; no external solver invocation"
-      };
-    case "evidence":
-      return {
-        title: "Audit boundaries and evidence",
-        body: "Inspect validation evidence, build readiness, telemetry/privacy, private-library, security, and accessibility boundary panels.",
-        status: "Audit details only; no release or professional claim"
-      };
-  }
 }
 
 function r3ExitJourneyStatus({

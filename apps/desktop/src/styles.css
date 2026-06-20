@@ -66,6 +66,12 @@ button:focus-visible {
   min-height: 760px;
 }
 
+/* Tauri shell: the native OS menu bar replaces the in-DOM menu row, so one
+   fewer grid track keeps the workspace on the 1fr row. */
+.app-shell.native-menu {
+  grid-template-rows: auto auto 1fr auto auto;
+}
+
 .titlebar {
   display: flex;
   align-items: center;
@@ -243,6 +249,138 @@ button:focus-visible {
   color: #ffffff;
   background: #31403d;
   border-color: #31403d;
+}
+
+/* CAD-shell menu bar (TP-R3UX-CADSHELL): a thin application menu bar that
+   replaces the workflow ribbon. The in-DOM menu is the tested navigation; the
+   native macOS menu mirrors these commands in the Tauri shell. */
+.app-menu-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 3px 10px;
+  border-bottom: 1px solid #c8d0cb;
+  background: #edf2ef;
+  /* Own stacking context above the click-catcher backdrop so open dropdowns
+     receive clicks (the backdrop only covers the surface behind the bar). */
+  position: relative;
+  z-index: 50;
+}
+
+.app-menu {
+  position: relative;
+}
+
+.app-menu-trigger {
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #263331;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.app-menu-trigger:hover {
+  background: #dde6e1;
+}
+
+.app-menu-trigger.open {
+  color: #ffffff;
+  background: #31403d;
+  border-color: #31403d;
+}
+
+.app-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.app-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  min-width: 232px;
+  padding: 5px;
+  border: 1px solid #b8c3bd;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(24, 35, 33, 0.22);
+}
+
+.app-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 4px;
+  color: #263331;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.app-menu-item:hover:not(:disabled) {
+  background: #eef3f0;
+}
+
+.app-menu-item.active {
+  color: #ffffff;
+  background: #31403d;
+}
+
+.app-menu-item:disabled {
+  color: #9aa4a0;
+  cursor: not-allowed;
+}
+
+.app-menu-separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: #dde3df;
+}
+
+/* Workspace dock: summoned from the View menu and collapsed by default so the
+   spatial core (tree | viewport | inspector) owns the full surface. */
+.workspace-dock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 4px 8px;
+  border-bottom: 1px solid #d6ded9;
+}
+
+.workspace-dock-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #263331;
+}
+
+.workspace-dock-header button {
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid #b8c3bd;
+  border-radius: 4px;
+  color: #31403d;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.workspace-dock.collapsed {
+  display: none;
 }
 
 .badge {

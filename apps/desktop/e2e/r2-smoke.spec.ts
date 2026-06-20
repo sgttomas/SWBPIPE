@@ -18,38 +18,29 @@ const rehearsal = JSON.parse(
   readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
 ) as RehearsalFixture;
 
-// TP-R3UX-WORKSPACEREDESIGN-001: the shell keeps the spatial core (model tree |
-// viewport | property inspector) persistent and organizes the remaining
-// panels behind one always-visible workflow ribbon. The specs drive that
-// ribbon through its visible controls exactly as a human following SMOKE.md
-// TP-MAC-189 would.
+// TP-R3UX-CADSHELL: the shell keeps the spatial core (model tree | viewport |
+// property inspector) persistent and dominant, with the remaining panels
+// collapsed by default and summoned from the in-DOM View menu (which the native
+// macOS menu mirrors in the Tauri shell). The specs drive that menu exactly as
+// a human following SMOKE.md TP-MAC-189 would. Idempotent: if the requested
+// section is already open, do nothing (re-selecting it would toggle it shut).
 async function openWorkspaceSection(page: Page, sectionId: string): Promise<void> {
-  const primaryStopBySection: Record<string, string> = {
-    operations: "model",
-    libraries: "model",
-    project: "model",
-    loads: "loads",
-    solve: "analyze",
-    results: "results",
-    "rule-packs": "rules",
-    report: "report",
-    exports: "report"
-  };
-  const primaryStop = primaryStopBySection[sectionId];
-  if (primaryStop) {
-    await page.getByTestId(`ribbon-stop-${primaryStop}`).click();
+  const section = page.getByTestId(`workspace-section-${sectionId}`);
+  if (await section.isVisible()) {
+    return;
   }
-  await page.getByTestId(`ribbon-section-${sectionId}`).click();
-  await expect(page.getByTestId(`workspace-section-${sectionId}`)).toBeVisible();
+  await page.getByTestId("menu-view").click();
+  await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
+  await expect(section).toBeVisible();
 }
 
 test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
-  await expect(page.getByTestId("workflow-ribbon")).toBeVisible();
-  await expect(page.getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("ribbon-current-step")).toContainText("Queue a model edit");
+  await expect(page.getByTestId("app-menu-bar")).toBeVisible();
+  // The dock is collapsed by default so the 3D spatial core dominates.
+  await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
   await expect(page.getByTestId("status-pill-professional")).toContainText("HUMAN_REVIEW_REQUIRED");
   await page.getByTestId("layout-mode-grid").click();
@@ -87,9 +78,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("missing=diagnostic_blocking");
   await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
 
-  await page.getByTestId("ribbon-stop-rules").click();
-  await expect(page.getByTestId("ribbon-stop-rules")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("ribbon-current-step")).toContainText("Draft the private non-code rule pack");
+  await openWorkspaceSection(page, "rule-packs");
   await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
 
   const horizontalOverflow = await page.evaluate(
@@ -116,20 +105,22 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await page.getByTestId("tree-row-support:S-120").click();
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
   await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
-  await expect(page.getByTestId("workflow-ribbon")).toContainText("Model");
-  await page.getByTestId("ribbon-stop-loads").click();
-  await expect(page.getByTestId("ribbon-stop-loads")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("app-menu-bar")).toContainText("View");
+  await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
+  // With a section summoned, the menu bar + open dock must fit the compact
+  // viewport with no horizontal overflow. Missing-element guards return 0 so
+  // the height assertions below fail loudly rather than silently passing.
   const compactJourneyGeometry = await page.evaluate(() => {
     const dock = document.querySelector<HTMLElement>(".workspace-dock");
     const dockBody = document.querySelector<HTMLElement>(".workspace-dock-body");
-    const ribbon = document.querySelector<HTMLElement>(".workflow-ribbon");
-    const items = Array.from(document.querySelectorAll<HTMLElement>(".ribbon-stop"));
+    const menuBar = document.querySelector<HTMLElement>(".app-menu-bar");
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".app-menu-trigger"));
     const body = document.body;
-    if (!dock || !dockBody || !ribbon || items.length === 0) {
-      return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, ribbonHeight: 0 };
+    if (!dock || !dockBody || !menuBar || items.length === 0) {
+      return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, menuBarHeight: 0, viewportOverflow: 0 };
     }
-    const ribbonBounds = ribbon.getBoundingClientRect();
+    const menuBounds = menuBar.getBoundingClientRect();
     const bodyBounds = body.getBoundingClientRect();
     return {
       bodyOverflow: body.scrollWidth - body.clientWidth,
@@ -138,18 +129,18 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
         0,
         ...items.map((item) => {
           const bounds = item.getBoundingClientRect();
-          return Math.max(0, bounds.right - ribbonBounds.right, ribbonBounds.left - bounds.left);
+          return Math.max(0, bounds.right - menuBounds.right, menuBounds.left - bounds.left);
         })
       ),
-      ribbonHeight: ribbon.getBoundingClientRect().height,
-      viewportOverflow: Math.max(0, ribbonBounds.right - bodyBounds.right, bodyBounds.left - ribbonBounds.left)
+      menuBarHeight: menuBounds.height,
+      viewportOverflow: Math.max(0, menuBounds.right - bodyBounds.right, bodyBounds.left - menuBounds.left)
     };
   });
   expect(compactJourneyGeometry.bodyOverflow).toBe(0);
   expect(compactJourneyGeometry.viewportOverflow).toBe(0);
   expect(compactJourneyGeometry.itemOverflow).toBe(0);
   expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(64);
-  expect(compactJourneyGeometry.ribbonHeight).toBeGreaterThan(0);
+  expect(compactJourneyGeometry.menuBarHeight).toBeGreaterThan(0);
   await page.getByTestId("tree-row-node:N-110").click();
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await editorIntentPanel.getByTestId("editor-intent-field").selectOption("position.y");
@@ -763,8 +754,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("local-project-message")).toContainText(
     "Created blank local model document without fixture entities or external file copies."
   );
-  await expect(page.getByTestId("workflow-ribbon")).toBeVisible();
-  await expect(page.getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("app-menu-bar")).toBeVisible();
   await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
@@ -1430,7 +1420,7 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
-  await expect(page.getByTestId("workflow-ribbon")).toBeVisible();
+  await expect(page.getByTestId("app-menu-bar")).toBeVisible();
   await expect(page.getByTestId("status-pill-rule-check")).toContainText("RULE_INPUTS_INCOMPLETE");
 
   await openWorkspaceSection(page, "libraries");

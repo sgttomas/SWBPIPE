@@ -20,7 +20,8 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
     time::{SystemTime, UNIX_EPOCH},
 };
-use tauri::{AppHandle, Manager};
+use tauri::menu::{MenuBuilder, SubmenuBuilder};
+use tauri::{AppHandle, Emitter, Manager};
 
 const PROJECT_STORE_FILE: &str = "openpipestress-projects.sqlite3";
 
@@ -3175,9 +3176,89 @@ fn delete_local_library(
     })
 }
 
+// Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
+// command id the in-DOM menu uses; on click we forward it to the webview via a
+// `native-menu-command` event, where the React command sink dispatches it.
+fn build_app_menu<R: tauri::Runtime>(
+    handle: &tauri::AppHandle<R>,
+) -> tauri::Result<tauri::menu::Menu<R>> {
+    let app_menu = SubmenuBuilder::new(handle, "OpenPipeStress")
+        .about(None)
+        .separator()
+        .quit()
+        .build()?;
+
+    let file = SubmenuBuilder::new(handle, "File")
+        .text("file.new-local", "New Local Project")
+        .text("file.new-blank", "New Blank Project")
+        .separator()
+        .text("file.open-local", "Open Local Project…")
+        .text("file.list-local", "List Local Projects")
+        .separator()
+        .text("file.save-local", "Save Local Project")
+        .build()?;
+
+    let edit = SubmenuBuilder::new(handle, "Edit")
+        .text("edit.undo", "Undo Model Edit")
+        .text("edit.redo", "Redo Model Edit")
+        .separator()
+        .cut()
+        .copy()
+        .paste()
+        .select_all()
+        .build()?;
+
+    let view = SubmenuBuilder::new(handle, "View")
+        .text("view.section.operations", "Operation Apply")
+        .text("view.section.loads", "Load Cases")
+        .text("view.section.libraries", "Libraries")
+        .text("view.section.rule-packs", "Rule Packs")
+        .text("view.section.solve", "Solve")
+        .text("view.section.results", "Results")
+        .text("view.section.report", "Report")
+        .text("view.section.project", "Project")
+        .text("view.section.exports", "Exports")
+        .text("view.section.evidence", "Audit & Boundaries")
+        .separator()
+        .text("view.issues", "Issues")
+        .text("view.audit", "Audit & Boundaries Drawer")
+        .separator()
+        .text("view.close-panels", "Close Panel (show viewport)")
+        .build()?;
+
+    let insert = SubmenuBuilder::new(handle, "Insert")
+        .text("insert.node", "Node")
+        .text("insert.pipe", "Pipe Run")
+        .text("insert.support", "Support")
+        .text("insert.component", "Component")
+        .separator()
+        .text("insert.load", "Load Case")
+        .build()?;
+
+    let analyze = SubmenuBuilder::new(handle, "Analyze")
+        .text("analyze.run", "Run Mechanics Preview")
+        .text("analyze.cancel", "Cancel Run")
+        .separator()
+        .text("analyze.rule-checks", "Rule Checks")
+        .build()?;
+
+    MenuBuilder::new(handle)
+        .item(&app_menu)
+        .item(&file)
+        .item(&edit)
+        .item(&view)
+        .item(&insert)
+        .item(&analyze)
+        .build()
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(SolveJobRegistry::default())
+        .menu(|handle| build_app_menu(handle))
+        .on_menu_event(|app, event| {
+            let _ = app.emit("native-menu-command", event.id().0.clone());
+        })
         .invoke_handler(tauri::generate_handler![
             load_preview_model,
             load_design_knowledge,

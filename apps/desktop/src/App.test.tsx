@@ -91,16 +91,23 @@ describe("OpenPipeStress desktop preview", () => {
     ]);
   });
 
-  it("presents the C5.7R ribbon workspace shell with reachable detail views", async () => {
+  it("presents the CAD-shell menu workspace with the dock summoned from the View menu", async () => {
     render(<App />);
 
     expect(await screen.findByTestId("desktop-preview-shell")).toBeInTheDocument();
-    const ribbon = await screen.findByTestId("workflow-ribbon");
-    expect(within(ribbon).getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
-    expect(within(ribbon).getByTestId("ribbon-current-step").textContent).toContain("Queue a model edit");
+    expect(await screen.findByTestId("app-menu-bar")).toBeInTheDocument();
+    // The dock starts collapsed so the spatial core owns the surface; the
+    // workflow ribbon and earlier guided shells are gone.
+    expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
+    expect(screen.queryByTestId("workflow-ribbon")).toBeNull();
     expect(screen.queryByTestId("guided-workbench")).toBeNull();
     expect(screen.queryByTestId("workspace-nav")).toBeNull();
     expect(screen.queryByTestId("guided-journey-stack")).toBeNull();
+
+    // Summon the Operation Apply section from the View menu.
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.operations"));
+    expect(screen.getByTestId("workspace-dock").className).not.toContain("collapsed");
 
     const drawer = screen.getByTestId("review-apply-drawer");
     expect(drawer.className).not.toContain("open");
@@ -109,18 +116,26 @@ describe("OpenPipeStress desktop preview", () => {
     expect(screen.getByLabelText("Editor contract review")).toBeInTheDocument();
     expect(screen.getByLabelText("Operation diff preview")).toBeInTheDocument();
 
-    fireEvent.click(within(ribbon).getByTestId("ribbon-stop-rules"));
-    expect(within(ribbon).getByTestId("ribbon-stop-rules")).toHaveAttribute("aria-pressed", "true");
-    expect(within(ribbon).getByTestId("ribbon-current-step").textContent).toContain("Draft the private non-code rule pack");
-    expect(screen.getByTestId("workspace-section-rule-packs")).toBeInTheDocument();
+    // Switch sections through the View menu.
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.rule-packs"));
+    expect(screen.getByTestId("workspace-section-rule-packs").className).toBe("workspace-dock-section");
 
-    fireEvent.click(within(ribbon).getByTestId("ribbon-section-libraries"));
-    expect(screen.getByTestId("workspace-section-libraries")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.libraries"));
+    expect(screen.getByTestId("workspace-section-libraries").className).toBe("workspace-dock-section");
     fireEvent.click(screen.getByTestId("library-load-template"));
     fireEvent.click(screen.getByTestId("library-validate"));
 
-    fireEvent.click(within(ribbon).getByTestId("ribbon-stop-analyze"));
-    expect(screen.getByTestId("workspace-section-solve")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.solve"));
+    expect(screen.getByTestId("workspace-section-solve").className).toBe("workspace-dock-section");
+
+    // Re-selecting the active section from the View menu collapses the dock.
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.solve"));
+    expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
+
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(await screen.findByTestId("issues-home")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
@@ -5287,10 +5302,10 @@ describe("OpenPipeStress desktop preview", () => {
     expect(auditDrawer.textContent).toContain(
       "local_user_document_not_committed_to_repository"
     );
-    const ribbon = screen.getByTestId("workflow-ribbon");
-    expect(within(ribbon).getByTestId("ribbon-stop-model")).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(within(ribbon).getByTestId("ribbon-stop-loads"));
-    expect(within(ribbon).getByTestId("ribbon-stop-loads")).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByTestId("app-menu-bar")).toBeInTheDocument();
+    expect(screen.getByTestId("workspace-dock").className).toContain("collapsed");
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.section.loads"));
     expect(screen.getByTestId("workspace-section-loads").className).toBe("workspace-dock-section");
 
     const tree = screen.getByLabelText("Model tree");
