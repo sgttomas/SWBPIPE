@@ -3209,6 +3209,9 @@ fn build_app_menu<R: tauri::Runtime>(
         .build()?;
 
     let view = SubmenuBuilder::new(handle, "View")
+        .text("view.tree", "Model Tree")
+        .text("view.inspector", "Inspector")
+        .separator()
         .text("view.section.operations", "Operation Apply")
         .text("view.section.loads", "Load Cases")
         .text("view.section.libraries", "Libraries")

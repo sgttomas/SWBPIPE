@@ -161,6 +161,8 @@ type MenuCommandId =
   | "file.save-local"
   | "edit.undo"
   | "edit.redo"
+  | "view.tree"
+  | "view.inspector"
   | "view.issues"
   | "view.audit"
   | "view.close-panels"
@@ -299,6 +301,11 @@ export function App() {
   // sections are summoned from the View menu and dismissed back to the viewport.
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
+  // Collapsible spatial-core rails. Both default expanded, so existing layout,
+  // unit, and e2e behavior are unchanged; collapsing a rail hands its column
+  // width to the 3D viewport so the spatial core can dominate the surface.
+  const [treeCollapsed, setTreeCollapsed] = useState(false);
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
   const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
     ...INITIAL_R3_JOURNEY_STATE
   }));
@@ -830,10 +837,20 @@ export function App() {
     }
   }
 
+  // Selecting any entity (from the tree, the 3D viewport, or the load-case
+  // manager) reveals its properties: re-open the inspector rail if it was
+  // collapsed, so the spatial core behaves like a CAD "click a part to see its
+  // details" surface.
+  function handleSelectEntity(entity: EntityRef) {
+    setSelection(entity);
+    setInspectorCollapsed(false);
+  }
+
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
-  // sections; the spatial core (tree | viewport | inspector) is always present,
-  // so Insert commands collapse the dock to surface the relevant authoring pane.
+  // sections and toggle the tree/inspector rails; the spatial core (tree |
+  // viewport | inspector) is always present, so Insert commands collapse the
+  // dock to surface the relevant authoring pane.
   function runMenuCommand(command: MenuCommandId) {
     setOpenMenu(null);
     switch (command) {
@@ -866,6 +883,12 @@ export function App() {
         break;
       case "view.close-panels":
         setActiveSection(null);
+        break;
+      case "view.tree":
+        setTreeCollapsed((collapsed) => !collapsed);
+        break;
+      case "view.inspector":
+        setInspectorCollapsed((collapsed) => !collapsed);
         break;
       case "insert.load":
         setActiveSection("loads");
@@ -988,31 +1011,67 @@ export function App() {
           auditOpen={auditDrawerOpen}
           canRedo={redoStack.length > 0}
           canUndo={undoStack.length > 0}
+          inspectorCollapsed={inspectorCollapsed}
           issuesOpen={issuesDrawerOpen}
           openMenu={openMenu}
           projectBusy={projectBusy}
           running={running}
+          treeCollapsed={treeCollapsed}
           onCommand={runMenuCommand}
           onOpenMenu={setOpenMenu}
         />
       ) : null}
 
       <div className={activeSection ? "workspace" : "workspace dock-collapsed"}>
-        <section className="modeling-workspace" aria-label="Modeling workspace" data-testid="modeling-workspace">
+        <section
+          className={`modeling-workspace${treeCollapsed ? " tree-collapsed" : ""}${
+            inspectorCollapsed ? " inspector-collapsed" : ""
+          }`}
+          aria-label="Modeling workspace"
+          data-testid="modeling-workspace"
+        >
           <div className="workspace-pane workspace-pane-tree">
-            <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={setSelection} />
+            <button
+              type="button"
+              className="workspace-pane-toggle"
+              data-testid="toggle-tree"
+              aria-expanded={!treeCollapsed}
+              aria-label={treeCollapsed ? "Expand model tree" : "Collapse model tree"}
+              title={treeCollapsed ? "Expand model tree" : "Collapse model tree"}
+              onClick={() => setTreeCollapsed((collapsed) => !collapsed)}
+            >
+              <span className="workspace-pane-toggle-label">Model Tree</span>
+              <span className="workspace-pane-toggle-icon" aria-hidden="true">
+                {treeCollapsed ? "›" : "‹"}
+              </span>
+            </button>
+            <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
           </div>
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport
               model={model}
               onQueueIntent={handleQueueEditorIntent}
-              onSelect={setSelection}
+              onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
               result={result}
               selection={selection}
             />
           </div>
           <div className="workspace-pane workspace-pane-inspector">
+            <button
+              type="button"
+              className="workspace-pane-toggle"
+              data-testid="toggle-inspector"
+              aria-expanded={!inspectorCollapsed}
+              aria-label={inspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
+              title={inspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
+              onClick={() => setInspectorCollapsed((collapsed) => !collapsed)}
+            >
+              <span className="workspace-pane-toggle-label">Inspector</span>
+              <span className="workspace-pane-toggle-icon" aria-hidden="true">
+                {inspectorCollapsed ? "‹" : "›"}
+              </span>
+            </button>
             <PropertyInspector
               model={model}
               onQueueIntent={handleQueueEditorIntent}
@@ -1116,7 +1175,7 @@ export function App() {
               <LoadCaseManagerPanel
                 model={model}
                 onQueueIntent={handleQueueEditorIntent}
-                onSelect={setSelection}
+                onSelect={handleSelectEntity}
                 selection={selection}
               />
             </section>
@@ -1367,10 +1426,12 @@ function MenuBar({
   auditOpen,
   canRedo,
   canUndo,
+  inspectorCollapsed,
   issuesOpen,
   openMenu,
   projectBusy,
   running,
+  treeCollapsed,
   onCommand,
   onOpenMenu
 }: {
@@ -1378,10 +1439,12 @@ function MenuBar({
   auditOpen: boolean;
   canRedo: boolean;
   canUndo: boolean;
+  inspectorCollapsed: boolean;
   issuesOpen: boolean;
   openMenu: MenuId | null;
   projectBusy: boolean;
   running: boolean;
+  treeCollapsed: boolean;
   onCommand: (command: MenuCommandId) => void;
   onOpenMenu: (menu: MenuId | null) => void;
 }) {
@@ -1411,6 +1474,9 @@ function MenuBar({
       id: "view",
       label: "View",
       items: [
+        { kind: "command", id: "view.tree", label: "Model Tree", active: !treeCollapsed },
+        { kind: "command", id: "view.inspector", label: "Inspector", active: !inspectorCollapsed },
+        { kind: "separator" },
         ...WORKSPACE_SECTIONS.map(
           (section): MenuItemSpec => ({
             kind: "command",
