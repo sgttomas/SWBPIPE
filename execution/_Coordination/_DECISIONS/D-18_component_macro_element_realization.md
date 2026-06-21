@@ -1,10 +1,13 @@
 # D-18 — Component Macro-Element Realization
 
-**Status:** AWAITING_RULING — packet drafted; no ruling recorded. Only the human project authority rules.
+**Status:** RULED - `DEC-045`, 2026-06-20. Human project authority selected
+Option C. The preparation body remains a historical `PROPOSAL`; the accepted
+ruling is recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 and the
+decision register.
 **Prepared:** 2026-06-18 by decision-preparation subscope, requested for the Phase D lead-up.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-18.
 **Plan basis:** `plans/PLAN_2026-06-17_prd_completion.md` §2.3 row D-18 (`:94`); Phase D rows D1–D4 (`:585–588`), D8 (`:592`), phase-exit evidence (`:595`).
-**Epistemic posture:** evidence below is `FACT` with citations; inferences are labeled `ASSUMPTION`; the recommendation is labeled `PROPOSAL`; unknowns stay `TBD`. This packet decides nothing.
+**Epistemic posture:** evidence below is `FACT` with citations; inferences are labeled `ASSUMPTION`; the recommendation is labeled `PROPOSAL`; unknowns stay `TBD`.
 
 Citations pinned at repo HEAD `1c27081c5`. Symbol names are the durable anchors if line numbers drift.
 
@@ -141,12 +144,20 @@ Rationale: Option C is the only option that keeps three of four families on the 
 | **D8 / reports (DEL-08-01 + DEL-08-03)** | Unaffected by mechanism choice — provenance fields render from `ComponentRecord.provenance` (`:559`) regardless of realization; "component provenance appears in reports" (R4 exit) decouples cleanly. |
 | **D9 R4 validation (DEL-09-03)** | The chosen mechanism per family sets what the §16.2 branch-assembly and convergence benchmarks must witness; EJ element needs its own analytic verification under D-19 tolerance policy. |
 | **D-16 / D-19 (assembled nonlinear solve / convergence tolerance)** | Independent — D-18 sizes the element library; D-16/D-19 size the iterative loop wrapping it. |
-| **Register row D-18** | `NOT_PREPARED` → `AWAITING_RULING` at fan-in (dispatching persona; not this packet). |
+| **Register row D-18** | `RULED` with pointer to `DEC-045`. |
 
 ---
 
 ## 8. Authority and ruling record
 
-Only the **human project authority** rules on D-18. Agents prepared this packet and may not certify, approve, or adopt it; the recommendation in §5 is **advisory**.
+The human project authority ruled D-18 on 2026-06-20: **Option C**. This is
+recorded as `DEC-045` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12, and
+the decision register row is `RULED`.
 
-Per existing decision practice, the accepted ruling is recorded as a `DEC` entry in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (the decision log table; latest entry `DEC-040`) — D-01/D-04/D-14 were recorded this way as `DEC-018`/`DEC-024`+`DEC-026`/`DEC-035` — after which the dispatching persona updates `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-18 from `AWAITING_RULING` to `RULED` with a pointer. Any per-family choice left `TBD` at ruling time remains `TBD` in the component family contract until a later governed record supplies it. This packet does not edit the register and does not resolve the decision.
+Accepted disposition: bend, branch, and rigid/semi-rigid families use the
+multiplier-first `mechanics_geometry_only` path; expansion joints use a
+dedicated user-stiffness macro-element with
+`mechanics_geometry_and_user_flexibility`. Public examples remain schema-shape
+or invented only, and the software supplies no protected/default engineering
+factors. This ruling creates no lifecycle, release, professional, certification,
+sealing, authentication, or code-compliance claim.

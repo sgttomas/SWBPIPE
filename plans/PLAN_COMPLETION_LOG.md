@@ -14,6 +14,48 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D6 assembled nonlinear loop-core slice (`TP-R4-D6-LOOPCORE-001`)
+
+Landed the first D6 assembled nonlinear loop-core slice under `DEC-044` and
+`DEC-046`. New crate `core/solver/nonlinear_integration` bridges the existing
+DEL-04-01 frame assembly/reduction/dense-solve path with the DEL-04-04
+nonlinear active-set classifier. The loop applies base restraints plus active
+nonlinear restraints, solves the dense reduced frame system, reconstructs full
+displacements and reactions, feeds trial facts to the classifier, and stops on
+active-set convergence or an explicit iteration-cap nonconvergence diagnostic.
+
+The slice keeps convergence controls explicit: callers supply a policy ref,
+policy status, residual tolerance, absolute residual floor, and iteration cap.
+`TolerancePolicyTbd` remains visible for unmeasured `DEC-046` class entries; no
+public defaults, protected values, or release-quality convergence numbers were
+invented.
+
+DEL-04-04 documentation was re-pointed to the `DEC-044` split: DEL-04-04 remains
+the per-iteration classifier/state oracle, and `core/solver/nonlinear_integration`
+owns the assembled loop. The ruled D-16/D-18/D-19 packets were also cleaned up
+to match the `DEC-044`/`DEC-045`/`DEC-046` register state.
+
+Validation: `cargo fmt --manifest-path core/solver/nonlinear_integration/Cargo.toml --check`
+passed; `cargo test --manifest-path core/solver/nonlinear_integration/Cargo.toml`
+passed 7/7; `cargo test --manifest-path core/solver/nonlinear_supports/Cargo.toml`
+passed 16/16; `cargo test --manifest-path core/solver/frame_kernel/Cargo.toml`
+passed 34/34; `git diff --check` passed.
+
+Evidence: PKG-04 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D6-LOOPCORE-001.md`.
+
+Residual: D6 is only partially landed. Product/app/result-envelope integration,
+friction normal-force model integration, measured class-tiered convergence
+values under `DEC-046`, sparse live-path adoption (`D-17`), and D9 assembled
+nonlinear validation cases remain open.
+
+Boundary: dense mechanics integration only; no protected standards table,
+proprietary catalog value, public default, private data, network path, telemetry
+feature, lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D4 expansion-joint user-stiffness preview slice (`TP-R4-D4-EJSTIFF-001`)
 
 Landed the D4 expansion-joint app-absorption slice for the invented preview

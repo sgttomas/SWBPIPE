@@ -71,9 +71,11 @@
      `TP-R4-D4-EJSTIFF-001` with user-stiffness macro-element review rows and
      no full assembled global solve or pressure-thrust load generation claim.
      D5 is gated by `D-15`; the D-15 spring-hanger scope decision packet is
-     prepared and awaiting human ruling. If that ruling is still pending, the
-     next unblocked Phase D implementation item is D6 under `DEC-044` and
-     `DEC-046`. D7 sparse live-path
+     prepared and awaiting human ruling. If that ruling is still pending,
+     continue D6 residuals after `TP-R4-D6-LOOPCORE-001`: the loop-core crate
+     `core/solver/nonlinear_integration` exists under `DEC-044`/`DEC-046`, but
+     product/app/result-envelope integration, measured convergence values,
+     sparse live-path adoption, and D9 validation cases remain open. D7 sparse live-path
      timing remains gated by `D-17`; `D-20` is held for Phase E; `D-21` remains
      held and does not authorize v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

@@ -480,12 +480,20 @@ trial displacement and reaction data. It records active-set changes, residual
 state, convergence, iteration limits, and nonconvergence diagnostics through
 the solver diagnostics contract.
 
-This slice does not assemble the global nonlinear system, select a sparse
-solver, define release-quality tolerance policy, perform load-case algebra,
-provide public support/catalog defaults, run rule-pack checks, or make
+The assembled nonlinear active-set loop slice is
+`core/solver/nonlinear_integration`, created under `DEC-044`. It wraps the
+linear frame assembly/reduction/dense solve path around the active-set
+classifier, applies base restraints plus active nonlinear restraints, and stops
+when the classifier converges or the explicit iteration cap produces
+nonconvergence diagnostics.
+
+These slices do not select the live sparse solve path, define release-quality
+numeric convergence values, perform load-case algebra, provide public
+support/catalog defaults, run rule-pack checks, or make
 professional/code-compliance claims. Sign conventions for activation and gap
 closure remain explicit model/solver inputs rather than hidden defaults; final
-support coordinate convention and production solve integration remain `TBD`.
+support coordinate convention, product/app integration, and measured
+class-tiered convergence values remain governed follow-on work.
 
 ### 5.5 Numerical quality
 

@@ -263,11 +263,13 @@ frame-stiffness behavior change. D4 expansion-joint app absorption landed for
 the invented preview path through `TP-R4-D4-EJSTIFF-001`, with user-stiffness
 macro-element review rows and no full assembled global solve or pressure-thrust
 load generation claim. D5 spring-hanger scope is gated by `D-15`, whose packet
-is prepared and awaiting human ruling. If that ruling is still pending, the
-next unblocked Phase D implementation item is D6 assembled nonlinear solve
-under `DEC-044`/`DEC-046`. The remaining spine continues with D7 sparse
-live-path timing gate (`D-17`), D8 report provenance, and D9 R4 validation
-evidence. `DAG-007` remains pending human
+is prepared and awaiting human ruling. If that ruling is still pending, continue
+D6 residuals: the loop-core slice `TP-R4-D6-LOOPCORE-001` added
+`core/solver/nonlinear_integration` as the dense assembled active-set loop owner
+under `DEC-044`/`DEC-046`, but product/app/result-envelope integration,
+measured convergence values, sparse live-path adoption, and D9 validation cases
+remain open. The remaining spine continues with D7 sparse live-path timing gate
+(`D-17`), D8 report provenance, and D9 R4 validation evidence. `DAG-007` remains pending human
 approval; `_DAG/_LATEST.md` stays on `DAG-006`.
 
 Interactive authoring of user-created local models — applying editor
@@ -323,8 +325,10 @@ bounded tranche.
       absorption landed through `TP-R4-D3-RIGIDVIS-001`; D4 expansion-joint
       app absorption landed through `TP-R4-D4-EJSTIFF-001`. D5 is gated by
       `D-15`; the D-15 decision packet is prepared and awaiting human ruling.
-      If that ruling is still pending, the next unblocked Phase D
-      implementation item is D6 under `DEC-044`/`DEC-046`. D7 is gated by
+      If that ruling is still pending, continue D6 residuals after
+      `TP-R4-D6-LOOPCORE-001`: product/app/result-envelope integration,
+      measured convergence values, sparse live-path adoption, and D9 validation
+      cases remain open under `DEC-044`/`DEC-046`. D7 is gated by
       `D-17`; `D-20` remains a Phase E lead-up decision; held `D-21` does not
       authorize v0.2/R6/R7 scope;
    2. regression repair: failed or insufficient app tests, build breaks, or

@@ -2,7 +2,15 @@
 
 **Date prepared:** 2026-06-18
 **Prepared by:** Decision-preparation tranche (R4 scope research), per the Application Integration And Issuance Loop decision-escalation step and `plans/PLAN_2026-06-17_prd_completion.md` §2.3.
-**Epistemic status:** PROPOSAL (non-governing). Only the human project authority rules. Nothing here changes lifecycle state, promotes any deliverable, creates release readiness, professional approval, certification, sealing, authentication, or code-compliance claims, or asserts that any PRD milestone "is met" — milestone judgments are the human's. Agents prepare packets labeled `PROPOSAL`; the recommended disposition in §5 is advisory only.
+**Status:** RULED - `DEC-044`, 2026-06-20. Human project authority selected
+Option A. The preparation body remains a historical `PROPOSAL`; the accepted
+ruling is recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 and the
+decision register.
+**Epistemic status:** Historical decision packet. Nothing here changes lifecycle
+state, promotes any deliverable, creates release readiness, professional
+approval, certification, sealing, authentication, or code-compliance claims, or
+asserts that any PRD milestone "is met" - milestone judgments remain
+human-gated.
 
 ---
 
@@ -38,7 +46,7 @@ This decision governs **deliverable ownership and method selection only**. It do
 
 **The gap.** The deliverable record for DEL-04-04 *anticipates* the loop but the *built crate* disclaims it, and no deliverable currently *owns* the assembled loop:
 
-- DEL-04-04 `_CONTEXT.md` lists "nonlinear solver loop" as an Anticipated Artifact and describes the deliverable as "Implement iterative activation … with convergence reporting" (`…/DEL-04-04…/_CONTEXT.md:10,13`). Its `Datasheet.md` Construction table places the "Active-set iteration loop — In scope for future implementation; algorithm details TBD" (`…/DEL-04-04…/Datasheet.md:42`), and REQ-02 requires the behaviors be addressed "through a controlled iterative method" with REQ-09 deferring solver library / convergence tolerances / data contracts as TBD (`…/DEL-04-04…/Specification.md:12,19`).
+- At packet preparation time, DEL-04-04 `_CONTEXT.md` listed "nonlinear solver loop" as an Anticipated Artifact and described the deliverable as "Implement iterative activation … with convergence reporting" (`…/DEL-04-04…/_CONTEXT.md:10,13`). Its `Datasheet.md` Construction table placed the "Active-set iteration loop — In scope for future implementation; algorithm details TBD" (`…/DEL-04-04…/Datasheet.md:42`), and REQ-02 required the behaviors be addressed "through a controlled iterative method" with REQ-09 deferring solver library / convergence tolerances / data contracts as TBD (`…/DEL-04-04…/Specification.md:12,19`). After `DEC-044`, `TP-R4-D6-LOOPCORE-001` re-pointed those deliverable-local lines to `core/solver/nonlinear_integration`.
 - The domain ledger carries both sides of the tension verbatim: *"The active-set iteration loop is in scope for future implementation; algorithm details are TBD."* and *"Active-set report limitation: this crate does not assemble or solve the global nonlinear system."* The same ledger records the program state: *"R4 (components + nonlinear supports) is … no assembled nonlinear iterative solve (Phase D)."*
 
 So the *deliverable-level intent* of DEL-04-04 includes a loop, but the *code-neutral boundary* deliberately drawn around the built crate excludes the assembly/solve the loop must perform each iteration. D-16 resolves where that loop lands and how it iterates. (Note: the D9 row of the plan references an `open_pipe_stress_nonlinear_benchmarks` crate validating the classifier; an in-repo crate by that exact name was **not** confirmed in this pass — validation fixtures live under `validation/benchmarks` — so the existence of converged *global-solve* benchmarks should be treated as not-yet-built, consistent with the "no assembled nonlinear iterative solve" ledger state.)
@@ -64,9 +72,16 @@ So the *deliverable-level intent* of DEL-04-04 includes a loop, but the *code-ne
 - **D-17 (sparse-solver live-path adoption)** — *adjacent.* D-17 decides whether the per-iteration solve uses the dense path (`solve_dense`) or binds `core/solver/sparse_direct` (the `DEC-023` skyline LDLᵀ solver; `core/solver/sparse_direct/src/lib.rs:1–11`). The D-16 owner is the call site either way; O-A gives D-17 the cleanest binding point. Independent ruling; sequence with D6.
 - **Carried decisions already RULED that this builds on:** `DEC-023` (D-03 — in-repo sparse skyline solver), `DEC-024`+`DEC-026` (D-04 — class-tiered *verification* tolerance; the *solver convergence* tolerance is the distinct open `D-19`), per `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 rows `DEC-024`/`DEC-026`.
 
-## 7. Ruling mechanism
+## 7. Ruling record
 
-Per existing practice (`DEC-018`..`DEC-040`): the human project authority selects an option (or rules directly); the ruling is appended to `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 as the next `DEC` entry citing this packet; if O-A is selected, the executing agent's first decomposition action is to (a) register the new integration tranche/owner for D6 and (b) re-point DEL-04-04's "iteration loop in scope" Datasheet/`_CONTEXT.md` lines to that owner; this register row then moves `AWAITING_RULING` → `RULED` with the record pointer. Agents never assign D6 ownership or open the assembled-loop tranche without the recorded ruling. The convergence tolerance value remains gated on `D-19`.
+The human project authority ruled D-16 on 2026-06-20: **Option A**. This is
+recorded as `DEC-044` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12, and
+the decision register row is `RULED`. The accepted owner is a new PKG-04
+integration tranche bridging DEL-04-04 and DEL-04-01; DEL-04-04 remains the
+per-iteration classifier/state oracle, and DEL-04-01 remains the frame
+assembly/linear solve provider. The first D6 loop-core slice re-points the
+DEL-04-04 anticipated-loop wording to `core/solver/nonlinear_integration`.
+The convergence tolerance value remains governed by `D-19` / `DEC-046`.
 
 ## 8. References
 

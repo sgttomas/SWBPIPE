@@ -17,11 +17,11 @@
 
 | Attribute | Value | Source |
 |---|---|---|
-| Solver role | Iterative activation for nonlinear support behavior in the global 3D centerline/frame solver. | _CONTEXT.md Description; ScopeLedger.csv SOW-012 |
+| Solver role | Per-iteration active-set classifier/state oracle for nonlinear support behavior consumed by the global 3D centerline/frame solver integration loop. | _CONTEXT.md Description; ScopeLedger.csv SOW-012; DEC-044 |
 | Covered behavior categories | One-way supports, gaps, lift-off, and friction. | Deliverables.csv DEL-04-04; ScopeLedger.csv SOW-012 |
 | Reporting obligation | Convergence reporting, active-set state, and unresolved non-convergence reporting are in scope. | CONTRACT.md OPS-K-SOLVER-2; _CONTEXT.md Description |
-| Anticipated artifacts | Nonlinear solver loop; convergence tests. | _CONTEXT.md Anticipated Artifacts |
-| Explicit deferrals | Exact solver numerical library, detailed convergence criteria, and implementation-level defaults are TBD. | _CONTEXT.md Architecture Basis Injection; human brief hard stops |
+| Anticipated artifacts | Active-set classifier/state oracle; report-facing active-set records; classifier and integration-facing convergence tests. | _CONTEXT.md Anticipated Artifacts; DEC-044 |
+| Explicit deferrals | Assembled loop ownership is re-pointed to `core/solver/nonlinear_integration`; sparse live-path adoption, class-tiered convergence values, and implementation-level defaults remain governed follow-on work. | _CONTEXT.md Architecture Basis Injection; DEC-044; DEC-046; human brief hard stops |
 
 ## Conditions
 
@@ -35,13 +35,15 @@
 
 ## Construction
 
-This setup kit defines a documentation boundary for a future nonlinear active-set solver deliverable. It does not implement solver code.
+This setup kit defines the nonlinear active-set classifier boundary. The
+assembled nonlinear loop is owned by the PKG-04 integration tranche under
+`DEC-044`; this deliverable remains the classifier/state-oracle surface.
 
 | Construction element | Local setup position |
 |---|---|
-| Active-set iteration loop | In scope for future implementation; algorithm details TBD. |
-| Support activation state model | In scope for future implementation; exact data contract TBD. |
-| Gap/lift-off/one-way state transitions | In scope for future implementation; rules must be evidence-backed and tested. |
+| Active-set iteration loop | Re-pointed by `DEC-044`: assembled loop ownership is `core/solver/nonlinear_integration`; this deliverable supplies the per-iteration classifier/state oracle. |
+| Support activation state model | In scope for this deliverable; exact downstream integration contract is owned by the integration tranche. |
+| Gap/lift-off/one-way state transitions | In scope for this deliverable; rules must be evidence-backed and tested. |
 | Friction behavior | In scope as a named behavior category; numerical model, defaults, and limits are TBD. |
 | Convergence reporting | Required output surface; result-envelope integration follows AB-00-03 and diagnostics follow AB-00-06. |
 | Convergence tests | Required anticipated artifact; deterministic verification follows OPS-K-SOLVER-1 and AB-00-08. |

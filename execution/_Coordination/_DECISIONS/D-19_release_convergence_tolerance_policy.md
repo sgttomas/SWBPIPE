@@ -1,10 +1,13 @@
 # D-19 — Release Convergence Tolerance Policy
 
-**Status:** AWAITING_RULING — packet drafted; the human project authority has not ruled. This packet is a `PROPOSAL`. It confers no authority, changes no lifecycle state, and creates no release, professional, certification, sealing, authentication, or code-compliance claim.
+**Status:** RULED - `DEC-046`, 2026-06-20. Human project authority selected
+Option B / CV-B. The preparation body remains a historical `PROPOSAL`; the
+accepted ruling is recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md`
+§12 and the decision register. Unmeasured convergence entries remain `TBD`.
 **Prepared:** 2026-06-18, decision-preparation subscope, per the Application Integration And Issuance Loop decision-escalation step. Surfaced by the R4/R5 scope research recorded in `plans/PLAN_2026-06-17_prd_completion.md` §2.3 row D-19.
 **Register row:** `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-19.
 **Plan basis:** `plans/PLAN_2026-06-17_prd_completion.md` §2.3 row D-19; Phase D rows D6 (`:590`) and D9 (`:593`).
-**Epistemic posture:** evidence below is `FACT` with citations (pinned at repo HEAD `1c27081c5`; symbol names are the durable anchors if line numbers drift); inferences are labeled `ASSUMPTION`; the recommendation is labeled `PROPOSAL`; unknowns stay `TBD`. This packet decides nothing.
+**Epistemic posture:** evidence below is `FACT` with citations (pinned at repo HEAD `1c27081c5`; symbol names are the durable anchors if line numbers drift); inferences are labeled `ASSUMPTION`; the recommendation is labeled `PROPOSAL`; unknowns stay `TBD`.
 
 ---
 
@@ -149,10 +152,22 @@ They are paired in D6 (which gates on both, `:590`) and should ideally be ruled 
 | **Solver diagnostics / harness** | `tolerance_policy_tbd_diagnostic` retires only for convergence surfaces whose class entries are ruled non-`TBD` (mirroring DEC-026's per-surface retirement); the `NonConvergence` taxonomy is unchanged. |
 | **R4 exit / RGAP-004** | "validation cases converge" (`docs/PRD.md:1236`) gains its governed criterion; RGAP-004's convergence thread closes alongside DEC-026's verification thread. |
 | **DEC-026 / D-16** | DEC-026 referenced, not modified; D-16 inherits the residual-definition and method questions D-19 defers to it (§3 Q1, §5.5). |
-| **Register row D-19** | `NOT_PREPARED` → `AWAITING_RULING` at fan-in (dispatching persona; not this packet). |
+| **Register row D-19** | `RULED` with pointer to `DEC-046`. |
 
 ---
 
 ## 7. Authority and ruling record
 
-Only the **human project authority** rules on D-19. Agents prepared this packet and may not certify, approve, or adopt it. Per existing decision practice (`DEC-018`..`DEC-040`), the accepted ruling is recorded as the next `DEC` entry (next available is **`DEC-041`**) in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 citing this packet; the dispatching persona then updates `execution/_Coordination/_DECISIONS/_REGISTER.md` row D-19 from `AWAITING_RULING` to `RULED` with the pointer. Any convergence value left `TBD` at ruling time remains `TBD` in code and diagnostics until a later governed record supplies it (the DEC-026 discipline). This packet does not edit the register and does not resolve the decision.
+The human project authority ruled D-19 on 2026-06-20: **Option B / CV-B**. This
+is recorded as `DEC-046` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12,
+and the decision register row is `RULED`.
+
+Accepted disposition: convergence tolerance is a governed record separate from
+DEC-024/DEC-026 verification tolerances, keyed by nonlinear support class, with
+relative residual tolerance, absolute residual floor, and max-iteration cap.
+Unmeasured class entries remain `TBD` and keep `TolerancePolicyTbd` active for
+affected surfaces until later evidence seeds them. Fixture-local overrides may
+only tighten; loosening a governed convergence value or raising an iteration cap
+is a new governance event. This ruling creates no nonlinear validation pass,
+R4 exit, release-quality performance claim, professional approval,
+certification, sealing, authentication, or code-compliance claim.

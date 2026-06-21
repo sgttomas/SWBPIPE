@@ -7,11 +7,16 @@
 **Type:** BACKEND_FEATURE_SLICE
 
 ## Description
-Implement iterative activation for one-way supports, gaps, lift-off, and friction with convergence reporting.
+Implement the per-iteration active-set classifier/state oracle for one-way
+supports, gaps, lift-off, and friction with convergence reporting. Per
+`DEC-044`, the assembled nonlinear loop that wraps frame assembly/solve around
+this classifier is owned by the PKG-04 integration tranche
+`core/solver/nonlinear_integration`.
 
 ## Anticipated Artifacts
-- nonlinear solver loop
-- convergence tests
+- active-set classifier/state oracle
+- report-facing active-set records
+- classifier and integration-facing convergence tests
 
 ## Scope Coverage
 - SOW-012

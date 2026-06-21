@@ -118,3 +118,18 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-21 - TP-R4-D6-LOOPCORE-001 ownership re-point
+
+- `DEC-044` re-pointed assembled nonlinear loop ownership to the PKG-04
+  integration tranche `core/solver/nonlinear_integration`, bridging DEL-04-04
+  and DEL-04-01.
+- DEL-04-04 remains the per-iteration active-set classifier/state oracle:
+  one-way, gap, lift-off/contact, and friction classification plus
+  report-facing active-set records and diagnostics.
+- Updated this deliverable's context, datasheet, and specification to remove
+  stale ownership language that made DEL-04-04 the owner of the assembled loop.
+- Boundaries preserved: no lifecycle transition, release-readiness claim,
+  professional approval, certification, sealing, authentication,
+  code-compliance claim, protected standards content, public defaults, or
+  private data was introduced.
