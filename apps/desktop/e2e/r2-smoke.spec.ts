@@ -50,6 +50,24 @@ async function ensureInspectorExpanded(page: Page): Promise<void> {
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
 }
 
+async function ensureCreationToolArmed(page: Page, testId: "command-node" | "command-pipe", label: string): Promise<void> {
+  const button = page.getByTestId(testId);
+  if ((await button.getAttribute("aria-pressed")) !== "true") {
+    await button.click();
+  }
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("armed-creation-tool")).toContainText(label);
+  await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/active/);
+}
+
+async function ensurePipeEndpointPick(page: Page, testId: "viewport-pick-pipe-from" | "viewport-pick-pipe-to"): Promise<void> {
+  const button = page.getByTestId(testId);
+  if ((await button.getAttribute("aria-pressed")) !== "true") {
+    await button.click();
+  }
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+}
+
 test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
   await page.goto("/");
 
@@ -377,6 +395,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
 
   const canvas = page.locator(".viewport-canvas canvas");
   await expect(canvas).toBeVisible();
+  await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
     "browser preview uses model metadata"
   );
@@ -384,12 +404,6 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-create-node-unit-basis")).toContainText(
     "Coordinates: m, model metadata"
   );
-  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveValue("m");
-  await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
-    "Pipe geometry: m, model metadata"
-  );
-  await page.getByTestId("command-node").click();
-  await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
   await canvas.click({ position: { x: 64, y: 64 } });
   await expect(page.getByTestId("viewport-create-node-id")).toHaveValue("node:V-001");
   await expect(page.getByTestId("viewport-create-node-label")).toHaveValue("Viewport node V-001");
@@ -398,8 +412,13 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-create-node-z")).toHaveValue(/^-?\d/);
   await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
 
-  await page.getByTestId("viewport-pick-pipe-from").click();
-  await expect(page.getByTestId("viewport-pick-pipe-from")).toHaveAttribute("aria-pressed", "true");
+  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
+  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
+    "Pipe geometry: m, model metadata"
+  );
+
+  await ensurePipeEndpointPick(page, "viewport-pick-pipe-from");
   await page.getByTestId("viewport-select-node:N-100").click();
   await expect(page.getByTestId("viewport-create-pipe-from")).toHaveValue("node:N-100");
   await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
@@ -698,6 +717,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   // node intent through the structured-operation seam in a real browser and
   // verify the honest wasm-engine route on the applied receipt. Runs last:
   // applying clears earlier solve results by design.
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await page.getByTestId("queue-explicit-node-intent").click();
   await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
@@ -759,13 +779,12 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
 
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
-  await page.getByTestId("command-node").click();
-  await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
   await expect(page.getByTestId("local-project-review-context")).toContainText("0 pending operations");
   await page.getByTestId("queue-armed-creation-intent").click();
-  await page.getByTestId("command-pipe").click();
-  await expect(page.getByTestId("armed-creation-tool")).toContainText("Pipe tool armed");
+  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
   await page.getByTestId("command-component").click();
   await expect(page.getByTestId("armed-creation-tool")).toContainText("Component tool armed");
@@ -839,6 +858,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await applyQueuedIntent(page, 4, section.id);
 
   const pipe = stepPayload("connect_pipe_run", "pipe:R2-100");
+  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
   await page.getByTestId("viewport-create-pipe-id").fill(pipe.id);
   await page.getByTestId("viewport-create-pipe-label").fill(pipe.label);
   await page.getByTestId("viewport-create-pipe-from").selectOption(pipe.from);
@@ -1513,6 +1533,7 @@ function stepPayload(changeKind: string, ref: string): any {
 }
 
 async function fillNodeDraft(page: Page, payload: any): Promise<void> {
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
   await page.getByTestId("viewport-create-node-id").fill(payload.id);
   await page.getByTestId("viewport-create-node-label").fill(payload.label);
   await page.getByTestId("viewport-create-node-x").fill(String(payload.position.x));

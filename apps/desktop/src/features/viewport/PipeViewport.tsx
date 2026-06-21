@@ -448,6 +448,10 @@ export function PipeViewport({
     }
   }
 
+  const nodeToolActive = armedCreationTool === "node";
+  const pipeToolActive = armedCreationTool === "pipe";
+  const viewportIntentPanelActive = nodeToolActive || pipeToolActive || visibleIntents.length > 0;
+
   return (
     <div className="viewport-shell">
       <div className="viewport-toolbar">
@@ -622,9 +626,13 @@ export function PipeViewport({
           Drag to orbit · scroll to zoom · right-drag to pan
         </span>
       </section>
-      <section className="viewport-intents" aria-label="Viewport editor intents">
+      <section
+        className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
+        aria-label="Viewport editor intents"
+        data-testid="viewport-editor-intents"
+      >
         <div className="viewport-intent-controls">
-          <div className="viewport-node-form" aria-label="Explicit node geometry">
+          <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
             <label>
               <span>Node ID</span>
               <input
@@ -705,7 +713,10 @@ export function PipeViewport({
               Queue node
             </button>
           </div>
-          <div className="viewport-pipe-form" aria-label="Explicit straight pipe connectivity">
+          <div
+            className={`viewport-pipe-form${pipeToolActive ? " active" : ""}`}
+            aria-label="Explicit straight pipe connectivity"
+          >
             <label>
               <span>Pipe ID</span>
               <input
@@ -938,7 +949,7 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
   if (tool === "support") return "Support tool armed: select a node, then complete Create support in the Inspector.";
   if (tool === "component") return "Component tool armed: queue a review-only component-symbol preview intent.";
   if (tool === "load") return "Load tool armed: use the Load Cases panel to create load cases and primitive loads.";
-  return "No creation tool armed.";
+  return "Model focus";
 }
 
 function applyViewPreset(camera: THREE.PerspectiveCamera, preset: ViewPreset) {

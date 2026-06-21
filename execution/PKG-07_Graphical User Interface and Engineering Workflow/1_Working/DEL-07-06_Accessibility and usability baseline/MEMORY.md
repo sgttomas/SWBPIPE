@@ -464,3 +464,25 @@ successor journey evidence. Next unblocked C5 tranche is
 - Residual: F-4 and A3 remain open under `DEC-035` vocabulary until the human
   accepts a replacement C5.7 closure criterion or records a new gate. TP-MAC-189
   is bypassed, not passed.
+
+## 2026-06-20 - TP-R3UX-PRIMARYCANVAS-001 contextual authoring drawer
+
+- Followed the human screenshot feedback that the agent-first shell is a step
+  in the right direction but still carries old manual data-entry clutter.
+- The viewport editor-intents drawer is now visually collapsed by default; idle
+  primary screen shows the 3D canvas plus agent panel without Node/Pipe forms.
+  Arming Node reveals only the node geometry form. Arming Pipe reveals only the
+  pipe connectivity form. Existing review/apply operation contracts are
+  unchanged.
+- Evidence:
+  `_run_records/WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-PRIMARYCANVAS-001.md`;
+  `apps/desktop/SMOKE.md` TP-MAC-277; visual captures and probe under
+  `_run_records/assets/TP-R3UX-PRIMARYCANVAS-001_*`.
+- Validation passed: focused App Vitest 57/57; focused Playwright 8/8; full
+  desktop Vitest 19 files / 406 tests; desktop build; desktop Playwright 18/18;
+  dist Playwright 1/1; Tauri `.app` build; 8-second packaged boot probe clean.
+- Boundary preserved: viewport presentation/contextual drawer/tests/evidence
+  only. No live agent runtime, external SDK/harness, autonomous mutation,
+  schema, solver, evaluator, persistence, protected content, private data,
+  network/telemetry, lifecycle, release-readiness, professional approval,
+  certification, sealing, authentication, or code-compliance claim changed.

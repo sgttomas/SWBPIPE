@@ -9348,3 +9348,52 @@ notes:
   write path, network/telemetry feature, lifecycle transition, R3 exit review,
   release-readiness claim, professional approval, certification, sealing,
   authentication, or code-compliance claim changed.
+
+## TP-MAC-277 primary canvas contextual authoring drawer - PASSED (`TP-R3UX-PRIMARYCANVAS-001`, 2026-06-20)
+
+- Scope: follow-up to the 2026-06-20 human screenshot feedback that the
+  agent-first shell was a step in the right direction but still showed too
+  much manual data-entry chrome on the primary screen. This tranche removes
+  idle Node/Pipe forms from the viewport and makes them contextual to the
+  active creation tool.
+- App behavior: `Viewport editor intents` is visually collapsed by default when
+  no Node/Pipe tool is active and no viewport intents are queued. Arming Node
+  reveals only the explicit node geometry drawer. Arming Pipe reveals only the
+  straight-pipe connectivity drawer. Component preview, Support, and Load
+  continue through their existing review-only/structured surfaces.
+- Layout evidence: visual probe assets are stored under DEL-07-06
+  `_run_records/assets/`:
+  `TP-R3UX-PRIMARYCANVAS-001_2048x1200_idle.png`,
+  `TP-R3UX-PRIMARYCANVAS-001_2048x1200_node_armed.png`, and
+  `TP-R3UX-PRIMARYCANVAS-001_probe.json`. The probe recorded idle
+  `viewport-intents collapsed`, node/pipe forms hidden, no horizontal overflow,
+  and a 1592x854 canvas at 2048x1200; after arming Node, only the node form was
+  visible.
+- Validation:
+  - `npm test --workspace apps/desktop -- App.test.tsx` passed 57/57 tests.
+  - Focused Playwright over shell, broad preview smoke, viewport gesture, and
+    from-blank journeys passed 8/8 after one stale endpoint-pick smoke
+    assumption was corrected.
+  - `npm test --workspace apps/desktop` passed 19/19 test files and 406/406
+    tests.
+  - `npm run build --workspace apps/desktop` passed, retaining the existing
+    Vite chunk-size warning.
+  - `PLAYWRIGHT_WORKERS=1 npm run test:e2e --workspace apps/desktop` passed
+    18/18 Playwright checks across desktop and compact Chromium projects.
+  - `npm run test:e2e:dist --workspace apps/desktop` passed 1/1 production
+    dist smoke check.
+  - `cd apps/desktop && npm run tauri -- build --bundles app` passed,
+    regenerating the WASM operation engine and producing:
+    `apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app`.
+- Boot probe: launched the bundled executable for 8 seconds, observed it still
+  running, recorded `stdout_bytes=0` and `stderr_bytes=0`, and terminated it.
+- Evidence: DEL-07-06 run record
+  `WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-PRIMARYCANVAS-001.md`.
+- Boundary: viewport presentation/contextual drawer/tests/evidence only. No
+  live embedded-agent runtime, external SDK/harness consumption, autonomous
+  accepted model-state mutation, backend operation kind, solver change, schema
+  change, evaluator grammar change, persistence contract change,
+  protected-content source, private-data write path, network/telemetry feature,
+  lifecycle transition, R3 exit review, release-readiness claim, professional
+  approval, certification, sealing, authentication, or code-compliance claim
+  changed.

@@ -1544,6 +1544,10 @@ button:focus-visible {
   background: #fbfcfa;
 }
 
+.viewport-intents.collapsed {
+  display: none;
+}
+
 .viewport-intent-controls,
 .viewport-intent-actions {
   display: flex;
@@ -1557,6 +1561,11 @@ button:focus-visible {
   display: grid;
   gap: 7px;
   width: 100%;
+}
+
+.viewport-node-form:not(.active),
+.viewport-pipe-form:not(.active) {
+  display: none;
 }
 
 .viewport-node-form {

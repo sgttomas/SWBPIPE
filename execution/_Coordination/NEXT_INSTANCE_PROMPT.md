@@ -73,13 +73,16 @@
      (`TP-R3UX-VIEWPORT-001`), menu-bar IA (`TP-R3UX-CADSHELL-001`),
      collapsible rails (`TP-R3UX-CADSHELL-002`), object-creation toolbar
      (`TP-R3UX-CREATIONTOOLS-001`, TP-MAC-275), and the local agent workbench
-     (`TP-R3UX-AGENTSHELL-001`, TP-MAC-276). The 2026-06-20 human redirect
-     explicitly bypassed the stale TP-MAC-189 re-pass path instead of passing
-     it: the primary screen must be a 3D model / visual-interaction surface
-     with an agent panel, not a heavily user-laden workflow/data-entry screen.
-     F-4/A3 remain open under `DEC-035` vocabulary until the human accepts a
-     replacement C5.7 closure criterion or records a new gate; C5.8 should not
-     begin until that replacement human closure exists. Honor the scope
+     (`TP-R3UX-AGENTSHELL-001`, TP-MAC-276), followed by primary-canvas
+     declutter that collapses the idle Node/Pipe authoring drawer until a
+     creation tool is armed (`TP-R3UX-PRIMARYCANVAS-001`, TP-MAC-277). The
+     2026-06-20 human redirect explicitly bypassed the stale TP-MAC-189 re-pass
+     path instead of passing it: the primary screen must be a 3D model /
+     visual-interaction surface with an agent panel, not a heavily user-laden
+     workflow/data-entry screen. F-4/A3 remain open under `DEC-035` vocabulary
+     until the human accepts a replacement C5.7 closure criterion or records a
+     new gate; C5.8 should not begin until that replacement human closure
+     exists. Honor the scope
      boundaries: agent panel is local deterministic review-only (`DEC-042`);
      no live external SDK/harness or `D-21` promotion; `DEC-037` structured
      rule composer/no writable text; dual units display-only; no new engine

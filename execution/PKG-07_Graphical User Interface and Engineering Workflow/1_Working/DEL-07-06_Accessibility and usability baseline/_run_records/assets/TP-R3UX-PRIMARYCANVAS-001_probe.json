@@ -1,0 +1,55 @@
+{
+  "tranche_id": "TP-R3UX-PRIMARYCANVAS-001",
+  "smoke_id": "TP-MAC-277",
+  "date": "2026-06-20",
+  "dev_server_url": "http://127.0.0.1:5174/",
+  "viewport": {
+    "width": 2048,
+    "height": 1200
+  },
+  "idle_state": {
+    "viewport_editor_intents_class": "viewport-intents collapsed",
+    "viewport_editor_intents_visible": false,
+    "node_form_visible": false,
+    "pipe_form_visible": false,
+    "canvas": {
+      "x": 53,
+      "y": 193,
+      "width": 1592,
+      "height": 854,
+      "bottom": 1047
+    },
+    "viewport_frame": {
+      "x": 53,
+      "y": 193,
+      "width": 1592,
+      "height": 854,
+      "bottom": 1047
+    },
+    "modeling_workspace": {
+      "x": 8,
+      "y": 143,
+      "width": 2032,
+      "height": 953,
+      "bottom": 1096
+    },
+    "horizontal_overflow": false
+  },
+  "node_armed_state": {
+    "viewport_editor_intents_class": "viewport-intents active",
+    "viewport_editor_intents_visible": true,
+    "node_form_visible": true,
+    "pipe_form_visible": false,
+    "armed_creation_text": "Node tool armed: click empty canvas to fill coordinates, then queue node."
+  },
+  "boundary": {
+    "accepted_model_state_mutated": false,
+    "operation_contract_changed": false,
+    "solver_changed": false,
+    "schema_changed": false,
+    "protected_content_added": false,
+    "private_data_added": false,
+    "network_or_telemetry_added": false,
+    "release_or_professional_claim_added": false
+  }
+}

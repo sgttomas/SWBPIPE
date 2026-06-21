@@ -14,6 +14,44 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-20 - Primary canvas contextual authoring drawer (`TP-R3UX-PRIMARYCANVAS-001`)
+
+Landed the next human-feedback pass after `TP-R3UX-AGENTSHELL-001`. The
+2026-06-20 screenshot was accepted as a step in the right direction, but the
+primary screen still showed idle Node/Pipe data-entry forms under the canvas.
+This tranche collapses the viewport editor-intents drawer by default and makes
+manual Node/Pipe forms contextual to the active creation tool.
+
+Idle primary-screen behavior now keeps the 3D canvas and agent panel dominant:
+`Viewport editor intents` is visually collapsed when no Node/Pipe tool is
+active and no viewport intents are queued. Arming Node reveals only the node
+geometry form; arming Pipe reveals only the pipe connectivity form. Existing
+review/apply and operation-intent contracts are unchanged.
+
+Validation: focused App Vitest 57/57; focused Playwright 8/8 after correcting
+one stale endpoint-pick smoke assumption; full desktop Vitest 19 files / 406
+tests; desktop build green with the existing Vite large-chunk warning; desktop
+Playwright 18/18; dist Playwright 1/1; `npm run tauri -- build --bundles app`;
+packaged boot probe alive for 8 seconds with `stdout_bytes=0`,
+`stderr_bytes=0`.
+
+Evidence: `apps/desktop/SMOKE.md` TP-MAC-277; DEL-07-06 run record
+`WORKING_ITEMS_RUN_2026-06-20_TP-R3UX-PRIMARYCANVAS-001.md`; visual
+probe/assets under DEL-07-06 `_run_records/assets/TP-R3UX-PRIMARYCANVAS-001_*`.
+
+Residuals: continue only with human-directed C5 replacement-criterion work.
+F-4/A3 remain open under the prior `DEC-035` vocabulary until the human accepts
+a replacement C5.7 closure criterion or records a new gate.
+
+Boundary: viewport presentation/contextual drawer/tests/package evidence only.
+No live embedded-agent runtime, external SDK/harness consumption, autonomous
+accepted model-state mutation, backend operation kind, solver, schema,
+evaluator, persistence, unit storage, protected-content, private-data,
+network/telemetry, lifecycle, release-readiness, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-20 - C5.7 human bypass and agent-first viewport shell (`TP-R3UX-AGENTSHELL-001`)
 
 Recorded the human-directed bypass of the pending C5.7 packaged re-pass and
