@@ -133,3 +133,20 @@ Durable context preserved after PKG-02 grounded finding resolution:
   professional approval, certification, sealing, authentication,
   code-compliance claim, protected standards content, public defaults, or
   private data was introduced.
+
+## 2026-06-21 - TP-R4-D9-FRICTIONSLIDE-001 friction sliding anti-chatter
+
+- Added a deterministic active-set iteration rule for friction supports:
+  when a support was already `Sliding`, and the released DOF still has nonzero
+  trial displacement, the iteration keeps the support in `Sliding` rather than
+  chattering back to `Sticking` solely because the released reaction is zero.
+- Direct per-state classification remains unchanged; the persistence rule is
+  scoped to iteration evaluation and documented in report assumptions.
+- Added focused crate coverage in `core/solver/nonlinear_supports` and
+  assembled-loop coverage in `core/solver/nonlinear_integration`.
+- Evidence is recorded in the PKG-04 run record
+  `../_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FRICTIONSLIDE-001.md`.
+- Boundaries preserved: explicit invented normal input only; no derived
+  normal-force model, sparse live-path binding, measured convergence values,
+  lifecycle transition, release-readiness claim, professional approval,
+  certification, sealing, authentication, or code-compliance claim.

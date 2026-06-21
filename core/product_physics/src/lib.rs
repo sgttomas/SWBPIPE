@@ -4670,6 +4670,11 @@ mod tests {
         assert!(result_ids.contains("result:nonlinear-support:support-NL-140:state-code"));
         assert!(result_ids.contains("result:nonlinear-support:support-NL-140:uy-displacement"));
         assert!(result_ids.contains("result:nonlinear-support:support-NL-140:uy-reaction"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-130-FRIC:state-code"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-130-FRIC:uz-displacement"));
+        assert!(result_ids.contains("result:nonlinear-support:support-NL-130-FRIC:uz-reaction"));
+        assert!(result_ids
+            .contains("result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"));
         assert!(result_ids
             .contains("result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction"));
         assert!(result_ids.contains(
@@ -4677,7 +4682,7 @@ mod tests {
         ));
         assert_eq!(
             result_value(&result, "result:nonlinear-support:iteration-count"),
-            1.0
+            2.0
         );
         assert_eq!(
             result_value(&result, "result:nonlinear-support:final-residual-count"),
@@ -4706,6 +4711,34 @@ mod tests {
                 &result,
                 "result:nonlinear-support:support-NL-140:uy-reaction"
             ) < 0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-130-FRIC:state-code"
+            ),
+            3.0
+        );
+        assert_ne!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-130-FRIC:uz-displacement"
+            ),
+            0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-130-FRIC:uz-reaction"
+            ),
+            0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction"
+            ),
+            10.0
         );
         assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
         assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
@@ -4884,6 +4917,87 @@ mod tests {
             .diagnostics
             .iter()
             .any(|item| item.code == "NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+    }
+
+    fn friction_sliding_preview_request() -> LinearStaticPreviewRequest {
+        two_node_nonlinear_preview_request(
+            "support:NL-FRIC-SLIDE-110",
+            NonlinearSupportInput {
+                behavior: "friction".to_string(),
+                dof: "UX".to_string(),
+                initial_state: Some("sticking".to_string()),
+                active_when: None,
+                contact_when: None,
+                closes_when: None,
+                gap: None,
+                friction_coefficient: Some(Quantity {
+                    value: 0.30,
+                    unit: "none".to_string(),
+                }),
+                normal_reaction: Some(Quantity {
+                    value: 10.0,
+                    unit: "N".to_string(),
+                }),
+            },
+            "load:L-FRICTION-SLIDE",
+            10.0,
+            "combination:C-FRICTION-SLIDE",
+        )
+    }
+
+    #[test]
+    fn friction_preview_slides_and_converges_with_explicit_normal_evidence() {
+        let result = run_linear_static_preview(friction_sliding_preview_request());
+        let diagnostic_codes = result
+            .diagnostics
+            .iter()
+            .map(|item| item.code.as_str())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:iteration-count"),
+            2.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:final-residual-count"),
+            0.0
+        );
+        assert_eq!(
+            result_value(&result, "result:nonlinear-support:converged-flag"),
+            1.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-SLIDE-110:state-code"
+            ),
+            3.0
+        );
+        assert!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-SLIDE-110:ux-displacement"
+            ) > 0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-SLIDE-110:ux-reaction"
+            ),
+            0.0
+        );
+        assert_eq!(
+            result_value(
+                &result,
+                "result:nonlinear-support:support-NL-FRIC-SLIDE-110:friction-normal-reaction"
+            ),
+            10.0
+        );
+        assert!(diagnostic_codes.contains("TOLERANCE_POLICY_TBD"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_STATE_REVIEW"));
+        assert!(diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_CONVERGED"));
+        assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
     }
 
     fn gap_closure_preview_request() -> LinearStaticPreviewRequest {

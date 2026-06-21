@@ -249,6 +249,7 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
         "The first assembled-loop residual is the nonlinear-support classifier state-change count; force/displacement residual norms remain future D6/D9 evidence work.".to_string(),
         "Friction support normal reaction facts must be supplied explicitly until a governed normal/tangential support model is integrated.".to_string(),
+        "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
     ]
 }
 
@@ -701,6 +702,43 @@ mod tests {
         );
         assert_eq!(result.displacements[node_dof_index(1, FrameDof::Ux)], 0.0);
         assert_eq!(result.reactions[node_dof_index(1, FrameDof::Ux)], -10.0);
+    }
+
+    #[test]
+    fn friction_support_slides_then_converges_through_released_frame_loop() {
+        let support_id = "NL-FRICTION-SLIDE";
+        let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+        let mut input = two_node_axial_problem(
+            vec![support],
+            vec![SupportStateRecord::new(
+                support_id,
+                ActiveSetState::Sticking,
+            )],
+            4,
+        );
+        input.friction_normal_reactions =
+            vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
+
+        let result = solve_active_set_frame(&input).unwrap();
+
+        assert!(result.converged);
+        assert!(!result.is_blocked());
+        assert_eq!(result.iterations.len(), 2);
+        assert_eq!(
+            result.iterations[0].active_set.states,
+            vec![SupportStateRecord::new(support_id, ActiveSetState::Sliding)]
+        );
+        assert_eq!(
+            result.final_states,
+            vec![SupportStateRecord::new(support_id, ActiveSetState::Sliding)]
+        );
+        assert!(result.displacements[node_dof_index(1, FrameDof::Ux)] > 0.0);
+        assert!(!result
+            .iterations
+            .last()
+            .unwrap()
+            .active_restrained_dofs
+            .contains(&node_dof_index(1, FrameDof::Ux)));
     }
 
     #[test]

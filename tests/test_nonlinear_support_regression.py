@@ -34,6 +34,7 @@ REQUIRED_ASSEMBLED_FIXTURE_NOTES = {
     "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL": "assembled_gap_closure.md",
     "NL-ASSEMBLED-LIFT-OFF-ORIGINAL": "assembled_lift_off.md",
     "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL": "assembled_friction_sticking.md",
+    "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL": "assembled_friction_sliding.md",
 }
 
 REQUIRED_UNIT_BASIS_LINES = {

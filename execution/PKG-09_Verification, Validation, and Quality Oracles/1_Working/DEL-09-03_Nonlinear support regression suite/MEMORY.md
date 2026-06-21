@@ -118,6 +118,23 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - No lifecycle, review-disposition, release, acceptance, protected-content,
   private-data, professional-approval, or code-compliance surface was changed.
 
+## 2026-06-21 - TP-R4-D9-FRICTIONSLIDE-001 assembled sliding friction
+
+- Added `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` to the nonlinear benchmark
+  inventory with explicit invented normal-reaction input, final `Sliding`
+  state, zero released reaction, and visible `TOLERANCE_POLICY_TBD`.
+- Added `validation/hand_calcs/nonlinear/assembled_friction_sliding.md` and
+  wired the focused nonlinear pytest requirement to that note.
+- Product-preview evidence now includes invented support `support:NL-130-FRIC`
+  and result-envelope rows for sliding state code, displacement, released
+  reaction, and explicit normal reaction evidence.
+- Evidence is recorded in
+  `_run_records/WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FRICTIONSLIDE-001.md`.
+- Residuals remain: derived friction normal-force modeling, measured governed
+  convergence values, sparse live-path adoption, broader live-solver coverage,
+  the PRD section 16.2 branch-assembly benchmark, and the R4 exit evidence
+  package.
+
 ## 2026-06-06 - TP-PKG09-READINESS-GATE Review
 
 - Appended a `SELF_CHECK` readiness-gate section to `_REVIEW.md` and recorded

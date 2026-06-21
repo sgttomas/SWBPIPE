@@ -65,7 +65,7 @@ describe("previewService mechanics browser fallback", () => {
       ),
     ).toMatchObject({
       kind: "nonlinear_support_active_set_iteration_count",
-      value: 1,
+      value: 2,
       unit: "count",
     });
     expect(
@@ -78,6 +78,50 @@ describe("previewService mechanics browser fallback", () => {
       entity_ref: "support:NL-140",
       unit: "N",
     });
+    expect(
+      result.results.find(
+        (item) =>
+          item.id ===
+          "result:nonlinear-support:support-NL-130-FRIC:state-code",
+      ),
+    ).toMatchObject({
+      kind: "nonlinear_support_active_set_state_code",
+      entity_ref: "support:NL-130-FRIC",
+      value: 3,
+    });
+    expect(
+      result.results.find(
+        (item) =>
+          item.id ===
+          "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+      ),
+    ).toMatchObject({
+      kind: "nonlinear_support_final_reaction",
+      entity_ref: "support:NL-130-FRIC",
+      unit: "N",
+      value: 0,
+    });
+    expect(
+      result.results.find(
+        (item) =>
+          item.id ===
+          "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+      ),
+    ).toMatchObject({
+      kind: "nonlinear_support_friction_normal_reaction_input",
+      entity_ref: "support:NL-130-FRIC",
+      value: 10,
+      unit: "N",
+    });
+    expect(
+      result.results
+        .find(
+          (item) =>
+            item.id ===
+            "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+        )
+        ?.metadata?.basis,
+    ).toContain("derived_normal_force_model=TBD");
     expect(
       result.diagnostics.some((item) => item.code === "TOLERANCE_POLICY_TBD"),
     ).toBe(true);

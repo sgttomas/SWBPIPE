@@ -11,7 +11,7 @@
   "summary": {
     "node_count": 5,
     "segment_count": 4,
-    "support_count": 4,
+    "support_count": 5,
     "load_case_count": 2,
     "component_stress_modifier_count": 8,
     "component_user_stiffness_macro_element_count": 4,
@@ -669,9 +669,20 @@
       }
     },
     {
+      "id": "result:reaction:support-NL-130-FRIC",
+      "kind": "reaction_resultant",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      }
+    },
+    {
       "id": "result:nonlinear-support:iteration-count",
       "kind": "nonlinear_support_active_set_iteration_count",
-      "value": 1.0,
+      "value": 2.0,
       "unit": "count",
       "entity_ref": "nonlinear_supports",
       "basis_ref": {
@@ -682,7 +693,7 @@
         "component": "active_set_iteration_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=1",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=2",
         "sign_convention": "counts completed dense active-set linearization iterations"
       }
     },
@@ -720,6 +731,78 @@
         "location": "load_case",
         "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD",
         "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+      "kind": "nonlinear_support_friction_normal_reaction_input",
+      "value": 10.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "friction_normal_reaction_input",
+        "coordinate_system": "solver_iteration",
+        "location": "normal",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; explicit_user_entered_normal_reaction; derived_normal_force_model=TBD",
+        "sign_convention": "positive value is an explicit contact normal reaction supplied by the user or caller"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-130-FRIC:state-code",
+      "kind": "nonlinear_support_active_set_state_code",
+      "value": 3.0,
+      "unit": "state_code",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "active_set_state_code",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-130-FRIC:uz-displacement",
+      "kind": "nonlinear_support_final_displacement",
+      "value": -23.953059,
+      "unit": "mm",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "sign_convention": "positive value follows the global frame DOF sign convention"
+      }
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
     {
@@ -5250,9 +5333,20 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:reaction:support-NL-130-FRIC",
+      "kind": "reaction_resultant",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:nonlinear-support:iteration-count",
       "kind": "nonlinear_support_active_set_iteration_count",
-      "value": 1.0,
+      "value": 2.0,
       "unit": "count",
       "entity_ref": "nonlinear_supports",
       "basis_ref": {
@@ -5263,7 +5357,7 @@
         "component": "active_set_iteration_count",
         "coordinate_system": "solver_iteration",
         "location": "load_case",
-        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=1",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD; support_count=2",
         "sign_convention": "counts completed dense active-set linearization iterations"
       }
     },
@@ -5301,6 +5395,78 @@
         "location": "load_case",
         "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; policy_status=TBD",
         "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+      "kind": "nonlinear_support_friction_normal_reaction_input",
+      "value": 10.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "friction_normal_reaction_input",
+        "coordinate_system": "solver_iteration",
+        "location": "normal",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; explicit_user_entered_normal_reaction; derived_normal_force_model=TBD",
+        "sign_convention": "positive value is an explicit contact normal reaction supplied by the user or caller"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:state-code",
+      "kind": "nonlinear_support_active_set_state_code",
+      "value": 3.0,
+      "unit": "state_code",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "active_set_state_code",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "sign_convention": "0=inactive, 1=active, 2=sticking, 3=sliding"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:uz-displacement",
+      "kind": "nonlinear_support_final_displacement",
+      "value": -11.97653,
+      "unit": "mm",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "sign_convention": "positive value follows the global frame DOF sign convention"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "dense_active_set_loop; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD; final_state=sliding",
+        "sign_convention": "positive value follows the global frame DOF reaction sign convention"
       }
     },
     {
@@ -12567,6 +12733,50 @@
       }
     },
     {
+      "id": "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-130-FRIC:uz-displacement",
+      "kind": "nonlinear_support_final_displacement",
+      "value": -29.941324,
+      "unit": "mm",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:nonlinear-support:support-NL-130-FRIC:uz-displacement",
+        "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:uz-displacement"
+      ],
+      "metadata": {
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+        "result:loadcase:load-L-200:nonlinear-support:support-NL-130-FRIC:uz-reaction"
+      ],
+      "metadata": {
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "uz",
+        "basis": "explicit_user_linear_combination",
+        "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+      }
+    },
+    {
       "id": "result:combination:combination-C-OPER-ALT:nonlinear-support:support-NL-140:uy-displacement",
       "kind": "nonlinear_support_final_displacement",
       "value": 0.0,
@@ -12609,6 +12819,21 @@
         "basis": "explicit_user_linear_combination",
         "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
       }
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:reaction:support-NL-130-FRIC",
+      "kind": "reaction_resultant",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "support:NL-130-FRIC",
+      "basis_ref": {
+        "ref_type": "combination",
+        "ref_id": "combination:C-OPER-ALT"
+      },
+      "source_result_refs": [
+        "result:reaction:support-NL-130-FRIC",
+        "result:loadcase:load-L-200:reaction:support-NL-130-FRIC"
+      ]
     },
     {
       "id": "result:combination:combination-C-OPER-ALT:reaction:support-NL-140",
@@ -14718,6 +14943,17 @@
       ]
     },
     {
+      "id": "diagnostic:nonlinear:load-L-100:support-NL-130-FRIC:state",
+      "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+      "severity": "info",
+      "message": "nonlinear support support:NL-130-FRIC ended in sliding state for load case load:L-100; dense preview loop evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:NL-130-FRIC",
+        "load:L-100"
+      ]
+    },
+    {
       "id": "diagnostic:nonlinear:load-L-100:support-NL-140:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
@@ -14732,7 +14968,7 @@
       "id": "diagnostic:nonlinear:load-L-100:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "message": "dense nonlinear support active-set preview completed 2 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-100",
@@ -14803,6 +15039,17 @@
       ]
     },
     {
+      "id": "diagnostic:nonlinear:load-L-200:support-NL-130-FRIC:state",
+      "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+      "severity": "info",
+      "message": "nonlinear support support:NL-130-FRIC ended in sliding state for load case load:L-200; dense preview loop evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:NL-130-FRIC",
+        "load:L-200"
+      ]
+    },
+    {
       "id": "diagnostic:nonlinear:load-L-200:support-NL-140:state",
       "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
       "severity": "info",
@@ -14817,7 +15064,7 @@
       "id": "diagnostic:nonlinear:load-L-200:loop",
       "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
       "severity": "info",
-      "message": "dense nonlinear support active-set preview completed 1 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
+      "message": "dense nonlinear support active-set preview completed 2 iteration(s); final residual count 0; policy_ref=DEC-046-CV-B-preview-active-set-count-TBD remains release-TBD",
       "source": "core/product_physics",
       "affected_refs": [
         "load:L-200",
@@ -14910,6 +15157,18 @@
         "combination:C-OPER-ALT",
         "result:nonlinear-support:iteration-count",
         "result:nonlinear-support:iteration-count"
+      ]
+    },
+    {
+      "id": "diagnostic:combination:combination-C-OPER-ALT:result-nonlinear-support-support-NL-130-FRIC-state-code:LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "code": "LOAD_COMBINATION_RESULT_DIMENSION_UNSUPPORTED",
+      "severity": "warning",
+      "message": "result row unit is not supported for TP-MAC-08 scalar load-combination algebra",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "combination:C-OPER-ALT",
+        "result:nonlinear-support:support-NL-130-FRIC:state-code",
+        "result:nonlinear-support:support-NL-130-FRIC:state-code"
       ]
     },
     {

@@ -343,6 +343,7 @@ pub fn assembled_fixture_inventory() -> Vec<AssembledNonlinearRegressionCase> {
         assembled_gap_closure_fixture(),
         assembled_lift_off_loss_fixture(),
         assembled_friction_sticking_fixture(),
+        assembled_friction_sliding_fixture(),
     ]
 }
 
@@ -672,6 +673,88 @@ pub fn assembled_friction_sticking_fixture() -> AssembledNonlinearRegressionCase
             DimensionedObservation {
                 name: "iteration_count",
                 value: 1.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "final_residual",
+                value: 0.0,
+                unit: "count",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+        ],
+    }
+}
+
+pub fn assembled_friction_sliding_fixture() -> AssembledNonlinearRegressionCase {
+    let support_id = "NL-ASSEMBLED-FRICTION-SLIDE-A";
+    let support = NonlinearSupport::friction(support_id, 1, FrameDof::Ux, 0.30).unwrap();
+    let mut input = assembled_axial_input(
+        vec![support],
+        vec![SupportStateRecord::new(
+            support_id,
+            ActiveSetState::Sticking,
+        )],
+        4,
+    );
+    input.friction_normal_reactions = vec![FrictionNormalReaction::new(support_id, 10.0).unwrap()];
+
+    AssembledNonlinearRegressionCase {
+        fixture_id: "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+        family: NonlinearRegressionFamily::Friction,
+        description:
+            "Invented assembled frame solve releases a friction support to sliding with explicit normal evidence.",
+        assumptions: &[
+            "The normal reaction is explicit invented input evidence, not a derived normal-force model.",
+            "The first sticking trial reaction exceeds the invented friction limit, then the released DOF keeps sliding while displacement persists.",
+        ],
+        provenance: BenchmarkProvenance::public_original(
+            "validation/hand_calcs/nonlinear/assembled_friction_sliding.md",
+        ),
+        unit_basis: NONLINEAR_FIXTURE_UNIT_BASIS,
+        input,
+        expected_final_states: vec![ExpectedState {
+            support_id,
+            state: ActiveSetState::Sliding,
+        }],
+        expected_iteration_count: 2,
+        expected_final_residual_norm: 0.0,
+        expected_converged: true,
+        expected_diagnostic_codes: vec![SolverDiagnosticCode::TolerancePolicyTbd],
+        observations: vec![
+            DimensionedObservation {
+                name: "friction_coefficient",
+                value: 0.30,
+                unit: "ratio",
+                dimension: "dimensionless",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "explicit_normal_reaction",
+                value: 10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "first_trial_tangential_reaction",
+                value: -10.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "friction_limit",
+                value: 3.0,
+                unit: "N",
+                dimension: "force",
+                tolerance_policy: None,
+            },
+            DimensionedObservation {
+                name: "iteration_count",
+                value: 2.0,
                 unit: "count",
                 dimension: "dimensionless",
                 tolerance_policy: None,
@@ -1053,7 +1136,7 @@ mod tests {
         let fixtures = assembled_fixture_inventory();
 
         assert!(missing_required_assembled_families(&fixtures).is_empty());
-        assert_eq!(fixtures.len(), 4);
+        assert_eq!(fixtures.len(), 5);
     }
 
     #[test]

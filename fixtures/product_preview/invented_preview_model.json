@@ -101,6 +101,21 @@
         "active_when": "negative_reaction"
       },
       "provenance": "invented_example_user_entered_nonlinear_support_no_catalog"
+    },
+    {
+      "id": "support:NL-130-FRIC",
+      "label": "Preview sliding-friction rack shoe",
+      "node": "node:N-130",
+      "family": "nonlinear",
+      "restraints": [],
+      "nonlinear": {
+        "behavior": "friction",
+        "dof": "UZ",
+        "initial_state": "sticking",
+        "friction_coefficient": { "value": 0.1, "unit": "none" },
+        "normal_reaction": { "value": 10, "unit": "N" }
+      },
+      "provenance": "invented_example_user_entered_friction_support_no_catalog_or_normal_force_model"
     }
   ],
   "components": [

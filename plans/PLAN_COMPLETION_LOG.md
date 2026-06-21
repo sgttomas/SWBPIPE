@@ -14,6 +14,49 @@ certification, or code-compliance claim.
 
 ---
 
+## 2026-06-21 - R4 D9 sliding friction validation (`TP-R4-D9-FRICTIONSLIDE-001`)
+
+Landed explicit-normal sliding-friction evidence across the assembled dense
+active-set loop, nonlinear benchmark inventory, product-preview result envelope,
+and desktop/e2e fixture expectations.
+
+`core/solver/nonlinear_supports` now preserves a previously `Sliding` friction
+support through a released DOF while nonzero trial displacement persists,
+avoiding deterministic active-set chatter without changing direct stateless
+classification. `core/solver/nonlinear_integration` has an assembled frame-loop
+regression that slides and converges under that rule.
+
+The nonlinear benchmark crate now includes
+`NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL`, backed by
+`validation/hand_calcs/nonlinear/assembled_friction_sliding.md`. The invented
+preview model includes `support:NL-130-FRIC`, and the regenerated mechanics
+fixture emits 783 result rows, including state-code, displacement, zero released
+reaction, and explicit normal-reaction evidence rows for the sliding support.
+
+Validation: focused Rust crate tests passed for `nonlinear_supports` (17),
+`nonlinear_integration` (8), `validation/benchmarks/nonlinear` (7), and
+`product_physics` (39); focused Python preview/regression/schema/run-record
+tests passed 28/28; focused desktop Vitest passed 67/67; the R2 Playwright
+smoke passed 2/2 after e2e expectation updates; formatting and `git diff
+--check` passed; the full five-surface evidence sweep passed and wrote
+`validation/evidence/sweeps/SWEEP_20260621T085427Z_93a25e03201f-dirty.json`.
+
+Evidence: PKG-04 run record
+`WORKING_ITEMS_RUN_2026-06-21_TP-R4-D9-FRICTIONSLIDE-001.md` and DEL-09-03 run
+record with the same tranche ID.
+
+Residual: derived friction normal-force modeling remains open; measured
+class-tiered convergence values remain `TBD`; sparse live-path adoption remains
+gated by `D-17`; broader live-solver coverage, the PRD section 16.2
+branch-assembly benchmark, and the R4 exit evidence package remain open.
+
+Boundary: explicit invented normal input only; no protected standards data,
+proprietary catalog value, public default, private data default write,
+lifecycle transition, release-readiness claim, professional approval,
+certification, sealing, authentication, or code-compliance claim changed.
+
+---
+
 ## 2026-06-21 - R4 D8 component provenance in rendered reports (`TP-R4-D8-COMPPROVREPORT-001`)
 
 Landed the hash-bound rendered-report path for the R4 D8 component-provenance

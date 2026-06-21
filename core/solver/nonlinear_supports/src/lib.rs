@@ -327,6 +327,8 @@ pub fn active_set_report_assumptions() -> Vec<String> {
         "Active-set residual norm is the count of support states changed in this bounded iteration record."
             .to_string(),
         "Support sign conventions are those encoded on each nonlinear support behavior.".to_string(),
+        "A friction support that was already sliding remains sliding through a released DOF while nonzero trial displacement persists; this is deterministic anti-chatter state logic, not a derived friction load model."
+            .to_string(),
     ]
 }
 
@@ -454,12 +456,13 @@ pub fn evaluate_active_set_iteration(
                 support_id: support.support_id.clone(),
             })?;
 
-        let state = classify_support_state(support, trial)?;
-        let changed = input
+        let prior_state = input
             .prior_states
             .iter()
             .find(|prior| prior.support_id == support.support_id)
-            .is_none_or(|prior| prior.state != state);
+            .map(|prior| prior.state);
+        let state = classify_iteration_support_state(support, trial, prior_state)?;
+        let changed = prior_state.is_none_or(|prior| prior != state);
 
         if changed {
             changed_supports.push(support.support_id.clone());
@@ -514,6 +517,22 @@ pub fn evaluate_active_set_report(
     input: &ActiveSetIterationInput,
 ) -> Result<ActiveSetReportRecord, NonlinearSupportError> {
     evaluate_active_set_iteration(input)?.to_report_record(input)
+}
+
+fn classify_iteration_support_state(
+    support: &NonlinearSupport,
+    trial: &TrialSupportState,
+    prior_state: Option<ActiveSetState>,
+) -> Result<ActiveSetState, NonlinearSupportError> {
+    let state = classify_support_state(support, trial)?;
+    if matches!(support.behavior, NonlinearSupportBehavior::Friction)
+        && prior_state == Some(ActiveSetState::Sliding)
+        && state == ActiveSetState::Sticking
+        && trial.displacement != 0.0
+    {
+        return Ok(ActiveSetState::Sliding);
+    }
+    Ok(state)
 }
 
 pub fn classify_support_state(
@@ -912,6 +931,43 @@ mod tests {
         assert!(iteration.converged);
         assert!(iteration.changed_supports.is_empty());
         assert!(iteration.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn active_set_iteration_persists_sliding_for_released_friction_displacement() {
+        let support = NonlinearSupport::friction("friction-slide", 0, FrameDof::Ux, 0.30).unwrap();
+        let trial = TrialSupportState::new("friction-slide", 0.12, 0.0)
+            .unwrap()
+            .with_friction_reactions(10.0, 0.0)
+            .unwrap();
+        assert_eq!(
+            classify_support_state(&support, &trial).unwrap(),
+            ActiveSetState::Sticking
+        );
+
+        let input = ActiveSetIterationInput {
+            iteration: 2,
+            max_iterations: 4,
+            tolerance: 0.0,
+            supports: vec![support],
+            trial_states: vec![trial],
+            prior_states: vec![SupportStateRecord::new(
+                "friction-slide",
+                ActiveSetState::Sliding,
+            )],
+        };
+
+        let iteration = evaluate_active_set_iteration(&input).unwrap();
+
+        assert!(iteration.converged);
+        assert_eq!(
+            iteration.states,
+            vec![SupportStateRecord::new(
+                "friction-slide",
+                ActiveSetState::Sliding
+            )]
+        );
+        assert!(iteration.changed_supports.is_empty());
     }
 
     #[test]
