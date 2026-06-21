@@ -70,9 +70,10 @@
      change. D4 expansion-joint app absorption landed through
      `TP-R4-D4-EJSTIFF-001` with user-stiffness macro-element review rows and
      no full assembled global solve or pressure-thrust load generation claim.
-     The next Phase D item is D5, gated by `D-15`; prepare the D-15
-     spring-hanger scope decision packet if no human-approved tranche is
-     already active. D7 sparse live-path
+     D5 is gated by `D-15`; the D-15 spring-hanger scope decision packet is
+     prepared and awaiting human ruling. If that ruling is still pending, the
+     next unblocked Phase D implementation item is D6 under `DEC-044` and
+     `DEC-046`. D7 sparse live-path
      timing remains gated by `D-17`; `D-20` is held for Phase E; `D-21` remains
      held and does not authorize v0.2/R6/R7 scope. Continue to honor the
      R3/R4 boundaries: no protected standards content, no private-data default

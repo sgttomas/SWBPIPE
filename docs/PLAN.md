@@ -143,15 +143,17 @@ project's adoption, rollout, and historical DAG re-derivation trigger notes are 
   D4 expansion joints landed for the invented preview path** through
   `TP-R4-D1-BENDVIS-001`, `TP-R4-D1-BENDSTRESS-001`,
   `TP-R4-D2-BRANCHSTRESS-001`, `TP-R4-D3-RIGIDVIS-001`, and
-  `TP-R4-D4-EJSTIFF-001`; the next Phase D item is D5, gated by `D-15`.
+  `TP-R4-D4-EJSTIFF-001`; D5 is gated by `D-15`, whose packet is prepared
+  and awaiting human ruling.
 - **The two R2-carried R3-exit residuals are closed for C5** by `DEC-047`.
   The stale TP-MAC-189 path remains bypassed, not passed.
 - **Later stages** follow the completion plan: R5 (engineering beta and
   release machinery).
 - Stage advancement is human-ruled: agents propose with evidence; only a
   human-approved coordination update advances the target stage recorded in
-  `_COORDINATION.md`. The next dependency-spine item is Phase D D5, gated by
-  `D-15`, unless superseded by a later human-approved tranche.
+  `_COORDINATION.md`. If `D-15` is not yet ruled, the next unblocked
+  dependency-spine item is Phase D D6 assembled nonlinear solve under
+  `DEC-044` and `DEC-046`, unless superseded by a later human-approved tranche.
 
 ## 5. Non-goals and boundary prohibitions
 
